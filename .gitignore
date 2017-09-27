@@ -1,0 +1,15 @@
+/DX/.vs/DX/v15/ipch/AutoPCH/455eacaf1395a6a7/*.ipch
+/DX/.vs/DX/v15/*.db
+/DX/.vs/DX/v15/ipch/AutoPCH/47e5880ad0659a88/*.ipch
+*.ipch
+*.tlog
+*.exe
+*.idb
+*.pdb
+*.obj
+*.ilk
+*.suo
+/DX/DX/bin/Win32/Debug/Intermediate/*.log
+*.log
+*.iobj
+*.ipdb
