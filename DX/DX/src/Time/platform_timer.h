@@ -7,6 +7,9 @@
     date: September 9, 2017
 
     Specifies the interface for platform independant time queries.
+    @TODO: 
+        - Consider not using a singleton. (Or call static methods directly)
+        - Initialize via a method not per constructor.
 **********************************************************************/
 
 #include "Interfaces/singleton.hpp"
@@ -14,8 +17,10 @@
 
 class PlatformTimer : public Singleton<PlatformTimer>
 {
-public:
+    friend class Singleton<PlatformTimer>; // Only the singleton can create an object
     PlatformTimer();
+
+public:
     ~PlatformTimer() {}
 
     //**********************************************************************

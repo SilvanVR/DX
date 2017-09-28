@@ -1,5 +1,4 @@
 #include <iostream>
-#include <chrono>
 #include <windows.h>
 #include <string>
 
@@ -52,10 +51,6 @@ int main(void)
     auto sysTime = PlatformTimer::get()->getCurrentTime();
     Sleep(SLEEP);
     auto sysTime2 = PlatformTimer::get()->getCurrentTime();
-
-    bool less = sysTime < sysTime2;
-    bool gr = sysTime > sysTime2;
-    bool eq = sysTime == sysTime2;
 
     system("pause");
     return 0;

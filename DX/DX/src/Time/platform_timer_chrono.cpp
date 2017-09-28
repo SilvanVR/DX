@@ -42,7 +42,7 @@
         std::time_t time = SystemClock::to_time_t( now );
 
         struct tm timeInfo = {};
-        localtime_s( &timeInfo, &time);
+        localtime_s( &timeInfo, &time );
 
         SystemTime st = {};
         st.year         = timeInfo.tm_year + 1900;
