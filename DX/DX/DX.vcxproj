@@ -136,10 +136,15 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\commenting_style.hpp" />
-    <ClInclude Include="src\Data Structures\List.hpp" />
+    <ClInclude Include="src\Data Structures\ArrayList.hpp" />
+    <ClInclude Include="src\Data Structures\DoublyLinkedList.hpp" />
+    <ClInclude Include="src\Data Structures\LinkedList.hpp" />
+    <ClInclude Include="src\Data Structures\Map.hpp" />
+    <ClInclude Include="src\Data Structures\Set.hpp" />
     <ClInclude Include="src\data_types.hpp" />
     <ClInclude Include="src\Interfaces\singleton.hpp" />
     <ClInclude Include="src\Time\platform_timer.h" />
+    <ClInclude Include="src\Time\system_time.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

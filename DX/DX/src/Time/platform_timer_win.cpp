@@ -1,7 +1,5 @@
 #include "platform_timer.h"
 
-#include <Windows.h>
-
 /**********************************************************************
     class: PlatformTimer (platform_timer_win.cpp)
 
@@ -15,23 +13,44 @@
 
 #ifdef _WIN32
 
+    #include <Windows.h>
+
     //----------------------------------------------------------------------
     PlatformTimer::PlatformTimer()
     {
         LARGE_INTEGER frequency;
-        QueryPerformanceFrequency(&frequency);
+        QueryPerformanceFrequency( &frequency );
 
         m_tickFrequency = frequency.QuadPart;
         m_tickFrequencyInSeconds = 1.0 / m_tickFrequency;
     }
 
     //----------------------------------------------------------------------
-    I64 PlatformTimer::getTicks()
+    I64 PlatformTimer::getTicks() const
     {
         LARGE_INTEGER ticks;
-        QueryPerformanceCounter(&ticks);
+        QueryPerformanceCounter( &ticks );
 
-        return I64(ticks.QuadPart);
+        return I64( ticks.QuadPart );
+    }
+
+    //----------------------------------------------------------------------
+    SystemTime PlatformTimer::getCurrentTime() const
+    {
+        SYSTEMTIME systemTime;
+        GetLocalTime( &systemTime );
+
+        SystemTime st;
+        st.year         = systemTime.wYear;
+        st.month        = systemTime.wMonth;
+        st.dayOfWeek    = systemTime.wDayOfWeek;
+        st.day          = systemTime.wDay;
+        st.hour         = systemTime.wHour;
+        st.minute       = systemTime.wMinute;
+        st.second       = systemTime.wSecond;
+        st.milliseconds = systemTime.wMilliseconds;
+
+        return st;
     }
 
 #endif // _WIN32

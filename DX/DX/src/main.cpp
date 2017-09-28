@@ -4,7 +4,6 @@
 #include <string>
 
 #include "data_types.hpp"
-
 #include "Time/platform_timer.h"
 
 #define LOG(x) std::cout << x << std::endl
@@ -39,22 +38,24 @@ public:
     }
 };
 
+
 int main(void)
 {
-    //using clock = std::chrono::high_resolution_clock;
-    //auto timePoint1 = clock::now();
-    //Sleep(SLEEP);
-    //auto timePoint2 = clock::now();
-    //double diff = std::chrono::duration<double>(timePoint2 - timePoint1).count();
-    //LOG(diff);
-
     {
         AutoClock clock;
-        //Sleep(SLEEP);
+        Sleep(SLEEP);
        /* int j = 0;
         for (int i = 0; i < 1000000000; i++)
             j += i;*/
     }
+
+    auto sysTime = PlatformTimer::get()->getCurrentTime();
+    Sleep(SLEEP);
+    auto sysTime2 = PlatformTimer::get()->getCurrentTime();
+
+    bool less = sysTime < sysTime2;
+    bool gr = sysTime > sysTime2;
+    bool eq = sysTime == sysTime2;
 
     system("pause");
     return 0;
