@@ -18,18 +18,15 @@
     <ClCompile Include="src\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Time\platform_timer_chrono.cpp">
+    <ClCompile Include="src\PlatformTimer\platform_timer_chrono.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Time\platform_timer_win.cpp">
+    <ClCompile Include="src\PlatformTimer\platform_timer_win.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\data_types.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Time\platform_timer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\commenting_style.hpp">
@@ -38,22 +35,25 @@
     <ClInclude Include="src\Interfaces\singleton.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Data Structures\ArrayList.hpp">
+    <ClInclude Include="src\DataStructures\ArrayList.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Data Structures\Map.hpp">
+    <ClInclude Include="src\DataStructures\DoublyLinkedList.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Data Structures\Set.hpp">
+    <ClInclude Include="src\DataStructures\LinkedList.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Data Structures\LinkedList.hpp">
+    <ClInclude Include="src\DataStructures\Map.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Data Structures\DoublyLinkedList.hpp">
+    <ClInclude Include="src\DataStructures\Set.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Time\system_time.hpp">
+    <ClInclude Include="src\PlatformTimer\platform_timer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\PlatformTimer\system_time.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

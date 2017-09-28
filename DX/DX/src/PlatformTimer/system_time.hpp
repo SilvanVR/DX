@@ -39,6 +39,10 @@ struct SystemTime
     I32 second;             // seconds after the minute - [0, 59] 
     I32 milliseconds;       // milliseconds - [0, 999]
 
+    SystemTime() 
+        : year(0), month(0), dayOfWeek(0), day(0), hour(0), minute(0), second(0), milliseconds(0) 
+    {}
+
     // Convert the systemtime to milliseconds since Jan 1st, 1970.
     // It's not 100% precise because it is assumed every month has 30 days.
     I64 timeSinceEpoche() const
