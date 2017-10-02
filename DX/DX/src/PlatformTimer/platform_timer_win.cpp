@@ -26,7 +26,7 @@
     }
 
     //----------------------------------------------------------------------
-    I64 PlatformTimer::getTicks() const
+    I64 PlatformTimer::getTicks()
     {
         LARGE_INTEGER ticks;
         QueryPerformanceCounter( &ticks );
@@ -35,7 +35,7 @@
     }
 
     //----------------------------------------------------------------------
-    SystemTime PlatformTimer::getCurrentTime() const
+    SystemTime PlatformTimer::getCurrentTime()
     {
         SYSTEMTIME systemTime;
         GetLocalTime( &systemTime );

@@ -28,13 +28,13 @@
     }
 
     //----------------------------------------------------------------------
-    I64 PlatformTimer::getTicks() const
+    I64 PlatformTimer::getTicks()
     {
         return I64( Clock::now().time_since_epoch().count() );
     }
 
     //----------------------------------------------------------------------
-    SystemTime PlatformTimer::getCurrentTime() const
+    SystemTime PlatformTimer::getCurrentTime()
     {
         using SystemClock = std::chrono::system_clock;
 

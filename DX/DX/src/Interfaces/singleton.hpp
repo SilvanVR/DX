@@ -6,9 +6,8 @@
     author: S. Hau
     date: September 9, 2017
 
-    Interface for an singleton object. Constructs an static instance
-    of the template type on the stack on the first call of
-    "get" or "getSingleton".
+    Interface for an singleton object. Capable of returning a 
+    static instance of the templated class.
 **********************************************************************/
 
 template<class T>
@@ -18,14 +17,11 @@ public:
     Singleton() {}
     virtual ~Singleton() = 0 {}
 
-    static T* getSingleton() 
-    {
-        static T singletonInstance;
-
-        return &singletonInstance;
-    }
-
+    static T* getSingleton() { return &m_Instance; }
     static T* get() { return getSingleton(); }
+
+protected:
+    static T m_Instance;
 
 private:
     // Forbid copy + copy assignment and rvalue copying
@@ -34,3 +30,6 @@ private:
     Singleton (const Singleton&& other) = delete;
     Singleton& operator = (const Singleton&& other) = delete;
 };
+
+template <class T>
+T Singleton<T>::m_Instance;

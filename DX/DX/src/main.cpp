@@ -18,23 +18,23 @@ class AutoClock
 public:
     AutoClock()
     {
-        begin = PlatformTimer::get()->getTicks();
+        begin = PlatformTimer::getTicks();
     }
 
     ~AutoClock()
     {
-        I64 elapsedTicks = PlatformTimer::get()->getTicks() - begin;
+        I64 elapsedTicks = PlatformTimer::getTicks() - begin;
 
-        F64 elapsedSeconds = PlatformTimer::get()->ticksToSeconds(elapsedTicks);
+        F64 elapsedSeconds = PlatformTimer::ticksToSeconds(elapsedTicks);
         LOG("Seconds: " + TS(elapsedSeconds));
 
-        F64 elapsedMillis = PlatformTimer::get()->ticksToMilliSeconds(elapsedTicks);
+        F64 elapsedMillis = PlatformTimer::ticksToMilliSeconds(elapsedTicks);
         LOG("Millis: " + TS(elapsedMillis));
 
-        F64 elapsedMicros = PlatformTimer::get()->ticksToMicroSeconds(elapsedTicks);
+        F64 elapsedMicros = PlatformTimer::ticksToMicroSeconds(elapsedTicks);
         LOG("Micros: " + TS(elapsedMicros));
 
-        F64 elapsedNanos = PlatformTimer::get()->ticksToNanoSeconds(elapsedTicks);
+        F64 elapsedNanos = PlatformTimer::ticksToNanoSeconds(elapsedTicks);
         LOG("Nanos: " + TS(elapsedNanos));
     }
 };
@@ -44,7 +44,7 @@ class A
 {
 public:
     A() {
-        LOG("Constructor");    
+        LOG("Constructor");
     }
     ~A() {}
 
