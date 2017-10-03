@@ -11,17 +11,13 @@
     used to gain a huge performance boost in compilation.
 **********************************************************************/
 
+#include "PrecompiledHeaders/data_types.hpp"
+#include "PrecompiledHeaders/macros.hpp"
+
 #include <unordered_map>
 #include <vector>
 #include <list>
 #include <map>
 #include <set>
 
-#include "PrecompiledHeaders/data_types.hpp"
-#include "PrecompiledHeaders/macros.hpp"
 
-#ifdef _WIN32
-    #include <Windows.h>
-#elif
-    #include <chrono>
-#endif

@@ -1,7 +1,5 @@
 #include "platform_timer.h"
 
-#include <ctime>
-
 /**********************************************************************
     class: PlatformTimer (platform_timer_chrono.cpp)
 
@@ -13,8 +11,10 @@
     measurement is not implemented.
 **********************************************************************/
 
-
 #ifndef _WIN32
+
+#include <chrono>
+#include <ctime>
 
 namespace OS
 {
