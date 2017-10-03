@@ -1,15 +1,8 @@
 #include <iostream>
-#include <windows.h>
-#include <string>
-#include <vector>
 
-#include "data_types.hpp"
-#include "PlatformTimer/platform_timer.h"
-#include "DataStructures/ArrayList.hpp"
+#include "OS/PlatformTimer/platform_timer.h"
 
 #define LOG(x) std::cout << x << std::endl
-#define SLEEP 10
-#define TS(x) std::to_string(x)
 
 class AutoClock
 {
@@ -18,27 +11,26 @@ class AutoClock
 public:
     AutoClock()
     {
-        begin = PlatformTimer::getTicks();
+        begin = OS::PlatformTimer::getTicks();
     }
 
     ~AutoClock()
     {
-        I64 elapsedTicks = PlatformTimer::getTicks() - begin;
+        I64 elapsedTicks = OS::PlatformTimer::getTicks() - begin;
 
-        F64 elapsedSeconds = PlatformTimer::ticksToSeconds(elapsedTicks);
+        F64 elapsedSeconds = OS::PlatformTimer::ticksToSeconds(elapsedTicks);
         LOG("Seconds: " + TS(elapsedSeconds));
 
-        F64 elapsedMillis = PlatformTimer::ticksToMilliSeconds(elapsedTicks);
+        F64 elapsedMillis = OS::PlatformTimer::ticksToMilliSeconds(elapsedTicks);
         LOG("Millis: " + TS(elapsedMillis));
 
-        F64 elapsedMicros = PlatformTimer::ticksToMicroSeconds(elapsedTicks);
+        F64 elapsedMicros = OS::PlatformTimer::ticksToMicroSeconds(elapsedTicks);
         LOG("Micros: " + TS(elapsedMicros));
 
-        F64 elapsedNanos = PlatformTimer::ticksToNanoSeconds(elapsedTicks);
+        F64 elapsedNanos = OS::PlatformTimer::ticksToNanoSeconds(elapsedTicks);
         LOG("Nanos: " + TS(elapsedNanos));
     }
 };
-
 
 class A
 {
@@ -78,29 +70,15 @@ class B : public A
 
 };
 
-#define SIZE 5
 
-// add subclass to vector? Necessary?
 
 int main(void)
 {
-    std::vector<A> list;
-    list.reserve(SIZE);
+    String hello = "Hello";
 
-    A a;
+    SystemTime curTime = OS::PlatformTimer::getCurrentTime();
 
-    {
-        AutoClock clock;
-        for (int i = 0; i < SIZE; i++)
-            list.push_back(A());
-    }
-
-    ArrayList<A> list2(SIZE);
-    {
-        AutoClock clock;
-        for (int i = 0; i < SIZE; i++)
-            list2.add(A());
-    }
+    LOG(curTime.toString());
 
     system("pause");
     return 0;

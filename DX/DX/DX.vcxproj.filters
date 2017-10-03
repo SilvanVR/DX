@@ -18,42 +18,48 @@
     <ClCompile Include="src\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\PlatformTimer\platform_timer_chrono.cpp">
+    <ClCompile Include="src\OS\PlatformTimer\platform_timer_chrono.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\PlatformTimer\platform_timer_win.cpp">
+    <ClCompile Include="src\OS\PlatformTimer\platform_timer_win.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\data_types.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\commenting_style.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Interfaces\singleton.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\DataStructures\ArrayList.hpp">
+    <ClInclude Include="src\MemoryManagement\stack_allocator.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\DataStructures\DoublyLinkedList.hpp">
+    <ClInclude Include="src\MemoryManagement\heap_allocator.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\DataStructures\LinkedList.hpp">
+    <ClInclude Include="src\MemoryManagement\pool_allocator.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\DataStructures\Map.hpp">
+    <ClInclude Include="src\OS\PlatformTimer\platform_timer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\DataStructures\Set.hpp">
+    <ClInclude Include="src\OS\PlatformTimer\system_time.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\PlatformTimer\platform_timer.h">
+    <ClInclude Include="src\stdafx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\PlatformTimer\system_time.hpp">
+    <ClInclude Include="src\PrecompiledHeaders\string.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\PrecompiledHeaders\macros.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\PrecompiledHeaders\data_types.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

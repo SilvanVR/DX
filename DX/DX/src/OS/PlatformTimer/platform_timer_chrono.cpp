@@ -1,13 +1,12 @@
 #include "platform_timer.h"
 
-#include <chrono>
 #include <ctime>
 
 /**********************************************************************
     class: PlatformTimer (platform_timer_chrono.cpp)
 
     author: S. Hau
-    date: September 9, 2017
+    date: September 28, 2017
 
     Platform INDEPENDANT time measurement using the c++11 chrono lib.
     Requires C++11. Used as a fallback if plattform specific time
@@ -16,6 +15,9 @@
 
 
 #ifndef _WIN32
+
+namespace OS
+{
 
     using Clock = std::chrono::high_resolution_clock;
 
@@ -57,5 +59,6 @@
         return st;
     }
 
+} // namespace OS
 
 #endif // !_WIN32

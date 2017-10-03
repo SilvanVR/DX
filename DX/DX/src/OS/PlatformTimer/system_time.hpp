@@ -4,14 +4,11 @@
     class: SystemTime (system_time.hpp)
 
     author: S. Hau
-    date: September 10, 2017
+    date: September 28, 2017
 
     Contains a POD struct "SystemTime" used to represent precise
     time points.
-    @TODO: add a toString() Method
 **********************************************************************/
-
-#include "data_types.hpp"
 
 //----------------------------------------------------------------------
 // Defines
@@ -73,4 +70,9 @@ struct SystemTime
     bool operator != (const SystemTime& other) const { return !(*this).equals(other); }
     bool operator < (const SystemTime& other) const { return timeSinceEpoche() < other.timeSinceEpoche(); }
     bool operator > (const SystemTime& other) const { return timeSinceEpoche() > other.timeSinceEpoche(); }
+
+    String toString() const
+    {
+        return TS(day) + "/" + TS(month) + "/" + TS(year) + " " + TS(hour) + ":" + TS(minute) + ":" + TS(second);
+    }
 };

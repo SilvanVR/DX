@@ -4,7 +4,7 @@
     class: PlatformTimer (platform_timer_win.cpp)
 
     author: S. Hau
-    date: September 9, 2017
+    date: September 28, 2017
 
     Windows implementation for precise time measurement.
     Because the platform dependant time measurement is generally more
@@ -13,7 +13,8 @@
 
 #ifdef _WIN32
 
-    #include <Windows.h>
+namespace OS
+{
 
     //----------------------------------------------------------------------
     PlatformTimer::PlatformTimer()
@@ -52,5 +53,7 @@
 
         return st;
     }
+
+} // namespace OS
 
 #endif // _WIN32

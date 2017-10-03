@@ -91,6 +91,8 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(ProjectDir)src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -99,6 +101,8 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(ProjectDir)src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -109,6 +113,8 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(ProjectDir)src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -123,6 +129,8 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(ProjectDir)src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -131,20 +139,27 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\PlatformTimer\platform_timer_chrono.cpp" />
-    <ClCompile Include="src\PlatformTimer\platform_timer_win.cpp" />
+    <ClCompile Include="src\OS\PlatformTimer\platform_timer_chrono.cpp" />
+    <ClCompile Include="src\OS\PlatformTimer\platform_timer_win.cpp" />
+    <ClCompile Include="src\stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\commenting_style.hpp" />
-    <ClInclude Include="src\DataStructures\ArrayList.hpp" />
-    <ClInclude Include="src\DataStructures\DoublyLinkedList.hpp" />
-    <ClInclude Include="src\DataStructures\LinkedList.hpp" />
-    <ClInclude Include="src\DataStructures\Map.hpp" />
-    <ClInclude Include="src\DataStructures\Set.hpp" />
-    <ClInclude Include="src\data_types.hpp" />
+    <ClInclude Include="src\PrecompiledHeaders\data_types.hpp" />
     <ClInclude Include="src\Interfaces\singleton.hpp" />
-    <ClInclude Include="src\PlatformTimer\platform_timer.h" />
-    <ClInclude Include="src\PlatformTimer\system_time.hpp" />
+    <ClInclude Include="src\PrecompiledHeaders\macros.hpp" />
+    <ClInclude Include="src\MemoryManagement\heap_allocator.hpp" />
+    <ClInclude Include="src\MemoryManagement\pool_allocator.hpp" />
+    <ClInclude Include="src\MemoryManagement\stack_allocator.hpp" />
+    <ClInclude Include="src\OS\PlatformTimer\platform_timer.h" />
+    <ClInclude Include="src\OS\PlatformTimer\system_time.hpp" />
+    <ClInclude Include="src\stdafx.h" />
+    <ClInclude Include="src\PrecompiledHeaders\string.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
