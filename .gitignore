@@ -15,3 +15,4 @@
 *.ipdb
 /DX/DX/bin/x64/Debug/Intermediate/*.pch
 /DX/.vs/DX/v15/*.opendb
+/DX/DX/bin/x64/Release/Intermediate/*.pch

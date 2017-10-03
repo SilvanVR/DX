@@ -71,15 +71,30 @@ class B : public A
 };
 
 
+void func(StringID name)
+{
+    LOG("The objects name is: " + IDS(name));
+}
+
 
 int main(void)
 {
-    String hello = "Hello";
+    StringID te = SID("Hello");
+    StringID te2 = SID("World");
+
+    String ste = IDS(te);
+    String ste2 = IDS(te2);
+
+    LOG(ste + " " + ste2);
+
+    StringID martin = SID("Martin");
+    func(martin);
+
 
     SystemTime curTime = OS::PlatformTimer::getCurrentTime();
-
     LOG(curTime.toString());
 
     system("pause");
     return 0;
 }
+

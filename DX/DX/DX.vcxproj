@@ -141,6 +141,7 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\OS\PlatformTimer\platform_timer_chrono.cpp" />
     <ClCompile Include="src\OS\PlatformTimer\platform_timer_win.cpp" />
+    <ClCompile Include="src\PrecompiledHeaders\string.cpp" />
     <ClCompile Include="src\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
@@ -150,6 +151,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\commenting_style.hpp" />
+    <ClInclude Include="src\OS\FileSystem\file_system.h" />
     <ClInclude Include="src\PrecompiledHeaders\data_types.hpp" />
     <ClInclude Include="src\Interfaces\singleton.hpp" />
     <ClInclude Include="src\PrecompiledHeaders\macros.hpp" />
@@ -159,7 +161,7 @@
     <ClInclude Include="src\OS\PlatformTimer\platform_timer.h" />
     <ClInclude Include="src\OS\PlatformTimer\system_time.hpp" />
     <ClInclude Include="src\stdafx.h" />
-    <ClInclude Include="src\PrecompiledHeaders\string.hpp" />
+    <ClInclude Include="src\PrecompiledHeaders\string.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

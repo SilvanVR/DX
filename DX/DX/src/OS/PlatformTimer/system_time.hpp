@@ -73,6 +73,13 @@ struct SystemTime
 
     String toString() const
     {
-        return TS(day) + "/" + TS(month) + "/" + TS(year) + " " + TS(hour) + ":" + TS(minute) + ":" + TS(second);
+        const char* leadingZeroSecond = second < 10 ? "0" : "";
+        const char* leadingZeroMinute = minute < 10 ? "0" : "";
+        const char* leadingZeroHour = hour < 10 ? "0" : "";
+
+        return TS(day) + "/" + TS(month) + "/" + TS(year) + " " + 
+              leadingZeroHour + TS(hour) + ":" +
+              leadingZeroMinute + TS(minute) + ":" +
+              leadingZeroSecond + TS(second);
     }
 };

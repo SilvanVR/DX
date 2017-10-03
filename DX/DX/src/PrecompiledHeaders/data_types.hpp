@@ -9,8 +9,6 @@
     Common data-type definitions used throughout the whole program.
 **********************************************************************/
 
-#include "string.hpp"
-
 using U8 = unsigned __int8;
 using I8 = __int8;
 using Byte = I8;
@@ -26,3 +24,5 @@ using I64 = __int64;
 
 using F32 = float;
 using F64 = double;
+
+#include "string.h"
