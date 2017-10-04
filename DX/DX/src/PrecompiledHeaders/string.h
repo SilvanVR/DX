@@ -24,7 +24,8 @@ using StringID  = U32;
 #define IDS(str) externString(str)
 
 //----------------------------------------------------------------------
-// Converts a string to an unsigned integer using a hash function.
+// Converts a string to an unsigned integer using a hash function and
+// stores the String<->ID in a table to reverse it if necessary.
 // @return: Hashed ID of given string.
 //----------------------------------------------------------------------
 StringID internString(const char* str);

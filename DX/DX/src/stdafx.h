@@ -11,13 +11,14 @@
     used to gain a huge performance boost in compilation.
 **********************************************************************/
 
-#include "PrecompiledHeaders/data_types.hpp"
-#include "PrecompiledHeaders/macros.hpp"
-
 #include <unordered_map>
+#include <assert.h>
+#include <cstddef>
 #include <vector>
+#include <memory>
 #include <list>
 #include <map>
 #include <set>
 
-
+#include "PrecompiledHeaders/data_types.hpp"
+#include "PrecompiledHeaders/macros.hpp"

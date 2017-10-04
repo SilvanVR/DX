@@ -63,7 +63,7 @@ String externString(StringID sid)
 //----------------------------------------------------------------------
 StringID hash(const char* str)
 {
-    // Implementation from https://stackoverflow.com/questions/21001659/crc32-algorithm-implementation-in-c-without-a-look-up-table-and-with-a-public-li
+    // Jenkins's one-at-a-time. Implementation from https://en.wikipedia.org/wiki/Jenkins_hash_function
     U32 hash = 0;
     while (U32 c = *str++)
     {

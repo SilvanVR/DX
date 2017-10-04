@@ -11,7 +11,7 @@
 
 using U8 = unsigned __int8;
 using I8 = __int8;
-using Byte = I8;
+using Byte = U8;
 
 using U16 = unsigned __int16;
 using I16 = __int16;
@@ -24,5 +24,7 @@ using I64 = __int64;
 
 using F32 = float;
 using F64 = double;
+
+using Size = std::size_t;
 
 #include "string.h"

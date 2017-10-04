@@ -68,5 +68,11 @@
     <ClInclude Include="src\PrecompiledHeaders\string.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\MemoryManagement\memory_management.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MemoryManagement\allocator.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

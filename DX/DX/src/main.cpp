@@ -1,5 +1,6 @@
 #include <iostream>
 
+#include "MemoryManagement/memory_management.hpp"
 #include "OS/PlatformTimer/platform_timer.h"
 
 #define LOG(x) std::cout << x << std::endl
@@ -36,9 +37,12 @@ class A
 {
 public:
     A() {
-        LOG("Constructor");
+        //LOG("Constructor");
     }
-    ~A() {}
+    ~A() {
+        int i = 25;
+        //LOG("Destructor");
+    }
 
     A(const A& other)
     {
@@ -61,8 +65,9 @@ public:
         LOG("Move Assignment");
         return *this;
     }
-private:
-    SystemTime data;
+
+    SystemTime time;
+    std::string fr = "Franz";
 };
 
 class B : public A
@@ -71,24 +76,35 @@ class B : public A
 };
 
 
-void func(StringID name)
-{
-    LOG("The objects name is: " + IDS(name));
-}
-
-
 int main(void)
 {
-    StringID te = SID("Hello");
-    StringID te2 = SID("World");
+    //StringID te = SID("Hello");
+    //StringID te2 = SID("World");
+    //String ste = IDS(te);
+    //String ste2 = IDS(te2);
+    //LOG(ste + " " + ste2);
 
-    String ste = IDS(te);
-    String ste2 = IDS(te2);
+    // Measure performance
+    {
+        AutoClock clock;
+        
+        for (int i = 0; i < 1000000; i++)
+        {
+            A* a = new A();
+            delete a;
+        }
+    }
 
-    LOG(ste + " " + ste2);
+    MemoryManagement::PoolAllocator<A> poolAllocator(2);
+    {
+        AutoClock clock;
 
-    StringID martin = SID("Martin");
-    func(martin);
+        for (int i = 0; i < 1000000; i++)
+        {
+            A* a = poolAllocator.allocate();
+            poolAllocator.deallocate(a);
+        }
+    }
 
 
     SystemTime curTime = OS::PlatformTimer::getCurrentTime();
