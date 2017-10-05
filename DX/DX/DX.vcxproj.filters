@@ -71,7 +71,7 @@
     <ClInclude Include="src\MemoryManagement\memory_management.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\MemoryManagement\allocator.hpp">
+    <ClInclude Include="src\MemoryManagement\iallocator.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

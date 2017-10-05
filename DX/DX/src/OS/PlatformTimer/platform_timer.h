@@ -67,8 +67,8 @@ namespace OS
         // Forbid copy + copy assignment and rvalue copying
         PlatformTimer (const PlatformTimer& other) = delete;
         PlatformTimer& operator= (const PlatformTimer& other) = delete;
-        PlatformTimer (const PlatformTimer&& other) = delete;
-        PlatformTimer& operator= (const PlatformTimer&& other) = delete;
+        PlatformTimer (PlatformTimer&& other) = delete;
+        PlatformTimer& operator= (PlatformTimer&& other) = delete;
     };
 
 } // namespace OS

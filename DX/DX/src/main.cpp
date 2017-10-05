@@ -37,11 +37,11 @@ class A
 {
 public:
     A() {
-        //LOG("Constructor");
+        LOG("Constructor");
     }
     ~A() {
         int i = 25;
-        //LOG("Destructor");
+        LOG("Destructor");
     }
 
     A(const A& other)
@@ -75,6 +75,9 @@ class B : public A
 
 };
 
+//@TODO: 
+// - USE Global NEW with those allocators
+// - Measure Memory Information from all allocators in one place
 
 int main(void)
 {
@@ -83,28 +86,61 @@ int main(void)
     //String ste = IDS(te);
     //String ste2 = IDS(te2);
     //LOG(ste + " " + ste2);
+#define SIZE 100
 
-    // Measure performance
-    {
-        AutoClock clock;
-        
-        for (int i = 0; i < 1000000; i++)
-        {
-            A* a = new A();
-            delete a;
-        }
-    }
+    //LOG("MEASURE NEW + DELETE...");
+    //static A* a[SIZE];
+    //{
+    //    AutoClock clock;
+    //    
+    //    for (int i = 0; i < SIZE; i++)
+    //    {
+    //        a[i] = new A();
+    //    }
+    //    for (int i = 0; i < SIZE; i++)
+    //    {
+    //        delete a[i];
+    //    }
+    //}
 
-    MemoryManagement::PoolAllocator<A> poolAllocator(2);
-    {
-        AutoClock clock;
+    //LOG("MEASURE POOL ALLOCATOR...");
+    //static A* a2[SIZE];
+    //MemoryManagement::PoolAllocator<A> poolAllocator(SIZE);
+    //{
+    //    AutoClock clock;
 
-        for (int i = 0; i < 1000000; i++)
-        {
-            A* a = poolAllocator.allocate();
-            poolAllocator.deallocate(a);
-        }
-    }
+    //    for (int i = 0; i < SIZE; i++)
+    //    {
+    //        a2[i] = poolAllocator.allocate();
+    //    }
+    //    for (int i = 0; i < SIZE; i++)
+    //    {
+    //        poolAllocator.deallocate(a2[i]);
+    //    }
+    //}
+
+    //LOG("MEASURE STACK ALLOCATOR...");
+    //static A* a3[SIZE];
+    //MemoryManagement::StackAllocator stackAllocator(SIZE * sizeof(A) * 2);
+    //{
+    //    AutoClock clock;
+    //    for (int i = 0; i < SIZE; i++)
+    //    {
+    //        a3[i] = stackAllocator.allocateObject<A>();
+    //    }
+    //    stackAllocator.deallocateAll();
+    //}
+
+
+    MemoryManagement::StackAllocator stackAllocator(2);
+    U16* a = stackAllocator.allocate<U16>(1);
+
+    *a = 25;
+
+
+    stackAllocator.clearAll();
+
+
 
 
     SystemTime curTime = OS::PlatformTimer::getCurrentTime();

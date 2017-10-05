@@ -16,27 +16,35 @@
     - This allows to deallocate arbitrarily
     - Fragmentation free
     Be careful about pointers pointing to memory in this allocator :-)
+    @Considerations
+      - PoolAllocator based on size, not on class
+        -> Build upon that a FreeList allocator 
 **********************************************************************/
+
+#include "iallocator.hpp"
 
 namespace MemoryManagement
 {
-    //----------------------------------------------------------------------
-    // Represents one allocatable chunk. If the chunk is not allocated it
-    // contains a pointer to the next free chunk.
-    //----------------------------------------------------------------------
+
     template <class T>
-    union PoolChunk
+    class PoolAllocator : public IAllocator
     {
-        T               value;
-        PoolChunk<T>*   nextFreeChunk;
+        //----------------------------------------------------------------------
+        // Represents one allocatable chunk. If the chunk is not allocated it
+        // contains a pointer to the next free chunk.
+        //----------------------------------------------------------------------
+        template <class T>
+        union PoolChunk
+        {
+            T               value;
+            PoolChunk<T>*   nextFreeChunk;
 
-        PoolChunk() {};
-        ~PoolChunk() {};
-    };
+            PoolChunk() {};
+            ~PoolChunk() {};
+        };
 
-    template <class T, class Allocator = std::allocator<PoolChunk<T>>>
-    class PoolAllocator
-    {
+        using Allocator = std::allocator<PoolChunk<T>>;
+
     public:
         //----------------------------------------------------------------------
         // @Params:
@@ -76,8 +84,8 @@ namespace MemoryManagement
 
         PoolAllocator (const PoolAllocator& other) = delete;
         PoolAllocator& operator = (const PoolAllocator& other) = delete;
-        PoolAllocator (const PoolAllocator&& other) = delete;
-        PoolAllocator& operator = (const PoolAllocator&& other) = delete;
+        PoolAllocator (PoolAllocator&& other) = delete;
+        PoolAllocator& operator = (PoolAllocator&& other) = delete;
     };
 
     //**********************************************************************
@@ -85,8 +93,8 @@ namespace MemoryManagement
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    template<class T, class Allocator>
-    PoolAllocator<T, Allocator>::PoolAllocator(Size amountOfChunks, Allocator* parentAllocator)
+    template<class T>
+    PoolAllocator<T>::PoolAllocator(Size amountOfChunks, Allocator* parentAllocator)
         : m_amountOfChunks(amountOfChunks), m_parentAllocator(parentAllocator)
     {
         if (m_parentAllocator == nullptr)
@@ -107,13 +115,13 @@ namespace MemoryManagement
     }
 
     //----------------------------------------------------------------------
-    template<class T, class Allocator>
-    PoolAllocator<T, Allocator>::~PoolAllocator()
+    template<class T>
+    PoolAllocator<T>::~PoolAllocator()
     {
         if (m_amountOfAllocatedChunks != 0)
-            assert (false);
+            ASSERT( false && "Not all chunks were deallocated!" );
 
-        m_parentAllocator->deallocate (m_data, m_amountOfChunks);
+        m_parentAllocator->deallocate( m_data, m_amountOfChunks );
 
         if (m_deleteParentAllocator)
             delete m_parentAllocator;
@@ -124,13 +132,13 @@ namespace MemoryManagement
     }
 
     //----------------------------------------------------------------------
-    template<class T, class Allocator>
+    template<class T>
     template<class... Arguments>
-    T* PoolAllocator<T, Allocator>::allocate(Arguments&&... args)
+    T* PoolAllocator<T>::allocate(Arguments&&... args)
     {
         if (m_head == nullptr)
         {
-            assert( false && "PoolAllocator: Out of memory" );
+            _OutOfMemory();
             return nullptr;
         }
 
@@ -146,17 +154,17 @@ namespace MemoryManagement
     }
 
     //----------------------------------------------------------------------
-    template<class T, class Allocator>
-    void PoolAllocator<T, Allocator>::deallocate(T* data)
+    template<class T>
+    void PoolAllocator<T>::deallocate(T* data)
     {
         // Check if given data was really allocated from this allocator
         PoolChunk<T>* chunkToDelete = reinterpret_cast<PoolChunk<T>*>( data );
-        assert(_InMemoryRange(chunkToDelete));
+        ASSERT( _InMemoryRange(chunkToDelete) );
 
         // Check if given chunk was already deallocated
         // The way this works is to check if the "nextFreeChunk" of the chunkToDelete points in
         // the valid memory range within this allocator
-        assert(!_InMemoryRange(chunkToDelete->nextFreeChunk));
+        ASSERT( !_InMemoryRange(chunkToDelete->nextFreeChunk) );
 
         data->~T();
         chunkToDelete->nextFreeChunk = m_head;

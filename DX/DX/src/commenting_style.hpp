@@ -25,5 +25,5 @@
 //// Forbid copy + copy assignment and rvalue copying
 //Singleton(const Singleton& other) = delete;
 //Singleton& operator = (const Singleton& other) = delete;
-//Singleton(const Singleton&& other) = delete;
-//Singleton& operator = (const Singleton&& other) = delete;
+//Singleton(Singleton&& other) = delete;
+//Singleton& operator = (Singleton&& other) = delete;

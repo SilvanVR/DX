@@ -10,3 +10,4 @@
 **********************************************************************/
 
 #define TS(s) std::to_string(s)
+#define ASSERT(exp) assert(exp)
