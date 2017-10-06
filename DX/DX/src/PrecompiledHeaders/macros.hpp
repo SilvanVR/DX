@@ -9,5 +9,5 @@
     Common macros used throughout whole program.
 **********************************************************************/
 
-#define TS(s) std::to_string(s)
-#define ASSERT(exp) assert(exp)
+#define TS(s)                   std::to_string(s)
+#define ASSERT(exp)             assert(exp)

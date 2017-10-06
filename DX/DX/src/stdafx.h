@@ -12,6 +12,7 @@
 **********************************************************************/
 
 #include <unordered_map>
+#include <algorithm>
 #include <assert.h>
 #include <cstddef>
 #include <vector>

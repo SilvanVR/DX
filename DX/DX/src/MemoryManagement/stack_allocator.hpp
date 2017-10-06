@@ -72,8 +72,8 @@ namespace MemoryManagement
         // "amountOfObjects": Amount of objects to allocate (array-allocation)
         // "args": Constructor arguments from the class T
         //----------------------------------------------------------------------
-        template <class T, class... Arguments>
-        T* allocate(Size amountOfObjects = 1, Arguments&&... args);
+        template <class T, class... Args>
+        T* allocate(Size amountOfObjects = 1, Args&&... args);
 
         //----------------------------------------------------------------------
         // Allocate fixed amount of bytes with optionally an alignment.
@@ -98,7 +98,7 @@ namespace MemoryManagement
         // Return a marker, which saves the current position of the stack.
         // Can be used to clear the stack up to this point.
         //----------------------------------------------------------------------
-        StackAllocatorMarker getMarker() { return StackAllocatorMarker( m_head, m_destructors.size() ); }
+        StackAllocatorMarker getMarker() const { return StackAllocatorMarker( m_head, m_destructors.size() ); }
 
     private:
         Byte*   m_data = nullptr;
@@ -120,16 +120,22 @@ namespace MemoryManagement
             m_destructors.push_back( StackAllocatorDestructor( *object ) );
         }
 
-        StackAllocator (const StackAllocator& other)                 = delete;
+        StackAllocator (const StackAllocator& other)                = delete;
         StackAllocator& operator = (const StackAllocator& other)    = delete;
         StackAllocator(StackAllocator&& other)                      = delete;
         StackAllocator& operator = (StackAllocator&& other)         = delete;
     };
 
+    //**********************************************************************
+    // IMPLEMENTATION
+    //**********************************************************************
+
     //----------------------------------------------------------------------
     StackAllocator::StackAllocator(U32 amountOfBytes)
         : m_sizeInBytes(amountOfBytes)
     {
+        ASSERT( m_sizeInBytes > 0 );
+
         m_data = new Byte[m_sizeInBytes];
         m_head = m_data;
     }
@@ -152,7 +158,8 @@ namespace MemoryManagement
         Byte* alignedAddress = alignAddress( m_head, alignment );
         Byte* newHeadPointer = alignedAddress + amountOfBytes;
 
-        if (newHeadPointer <= (m_data + m_sizeInBytes))
+        bool hasEnoughSpace = ( newHeadPointer <= (m_data + m_sizeInBytes) );
+        if (hasEnoughSpace)
         {
             m_head = newHeadPointer;
             return alignedAddress;
@@ -165,20 +172,21 @@ namespace MemoryManagement
     }
 
     //----------------------------------------------------------------------
-    template <class T, class... Arguments>
-    T* StackAllocator::allocate(Size amountOfObjects, Arguments&&... args)
+    template <class T, class... Args>
+    T* StackAllocator::allocate(Size amountOfObjects, Args&&... args)
     {
         Byte* alignedAddress = alignAddress( m_head, alignof(T) );
         Byte* newHeadPointer = alignedAddress + amountOfObjects * sizeof(T);
 
-        if (newHeadPointer <= (m_data + m_sizeInBytes))
+        bool hasEnoughSpace = (newHeadPointer <= (m_data + m_sizeInBytes));
+        if (hasEnoughSpace)
         {
             T* returnPointer = reinterpret_cast<T*>( alignedAddress );
             m_head = newHeadPointer;
 
             for (Size i = 0; i < amountOfObjects; i++)
             {
-                T* object = new (std::addressof( returnPointer[i] )) T( std::forward<Arguments>(args)... );
+                T* object = new (std::addressof( returnPointer[i] )) T( std::forward<Args>(args)... );
                 _AddDestructorToList<T>( object );
             }
 

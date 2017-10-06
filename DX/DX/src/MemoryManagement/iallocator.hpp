@@ -1,5 +1,13 @@
 #pragma once
 
+/**********************************************************************
+    class: IAllocator (iallocator.hpp)
+
+    author: S. Hau
+    date: October 5, 2017
+
+    IAllocator interface. 
+**********************************************************************/
 
 namespace MemoryManagement
 {

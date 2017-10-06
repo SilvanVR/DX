@@ -78,6 +78,8 @@ class B : public A
 //@TODO: 
 // - USE Global NEW with those allocators
 // - Measure Memory Information from all allocators in one place
+// - Parent-Allocator
+
 
 int main(void)
 {
@@ -119,29 +121,23 @@ int main(void)
     //    }
     //}
 
-    //LOG("MEASURE STACK ALLOCATOR...");
-    //static A* a3[SIZE];
-    //MemoryManagement::StackAllocator stackAllocator(SIZE * sizeof(A) * 2);
-    //{
-    //    AutoClock clock;
-    //    for (int i = 0; i < SIZE; i++)
-    //    {
-    //        a3[i] = stackAllocator.allocateObject<A>();
-    //    }
-    //    stackAllocator.deallocateAll();
-    //}
+ /*   LOG("MEASURE STACK ALLOCATOR...");
+    static A* a3[SIZE];
+    MemoryManagement::StackAllocator stackAllocator(SIZE * sizeof(A) * 2);
+    {
+        AutoClock clock;
+        for (int i = 0; i < SIZE; i++)
+        {
+            a3[i] = stackAllocator.allocate<A>();
+        }
+        stackAllocator.clearAll();
+    }*/
 
+    MemoryManagement::GeneralPurposeAllocator gGeneralAllocator(1024 * 1024);
 
-    MemoryManagement::StackAllocator stackAllocator(2);
-    U16* a = stackAllocator.allocate<U16>(1);
+    float* a = gGeneralAllocator.allocate<float>(10);
 
-    *a = 25;
-
-
-    stackAllocator.clearAll();
-
-
-
+    gGeneralAllocator.deallocate(a);
 
     SystemTime curTime = OS::PlatformTimer::getCurrentTime();
     LOG(curTime.toString());

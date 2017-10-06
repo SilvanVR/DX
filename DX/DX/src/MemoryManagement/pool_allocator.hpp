@@ -1,6 +1,5 @@
 #pragma once
 
-
 /**********************************************************************
     class: PoolAllocator (pool_allocator.hpp)
 
@@ -60,8 +59,8 @@ namespace MemoryManagement
         // @Params:
         // "args": Constructor arguments from the class T
         //----------------------------------------------------------------------
-        template<class... Arguments>
-        T* allocate(Arguments&&... args);
+        template<class... Args>
+        T* allocate(Args&&... args);
 
         //----------------------------------------------------------------------
         // Deallocates and deconstructs the given object in this PoolAllocator.
@@ -82,10 +81,10 @@ namespace MemoryManagement
 
         bool _InMemoryRange(PoolChunk<T>* data){ return (data >= m_data) && (data < (m_data + m_amountOfChunks)); }
 
-        PoolAllocator (const PoolAllocator& other) = delete;
-        PoolAllocator& operator = (const PoolAllocator& other) = delete;
-        PoolAllocator (PoolAllocator&& other) = delete;
-        PoolAllocator& operator = (PoolAllocator&& other) = delete;
+        PoolAllocator (const PoolAllocator& other)              = delete;
+        PoolAllocator& operator = (const PoolAllocator& other)  = delete;
+        PoolAllocator (PoolAllocator&& other)                   = delete;
+        PoolAllocator& operator = (PoolAllocator&& other)       = delete;
     };
 
     //**********************************************************************
@@ -97,6 +96,8 @@ namespace MemoryManagement
     PoolAllocator<T>::PoolAllocator(Size amountOfChunks, Allocator* parentAllocator)
         : m_amountOfChunks(amountOfChunks), m_parentAllocator(parentAllocator)
     {
+        ASSERT( m_amountOfChunks > 0 );
+
         if (m_parentAllocator == nullptr)
         {
             m_parentAllocator = new Allocator();
@@ -133,8 +134,8 @@ namespace MemoryManagement
 
     //----------------------------------------------------------------------
     template<class T>
-    template<class... Arguments>
-    T* PoolAllocator<T>::allocate(Arguments&&... args)
+    template<class... Args>
+    T* PoolAllocator<T>::allocate(Args&&... args)
     {
         if (m_head == nullptr)
         {
@@ -146,7 +147,8 @@ namespace MemoryManagement
         m_head = m_head->nextFreeChunk;
 
         // Create a new object of type T using placement new and forward the constructor arguments
-        T* retVal = new (std::addressof( newChunk->value )) T( std::forward<Arguments>(args)... );
+        T* objectLocation = std::addressof( newChunk->value );
+        T* retVal = new (objectLocation) T( std::forward<Args>(args)... );
 
         m_amountOfAllocatedChunks++;
 
