@@ -79,6 +79,9 @@ class B : public A
 // - USE Global NEW with those allocators
 // - Measure Memory Information from all allocators in one place
 // - Parent-Allocator
+// - Vector optimization in stack-allocator, general-purpose (vector pulls from global new?)
+
+// - MemoryPoolAllocator - Several Pools of different sizes => allocates from pool closest do needed size
 
 
 int main(void)
@@ -133,11 +136,15 @@ int main(void)
         stackAllocator.clearAll();
     }*/
 
-    MemoryManagement::GeneralPurposeAllocator gGeneralAllocator(1024 * 1024);
+    MemoryManagement::GeneralPurposeAllocator gGeneralAllocator(1024);
 
-    float* a = gGeneralAllocator.allocate<float>(10);
+    A* a = gGeneralAllocator.allocate<A>(1);
+
 
     gGeneralAllocator.deallocate(a);
+
+    //gGeneralAllocator.deallocate(a);
+
 
     SystemTime curTime = OS::PlatformTimer::getCurrentTime();
     LOG(curTime.toString());

@@ -155,6 +155,8 @@ namespace MemoryManagement
         Byte* amtOfObjectsAddress = (alignedAddress - AMOUNT_OF_BYTES_FOR_SIZE);
         memcpy( &amountOfObjects, amtOfObjectsAddress, AMOUNT_OF_BYTES_FOR_SIZE );
 
+        ASSERT( amountOfObjects > 0 && "Given memory was probably already deallocated!");
+
         Byte offset = 0;
         Byte* offsetAddress = amtOfObjectsAddress - AMOUNT_OF_BYTES_FOR_OFFSET;
         memcpy( &offset, offsetAddress, AMOUNT_OF_BYTES_FOR_OFFSET );
@@ -163,9 +165,12 @@ namespace MemoryManagement
         for (Size i = 0; i < amountOfObjects; i++)
             std::addressof( data[i] ) -> ~T();
 
+        Size realBytes = (amountOfObjects * sizeof(T)) + offset;
+        Byte* newChunkAddress = (alignedAddress - offset);
+        memset(newChunkAddress, 0, realBytes);
+
         // Add a new chunk of free bytes, possible merge it
-        Size amountOfBytes = sizeof(T) * amountOfObjects;
-        FreeChunk newFreeChunk( alignedAddress - offset, amountOfBytes + offset );
+        FreeChunk newFreeChunk( newChunkAddress, realBytes );
         _MergeChunk(&newFreeChunk);
     }
 
@@ -239,8 +244,9 @@ namespace MemoryManagement
         Size bytesToAllocate = amountOfObjects * sizeof(T);
         Byte* newChunkAddress = alignedAddress + bytesToAllocate;
 
-        Size realBytesToAllocate = (newChunkAddress - m_address);
-        bool hasEnoughSpace = (realBytesToAllocate <= m_sizeInBytes);
+        Size realBytes = (newChunkAddress - m_address);
+
+        bool hasEnoughSpace = (realBytes <= m_sizeInBytes);
         if (hasEnoughSpace)
         {
             // Save offset and amountOfObject-size
@@ -248,7 +254,7 @@ namespace MemoryManagement
             Byte* amtOfObjectsAddress = (alignedAddress - AMOUNT_OF_BYTES_FOR_SIZE);
             memcpy( amtOfObjectsAddress, &amountOfObjects, AMOUNT_OF_BYTES_FOR_SIZE );
 
-            Byte offset = static_cast<Byte>( alignedAddress - m_address );
+            Byte offset = static_cast<Byte>(alignedAddress - m_address);
             Byte* offsetAddress = amtOfObjectsAddress - AMOUNT_OF_BYTES_FOR_OFFSET;
             memcpy( offsetAddress, &offset, AMOUNT_OF_BYTES_FOR_OFFSET );
 
@@ -260,7 +266,7 @@ namespace MemoryManagement
                 new (objectLocation) T( std::forward<Arguments>(args)... );
             }
 
-            m_sizeInBytes -= realBytesToAllocate;
+            m_sizeInBytes -= realBytes;
             m_address = newChunkAddress;
 
             return returnPointer;
