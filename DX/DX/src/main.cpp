@@ -138,13 +138,10 @@ int main(void)
 
     MemoryManagement::GeneralPurposeAllocator gGeneralAllocator(1024);
 
-    A* a = gGeneralAllocator.allocate<A>(1);
-
-
+    A* a = gGeneralAllocator.allocate<A>(10);
     gGeneralAllocator.deallocate(a);
 
-    //gGeneralAllocator.deallocate(a);
-
+    gGeneralAllocator.deallocate(a);
 
     SystemTime curTime = OS::PlatformTimer::getCurrentTime();
     LOG(curTime.toString());

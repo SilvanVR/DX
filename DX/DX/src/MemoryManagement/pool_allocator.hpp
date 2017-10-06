@@ -79,7 +79,7 @@ namespace MemoryManagement
         Allocator*      m_parentAllocator = nullptr;
         bool            m_deleteParentAllocator = false;
 
-        bool _InMemoryRange(PoolChunk<T>* data){ return (data >= m_data) && (data < (m_data + m_amountOfChunks)); }
+        bool _InMemoryRange(void* data){ return (data >= m_data) && (data < (m_data + m_amountOfChunks)); }
 
         PoolAllocator (const PoolAllocator& other)              = delete;
         PoolAllocator& operator = (const PoolAllocator& other)  = delete;

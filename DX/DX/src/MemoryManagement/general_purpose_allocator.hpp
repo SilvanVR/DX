@@ -87,6 +87,8 @@ namespace MemoryManagement
         // Add the given chunk to "m_freeChunks". Merges chunks together if possible.
         void _MergeChunk(FreeChunk* newChunk);
 
+        bool _InMemoryRange(void* data) { return (data >= m_data) && (data < (m_data + m_sizeInBytes)); }
+
         GeneralPurposeAllocator (const GeneralPurposeAllocator& other)              = delete;
         GeneralPurposeAllocator& operator = (const GeneralPurposeAllocator& other)  = delete;
         GeneralPurposeAllocator (GeneralPurposeAllocator&& other)                   = delete;
@@ -149,13 +151,14 @@ namespace MemoryManagement
     void GeneralPurposeAllocator::deallocate(T* data)
     {
         Byte* alignedAddress = reinterpret_cast<Byte*>(data);
+        ASSERT ( _InMemoryRange(data) && "Given memory was not from this allocator!" );
 
         // Retrieve amountOfObjects + Offset
         Size amountOfObjects = 0;
         Byte* amtOfObjectsAddress = (alignedAddress - AMOUNT_OF_BYTES_FOR_SIZE);
         memcpy( &amountOfObjects, amtOfObjectsAddress, AMOUNT_OF_BYTES_FOR_SIZE );
 
-        ASSERT( amountOfObjects > 0 && "Given memory was probably already deallocated!");
+        ASSERT( amountOfObjects > 0 && "Given memory was already deallocated!" );
 
         Byte offset = 0;
         Byte* offsetAddress = amtOfObjectsAddress - AMOUNT_OF_BYTES_FOR_OFFSET;
@@ -167,6 +170,8 @@ namespace MemoryManagement
 
         Size realBytes = (amountOfObjects * sizeof(T)) + offset;
         Byte* newChunkAddress = (alignedAddress - offset);
+
+        // Zero out memory to detect if this memory was already deallocated
         memset(newChunkAddress, 0, realBytes);
 
         // Add a new chunk of free bytes, possible merge it
