@@ -68,9 +68,6 @@
     <ClInclude Include="src\MemoryManagement\memory_management.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\PrecompiledHeaders\list.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\MemoryManagement\memory_tracker.h">
       <Filter>Header Files</Filter>
     </ClInclude>

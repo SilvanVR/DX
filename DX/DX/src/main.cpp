@@ -130,7 +130,7 @@ int main(void)
     //String ste = IDS(te);
     //String ste2 = IDS(te2);
     //LOG(ste + " " + ste2);
-#define SIZE 100
+#define SIZE 10
 
     //LOG("MEASURE NEW + DELETE...");
     //static A* a[SIZE];
@@ -147,40 +147,43 @@ int main(void)
     //    }
     //}
 
-    //LOG("MEASURE POOL ALLOCATOR...");
-    //static A* a2[SIZE];
-    //MemoryManagement::PoolAllocator<A> poolAllocator(SIZE);
     //{
-    //    AutoClock clock;
+    //    LOG("MEASURE POOL ALLOCATOR...");
+    //    static A* a2[SIZE];
+    //    MemoryManagement::PoolAllocator<A> poolAllocator(SIZE, &gGeneralAllocator);
+    //    {
+    //        AutoClock clock;
 
-    //    for (int i = 0; i < SIZE; i++)
-    //    {
-    //        a2[i] = poolAllocator.allocate();
-    //    }
-    //    for (int i = 0; i < SIZE; i++)
-    //    {
-    //        poolAllocator.deallocate(a2[i]);
+    //        for (int i = 0; i < SIZE; i++)
+    //        {
+    //            a2[i] = poolAllocator.allocate();
+    //        }
+    //        for (int i = 0; i < SIZE; i++)
+    //        {
+    //            poolAllocator.deallocate(a2[i]);
+    //        }
     //    }
     //}
 
-    LOG("MEASURE STACK ALLOCATOR...");
-    static A* a3[SIZE];
-    MemoryManagement::StackAllocator stackAllocator(SIZE * sizeof(A) * 2);
-    {
-        AutoClock clock;
-        for (int i = 0; i < SIZE; i++)
-        {
-            a3[i] = stackAllocator.allocate<A>();
-        }
-        stackAllocator.clearAll();
-    }
+
+    //LOG("MEASURE STACK ALLOCATOR...");
+    //static A* a3[SIZE];
+    //MemoryManagement::StackAllocator stackAllocator(SIZE * sizeof(A) * 2);
+    //{
+    //    AutoClock clock;
+    //    for (int i = 0; i < SIZE; i++)
+    //    {
+    //        a3[i] = stackAllocator.allocate<A>();
+    //    }
+    //    stackAllocator.clearAll();
+    //}
 
     {
         //A* a = new A[10];
         //delete[] a;
 
-        //A* a = gGeneralAllocator.allocate<A>(10);
-       // gGeneralAllocator.deallocate(a);
+        A* a = gGeneralAllocator.allocate<A>(10);
+        gGeneralAllocator.deallocate(a);
 
         //SystemTime curTime = OS::PlatformTimer::getCurrentTime();
         //LOG(curTime.toString());

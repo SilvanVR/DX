@@ -42,8 +42,6 @@ namespace MemoryManagement
             ~PoolChunk() {};
         };
 
-        using Allocator = std::allocator<PoolChunk<T>>;
-
     public:
         //----------------------------------------------------------------------
         // @Params:
@@ -51,7 +49,7 @@ namespace MemoryManagement
         // "parentAllocator": Parent allocator from which this allocator pulls
         //                    his memory out
         //----------------------------------------------------------------------
-        explicit PoolAllocator(Size amountOfChunks, Allocator* parentAllocator = nullptr);
+        explicit PoolAllocator(Size amountOfChunks, IAllocator* parentAllocator = nullptr);
         ~PoolAllocator();
 
         //----------------------------------------------------------------------
@@ -76,9 +74,6 @@ namespace MemoryManagement
         Size            m_amountOfChunks = 0;
         Size            m_amountOfAllocatedChunks = 0;
 
-        Allocator*      m_parentAllocator = nullptr;
-        bool            m_deleteParentAllocator = false;
-
         bool _InMemoryRange(void* data){ return (data >= m_data) && (data < (m_data + m_amountOfChunks)); }
 
         PoolAllocator (const PoolAllocator& other)              = delete;
@@ -93,18 +88,12 @@ namespace MemoryManagement
 
     //----------------------------------------------------------------------
     template<class T>
-    PoolAllocator<T>::PoolAllocator(Size amountOfChunks, Allocator* parentAllocator)
-        : m_amountOfChunks(amountOfChunks), m_parentAllocator(parentAllocator)
+    PoolAllocator<T>::PoolAllocator(Size amountOfChunks, IAllocator* parentAllocator)
+        : IAllocator( parentAllocator ), m_amountOfChunks( amountOfChunks )
     {
         ASSERT( m_amountOfChunks > 0 );
 
-        if (m_parentAllocator == nullptr)
-        {
-            m_parentAllocator = new Allocator();
-            m_deleteParentAllocator = true;
-        }
-
-        m_data = m_parentAllocator->allocate( m_amountOfChunks );
+        m_data = reinterpret_cast<PoolChunk<T>*>( m_parentAllocator->allocateRaw( m_amountOfChunks * sizeof(T) ) );
         m_head = m_data;
 
         // Each block should point to its following block, except the last one
@@ -122,14 +111,10 @@ namespace MemoryManagement
         if (m_amountOfAllocatedChunks != 0)
             ASSERT( false && "Not all chunks were deallocated!" );
 
-        m_parentAllocator->deallocate( m_data, m_amountOfChunks );
-
-        if (m_deleteParentAllocator)
-            delete m_parentAllocator;
+        m_parentAllocator->deallocate( m_data );
 
         m_data = nullptr;
         m_head = nullptr;
-        m_parentAllocator = nullptr;
     }
 
     //----------------------------------------------------------------------

@@ -65,14 +65,7 @@ namespace MemoryManagement
         // "amountOfBytes":     Amount of bytes to allocate
         // "alignment":         Alignment of the bytes
         //----------------------------------------------------------------------
-        void* allocateRaw(Size amountOfBytes, Size alignment = 1);
-
-        //----------------------------------------------------------------------
-        // Deallocate the given memory.
-        // @Params:
-        // "mem": memory to deallocate
-        //----------------------------------------------------------------------
-        void deallocateRaw(void* mem) { _Deallocate( reinterpret_cast<Byte*>(mem), false ); }
+        void* allocateRaw(Size amountOfBytes, Size alignment = 1) override;
 
         //----------------------------------------------------------------------
         // Allocate "amountOfObjects" objects of type T.
@@ -84,11 +77,18 @@ namespace MemoryManagement
         T* allocate(Size amountOfObjects = 1, Args&&... args);
 
         //----------------------------------------------------------------------
+        // Deallocate the given memory. Does not call any destructor.
+        // @Params:
+        // "mem": The memory previously allocated from this allocator.
+        //----------------------------------------------------------------------
+        void deallocate(void* data) override { _Deallocate( reinterpret_cast<Byte*>( data ), false ); }
+
+        //----------------------------------------------------------------------
         // Deallocates and deconstructs the given object(s).
         // @Params:
         // "data": The object(s) previously allocated from this allocator.
         //----------------------------------------------------------------------
-        template <class T>
+        template <class T, class T2 = std::enable_if<!std::is_trivially_destructible<T>::value>::type>
         void deallocate(T* data) { _Deallocate( data, true ); }
 
     private:
