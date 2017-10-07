@@ -1,49 +1,45 @@
 #pragma once
 
 /**********************************************************************
-    class: IAllocator + DefaultAllocator (iallocator.hpp)
+    class: IParentAllocator + IAllocator + DefaultAllocator (iallocator.hpp)
 
     author: S. Hau
     date: October 5, 2017
 
-    IAllocator interface.
-    DefaultAllocator will be used as a parent-allocator
-    if no other allocator was specified. It allocates using
-    the global new + delete scheme.
+    IParentAllocator:
+        Interface for a parent allocator.
+    IAllocator:
+        Interface for a basic allocator. Keeps track of allocations/
+        deallocations and serves as a common hub amongst all allocators.
+    DefaultAllocator:
+        Will be used as a parent-allocator if no other allocator was 
+        specified. It allocates using the global new + delete scheme.
 **********************************************************************/
 
 namespace MemoryManagement
 {
 
-    class IAllocator
+    //*********************************************************************
+    // Every allocator inheriting from this class and overriding the two
+    // methods below can act as an parent allocator.
+    //*********************************************************************
+    class IParentAllocator
     {
     public:
         //----------------------------------------------------------------------
         // Allocate specified amount of bytes.
         // @Params:
-        // "amountOfBytes": Amount of bytes to allocate
-        // "alignment":     Alignment of the bytes
+        // "amountOfBytes": Amount of bytes to allocate.
+        // "alignment":     Alignment to use. MUST be power of two.
         //----------------------------------------------------------------------
-        virtual void* allocateRaw(Size amountOfBytes, Size alignment = 1) { return nullptr; }
+        virtual void* allocateRaw(Size amountOfBytes, Size alignment = 1) = 0;
 
         //----------------------------------------------------------------------
         // Deallocate the given memory.
         // @Params:
         // "mem": The memory previously allocated from this allocator.
         //----------------------------------------------------------------------
-        virtual void deallocate(void* mem) {}
-
-        //----------------------------------------------------------------------
-        const MemoryInfo& getMemoryInfo(){ return m_memoryInfo; }
-
-    protected:
-        IAllocator() {}
-        IAllocator(IAllocator* parentAllocator);
-
-        virtual void _OutOfMemory() { ASSERT(false && "OutOfMemory"); }
-
-        IAllocator*     m_parentAllocator;
-        MemoryInfo      m_memoryInfo;
+        virtual void deallocate(void* mem) = 0;
     };
 
     //*********************************************************************
@@ -51,10 +47,10 @@ namespace MemoryManagement
     // during construction of an allocator (e.g. Pool, Stack...).
     // The Default-Allocator allocates memory using global new and delete.
     //*********************************************************************
-    class DefaultAllocator : public IAllocator
+    class DefaultAllocator : public IParentAllocator
     {
     public:
-        DefaultAllocator() : IAllocator() {}
+        DefaultAllocator() : IParentAllocator() {}
 
         void* allocateRaw(Size amountOfBytes, Size alignment) override
         {
@@ -71,12 +67,72 @@ namespace MemoryManagement
     // Static instance of the default-allocator.
     static DefaultAllocator defaultAllocator;
 
+    //*********************************************************************
+    // IAllocator interface. Stores the parent allocator and 
+    // the memory information struct.
+    //*********************************************************************
+    class IAllocator
+    {
+    public:
+        //----------------------------------------------------------------------
+        const MemoryInfo&   getMemoryInfo(){ return m_memoryInfo; }
+        bool                hasAllocatedBytes(){ return m_memoryInfo.currentBytesAllocated == 0; }
+
+    protected:
+        IAllocator(Size amountOfBytes, IParentAllocator* parentAllocator);
+        virtual ~IAllocator();
+
+        inline void _OutOfMemory() { ASSERT( false && "OutOfMemory" ); }
+        inline bool _InMemoryRange(void* data) const { return (data >= m_data) && ( data <= (m_data + m_amountOfBytes) ); }
+        inline void _LogAllocatedBytes(Size amtOfBytes);
+        inline void _LogDeallocatedBytes(Size amtOfBytes);
+
+        IParentAllocator*   m_parentAllocator;
+        Size                m_amountOfBytes;
+        Byte*               m_data;
+
+    private:
+        MemoryInfo          m_memoryInfo;
+    };
+
+    //**********************************************************************
+    // IMPLEMENTATION
+    //**********************************************************************
+
     //----------------------------------------------------------------------
-    IAllocator::IAllocator(IAllocator* parentAllocator)
-        : m_parentAllocator(parentAllocator)
+    IAllocator::IAllocator(Size amountOfBytes, IParentAllocator* parentAllocator)
+        : m_amountOfBytes(amountOfBytes), m_parentAllocator(parentAllocator)
     {
         if (m_parentAllocator == nullptr)
             m_parentAllocator = &defaultAllocator;
+    }
+
+    //----------------------------------------------------------------------
+    IAllocator::~IAllocator()
+    {
+        // @TODO
+       /* auto& memInfo = getMemoryInfo();
+        ASSERT(hasAllocatedBytes() && "There is still allocated memory somewhere!");
+
+        m_parentAllocator->deallocate(m_data);
+
+        m_data = nullptr;*/
+    }
+
+    //----------------------------------------------------------------------
+    void IAllocator::_LogAllocatedBytes(Size amtOfBytes)
+    {
+        m_memoryInfo.currentBytesAllocated += amtOfBytes;
+        m_memoryInfo.totalBytesAllocated += amtOfBytes;
+        m_memoryInfo.totalAllocations++;
+    }
+
+    //----------------------------------------------------------------------
+    void IAllocator::_LogDeallocatedBytes(Size amtOfBytes)
+    {
+        m_memoryInfo.currentBytesAllocated -= amtOfBytes;
+        m_memoryInfo.totalBytesFreed += amtOfBytes;
+        m_memoryInfo.totalDeallocations++;
     }
 
     //----------------------------------------------------------------------

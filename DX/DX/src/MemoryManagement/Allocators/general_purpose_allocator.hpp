@@ -27,7 +27,7 @@ namespace MemoryManagement
     static const U8 AMOUNT_OF_BYTES_FOR_SIZE    = 4;
     static const U8 AMOUNT_OF_BYTES_FOR_OFFSET  = 1;
 
-    class GeneralPurposeAllocator : public IAllocator
+    class GeneralPurposeAllocator : public IAllocator, public IParentAllocator
     {
         //**********************************************************************
         // Represents one contiguous chunk of bytes in this allocator.
@@ -56,14 +56,14 @@ namespace MemoryManagement
         };
 
     public:
-        explicit GeneralPurposeAllocator(Size amountOfBytes);
+        explicit GeneralPurposeAllocator(Size amountOfBytes, IParentAllocator* parentAllocator = nullptr);
         ~GeneralPurposeAllocator();
 
         //----------------------------------------------------------------------
         // Allocate specified amount of bytes.
         // @Params:
-        // "amountOfBytes":     Amount of bytes to allocate
-        // "alignment":         Alignment of the bytes
+        // "amountOfBytes": Amount of bytes to allocate
+        // "alignment":     Alignment to use. MUST be power of two.
         //----------------------------------------------------------------------
         void* allocateRaw(Size amountOfBytes, Size alignment = 1) override;
 
@@ -92,9 +92,6 @@ namespace MemoryManagement
         void deallocate(T* data) { _Deallocate( data, true ); }
 
     private:
-        Byte*   m_data;
-        Size    m_sizeInBytes;
-
         // All chunks are sorted by memory address.
         std::vector<FreeChunk> m_freeChunks;
 
@@ -104,7 +101,7 @@ namespace MemoryManagement
         // Add the given chunk to "m_freeChunks". Merges chunks together if possible.
         void _MergeChunk(FreeChunk* newChunk);
 
-        inline bool _InMemoryRange(void* data) const { return (data >= m_data) && (data < (m_data + m_sizeInBytes)); }
+
         inline void _RemoveFreeChunk(FreeChunk& freeChunk);
         inline void _AddNewChunk(FreeChunk& newChunk);
 
@@ -117,28 +114,29 @@ namespace MemoryManagement
         GeneralPurposeAllocator& operator = (GeneralPurposeAllocator&& other)       = delete;
     };
 
-
     //**********************************************************************
     // IMPLEMENTATION
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    GeneralPurposeAllocator::GeneralPurposeAllocator(Size amountOfBytes)
-        : m_sizeInBytes(amountOfBytes)
+    GeneralPurposeAllocator::GeneralPurposeAllocator(Size amountOfBytes, IParentAllocator* parentAllocator)
+        : IAllocator(amountOfBytes, parentAllocator)
     {
-        ASSERT( m_sizeInBytes > 0 );
+        ASSERT( m_amountOfBytes > 0 );
 
-        m_data = new Byte[m_sizeInBytes];
+        m_data = reinterpret_cast<Byte*>( m_parentAllocator->allocateRaw( m_amountOfBytes) );
 
         m_freeChunks.reserve( INITIAL_FREE_CHUNK_LIST_CAPACITY );
-        m_freeChunks.push_back( FreeChunk( m_data, m_sizeInBytes ) );
+        m_freeChunks.push_back( FreeChunk( m_data, m_amountOfBytes ) );
     }
 
     //----------------------------------------------------------------------
     GeneralPurposeAllocator::~GeneralPurposeAllocator()
     {
-        ASSERT( m_freeChunks.front().m_sizeInBytes == m_sizeInBytes && "There is still allocated memory somewhere!" );
-        delete[] m_data;
+        auto& memInfo = getMemoryInfo();
+        ASSERT( hasAllocatedBytes() && "There is still allocated memory somewhere!" );
+
+        m_parentAllocator->deallocate( m_data );
 
         m_data = nullptr;
     }
@@ -185,6 +183,9 @@ namespace MemoryManagement
                 {
                     _RemoveFreeChunk( freeChunk );
                 }
+
+                _LogAllocatedBytes(amountOfBytes);
+
                 return data;
             }
         }
@@ -230,6 +231,8 @@ namespace MemoryManagement
         // Add a new chunk of free bytes, possible merge it
         FreeChunk newFreeChunk( newChunkAddress, realBytes );
         _MergeChunk( &newFreeChunk );
+
+        _LogDeallocatedBytes(amountOfBytes);
     }
 
     //----------------------------------------------------------------------

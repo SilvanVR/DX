@@ -15,9 +15,6 @@
     - This allows to deallocate arbitrarily
     - Fragmentation free
     Be careful about pointers pointing to memory in this allocator :-)
-    @Considerations
-      - PoolAllocator based on size, not on class
-        -> Build upon that a FreeList allocator 
 **********************************************************************/
 
 #include "iallocator.hpp"
@@ -49,7 +46,7 @@ namespace MemoryManagement
         // "parentAllocator": Parent allocator from which this allocator pulls
         //                    his memory out
         //----------------------------------------------------------------------
-        explicit PoolAllocator(Size amountOfChunks, IAllocator* parentAllocator = nullptr);
+        explicit PoolAllocator(Size amountOfChunks, IParentAllocator* parentAllocator = nullptr);
         ~PoolAllocator();
 
         //----------------------------------------------------------------------
@@ -72,7 +69,6 @@ namespace MemoryManagement
         PoolChunk<T>*   m_head = nullptr;
 
         Size            m_amountOfChunks = 0;
-        Size            m_amountOfAllocatedChunks = 0;
 
         bool _InMemoryRange(void* data){ return (data >= m_data) && (data < (m_data + m_amountOfChunks)); }
 
@@ -88,8 +84,8 @@ namespace MemoryManagement
 
     //----------------------------------------------------------------------
     template<class T>
-    PoolAllocator<T>::PoolAllocator(Size amountOfChunks, IAllocator* parentAllocator)
-        : IAllocator( parentAllocator ), m_amountOfChunks( amountOfChunks )
+    PoolAllocator<T>::PoolAllocator(Size amountOfChunks, IParentAllocator* parentAllocator)
+        : IAllocator( amountOfChunks * sizeof(T), parentAllocator ), m_amountOfChunks( amountOfChunks )
     {
         ASSERT( m_amountOfChunks > 0 );
 
@@ -108,8 +104,8 @@ namespace MemoryManagement
     template<class T>
     PoolAllocator<T>::~PoolAllocator()
     {
-        if (m_amountOfAllocatedChunks != 0)
-            ASSERT( false && "Not all chunks were deallocated!" );
+        auto& memInfo = getMemoryInfo();
+        ASSERT( hasAllocatedBytes() && "Not all chunks were deallocated!" );
 
         m_parentAllocator->deallocate( m_data );
 
@@ -135,7 +131,7 @@ namespace MemoryManagement
         T* objectLocation = std::addressof( newChunk->value );
         T* retVal = new (objectLocation) T( std::forward<Args>(args)... );
 
-        m_amountOfAllocatedChunks++;
+        _LogAllocatedBytes( sizeof(T) );
 
         return retVal;
     }
@@ -157,7 +153,7 @@ namespace MemoryManagement
         chunkToDelete->nextFreeChunk = m_head;
         m_head = chunkToDelete;
 
-        m_amountOfAllocatedChunks--;
+        _LogDeallocatedBytes( sizeof(T) );
     }
 
 

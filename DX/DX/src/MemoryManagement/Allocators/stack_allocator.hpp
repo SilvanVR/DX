@@ -65,7 +65,7 @@ namespace MemoryManagement
         };
 
     public:
-        explicit StackAllocator(U32 amountOfBytes);
+        explicit StackAllocator(U32 amountOfBytes, IParentAllocator* parentAllocator = nullptr);
         ~StackAllocator();
 
         //----------------------------------------------------------------------
@@ -105,7 +105,6 @@ namespace MemoryManagement
     private:
         Byte*   m_data = nullptr;
         Byte*   m_head = nullptr;
-        Size    m_sizeInBytes;
 
         // Stores destructors for allocates objects
         std::vector<StackAllocatorDestructor> m_destructors;
@@ -133,12 +132,12 @@ namespace MemoryManagement
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    StackAllocator::StackAllocator(U32 amountOfBytes)
-        : m_sizeInBytes(amountOfBytes)
+    StackAllocator::StackAllocator(U32 amountOfBytes, IParentAllocator* parentAllocator)
+        : IAllocator( amountOfBytes, parentAllocator )
     {
-        ASSERT( m_sizeInBytes > 0 );
+        ASSERT( m_amountOfBytes > 0 );
 
-        m_data = new Byte[m_sizeInBytes];
+        m_data = reinterpret_cast<Byte*>( m_parentAllocator->allocateRaw( m_amountOfBytes ) );
         m_head = m_data;
 
         m_destructors.reserve( INITIAL_DESTRUCTOR_LIST_CAPACITY );
@@ -147,10 +146,10 @@ namespace MemoryManagement
     //----------------------------------------------------------------------
     StackAllocator::~StackAllocator()
     {
-        if (m_head != m_data)
-            ASSERT( false && "StackAllocator is not empty" );
+        auto& memInfo = getMemoryInfo();
+        ASSERT( (m_head != m_data) && "StackAllocator is not empty" );
 
-        delete[] m_data;
+        m_parentAllocator->deallocate( m_data );
 
         m_data = nullptr;
         m_head = nullptr;
@@ -162,10 +161,12 @@ namespace MemoryManagement
         Byte* alignedAddress = alignAddress( m_head, alignment );
         Byte* newHeadPointer = alignedAddress + amountOfBytes;
 
-        bool hasEnoughSpace = ( newHeadPointer <= (m_data + m_sizeInBytes) );
+        bool hasEnoughSpace = ( newHeadPointer <= (m_data + m_amountOfBytes) );
         if (hasEnoughSpace)
         {
             m_head = newHeadPointer;
+
+            _LogAllocatedBytes( amountOfBytes );
             return alignedAddress;
         }
 
@@ -177,22 +178,18 @@ namespace MemoryManagement
     template <class T, class... Args>
     T* StackAllocator::allocate(Size amountOfObjects, Args&&... args)
     {
-        Byte* alignedAddress = alignAddress( m_head, alignof(T) );
-        Byte* newHeadPointer = alignedAddress + amountOfObjects * sizeof(T);
+        Size amountOfBytes = amountOfObjects * sizeof(T);
+        T* alignedAddress = reinterpret_cast<T*>( allocateRaw( amountOfBytes, alignof(T) ) );
 
-        bool hasEnoughSpace = ( newHeadPointer <= ( m_data + m_sizeInBytes) );
-        if (hasEnoughSpace)
+        if (alignedAddress != nullptr)
         {
-            T* returnPointer = reinterpret_cast<T*>( alignedAddress );
-            m_head = newHeadPointer;
-
             for (Size i = 0; i < amountOfObjects; i++)
             {
-                T* object = new (std::addressof( returnPointer[i] )) T( std::forward<Args>(args)... );
+                T* object = new ( std::addressof(alignedAddress[i] ) ) T( std::forward<Args>(args)... );
                 _AddDestructorToList<T>( object );
             }
 
-            return returnPointer;
+            return alignedAddress;
         }
 
         _OutOfMemory();
@@ -206,6 +203,8 @@ namespace MemoryManagement
         for (auto& destructor : m_destructors)
             destructor();
         m_destructors.clear();
+
+        _LogDeallocatedBytes( getMemoryInfo().currentBytesAllocated );
     }
 
     //----------------------------------------------------------------------
@@ -213,6 +212,7 @@ namespace MemoryManagement
     {
         // Marker address could be null OR the stack was already cleared behind the marker
         ASSERT( marker.m_address != nullptr && marker.m_address < m_head && "Marker was invalid" );
+        Size amountOfBytes = (m_head - marker.m_address);
 
         m_head = marker.m_address;
         while (m_destructors.size() > marker.m_amountOfDestructors)
@@ -220,6 +220,8 @@ namespace MemoryManagement
             m_destructors.back()();
             m_destructors.pop_back();
         }
+
+        _LogDeallocatedBytes( amountOfBytes );
     }
 
 
