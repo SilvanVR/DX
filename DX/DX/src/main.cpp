@@ -3,6 +3,7 @@
 #include "MemoryManagement/memory_management.hpp"
 #include "OS/PlatformTimer/platform_timer.h"
 
+
 #define LOG(x) std::cout << x << std::endl
 
 class AutoClock
@@ -32,6 +33,8 @@ public:
         LOG("Nanos: " + TS(elapsedNanos));
     }
 };
+
+MemoryManagement::GeneralPurposeAllocator gGeneralAllocator(1024);
 
 class A
 {
@@ -66,6 +69,31 @@ public:
         return *this;
     }
 
+    //static void* operator new(Size sz)
+    //{
+    //    std::cout << "custom new for size " << sz << '\n';
+    //    return gGeneralAllocator.allocateRaw( sz, alignof(A) );
+    //}
+
+    //static void operator delete(void* mem)
+    //{
+    //    std::cout << "custom delete \n";
+    //    return gGeneralAllocator.deallocateRaw( mem );
+    //}
+
+    //static void* operator new[](std::size_t sz)
+    //{
+    //    std::cout << "custom new[] for size " << sz << '\n';
+    //    return gGeneralAllocator.allocateRaw(sz, alignof(A));
+    //}
+
+    //static void operator delete[](void* mem)
+    //{
+    //    std::cout << "custom delete[] \n";
+    //    return gGeneralAllocator.deallocateRaw(mem);
+    //}
+
+
     SystemTime time;
     std::string fr = "Franz";
 };
@@ -76,13 +104,24 @@ class B : public A
 };
 
 //@TODO: 
-// - USE Global NEW with those allocators
+// - Logging of memorytracker
+
 // - Measure Memory Information from all allocators in one place
-// - Parent-Allocator
-// - Vector optimization in stack-allocator, general-purpose (vector pulls from global new?)
+
+
+
+// - Handle out of memory situations -> allocate more?
 
 // - MemoryPoolAllocator - Several Pools of different sizes => allocates from pool closest do needed size
+// -> PoolAllocator with raw bytes instead of from a class
 
+
+// - USE Global NEW with those allocators CHECK
+// ---> ALLOCATE RAW FOR EVERY ALLOCATOR
+
+
+
+// - Parent-Allocator + Logging for each allocator
 
 int main(void)
 {
@@ -124,7 +163,7 @@ int main(void)
     //    }
     //}
 
- /*   LOG("MEASURE STACK ALLOCATOR...");
+    LOG("MEASURE STACK ALLOCATOR...");
     static A* a3[SIZE];
     MemoryManagement::StackAllocator stackAllocator(SIZE * sizeof(A) * 2);
     {
@@ -134,18 +173,21 @@ int main(void)
             a3[i] = stackAllocator.allocate<A>();
         }
         stackAllocator.clearAll();
-    }*/
+    }
 
-    MemoryManagement::GeneralPurposeAllocator gGeneralAllocator(1024);
+    {
+        //A* a = new A[10];
+        //delete[] a;
 
-    A* a = gGeneralAllocator.allocate<A>(10);
-    gGeneralAllocator.deallocate(a);
+        //A* a = gGeneralAllocator.allocate<A>(10);
+       // gGeneralAllocator.deallocate(a);
 
-    gGeneralAllocator.deallocate(a);
+        //SystemTime curTime = OS::PlatformTimer::getCurrentTime();
+        //LOG(curTime.toString());
+    }
 
-    SystemTime curTime = OS::PlatformTimer::getCurrentTime();
-    LOG(curTime.toString());
 
+    MemoryManagement::MemoryTracker::log();
     system("pause");
     return 0;
 }

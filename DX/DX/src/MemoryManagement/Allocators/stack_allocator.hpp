@@ -22,28 +22,7 @@
 namespace MemoryManagement
 {
 
-    //**********************************************************************
-    // Necessary to call the destructor of an object.
-    //**********************************************************************
-    class StackAllocatorDestructor
-    {
-    public:
-        template <class T>
-        explicit StackAllocatorDestructor(const T& data)
-            : m_data( std::addressof(data) )
-        {
-            destructor = [](const void* data) {
-                auto originalType = static_cast<const T*>( data );
-                originalType->~T();
-            };
-        }
-
-        void operator()(){ destructor( m_data ); }
-
-    private:
-        const void* m_data;
-        void(*destructor)(const void*);
-    };
+    #define INITIAL_DESTRUCTOR_LIST_CAPACITY 32
 
     //**********************************************************************
     // Marks a point in the stack, to which can be jumped back.
@@ -52,7 +31,7 @@ namespace MemoryManagement
     {
     public:
         Byte*   m_address;              // Address to jump back
-        Size    m_amountOfDestructors;  // Number of destructors existed
+        Size    m_amountOfDestructors;  // Number of destructors existed at that time
 
         StackAllocatorMarker(Byte* markerAddress = nullptr, Size curAmountOfDestructors = 0)
             : m_address(markerAddress), m_amountOfDestructors(curAmountOfDestructors)
@@ -62,6 +41,29 @@ namespace MemoryManagement
     //----------------------------------------------------------------------
     class StackAllocator : public IAllocator
     {
+        //**********************************************************************
+        // Necessary to call the destructor of an object.
+        //**********************************************************************
+        class StackAllocatorDestructor
+        {
+        public:
+            template <class T>
+            explicit StackAllocatorDestructor(const T& data)
+                : m_data( std::addressof(data) )
+            {
+                destructor = [](const void* data) {
+                    auto originalType = static_cast<const T*>( data );
+                    originalType -> ~T();
+                };
+            }
+
+            void operator()() { destructor(m_data); }
+
+        private:
+            const void* m_data;
+            void(*destructor)(const void*);
+        };
+
     public:
         explicit StackAllocator(U32 amountOfBytes);
         ~StackAllocator();
@@ -81,7 +83,7 @@ namespace MemoryManagement
         // "amountOfBytes": Amount of bytes to allocate
         // "alignment": Alignment to use. MUST be power of two
         //----------------------------------------------------------------------
-        void* allocateAligned(Size amountOfBytes, Size alignment = 1);
+        void* allocateRaw(Size amountOfBytes, Size alignment = 1);
 
         //----------------------------------------------------------------------
         // Clears the whole stack at once.
@@ -105,7 +107,7 @@ namespace MemoryManagement
         Byte*   m_head = nullptr;
         Size    m_sizeInBytes;
 
-        // @TODO: Vector allocates itself dynamically
+        // Stores destructors for allocates objects
         std::vector<StackAllocatorDestructor> m_destructors;
 
         template <class T>
@@ -138,6 +140,8 @@ namespace MemoryManagement
 
         m_data = new Byte[m_sizeInBytes];
         m_head = m_data;
+
+        m_destructors.reserve( INITIAL_DESTRUCTOR_LIST_CAPACITY );
     }
 
     //----------------------------------------------------------------------
@@ -153,7 +157,7 @@ namespace MemoryManagement
     }
 
     //----------------------------------------------------------------------
-    void* StackAllocator::allocateAligned(Size amountOfBytes, Size alignment)
+    void* StackAllocator::allocateRaw(Size amountOfBytes, Size alignment)
     {
         Byte* alignedAddress = alignAddress( m_head, alignment );
         Byte* newHeadPointer = alignedAddress + amountOfBytes;
@@ -164,11 +168,9 @@ namespace MemoryManagement
             m_head = newHeadPointer;
             return alignedAddress;
         }
-        else
-        {
-            _OutOfMemory();
-            return nullptr;
-        }
+
+        _OutOfMemory();
+        return nullptr;
     }
 
     //----------------------------------------------------------------------
@@ -178,7 +180,7 @@ namespace MemoryManagement
         Byte* alignedAddress = alignAddress( m_head, alignof(T) );
         Byte* newHeadPointer = alignedAddress + amountOfObjects * sizeof(T);
 
-        bool hasEnoughSpace = (newHeadPointer <= (m_data + m_sizeInBytes));
+        bool hasEnoughSpace = ( newHeadPointer <= ( m_data + m_sizeInBytes) );
         if (hasEnoughSpace)
         {
             T* returnPointer = reinterpret_cast<T*>( alignedAddress );
@@ -192,11 +194,9 @@ namespace MemoryManagement
 
             return returnPointer;
         }
-        else
-        {
-            _OutOfMemory();
-            return nullptr;
-        }
+
+        _OutOfMemory();
+        return nullptr;
     }
 
     //----------------------------------------------------------------------

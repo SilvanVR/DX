@@ -20,8 +20,11 @@
 
 namespace MemoryManagement
 {
+
+    #define INITIAL_FREE_CHUNK_LIST_CAPACITY 32
+
     // Amount of bytes additionally allocated to store necessary information needed for deallocation
-    static const U8 AMOUNT_OF_BYTES_FOR_SIZE    = 2;
+    static const U8 AMOUNT_OF_BYTES_FOR_SIZE    = 4;
     static const U8 AMOUNT_OF_BYTES_FOR_OFFSET  = 1;
 
     class GeneralPurposeAllocator : public IAllocator
@@ -37,9 +40,8 @@ namespace MemoryManagement
             FreeChunk(Byte* address, Size size)
                 : m_address(address), m_sizeInBytes(size) {}
 
-            // Try to allocate the given amount of objects. Nullptr if not enough space in this chunk.
-            template <class T, class... Arguments>
-            T* allocate(Size amountOfObjects = 1, Arguments&&... args);
+            // Try to allocate the given amount of bytes. Nullptr if not enough space in this chunk.
+            void* allocateRaw(Size amountOfBytes, Size alignment);;
 
             bool touches(const FreeChunk& other) const { 
                 return (other.m_address + other.m_sizeInBytes) == m_address || (m_address + m_sizeInBytes) == other.m_address;
@@ -58,6 +60,21 @@ namespace MemoryManagement
         ~GeneralPurposeAllocator();
 
         //----------------------------------------------------------------------
+        // Allocate specified amount of bytes.
+        // @Params:
+        // "amountOfBytes":     Amount of bytes to allocate
+        // "alignment":         Alignment of the bytes
+        //----------------------------------------------------------------------
+        void* allocateRaw(Size amountOfBytes, Size alignment = 1);
+
+        //----------------------------------------------------------------------
+        // Deallocate the given memory.
+        // @Params:
+        // "mem": memory to deallocate
+        //----------------------------------------------------------------------
+        void deallocateRaw(void* mem) { _Deallocate( reinterpret_cast<Byte*>(mem), false ); }
+
+        //----------------------------------------------------------------------
         // Allocate "amountOfObjects" objects of type T.
         // @Params:
         // "amountOfObjects": Amount of objects to allocate (array-allocation)
@@ -72,7 +89,7 @@ namespace MemoryManagement
         // "data": The object(s) previously allocated from this allocator.
         //----------------------------------------------------------------------
         template <class T>
-        void deallocate(T* data);
+        void deallocate(T* data) { _Deallocate( data, true ); }
 
     private:
         Byte*   m_data;
@@ -87,7 +104,12 @@ namespace MemoryManagement
         // Add the given chunk to "m_freeChunks". Merges chunks together if possible.
         void _MergeChunk(FreeChunk* newChunk);
 
-        bool _InMemoryRange(void* data) { return (data >= m_data) && (data < (m_data + m_sizeInBytes)); }
+        inline bool _InMemoryRange(void* data) const { return (data >= m_data) && (data < (m_data + m_sizeInBytes)); }
+        inline void _RemoveFreeChunk(FreeChunk& freeChunk);
+        inline void _AddNewChunk(FreeChunk& newChunk);
+
+        template <class T>
+        inline void _Deallocate(T* mem, bool callDestructors);
 
         GeneralPurposeAllocator (const GeneralPurposeAllocator& other)              = delete;
         GeneralPurposeAllocator& operator = (const GeneralPurposeAllocator& other)  = delete;
@@ -107,13 +129,15 @@ namespace MemoryManagement
         ASSERT( m_sizeInBytes > 0 );
 
         m_data = new Byte[m_sizeInBytes];
+
+        m_freeChunks.reserve( INITIAL_FREE_CHUNK_LIST_CAPACITY );
         m_freeChunks.push_back( FreeChunk( m_data, m_sizeInBytes ) );
     }
 
     //----------------------------------------------------------------------
     GeneralPurposeAllocator::~GeneralPurposeAllocator()
     {
-        ASSERT( m_freeChunks.front().m_sizeInBytes == m_sizeInBytes && "Not everything was deallocated!" );
+        ASSERT( m_freeChunks.front().m_sizeInBytes == m_sizeInBytes && "There is still allocated memory somewhere!" );
         delete[] m_data;
 
         m_data = nullptr;
@@ -125,9 +149,33 @@ namespace MemoryManagement
     {
         static_assert(alignof(T) <= 128, "GeneralPurposeAllocator: Max alignment of 128 was exceeded.");
 
+        Size bytesToAllocate = amountOfObjects * sizeof(T);
+        T* alignedAddress = reinterpret_cast<T*>( allocateRaw( bytesToAllocate, alignof(T) ) );
+
+        if (alignedAddress != nullptr)
+        {
+            // Call constructor on every object manually
+            for (Size i = 0; i < amountOfObjects; i++)
+            {
+                T* objectLocation = std::addressof( alignedAddress[i] );
+                new (objectLocation) T( std::forward<Arguments>( args )... );
+            }
+
+            return alignedAddress;
+        }
+
+        _OutOfMemory();
+        return nullptr;
+    }
+
+    //----------------------------------------------------------------------
+    void* GeneralPurposeAllocator::allocateRaw(Size amountOfBytes, Size alignment)
+    {
+        ASSERT( alignment <= 128 && "GeneralPurposeAllocator: Max alignment of 128 was exceeded." );
+
         for (FreeChunk& freeChunk : m_freeChunks)
         {
-            T* data = freeChunk.allocate<T>( amountOfObjects, std::forward<Args>(args)... );
+            void* data = freeChunk.allocateRaw( amountOfBytes, alignment );
 
             bool allocationWasSuccessful = (data != nullptr);
             if (allocationWasSuccessful)
@@ -135,48 +183,53 @@ namespace MemoryManagement
                 bool freeChunkIsEmptyNow = (freeChunk.m_sizeInBytes == 0);
                 if (freeChunkIsEmptyNow)
                 {
-                    m_freeChunks.erase( std::remove( m_freeChunks.begin(), m_freeChunks.end(), freeChunk ), m_freeChunks.end() );
+                    _RemoveFreeChunk( freeChunk );
                 }
                 return data;
             }
         }
 
-        // TODO: Handle out of memory gracefully e.g. allocate more
         _OutOfMemory();
         return nullptr;
     }
 
     //----------------------------------------------------------------------
     template <class T>
-    void GeneralPurposeAllocator::deallocate(T* data)
+    void GeneralPurposeAllocator::_Deallocate(T* mem, bool callDestructors)
     {
-        Byte* alignedAddress = reinterpret_cast<Byte*>(data);
-        ASSERT ( _InMemoryRange(data) && "Given memory was not from this allocator!" );
+        Byte* alignedAddress = reinterpret_cast<Byte*>(mem);
+        ASSERT( _InMemoryRange(mem) && "Given memory was not from this allocator!" );
 
-        // Retrieve amountOfObjects + Offset
-        Size amountOfObjects = 0;
-        Byte* amtOfObjectsAddress = (alignedAddress - AMOUNT_OF_BYTES_FOR_SIZE);
-        memcpy( &amountOfObjects, amtOfObjectsAddress, AMOUNT_OF_BYTES_FOR_SIZE );
+        // Retrieve AmountOfBytes + Offset
+        Size amountOfBytes = 0;
+        Byte* amtOfBytesAddress = (alignedAddress - AMOUNT_OF_BYTES_FOR_SIZE);
+        memcpy( &amountOfBytes, amtOfBytesAddress, AMOUNT_OF_BYTES_FOR_SIZE );
 
-        ASSERT( amountOfObjects > 0 && "Given memory was already deallocated!" );
+        ASSERT( amountOfBytes > 0 && "Given memory was already deallocated!" );
 
         Byte offset = 0;
-        Byte* offsetAddress = amtOfObjectsAddress - AMOUNT_OF_BYTES_FOR_OFFSET;
+        Byte* offsetAddress = amtOfBytesAddress - AMOUNT_OF_BYTES_FOR_OFFSET;
         memcpy( &offset, offsetAddress, AMOUNT_OF_BYTES_FOR_OFFSET );
 
-        // Call destructor for every object
-        for (Size i = 0; i < amountOfObjects; i++)
-            std::addressof( data[i] ) -> ~T();
+        if (callDestructors)
+        {
+            Size amountOfObjects = amountOfBytes / sizeof(T);
+            T* objStartAddress = reinterpret_cast<T*>(alignedAddress);
 
-        Size realBytes = (amountOfObjects * sizeof(T)) + offset;
+            // Call destructor for every object manually
+            for (Size i = 0; i < amountOfObjects; i++)
+                std::addressof( objStartAddress[i] ) -> ~T();
+        }
+
+        Size realBytes = amountOfBytes + offset;
         Byte* newChunkAddress = (alignedAddress - offset);
 
         // Zero out memory to detect if this memory was already deallocated
-        memset(newChunkAddress, 0, realBytes);
+        memset( newChunkAddress, 0, realBytes );
 
         // Add a new chunk of free bytes, possible merge it
         FreeChunk newFreeChunk( newChunkAddress, realBytes );
-        _MergeChunk(&newFreeChunk);
+        _MergeChunk( &newFreeChunk );
     }
 
     //----------------------------------------------------------------------
@@ -203,7 +256,7 @@ namespace MemoryManagement
                 if (didMerge)
                 {
                     newChunk->m_sizeInBytes += right->m_sizeInBytes;
-                    m_freeChunks.erase( std::remove( m_freeChunks.begin(), m_freeChunks.end(), *right ), m_freeChunks.end() );
+                    _RemoveFreeChunk( *right );
                 }
                 else
                 {
@@ -215,10 +268,7 @@ namespace MemoryManagement
         }
 
         if (!didMerge)
-        {
-            m_freeChunks.push_back( *newChunk );
-            std::sort( m_freeChunks.begin(), m_freeChunks.end() );
-        }
+            _AddNewChunk( *newChunk );
     }
 
     //----------------------------------------------------------------------
@@ -236,48 +286,53 @@ namespace MemoryManagement
     }
 
     //----------------------------------------------------------------------
-    template <class T, class... Arguments>
-    T* GeneralPurposeAllocator::FreeChunk::allocate(Size amountOfObjects, Arguments&&... args)
+    void GeneralPurposeAllocator::_RemoveFreeChunk(FreeChunk& freeChunk)
     {
-        ASSERT( amountOfObjects < ((Size)1 << (AMOUNT_OF_BYTES_FOR_SIZE * 8)) );
+        m_freeChunks.erase( std::remove( m_freeChunks.begin(), m_freeChunks.end(), freeChunk ), m_freeChunks.end() ); 
+    }
+
+    //----------------------------------------------------------------------
+    void GeneralPurposeAllocator::_AddNewChunk(FreeChunk& newChunk) 
+    { 
+        m_freeChunks.push_back( newChunk );
+        std::sort(m_freeChunks.begin(), m_freeChunks.end() );
+    }
+
+    //----------------------------------------------------------------------
+    void* GeneralPurposeAllocator::FreeChunk::allocateRaw(Size amountOfBytes, Size alignment)
+    {
+        ASSERT( amountOfBytes < ((Size)1 << (AMOUNT_OF_BYTES_FOR_SIZE * 8)) 
+            && "Not enough bytes in AMOUNT_OF_BYTES_FOR_SIZE to represent the given amountOfBytes" );
 
         // Allocate always additional bytes to store the amount of 
-        // alignment-correction and the amount of objects to allocate.
+        // alignment-correction and the amount of bytes to allocate.
         U8 additionalBytes = AMOUNT_OF_BYTES_FOR_OFFSET + AMOUNT_OF_BYTES_FOR_SIZE;
-        Byte* alignedAddress = alignAddress( m_address + additionalBytes, alignof(T) );
+        Byte* alignedAddress = alignAddress(m_address + additionalBytes, alignment);
 
-        Size bytesToAllocate = amountOfObjects * sizeof(T);
-        Byte* newChunkAddress = alignedAddress + bytesToAllocate;
-
+        Byte* newChunkAddress = alignedAddress + amountOfBytes;
         Size realBytes = (newChunkAddress - m_address);
 
         bool hasEnoughSpace = (realBytes <= m_sizeInBytes);
         if (hasEnoughSpace)
         {
-            // Save offset and amountOfObject-size
-            // [ -(Alignment) - offset - amountOfObjects - alignedAddress ]
-            Byte* amtOfObjectsAddress = (alignedAddress - AMOUNT_OF_BYTES_FOR_SIZE);
-            memcpy( amtOfObjectsAddress, &amountOfObjects, AMOUNT_OF_BYTES_FOR_SIZE );
+            // Save offset and amountOfBytes
+            // [ -(Alignment) - offset - amountOfBytes - alignedAddress ]
+            Byte* amtOfBytesAddress = (alignedAddress - AMOUNT_OF_BYTES_FOR_SIZE);
+            memcpy( amtOfBytesAddress, &amountOfBytes, AMOUNT_OF_BYTES_FOR_SIZE );
 
             Byte offset = static_cast<Byte>(alignedAddress - m_address);
-            Byte* offsetAddress = amtOfObjectsAddress - AMOUNT_OF_BYTES_FOR_OFFSET;
+            Byte* offsetAddress = amtOfBytesAddress - AMOUNT_OF_BYTES_FOR_OFFSET;
             memcpy( offsetAddress, &offset, AMOUNT_OF_BYTES_FOR_OFFSET );
-
-            // Call constructor on every object
-            T* returnPointer = reinterpret_cast<T*>( alignedAddress );
-            for (Size i = 0; i < amountOfObjects; i++)
-            {
-                T* objectLocation = std::addressof( returnPointer[i] );
-                new (objectLocation) T( std::forward<Arguments>(args)... );
-            }
 
             m_sizeInBytes -= realBytes;
             m_address = newChunkAddress;
 
-            return returnPointer;
+            return alignedAddress;
         }
+
         return nullptr;
     }
+
 
 
 }

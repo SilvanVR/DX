@@ -20,8 +20,11 @@ namespace MemoryManagement
     protected:
         virtual void _OutOfMemory() { ASSERT(false && "OutOfMemory"); }
 
-        Size m_TotalBytes;
-        Size m_TotalUsedBytes;
+        Size m_totalBytes;
+        Size m_totalUsedBytes;
+
+    private:
+        IAllocator* m_parentAllocator; 
     };
 
     //**********************************************************************
