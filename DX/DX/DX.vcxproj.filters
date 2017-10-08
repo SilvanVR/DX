@@ -36,6 +36,9 @@
     <ClCompile Include="src\Utils\utils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\MemoryManagement\Allocators\iallocator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\commenting_style.hpp">
@@ -71,12 +74,6 @@
     <ClInclude Include="src\MemoryManagement\memory_tracker.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\MemoryManagement\Allocators\general_purpose_allocator.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\MemoryManagement\Allocators\iallocator.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\MemoryManagement\Allocators\stack_allocator.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -90,6 +87,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\MemoryManagement\Allocators\pool_list_allocator.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MemoryManagement\Allocators\universal_allocator.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MemoryManagement\Allocators\iallocator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MemoryManagement\memory_structs.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

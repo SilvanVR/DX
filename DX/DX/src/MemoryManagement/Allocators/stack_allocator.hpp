@@ -6,26 +6,19 @@
     author: S. Hau
     date: October 4, 2017
 
-    StackAllocator interface. A stack-allocator preallocates a
-    fixed amount of memory beforehand to AVOID dynamic
-    memory allocation from the OS, which is in general very costly.
-    Features:
-     - All allocations are done on the top of the stack
-     - Therefore all allocations have to be freed in reversed order OR
-     - Using an (saved) Marker allows to free to a specific point 
-     - You can free the whole memory at once
-    Be careful about pointers pointing to memory in this allocator :-)
+    A custom allocator preallocates a fixed amount of memory beforehand
+    to AVOID dynamic memory allocation from the OS, which is in
+    general very costly. See below for a class description.
 **********************************************************************/
-
-#include "iallocator.hpp"
+#include "iallocator.h"
 
 namespace MemoryManagement
 {
-
     #define INITIAL_DESTRUCTOR_LIST_CAPACITY 32
 
     //**********************************************************************
-    // Marks a point in the stack, to which can be jumped back.
+    // Marks a point in the stack. Used to deallocate
+    // everything in a StackAllocator up to this point.
     //**********************************************************************
     class StackAllocatorMarker
     {
@@ -39,7 +32,12 @@ namespace MemoryManagement
     };
 
     //----------------------------------------------------------------------
-    class StackAllocator : public IAllocator
+    // Features:
+    //  [+] Allocations can be made in any size and any order
+    //  [-] Deallocation only possible to a (saved) marker or all at once.
+    //      A Marker can be retrieved via a method.
+    // Be careful about pointers pointing to memory in this allocator : -)
+    class StackAllocator : public _IAllocator
     {
         //**********************************************************************
         // Necessary to call the destructor of an object.
@@ -65,7 +63,7 @@ namespace MemoryManagement
         };
 
     public:
-        explicit StackAllocator(U32 amountOfBytes, IParentAllocator* parentAllocator = nullptr);
+        explicit StackAllocator(U32 amountOfBytes, _IParentAllocator* parentAllocator = nullptr);
         ~StackAllocator();
 
         //----------------------------------------------------------------------
@@ -131,8 +129,8 @@ namespace MemoryManagement
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    StackAllocator::StackAllocator(U32 amountOfBytes, IParentAllocator* parentAllocator)
-        : IAllocator( amountOfBytes, parentAllocator )
+    StackAllocator::StackAllocator(U32 amountOfBytes, _IParentAllocator* parentAllocator)
+        : _IAllocator( amountOfBytes, parentAllocator )
     {
         ASSERT( m_amountOfBytes > 0 );
 
@@ -199,7 +197,7 @@ namespace MemoryManagement
             destructor();
         m_destructors.clear();
 
-        _LogDeallocatedBytes( getMemoryInfo().currentBytesAllocated );
+        _LogDeallocatedBytes( getAllocationMemoryInfo().currentBytesAllocated );
     }
 
     //----------------------------------------------------------------------

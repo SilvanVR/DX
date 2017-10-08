@@ -6,25 +6,27 @@
     author: S. Hau
     date: October 4, 2017
 
-    PoolAllocator interface. A pool-allocator preallocates a
-    fixed amount of memory beforehand to AVOID dynamic
-    memory allocation from the OS, which is in general very costly.
-    Features:
-    - The allocated memory is divided into equally sized blocks
-    - Only memory blocks of those size can be allocated
-    - This allows to deallocate arbitrarily
-    - Fragmentation free
-    Be careful about pointers pointing to memory in this allocator :-)
+    A custom allocator preallocates a fixed amount of memory beforehand
+    to AVOID dynamic memory allocation from the OS, which is in
+    general very costly. See below for a class description.
 **********************************************************************/
+#include "iallocator.h"
 
-#include "iallocator.hpp"
-
-#define POOL_ALLOCATOR_DEFAULT_ALIGNMENT   16
 
 namespace MemoryManagement
 {
+    #define POOL_ALLOCATOR_DEFAULT_ALIGNMENT 16
 
-    class PoolAllocator : public IAllocator, public IParentAllocator
+    //**********************************************************************
+    // Features:
+    //  [+] The allocated memory is divided into equally sized blocks
+    //  [+] Deallocate/Allocate in any order
+    //  [+] Fragmentation free
+    //  [-] Only memory blocks of size less/equal the blocksize can be allocated
+    //  [-] No array allocations, only single blocks
+    // Be careful about pointers pointing to memory in this allocator :-)
+    //**********************************************************************
+    class PoolAllocator : public _IAllocator, public _IParentAllocator
     {
         //----------------------------------------------------------------------
         // Represents one allocatable chunk. If the chunk is not allocated it
@@ -46,7 +48,7 @@ namespace MemoryManagement
         // "parentAllocator": Parent allocator from which this allocator pulls
         //                    his memory out
         //----------------------------------------------------------------------
-        explicit PoolAllocator(Size bytesPerChunk, Size amountOfChunks, IParentAllocator* parentAllocator = nullptr);
+        explicit PoolAllocator(Size bytesPerChunk, Size amountOfChunks, _IParentAllocator* parentAllocator = nullptr);
         ~PoolAllocator();
 
         //----------------------------------------------------------------------
@@ -103,8 +105,8 @@ namespace MemoryManagement
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    PoolAllocator::PoolAllocator(Size bytesPerChunk, Size amountOfChunks, IParentAllocator* parentAllocator)
-        : IAllocator(bytesPerChunk * amountOfChunks, parentAllocator), m_bytesPerChunk(bytesPerChunk), m_amountOfChunks(amountOfChunks)
+    PoolAllocator::PoolAllocator(Size bytesPerChunk, Size amountOfChunks, _IParentAllocator* parentAllocator)
+        : _IAllocator(bytesPerChunk * amountOfChunks, parentAllocator), m_bytesPerChunk(bytesPerChunk), m_amountOfChunks(amountOfChunks)
     {
         ASSERT( m_amountOfChunks > 0 && m_bytesPerChunk >= sizeof(Size) );
 

@@ -34,9 +34,7 @@ public:
     }
 };
 
-MemoryManagement::GeneralPurposeAllocator gGeneralAllocator(1000);
-
-//MemoryManagement::PoolAllocator gPoolAllocator(72, 10);
+MemoryManagement::UniversalAllocator gUniversalAllocator(1000);
 
 class A
 {
@@ -98,7 +96,6 @@ public:
 
 
     SystemTime time;
-    std::string fr = "Franz";
 };
 
 class B : public A
@@ -111,7 +108,9 @@ class B : public A
 //  - Logging of memorytracker
 // - Make MemoryManager part of a subsystem and call init() ? -> that way static allocations don't count
 
-// - Defragmentation
+// - FileSystem
+//    -> Configuration-File(s) .ini
+// - Profiler
 
 
 
@@ -185,6 +184,9 @@ int main(void)
     //    void* test = poolListAllocator.allocateRaw(257);
     //    poolListAllocator.deallocate(test);
     //}
+
+    //MemoryManagement::
+
 
     MemoryManagement::MemoryTracker::log();
     system("pause");

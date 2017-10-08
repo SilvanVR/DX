@@ -1,20 +1,22 @@
 #pragma once
 
 /**********************************************************************
-    class: IParentAllocator + IAllocator + DefaultAllocator (iallocator.hpp)
+    class: IParentAllocator + _IAllocator + DefaultAllocator (_IAllocator.hpp)
 
     author: S. Hau
     date: October 5, 2017
 
     IParentAllocator:
         Interface for a parent allocator.
-    IAllocator:
+    _IAllocator:
         Interface for a basic allocator. Keeps track of allocations/
         deallocations and serves as a common hub amongst all allocators.
     DefaultAllocator:
         Will be used as a parent-allocator if no other allocator was 
         specified. It allocates using the global new + delete scheme.
 **********************************************************************/
+
+#include "../memory_structs.hpp"
 
 namespace MemoryManagement
 {
@@ -23,7 +25,7 @@ namespace MemoryManagement
     // Every allocator inheriting from this class and overriding the two
     // methods below can act as an parent allocator.
     //*********************************************************************
-    class IParentAllocator
+    class _IParentAllocator
     {
     public:
         //----------------------------------------------------------------------
@@ -47,92 +49,45 @@ namespace MemoryManagement
     // during construction of an allocator (e.g. Pool, Stack...).
     // The Default-Allocator allocates memory using global new and delete.
     //*********************************************************************
-    class DefaultAllocator : public IParentAllocator
+    class _DefaultAllocator : public _IParentAllocator
     {
     public:
-        DefaultAllocator() : IParentAllocator() {}
+        _DefaultAllocator() : _IParentAllocator() {}
 
-        void* allocateRaw(Size amountOfBytes, Size alignment) override
-        {
-            // Ignore alignment here
-            return new Byte[amountOfBytes];
-        }
+        static _DefaultAllocator* get(){ static _DefaultAllocator sInstance; return &sInstance; }
 
-        void  deallocate(void* mem) override
-        {
-            delete[] mem;
-        }
+        void* allocateRaw(Size amountOfBytes, Size alignment) override;
+        void  deallocate(void* mem) override;
     };
 
-    // Static instance of the default-allocator.
-    static DefaultAllocator defaultAllocator;
-
     //*********************************************************************
-    // IAllocator interface. Stores the parent allocator and 
-    // the memory information struct.
+    // _IAllocator interface. Common functionality for all allocators.
     //*********************************************************************
-    class IAllocator
+    class _IAllocator
     {
-        friend class PoolListAllocator;
+        friend class PoolListAllocator; // Access to _InMemoryRange()
+
     public:
         //----------------------------------------------------------------------
-        const MemoryInfo&   getMemoryInfo() const { return m_memoryInfo; }
-        bool                hasAllocatedBytes() const { return m_memoryInfo.currentBytesAllocated == 0; }
+        const AllocationMemoryInfo&  getAllocationMemoryInfo() const { return m_allocationMemoryInfo; }
+        bool hasAllocatedBytes() const { return m_allocationMemoryInfo.currentBytesAllocated == 0; }
 
     protected:
-        IAllocator(Size amountOfBytes, IParentAllocator* parentAllocator);
-        virtual ~IAllocator();
+        _IAllocator(Size amountOfBytes, _IParentAllocator* parentAllocator);
+        virtual ~_IAllocator();
 
-        inline void _OutOfMemory() const { ASSERT( false && "OutOfMemory" ); }
-        inline bool _InMemoryRange(void* data) const { return (data >= m_data) && ( data < (m_data + m_amountOfBytes) ); }
-        inline void _LogAllocatedBytes(Size amtOfBytes);
-        inline void _LogDeallocatedBytes(Size amtOfBytes);
+        void _OutOfMemory() const { ASSERT( false && "OutOfMemory" ); }
+        bool _InMemoryRange(void* data) const { return (data >= m_data) && ( data < (m_data + m_amountOfBytes) ); }
+        void _LogAllocatedBytes(Size amtOfBytes) { m_allocationMemoryInfo.addAllocation(amtOfBytes); }
+        void _LogDeallocatedBytes(Size amtOfBytes) { m_allocationMemoryInfo.removeAllocation(amtOfBytes); }
 
-        IParentAllocator*   m_parentAllocator;
-        Size                m_amountOfBytes;
-        Byte*               m_data;
+        _IParentAllocator*      m_parentAllocator;
+        Size                    m_amountOfBytes;
+        Byte*                   m_data;
 
     private:
-        MemoryInfo          m_memoryInfo;
+        AllocationMemoryInfo    m_allocationMemoryInfo;
     };
-
-    //**********************************************************************
-    // IMPLEMENTATION
-    //**********************************************************************
-
-    //----------------------------------------------------------------------
-    IAllocator::IAllocator(Size amountOfBytes, IParentAllocator* parentAllocator)
-        : m_amountOfBytes(amountOfBytes), m_parentAllocator(parentAllocator)
-    {
-        if (m_parentAllocator == nullptr)
-            m_parentAllocator = &defaultAllocator;
-    }
-
-    //----------------------------------------------------------------------
-    IAllocator::~IAllocator()
-    {
-        auto& memInfo = getMemoryInfo();
-        ASSERT( hasAllocatedBytes() && "There is still allocated memory somewhere!" );
-
-        m_parentAllocator->deallocate( m_data );
-        m_data = nullptr;
-    }
-
-    //----------------------------------------------------------------------
-    void IAllocator::_LogAllocatedBytes(Size amtOfBytes)
-    {
-        m_memoryInfo.currentBytesAllocated += amtOfBytes;
-        m_memoryInfo.totalBytesAllocated += amtOfBytes;
-        m_memoryInfo.totalAllocations++;
-    }
-
-    //----------------------------------------------------------------------
-    void IAllocator::_LogDeallocatedBytes(Size amtOfBytes)
-    {
-        m_memoryInfo.currentBytesAllocated -= amtOfBytes;
-        m_memoryInfo.totalBytesFreed += amtOfBytes;
-        m_memoryInfo.totalDeallocations++;
-    }
 
     //----------------------------------------------------------------------
     // Aligns an address to the next multiple of "alignment".
@@ -145,7 +100,7 @@ namespace MemoryManagement
     template <class T>
     T* alignAddress(T* address, Size alignment)
     {
-        ASSERT((alignment & (alignment - 1)) == 0); // alignment must be power of 2
+        ASSERT( (alignment & (alignment - 1) ) == 0); // alignment must be power of 2
 
         // Interpret address as a normal value
         Size rawAddress = reinterpret_cast<Size>( address );

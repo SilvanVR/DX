@@ -14,7 +14,7 @@
 namespace MemoryManagement
 {
 
-    MemoryInfo MemoryTracker::memoryInfo;
+    AllocationMemoryInfo MemoryTracker::s_memoryInfo;
 
     //----------------------------------------------------------------------
     void* _GlobalNewAndDeleteAllocator::allocate(Size size)
@@ -28,9 +28,7 @@ namespace MemoryManagement
         memcpy( mem, &allocationSize, sizeof( Size ));
         mem += sizeof( Size );
 
-        MemoryTracker::memoryInfo.currentBytesAllocated += allocationSize;
-        MemoryTracker::memoryInfo.totalBytesAllocated += allocationSize;
-        MemoryTracker::memoryInfo.totalAllocations++;
+        MemoryTracker::s_memoryInfo.addAllocation( allocationSize );
 
         return mem;
     }
@@ -42,10 +40,7 @@ namespace MemoryManagement
         mem -= sizeof( Size );
 
         Size allocatedSize = *(reinterpret_cast<Size*>( mem ));
-
-        MemoryTracker::memoryInfo.totalBytesFreed += allocatedSize;
-        MemoryTracker::memoryInfo.currentBytesAllocated -= allocatedSize;
-        MemoryTracker::memoryInfo.totalDeallocations++;
+        MemoryTracker::s_memoryInfo.removeAllocation( allocatedSize );
 
         std::free( mem );
     }
@@ -73,7 +68,7 @@ namespace MemoryManagement
 
         // It's important to fetch a local copy of the mem-info, otherwise the 
         // dynamically allocated string stuff will mess up the result
-        MemoryInfo memInfo = MemoryTracker::getMemoryInfo();
+        AllocationMemoryInfo memInfo = MemoryTracker::getAllocationMemoryInfo();
 
         std::cout << ("-------------- MEMORY INFO ---------------") << std::endl;
         std::cout << ("Current Allocated: " + Utils::bytesToString(memInfo.currentBytesAllocated)) << std::endl;

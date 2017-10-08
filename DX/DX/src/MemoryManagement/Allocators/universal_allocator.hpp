@@ -1,35 +1,34 @@
 #pragma once
 
 /**********************************************************************
-    class: GeneralPurposeAllocator (general_purpose_allocator.hpp)
+    class: UniversalAllocator (universal_allocator.hpp)
 
     author: S. Hau
     date: October 5, 2017
 
-    GeneralPurposeAllocator interface. This allocator preallocates a
-    fixed amount of memory beforehand to AVOID dynamic
-    memory allocation from the OS, which is in general very costly.
-    Features:
-    - (+) Allocations can be made of arbitrary size and amounts (arrays)
-    - (+) Deallocations can be made in any order
-    - (-) Memory will become fragmented
-    - (-) At least N-Bytes for SIZE + OFFSET has to be additionally
-          allocated for each request.
-    Be careful about pointers pointing to memory in this allocator :-)
+    A custom allocator preallocates a fixed amount of memory beforehand
+    to AVOID dynamic memory allocation from the OS, which is in
+    general very costly. See below for a class description.
 **********************************************************************/
 
-#include "iallocator.hpp"
+#include "iallocator.h"
 
 namespace MemoryManagement
 {
-
-    #define INITIAL_FREE_CHUNK_LIST_CAPACITY 32
+    #define INITIAL_FREE_CHUNK_LIST_CAPACITY    32
 
     // Amount of bytes additionally allocated to store necessary information needed for deallocation
-    static const U8 AMOUNT_OF_BYTES_FOR_SIZE    = 4;
-    static const U8 AMOUNT_OF_BYTES_FOR_OFFSET  = 1;
+    #define AMOUNT_OF_BYTES_FOR_SIZE            4
+    #define AMOUNT_OF_BYTES_FOR_OFFSET          1
 
-    class GeneralPurposeAllocator : public IAllocator, public IParentAllocator
+    // Features:
+    //  [+] Allocations can be made in any size/amounts and order
+    //  [+] Deallocations can be made in any order
+    //  [-] Memory will become fragmented
+    //  [-] At least N-Bytes for SIZE + OFFSET has to be additionally
+    //     allocated for each request. (Default: 5 Bytes)
+    // Be careful about pointers pointing to memory in this allocator :-)
+    class UniversalAllocator : public _IAllocator, public _IParentAllocator
     {
         //**********************************************************************
         // Represents one contiguous chunk of bytes in this allocator.
@@ -58,8 +57,8 @@ namespace MemoryManagement
         };
 
     public:
-        explicit GeneralPurposeAllocator(Size amountOfBytes, IParentAllocator* parentAllocator = nullptr);
-        ~GeneralPurposeAllocator() {}
+        explicit UniversalAllocator(Size amountOfBytes, _IParentAllocator* parentAllocator = nullptr);
+        ~UniversalAllocator() {}
 
         //----------------------------------------------------------------------
         // Allocate specified amount of bytes.
@@ -109,10 +108,10 @@ namespace MemoryManagement
         template <class T>
         inline void _Deallocate(T* mem, bool callDestructors);
 
-        GeneralPurposeAllocator (const GeneralPurposeAllocator& other)              = delete;
-        GeneralPurposeAllocator& operator = (const GeneralPurposeAllocator& other)  = delete;
-        GeneralPurposeAllocator (GeneralPurposeAllocator&& other)                   = delete;
-        GeneralPurposeAllocator& operator = (GeneralPurposeAllocator&& other)       = delete;
+        UniversalAllocator (const UniversalAllocator& other)              = delete;
+        UniversalAllocator& operator = (const UniversalAllocator& other)  = delete;
+        UniversalAllocator (UniversalAllocator&& other)                   = delete;
+        UniversalAllocator& operator = (UniversalAllocator&& other)       = delete;
     };
 
     //**********************************************************************
@@ -120,8 +119,8 @@ namespace MemoryManagement
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    GeneralPurposeAllocator::GeneralPurposeAllocator(Size amountOfBytes, IParentAllocator* parentAllocator)
-        : IAllocator(amountOfBytes, parentAllocator)
+    UniversalAllocator::UniversalAllocator(Size amountOfBytes, _IParentAllocator* parentAllocator)
+        : _IAllocator(amountOfBytes, parentAllocator)
     {
         ASSERT( m_amountOfBytes > 0 );
 
@@ -134,9 +133,9 @@ namespace MemoryManagement
 
     //----------------------------------------------------------------------
     template <class T, class... Args>
-    T* GeneralPurposeAllocator::allocate(Size amountOfObjects, Args&&... args)
+    T* UniversalAllocator::allocate(Size amountOfObjects, Args&&... args)
     {
-        static_assert(alignof(T) <= 128, "GeneralPurposeAllocator: Max alignment of 128 was exceeded.");
+        static_assert(alignof(T) <= 128, "UniversalAllocator: Max alignment of 128 was exceeded.");
 
         Size bytesToAllocate = amountOfObjects * sizeof(T);
         T* alignedAddress = reinterpret_cast<T*>( allocateRaw( bytesToAllocate, alignof(T) ) );
@@ -158,9 +157,9 @@ namespace MemoryManagement
     }
 
     //----------------------------------------------------------------------
-    void* GeneralPurposeAllocator::allocateRaw(Size amountOfBytes, Size alignment)
+    void* UniversalAllocator::allocateRaw(Size amountOfBytes, Size alignment)
     {
-        ASSERT( alignment <= 128 && "GeneralPurposeAllocator: Max alignment of 128 was exceeded." );
+        ASSERT( alignment <= 128 && "UniversalAllocator: Max alignment of 128 was exceeded." );
 
         for (FreeChunk& freeChunk : m_freeChunks)
         {
@@ -187,7 +186,7 @@ namespace MemoryManagement
 
     //----------------------------------------------------------------------
     template <class T>
-    void GeneralPurposeAllocator::_Deallocate(T* mem, bool callDestructors)
+    void UniversalAllocator::_Deallocate(T* mem, bool callDestructors)
     {
         Byte* alignedAddress = reinterpret_cast<Byte*>(mem);
         ASSERT( _InMemoryRange(mem) && "Given memory was not from this allocator!" );
@@ -227,7 +226,7 @@ namespace MemoryManagement
     }
 
     //----------------------------------------------------------------------
-    void GeneralPurposeAllocator::_MergeChunk(FreeChunk* newChunk)
+    void UniversalAllocator::_MergeChunk(FreeChunk* newChunk)
     {
         FreeChunk* left = nullptr;
         FreeChunk* right = nullptr;
@@ -266,7 +265,7 @@ namespace MemoryManagement
     }
 
     //----------------------------------------------------------------------
-    void GeneralPurposeAllocator::_FindNeighborChunks(const FreeChunk* newChunk, FreeChunk*& left, FreeChunk*& right)
+    void UniversalAllocator::_FindNeighborChunks(const FreeChunk* newChunk, FreeChunk*& left, FreeChunk*& right)
     {
         for (Size i = 0; i < m_freeChunks.size(); i++)
         {
@@ -280,20 +279,20 @@ namespace MemoryManagement
     }
 
     //----------------------------------------------------------------------
-    void GeneralPurposeAllocator::_RemoveFreeChunk(FreeChunk& freeChunk)
+    void UniversalAllocator::_RemoveFreeChunk(FreeChunk& freeChunk)
     {
         m_freeChunks.erase( std::remove( m_freeChunks.begin(), m_freeChunks.end(), freeChunk ), m_freeChunks.end() ); 
     }
 
     //----------------------------------------------------------------------
-    void GeneralPurposeAllocator::_AddNewChunk(FreeChunk& newChunk) 
+    void UniversalAllocator::_AddNewChunk(FreeChunk& newChunk) 
     { 
         m_freeChunks.push_back( newChunk );
-        std::sort(m_freeChunks.begin(), m_freeChunks.end() );
+        std::sort( m_freeChunks.begin(), m_freeChunks.end() );
     }
 
     //----------------------------------------------------------------------
-    void* GeneralPurposeAllocator::FreeChunk::allocateRaw(Size amountOfBytes, Size alignment)
+    void* UniversalAllocator::FreeChunk::allocateRaw(Size amountOfBytes, Size alignment)
     {
         ASSERT( amountOfBytes < ((Size)1 << (AMOUNT_OF_BYTES_FOR_SIZE * 8)) 
             && "Not enough bytes in AMOUNT_OF_BYTES_FOR_SIZE to represent the given amountOfBytes" );

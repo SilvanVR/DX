@@ -12,23 +12,15 @@
       - Static libraries will???
 **********************************************************************/
 
+#include "memory_structs.hpp"
+
 namespace MemoryManagement
 {
 
-    struct MemoryInfo
-    {
-        U64 currentBytesAllocated;
-        U64 totalBytesAllocated;
-        U64 totalBytesFreed;
-        U64 totalAllocations;
-        U64 totalDeallocations;
-    };
-
     //**********************************************************************
     // Global new/delete call this functions in order to allocate/deallocate.
-    // Manipulates the MemoryInfo struct in the MemoryTracker class.
+    // Manipulates the AllocationMemoryInfo struct in the MemoryTracker class.
     //**********************************************************************
-
     class _GlobalNewAndDeleteAllocator
     {
     public:
@@ -42,7 +34,6 @@ namespace MemoryManagement
     //**********************************************************************
     // Keeps track of all GLOBAL allocations / deallocations.
     //**********************************************************************
-
     class MemoryTracker
     {
         friend class _GlobalNewAndDeleteAllocator;
@@ -52,16 +43,16 @@ namespace MemoryManagement
         // Return the memory information struct. Information in 
         // that struct was gathered through global new/delete.
         //----------------------------------------------------------------------
-        static const MemoryInfo& getMemoryInfo() { return memoryInfo; }
+        static const AllocationMemoryInfo& getAllocationMemoryInfo() { return s_memoryInfo; }
 
         //----------------------------------------------------------------------
-        // Log the MemoryInfo
+        // Log the AllocationMemoryInfo
         //----------------------------------------------------------------------
         static void log();
 
     private:
         // Be careful. The memory is automatically zeroed out, because its static.
-        static MemoryInfo memoryInfo;
+        static AllocationMemoryInfo s_memoryInfo;
     };
 
 

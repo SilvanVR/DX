@@ -6,20 +6,20 @@
     author: S. Hau
     date: October 8, 2017
 
-    A PoolListAllocator manages several PoolAllocators of different sizes.
-    Allocations will be fetched from a PoolAllocator closest to the size
-    of the allocation.
-    Features:
-    - (+) No Fragmentation
-    - (+) Optimal memory usage
-    - (-) No array allocation
+
 **********************************************************************/
 
-#include "iallocator.hpp"
+#include "pool_allocator.hpp"
 
 namespace MemoryManagement
 {
-
+    // A PoolListAllocator manages several PoolAllocators of different sizes.
+    // Allocations will be fetched from a PoolAllocator closest to the size
+    // of the allocation.
+    // Features:
+    //  [+] No Fragmentation
+    //  [+] Optimal memory usage
+    //  [-] No array allocation, only single blocks of data
     class PoolListAllocator
     {
     public:
@@ -32,7 +32,9 @@ namespace MemoryManagement
         // "parentAllocator": The ParentAllocator from which all PoolAllocators
         //                    will get their memory from.
         //----------------------------------------------------------------------
-        PoolListAllocator(const std::vector<int>& sizesInBytes, Size amountOfChunks, IParentAllocator* parentAllocator = nullptr);
+        explicit PoolListAllocator(const std::vector<int>& sizesInBytes,
+                                   Size amountOfChunks,
+                                   _IParentAllocator* parentAllocator = nullptr);
         ~PoolListAllocator();
 
         //----------------------------------------------------------------------
@@ -85,7 +87,7 @@ namespace MemoryManagement
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    PoolListAllocator::PoolListAllocator(const std::vector<int>& sizesInBytes, Size amountOfChunks, IParentAllocator* parentAllocator)
+    PoolListAllocator::PoolListAllocator(const std::vector<int>& sizesInBytes, Size amountOfChunks, _IParentAllocator* parentAllocator)
     {
         for (auto& poolSize : sizesInBytes)
         {
