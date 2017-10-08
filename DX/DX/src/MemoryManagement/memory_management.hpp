@@ -5,3 +5,4 @@
 #include "Allocators/general_purpose_allocator.hpp"
 #include "Allocators/stack_allocator.hpp"
 #include "Allocators/pool_allocator.hpp"
+#include "Allocators/pool_list_allocator.hpp"

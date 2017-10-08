@@ -80,6 +80,9 @@ namespace MemoryManagement
         template<class T, class T2 = std::enable_if<!std::is_trivially_destructible<T>::value>::type>
         void deallocate(T* data);
 
+        //----------------------------------------------------------------------
+        inline Size getChunkSize() const { return m_bytesPerChunk; }
+
     private:
         Byte*       m_head = nullptr; // Points to next free chunk
 
@@ -89,10 +92,10 @@ namespace MemoryManagement
         void _PrintChunks();
         void _WarnBadAlignment(Size misalignment, Size actualAlignment);
 
-        PoolAllocator(const PoolAllocator& other) = delete;
-        PoolAllocator& operator = (const PoolAllocator& other) = delete;
-        PoolAllocator(PoolAllocator&& other) = delete;
-        PoolAllocator& operator = (PoolAllocator&& other) = delete;
+        PoolAllocator(const PoolAllocator& other)               = delete;
+        PoolAllocator& operator = (const PoolAllocator& other)  = delete;
+        PoolAllocator(PoolAllocator&& other)                    = delete;
+        PoolAllocator& operator = (PoolAllocator&& other)       = delete;
     };
 
     //**********************************************************************

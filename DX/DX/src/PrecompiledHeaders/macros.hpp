@@ -10,10 +10,11 @@
 **********************************************************************/
 
 #define TS(s)                   std::to_string(s)
-#define ASSERT(exp)             assert(exp)
 
 #ifdef _DEBUG
     #define NEW                 new(__FILE__, __LINE__)
+    #define ASSERT(exp)         assert(exp)
 #else
     #define NEW                 new
+    #define ASSERT(exp)         assert(exp)
 #endif

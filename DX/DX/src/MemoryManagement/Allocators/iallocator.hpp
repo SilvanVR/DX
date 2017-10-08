@@ -73,6 +73,7 @@ namespace MemoryManagement
     //*********************************************************************
     class IAllocator
     {
+        friend class PoolListAllocator;
     public:
         //----------------------------------------------------------------------
         const MemoryInfo&   getMemoryInfo() const { return m_memoryInfo; }

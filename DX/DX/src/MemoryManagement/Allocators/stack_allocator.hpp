@@ -103,7 +103,7 @@ namespace MemoryManagement
         StackAllocatorMarker getMarker() const { return StackAllocatorMarker( m_head, m_destructors.size() ); }
 
     private:
-        Byte* m_head;
+        Byte* m_head; // Points to next free memory
 
         // Stores destructors for allocates objects
         std::vector<StackAllocatorDestructor> m_destructors;

@@ -156,6 +156,7 @@
     <ClInclude Include="src\MemoryManagement\Allocators\general_purpose_allocator.hpp" />
     <ClInclude Include="src\MemoryManagement\Allocators\iallocator.hpp" />
     <ClInclude Include="src\MemoryManagement\Allocators\pool_allocator.hpp" />
+    <ClInclude Include="src\MemoryManagement\Allocators\pool_list_allocator.hpp" />
     <ClInclude Include="src\MemoryManagement\memory.hpp" />
     <ClInclude Include="src\MemoryManagement\memory_management.hpp" />
     <ClInclude Include="src\MemoryManagement\memory_tracker.h" />

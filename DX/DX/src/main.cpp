@@ -109,12 +109,9 @@ class B : public A
 //@TODO: 
 // - LOGGER
 //  - Logging of memorytracker
+// - Make MemoryManager part of a subsystem and call init() ? -> that way static allocations don't count
 
 // - Defragmentation
-
-//  -> deconstructor in iallocator??
-
-// - MemoryPoolAllocator - Several Pools of different sizes => allocates from pool closest do needed size
 
 
 
@@ -175,16 +172,19 @@ int main(void)
         }
     }*/
 
-    {
-     /*   A* a = new A[10];
-        delete[] a;*/
+    //{
+    //    MemoryManagement::PoolListAllocator poolListAllocator({ 8, 16, 32, 64, 128, 256 }, 32);
 
-        //A* a = gGeneralAllocator.allocate<A>(1);
-        //gGeneralAllocator.deallocate(a);
+    //    A* a;
+    //    a = poolListAllocator.allocate<A>();
+    //    poolListAllocator.deallocate(a);
 
-        //SystemTime curTime = OS::PlatformTimer::getCurrentTime();
-        //LOG(curTime.toString());
-    }
+    //    Size* f = poolListAllocator.allocate<Size>();
+    //    poolListAllocator.deallocate(f);
+
+    //    void* test = poolListAllocator.allocateRaw(257);
+    //    poolListAllocator.deallocate(test);
+    //}
 
     MemoryManagement::MemoryTracker::log();
     system("pause");
