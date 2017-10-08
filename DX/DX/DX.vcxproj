@@ -155,6 +155,7 @@
     <ClInclude Include="src\commenting_style.hpp" />
     <ClInclude Include="src\MemoryManagement\Allocators\general_purpose_allocator.hpp" />
     <ClInclude Include="src\MemoryManagement\Allocators\iallocator.hpp" />
+    <ClInclude Include="src\MemoryManagement\Allocators\pool_allocator.hpp" />
     <ClInclude Include="src\MemoryManagement\memory.hpp" />
     <ClInclude Include="src\MemoryManagement\memory_management.hpp" />
     <ClInclude Include="src\MemoryManagement\memory_tracker.h" />
@@ -162,7 +163,6 @@
     <ClInclude Include="src\PrecompiledHeaders\data_types.hpp" />
     <ClInclude Include="src\Interfaces\singleton.hpp" />
     <ClInclude Include="src\PrecompiledHeaders\macros.hpp" />
-    <ClInclude Include="src\MemoryManagement\Allocators\pool_allocator.hpp" />
     <ClInclude Include="src\MemoryManagement\Allocators\stack_allocator.hpp" />
     <ClInclude Include="src\OS\PlatformTimer\platform_timer.h" />
     <ClInclude Include="src\OS\PlatformTimer\system_time.hpp" />

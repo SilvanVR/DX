@@ -75,15 +75,15 @@ namespace MemoryManagement
     {
     public:
         //----------------------------------------------------------------------
-        const MemoryInfo&   getMemoryInfo(){ return m_memoryInfo; }
-        bool                hasAllocatedBytes(){ return m_memoryInfo.currentBytesAllocated == 0; }
+        const MemoryInfo&   getMemoryInfo() const { return m_memoryInfo; }
+        bool                hasAllocatedBytes() const { return m_memoryInfo.currentBytesAllocated == 0; }
 
     protected:
         IAllocator(Size amountOfBytes, IParentAllocator* parentAllocator);
         virtual ~IAllocator();
 
-        inline void _OutOfMemory() { ASSERT( false && "OutOfMemory" ); }
-        inline bool _InMemoryRange(void* data) const { return (data >= m_data) && ( data <= (m_data + m_amountOfBytes) ); }
+        inline void _OutOfMemory() const { ASSERT( false && "OutOfMemory" ); }
+        inline bool _InMemoryRange(void* data) const { return (data >= m_data) && ( data < (m_data + m_amountOfBytes) ); }
         inline void _LogAllocatedBytes(Size amtOfBytes);
         inline void _LogDeallocatedBytes(Size amtOfBytes);
 
@@ -110,13 +110,11 @@ namespace MemoryManagement
     //----------------------------------------------------------------------
     IAllocator::~IAllocator()
     {
-        // @TODO
-       /* auto& memInfo = getMemoryInfo();
-        ASSERT(hasAllocatedBytes() && "There is still allocated memory somewhere!");
+        auto& memInfo = getMemoryInfo();
+        ASSERT( hasAllocatedBytes() && "There is still allocated memory somewhere!" );
 
-        m_parentAllocator->deallocate(m_data);
-
-        m_data = nullptr;*/
+        m_parentAllocator->deallocate( m_data );
+        m_data = nullptr;
     }
 
     //----------------------------------------------------------------------

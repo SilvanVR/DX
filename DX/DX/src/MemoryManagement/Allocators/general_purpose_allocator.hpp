@@ -10,9 +10,11 @@
     fixed amount of memory beforehand to AVOID dynamic
     memory allocation from the OS, which is in general very costly.
     Features:
-    - Allocations can be made of arbitrary size and amounts (arrays)
-    - Deallocations can be made in any order
-    - (---) Memory will become fragmented
+    - (+) Allocations can be made of arbitrary size and amounts (arrays)
+    - (+) Deallocations can be made in any order
+    - (-) Memory will become fragmented
+    - (-) At least N-Bytes for SIZE + OFFSET has to be additionally
+          allocated for each request.
     Be careful about pointers pointing to memory in this allocator :-)
 **********************************************************************/
 
@@ -57,7 +59,7 @@ namespace MemoryManagement
 
     public:
         explicit GeneralPurposeAllocator(Size amountOfBytes, IParentAllocator* parentAllocator = nullptr);
-        ~GeneralPurposeAllocator();
+        ~GeneralPurposeAllocator() {}
 
         //----------------------------------------------------------------------
         // Allocate specified amount of bytes.
@@ -101,7 +103,6 @@ namespace MemoryManagement
         // Add the given chunk to "m_freeChunks". Merges chunks together if possible.
         void _MergeChunk(FreeChunk* newChunk);
 
-
         inline void _RemoveFreeChunk(FreeChunk& freeChunk);
         inline void _AddNewChunk(FreeChunk& newChunk);
 
@@ -125,20 +126,10 @@ namespace MemoryManagement
         ASSERT( m_amountOfBytes > 0 );
 
         m_data = reinterpret_cast<Byte*>( m_parentAllocator->allocateRaw( m_amountOfBytes) );
+        ASSERT( m_data != nullptr );
 
         m_freeChunks.reserve( INITIAL_FREE_CHUNK_LIST_CAPACITY );
         m_freeChunks.push_back( FreeChunk( m_data, m_amountOfBytes ) );
-    }
-
-    //----------------------------------------------------------------------
-    GeneralPurposeAllocator::~GeneralPurposeAllocator()
-    {
-        auto& memInfo = getMemoryInfo();
-        ASSERT( hasAllocatedBytes() && "There is still allocated memory somewhere!" );
-
-        m_parentAllocator->deallocate( m_data );
-
-        m_data = nullptr;
     }
 
     //----------------------------------------------------------------------

@@ -88,7 +88,7 @@ namespace MemoryManagement
         //----------------------------------------------------------------------
         // Clears the whole stack at once.
         //----------------------------------------------------------------------
-        void clearAll();
+        void clear();
 
         //----------------------------------------------------------------------
         // Clears the stack to the given marker.
@@ -103,8 +103,7 @@ namespace MemoryManagement
         StackAllocatorMarker getMarker() const { return StackAllocatorMarker( m_head, m_destructors.size() ); }
 
     private:
-        Byte*   m_data = nullptr;
-        Byte*   m_head = nullptr;
+        Byte* m_head;
 
         // Stores destructors for allocates objects
         std::vector<StackAllocatorDestructor> m_destructors;
@@ -138,6 +137,8 @@ namespace MemoryManagement
         ASSERT( m_amountOfBytes > 0 );
 
         m_data = reinterpret_cast<Byte*>( m_parentAllocator->allocateRaw( m_amountOfBytes ) );
+        ASSERT( m_data != nullptr );
+
         m_head = m_data;
 
         m_destructors.reserve( INITIAL_DESTRUCTOR_LIST_CAPACITY );
@@ -146,12 +147,6 @@ namespace MemoryManagement
     //----------------------------------------------------------------------
     StackAllocator::~StackAllocator()
     {
-        auto& memInfo = getMemoryInfo();
-        ASSERT( (m_head != m_data) && "StackAllocator is not empty" );
-
-        m_parentAllocator->deallocate( m_data );
-
-        m_data = nullptr;
         m_head = nullptr;
     }
 
@@ -185,7 +180,7 @@ namespace MemoryManagement
         {
             for (Size i = 0; i < amountOfObjects; i++)
             {
-                T* object = new ( std::addressof(alignedAddress[i] ) ) T( std::forward<Args>(args)... );
+                T* object = new ( std::addressof( alignedAddress[i] ) ) T( std::forward<Args>(args)... );
                 _AddDestructorToList<T>( object );
             }
 
@@ -197,7 +192,7 @@ namespace MemoryManagement
     }
 
     //----------------------------------------------------------------------
-    void StackAllocator::clearAll() 
+    void StackAllocator::clear()
     {
         m_head = m_data;
         for (auto& destructor : m_destructors)

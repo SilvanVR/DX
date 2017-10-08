@@ -34,17 +34,19 @@ public:
     }
 };
 
-MemoryManagement::GeneralPurposeAllocator gGeneralAllocator(1500);
+MemoryManagement::GeneralPurposeAllocator gGeneralAllocator(1000);
+
+//MemoryManagement::PoolAllocator gPoolAllocator(72, 10);
 
 class A
 {
 public:
     A() {
-        LOG("Constructor");
+        //LOG("Constructor");
     }
     ~A() {
         int i = 25;
-        LOG("Destructor");
+        //LOG("Destructor");
     }
 
     A(const A& other)
@@ -73,25 +75,25 @@ public:
     //static void* operator new(Size sz)
     //{
     //    std::cout << "custom new for size " << sz << '\n';
-    //    return gGeneralAllocator.allocateRaw( sz, alignof(A) );
+    //    return gPoolAllocator.allocateRaw( sz, alignof(A) );
     //}
 
     //static void operator delete(void* mem)
     //{
     //    std::cout << "custom delete \n";
-    //    return gGeneralAllocator.deallocate( mem );
+    //    return gPoolAllocator.deallocate( mem );
     //}
 
     //static void* operator new[](std::size_t sz)
     //{
     //    std::cout << "custom new[] for size " << sz << '\n';
-    //    return gGeneralAllocator.allocateRaw(sz, alignof(A));
+    //    return gPoolAllocator.allocateRaw(sz, alignof(A));
     //}
 
     //static void operator delete[](void* mem)
     //{
     //    std::cout << "custom delete[] \n";
-    //    return gGeneralAllocator.deallocate(mem);
+    //    return gPoolAllocator.deallocate(mem);
     //}
 
 
@@ -110,10 +112,9 @@ class B : public A
 
 // - Defragmentation
 
-// - MemoryPoolAllocator - Several Pools of different sizes => allocates from pool closest do needed size
-// -> PoolAllocator with raw bytes instead of from a class
-// - Rewrite pool allocator
 //  -> deconstructor in iallocator??
+
+// - MemoryPoolAllocator - Several Pools of different sizes => allocates from pool closest do needed size
 
 
 
@@ -124,7 +125,7 @@ int main(void)
     //String ste = IDS(te);
     //String ste2 = IDS(te2);
     //LOG(ste + " " + ste2);
-#define SIZE 10
+#define SIZE 100000
 
     //LOG("MEASURE NEW + DELETE...");
     //static A* a[SIZE];
@@ -144,13 +145,13 @@ int main(void)
    /* {
         LOG("MEASURE POOL ALLOCATOR...");
         static A* a2[SIZE];
-        MemoryManagement::PoolAllocator<A> poolAllocator(SIZE, &gGeneralAllocator);
+        MemoryManagement::PoolAllocator poolAllocator(sizeof(A), SIZE);
         {
             AutoClock clock;
 
             for (int i = 0; i < SIZE; i++)
             {
-                a2[i] = poolAllocator.allocate();
+                a2[i] = poolAllocator.allocate<A>();
             }
             for (int i = 0; i < SIZE; i++)
             {
@@ -160,17 +161,17 @@ int main(void)
     }*/
 
 
-  /*  {
+   /* {
         LOG("MEASURE STACK ALLOCATOR...");
         static A* a3[SIZE];
-        MemoryManagement::StackAllocator stackAllocator(SIZE * sizeof(A) * 2, &gGeneralAllocator);
+        MemoryManagement::StackAllocator stackAllocator(SIZE * sizeof(A) * 2);
         {
             AutoClock clock;
             for (int i = 0; i < SIZE; i++)
             {
                 a3[i] = stackAllocator.allocate<A>();
             }
-            stackAllocator.clearAll();
+            stackAllocator.clear();
         }
     }*/
 
@@ -184,7 +185,6 @@ int main(void)
         //SystemTime curTime = OS::PlatformTimer::getCurrentTime();
         //LOG(curTime.toString());
     }
-
 
     MemoryManagement::MemoryTracker::log();
     system("pause");
