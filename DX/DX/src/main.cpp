@@ -100,7 +100,13 @@ public:
 
 class B : public A
 {
+public:
+    U32 lols;
+};
 
+class C
+{
+    U64 lul;
 };
 
 //@TODO: 
@@ -185,7 +191,39 @@ int main(void)
     //    poolListAllocator.deallocate(test);
     //}
 
-    //MemoryManagement::
+    {
+        MemoryManagement::UniversalAllocatorDefragmented universalDefragmentedAllocator(1000, 100);
+
+        auto a = universalDefragmentedAllocator.allocate<A>(1);
+        A* aRaw = a.getRaw();
+        universalDefragmentedAllocator.deallocate(a);
+
+        MemoryManagement::UAPtr<B> b = universalDefragmentedAllocator.allocate<B>(1);
+        MemoryManagement::UAPtr<A> a2 = b;
+        universalDefragmentedAllocator.deallocate(a2);
+
+
+        auto raw = universalDefragmentedAllocator.allocateRaw(1);
+        Byte* r = raw.getRaw();
+        universalDefragmentedAllocator.deallocate(raw);
+
+        MemoryManagement::UAPtr<U32> u32 = universalDefragmentedAllocator.allocate<U32>();
+        //MemoryManagement::UAPtr<Byte> test = u32;
+        universalDefragmentedAllocator.deallocate(u32);
+
+
+        MemoryManagement::UAPtr<U32> arr[10];
+        for (int i = 0; i < 10; i++)
+        {
+            arr[i] = universalDefragmentedAllocator.allocate<U32>(1);
+            *arr[i] = i;
+        }
+        for (int i = 0; i < 10; i++)
+        {
+            LOG(*arr[i]);
+            universalDefragmentedAllocator.deallocate(arr[i]);
+        }
+    }
 
 
     MemoryManagement::MemoryTracker::log();

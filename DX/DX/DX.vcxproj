@@ -158,6 +158,7 @@
     <ClInclude Include="src\MemoryManagement\Allocators\iallocator.h" />
     <ClInclude Include="src\MemoryManagement\Allocators\pool_allocator.hpp" />
     <ClInclude Include="src\MemoryManagement\Allocators\pool_list_allocator.hpp" />
+    <ClInclude Include="src\MemoryManagement\Allocators\universal_allocator_defragmented.hpp" />
     <ClInclude Include="src\MemoryManagement\memory.hpp" />
     <ClInclude Include="src\MemoryManagement\memory_management.hpp" />
     <ClInclude Include="src\MemoryManagement\memory_structs.hpp" />

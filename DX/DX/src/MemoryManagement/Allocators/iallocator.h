@@ -71,6 +71,7 @@ namespace MemoryManagement
         //----------------------------------------------------------------------
         const AllocationMemoryInfo&  getAllocationMemoryInfo() const { return m_allocationMemoryInfo; }
         bool hasAllocatedBytes() const { return m_allocationMemoryInfo.currentBytesAllocated == 0; }
+        _IParentAllocator* getParentAllocator() const { return m_parentAllocator; }
 
     protected:
         _IAllocator(Size amountOfBytes, _IParentAllocator* parentAllocator);

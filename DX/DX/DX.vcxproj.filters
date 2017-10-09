@@ -98,5 +98,8 @@
     <ClInclude Include="src\MemoryManagement\memory_structs.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\MemoryManagement\Allocators\universal_allocator_defragmented.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
