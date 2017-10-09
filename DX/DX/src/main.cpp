@@ -61,11 +61,13 @@ public:
     A(const A&& other)
     {
         LOG("Move Constructor");
+        time = other.time;
     }
 
     A& operator=(const A&& other)
     {
         LOG("Move Assignment");
+        time = other.time;
         return *this;
     }
 
@@ -118,6 +120,8 @@ class C
 //    -> Configuration-File(s) .ini
 // - Profiler
 
+// - refactor parentheses
+
 
 
 int main(void)
@@ -160,10 +164,10 @@ int main(void)
                 poolAllocator.deallocate(a2[i]);
             }
         }
-    }*/
+    }
 
 
-   /* {
+    {
         LOG("MEASURE STACK ALLOCATOR...");
         static A* a3[SIZE];
         MemoryManagement::StackAllocator stackAllocator(SIZE * sizeof(A) * 2);
@@ -175,21 +179,21 @@ int main(void)
             }
             stackAllocator.clear();
         }
+    }
+
+    {
+        MemoryManagement::PoolListAllocator poolListAllocator({ 8, 16, 32, 64, 128, 256 }, 32);
+
+        A* a;
+        a = poolListAllocator.allocate<A>();
+        poolListAllocator.deallocate(a);
+
+        Size* f = poolListAllocator.allocate<Size>();
+        poolListAllocator.deallocate(f);
+
+        void* test = poolListAllocator.allocateRaw(255);
+        poolListAllocator.deallocate(test);
     }*/
-
-    //{
-    //    MemoryManagement::PoolListAllocator poolListAllocator({ 8, 16, 32, 64, 128, 256 }, 32);
-
-    //    A* a;
-    //    a = poolListAllocator.allocate<A>();
-    //    poolListAllocator.deallocate(a);
-
-    //    Size* f = poolListAllocator.allocate<Size>();
-    //    poolListAllocator.deallocate(f);
-
-    //    void* test = poolListAllocator.allocateRaw(257);
-    //    poolListAllocator.deallocate(test);
-    //}
 
     {
         MemoryManagement::UniversalAllocatorDefragmented universalDefragmentedAllocator(1000, 100);
@@ -201,7 +205,6 @@ int main(void)
         MemoryManagement::UAPtr<B> b = universalDefragmentedAllocator.allocate<B>(1);
         MemoryManagement::UAPtr<A> a2 = b;
         universalDefragmentedAllocator.deallocate(a2);
-
 
         auto raw = universalDefragmentedAllocator.allocateRaw(1);
         Byte* r = raw.getRaw();
@@ -223,8 +226,28 @@ int main(void)
             LOG(*arr[i]);
             universalDefragmentedAllocator.deallocate(arr[i]);
         }
-    }
 
+
+        auto a5 = universalDefragmentedAllocator.allocate<A>();
+        //auto rawr = universalDefragmentedAllocator.allocateRaw(100);
+
+        auto a6 = universalDefragmentedAllocator.allocate<A>();
+
+        universalDefragmentedAllocator.deallocate(a5);
+        //universalDefragmentedAllocator.deallocate(rawr);
+
+        a6->time = OS::PlatformTimer::getCurrentTime();
+        LOG(a6->time.toString());
+        std::cout << a6.getRaw() << std::endl;
+
+        // A6 should be shifted
+        universalDefragmentedAllocator.defragmentOnce();
+
+        LOG(a6->time.toString());
+        std::cout << a6.getRaw() << std::endl;
+
+        universalDefragmentedAllocator.deallocate(a6);
+    }
 
     MemoryManagement::MemoryTracker::log();
     system("pause");

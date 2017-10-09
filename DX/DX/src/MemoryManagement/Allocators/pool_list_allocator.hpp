@@ -13,6 +13,7 @@
 
 namespace MemoryManagement
 {
+    //**********************************************************************
     // A PoolListAllocator manages several PoolAllocators of different sizes.
     // Allocations will be fetched from a PoolAllocator closest to the size
     // of the allocation.
@@ -20,6 +21,7 @@ namespace MemoryManagement
     //  [+] No Fragmentation
     //  [+] Optimal memory usage
     //  [-] No array allocation, only single blocks of data
+    //**********************************************************************
     class PoolListAllocator
     {
     public:

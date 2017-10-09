@@ -19,8 +19,34 @@ namespace MemoryManagement
 
     // Amount of bytes additionally allocated to store necessary information needed for deallocation
     #define AMOUNT_OF_BYTES_FOR_SIZE            4
-    #define AMOUNT_OF_BYTES_FOR_OFFSET          1
+    #define AMOUNT_OF_BYTES_FOR_OFFSET          1 // DO NOT change this value
 
+    void _UVAllocatorWriteAdditionalBytes(Byte* alignedAddress, Size amtOfBytes, Byte offset)
+    {
+        // [ -(Alignment) - offset - amountOfBytes - alignedAddress ]
+        Byte* amtOfBytesAddress = (alignedAddress - AMOUNT_OF_BYTES_FOR_SIZE);
+        memcpy( amtOfBytesAddress, &amtOfBytes, AMOUNT_OF_BYTES_FOR_SIZE );
+
+        Byte* offsetAddress = (amtOfBytesAddress - AMOUNT_OF_BYTES_FOR_OFFSET);
+        memcpy( offsetAddress, &offset, AMOUNT_OF_BYTES_FOR_OFFSET );
+    }
+
+    Byte _UVAllocatorGetOffset(Byte* alignedAddress)
+    {
+        Byte offset = *(alignedAddress - AMOUNT_OF_BYTES_FOR_SIZE - AMOUNT_OF_BYTES_FOR_OFFSET);
+        return offset;
+    }
+
+    Size _UVAllocatorGetAmountOfBytes(Byte* alignedAddress)
+    {
+        Size amountOfBytes = 0;
+        Byte* amtOfBytesAddress = (alignedAddress - AMOUNT_OF_BYTES_FOR_SIZE);
+        memcpy( &amountOfBytes, amtOfBytesAddress, AMOUNT_OF_BYTES_FOR_SIZE );
+
+        return amountOfBytes;
+    }
+
+    //**********************************************************************
     // Features:
     //  [+] Allocations can be made in any size/amounts and order
     //  [+] Deallocations can be made in any order
@@ -28,8 +54,11 @@ namespace MemoryManagement
     //  [-] At least N-Bytes for SIZE + OFFSET has to be additionally
     //     allocated for each request. (Default: 5 Bytes)
     // Be careful about pointers pointing to memory in this allocator :-)
+    //**********************************************************************
     class UniversalAllocator : public _IAllocator, public _IParentAllocator
     {
+        friend class UniversalAllocatorDefragmented; // Allow this class to defragment the memory
+
         //**********************************************************************
         // Represents one contiguous chunk of bytes in this allocator.
         //**********************************************************************
@@ -57,13 +86,18 @@ namespace MemoryManagement
         };
 
     public:
+        //----------------------------------------------------------------------
+        // @Params:
+        // "amountOfBytes": Amount of bytes to allocate.
+        // "parentAllocator": Allocator to which allocate memory from.
+        //----------------------------------------------------------------------
         explicit UniversalAllocator(Size amountOfBytes, _IParentAllocator* parentAllocator = nullptr);
         ~UniversalAllocator() {}
 
         //----------------------------------------------------------------------
         // Allocate specified amount of bytes.
         // @Params:
-        // "amountOfBytes": Amount of bytes to allocate
+        // "amountOfBytes": Amount of bytes to allocate.
         // "alignment":     Alignment to use. MUST be power of two.
         //----------------------------------------------------------------------
         void* allocateRaw(Size amountOfBytes, Size alignment = 1) override;
@@ -71,8 +105,8 @@ namespace MemoryManagement
         //----------------------------------------------------------------------
         // Allocate "amountOfObjects" objects of type T.
         // @Params:
-        // "amountOfObjects": Amount of objects to allocate (array-allocation)
-        // "args": Constructor arguments from the class T
+        // "amountOfObjects": Amount of objects to allocate (array-allocation).
+        // "args": Constructor arguments from the class T.
         //----------------------------------------------------------------------
         template <class T, class... Args>
         T* allocate(Size amountOfObjects = 1, Args&&... args);
@@ -191,16 +225,8 @@ namespace MemoryManagement
         Byte* alignedAddress = reinterpret_cast<Byte*>(mem);
         ASSERT( _InMemoryRange(mem) && "Given memory was not from this allocator!" );
 
-        // Retrieve AmountOfBytes + Offset
-        Size amountOfBytes = 0;
-        Byte* amtOfBytesAddress = (alignedAddress - AMOUNT_OF_BYTES_FOR_SIZE);
-        memcpy( &amountOfBytes, amtOfBytesAddress, AMOUNT_OF_BYTES_FOR_SIZE );
-
+        Size amountOfBytes = _UVAllocatorGetAmountOfBytes( alignedAddress );
         ASSERT( amountOfBytes > 0 && "Given memory was already deallocated!" );
-
-        Byte offset = 0;
-        Byte* offsetAddress = amtOfBytesAddress - AMOUNT_OF_BYTES_FOR_OFFSET;
-        memcpy( &offset, offsetAddress, AMOUNT_OF_BYTES_FOR_OFFSET );
 
         if (callDestructors)
         {
@@ -212,6 +238,7 @@ namespace MemoryManagement
                 std::addressof( objStartAddress[i] ) -> ~T();
         }
 
+        Byte offset = _UVAllocatorGetOffset( alignedAddress );
         Size realBytes = amountOfBytes + offset;
         Byte* newChunkAddress = (alignedAddress - offset);
 
@@ -230,7 +257,7 @@ namespace MemoryManagement
     {
         FreeChunk* left = nullptr;
         FreeChunk* right = nullptr;
-        _FindNeighborChunks(newChunk, left, right);
+        _FindNeighborChunks( newChunk, left, right );
 
         bool didMerge = false;
         if (left != nullptr)
@@ -300,7 +327,7 @@ namespace MemoryManagement
         // Allocate always additional bytes to store the amount of 
         // alignment-correction and the amount of bytes to allocate.
         U8 additionalBytes = AMOUNT_OF_BYTES_FOR_OFFSET + AMOUNT_OF_BYTES_FOR_SIZE;
-        Byte* alignedAddress = alignAddress(m_address + additionalBytes, alignment);
+        Byte* alignedAddress = alignAddress( m_address + additionalBytes, alignment );
 
         Byte* newChunkAddress = alignedAddress + amountOfBytes;
         Size realBytes = (newChunkAddress - m_address);
@@ -308,14 +335,8 @@ namespace MemoryManagement
         bool hasEnoughSpace = (realBytes <= m_sizeInBytes);
         if (hasEnoughSpace)
         {
-            // Save offset and amountOfBytes
-            // [ -(Alignment) - offset - amountOfBytes - alignedAddress ]
-            Byte* amtOfBytesAddress = (alignedAddress - AMOUNT_OF_BYTES_FOR_SIZE);
-            memcpy( amtOfBytesAddress, &amountOfBytes, AMOUNT_OF_BYTES_FOR_SIZE );
-
             Byte offset = static_cast<Byte>(alignedAddress - m_address);
-            Byte* offsetAddress = amtOfBytesAddress - AMOUNT_OF_BYTES_FOR_OFFSET;
-            memcpy( offsetAddress, &offset, AMOUNT_OF_BYTES_FOR_OFFSET );
+            _UVAllocatorWriteAdditionalBytes( alignedAddress, amountOfBytes, offset );
 
             m_sizeInBytes -= realBytes;
             m_address = newChunkAddress;

@@ -31,12 +31,13 @@ namespace MemoryManagement
         {}
     };
 
-    //----------------------------------------------------------------------
+    //**********************************************************************
     // Features:
     //  [+] Allocations can be made in any size and any order
     //  [-] Deallocation only possible to a (saved) marker or all at once.
     //      A Marker can be retrieved via a method.
     // Be careful about pointers pointing to memory in this allocator : -)
+    //**********************************************************************
     class StackAllocator : public _IAllocator
     {
         //**********************************************************************
