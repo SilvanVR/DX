@@ -196,7 +196,7 @@ int main(void)
     }*/
 
     {
-        MemoryManagement::UniversalAllocatorDefragmented universalDefragmentedAllocator(1000, 100);
+        MemoryManagement::UniversalAllocatorDefragmented universalDefragmentedAllocator(1000, 10);
 
         auto a = universalDefragmentedAllocator.allocate<A>(1);
         A* aRaw = a.getRaw();

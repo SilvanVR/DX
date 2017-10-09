@@ -20,7 +20,6 @@
 **********************************************************************/
 
 #include "universal_allocator.hpp"
-#include <stack>
 
 namespace MemoryManagement
 {
@@ -28,53 +27,35 @@ namespace MemoryManagement
     #define INITIAL_USED_CHUNK_LIST_CAPACITY    32
 
     //**********************************************************************
-    // Stores all handles and manages free indices.
+    // Stores the handle table and manages free indices. The indices are 
+    // calculated from the values in the unused cells.
     //**********************************************************************
     class _HandleTable
     {
-        using Handle = void*;
+        union Handle
+        {
+            void*   handle;
+            Handle* nextHandle;
+        };
 
     public:
-        _HandleTable(Size sizeOfTable, _IParentAllocator* allocator)
-            : m_allocator(allocator), m_amtOfHandles(sizeOfTable)
-        {
-            m_table = (Handle*) m_allocator->allocateRaw( sizeOfTable * sizeof(void*), alignof(void*) );
+        _HandleTable(Size sizeOfTable, _IParentAllocator* allocator);
+        ~_HandleTable();
 
-            for (Size i = (sizeOfTable - 1); i > 0; i--)
-                m_unusedHandleStack.push(i);
-        }
-        ~_HandleTable()
-        {
-            m_allocator->deallocate( m_table );
-        }
+        void*& operator[](Size index) { return m_table[index].handle; }
+        void*& get(Size index){ return m_table[index].handle; }
 
-        void*& operator[](Size index) { return m_table[index]; }
-        void*& get(Size index){ return m_table[index]; }
-
-        // @TODO
-        Size nextFreeHandle()
-        {
-            ASSERT( !m_unusedHandleStack.empty() );
-            Size nextFreeHandle = m_unusedHandleStack.top();
-            m_unusedHandleStack.pop();
-
-            return nextFreeHandle;
-        }
-        void freeHandle(Size handle)
-        {
-            ASSERT( handle < m_amtOfHandles );
-            m_unusedHandleStack.push(handle);
-        }
+        Size nextFreeHandle();
+        void freeHandle(Size handle);
 
     private:
-        _IParentAllocator*  m_allocator;
-        Handle*             m_table;
-        Size                m_amtOfHandles;
+        _IParentAllocator*  m_allocator;        // Allocator where the memory for the table is from.
+        Handle*             m_table;            // Array of Handles
+        Size                m_amtOfHandles;     // Amount of handles. Usable are one less, because of the Invalid Index 0.
+        Handle*             m_head;             // Points to the next free index
 
-        // @TODO: Store unused handles in handle table itself
-        std::stack<Size>        m_unusedHandleStack;
+        void _PrintTable();
     };
-
 
     //**********************************************************************
     // UniversalAllocationPointer (UAPtr). Encapsulates an object of type T
@@ -412,11 +393,11 @@ namespace MemoryManagement
     {
         ASSERT( data.isValid() && "Given data was already deallocated or were never allocated." );
 
-        m_handleTable.freeHandle( data._GetHandle() );
+        m_universalAllocator.deallocate( data.getRaw() );
 
         _RemoveUsedChunk( data._GetHandle() );
 
-        m_universalAllocator.deallocate( data.getRaw() );
+        m_handleTable.freeHandle( data._GetHandle() );
 
         data.invalidate();
     }
@@ -427,11 +408,11 @@ namespace MemoryManagement
     {
         ASSERT( data.isValid() && "Given data was already deallocated or were never allocated." );
 
-        m_handleTable.freeHandle( data._GetHandle() );
+        m_universalAllocator.deallocate<T, void>( data.getRaw() );
 
         _RemoveUsedChunk( data._GetHandle() );
 
-        m_universalAllocator.deallocate<T, void>( data.getRaw() );
+        m_handleTable.freeHandle( data._GetHandle() );
 
         data.invalidate();
     }
@@ -474,6 +455,64 @@ namespace MemoryManagement
     {
         UsedChunk chunkToRemove( handle, &m_handleTable );
         m_usedChunks.erase( std::remove( m_usedChunks.begin(), m_usedChunks.end(), chunkToRemove ), m_usedChunks.end() );
+    }
+
+    //**********************************************************************
+    // IMPLEMENTATION - HandleTable
+    //**********************************************************************
+
+    //----------------------------------------------------------------------
+    _HandleTable::_HandleTable(Size sizeOfTable, _IParentAllocator* allocator)
+        : m_allocator(allocator), m_amtOfHandles(sizeOfTable + 1)
+    {
+        m_table = static_cast<Handle*>( m_allocator->allocateRaw( m_amtOfHandles * sizeof(void*), alignof(void*) ) );
+        m_head = std::addressof( m_table[m_amtOfHandles - 1] );
+
+        for (Size i = (m_amtOfHandles - 1); i > 0; i--)
+        {
+            m_table[i].nextHandle = std::addressof( m_table[i - 1] );
+        }
+        m_table[1].nextHandle = nullptr;
+    }
+
+    //----------------------------------------------------------------------
+    _HandleTable::~_HandleTable()
+    {
+        m_allocator->deallocate(m_table);
+    }
+
+    //----------------------------------------------------------------------
+    Size _HandleTable::nextFreeHandle()
+    {
+        ASSERT( m_head != nullptr && "Out of Handles!" );
+
+        Size nextFreeHandle = (m_head - m_table);
+        m_head = m_head->nextHandle;
+
+        return nextFreeHandle;
+    }
+
+    //----------------------------------------------------------------------
+    void _HandleTable::freeHandle(Size handle)
+    {
+        ASSERT( handle > 0 && handle <= m_amtOfHandles );
+
+        Handle* newHandle = std::addressof( m_table[handle] );
+        newHandle->nextHandle = m_head;
+        m_head = newHandle;
+    }
+
+    //----------------------------------------------------------------------
+    void _HandleTable::_PrintTable()
+    {
+        std::cout << std::endl;
+        for (Size i = 0; i < m_amtOfHandles; i++)
+        {
+            std::cout << i << ": " << (void*)(&m_table[i]) << " -> " << (void*)m_table[i].nextHandle;
+            if (m_head == (&m_table[i]))
+                std::cout << " <-- m_head";
+            std::cout << std::endl;
+        }
     }
 
 }
