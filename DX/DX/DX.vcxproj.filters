@@ -18,25 +18,25 @@
     <ClCompile Include="src\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\OS\PlatformTimer\platform_timer_chrono.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\OS\PlatformTimer\platform_timer_win.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\PrecompiledHeaders\string.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\MemoryManagement\memory_tracker.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\Utils\utils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\MemoryManagement\Allocators\iallocator.cpp">
+    <ClCompile Include="src\CoreSystems\MemoryManagement\Allocators\iallocator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CoreSystems\MemoryManagement\memory_tracker.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CoreSystems\OS\PlatformTimer\platform_timer_chrono.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CoreSystems\OS\PlatformTimer\platform_timer_win.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -45,12 +45,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Interfaces\singleton.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\OS\PlatformTimer\platform_timer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\OS\PlatformTimer\system_time.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\stdafx.h">
@@ -62,43 +56,49 @@
     <ClInclude Include="src\PrecompiledHeaders\data_types.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\OS\FileSystem\file_system.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\PrecompiledHeaders\string.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\MemoryManagement\memory_management.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\MemoryManagement\memory_tracker.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\MemoryManagement\Allocators\stack_allocator.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\MemoryManagement\memory.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Utils\utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\MemoryManagement\Allocators\pool_allocator.hpp">
+    <ClInclude Include="src\CoreSystems\MemoryManagement\Allocators\iallocator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\MemoryManagement\Allocators\pool_list_allocator.hpp">
+    <ClInclude Include="src\CoreSystems\MemoryManagement\Allocators\pool_allocator.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\MemoryManagement\Allocators\universal_allocator.hpp">
+    <ClInclude Include="src\CoreSystems\MemoryManagement\Allocators\pool_list_allocator.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\MemoryManagement\Allocators\iallocator.h">
+    <ClInclude Include="src\CoreSystems\MemoryManagement\Allocators\stack_allocator.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\MemoryManagement\memory_structs.hpp">
+    <ClInclude Include="src\CoreSystems\MemoryManagement\Allocators\universal_allocator.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\MemoryManagement\Allocators\universal_allocator_defragmented.hpp">
+    <ClInclude Include="src\CoreSystems\MemoryManagement\Allocators\universal_allocator_defragmented.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\CoreSystems\MemoryManagement\memory.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\CoreSystems\MemoryManagement\memory_structs.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\CoreSystems\MemoryManagement\memory_tracker.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\CoreSystems\OS\FileSystem\file_system.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\CoreSystems\OS\PlatformTimer\platform_timer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\CoreSystems\OS\PlatformTimer\system_time.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\CoreSystems\MemoryManagement\include.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

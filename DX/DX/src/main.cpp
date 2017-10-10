@@ -1,7 +1,7 @@
 #include <iostream>
 
-#include "MemoryManagement/memory_management.hpp"
-#include "OS/PlatformTimer/platform_timer.h"
+#include "CoreSystems/MemoryManagement/include.hpp"
+#include "CoreSystems/OS/PlatformTimer/platform_timer.h"
 
 #define LOG(x) std::cout << x << std::endl
 

@@ -26,12 +26,14 @@ using StringID  = U32;
 //----------------------------------------------------------------------
 // Converts a string to an unsigned integer using a hash function and
 // stores the String<->ID in a table to reverse it if necessary.
-// @return: Hashed ID of given string.
+// @Return: 
+//      Hashed ID of given string.
 //----------------------------------------------------------------------
 StringID internString(const char* str);
 
 //----------------------------------------------------------------------
 // Converts a StringID back to the corresponding string.
-// @return: String which was given to internString() when calculated SID.
+// @Return: 
+//      String which was given to internString() when calculated SID.
 //----------------------------------------------------------------------
 String externString(StringID sid);
