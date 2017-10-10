@@ -1,9 +1,6 @@
-#include <iostream>
+#pragma once
 
-#include "MemoryManagement/memory_management.hpp"
-#include "OS/PlatformTimer/platform_timer.h"
 
-#define LOG(x) std::cout << x << std::endl
 
 class AutoClock
 {
@@ -19,6 +16,7 @@ public:
     {
         I64 elapsedTicks = OS::PlatformTimer::getTicks() - begin;
 
+
         F64 elapsedSeconds = OS::PlatformTimer::ticksToSeconds(elapsedTicks);
         LOG("Seconds: " + TS(elapsedSeconds));
 
@@ -32,8 +30,6 @@ public:
         LOG("Nanos: " + TS(elapsedNanos));
     }
 };
-
-MemoryManagement::UniversalAllocator gUniversalAllocator(1000);
 
 class A
 {
@@ -70,7 +66,6 @@ public:
         return *this;
     }
 
-
     //static void* operator new(Size sz)
     //{
     //    std::cout << "custom new for size " << sz << '\n';
@@ -95,7 +90,6 @@ public:
     //    return gPoolAllocator.deallocate(mem);
     //}
 
-
     SystemTime time;
 };
 
@@ -105,31 +99,7 @@ public:
     U32 lols;
 };
 
-//@TODO: 
-// - Make MemoryManager part of a subsystem and call init() ? -> that way static allocations don't count
-
-// - Profiler
-
-// - FileSystem
-//    -> Configuration-File(s) .ini
-
-// - LOGGER
-//  - Logging of memorytracker
-
-
-int main(void)
+class C
 {
-    //StringID te = SID("Hello");
-    //StringID te2 = SID("World");
-    //String ste = IDS(te);
-    //String ste2 = IDS(te2);
-    //LOG(ste + " " + ste2);
-
-
-
-
-    MemoryManagement::MemoryTracker::log();
-    system("pause");
-    return 0;
-}
-
+    U64 lul;
+};
