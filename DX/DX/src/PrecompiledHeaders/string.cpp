@@ -24,7 +24,7 @@
 
 //U32         internString(const char* str);
 //const char* externString(StringID sid);
-U32         hash(const char* str);
+U32 hash(const char* str);
 
 //----------------------------------------------------------------------
 StringID::StringID( const char* str )

@@ -48,6 +48,9 @@
     <ClCompile Include="src\Core\Logging\Console\console.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\PrecompiledHeaders\color.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\commenting_style.hpp">
@@ -117,6 +120,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\Logging\Console\console.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\PrecompiledHeaders\color.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

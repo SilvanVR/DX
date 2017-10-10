@@ -3,6 +3,8 @@
 #include "Core/MemoryManagement/include.hpp"
 #include "Core/Logging/logger.h"
 
+#include "PrecompiledHeaders/color.h"
+
 using namespace Core;
 
 class AutoClock
@@ -124,13 +126,16 @@ int main(void)
 
     using namespace Core::Logging;
 
-    StringID t = SID( "hey" );
+    Color color( 16, 52, 128, 255);
+
+    Byte max = color.getMax();
 
     {
         //AutoClock clock;
         LOG( SID("Hello") );
-    }
 
+        LOG( color.toString(true) );
+    }
 
 
     MemoryManagement::MemoryTracker::log();

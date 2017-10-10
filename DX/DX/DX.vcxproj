@@ -192,6 +192,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\PrecompiledHeaders\color.cpp" />
     <ClCompile Include="src\Core\Logging\Console\console.cpp" />
     <ClCompile Include="src\Core\Logging\Console\console_win.cpp" />
     <ClCompile Include="src\Core\Logging\logger.cpp" />
@@ -213,6 +214,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\commenting_style.hpp" />
+    <ClInclude Include="src\PrecompiledHeaders\color.h" />
     <ClInclude Include="src\Core\Logging\Console\console.h" />
     <ClInclude Include="src\Core\Logging\logger.h" />
     <ClInclude Include="src\Core\MemoryManagement\Allocators\universal_allocator.hpp" />
