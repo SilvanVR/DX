@@ -107,14 +107,14 @@ void TestMemoryManagement()
         universalDefragmentedAllocator.deallocate(a5);
 
         a6->time = OS::PlatformTimer::getCurrentTime();
-        LOG(a6->time.toString());
-        std::cout << a6.getRaw() << std::endl;
+        LOG( a6->time.toString() );
+        LOG( a6.getRaw() );
 
         // A6 should be shifted
         universalDefragmentedAllocator.defragmentOnce();
 
-        LOG(a6->time.toString());
-        std::cout << a6.getRaw() << std::endl;
+        LOG( a6->time.toString() );
+        LOG( a6.getRaw() );
 
         universalDefragmentedAllocator.deallocate(a6);
     }

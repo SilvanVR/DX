@@ -141,8 +141,8 @@ namespace Core { namespace MemoryManagement {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    UniversalAllocator::UniversalAllocator(Size amountOfBytes, _IParentAllocator* parentAllocator)
-        : _IAllocator(amountOfBytes, parentAllocator)
+    UniversalAllocator::UniversalAllocator( Size amountOfBytes, _IParentAllocator* parentAllocator )
+        : _IAllocator( amountOfBytes, parentAllocator )
     {
         ASSERT( m_amountOfBytes > 0 );
 
@@ -155,9 +155,9 @@ namespace Core { namespace MemoryManagement {
 
     //----------------------------------------------------------------------
     template <class T, class... Args>
-    T* UniversalAllocator::allocate(Size amountOfObjects, Args&&... args)
+    T* UniversalAllocator::allocate( Size amountOfObjects, Args&&... args )
     {
-        static_assert(alignof(T) <= 128, "UniversalAllocator: Max alignment of 128 was exceeded.");
+        static_assert( alignof(T) <= 128, "UniversalAllocator: Max alignment of 128 was exceeded." );
 
         Size bytesToAllocate = amountOfObjects * sizeof(T);
         T* alignedAddress = reinterpret_cast<T*>( allocateRaw( bytesToAllocate, alignof(T) ) );
@@ -179,7 +179,7 @@ namespace Core { namespace MemoryManagement {
     }
 
     //----------------------------------------------------------------------
-    void* UniversalAllocator::allocateRaw(Size amountOfBytes, Size alignment)
+    void* UniversalAllocator::allocateRaw( Size amountOfBytes, Size alignment )
     {
         ASSERT( alignment <= 128 && "UniversalAllocator: Max alignment of 128 was exceeded." );
 
@@ -208,7 +208,7 @@ namespace Core { namespace MemoryManagement {
 
     //----------------------------------------------------------------------
     template <class T>
-    void UniversalAllocator::_Deallocate(T* mem, bool callDestructors)
+    void UniversalAllocator::_Deallocate( T* mem, bool callDestructors )
     {
         Byte* alignedAddress = reinterpret_cast<Byte*>(mem);
         ASSERT( _InMemoryRange(mem) && "Given memory was not from this allocator!" );
@@ -241,7 +241,7 @@ namespace Core { namespace MemoryManagement {
     }
 
     //----------------------------------------------------------------------
-    void UniversalAllocator::_MergeChunk(FreeChunk* newChunk)
+    void UniversalAllocator::_MergeChunk( FreeChunk* newChunk )
     {
         FreeChunk* left = nullptr;
         FreeChunk* right = nullptr;
@@ -280,7 +280,7 @@ namespace Core { namespace MemoryManagement {
     }
 
     //----------------------------------------------------------------------
-    void UniversalAllocator::_FindNeighborChunks(const FreeChunk* newChunk, FreeChunk*& left, FreeChunk*& right)
+    void UniversalAllocator::_FindNeighborChunks( const FreeChunk* newChunk, FreeChunk*& left, FreeChunk*& right )
     {
         for (Size i = 0; i < m_freeChunks.size(); i++)
         {
@@ -294,20 +294,20 @@ namespace Core { namespace MemoryManagement {
     }
 
     //----------------------------------------------------------------------
-    void UniversalAllocator::_RemoveFreeChunk(FreeChunk& freeChunk)
+    void UniversalAllocator::_RemoveFreeChunk( FreeChunk& freeChunk )
     {
         m_freeChunks.erase( std::remove( m_freeChunks.begin(), m_freeChunks.end(), freeChunk ), m_freeChunks.end() ); 
     }
 
     //----------------------------------------------------------------------
-    void UniversalAllocator::_AddNewChunk(FreeChunk& newChunk) 
+    void UniversalAllocator::_AddNewChunk( FreeChunk& newChunk ) 
     { 
         m_freeChunks.push_back( newChunk );
         std::sort( m_freeChunks.begin(), m_freeChunks.end() );
     }
 
     //----------------------------------------------------------------------
-    void* UniversalAllocator::FreeChunk::allocateRaw(Size amountOfBytes, Size alignment)
+    void* UniversalAllocator::FreeChunk::allocateRaw( Size amountOfBytes, Size alignment )
     {
         ASSERT( amountOfBytes < ((Size)1 << (AMOUNT_OF_BYTES_FOR_SIZE * 8)) 
             && "Not enough bytes in AMOUNT_OF_BYTES_FOR_SIZE to represent the given amountOfBytes" );
@@ -335,7 +335,7 @@ namespace Core { namespace MemoryManagement {
         return nullptr;
     }
 
-    void _UVAllocatorWriteAdditionalBytes(Byte* alignedAddress, Size amtOfBytes, Byte offset)
+    void _UVAllocatorWriteAdditionalBytes( Byte* alignedAddress, Size amtOfBytes, Byte offset )
     {
         // [ -(Alignment) - offset - amountOfBytes - alignedAddress ]
         Byte* amtOfBytesAddress = (alignedAddress - AMOUNT_OF_BYTES_FOR_SIZE);
@@ -345,13 +345,13 @@ namespace Core { namespace MemoryManagement {
         memcpy( offsetAddress, &offset, AMOUNT_OF_BYTES_FOR_OFFSET );
     }
 
-    Byte _UVAllocatorGetOffset(Byte* alignedAddress)
+    Byte _UVAllocatorGetOffset( Byte* alignedAddress )
     {
         Byte offset = *(alignedAddress - AMOUNT_OF_BYTES_FOR_SIZE - AMOUNT_OF_BYTES_FOR_OFFSET);
         return offset;
     }
 
-    Size _UVAllocatorGetAmountOfBytes(Byte* alignedAddress)
+    Size _UVAllocatorGetAmountOfBytes( Byte* alignedAddress )
     {
         Size amountOfBytes = 0;
         Byte* amtOfBytesAddress = (alignedAddress - AMOUNT_OF_BYTES_FOR_SIZE);

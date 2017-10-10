@@ -1,4 +1,3 @@
-#include <iostream>
 
 #include "Core/OS/PlatformTimer/platform_timer.h"
 #include "Core/MemoryManagement/include.hpp"
@@ -118,20 +117,18 @@ public:
 
 int main(void)
 {
-   // MemoryManagement::UniversalAllocator gUniversalAllocator(1000);
+    //MemoryManagement::UniversalAllocator gUniversalAllocator(1000);
     //StringID te = SID("Hello");
     //StringID te2 = SID("World");
-    //String ste = IDS(te);
-    //String ste2 = IDS(te2);
-    //LOG(ste + " " + ste2);
+    //LOG(te.toString() + " " + te2.toString());
 
     using namespace Core::Logging;
+
+    StringID t = SID( "hey" );
 
     {
         //AutoClock clock;
         LOG( SID("Hello") );
-
-
     }
 
 
@@ -140,4 +137,3 @@ int main(void)
     system("pause");
     return 0;
 }
-

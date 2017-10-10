@@ -2,7 +2,8 @@
 
 #include "stdafx.h"
 
-#include <iostream>
 
-#include "MemoryManagement/memory_management.hpp"
-#include "OS/PlatformTimer/platform_timer.h"
+#include "Core/MemoryManagement/include.hpp"
+#include "Core/OS/PlatformTimer/platform_timer.h"
+
+using namespace Core;

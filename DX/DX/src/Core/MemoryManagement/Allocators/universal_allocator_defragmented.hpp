@@ -20,6 +20,7 @@
 **********************************************************************/
 
 #include "universal_allocator.hpp"
+#include "Core/Logging/logger.h"
 
 namespace Core { namespace MemoryManagement {
 
@@ -170,58 +171,7 @@ namespace Core { namespace MemoryManagement {
 
             // Relocates this block to the given address
             template <class T>
-            void relocateTemplate(Byte* newAddr)
-            {
-                static_assert( alignof(T) <= 128, "Max Alignment of 128 was exceeded!" );
-
-                Byte* currentAddress = getAddress();
-
-                // Determine new aligned address
-                U8 additionalBytes = AMOUNT_OF_BYTES_FOR_OFFSET + AMOUNT_OF_BYTES_FOR_SIZE;
-                Byte* alignedAddress = alignAddress( newAddr + additionalBytes, alignof(T) );
-
-                // Save offset and amountOfBytes
-                Byte offset = static_cast<Byte>( alignedAddress - newAddr);
-                _UVAllocatorWriteAdditionalBytes( alignedAddress, m_sizeInBytes, offset );
-
-                T* oldData = reinterpret_cast<T*>( currentAddress );
-                T* newData = reinterpret_cast<T*>( alignedAddress );
-                Size amtOfObjects = ( m_sizeInBytes / sizeof(T) );
-
-                // Move memory to new location using move semantics if necessary
-                bool memoryOverlaps = (alignedAddress + m_sizeInBytes) >= currentAddress;
-                if (std::is_trivially_move_constructible<T>::value)
-                {
-                    std::memmove( alignedAddress, currentAddress, m_sizeInBytes );
-                }
-                else if (not memoryOverlaps)
-                {
-                    // Directly move objects to new location
-                    for (Size i = 0; i < amtOfObjects; i++)
-                    {
-                        new (std::addressof( newData[i] )) T( std::move( oldData[i] ) );
-                        std::addressof( oldData[i] ) -> ~T();
-                    }
-                }
-                else
-                {
-                    Byte tempByteArr[sizeof(T) + alignof(T)];
-                    T* tempObj = reinterpret_cast<T*>( alignAddress( &tempByteArr, alignof(T) ) );
-
-                    // Move object first to temp location, then to final position
-                    for (Size i = 0; i < amtOfObjects; i++)
-                    {
-                        new (tempObj) T( std::move(oldData[i] ) );
-                        std::addressof( oldData[i] ) -> ~T();
-
-                        new ( std::addressof( newData[i] ) ) T( std::move( *tempObj ) );
-                        tempObj -> ~T();
-                    }
-                }
-
-                // Update table with new location
-                m_handleTable->get( m_handle ) = alignedAddress;
-            }
+            void relocateTemplate(Byte* newAddr);
         };
 
     public:
@@ -301,7 +251,7 @@ namespace Core { namespace MemoryManagement {
     // IMPLEMENTATION
     //**********************************************************************
 
-    UniversalAllocatorDefragmented::UniversalAllocatorDefragmented(Size amountOfBytes, Size _HandleTableSize, _IParentAllocator* parentAllocator)
+    UniversalAllocatorDefragmented::UniversalAllocatorDefragmented( Size amountOfBytes, Size _HandleTableSize, _IParentAllocator* parentAllocator )
         : m_universalAllocator( amountOfBytes, parentAllocator ), 
           m_handleTable( _HandleTableSize, m_universalAllocator.getParentAllocator() ) // Order important!
     {
@@ -363,7 +313,7 @@ namespace Core { namespace MemoryManagement {
     }
 
     //----------------------------------------------------------------------
-    UAPtr<Byte> UniversalAllocatorDefragmented::allocateRaw(Size amountOfBytes, Size alignment)
+    UAPtr<Byte> UniversalAllocatorDefragmented::allocateRaw( Size amountOfBytes, Size alignment )
     {
         void* mem = m_universalAllocator.allocateRaw( amountOfBytes, alignment );
 
@@ -378,7 +328,7 @@ namespace Core { namespace MemoryManagement {
 
     //----------------------------------------------------------------------
     template <class T, class... Args>
-    UAPtr<T> UniversalAllocatorDefragmented::allocate(Size amountOfObjects, Args&&... args)
+    UAPtr<T> UniversalAllocatorDefragmented::allocate( Size amountOfObjects, Args&&... args )
     {
         T* mem = m_universalAllocator.allocate<T>( amountOfObjects, args... );
 
@@ -392,7 +342,7 @@ namespace Core { namespace MemoryManagement {
     }
 
     //----------------------------------------------------------------------
-    void UniversalAllocatorDefragmented::deallocate(UAPtr<Byte>& data)
+    void UniversalAllocatorDefragmented::deallocate( UAPtr<Byte>& data )
     {
         ASSERT( data.isValid() && "Given data was already deallocated or were never allocated." );
 
@@ -407,7 +357,7 @@ namespace Core { namespace MemoryManagement {
 
     //----------------------------------------------------------------------
     template <class T>
-    void UniversalAllocatorDefragmented::deallocate(UAPtr<T>& data)
+    void UniversalAllocatorDefragmented::deallocate( UAPtr<T>& data )
     {
         ASSERT( data.isValid() && "Given data was already deallocated or were never allocated." );
 
@@ -447,17 +397,75 @@ namespace Core { namespace MemoryManagement {
 
     //----------------------------------------------------------------------
     template <class T>
-    void UniversalAllocatorDefragmented::_AddUsedChunk(Size handle, Size sizeInBytes, T* type)
+    void UniversalAllocatorDefragmented::_AddUsedChunk( Size handle, Size sizeInBytes, T* type )
     {
         m_usedChunks.push_back( UsedChunk(handle, sizeInBytes, &m_handleTable, type) );
         std::sort( m_usedChunks.begin(), m_usedChunks.end() );
     }
 
     //----------------------------------------------------------------------
-    void UniversalAllocatorDefragmented::_RemoveUsedChunk(Size handle)
+    void UniversalAllocatorDefragmented::_RemoveUsedChunk( Size handle )
     {
         UsedChunk chunkToRemove( handle, &m_handleTable );
         m_usedChunks.erase( std::remove( m_usedChunks.begin(), m_usedChunks.end(), chunkToRemove ), m_usedChunks.end() );
+    }
+
+    //**********************************************************************
+    // IMPLEMENTATION - UsedChunk
+    //**********************************************************************
+
+    template <class T>
+    void UniversalAllocatorDefragmented::UsedChunk::relocateTemplate(Byte* newAddr)
+    {
+        static_assert( alignof(T) <= 128, "Max Alignment of 128 was exceeded!" );
+
+        Byte* currentAddress = getAddress();
+
+        // Determine new aligned address
+        U8 additionalBytes = AMOUNT_OF_BYTES_FOR_OFFSET + AMOUNT_OF_BYTES_FOR_SIZE;
+        Byte* alignedAddress = alignAddress( newAddr + additionalBytes, alignof(T) );
+
+        // Save offset and amountOfBytes
+        Byte offset = static_cast<Byte>(alignedAddress - newAddr);
+        _UVAllocatorWriteAdditionalBytes( alignedAddress, m_sizeInBytes, offset );
+
+        T* oldData = reinterpret_cast<T*>( currentAddress );
+        T* newData = reinterpret_cast<T*>( alignedAddress );
+        Size amtOfObjects = ( m_sizeInBytes / sizeof(T) );
+
+        // Move memory to new location using move semantics if necessary
+        bool memoryOverlaps = (alignedAddress + m_sizeInBytes) >= currentAddress;
+        if (std::is_trivially_move_constructible<T>::value)
+        {
+            std::memmove( alignedAddress, currentAddress, m_sizeInBytes );
+        }
+        else if (not memoryOverlaps)
+        {
+            // Directly move objects to new location
+            for (Size i = 0; i < amtOfObjects; i++)
+            {
+                new (std::addressof( newData[i] )) T( std::move( oldData[i] ) );
+                std::addressof( oldData[i] ) -> ~T();
+            }
+        }
+        else
+        {
+            Byte tempByteArr[ sizeof(T) + alignof(T) ];
+            T* tempObj = reinterpret_cast<T*>( alignAddress( &tempByteArr, alignof(T) ) );
+
+            // Move object first to temp location, then to final position
+            for (Size i = 0; i < amtOfObjects; i++)
+            {
+                new (tempObj) T( std::move( oldData[i] ) );
+                std::addressof( oldData[i]) -> ~T();
+
+                new ( std::addressof( newData[i] ) ) T( std::move( *tempObj ) );
+                tempObj -> ~T();
+            }
+        }
+
+        // Update table with new location
+        m_handleTable->get( m_handle ) = alignedAddress;
     }
 
     //**********************************************************************
@@ -465,8 +473,8 @@ namespace Core { namespace MemoryManagement {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    _HandleTable::_HandleTable(Size sizeOfTable, _IParentAllocator* allocator)
-        : m_allocator(allocator), m_amtOfHandles(sizeOfTable + 1)
+    _HandleTable::_HandleTable( Size sizeOfTable, _IParentAllocator* allocator )
+        : m_allocator( allocator ), m_amtOfHandles( sizeOfTable + 1 )
     {
         m_table = static_cast<Handle*>( m_allocator->allocateRaw( m_amtOfHandles * sizeof(void*), alignof(void*) ) );
         m_head = std::addressof( m_table[m_amtOfHandles - 1] );
@@ -496,7 +504,7 @@ namespace Core { namespace MemoryManagement {
     }
 
     //----------------------------------------------------------------------
-    void _HandleTable::freeHandle(Size handle)
+    void _HandleTable::freeHandle( Size handle )
     {
         ASSERT( handle > 0 && handle <= m_amtOfHandles );
 
@@ -508,13 +516,13 @@ namespace Core { namespace MemoryManagement {
     //----------------------------------------------------------------------
     void _HandleTable::_PrintTable()
     {
-        std::cout << std::endl;
+        LOG("");
         for (Size i = 0; i < m_amtOfHandles; i++)
         {
-            std::cout << i << ": " << (void*)(&m_table[i]) << " -> " << (void*)m_table[i].nextHandle;
-            if (m_head == (&m_table[i]))
-                std::cout << " <-- m_head";
-            std::cout << std::endl;
+            LOG( TS(i) + ": " + TS( (Size)(&m_table[i]) ) + " -> " + TS( (Size)m_table[i].nextHandle ) );
+            if ( m_head == (&m_table[i]) )
+                LOG_NO_NEWLINE( " <-- m_head" );
+            LOG("");
         }
     }
 

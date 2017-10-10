@@ -1,8 +1,7 @@
 
 
 #include <Windows.h>
-
-#define LOG(x) std::cout << x << std::endl
+#undef ERROR
 
 #include "Includes.hpp"
 #include "TestClasses.hpp"

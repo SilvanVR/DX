@@ -98,7 +98,7 @@ namespace Core { namespace MemoryManagement {
     // 0x08 = 0x08 etc.
     //----------------------------------------------------------------------
     template <class T>
-    T* alignAddress(T* address, Size alignment)
+    T* alignAddress( T* address, Size alignment )
     {
         ASSERT( (alignment & (alignment - 1) ) == 0); // alignment must be power of 2
 

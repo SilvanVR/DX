@@ -88,7 +88,7 @@ namespace Core { namespace MemoryManagement {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    PoolListAllocator::PoolListAllocator(const std::vector<int>& sizesInBytes, Size amountOfChunks, _IParentAllocator* parentAllocator)
+    PoolListAllocator::PoolListAllocator( const std::vector<int>& sizesInBytes, Size amountOfChunks, _IParentAllocator* parentAllocator )
     {
         for (auto& poolSize : sizesInBytes)
         {
@@ -97,7 +97,7 @@ namespace Core { namespace MemoryManagement {
         }
 
         // Sort by chunk-size (just to be safe) :-)
-        std::sort( m_poolAllocators.begin(), m_poolAllocators.end(), [](PoolAllocator* alloc1, PoolAllocator* alloc2) -> bool {
+        std::sort( m_poolAllocators.begin(), m_poolAllocators.end(), []( PoolAllocator* alloc1, PoolAllocator* alloc2 ) -> bool {
             return alloc1->getChunkSize() < alloc2->getChunkSize();
         } );
     }
@@ -110,20 +110,20 @@ namespace Core { namespace MemoryManagement {
     }
 
     //----------------------------------------------------------------------
-    void* PoolListAllocator::allocateRaw(Size amountOfBytes, Size alignment)
+    void* PoolListAllocator::allocateRaw( Size amountOfBytes, Size alignment )
     {
         return _getNearestPool( amountOfBytes ) -> allocateRaw( amountOfBytes, alignment );
     }
 
     //----------------------------------------------------------------------
     template <class T, class... Args>
-    T* PoolListAllocator::allocate(Args&&... args)
+    T* PoolListAllocator::allocate( Args&&... args )
     {
         return _getNearestPool( sizeof(T) ) -> allocate<T>( args... );
     }
 
     //----------------------------------------------------------------------
-    void PoolListAllocator::deallocate(void* data)
+    void PoolListAllocator::deallocate( void* data )
     {
         // Have no information about the data, that way check every pool allocator
         for (auto& poolAllocator : m_poolAllocators)
@@ -139,13 +139,13 @@ namespace Core { namespace MemoryManagement {
 
     //----------------------------------------------------------------------
     template <class T>
-    void PoolListAllocator::deallocate(T* data)
+    void PoolListAllocator::deallocate( T* data )
     {
         _getNearestPool( sizeof(T) ) -> deallocate<T, void>( data );
     }
 
     //----------------------------------------------------------------------
-    PoolAllocator* PoolListAllocator::_getNearestPool(Size amtOfBytes)
+    PoolAllocator* PoolListAllocator::_getNearestPool( Size amtOfBytes )
     {
         for (Size i = 0; i < m_poolAllocators.size(); i++)
         {

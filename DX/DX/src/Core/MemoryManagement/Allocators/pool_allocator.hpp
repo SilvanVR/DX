@@ -10,8 +10,9 @@
     to AVOID dynamic memory allocation from the OS, which is in
     general very costly. See below for a class description.
 **********************************************************************/
-#include "iallocator.h"
 
+#include "iallocator.h"
+#include "Core/Logging/logger.h"
 
 namespace Core { namespace MemoryManagement {
 
@@ -109,8 +110,9 @@ namespace Core { namespace MemoryManagement {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    PoolAllocator::PoolAllocator(Size bytesPerChunk, Size amountOfChunks, _IParentAllocator* parentAllocator)
-        : _IAllocator(bytesPerChunk * amountOfChunks, parentAllocator), m_bytesPerChunk(bytesPerChunk), m_amountOfChunks(amountOfChunks)
+    PoolAllocator::PoolAllocator( Size bytesPerChunk, Size amountOfChunks, _IParentAllocator* parentAllocator )
+        : _IAllocator( bytesPerChunk * amountOfChunks, parentAllocator ), 
+          m_bytesPerChunk( bytesPerChunk ), m_amountOfChunks( amountOfChunks )
     {
         ASSERT( m_amountOfChunks > 0 && m_bytesPerChunk >= sizeof(Size) );
 
@@ -141,7 +143,7 @@ namespace Core { namespace MemoryManagement {
     }
 
     //----------------------------------------------------------------------
-    void* PoolAllocator::allocateRaw(Size amountOfBytes, Size alignment)
+    void* PoolAllocator::allocateRaw( Size amountOfBytes, Size alignment )
     {
         if (m_head == nullptr)
         {
@@ -169,7 +171,7 @@ namespace Core { namespace MemoryManagement {
     }
 
     //----------------------------------------------------------------------
-    void PoolAllocator::deallocate(void* data)
+    void PoolAllocator::deallocate( void* data )
     {
         // Check if given data was really allocated from this allocator
         PoolChunk* deallocatedChunk = reinterpret_cast<PoolChunk*>( data );
@@ -193,7 +195,7 @@ namespace Core { namespace MemoryManagement {
 
     //----------------------------------------------------------------------
     template<class T, class... Args>
-    T* PoolAllocator::allocate(Args&&... args)
+    T* PoolAllocator::allocate( Args&&... args )
     {
         void* location = allocateRaw( sizeof(T), alignof(T) );
 
@@ -205,7 +207,7 @@ namespace Core { namespace MemoryManagement {
 
     //----------------------------------------------------------------------
     template<class T, class T2>
-    void PoolAllocator::deallocate(T* data)
+    void PoolAllocator::deallocate( T* data )
     {
         data->~T();
         deallocate( reinterpret_cast<void*>(data) );
@@ -214,24 +216,24 @@ namespace Core { namespace MemoryManagement {
     //----------------------------------------------------------------------
     void PoolAllocator::_PrintChunks()
     {
-        std::cout << "-------------------------------------" << std::endl;
-        PoolChunk* headChunk = reinterpret_cast<PoolChunk*>(m_head);
+        LOG( "-------------------------------------" );
+        PoolChunk* headChunk = reinterpret_cast<PoolChunk*>( m_head );
         for (Size i = 0; i < (m_amountOfChunks); i++)
         {
             Size currentChunkIndex = i * m_bytesPerChunk;
-            PoolChunk* chunk = reinterpret_cast<PoolChunk*>(m_data + currentChunkIndex);
+            PoolChunk* chunk = reinterpret_cast<PoolChunk*>( m_data + currentChunkIndex );
 
-            std::cout << i << ": " << (void*)chunk << " -> " << (void*)chunk->nextFreeChunk;
+            LOG( TS(i) + ": " + TS( (Size)chunk ) + " -> " + TS( (Size)chunk->nextFreeChunk ) );
             if (headChunk == chunk)
-                std::cout << " <-- m_head";
-            std::cout << std::endl;
+                LOG_NO_NEWLINE( " <-- m_head" );
+            LOG( "" );
         }
     }
 
-    void  PoolAllocator::_WarnBadAlignment(Size misalignment, Size actualAlignment)
+    void  PoolAllocator::_WarnBadAlignment( Size misalignment, Size actualAlignment )
     {
-        std::cout << "PoolAllocator: Bad alignment detected: Required Alignment is "
-            "(" + TS(actualAlignment) + "), but is (" + TS(misalignment) + "). Performance may be degraded." << std::endl;
+        LOG( "PoolAllocator: Bad alignment detected: Required Alignment is "
+            "(" + TS(actualAlignment) + "), but is (" + TS(misalignment) + "). Performance may be degraded." );
     }
 
 } } // end namespaces

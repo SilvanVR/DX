@@ -1,9 +1,11 @@
 #include "utils.h"
 
+#include <sstream>
+
 namespace Utils
 {
 
-    String bytesToString(U64 bytes, bool binaryPrefix)
+    String bytesToString( U64 bytes, bool binaryPrefix )
     {
         static const U64 gigabyte = 1000 * 1000 * 1000;
         static const U64 megabyte = 1000 * 1000;
@@ -28,6 +30,14 @@ namespace Utils
             result = TS((float)bytes) + " Bytes";
 
         return result;
+    }
+
+    String memoryAddressToString( void* address )
+    {
+        std::ostringstream stream;
+        stream << address;
+
+        return "0x" + stream.str();
     }
 
 

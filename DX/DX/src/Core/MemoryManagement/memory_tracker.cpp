@@ -15,7 +15,7 @@ namespace Core { namespace MemoryManagement {
     AllocationMemoryInfo MemoryTracker::s_memoryInfo;
 
     //----------------------------------------------------------------------
-    void* _GlobalNewAndDeleteAllocator::allocate(Size size)
+    void* _GlobalNewAndDeleteAllocator::allocate( Size size )
     {
         ASSERT ( size < ( 1024i64 * 1024i64 * 1024i64 * 32i64) ); // Less than 32GB
 
@@ -34,7 +34,7 @@ namespace Core { namespace MemoryManagement {
     }
 
     //----------------------------------------------------------------------
-    void _GlobalNewAndDeleteAllocator::deallocate(void* memory)
+    void _GlobalNewAndDeleteAllocator::deallocate( void* memory )
     {
         Byte* mem = reinterpret_cast<Byte*>( memory );
         mem -= sizeof( Size );
@@ -46,7 +46,7 @@ namespace Core { namespace MemoryManagement {
     }
 
     //----------------------------------------------------------------------
-    void* _GlobalNewAndDeleteAllocator::allocateDebug(Size size, const char* file, U32 line)
+    void* _GlobalNewAndDeleteAllocator::allocateDebug( Size size, const char* file, U32 line )
     {
         if (size > (1024 * 1024))
             WARN ( "Large allocation (>1mb) " + String( file ) + ":" + TS( line ) );
@@ -55,7 +55,7 @@ namespace Core { namespace MemoryManagement {
     }
 
     //----------------------------------------------------------------------
-    void _GlobalNewAndDeleteAllocator::deallocateDebug(void* mem, const char* file, U32 line)
+    void _GlobalNewAndDeleteAllocator::deallocateDebug( void* mem, const char* file, U32 line )
     {
         deallocate( mem );
     }

@@ -11,8 +11,8 @@
 namespace Core { namespace MemoryManagement {
 
     //----------------------------------------------------------------------
-    _IAllocator::_IAllocator(Size amountOfBytes, _IParentAllocator* parentAllocator)
-        : m_amountOfBytes(amountOfBytes), m_parentAllocator(parentAllocator)
+    _IAllocator::_IAllocator( Size amountOfBytes, _IParentAllocator* parentAllocator )
+        : m_amountOfBytes( amountOfBytes ), m_parentAllocator( parentAllocator )
     {
         if (m_parentAllocator == nullptr)
             m_parentAllocator = _DefaultAllocator::get();
@@ -29,14 +29,14 @@ namespace Core { namespace MemoryManagement {
     }
 
     //----------------------------------------------------------------------
-    void* _DefaultAllocator::allocateRaw(Size amountOfBytes, Size alignment)
+    void* _DefaultAllocator::allocateRaw( Size amountOfBytes, Size alignment )
     {
         // Ignore alignment here
         return new Byte[amountOfBytes];
     }
 
     //----------------------------------------------------------------------
-    void _DefaultAllocator::deallocate(void* mem)
+    void _DefaultAllocator::deallocate( void* mem )
     {
         delete[] mem;
     }

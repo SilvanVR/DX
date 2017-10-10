@@ -90,7 +90,7 @@ public:
     //    return gPoolAllocator.deallocate(mem);
     //}
 
-    SystemTime time;
+    OS::SystemTime time;
 };
 
 class B : public A

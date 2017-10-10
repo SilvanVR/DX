@@ -14,6 +14,13 @@ namespace Utils
     String bytesToString(U64 bytes, bool binaryPrefix = false);
 
 
+    //**********************************************************************
+    // Converts a pointer to a memory address in hexadecimal form e.g.
+    // 0x00...00
+    // @Params:
+    // "address": Pointer to the memory location.
+    //**********************************************************************
+    String memoryAddressToString(void* address);
 
 
 }

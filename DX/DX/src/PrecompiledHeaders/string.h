@@ -17,23 +17,33 @@
 
 #include <string>
 
-using String    = std::string;
-using StringID  = U32;
+using String = std::string;
 
-#define SID(str) internString(str)
-#define IDS(str) externString(str)
+#define SID(str) StringID( str )
 
 //----------------------------------------------------------------------
-// Converts a string to an unsigned integer using a hash function and
-// stores the String<->ID in a table to reverse it if necessary.
-// @Return: 
-//      Hashed ID of given string.
+// Represents a string as a number.
 //----------------------------------------------------------------------
-StringID internString(const char* str);
+struct StringID
+{
+    const char* str;
+    U32 id;
 
-//----------------------------------------------------------------------
-// Converts a StringID back to the corresponding string.
-// @Return: 
-//      String which was given to internString() when calculated SID.
-//----------------------------------------------------------------------
-const char* externString(StringID sid);
+    //----------------------------------------------------------------------
+    // Converts a string to an unsigned integer using a hash function and
+    // stores the String<->ID in a table to reverse it if desired.
+    //----------------------------------------------------------------------
+    explicit StringID(const char* str);
+
+    bool operator <  (const StringID& other) const { return id < other.id; }
+    bool operator >  (const StringID& other) const { return id > other.id; }
+    bool operator <= (const StringID& other) const { return id <= other.id; }
+    bool operator >= (const StringID& other) const { return id >= other.id; }
+    bool operator == (const StringID& other) const { return id == other.id; }
+    bool operator != (const StringID& other) const { return id != other.id; }
+
+    //----------------------------------------------------------------------
+    // Converts a StringID back to the corresponding string.
+    //----------------------------------------------------------------------
+    String toString(){ return String( str ); }
+};

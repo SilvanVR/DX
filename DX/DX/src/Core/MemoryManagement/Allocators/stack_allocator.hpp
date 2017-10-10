@@ -134,7 +134,7 @@ namespace Core { namespace MemoryManagement {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    StackAllocator::StackAllocator(U32 amountOfBytes, _IParentAllocator* parentAllocator)
+    StackAllocator::StackAllocator( U32 amountOfBytes, _IParentAllocator* parentAllocator )
         : _IAllocator( amountOfBytes, parentAllocator )
     {
         ASSERT( m_amountOfBytes > 0 );
@@ -154,7 +154,7 @@ namespace Core { namespace MemoryManagement {
     }
 
     //----------------------------------------------------------------------
-    void* StackAllocator::allocateRaw(Size amountOfBytes, Size alignment)
+    void* StackAllocator::allocateRaw( Size amountOfBytes, Size alignment )
     {
         Byte* alignedAddress = alignAddress( m_head, alignment );
         Byte* newHeadPointer = alignedAddress + amountOfBytes;
@@ -174,7 +174,7 @@ namespace Core { namespace MemoryManagement {
 
     //----------------------------------------------------------------------
     template <class T, class... Args>
-    T* StackAllocator::allocate(Size amountOfObjects, Args&&... args)
+    T* StackAllocator::allocate( Size amountOfObjects, Args&&... args )
     {
         Size amountOfBytes = amountOfObjects * sizeof(T);
         T* alignedAddress = reinterpret_cast<T*>( allocateRaw( amountOfBytes, alignof(T) ) );
@@ -206,7 +206,7 @@ namespace Core { namespace MemoryManagement {
     }
 
     //----------------------------------------------------------------------
-    void StackAllocator::clearToMarker(StackAllocatorMarker marker)
+    void StackAllocator::clearToMarker( StackAllocatorMarker marker )
     {
         // Marker address could be null OR the stack was already cleared behind the marker
         ASSERT( marker.m_address != nullptr && marker.m_address < m_head && "Marker was invalid" );
