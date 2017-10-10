@@ -14,8 +14,7 @@
 
 #include "memory_structs.hpp"
 
-namespace MemoryManagement
-{
+namespace Core { namespace MemoryManagement {
 
     //**********************************************************************
     // Global new/delete call this functions in order to allocate/deallocate.
@@ -56,4 +55,4 @@ namespace MemoryManagement
     };
 
 
-}
+} } // end namespaces

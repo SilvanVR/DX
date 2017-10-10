@@ -27,16 +27,19 @@
     <ClCompile Include="src\Utils\utils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\CoreSystems\MemoryManagement\Allocators\iallocator.cpp">
+    <ClCompile Include="src\Core\Logging\logger.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\CoreSystems\MemoryManagement\memory_tracker.cpp">
+    <ClCompile Include="src\Core\MemoryManagement\Allocators\iallocator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\CoreSystems\OS\PlatformTimer\platform_timer_chrono.cpp">
+    <ClCompile Include="src\Core\MemoryManagement\memory_tracker.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\CoreSystems\OS\PlatformTimer\platform_timer_win.cpp">
+    <ClCompile Include="src\Core\OS\PlatformTimer\platform_timer_chrono.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\OS\PlatformTimer\platform_timer_win.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -62,43 +65,49 @@
     <ClInclude Include="src\Utils\utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\CoreSystems\MemoryManagement\Allocators\iallocator.h">
+    <ClInclude Include="src\Core\Logging\logger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\CoreSystems\MemoryManagement\Allocators\pool_allocator.hpp">
+    <ClInclude Include="src\Core\MemoryManagement\Allocators\iallocator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\CoreSystems\MemoryManagement\Allocators\pool_list_allocator.hpp">
+    <ClInclude Include="src\Core\MemoryManagement\Allocators\pool_allocator.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\CoreSystems\MemoryManagement\Allocators\stack_allocator.hpp">
+    <ClInclude Include="src\Core\MemoryManagement\Allocators\pool_list_allocator.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\CoreSystems\MemoryManagement\Allocators\universal_allocator.hpp">
+    <ClInclude Include="src\Core\MemoryManagement\Allocators\stack_allocator.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\CoreSystems\MemoryManagement\Allocators\universal_allocator_defragmented.hpp">
+    <ClInclude Include="src\Core\MemoryManagement\Allocators\universal_allocator.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\CoreSystems\MemoryManagement\memory.hpp">
+    <ClInclude Include="src\Core\MemoryManagement\Allocators\universal_allocator_defragmented.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\CoreSystems\MemoryManagement\memory_structs.hpp">
+    <ClInclude Include="src\Core\MemoryManagement\include.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\CoreSystems\MemoryManagement\memory_tracker.h">
+    <ClInclude Include="src\Core\MemoryManagement\memory.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\CoreSystems\OS\FileSystem\file_system.h">
+    <ClInclude Include="src\Core\MemoryManagement\memory_structs.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\CoreSystems\OS\PlatformTimer\platform_timer.h">
+    <ClInclude Include="src\Core\MemoryManagement\memory_tracker.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\CoreSystems\OS\PlatformTimer\system_time.hpp">
+    <ClInclude Include="src\Core\OS\FileSystem\file_system.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\CoreSystems\MemoryManagement\include.hpp">
+    <ClInclude Include="src\Core\OS\PlatformTimer\platform_timer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\OS\PlatformTimer\system_time.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Interfaces\i_subsystem.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

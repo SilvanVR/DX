@@ -13,38 +13,26 @@
 
 #include "iallocator.h"
 
-namespace MemoryManagement
-{
+namespace Core { namespace MemoryManagement {
+
+    //----------------------------------------------------------------------
+    // Defines
+    //----------------------------------------------------------------------
+
     #define INITIAL_FREE_CHUNK_LIST_CAPACITY    32
 
     // Amount of bytes additionally allocated to store necessary information needed for deallocation
     #define AMOUNT_OF_BYTES_FOR_SIZE            4
     #define AMOUNT_OF_BYTES_FOR_OFFSET          1 // DO NOT change this value
 
-    void _UVAllocatorWriteAdditionalBytes(Byte* alignedAddress, Size amtOfBytes, Byte offset)
-    {
-        // [ -(Alignment) - offset - amountOfBytes - alignedAddress ]
-        Byte* amtOfBytesAddress = (alignedAddress - AMOUNT_OF_BYTES_FOR_SIZE);
-        memcpy( amtOfBytesAddress, &amtOfBytes, AMOUNT_OF_BYTES_FOR_SIZE );
+    //----------------------------------------------------------------------
+    // Forward Declarations
+    //----------------------------------------------------------------------
 
-        Byte* offsetAddress = (amtOfBytesAddress - AMOUNT_OF_BYTES_FOR_OFFSET);
-        memcpy( offsetAddress, &offset, AMOUNT_OF_BYTES_FOR_OFFSET );
-    }
+    void _UVAllocatorWriteAdditionalBytes(Byte* alignedAddress, Size amtOfBytes, Byte offset);
 
-    Byte _UVAllocatorGetOffset(Byte* alignedAddress)
-    {
-        Byte offset = *(alignedAddress - AMOUNT_OF_BYTES_FOR_SIZE - AMOUNT_OF_BYTES_FOR_OFFSET);
-        return offset;
-    }
-
-    Size _UVAllocatorGetAmountOfBytes(Byte* alignedAddress)
-    {
-        Size amountOfBytes = 0;
-        Byte* amtOfBytesAddress = (alignedAddress - AMOUNT_OF_BYTES_FOR_SIZE);
-        memcpy( &amountOfBytes, amtOfBytesAddress, AMOUNT_OF_BYTES_FOR_SIZE );
-
-        return amountOfBytes;
-    }
+    Byte _UVAllocatorGetOffset(Byte* alignedAddress);
+    Size _UVAllocatorGetAmountOfBytes(Byte* alignedAddress);
 
     //**********************************************************************
     // Features:
@@ -347,6 +335,29 @@ namespace MemoryManagement
         return nullptr;
     }
 
+    void _UVAllocatorWriteAdditionalBytes(Byte* alignedAddress, Size amtOfBytes, Byte offset)
+    {
+        // [ -(Alignment) - offset - amountOfBytes - alignedAddress ]
+        Byte* amtOfBytesAddress = (alignedAddress - AMOUNT_OF_BYTES_FOR_SIZE);
+        memcpy( amtOfBytesAddress, &amtOfBytes, AMOUNT_OF_BYTES_FOR_SIZE );
 
+        Byte* offsetAddress = (amtOfBytesAddress - AMOUNT_OF_BYTES_FOR_OFFSET);
+        memcpy( offsetAddress, &offset, AMOUNT_OF_BYTES_FOR_OFFSET );
+    }
 
-}
+    Byte _UVAllocatorGetOffset(Byte* alignedAddress)
+    {
+        Byte offset = *(alignedAddress - AMOUNT_OF_BYTES_FOR_SIZE - AMOUNT_OF_BYTES_FOR_OFFSET);
+        return offset;
+    }
+
+    Size _UVAllocatorGetAmountOfBytes(Byte* alignedAddress)
+    {
+        Size amountOfBytes = 0;
+        Byte* amtOfBytesAddress = (alignedAddress - AMOUNT_OF_BYTES_FOR_SIZE);
+        memcpy( &amountOfBytes, amtOfBytesAddress, AMOUNT_OF_BYTES_FOR_SIZE );
+
+        return amountOfBytes;
+    }
+
+} } // end namespaces

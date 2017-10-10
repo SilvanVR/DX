@@ -8,21 +8,21 @@
 **********************************************************************/
 
 #include "Utils/utils.h"
+#include "Core/Logging/logger.h"
 
-#include <iostream>
-
-namespace MemoryManagement
-{
+namespace Core { namespace MemoryManagement {
 
     AllocationMemoryInfo MemoryTracker::s_memoryInfo;
 
     //----------------------------------------------------------------------
     void* _GlobalNewAndDeleteAllocator::allocate(Size size)
     {
+        ASSERT ( size < ( 1024i64 * 1024i64 * 1024i64 * 32i64) ); // Less than 32GB
+
         Size allocationSize = size + sizeof( Size );
         Byte* mem = (Byte*) std::malloc( allocationSize );
 
-        memset( mem, 0, allocationSize);
+        memset( mem, 0, allocationSize );
 
         // [&AllocationSize - &RealMemory]
         memcpy( mem, &allocationSize, sizeof( Size ));
@@ -48,9 +48,8 @@ namespace MemoryManagement
     //----------------------------------------------------------------------
     void* _GlobalNewAndDeleteAllocator::allocateDebug(Size size, const char* file, U32 line)
     {
-        // TODO LOG LARGE ALLOCATIONS
-        //if (size > 1024 * 1024)
-        //    Logger::Log("Large allocation (>1mb) " + std::string(file) + ":" + std::to_string(line), LOGTYPE_WARNING);
+        if (size > (1024 * 1024))
+            WARN ( "Large allocation (>1mb) " + String( file ) + ":" + TS( line ) );
 
         return allocate( size );
     }
@@ -64,19 +63,17 @@ namespace MemoryManagement
     //----------------------------------------------------------------------
     void MemoryTracker::log()
     {
-        //@TODO add to Logging Mechanism
-
         // It's important to fetch a local copy of the mem-info, otherwise the 
         // dynamically allocated string stuff will mess up the result
         AllocationMemoryInfo memInfo = MemoryTracker::getAllocationMemoryInfo();
 
-        std::cout << ("-------------- MEMORY INFO ---------------") << std::endl;
-        std::cout << ("Current Allocated: " + Utils::bytesToString(memInfo.currentBytesAllocated)) << std::endl;
-        std::cout << ("Total Allocated: " + Utils::bytesToString(memInfo.totalBytesAllocated)) << std::endl;
-        std::cout << ("Total Freed: " + Utils::bytesToString(memInfo.totalBytesFreed)) << std::endl;
-        std::cout << ("Total Allocations: " + TS(memInfo.totalAllocations)) << std::endl;
-        std::cout << ("Total Deallocations: " + TS(memInfo.totalDeallocations)) << std::endl;
-        std::cout << ("------------------------------------------") << std::endl;
+        LOG( "-------------- MEMORY INFO ---------------" );
+        LOG( "Current Allocated: " + Utils::bytesToString( memInfo.currentBytesAllocated ) );
+        LOG( "Total Allocated: " + Utils::bytesToString( memInfo.totalBytesAllocated ) );
+        LOG( "Total Freed: " + Utils::bytesToString( memInfo.totalBytesFreed ) );
+        LOG( "Total Allocations: " + TS( memInfo.totalAllocations ) );
+        LOG( "Total Deallocations: " + TS( memInfo.totalDeallocations ) );
+        LOG( "------------------------------------------");
     }
 
-}
+} } // end namespaces

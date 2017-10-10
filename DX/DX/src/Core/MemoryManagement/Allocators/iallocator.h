@@ -18,8 +18,7 @@
 
 #include "../memory_structs.hpp"
 
-namespace MemoryManagement
-{
+namespace Core { namespace MemoryManagement {
 
     //*********************************************************************
     // Every allocator inheriting from this class and overriding the two
@@ -115,4 +114,6 @@ namespace MemoryManagement
         Size alignedAddress = (rawAddress + adjustment);
         return reinterpret_cast<T*>( alignedAddress );
     }
-}
+
+
+} } // end namespaces

@@ -13,8 +13,12 @@
 #include "iallocator.h"
 
 
-namespace MemoryManagement
-{
+namespace Core { namespace MemoryManagement {
+
+    //----------------------------------------------------------------------
+    // Defines
+    //----------------------------------------------------------------------
+
     #define POOL_ALLOCATOR_DEFAULT_ALIGNMENT 16
 
     //**********************************************************************
@@ -230,4 +234,4 @@ namespace MemoryManagement
             "(" + TS(actualAlignment) + "), but is (" + TS(misalignment) + "). Performance may be degraded." << std::endl;
     }
 
-}
+} } // end namespaces

@@ -44,7 +44,7 @@ StringID internString(const char* str)
 }
 
 //----------------------------------------------------------------------
-String externString(StringID sid)
+const char* externString(StringID sid)
 {
 //#ifdef _DEBUG
     auto it = gStringIdTable.find( sid );
@@ -52,6 +52,7 @@ String externString(StringID sid)
     {
         return gStringIdTable[sid];
     }
+    ASSERT( false && "Given StringID does not exist.");
     return "";
 //#else
     // This should actually never be called, so return a very weird string

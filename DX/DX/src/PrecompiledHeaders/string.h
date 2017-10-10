@@ -36,4 +36,4 @@ StringID internString(const char* str);
 // @Return: 
 //      String which was given to internString() when calculated SID.
 //----------------------------------------------------------------------
-String externString(StringID sid);
+const char* externString(StringID sid);

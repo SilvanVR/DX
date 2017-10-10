@@ -15,8 +15,8 @@
 
 #include <Windows.h>
 
-namespace OS
-{
+namespace Core { namespace OS {
+
     //----------------------------------------------------------------------
     PlatformTimer::PlatformTimer()
     {
@@ -55,6 +55,6 @@ namespace OS
         return st;
     }
 
-} // namespace OS
+} } // end namespaces
 
 #endif // _WIN32

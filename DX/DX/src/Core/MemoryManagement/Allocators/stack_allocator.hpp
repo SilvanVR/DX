@@ -12,8 +12,12 @@
 **********************************************************************/
 #include "iallocator.h"
 
-namespace MemoryManagement
-{
+namespace Core { namespace MemoryManagement {
+
+    //----------------------------------------------------------------------
+    // Defines
+    //----------------------------------------------------------------------
+
     #define INITIAL_DESTRUCTOR_LIST_CAPACITY 32
 
     //**********************************************************************
@@ -220,4 +224,4 @@ namespace MemoryManagement
 
 
 
-}
+} } // end namespaces

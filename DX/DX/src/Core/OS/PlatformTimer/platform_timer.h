@@ -15,12 +15,11 @@
 #include "Interfaces/singleton.hpp"
 #include "system_time.hpp"
 
-namespace OS
-{
+namespace Core { namespace OS {
 
-    class PlatformTimer : public Singleton<PlatformTimer>
+    class PlatformTimer : public Interfaces::Singleton<PlatformTimer>
     {
-        friend class Singleton<PlatformTimer>;
+        friend class Interfaces::Singleton<PlatformTimer>;
         PlatformTimer();
 
     public:
@@ -28,14 +27,16 @@ namespace OS
 
         //----------------------------------------------------------------------
         // Returns the current time of the pc.
-        // @return: Struct which contains the time like year, month, day etc.
+        // @Return: 
+        //   Struct which contains the time like year, month, day etc.
         //----------------------------------------------------------------------
         static SystemTime getCurrentTime();
 
         //----------------------------------------------------------------------
         // Returns the number of ticks since the pc was started.
         // Query how much a tick is in time with getTickFrequencyInSeconds()
-        // @return: Amount of ticks since the pc was started.
+        // @Return: 
+        //   Amount of ticks since the pc was started.
         //----------------------------------------------------------------------
         static I64 getTicks();
 
@@ -71,4 +72,4 @@ namespace OS
         PlatformTimer& operator= (PlatformTimer&& other) = delete;
     };
 
-} // namespace OS
+} }

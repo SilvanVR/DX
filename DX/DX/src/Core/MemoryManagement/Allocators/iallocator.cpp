@@ -8,8 +8,7 @@
 **********************************************************************/
 
 
-namespace MemoryManagement
-{
+namespace Core { namespace MemoryManagement {
 
     //----------------------------------------------------------------------
     _IAllocator::_IAllocator(Size amountOfBytes, _IParentAllocator* parentAllocator)
@@ -42,4 +41,4 @@ namespace MemoryManagement
         delete[] mem;
     }
 
-}
+} } // end namespaces

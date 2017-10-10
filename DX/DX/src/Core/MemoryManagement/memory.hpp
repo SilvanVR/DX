@@ -12,42 +12,42 @@
 
 void* operator new(Size size)
 {
-    return MemoryManagement::_GlobalNewAndDeleteAllocator::allocate( size );
+    return Core::MemoryManagement::_GlobalNewAndDeleteAllocator::allocate( size );
 }
 
 void operator delete(void* mem)
 {
-    MemoryManagement::_GlobalNewAndDeleteAllocator::deallocate( mem );
+    Core::MemoryManagement::_GlobalNewAndDeleteAllocator::deallocate( mem );
 }
 
 void* operator new[](Size size)
 {
-    return MemoryManagement::_GlobalNewAndDeleteAllocator::allocate( size );
+    return Core::MemoryManagement::_GlobalNewAndDeleteAllocator::allocate( size );
 }
 
 void operator delete[](void* mem)
 {
-    MemoryManagement::_GlobalNewAndDeleteAllocator::deallocate( mem );
+    Core::MemoryManagement::_GlobalNewAndDeleteAllocator::deallocate( mem );
 }
 
 //----------------------------------------------------------------------
 
 void* operator new(size_t size, const char* file, U32 line)
 {
-    return MemoryManagement::_GlobalNewAndDeleteAllocator::allocateDebug( size, file, line );
+    return Core::MemoryManagement::_GlobalNewAndDeleteAllocator::allocateDebug( size, file, line );
 }
 
 void operator delete(void* mem, const char* file, U32 line)
 {
-    MemoryManagement::_GlobalNewAndDeleteAllocator::deallocateDebug( mem, file, line );
+    Core::MemoryManagement::_GlobalNewAndDeleteAllocator::deallocateDebug( mem, file, line );
 }
 
 void* operator new[](size_t size, const char* file, U32 line)
 {
-    return MemoryManagement::_GlobalNewAndDeleteAllocator::allocateDebug( size, file, line );
+    return Core::MemoryManagement::_GlobalNewAndDeleteAllocator::allocateDebug( size, file, line );
 }
 
 void operator delete[](void* mem, const char* file, U32 line)
 {
-    MemoryManagement::_GlobalNewAndDeleteAllocator::deallocateDebug( mem, file, line );
+    Core::MemoryManagement::_GlobalNewAndDeleteAllocator::deallocateDebug( mem, file, line );
 }

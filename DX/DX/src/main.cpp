@@ -1,9 +1,10 @@
 #include <iostream>
 
-#include "CoreSystems/MemoryManagement/include.hpp"
-#include "CoreSystems/OS/PlatformTimer/platform_timer.h"
+#include "Core/OS/PlatformTimer/platform_timer.h"
+#include "Core/MemoryManagement/include.hpp"
+#include "Core/Logging/logger.h"
 
-#define LOG(x) std::cout << x << std::endl
+using namespace Core;
 
 class AutoClock
 {
@@ -32,8 +33,6 @@ public:
         LOG("Nanos: " + TS(elapsedNanos));
     }
 };
-
-MemoryManagement::UniversalAllocator gUniversalAllocator(1000);
 
 class A
 {
@@ -96,7 +95,7 @@ public:
     //}
 
 
-    SystemTime time;
+    OS::SystemTime time;
 };
 
 class B : public A
@@ -119,12 +118,21 @@ public:
 
 int main(void)
 {
+   // MemoryManagement::UniversalAllocator gUniversalAllocator(1000);
     //StringID te = SID("Hello");
     //StringID te2 = SID("World");
     //String ste = IDS(te);
     //String ste2 = IDS(te2);
     //LOG(ste + " " + ste2);
 
+    using namespace Core::Logging;
+
+    {
+        //AutoClock clock;
+        LOG( SID("Hello") );
+
+
+    }
 
 
 

@@ -6,13 +6,12 @@
     author: S. Hau
     date: October 8, 2017
 
-
 **********************************************************************/
 
 #include "pool_allocator.hpp"
 
-namespace MemoryManagement
-{
+namespace Core { namespace MemoryManagement {
+
     //**********************************************************************
     // A PoolListAllocator manages several PoolAllocators of different sizes.
     // Allocations will be fetched from a PoolAllocator closest to the size
@@ -166,4 +165,4 @@ namespace MemoryManagement
     }
 
 
-}
+} } // end namespaces

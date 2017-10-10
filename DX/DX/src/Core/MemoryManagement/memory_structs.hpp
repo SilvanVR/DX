@@ -9,8 +9,7 @@
     Defines Structs for tracking memory stuff.
 **********************************************************************/
 
-namespace MemoryManagement
-{
+namespace Core { namespace MemoryManagement {
 
     //----------------------------------------------------------------------
     // Stores information about allocations e.g. currentBytesAllocated.
@@ -38,5 +37,4 @@ namespace MemoryManagement
         }
     };
 
-
-}
+} } // end namespaces

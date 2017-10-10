@@ -21,8 +21,11 @@
 
 #include "universal_allocator.hpp"
 
-namespace MemoryManagement
-{
+namespace Core { namespace MemoryManagement {
+
+    //----------------------------------------------------------------------
+    // Defines
+    //----------------------------------------------------------------------
 
     #define INITIAL_USED_CHUNK_LIST_CAPACITY    32
 
@@ -515,4 +518,4 @@ namespace MemoryManagement
         }
     }
 
-}
+} } // end namespaces

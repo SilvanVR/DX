@@ -16,8 +16,7 @@
 #include <chrono>
 #include <ctime>
 
-namespace OS
-{
+namespace Core { namespace OS {
 
     using Clock = std::chrono::high_resolution_clock;
 
@@ -59,6 +58,6 @@ namespace OS
         return st;
     }
 
-} // namespace OS
+} } // namespace OS
 
 #endif // !_WIN32
