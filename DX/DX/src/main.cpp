@@ -129,19 +129,31 @@ int main(void)
     gSubSystemManager.init();
 
     {
+       Logging::ILogger& logger = Locator::getLogger();
 
-        Color color( 16, 52, 128, 255);
+        StringID hay = StringID( "STRING LUL" );
+        LOG( hay );
 
-        Byte max = color.getMax();
+        LOG( "Hello World" );
+        WARN( "Hello World" );
+        LOG( "Hello World", Logging::LOG_LEVEL_IMPORTANT );
+        LOG( "Hello World", Color::BLUE );
+
+#define LOG_PHYSICS(...) LOG( __VA_ARGS__ )
+        LOG_PHYSICS( "Hello Physics" ); // ??
+
+        //logger.log( "Hello World", Logging::LOG_LEVEL_IMPORTANT, Logging::LOG_SOURCE_DEFAULT );
+        //logger.log( "Hello World", Logging::LOG_LEVEL_IMPORTANT, Logging::LOG_SOURCE_DEFAULT, Color::RED );
+        //logger.log( "Hello World", Color::RED );
+
+        LOG( 2512 );
 
         //AutoClock clock;
         LOG( SID("Hello") );
 
-        LOG( color.toString(true) );
-
+        Color color( 16, 52, 128, 255);
+        //LOG( color.toString(true), Color::RED );
     }
-
-
 
 
     MemoryManagement::MemoryTracker::log();

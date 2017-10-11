@@ -25,23 +25,32 @@ namespace Core {
         void init();
         void shutdown();
 
+
     private:
         //----------------------------------------------------------------------
         // Every Sub-System enumerated here
         //----------------------------------------------------------------------
         Logging::ILogger* m_logger;
 
+
+
+        //----------------------------------------------------------------------
         template <class T>
         T* initializeSubSystem(T* system);
 
         template <class T>
         void shutdownSubSystem(T*& system);
 
+        //----------------------------------------------------------------------
         SubSystemManager(const SubSystemManager& other)                 = delete;
         SubSystemManager& operator = (const SubSystemManager& other)    = delete;
         SubSystemManager(SubSystemManager&& other)                      = delete;
         SubSystemManager& operator = (SubSystemManager&& other)         = delete;
     };
+
+    //**********************************************************************
+    // IMPLEMENTATION
+    //**********************************************************************
 
     template <class T>
     T* SubSystemManager::initializeSubSystem( T* system )

@@ -17,20 +17,24 @@
                Logged Audio!
         [-] Interface must be known a priori
         [-] More code + files
+          [--] No Templates
         [-] Every Sub-System in one place :)
 
 **********************************************************************/
 
 #include "Logging/null_logger.hpp"
 
+
 //----------------------------------------------------------------------
 // Defines
 //----------------------------------------------------------------------
-#define LOG(x)              Core::Locator::getLogger().log(x)
-#define LOG_NO_NEWLINE(x)   Core::Locator::getLogger().log(x)
-#define WARN(x)             Core::Locator::getLogger().log(x)
-#define ERROR(x)            Core::Locator::getLogger().log(x)
+#define LOG(...)                Core::Locator::getLogger().log( Logging::LOG_SOURCE_DEFAULT, __VA_ARGS__ )
+#define WARN(...)               Core::Locator::getLogger().warn( Logging::LOG_SOURCE_DEFAULT, __VA_ARGS__ )
+#define ERROR(...)              Core::Locator::getLogger().error( Logging::LOG_SOURCE_DEFAULT, __VA_ARGS__ )
 
+#define LOG_RENDERING(...)      Core::Locator::getLogger().log( Logging::LOG_SOURCE_RENDERING, __VA_ARGS__ )
+#define WARN_RENDERING(...)     Core::Locator::getLogger().warn( Logging::LOG_SOURCE_RENDERING, __VA_ARGS__ )
+#define ERROR_RENDERING(...)    Core::Locator::getLogger().error( Logging::LOG_SOURCE_RENDERING, __VA_ARGS__ )
 
 namespace Core {
 
@@ -43,9 +47,10 @@ namespace Core {
         static Logging::ILogger& getLogger() { return (*gLogger); }
 
         //----------------------------------------------------------------------
-        // Set a Sub-System
+        // Provide a Sub-System
         //----------------------------------------------------------------------
-        static void provide(Logging::ILogger* logger) { gLogger = (logger != nullptr) ? logger : &gNullLogger; }
+        //static void provide(Logging::ILogger* logger) { gLogger = (logger != nullptr) ? logger : &gNullLogger; }
+        static void provide(Logging::ILogger* logger) { gLogger = logger; }
 
     private:
 
@@ -53,7 +58,7 @@ namespace Core {
         // All Sub-Systems are enumerated here
         //----------------------------------------------------------------------
         static Logging::ILogger*    gLogger;
-        static Logging::NullLogger  gNullLogger;
+        //static Logging::NullLogger  gNullLogger;
 
 
         // Do not allow construction of an Locator-Object

@@ -223,10 +223,10 @@ namespace Core { namespace MemoryManagement {
             Size currentChunkIndex = i * m_bytesPerChunk;
             PoolChunk* chunk = reinterpret_cast<PoolChunk*>( m_data + currentChunkIndex );
 
-            LOG( TS(i) + ": " + TS( (Size)chunk ) + " -> " + TS( (Size)chunk->nextFreeChunk ) );
+            String line = TS(i) + ": " + TS( (Size)chunk ) + " -> " + TS( (Size)chunk->nextFreeChunk );
             if (headChunk == chunk)
-                LOG_NO_NEWLINE( " <-- m_head" );
-            LOG( "" );
+                line += " <-- m_head";
+            LOG( line + "\n" );
         }
     }
 

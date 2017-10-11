@@ -14,44 +14,40 @@ namespace Core { namespace Logging {
     //----------------------------------------------------------------------
     void ConsoleLogger::init()
     {
-        m_console.setColor( Color::RED );
+       // Nothing to do yet!
     }
 
     //----------------------------------------------------------------------
     void ConsoleLogger::shutdown()
     {
         // @TODO:
-        // Write logged stuff to file
+        // Write logged stuff to file if desired
     }
 
     //----------------------------------------------------------------------
-    void ConsoleLogger::log( const char* msg ) const
+    void ConsoleLogger::_Log( LOGSOURCE source, const char* msg, LOGLEVEL logLevel, Color color ) const
     {
+        m_console.setColor( color );
         m_console.writeln( msg );
+        m_console.setColor( Color::WHITE );
     }
 
     //----------------------------------------------------------------------
-    void ConsoleLogger::log( void* addr ) const
+    void ConsoleLogger::_Log( LOGSOURCE source, const char* msg, Color color ) const
     {
-        log( Utils::memoryAddressToString( addr ) );
+        _Log( Logging::LOG_SOURCE_DEFAULT, msg, Logging::LOG_LEVEL_VERY_IMPORTANT, color );
     }
 
     //----------------------------------------------------------------------
-    void ConsoleLogger::log( StringID id ) const
+    void ConsoleLogger::_Warn( LOGSOURCE source, const char* msg, LOGLEVEL logLevel ) const
     {
-        log( id.str );
+        _Log( source, msg, logLevel, LOGTYPE_COLOR_WARNING );
     }
 
     //----------------------------------------------------------------------
-    void ConsoleLogger::log( String msg ) const
+    void ConsoleLogger::_Error( LOGSOURCE source, const char* msg, LOGLEVEL logLevel ) const
     {
-        log( msg.c_str() );
-    }
-
-    //----------------------------------------------------------------------
-    void ConsoleLogger::log( I64 num ) const
-    {
-        log( TS(num) );
+        _Log( source, msg, logLevel, LOGTYPE_COLOR_ERROR );
     }
 
 

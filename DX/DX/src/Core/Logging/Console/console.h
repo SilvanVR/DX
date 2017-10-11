@@ -15,8 +15,6 @@ namespace Core { namespace Logging {
 
     class Console
     {
-        //static const Color defaultColor = Color::WHITE;
-
     public:
         Console() {}
 
@@ -42,7 +40,7 @@ namespace Core { namespace Logging {
         // "textColor": Color of the text.
         // "backgroundColor": Background color of the text.
         //----------------------------------------------------------------------
-        void setColor(Color textColor, Color backgroundColor = Color::BLACK);
+        void setColor(Color textColor, Color backgroundColor = Color::BLACK) const;
 
     private:
         Console(const Console& other)               = delete;

@@ -35,7 +35,7 @@ namespace Core { namespace Logging {
 #ifndef _WIN32
 
     //----------------------------------------------------------------------
-    void Console::setTextColor(Color color)
+    void Console::setTextColor(Color color) const
     {
         static_assert( false, "Function not implemented on this platform. Either uncomment this line or implement it" );
     }

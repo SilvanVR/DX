@@ -21,8 +21,8 @@ class Color
 public:
     Color();
     //Color(const char* hex);
-    Color(U32 color);
-    Color(Byte r, Byte g, Byte b, Byte a = 255);
+    explicit Color(U32 color);
+    explicit Color(Byte r, Byte g, Byte b, Byte a = 255);
 
     //----------------------------------------------------------------------
     // Return the greatest of the three R-G-B components (Alpha excluded).

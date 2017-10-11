@@ -22,11 +22,12 @@ namespace Core { namespace Logging {
 
         void init() override {}
         void shutdown() override {}
-        void log(const char* msg) const override {};
-        void log(StringID msg) const override {};
-        void log(void* addr) const override {};
-        void log(String msg) const override {};
-        void log(I64 num) const override {};
+
+        virtual void _Log(LOGSOURCE source, const char* msg, LOGLEVEL logLevel, Color color) const override {}
+        virtual void _Log(LOGSOURCE source, const char* msg, Color color) const override {}
+
+        virtual void _Warn(LOGSOURCE source, const char* msg, LOGLEVEL logLevel) const override {}
+        virtual void _Error(LOGSOURCE source, const char* msg, LOGLEVEL logLevel) const override {}
 
     private:
         NullLogger(const NullLogger& other)                 = delete;

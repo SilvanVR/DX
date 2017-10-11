@@ -19,7 +19,7 @@ namespace Core { namespace Logging {
 
 
     //----------------------------------------------------------------------
-    void Console::setColor( Color color, Color backgroundColor )
+    void Console::setColor( Color color, Color backgroundColor ) const
     {
         HANDLE hConsole = GetStdHandle( STD_OUTPUT_HANDLE );
 

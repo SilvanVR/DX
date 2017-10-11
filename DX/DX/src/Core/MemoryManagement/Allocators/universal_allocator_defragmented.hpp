@@ -519,10 +519,10 @@ namespace Core { namespace MemoryManagement {
         LOG("");
         for (Size i = 0; i < m_amtOfHandles; i++)
         {
-            LOG( TS(i) + ": " + TS( (Size)(&m_table[i]) ) + " -> " + TS( (Size)m_table[i].nextHandle ) );
+            String line = TS(i) + ": " + TS( (Size)(&m_table[i]) ) + " -> " + TS( (Size)m_table[i].nextHandle );
             if ( m_head == (&m_table[i]) )
-                LOG_NO_NEWLINE( " <-- m_head" );
-            LOG("");
+                line += " <-- m_head";
+            LOG(line + "\n");
         }
     }
 
