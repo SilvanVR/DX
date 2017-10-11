@@ -1,9 +1,10 @@
 
 #include "Core/OS/PlatformTimer/platform_timer.h"
 #include "Core/MemoryManagement/include.hpp"
-#include "Core/Logging/logger.h"
 
-#include "PrecompiledHeaders/color.h"
+#include "Core/subsystem_manager.h"
+
+#include "Core/Misc/color.h"
 
 using namespace Core;
 
@@ -124,21 +125,28 @@ int main(void)
     //StringID te2 = SID("World");
     //LOG(te.toString() + " " + te2.toString());
 
-    using namespace Core::Logging;
-
-    Color color( 16, 52, 128, 255);
-
-    Byte max = color.getMax();
+    Core::SubSystemManager gSubSystemManager;
+    gSubSystemManager.init();
 
     {
+
+        Color color( 16, 52, 128, 255);
+
+        Byte max = color.getMax();
+
         //AutoClock clock;
         LOG( SID("Hello") );
 
         LOG( color.toString(true) );
+
     }
 
 
+
+
     MemoryManagement::MemoryTracker::log();
+    gSubSystemManager.shutdown();
     system("pause");
+
     return 0;
 }

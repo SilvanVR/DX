@@ -9,18 +9,31 @@
     Platform independant encapsulation of the console window.
 **********************************************************************/
 
-#include "PrecompiledHeaders/color.h"
+#include "Core/Misc/color.h"
 
 namespace Core { namespace Logging {
 
     class Console
     {
-        const Color defaultColor = Color::WHITE;
-        const Byte defaultFontSize = 24;
+        //static const Color defaultColor = Color::WHITE;
 
     public:
-        void writeln(const char* msg);
-        void write(const char* msg);
+        Console() {}
+
+        //----------------------------------------------------------------------
+        // Write the given string to the console with a new-line
+        //----------------------------------------------------------------------
+        void writeln(const char* msg) const;
+
+        //----------------------------------------------------------------------
+        // Write the string to the console without a new-line
+        //----------------------------------------------------------------------
+        void write(const char* msg) const;
+
+        //----------------------------------------------------------------------
+        // Flush the console buffer
+        //----------------------------------------------------------------------
+        void flush() const;
 
         //----------------------------------------------------------------------
         // Changes the text- and/or background color of the console window.
@@ -31,12 +44,11 @@ namespace Core { namespace Logging {
         //----------------------------------------------------------------------
         void setColor(Color textColor, Color backgroundColor = Color::BLACK);
 
-        //----------------------------------------------------------------------
-        // 
-        //----------------------------------------------------------------------
-        void setFontSize();
-
     private:
+        Console(const Console& other)               = delete;
+        Console& operator = (const Console& other)  = delete;
+        Console(Console&& other)                    = delete;
+        Console& operator = (Console&& other)       = delete;
     };
 
 

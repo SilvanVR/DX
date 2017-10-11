@@ -13,15 +13,17 @@
 #ifdef _WIN32
 
 #include <windows.h>
+#include <cwchar>
 
 namespace Core { namespace Logging {
 
 
     //----------------------------------------------------------------------
-    void Console::setColor(Color color, Color backgroundColor)
+    void Console::setColor( Color color, Color backgroundColor )
     {
         HANDLE hConsole = GetStdHandle( STD_OUTPUT_HANDLE );
 
+        // Set Text-Color
         int col = (color.getMax() > 127 ? FOREGROUND_INTENSITY : 0);
         if (color.getRed() > 0)
             col |= FOREGROUND_RED;
@@ -30,6 +32,7 @@ namespace Core { namespace Logging {
         if (color.getBlue() > 0)
             col |= FOREGROUND_BLUE;
 
+        // Set Background-Color
         if (backgroundColor.getRed() > 0)
             col |= BACKGROUND_RED;
         if (backgroundColor.getGreen() > 0)
@@ -41,6 +44,7 @@ namespace Core { namespace Logging {
 
         SetConsoleTextAttribute( hConsole, col );
     }
+
 
 } } // end namespaces
 

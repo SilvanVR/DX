@@ -32,7 +32,7 @@ public:
     Byte getMax() const;
 
     //----------------------------------------------------------------------
-    // Calculate the luminance values based of the RGB-Components.
+    // Calculate the luminance values based on the RGB-Components.
     // @Return:
     //  Luminance value represented by the RGB-Components.
     //----------------------------------------------------------------------

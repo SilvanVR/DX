@@ -8,7 +8,7 @@
 **********************************************************************/
 
 #include "Utils/utils.h"
-#include "Core/Logging/logger.h"
+#include "Core/locator.h"
 
 namespace Core { namespace MemoryManagement {
 

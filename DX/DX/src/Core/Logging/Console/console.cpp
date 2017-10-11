@@ -15,15 +15,21 @@
 namespace Core { namespace Logging {
 
     //----------------------------------------------------------------------
-    void Console::writeln(const char* msg)
+    void Console::writeln( const char* msg ) const
     {
         std::cout << msg << std::endl;
     }
 
     //----------------------------------------------------------------------
-    void Console::write(const char* msg)
+    void Console::write( const char* msg ) const
     {
         std::cout << msg;
+    }
+
+    //----------------------------------------------------------------------
+    void Console::flush() const
+    {
+        std::cout.flush();
     }
 
 #ifndef _WIN32
@@ -31,7 +37,7 @@ namespace Core { namespace Logging {
     //----------------------------------------------------------------------
     void Console::setTextColor(Color color)
     {
-        static_assert(false, "Function not implemented on this platform. Either uncomment this line or implement it");
+        static_assert( false, "Function not implemented on this platform. Either uncomment this line or implement it" );
     }
 
 #endif

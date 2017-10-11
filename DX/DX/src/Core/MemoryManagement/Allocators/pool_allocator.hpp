@@ -12,7 +12,7 @@
 **********************************************************************/
 
 #include "iallocator.h"
-#include "Core/Logging/logger.h"
+#include "Core/subsystem_manager.h"
 
 namespace Core { namespace MemoryManagement {
 

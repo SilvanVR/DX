@@ -27,9 +27,6 @@
     <ClCompile Include="src\Utils\utils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Core\Logging\logger.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\Core\MemoryManagement\Allocators\iallocator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -48,7 +45,16 @@
     <ClCompile Include="src\Core\Logging\Console\console.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\PrecompiledHeaders\color.cpp">
+    <ClCompile Include="src\Core\Misc\color.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\subsystem_manager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Logging\console_logger.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\locator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -72,9 +78,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Utils\utils.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Core\Logging\logger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\MemoryManagement\Allocators\iallocator.h">
@@ -116,13 +119,28 @@
     <ClInclude Include="src\Core\OS\PlatformTimer\system_time.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Interfaces\i_subsystem.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\Core\Logging\Console\console.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\PrecompiledHeaders\color.h">
+    <ClInclude Include="src\Core\Misc\color.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\subsystem_manager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\i_subsystem.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Logging\console_logger.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Logging\i_logger.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Logging\null_logger.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\locator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

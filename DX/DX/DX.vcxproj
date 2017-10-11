@@ -192,10 +192,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\PrecompiledHeaders\color.cpp" />
+    <ClCompile Include="src\Core\locator.cpp" />
+    <ClCompile Include="src\Core\Misc\color.cpp" />
     <ClCompile Include="src\Core\Logging\Console\console.cpp" />
     <ClCompile Include="src\Core\Logging\Console\console_win.cpp" />
-    <ClCompile Include="src\Core\Logging\logger.cpp" />
+    <ClCompile Include="src\Core\Logging\console_logger.cpp" />
+    <ClCompile Include="src\Core\subsystem_manager.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Core\MemoryManagement\Allocators\iallocator.cpp" />
     <ClCompile Include="src\Core\MemoryManagement\memory_tracker.cpp" />
@@ -214,9 +216,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\commenting_style.hpp" />
-    <ClInclude Include="src\PrecompiledHeaders\color.h" />
+    <ClInclude Include="src\Core\locator.h" />
+    <ClInclude Include="src\Core\Logging\null_logger.hpp" />
+    <ClInclude Include="src\Core\Logging\i_logger.hpp" />
+    <ClInclude Include="src\Core\Misc\color.h" />
     <ClInclude Include="src\Core\Logging\Console\console.h" />
-    <ClInclude Include="src\Core\Logging\logger.h" />
+    <ClInclude Include="src\Core\Logging\console_logger.h" />
     <ClInclude Include="src\Core\MemoryManagement\Allocators\universal_allocator.hpp" />
     <ClInclude Include="src\Core\MemoryManagement\Allocators\iallocator.h" />
     <ClInclude Include="src\Core\MemoryManagement\Allocators\pool_allocator.hpp" />
@@ -227,7 +232,8 @@
     <ClInclude Include="src\Core\MemoryManagement\memory_structs.hpp" />
     <ClInclude Include="src\Core\MemoryManagement\memory_tracker.h" />
     <ClInclude Include="src\Core\OS\FileSystem\file_system.h" />
-    <ClInclude Include="src\Interfaces\i_subsystem.hpp" />
+    <ClInclude Include="src\Core\subsystem_manager.h" />
+    <ClInclude Include="src\Core\i_subsystem.hpp" />
     <ClInclude Include="src\PrecompiledHeaders\data_types.hpp" />
     <ClInclude Include="src\Interfaces\singleton.hpp" />
     <ClInclude Include="src\PrecompiledHeaders\macros.hpp" />
