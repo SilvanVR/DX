@@ -143,5 +143,8 @@
     <ClInclude Include="src\Core\locator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Core\Misc\layer_mask.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

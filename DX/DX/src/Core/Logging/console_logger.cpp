@@ -25,36 +25,38 @@ namespace Core { namespace Logging {
     }
 
     //----------------------------------------------------------------------
-    void ConsoleLogger::_Log( LOGSOURCE source, const char* msg, LOGLEVEL logLevel, Color color ) const
+    void ConsoleLogger::_Log( LOGCHANNEL channel, const char* msg, LOGLEVEL logLevel, Color color ) const
     {
-        m_console.setColor( LOGTYPE_COLOR_SOURCE );
+        if ( _CheckLogLevel( logLevel ) || _Filterchannel( channel ) )
+            return;
 
-        String preface = _GetSourceAsString( source ) + " ";
-        m_console.write( preface.c_str() );
+        m_console.setColor( LOGTYPE_COLOR_channel );
+
+        String preface = _GetchannelAsString( channel ) + " ";
+        if( not preface.empty() )
+            m_console.write( preface.c_str() );
 
         m_console.setColor( color );
-
         m_console.writeln( msg );
-
         m_console.setColor( getDefaultColor() );
     }
 
     //----------------------------------------------------------------------
-    void ConsoleLogger::_Log( LOGSOURCE source, const char* msg, Color color ) const
+    void ConsoleLogger::_Log( LOGCHANNEL channel, const char* msg, Color color ) const
     {
-        _Log( Logging::LOG_SOURCE_DEFAULT, msg, Logging::LOG_LEVEL_VERY_IMPORTANT, color );
+        _Log( Logging::LOG_CHANNEL_DEFAULT, msg, Logging::LOG_LEVEL_VERY_IMPORTANT, color );
     }
 
     //----------------------------------------------------------------------
-    void ConsoleLogger::_Warn( LOGSOURCE source, const char* msg, LOGLEVEL logLevel ) const
+    void ConsoleLogger::_Warn( LOGCHANNEL channel, const char* msg, LOGLEVEL logLevel ) const
     {
-        _Log( source, msg, logLevel, LOGTYPE_COLOR_WARNING );
+        _Log( channel, msg, logLevel, LOGTYPE_COLOR_WARNING );
     }
 
     //----------------------------------------------------------------------
-    void ConsoleLogger::_Error( LOGSOURCE source, const char* msg, LOGLEVEL logLevel ) const
+    void ConsoleLogger::_Error( LOGCHANNEL channel, const char* msg, LOGLEVEL logLevel ) const
     {
-        _Log( source, msg, logLevel, LOGTYPE_COLOR_ERROR );
+        _Log( channel, msg, logLevel, LOGTYPE_COLOR_ERROR );
     }
 
 

@@ -12,18 +12,18 @@
 //  Defines
 //---------------------------------------------------------------------------
 
-#ifdef USE_BGRA_FORMAT
-
-    #define B_COMPONENT_INDEX 0
-    #define G_COMPONENT_INDEX 1
-    #define R_COMPONENT_INDEX 2
-    #define A_COMPONENT_INDEX 3
-
-#else
+#ifdef USE_RGBA_FORMAT
 
     #define R_COMPONENT_INDEX 0
     #define G_COMPONENT_INDEX 1
     #define B_COMPONENT_INDEX 2
+    #define A_COMPONENT_INDEX 3
+
+#else
+
+    #define B_COMPONENT_INDEX 0
+    #define G_COMPONENT_INDEX 1
+    #define R_COMPONENT_INDEX 2
     #define A_COMPONENT_INDEX 3
 
 #endif
@@ -57,6 +57,7 @@ Color::Color() : m_componentsAsInt(~0)
 Color::Color( U32 color )
     : m_componentsAsInt(color)
 {
+    setAlpha( 255 );
 }
 
 //---------------------------------------------------------------------------

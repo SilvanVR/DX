@@ -5,6 +5,7 @@
 #include "Core/subsystem_manager.h"
 
 #include "Core/Misc/color.h"
+#include "Core/Misc/layer_mask.hpp"
 
 using namespace Core;
 
@@ -118,7 +119,7 @@ public:
 //  - Logging of memorytracker
 
 
-// FILTER - Sources 
+// FILTER - channels 
 //   -> Bitmask which is enabled
 
 int main(void)
@@ -128,17 +129,40 @@ int main(void)
     //StringID te2 = SID("World");
     //LOG(te.toString() + " " + te2.toString());
 
+    
+
     Core::SubSystemManager gSubSystemManager;
     gSubSystemManager.init();
+
+    LayerMask ma;
+    ma.setBit(3);
+
+
 
     {
         Logging::ILogger& logger = Locator::getLogger();
         logger.setDefaultColor(Color::WHITE);
 
+        //logger.setLogLevel(Logging::LOG_LEVEL_NOT_SO_IMPORTANT);
+        auto renderMask = Logging::LOG_CHANNEL_RENDERING;
+        auto physicsMask = Logging::LOG_CHANNEL_PHYSICS;
+
+        logger.filterChannels(renderMask | physicsMask);
+        //logger.filterChannels(Logging::LOG_CHANNEL_ALL);
+        //logger.unfilterChannels(renderMask | physicsMask);
+
+        //auto& mask = logger.getFilterMask();
+        //mask.unsetBits(physicsMask);
+
+
         LOG( "Hello World" );
+
+        LOG("IMPORTANT", Logging::LOG_LEVEL_IMPORTANT, Color::BLUE);
+        LOG("NOT SO IMPORTANT", Logging::LOG_LEVEL_NOT_SO_IMPORTANT);
+        LOG("NOT IMPORTANT", Logging::LOG_LEVEL_NOT_IMPORTANT);
+
         WARN_PHYSICS ( "Hello World" );
-        LOG( "Hello World", Logging::LOG_LEVEL_IMPORTANT );
-        LOG( "Hello World", Color::RED );
+        ERROR( "Hello World", Logging::LOG_LEVEL_IMPORTANT );
 
         LOG_PHYSICS( "Hello Physics", Logging::LOG_LEVEL_IMPORTANT);
         WARN_RENDERING( "Rendering Warning!" );

@@ -28,17 +28,17 @@
 //----------------------------------------------------------------------
 // Defines
 //----------------------------------------------------------------------
-#define LOG(...)                Core::Locator::getLogger().log( Logging::LOG_SOURCE_DEFAULT, __VA_ARGS__ )
-#define WARN(...)               Core::Locator::getLogger().warn( Logging::LOG_SOURCE_DEFAULT, __VA_ARGS__ )
-#define ERROR(...)              Core::Locator::getLogger().error( Logging::LOG_SOURCE_DEFAULT, __VA_ARGS__ )
+#define LOG(...)                Core::Locator::getLogger().log( Logging::LOG_CHANNEL_DEFAULT, __VA_ARGS__ )
+#define WARN(...)               Core::Locator::getLogger().warn( Logging::LOG_CHANNEL_DEFAULT, __VA_ARGS__ )
+#define ERROR(...)              Core::Locator::getLogger().error( Logging::LOG_CHANNEL_DEFAULT, __VA_ARGS__ )
 
-#define LOG_RENDERING(...)      Core::Locator::getLogger().log( Logging::LOG_SOURCE_RENDERING, __VA_ARGS__ )
-#define WARN_RENDERING(...)     Core::Locator::getLogger().warn( Logging::LOG_SOURCE_RENDERING, __VA_ARGS__ )
-#define ERROR_RENDERING(...)    Core::Locator::getLogger().error( Logging::LOG_SOURCE_RENDERING, __VA_ARGS__ )
+#define LOG_RENDERING(...)      Core::Locator::getLogger().log( Logging::LOG_CHANNEL_RENDERING, __VA_ARGS__ )
+#define WARN_RENDERING(...)     Core::Locator::getLogger().warn( Logging::LOG_CHANNEL_RENDERING, __VA_ARGS__ )
+#define ERROR_RENDERING(...)    Core::Locator::getLogger().error( Logging::LOG_CHANNEL_RENDERING, __VA_ARGS__ )
 
-#define LOG_PHYSICS(...)        Core::Locator::getLogger().log( Logging::LOG_SOURCE_PHYSICS, __VA_ARGS__ )
-#define WARN_PHYSICS(...)       Core::Locator::getLogger().warn( Logging::LOG_SOURCE_PHYSICS, __VA_ARGS__ )
-#define ERROR_PHYSICS(...)      Core::Locator::getLogger().error( Logging::LOG_SOURCE_PHYSICS, __VA_ARGS__ )
+#define LOG_PHYSICS(...)        Core::Locator::getLogger().log( Logging::LOG_CHANNEL_PHYSICS, __VA_ARGS__ )
+#define WARN_PHYSICS(...)       Core::Locator::getLogger().warn( Logging::LOG_CHANNEL_PHYSICS, __VA_ARGS__ )
+#define ERROR_PHYSICS(...)      Core::Locator::getLogger().error( Logging::LOG_CHANNEL_PHYSICS, __VA_ARGS__ )
 
 namespace Core {
 

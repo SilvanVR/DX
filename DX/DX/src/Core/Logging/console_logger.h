@@ -18,7 +18,7 @@ namespace Core {  namespace Logging  {
 
 
     //**********************************************************************
-    // 
+    // Basic logging functionality to the console
     //**********************************************************************
     class ConsoleLogger : public ILogger
     {
@@ -36,11 +36,11 @@ namespace Core {  namespace Logging  {
         //----------------------------------------------------------------------
         // ILogger Interface
         //----------------------------------------------------------------------
-        virtual void _Log(LOGSOURCE source, const char* msg, LOGLEVEL logLevel, Color color) const override;
-        virtual void _Log(LOGSOURCE source, const char* msg, Color color) const override;
+        virtual void _Log(LOGCHANNEL channel, const char* msg, LOGLEVEL logLevel, Color color) const override;
+        virtual void _Log(LOGCHANNEL channel, const char* msg, Color color) const override;
 
-        virtual void _Warn(LOGSOURCE source, const char* msg, LOGLEVEL logLevel) const override;
-        virtual void _Error(LOGSOURCE source, const char* msg, LOGLEVEL logLevel) const override;
+        virtual void _Warn(LOGCHANNEL channel, const char* msg, LOGLEVEL logLevel) const override;
+        virtual void _Error(LOGCHANNEL channel, const char* msg, LOGLEVEL logLevel) const override;
 
     private:
         Console m_console;

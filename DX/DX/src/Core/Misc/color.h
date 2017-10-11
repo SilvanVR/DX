@@ -9,8 +9,8 @@
     One color component is represented by exactly one byte. This means 
     the range for each component is 0 - 255. Which format is used 
     depends upon appropriate defines during compilation:
-      #define USE_BGRA_FORMAT: Color in BGRA format.
-    The default format is RGBA.
+      #define USE_RGBA_FORMAT: Color in RGBA format.
+    The default format is BGRA.
 **********************************************************************/
 
 
@@ -24,8 +24,14 @@ class Color
 
 public:
     Color();
-    explicit Color(U32 color);
     explicit Color(Byte r, Byte g, Byte b, Byte a = 255);
+
+    //----------------------------------------------------------------------
+    // Construct a new color based on the internal representation.
+    // Default is BGRA, that means 0xFF0000 = RED, 0x0000FF = BLUE etc.
+    // Alpha will be always set to 255.
+    //----------------------------------------------------------------------
+    explicit Color(U32 color);
 
     //----------------------------------------------------------------------
     // Return the greatest of the three R-G-B components (Alpha excluded).
