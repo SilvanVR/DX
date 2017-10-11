@@ -49,13 +49,13 @@ Color Color::GREY(127, 127, 127);
 Color Color::ORANGE(255, 127, 0);
 
 //---------------------------------------------------------------------------
-Color::Color() : m_components(~0)
+Color::Color() : m_componentsAsInt(~0)
 {
 }
 
 //---------------------------------------------------------------------------
 Color::Color( U32 color )
-    : m_components(color)
+    : m_componentsAsInt(color)
 {
 }
 
@@ -64,23 +64,6 @@ Color::Color( Byte r, Byte g, Byte b, Byte a )
 {
     setRGBA( r, g, b, a );
 }
-
-//Color::Color(std::string hex)
-//{
-//    if (hex[0] != '#' || hex.length() != 7)
-//    {
-//        Logger::Log("Color::Color(): Given string '" + hex + "' is not a valid hexadecimal number."
-//            " Using #FFFFFF (White) instead", LOGTYPE_WARNING);
-//        hex = "#FFFFFF";
-//    }
-//    // Cut of "#" character
-//    hex = hex.erase(0, 1);
-//
-//    r() = hexToRGB(hex.substr(0, 2)) * 1 / 255.0f;
-//    g() = hexToRGB(hex.substr(2, 2)) * 1 / 255.0f;
-//    b() = hexToRGB(hex.substr(4, 2)) * 1 / 255.0f;
-//    a() = 1.0f;
-//}
 
 //---------------------------------------------------------------------------
 void Color::setRGBA(Byte r, Byte g, Byte b, Byte a)
@@ -94,53 +77,49 @@ void Color::setRGBA(Byte r, Byte g, Byte b, Byte a)
 //---------------------------------------------------------------------------
 void Color::setRed( Byte red )
 {
-    Byte* address = reinterpret_cast<Byte*>( &m_components ) + R_COMPONENT_INDEX;
-    memcpy( address, &red, sizeof(Byte) );
+    m_components[R_COMPONENT_INDEX] = red;
 }
 
 //---------------------------------------------------------------------------
 void Color::setGreen( Byte green )
 {
-    Byte* address = reinterpret_cast<Byte*>( &m_components ) + G_COMPONENT_INDEX;
-    memcpy( address, &green, sizeof(Byte) );
+    m_components[G_COMPONENT_INDEX] = green;
 }
 
 //---------------------------------------------------------------------------
 void Color::setBlue( Byte blue )
 {
-    Byte* address = reinterpret_cast<Byte*>( &m_components ) + B_COMPONENT_INDEX;
-    memcpy( address, &blue, sizeof(Byte) );
+    m_components[B_COMPONENT_INDEX] = blue;
 }
 
 //---------------------------------------------------------------------------
 void Color::setAlpha( Byte alpha )
 {
-    Byte* address = reinterpret_cast<Byte*>( &m_components ) + A_COMPONENT_INDEX;
-    memcpy( address, &alpha, sizeof(Byte) );
+    m_components[A_COMPONENT_INDEX] = alpha;
 }
 
 //---------------------------------------------------------------------------
 Byte Color::getRed() const
 {
-    return RED_COMPONENT( m_components );
+    return RED_COMPONENT( m_componentsAsInt );
 }
 
 //---------------------------------------------------------------------------
 Byte Color::getGreen() const
 {
-    return GREEN_COMPONENT( m_components );
+    return GREEN_COMPONENT( m_componentsAsInt );
 }
 
 //---------------------------------------------------------------------------
 Byte Color::getBlue() const
 {
-    return BLUE_COMPONENT( m_components );
+    return BLUE_COMPONENT( m_componentsAsInt );
 }
 
 //---------------------------------------------------------------------------
 Byte Color::getAlpha() const
 {
-    return ALPHA_COMPONENT( m_components );
+    return ALPHA_COMPONENT( m_componentsAsInt );
 }
 
 //---------------------------------------------------------------------------
@@ -158,6 +137,7 @@ Byte Color::getMax() const
     return max;
 }
 
+//---------------------------------------------------------------------------
 F32 Color::getLuminance() const
 {
     return (0.2126f * getRed() + 0.7152f * getGreen() + 0.0722f * getBlue() );
@@ -166,7 +146,7 @@ F32 Color::getLuminance() const
 //---------------------------------------------------------------------------
 bool Color::operator==( const Color& c ) const
 {
-    return (m_components == c.m_components);
+    return (m_componentsAsInt == c.m_componentsAsInt);
 }
 
 //---------------------------------------------------------------------------
@@ -187,26 +167,3 @@ String Color::toString( bool includeAlpha ) const
 
     return result;
 }
-
-
-//---------------------------------------------------------------------------
-F32 Color::_HexToRGB(const char* hex)
-{
-   // int hexLength = static_cast<int>(hex.length());
-    int hexLength = 0;
-    double dec = 0;
-
-    for (int i = 0; i < hexLength; ++i)
-    {
-        char b = hex[i];
-
-        if (b >= 48 && b <= 57)
-            b -= 48;
-        else if (b >= 65 && b <= 70)
-            b -= 55;
-
-        dec += b * pow(16, ((hexLength - i) - 1));
-    }
-    return (F32)dec;
-}
-

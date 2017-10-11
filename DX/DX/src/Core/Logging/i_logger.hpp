@@ -20,6 +20,7 @@ namespace Core { namespace Logging {
     #define LOGTYPE_COLOR_DEFAULT       Color::WHITE
     #define LOGTYPE_COLOR_WARNING       Color::YELLOW
     #define LOGTYPE_COLOR_ERROR         Color::RED
+    #define LOGTYPE_COLOR_SOURCE        Color::VIOLET
 
     //----------------------------------------------------------------------
     enum LOGLEVEL
@@ -44,8 +45,19 @@ namespace Core { namespace Logging {
     //**********************************************************************
     class ILogger : public ISubSystem
     {
+        Color m_defaultColor = LOGTYPE_COLOR_DEFAULT;
+
+    public:
+        void    setDefaultColor(Color color) { m_defaultColor = color; };
+        Color   getDefaultColor() const { return m_defaultColor; }
 
     private:
+        //----------------------------------------------------------------------
+        // Functions to override. Because templates does not work well with the
+        // Locator Pattern, i have to template specialize all different types
+        // supported in this class and call the virtual function from them.
+        // If you know a better approach let me know ;)
+        //----------------------------------------------------------------------
         virtual void _Log(LOGSOURCE source, const char* msg, LOGLEVEL logLevel, Color color) const = 0;
         virtual void _Log(LOGSOURCE source, const char* msg, Color color) const = 0;
 
@@ -65,10 +77,17 @@ namespace Core { namespace Logging {
         template <class T>
         void log(LOGSOURCE source,
                  T num,
-                 LOGLEVEL logLevel = LOG_LEVEL_VERY_IMPORTANT,
-                 Color color = Color::WHITE) const
+                 LOGLEVEL logLevel,
+                 Color color) const
         { 
             _Log( source, TS( num ).c_str(), logLevel, color ); 
+        }
+
+        //----------------------------------------------------------------------
+        template <class T>
+        void log(LOGSOURCE source, T num, LOGLEVEL logLevel = LOG_LEVEL_VERY_IMPORTANT) const
+        {
+            _Log( source, TS( num ).c_str(), logLevel, m_defaultColor );
         }
 
         //----------------------------------------------------------------------
@@ -106,6 +125,20 @@ namespace Core { namespace Logging {
         template <>
         void log<String>(LOGSOURCE source, String msg, LOGLEVEL logLevel, Color color) const {
             _Log( source, msg.c_str(), logLevel, color );
+        }
+
+        //----------------------------------------------------------------------
+        template <>
+        void log<const char*>(LOGSOURCE source, const char* msg, LOGLEVEL logLevel) const {
+            _Log( source, msg, logLevel, m_defaultColor );
+        }
+        template <>
+        void log<StringID>(LOGSOURCE source, StringID msg, LOGLEVEL logLevel) const {
+            _Log( source, msg.str, logLevel, m_defaultColor );
+        }
+        template <>
+        void log<String>(LOGSOURCE source, String msg, LOGLEVEL logLevel) const {
+            _Log( source, msg.c_str(), logLevel, m_defaultColor );
         }
 
         //----------------------------------------------------------------------
@@ -150,7 +183,24 @@ namespace Core { namespace Logging {
             _Log( source, msg.c_str(), logLevel, LOGTYPE_COLOR_ERROR );
         }
 
+    protected:
+        String _GetSourceAsString(LOGSOURCE source) const
+        {
+            switch (source)
+            {
+            case LOG_SOURCE_MEMORY:     return "[Memory]";
+            case LOG_SOURCE_RENDERING:  return "[Rendering]";
+            case LOG_SOURCE_PHYSICS:    return "[Physics]";
+            default:
+                return "";
+            }
+        }
+
     };
+
+    //**********************************************************************
+    // IMPLEMENTATION
+    //**********************************************************************
 
 
 } } // end namespaces

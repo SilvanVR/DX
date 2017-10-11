@@ -27,9 +27,16 @@ namespace Core { namespace Logging {
     //----------------------------------------------------------------------
     void ConsoleLogger::_Log( LOGSOURCE source, const char* msg, LOGLEVEL logLevel, Color color ) const
     {
+        m_console.setColor( LOGTYPE_COLOR_SOURCE );
+
+        String preface = _GetSourceAsString( source ) + " ";
+        m_console.write( preface.c_str() );
+
         m_console.setColor( color );
+
         m_console.writeln( msg );
-        m_console.setColor( Color::WHITE );
+
+        m_console.setColor( getDefaultColor() );
     }
 
     //----------------------------------------------------------------------

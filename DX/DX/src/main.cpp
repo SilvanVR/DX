@@ -118,6 +118,9 @@ public:
 //  - Logging of memorytracker
 
 
+// FILTER - Sources 
+//   -> Bitmask which is enabled
+
 int main(void)
 {
     //MemoryManagement::UniversalAllocator gUniversalAllocator(1000);
@@ -129,32 +132,24 @@ int main(void)
     gSubSystemManager.init();
 
     {
-       Logging::ILogger& logger = Locator::getLogger();
-
-        StringID hay = StringID( "STRING LUL" );
-        LOG( hay );
+        Logging::ILogger& logger = Locator::getLogger();
+        logger.setDefaultColor(Color::WHITE);
 
         LOG( "Hello World" );
-        WARN( "Hello World" );
+        WARN_PHYSICS ( "Hello World" );
         LOG( "Hello World", Logging::LOG_LEVEL_IMPORTANT );
-        LOG( "Hello World", Color::BLUE );
+        LOG( "Hello World", Color::RED );
 
-#define LOG_PHYSICS(...) LOG( __VA_ARGS__ )
-        LOG_PHYSICS( "Hello Physics" ); // ??
-
-        //logger.log( "Hello World", Logging::LOG_LEVEL_IMPORTANT, Logging::LOG_SOURCE_DEFAULT );
-        //logger.log( "Hello World", Logging::LOG_LEVEL_IMPORTANT, Logging::LOG_SOURCE_DEFAULT, Color::RED );
-        //logger.log( "Hello World", Color::RED );
-
-        LOG( 2512 );
+        LOG_PHYSICS( "Hello Physics", Logging::LOG_LEVEL_IMPORTANT);
+        WARN_RENDERING( "Rendering Warning!" );
 
         //AutoClock clock;
         LOG( SID("Hello") );
 
         Color color( 16, 52, 128, 255);
+
         //LOG( color.toString(true), Color::RED );
     }
-
 
     MemoryManagement::MemoryTracker::log();
     gSubSystemManager.shutdown();

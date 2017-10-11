@@ -16,11 +16,14 @@
 
 class Color
 {
-    U32 m_components;
+    union
+    {
+        Byte    m_components[4];
+        U32     m_componentsAsInt;
+    };
 
 public:
     Color();
-    //Color(const char* hex);
     explicit Color(U32 color);
     explicit Color(Byte r, Byte g, Byte b, Byte a = 255);
 
@@ -57,9 +60,6 @@ public:
 
     // Converts to "(r, g, b)" or "(r, g, b, a)"
     String toString(bool includeAlpha = false) const;
-
-private:
-    F32 _HexToRGB(const char* hex);
 
 public:
     static Color WHITE;

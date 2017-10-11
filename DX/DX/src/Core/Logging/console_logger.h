@@ -33,9 +33,8 @@ namespace Core {  namespace Logging  {
         void init() override;
         void shutdown() override;
 
-
         //----------------------------------------------------------------------
-        // Log stuff to the console.
+        // ILogger Interface
         //----------------------------------------------------------------------
         virtual void _Log(LOGSOURCE source, const char* msg, LOGLEVEL logLevel, Color color) const override;
         virtual void _Log(LOGSOURCE source, const char* msg, Color color) const override;
