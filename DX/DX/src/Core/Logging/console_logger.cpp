@@ -60,7 +60,12 @@ namespace Core { namespace Logging {
     void ConsoleLogger::_Error( ELogChannel channel, const char* msg, ELogLevel logLevel )
     {
         _Log( channel, msg, logLevel, LOGTYPE_COLOR_ERROR );
-        ASSERT( false );
+
+        #ifdef _WIN32
+            __debugbreak();
+        #elif
+            ASSERT( false );
+        #endif
     }
 
     //----------------------------------------------------------------------

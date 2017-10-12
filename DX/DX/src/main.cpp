@@ -135,6 +135,8 @@ int main(void)
     StringID id;
 
     {
+        AutoClock clock;
+
         Logging::ILogger& logger = Locator::getLogger();
 
         //logger.setELogLevel(Logging::LOG_LEVEL_NOT_SO_IMPORTANT);
@@ -148,15 +150,9 @@ int main(void)
 
         LOG( "Hello World" );
         LOG("IMPORTANT", Logging::LOG_LEVEL_IMPORTANT, Color::BLUE);
-        LOG("NOT SO IMPORTANT", Logging::LOG_LEVEL_NOT_SO_IMPORTANT);
-        LOG("NOT IMPORTANT", Logging::LOG_LEVEL_NOT_IMPORTANT);
+        WARN("NOT SO IMPORTANT", Logging::LOG_LEVEL_NOT_SO_IMPORTANT);
+        ERROR("NOT IMPORTANT ERROR", Logging::LOG_LEVEL_NOT_IMPORTANT);
 
-        WARN_PHYSICS ( "Warning: Hello World" );
-
-        LOG_PHYSICS( "Hello Physics", Logging::LOG_LEVEL_IMPORTANT);
-        WARN_RENDERING( "Rendering Warning!" );
-
-        //AutoClock clock;
         LOG( SID("Hello") );
 
         Color color( 16, 52, 128, 255);

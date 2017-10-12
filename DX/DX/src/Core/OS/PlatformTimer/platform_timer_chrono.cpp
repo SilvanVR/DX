@@ -21,7 +21,7 @@ namespace Core { namespace OS {
     using Clock = std::chrono::high_resolution_clock;
 
     //----------------------------------------------------------------------
-    PlatformTimer::PlatformTimer()
+    void PlatformTimer::_Init()
     {
         // Period represents the ratio of the frequency: period = num / den
         m_tickFrequency = Clock::period::den;

@@ -18,7 +18,7 @@
 namespace Core { namespace OS {
 
     //----------------------------------------------------------------------
-    PlatformTimer::PlatformTimer()
+    void PlatformTimer::_Init()
     {
         LARGE_INTEGER frequency;
         QueryPerformanceFrequency( &frequency );

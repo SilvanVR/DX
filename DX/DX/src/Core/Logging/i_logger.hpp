@@ -113,20 +113,20 @@ namespace Core { namespace Logging {
         // "msg/num":   The message to log.
         // "ELogLevel":  How important the message is. Determines if the message
         //              gets logged or not.
-        // "channel":    Where the message is coming from.
+        // "channel":   Where the message is coming from.
         // "color":     Color of the message.
         //----------------------------------------------------------------------
         template <class T>
-        void log(ELogChannel channel, T num, ELogLevel ELogLevel, Color color)
+        void log(ELogChannel channel, T num, ELogLevel logLevel, Color color)
         { 
-            _Log( channel, TS( num ).c_str(), ELogLevel, color ); 
+            _Log( channel, TS( num ).c_str(), logLevel, color );
         }
 
         //----------------------------------------------------------------------
         template <class T>
-        void log(ELogChannel channel, T num, ELogLevel ELogLevel = LOG_LEVEL_VERY_IMPORTANT) 
+        void log(ELogChannel channel, T num, ELogLevel logLevel = LOG_LEVEL_VERY_IMPORTANT)
         {
-            _Log( channel, TS( num ).c_str(), ELogLevel, m_defaultColor );
+            _Log( channel, TS( num ).c_str(), logLevel, m_defaultColor );
         }
 
         //----------------------------------------------------------------------
@@ -138,46 +138,46 @@ namespace Core { namespace Logging {
 
         //----------------------------------------------------------------------
         template <class T>
-        void warn(ELogChannel channel, T num, ELogLevel ELogLevel = LOG_LEVEL_VERY_IMPORTANT)
+        void warn(ELogChannel channel, T num, ELogLevel logLevel = LOG_LEVEL_VERY_IMPORTANT)
         {
-            _Warn( channel, TS( num ).c_str(), ELogLevel );
+            _Warn( channel, TS( num ).c_str(), logLevel );
         }
 
         //----------------------------------------------------------------------
         template <class T>
-        void error(ELogChannel channel, T num, ELogLevel ELogLevel = LOG_LEVEL_VERY_IMPORTANT)
+        void error(ELogChannel channel, T num, ELogLevel logLevel = LOG_LEVEL_VERY_IMPORTANT)
         {
-            _Error( channel, TS( num ).c_str(), ELogLevel );
+            _Error( channel, TS( num ).c_str(), logLevel );
         }
 
         //----------------------------------------------------------------------
         // TEMPLATE SPECIALIZATIONS
         //----------------------------------------------------------------------
         template <>
-        void log<const char*>(ELogChannel channel, const char* msg, ELogLevel ELogLevel, Color color) {
-            _Log( channel, msg, ELogLevel, color );
+        void log<const char*>(ELogChannel channel, const char* msg, ELogLevel logLevel, Color color) {
+            _Log( channel, msg, logLevel, color );
         }
         template <>
-        void log<StringID>(ELogChannel channel, StringID msg, ELogLevel ELogLevel, Color color) {
-            _Log( channel, msg.str, ELogLevel, color );
+        void log<StringID>(ELogChannel channel, StringID msg, ELogLevel logLevel, Color color) {
+            _Log( channel, msg.str, logLevel, color );
         }
         template <>
-        void log<String>(ELogChannel channel, String msg, ELogLevel ELogLevel, Color color) {
-            _Log( channel, msg.c_str(), ELogLevel, color );
+        void log<String>(ELogChannel channel, String msg, ELogLevel logLevel, Color color) {
+            _Log( channel, msg.c_str(), logLevel, color );
         }
 
         //----------------------------------------------------------------------
         template <>
-        void log<const char*>(ELogChannel channel, const char* msg, ELogLevel ELogLevel) {
-            _Log( channel, msg, ELogLevel, m_defaultColor );
+        void log<const char*>(ELogChannel channel, const char* msg, ELogLevel logLevel) {
+            _Log( channel, msg, logLevel, m_defaultColor );
         }
         template <>
-        void log<StringID>(ELogChannel channel, StringID msg, ELogLevel ELogLevel) {
-            _Log( channel, msg.str, ELogLevel, m_defaultColor );
+        void log<StringID>(ELogChannel channel, StringID msg, ELogLevel logLevel) {
+            _Log( channel, msg.str, logLevel, m_defaultColor );
         }
         template <>
-        void log<String>(ELogChannel channel, String msg, ELogLevel ELogLevel) {
-            _Log( channel, msg.c_str(), ELogLevel, m_defaultColor );
+        void log<String>(ELogChannel channel, String msg, ELogLevel logLevel) {
+            _Log( channel, msg.c_str(), logLevel, m_defaultColor );
         }
 
         //----------------------------------------------------------------------
@@ -196,30 +196,30 @@ namespace Core { namespace Logging {
 
         //----------------------------------------------------------------------
         template <>
-        void warn<const char*>(ELogChannel channel, const char* msg, ELogLevel ELogLevel) {
-            _Warn( channel, msg, ELogLevel );
+        void warn<const char*>(ELogChannel channel, const char* msg, ELogLevel logLevel) {
+            _Warn( channel, msg, logLevel );
         }
         template <>
-        void warn<StringID>(ELogChannel channel, StringID msg, ELogLevel ELogLevel) {
-            _Warn( channel, msg.str, ELogLevel );
+        void warn<StringID>(ELogChannel channel, StringID msg, ELogLevel logLevel) {
+            _Warn( channel, msg.str, logLevel );
         }
         template <>
-        void warn<String>(ELogChannel channel, String msg, ELogLevel ELogLevel) {
-            _Warn( channel, msg.c_str(), ELogLevel );
+        void warn<String>(ELogChannel channel, String msg, ELogLevel logLevel) {
+            _Warn( channel, msg.c_str(), logLevel );
         }
 
         //----------------------------------------------------------------------
         template <>
-        void error<const char*>(ELogChannel channel, const char* msg, ELogLevel ELogLevel) {
-            _Error( channel, msg, ELogLevel );
+        void error<const char*>(ELogChannel channel, const char* msg, ELogLevel logLevel) {
+            _Error( channel, msg, logLevel );
         }
         template <>
-        void error<StringID>(ELogChannel channel, StringID msg, ELogLevel ELogLevel) {
-            _Error( channel, msg.str, ELogLevel );
+        void error<StringID>(ELogChannel channel, StringID msg, ELogLevel logLevel) {
+            _Error( channel, msg.str, logLevel );
         }
         template <>
-        void error<String>(ELogChannel channel, String msg, ELogLevel ELogLevel) {
-            _Error( channel, msg.c_str(), ELogLevel );
+        void error<String>(ELogChannel channel, String msg, ELogLevel logLevel) {
+            _Error( channel, msg.c_str(), logLevel );
         }
 
     protected:
@@ -247,9 +247,9 @@ namespace Core { namespace Logging {
         // @Return:
         //  True, if message should be ignored.
         //----------------------------------------------------------------------
-        bool _CheckLogLevel(ELogLevel ELogLevel) const
+        bool _CheckLogLevel(ELogLevel logLevel) const
         {
-            return ELogLevel > m_logLevel;
+            return (logLevel > m_logLevel);
         }
 
         //----------------------------------------------------------------------

@@ -7,24 +7,19 @@
     date: September 28, 2017
 
     Specifies the interface for platform independant time queries.
-    @TODO (Considerations): 
-        - Not using a singleton. 
-        - Initialize via a method not per constructor.
+    Access via static methods.
 **********************************************************************/
 
-#include "Interfaces/singleton.hpp"
 #include "system_time.hpp"
 
 namespace Core { namespace OS {
 
-    class PlatformTimer : public Interfaces::Singleton<PlatformTimer>
+    class PlatformTimer
     {
-        friend class Interfaces::Singleton<PlatformTimer>;
-        PlatformTimer();
+        // Private constructor. Only one static instance allowed for initialization.
+        PlatformTimer() { _Init(); } 
 
     public:
-        ~PlatformTimer() {}
-
         //----------------------------------------------------------------------
         // Returns the current time of the pc.
         // @Return: 
@@ -44,14 +39,14 @@ namespace Core { namespace OS {
         // Returns the frequency of the used clock.
         // (1.0 / frequency) delievers the interval in seconds.
         //----------------------------------------------------------------------
-        static inline I64 getTickFrequency() { return m_Instance.m_tickFrequency; }
+        static inline I64 getTickFrequency() { return m_tickFrequency; }
 
         //----------------------------------------------------------------------
         // Returns the frequency of the used clock in seconds.
         // Multiply the amount of ticks with this to get the final passed
         // time in seconds or use the function ticksToSeconds(...).
         //----------------------------------------------------------------------
-        static inline F64 getTickFrequencyInSeconds() { return m_Instance.m_tickFrequencyInSeconds; }
+        static inline F64 getTickFrequencyInSeconds() { return m_tickFrequencyInSeconds; }
 
         //----------------------------------------------------------------------
         // Converts amount of ticks to passed time in different formats.
@@ -62,14 +57,17 @@ namespace Core { namespace OS {
         static inline F64 ticksToNanoSeconds(I64 ticks) { return ticksToMicroSeconds(ticks) * 1000.0; }
 
     private:
-        I64 m_tickFrequency;
-        F64 m_tickFrequencyInSeconds;
+        static PlatformTimer    m_instance;
+        static I64              m_tickFrequency;
+        static F64              m_tickFrequencyInSeconds;
+
+        void _Init();
 
         // Forbid copy + copy assignment and rvalue copying
-        PlatformTimer (const PlatformTimer& other) = delete;
-        PlatformTimer& operator= (const PlatformTimer& other) = delete;
-        PlatformTimer (PlatformTimer&& other) = delete;
-        PlatformTimer& operator= (PlatformTimer&& other) = delete;
+        PlatformTimer (const PlatformTimer& other)              = delete;
+        PlatformTimer& operator= (const PlatformTimer& other)   = delete;
+        PlatformTimer (PlatformTimer&& other)                   = delete;
+        PlatformTimer& operator= (PlatformTimer&& other)        = delete;
     };
 
 } }

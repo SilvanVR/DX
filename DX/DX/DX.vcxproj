@@ -197,6 +197,7 @@
     <ClCompile Include="src\Core\Logging\Console\console.cpp" />
     <ClCompile Include="src\Core\Logging\Console\console_win.cpp" />
     <ClCompile Include="src\Core\Logging\console_logger.cpp" />
+    <ClCompile Include="src\Core\OS\PlatformTimer\platform_timer.cpp" />
     <ClCompile Include="src\Core\subsystem_manager.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Core\MemoryManagement\Allocators\iallocator.cpp" />
