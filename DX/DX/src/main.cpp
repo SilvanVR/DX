@@ -115,12 +115,12 @@ public:
 // - FileSystem
 //    -> Configuration-File(s) .ini
 
-// - LOGGER
-//  - Logging of memorytracker
 
+// --> MemoryManager subsystem = MemoryTracker ??
+//   --> Detect memory leaks
 
-// FILTER - channels 
-//   -> Bitmask which is enabled
+// Store log stuff in ringbuffer -> if buffer fill save to file
+
 
 int main(void)
 {
@@ -129,31 +129,27 @@ int main(void)
     //StringID te2 = SID("World");
     //LOG(te.toString() + " " + te2.toString());
 
-    
-
     Core::SubSystemManager gSubSystemManager;
     gSubSystemManager.init();
 
-    LayerMask ma;
-    ma.setBit(3);
-
-
+    StringID id;
 
     {
         Logging::ILogger& logger = Locator::getLogger();
         logger.setDefaultColor(Color::WHITE);
 
-        //logger.setLogLevel(Logging::LOG_LEVEL_NOT_SO_IMPORTANT);
+        //logger.setELogLevel(Logging::LOG_LEVEL_NOT_SO_IMPORTANT);
         auto renderMask = Logging::LOG_CHANNEL_RENDERING;
         auto physicsMask = Logging::LOG_CHANNEL_PHYSICS;
 
-        logger.filterChannels(renderMask | physicsMask);
+        //logger.filterChannels(renderMask | physicsMask);
         //logger.filterChannels(Logging::LOG_CHANNEL_ALL);
         //logger.unfilterChannels(renderMask | physicsMask);
 
+        //logger.setChannels( Logging::LOG_CHANNEL_DEFAULT | physicsMask);
+
         //auto& mask = logger.getFilterMask();
         //mask.unsetBits(physicsMask);
-
 
         LOG( "Hello World" );
 

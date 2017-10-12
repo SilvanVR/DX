@@ -36,14 +36,24 @@ namespace Core {  namespace Logging  {
         //----------------------------------------------------------------------
         // ILogger Interface
         //----------------------------------------------------------------------
-        virtual void _Log(LOGCHANNEL channel, const char* msg, LOGLEVEL logLevel, Color color) const override;
-        virtual void _Log(LOGCHANNEL channel, const char* msg, Color color) const override;
+        virtual void _Log(ELogChannel channel, const char* msg, ELogLevel ELogLevel, Color color) override;
+        virtual void _Log(ELogChannel channel, const char* msg, Color color) override;
 
-        virtual void _Warn(LOGCHANNEL channel, const char* msg, LOGLEVEL logLevel) const override;
-        virtual void _Error(LOGCHANNEL channel, const char* msg, LOGLEVEL logLevel) const override;
+        virtual void _Warn(ELogChannel channel, const char* msg, ELogLevel ELogLevel) override;
+        virtual void _Error(ELogChannel channel, const char* msg, ELogLevel ELogLevel) override;
 
     private:
         Console m_console;
+
+        //----------------------------------------------------------------------
+        // Write all LogMessage to the given file
+        //----------------------------------------------------------------------
+        void _WriteToFile(const char* fileName, bool append = false);
+
+        //----------------------------------------------------------------------
+        // Store the given message and flush the buffer if necessary
+        //----------------------------------------------------------------------
+        void _StoreLogMessage(ELogChannel channel, const char* msg, ELogLevel logLevel);
 
         ConsoleLogger(const ConsoleLogger& other)               = delete;
         ConsoleLogger& operator = (const ConsoleLogger& other)  = delete;

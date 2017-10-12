@@ -23,11 +23,11 @@ namespace Core { namespace Logging {
         void init() override {}
         void shutdown() override {}
 
-        virtual void _Log(LOGCHANNEL channel, const char* msg, LOGLEVEL logLevel, Color color) const override {}
-        virtual void _Log(LOGCHANNEL channel, const char* msg, Color color) const override {}
+        virtual void _Log(ELogChannel channel, const char* msg, ELogLevel ELogLevel, Color color) override {}
+        virtual void _Log(ELogChannel channel, const char* msg, Color color) override {}
 
-        virtual void _Warn(LOGCHANNEL channel, const char* msg, LOGLEVEL logLevel) const override {}
-        virtual void _Error(LOGCHANNEL channel, const char* msg, LOGLEVEL logLevel) const override {}
+        virtual void _Warn(ELogChannel channel, const char* msg, ELogLevel ELogLevel) override {}
+        virtual void _Error(ELogChannel channel, const char* msg, ELogLevel ELogLevel) override {}
 
     private:
         NullLogger(const NullLogger& other)                 = delete;

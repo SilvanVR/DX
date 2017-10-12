@@ -57,6 +57,11 @@ namespace Core {
         void unsetBits(U32 bits) { m_layerMask &= (~bits); }
 
         //----------------------------------------------------------------------
+        // Unset any bit. (LayerMask will be 0 after that call)
+        //----------------------------------------------------------------------
+        void unsetAnyBit() { m_layerMask = 0; }
+
+        //----------------------------------------------------------------------
         LayerMask operator & (LayerMask other) const { return LayerMask(m_layerMask & other.m_layerMask); }
         LayerMask operator | (LayerMask other) const { return LayerMask(m_layerMask | other.m_layerMask); }
         LayerMask operator ^ (LayerMask other) const { return LayerMask(m_layerMask ^ other.m_layerMask); }

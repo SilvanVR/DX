@@ -29,9 +29,12 @@ struct StringID
     const char* str;
     U32 id;
 
+    StringID() 
+        : id(0), str("") {}
+
     //----------------------------------------------------------------------
     // Converts a string to an unsigned integer using a hash function and
-    // stores the String<->ID in a table to reverse it if desired.
+    // stores the String<->ID to reverse it if desired.
     //----------------------------------------------------------------------
     explicit StringID(const char* str);
 
