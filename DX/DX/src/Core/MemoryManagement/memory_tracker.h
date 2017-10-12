@@ -12,7 +12,7 @@
       - Static libraries will???
 **********************************************************************/
 
-#include "memory_structs.hpp"
+#include "memory_structs.h"
 
 namespace Core { namespace MemoryManagement {
 
@@ -36,11 +36,15 @@ namespace Core { namespace MemoryManagement {
     class MemoryTracker
     {
         friend class _GlobalNewAndDeleteAllocator;
+        MemoryTracker() {}
 
     public:
+        ~MemoryTracker() { _CheckForMemoryLeak(); }
+
         //----------------------------------------------------------------------
         // Return the memory information struct. Information in 
         // that struct was gathered through global new/delete.
+        // => Contains all allocations / deallocations.
         //----------------------------------------------------------------------
         static const AllocationMemoryInfo& getAllocationMemoryInfo() { return s_memoryInfo; }
 
@@ -50,8 +54,11 @@ namespace Core { namespace MemoryManagement {
         static void log();
 
     private:
-        // Be careful. The memory is automatically zeroed out, because its static.
+        static MemoryTracker        s_memoryLeakDetectionInstance;
         static AllocationMemoryInfo s_memoryInfo;
+
+        // Check for a memory leak. Halt the program if one detected.
+        void _CheckForMemoryLeak();
     };
 
 

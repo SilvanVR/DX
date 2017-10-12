@@ -7,7 +7,6 @@
     date: October 7, 2017
 **********************************************************************/
 
-#include "Utils/utils.h"
 #include "Core/locator.h"
 
 namespace Core { namespace MemoryManagement {
@@ -66,14 +65,22 @@ namespace Core { namespace MemoryManagement {
         // It's important to fetch a local copy of the mem-info, otherwise the 
         // dynamically allocated string stuff will mess up the result
         AllocationMemoryInfo memInfo = MemoryTracker::getAllocationMemoryInfo();
+        memInfo.log();
+    }
 
-        LOG( "-------------- MEMORY INFO ---------------" );
-        LOG( "Current Allocated: " + Utils::bytesToString( memInfo.currentBytesAllocated ) );
-        LOG( "Total Allocated: " + Utils::bytesToString( memInfo.totalBytesAllocated ) );
-        LOG( "Total Freed: " + Utils::bytesToString( memInfo.totalBytesFreed ) );
-        LOG( "Total Allocations: " + TS( memInfo.totalAllocations ) );
-        LOG( "Total Deallocations: " + TS( memInfo.totalDeallocations ) );
-        LOG( "------------------------------------------" );
+    //----------------------------------------------------------------------
+    MemoryTracker MemoryTracker::s_memoryLeakDetectionInstance;
+
+    void MemoryTracker::_CheckForMemoryLeak()
+    {
+#ifdef _WIN32
+        if( s_memoryInfo.currentBytesAllocated != 0 )
+            __debugbreak();
+#elif
+        ASSERT( false && "Memory Leak detected somewhere");
+
+#endif // _WIN32
+
     }
 
 } } // end namespaces

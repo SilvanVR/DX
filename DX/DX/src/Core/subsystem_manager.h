@@ -69,9 +69,10 @@ namespace Core {
     void SubSystemManager::shutdownSubSystem( T*& system )
     {
         system->shutdown();
+        Locator::provide( (T*) nullptr );
+
         delete system;
         system = nullptr;
-        Locator::provide( (T*) nullptr );
     }
 
 

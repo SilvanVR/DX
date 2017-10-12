@@ -34,6 +34,10 @@
 #define WARN(...)               Core::Locator::getLogger().warn( Logging::LOG_CHANNEL_DEFAULT, __VA_ARGS__ )
 #define ERROR(...)              Core::Locator::getLogger().error( Logging::LOG_CHANNEL_DEFAULT, __VA_ARGS__ )
 
+#define LOG_MEMORY(...)         Core::Locator::getLogger().log( Logging::LOG_CHANNEL_MEMORY, __VA_ARGS__ )
+#define WARN_MEMORY(...)        Core::Locator::getLogger().warn( Logging::LOG_CHANNEL_MEMORY, __VA_ARGS__ )
+#define ERROR_MEMORY(...)       Core::Locator::getLogger().error( Logging::LOG_CHANNEL_MEMORY, __VA_ARGS__ )
+
 #define LOG_RENDERING(...)      Core::Locator::getLogger().log( Logging::LOG_CHANNEL_RENDERING, __VA_ARGS__ )
 #define WARN_RENDERING(...)     Core::Locator::getLogger().warn( Logging::LOG_CHANNEL_RENDERING, __VA_ARGS__ )
 #define ERROR_RENDERING(...)    Core::Locator::getLogger().error( Logging::LOG_CHANNEL_RENDERING, __VA_ARGS__ )
@@ -53,9 +57,8 @@ namespace Core {
         //----------------------------------------------------------------------
         // Retrieve a Sub-System
         //----------------------------------------------------------------------
-        static Logging::ILogger& getLogger() { return (*gLogger); }
-
-        static MemoryManagement::MemoryManager& getMemoryManager();
+        static Logging::ILogger&                    getLogger();
+        static MemoryManagement::MemoryManager&     getMemoryManager();
 
         //----------------------------------------------------------------------
         // Provide a Sub-System
@@ -70,10 +73,10 @@ namespace Core {
         //----------------------------------------------------------------------
         // All Sub-Systems are enumerated here
         //----------------------------------------------------------------------
-        static Logging::NullLogger              gNullLogger;
-        static Logging::ILogger*                gLogger;
+        static Logging::NullLogger                  gNullLogger;
+        static Logging::ILogger*                    gLogger;
 
-        static MemoryManagement::MemoryManager* gMemoryManager;
+        static MemoryManagement::MemoryManager*     gMemoryManager;
 
 
         // Do not allow construction of an Locator-Object

@@ -16,7 +16,7 @@
         specified. It allocates using the global new + delete scheme.
 **********************************************************************/
 
-#include "../memory_structs.hpp"
+#include "../memory_structs.h"
 
 namespace Core { namespace MemoryManagement {
 

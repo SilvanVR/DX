@@ -154,9 +154,10 @@ int main(void)
         //LOG( color.toString(true), Color::RED );
     }
 
-    MemoryManagement::MemoryTracker::log();
 
+    Locator::getMemoryManager().log();
     gSubSystemManager.shutdown();
+
     system("pause");
 
     return 0;
