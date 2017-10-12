@@ -6,14 +6,17 @@
     author: S. Hau
     date: October 11, 2017
 
-    Manages every Sub-System in the engine.
-    Creates, initializes, deinitializes & destroys them.
 **********************************************************************/
 
 #include "Logging/i_logger.hpp"
+#include "MemoryManagement/memory_manager.h"
 
 namespace Core {
 
+    //*********************************************************************
+    // Manages every Sub-System in the engine.
+    // Creates, initializes, deinitializes & destroys them.
+    //*********************************************************************
     class SubSystemManager
     {
     public:
@@ -28,9 +31,10 @@ namespace Core {
 
     private:
         //----------------------------------------------------------------------
-        // Every Sub-System enumerated here
+        // Every Sub-System is enumerated here
         //----------------------------------------------------------------------
-        Logging::ILogger* m_logger;
+        Logging::ILogger*                   m_logger;
+        MemoryManagement::MemoryManager*    m_memoryManager;
 
 
 

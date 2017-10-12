@@ -108,18 +108,25 @@ public:
 };
 
 //@TODO: 
-// - Make MemoryManager part of a subsystem and call init() ? -> that way static allocations don't count
-
 // - Profiler
 
+// Store log stuff in ringbuffer -> if buffer fill save to file
 // - FileSystem
 //    -> Configuration-File(s) .ini
 
 
-// --> MemoryManager subsystem = MemoryTracker ??
-//   --> Detect memory leaks
 
-// Store log stuff in ringbuffer -> if buffer fill save to file
+// Global New/Delete -> allocate from Locator::getMemoryManager() ? -> GlobalNewDeleteAllocator is default
+//   --> who should track the memory?
+// Preallocator -> preallocated mem and fetches from that 
+
+
+// What's with the memory here???
+
+// manager.init()
+   // Tracks all Memory
+// manager.shutdown()
+
 
 
 int main(void)
@@ -135,32 +142,20 @@ int main(void)
     StringID id;
 
     {
-        AutoClock clock;
-
-        Logging::ILogger& logger = Locator::getLogger();
-
-        //logger.setELogLevel(Logging::LOG_LEVEL_NOT_SO_IMPORTANT);
-        auto renderMask = Logging::LOG_CHANNEL_RENDERING;
-        auto physicsMask = Logging::LOG_CHANNEL_PHYSICS;
-
-        //logger.filterChannels(renderMask | physicsMask);
-        //logger.unfilterChannels(renderMask | physicsMask);
-        //logger.setChannels( Logging::LOG_CHANNEL_DEFAULT | physicsMask);
-
+        //AutoClock clock;
 
         LOG( "Hello World" );
-        LOG("IMPORTANT", Logging::LOG_LEVEL_IMPORTANT, Color::BLUE);
-        WARN("NOT SO IMPORTANT", Logging::LOG_LEVEL_NOT_SO_IMPORTANT);
-        ERROR("NOT IMPORTANT ERROR", Logging::LOG_LEVEL_NOT_IMPORTANT);
+        LOG( "IMPORTANT", Logging::LOG_LEVEL_IMPORTANT, Color::BLUE );
+        WARN( "NOT SO IMPORTANT", Logging::LOG_LEVEL_NOT_SO_IMPORTANT );
+        //ERROR("NOT IMPORTANT ERROR", Logging::LOG_LEVEL_NOT_IMPORTANT);
 
         LOG( SID("Hello") );
-
         Color color( 16, 52, 128, 255);
-
         //LOG( color.toString(true), Color::RED );
     }
 
     MemoryManagement::MemoryTracker::log();
+
     gSubSystemManager.shutdown();
     system("pause");
 

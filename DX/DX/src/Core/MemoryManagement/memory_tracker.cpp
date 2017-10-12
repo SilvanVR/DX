@@ -73,7 +73,7 @@ namespace Core { namespace MemoryManagement {
         LOG( "Total Freed: " + Utils::bytesToString( memInfo.totalBytesFreed ) );
         LOG( "Total Allocations: " + TS( memInfo.totalAllocations ) );
         LOG( "Total Deallocations: " + TS( memInfo.totalDeallocations ) );
-        LOG( "------------------------------------------");
+        LOG( "------------------------------------------" );
     }
 
 } } // end namespaces

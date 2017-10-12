@@ -32,13 +32,10 @@ namespace Core
 
         LOG( "Initialize Sub-Systems..." );
 
-        // Create all Sub-Systems here
-
-
         // Initialize every Sub-System here
 
-
-        // Provide them to the locator
+        LOG("Initialize Memory-Manager...");
+        m_memoryManager = initializeSubSystem( new MemoryManagement::MemoryManager() );
 
     }
 
@@ -49,16 +46,15 @@ namespace Core
     void SubSystemManager::shutdown()
     {
         LOG( "Shutting down Sub-Systems..." );
+
         // Shutdown every Sub-System here
 
-
-        // Delete every Sub-System here
-
+        LOG( "Shutdown MemoryManager..." );
+        shutdownSubSystem( m_memoryManager );
 
         // Delete Logger at last
         LOG( "Shutdown Logger..." );
         shutdownSubSystem( m_logger );
-        Locator::provide( (Logging::ILogger*) nullptr );
     }
 
 

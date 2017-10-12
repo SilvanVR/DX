@@ -15,15 +15,17 @@
           [++] Every SubSystem can be easily swapped out
           [++] Hierarchies of a specific Sub-System are possible, e.g.
                Logged Audio!
+        [+] Easy extensible
         [-] Interface must be known a priori
         [-] More code + files
-          [--] No Templates
+          [--] Templates are harder to use
+        [-] Less performance because of virtual functions
         [-] Every Sub-System in one place :)
 
 **********************************************************************/
 
 #include "Logging/null_logger.hpp"
-
+#include "MemoryManagement/memory_manager.h"
 
 //----------------------------------------------------------------------
 // Defines
@@ -42,6 +44,9 @@
 
 namespace Core {
 
+    //*********************************************************************
+    // Retrieve / Change every subsystem via a static method.
+    //*********************************************************************
     class Locator
     {
     public:
@@ -50,19 +55,25 @@ namespace Core {
         //----------------------------------------------------------------------
         static Logging::ILogger& getLogger() { return (*gLogger); }
 
+        static MemoryManagement::MemoryManager& getMemoryManager();
+
         //----------------------------------------------------------------------
         // Provide a Sub-System
         //----------------------------------------------------------------------
         static void provide(Logging::ILogger* logger) { gLogger = (logger != nullptr) ? logger : &gNullLogger; }
         //static void provide(Logging::ILogger* logger) { gLogger = logger; }
 
+        static void provide(MemoryManagement::MemoryManager* memoryManager){ gMemoryManager = memoryManager; }
+
     private:
 
         //----------------------------------------------------------------------
         // All Sub-Systems are enumerated here
         //----------------------------------------------------------------------
-        static Logging::ILogger*    gLogger;
-        static Logging::NullLogger  gNullLogger;
+        static Logging::NullLogger              gNullLogger;
+        static Logging::ILogger*                gLogger;
+
+        static MemoryManagement::MemoryManager* gMemoryManager;
 
 
         // Do not allow construction of an Locator-Object

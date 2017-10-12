@@ -193,6 +193,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\locator.cpp" />
+    <ClCompile Include="src\Core\MemoryManagement\memory_manager.cpp" />
     <ClCompile Include="src\Core\Misc\color.cpp" />
     <ClCompile Include="src\Core\Logging\Console\console.cpp" />
     <ClCompile Include="src\Core\Logging\Console\console_win.cpp" />
@@ -220,6 +221,7 @@
     <ClInclude Include="src\Core\locator.h" />
     <ClInclude Include="src\Core\Logging\null_logger.hpp" />
     <ClInclude Include="src\Core\Logging\i_logger.hpp" />
+    <ClInclude Include="src\Core\MemoryManagement\memory_manager.h" />
     <ClInclude Include="src\Core\Misc\color.h" />
     <ClInclude Include="src\Core\Logging\Console\console.h" />
     <ClInclude Include="src\Core\Logging\console_logger.h" />
@@ -237,7 +239,6 @@
     <ClInclude Include="src\Core\subsystem_manager.h" />
     <ClInclude Include="src\Core\i_subsystem.hpp" />
     <ClInclude Include="src\PrecompiledHeaders\data_types.hpp" />
-    <ClInclude Include="src\Interfaces\singleton.hpp" />
     <ClInclude Include="src\PrecompiledHeaders\macros.hpp" />
     <ClInclude Include="src\Core\MemoryManagement\Allocators\stack_allocator.hpp" />
     <ClInclude Include="src\Core\OS\PlatformTimer\platform_timer.h" />
