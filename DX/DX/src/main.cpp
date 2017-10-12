@@ -136,29 +136,22 @@ int main(void)
 
     {
         Logging::ILogger& logger = Locator::getLogger();
-        logger.setDefaultColor(Color::WHITE);
 
         //logger.setELogLevel(Logging::LOG_LEVEL_NOT_SO_IMPORTANT);
         auto renderMask = Logging::LOG_CHANNEL_RENDERING;
         auto physicsMask = Logging::LOG_CHANNEL_PHYSICS;
 
         //logger.filterChannels(renderMask | physicsMask);
-        //logger.filterChannels(Logging::LOG_CHANNEL_ALL);
         //logger.unfilterChannels(renderMask | physicsMask);
-
         //logger.setChannels( Logging::LOG_CHANNEL_DEFAULT | physicsMask);
 
-        //auto& mask = logger.getFilterMask();
-        //mask.unsetBits(physicsMask);
 
         LOG( "Hello World" );
-
         LOG("IMPORTANT", Logging::LOG_LEVEL_IMPORTANT, Color::BLUE);
         LOG("NOT SO IMPORTANT", Logging::LOG_LEVEL_NOT_SO_IMPORTANT);
         LOG("NOT IMPORTANT", Logging::LOG_LEVEL_NOT_IMPORTANT);
 
-        WARN_PHYSICS ( "Hello World" );
-        ERROR( "Hello World", Logging::LOG_LEVEL_IMPORTANT );
+        WARN_PHYSICS ( "Warning: Hello World" );
 
         LOG_PHYSICS( "Hello Physics", Logging::LOG_LEVEL_IMPORTANT);
         WARN_RENDERING( "Rendering Warning!" );

@@ -8,7 +8,7 @@ namespace Core {
     // Define Static Instances
     //----------------------------------------------------------------------
     Logging::ILogger*    Locator::gLogger;
-    //Logging::NullLogger  Locator::gNullLogger;
+    Logging::NullLogger  Locator::gNullLogger;
 
 
 

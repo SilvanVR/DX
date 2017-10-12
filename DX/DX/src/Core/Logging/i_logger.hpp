@@ -57,7 +57,7 @@ namespace Core { namespace Logging {
 
     protected:
         Color       m_defaultColor      = LOGTYPE_COLOR_DEFAULT;
-        ELogLevel   m_ELogLevel         = LOG_LEVEL_ALL;
+        ELogLevel   m_logLevel          = LOG_LEVEL_ALL;
         bool        m_dumpToDisk        = true;
 
     public:
@@ -91,7 +91,7 @@ namespace Core { namespace Logging {
         // Change the Log-Level. Only messages with Log-Level <= Current-Level
         // will be displayed (and stored).
         //----------------------------------------------------------------------
-        void setELogLevel(ELogLevel newLogLevel) { m_ELogLevel = newLogLevel; }
+        void setELogLevel(ELogLevel newLogLevel) { m_logLevel = newLogLevel; }
 
     private:
         //----------------------------------------------------------------------
@@ -197,29 +197,29 @@ namespace Core { namespace Logging {
         //----------------------------------------------------------------------
         template <>
         void warn<const char*>(ELogChannel channel, const char* msg, ELogLevel ELogLevel) {
-            _Log( channel, msg, ELogLevel, LOGTYPE_COLOR_WARNING );
+            _Warn( channel, msg, ELogLevel );
         }
         template <>
         void warn<StringID>(ELogChannel channel, StringID msg, ELogLevel ELogLevel) {
-            _Log( channel, msg.str, ELogLevel, LOGTYPE_COLOR_WARNING );
+            _Warn( channel, msg.str, ELogLevel );
         }
         template <>
         void warn<String>(ELogChannel channel, String msg, ELogLevel ELogLevel) {
-            _Log( channel, msg.c_str(), ELogLevel, LOGTYPE_COLOR_WARNING );
+            _Warn( channel, msg.c_str(), ELogLevel );
         }
 
         //----------------------------------------------------------------------
         template <>
         void error<const char*>(ELogChannel channel, const char* msg, ELogLevel ELogLevel) {
-            _Log( channel, msg, ELogLevel, LOGTYPE_COLOR_ERROR );
+            _Error( channel, msg, ELogLevel );
         }
         template <>
         void error<StringID>(ELogChannel channel, StringID msg, ELogLevel ELogLevel) {
-            _Log( channel, msg.str, ELogLevel, LOGTYPE_COLOR_ERROR );
+            _Error( channel, msg.str, ELogLevel );
         }
         template <>
         void error<String>(ELogChannel channel, String msg, ELogLevel ELogLevel) {
-            _Log( channel, msg.c_str(), ELogLevel, LOGTYPE_COLOR_ERROR );
+            _Error( channel, msg.c_str(), ELogLevel );
         }
 
     protected:
@@ -249,7 +249,7 @@ namespace Core { namespace Logging {
         //----------------------------------------------------------------------
         bool _CheckLogLevel(ELogLevel ELogLevel) const
         {
-            return ELogLevel > m_ELogLevel;
+            return ELogLevel > m_logLevel;
         }
 
         //----------------------------------------------------------------------

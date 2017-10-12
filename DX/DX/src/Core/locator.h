@@ -53,8 +53,8 @@ namespace Core {
         //----------------------------------------------------------------------
         // Provide a Sub-System
         //----------------------------------------------------------------------
-        //static void provide(Logging::ILogger* logger) { gLogger = (logger != nullptr) ? logger : &gNullLogger; }
-        static void provide(Logging::ILogger* logger) { gLogger = logger; }
+        static void provide(Logging::ILogger* logger) { gLogger = (logger != nullptr) ? logger : &gNullLogger; }
+        //static void provide(Logging::ILogger* logger) { gLogger = logger; }
 
     private:
 
@@ -62,7 +62,7 @@ namespace Core {
         // All Sub-Systems are enumerated here
         //----------------------------------------------------------------------
         static Logging::ILogger*    gLogger;
-        //static Logging::NullLogger  gNullLogger;
+        static Logging::NullLogger  gNullLogger;
 
 
         // Do not allow construction of an Locator-Object

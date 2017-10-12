@@ -33,7 +33,6 @@ namespace Core { namespace Logging {
         if ( m_dumpToDisk )
             _StoreLogMessage( channel, msg, logLevel );
 
-
         m_console.setColor( LOGTYPE_COLOR_CHANNEL );
 
         const char* preface = _GetchannelAsString( channel );
@@ -61,6 +60,7 @@ namespace Core { namespace Logging {
     void ConsoleLogger::_Error( ELogChannel channel, const char* msg, ELogLevel logLevel )
     {
         _Log( channel, msg, logLevel, LOGTYPE_COLOR_ERROR );
+        ASSERT( false );
     }
 
     //----------------------------------------------------------------------
