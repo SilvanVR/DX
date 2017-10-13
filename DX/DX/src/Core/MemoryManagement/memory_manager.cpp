@@ -16,7 +16,7 @@ namespace Core { namespace MemoryManagement {
     //----------------------------------------------------------------------
     void MemoryManager::init()
     {
-        m_staticAllocationInfo = MemoryTracker::getAllocationMemoryInfo();
+        m_staticAllocationInfo = getGlobalAllocationInfo();
     }
 
     //----------------------------------------------------------------------
@@ -35,9 +35,15 @@ namespace Core { namespace MemoryManagement {
     }
 
     //----------------------------------------------------------------------
+    const AllocationMemoryInfo& MemoryManager::getGlobalAllocationInfo() const
+    {
+        return MemoryTracker::getAllocationMemoryInfo();
+    }
+
+    //----------------------------------------------------------------------
     const AllocationMemoryInfo MemoryManager::getAllocationInfo() const
     {
-        return (MemoryTracker::getAllocationMemoryInfo() - m_staticAllocationInfo);
+        return (getGlobalAllocationInfo() - m_staticAllocationInfo);
     }
 
     //----------------------------------------------------------------------
@@ -47,7 +53,6 @@ namespace Core { namespace MemoryManagement {
         log();
 
     #ifdef _WIN32
-        // Memory leak somewhere
         __debugbreak();
     #elif
         ASSERT( false && "MemoryLeak detected somewhere." );

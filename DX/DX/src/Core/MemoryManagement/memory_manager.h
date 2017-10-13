@@ -12,14 +12,13 @@
       - Allocations from Allocators fetch there memory from a
         universalalloctor in this class?
          => Preallocate a large chunk of memory
-
 **********************************************************************/
 
 #include "Core/i_subsystem.hpp"
 #include "memory_structs.h"
 
-namespace Core { namespace MemoryManagement{
 
+namespace Core { namespace MemoryManagement{
 
     //*********************************************************************
     // MemoryManager class, which tracks memory allocations.
@@ -41,6 +40,12 @@ namespace Core { namespace MemoryManagement{
         void log();
 
         //----------------------------------------------------------------------
+        // @Return:
+        //   Contains all allocations made with global new/delete
+        //----------------------------------------------------------------------
+        const AllocationMemoryInfo& getGlobalAllocationInfo() const;
+
+        //----------------------------------------------------------------------
         // @Return: 
         //   Contains all allocations made before this class was initialized
         //   These are most likely allocations made from static objects.
@@ -57,6 +62,7 @@ namespace Core { namespace MemoryManagement{
         // Contains all allocations made before this class was initialized
         AllocationMemoryInfo m_staticAllocationInfo;
 
+        //----------------------------------------------------------------------
         void _ReportMemoryLeak();
 
         //----------------------------------------------------------------------

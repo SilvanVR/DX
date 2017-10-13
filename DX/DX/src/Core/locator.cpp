@@ -1,10 +1,14 @@
 #include "locator.h"
 
+/**********************************************************************
+    class: Locator (locator.cpp)
 
-#include "MemoryManagement/gnad_memory_manager.h"
+    author: S. Hau
+    date: October 11, 2017
+
+**********************************************************************/
 
 namespace Core {
-
 
     //----------------------------------------------------------------------
     // Define Static Instances
@@ -25,8 +29,6 @@ namespace Core {
     { 
         return (*gLogger); 
     }
-
-
 
 
 }

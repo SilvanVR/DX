@@ -8,9 +8,8 @@
 **********************************************************************/
 
 #include "locator.h"
-
 #include "Logging/console_logger.h"
-
+#include "MemoryManagement/memory_manager.h"
 
 namespace Core
 {

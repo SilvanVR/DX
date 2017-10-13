@@ -18,7 +18,7 @@
 
 #include "Core/i_subsystem.hpp"
 #include "Core/Misc/color.h"
-#include "Core/Misc/layer_mask.hpp"
+#include "Core/Misc/bit_mask.hpp"
 
 namespace Core { namespace Logging {
 
@@ -53,7 +53,7 @@ namespace Core { namespace Logging {
     //**********************************************************************
     class ILogger : public ISubSystem
     {
-        LayerMask   m_channelMask       = LayerMask( LOG_CHANNEL_ALL );
+        BitMask     m_channelMask       = BitMask( LOG_CHANNEL_ALL );
 
     protected:
         Color       m_defaultColor      = LOGTYPE_COLOR_DEFAULT;

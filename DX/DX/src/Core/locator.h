@@ -1,5 +1,4 @@
 #pragma once
-
 /**********************************************************************
     class: Locator (locator.h)
 
@@ -10,18 +9,17 @@
     Every Sub-System can be retrieved via a static method.
 
     Features:
-        [+] Every Sub-System in one place
-        [+] Exact retrieved Sub-System is only known at runtime
+        [+/-] Every Sub-System in one place
+        [+] Easy extensible
+        [+] Exact retrieved Sub-System is only known at runtime when
+            implemented a virtual base class for it
           [++] Every SubSystem can be easily swapped out
           [++] Hierarchies of a specific Sub-System are possible, e.g.
                Logged Audio!
-        [+] Easy extensible
-        [-] Interface must be known a priori
-        [-] More code + files
-          [--] Templates are harder to use
-        [-] Less performance because of virtual functions
-        [-] Every Sub-System in one place :)
-
+          [--] Interface must be known a priori
+          [--] More code + files
+            [---] Templates are harder to use
+          [--] Less performance because of virtual functions
 **********************************************************************/
 
 #include "Logging/null_logger.hpp"
@@ -64,8 +62,6 @@ namespace Core {
         // Provide a Sub-System
         //----------------------------------------------------------------------
         static void provide(Logging::ILogger* logger) { gLogger = (logger != nullptr) ? logger : &gNullLogger; }
-        //static void provide(Logging::ILogger* logger) { gLogger = logger; }
-
         static void provide(MemoryManagement::MemoryManager* memoryManager){ gMemoryManager = memoryManager; }
 
     private:

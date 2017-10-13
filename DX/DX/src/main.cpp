@@ -1,11 +1,8 @@
 
+
 #include "Core/OS/PlatformTimer/platform_timer.h"
 #include "Core/MemoryManagement/include.hpp"
-
 #include "Core/subsystem_manager.h"
-
-#include "Core/Misc/color.h"
-#include "Core/Misc/layer_mask.hpp"
 
 using namespace Core;
 
@@ -113,20 +110,6 @@ public:
 // Store log stuff in ringbuffer -> if buffer fill save to file
 // - FileSystem
 //    -> Configuration-File(s) .ini
-
-
-
-// Global New/Delete -> allocate from Locator::getMemoryManager() ? -> GlobalNewDeleteAllocator is default
-//   --> who should track the memory?
-// Preallocator -> preallocated mem and fetches from that 
-
-
-// What's with the memory here???
-
-// manager.init()
-   // Tracks all Memory
-// manager.shutdown()
-
 
 
 int main(void)

@@ -6,12 +6,19 @@
     author: S. Hau
     date: October 11, 2017
 
+    See below for a class description.
+
 **********************************************************************/
 
-#include "Logging/i_logger.hpp"
-#include "MemoryManagement/memory_manager.h"
 
 namespace Core {
+
+    //----------------------------------------------------------------------
+    // Forward Declarations
+    //----------------------------------------------------------------------
+    namespace Logging { class ILogger; }
+    namespace MemoryManagement { class MemoryManager; }
+
 
     //*********************************************************************
     // Manages every Sub-System in the engine.
