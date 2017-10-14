@@ -4,6 +4,8 @@
 #include "Core/MemoryManagement/include.hpp"
 #include "Core/subsystem_manager.h"
 
+#include "Core/OS/FileSystem/file_system.h"
+
 using namespace Core;
 
 class AutoClock
@@ -111,6 +113,12 @@ public:
 // - FileSystem
 //    -> Configuration-File(s) .ini
 
+// Datei lesen
+// Datei schreiben / erstellen
+// Binary Datei lesen
+// Binary Datei schreiben / erstellen
+
+
 
 int main(void)
 {
@@ -122,18 +130,52 @@ int main(void)
     Core::SubSystemManager gSubSystemManager;
     gSubSystemManager.init();
 
-    StringID id;
+
+    {
+        OS::File file( "test.txt" );
+
+        if ( file.exists() )
+        {
+            LOG( "File exists!\n" );
+
+            // file.deleteFromDisk();
+            file.clear();
+            file.write("1");
+
+            LOG( "<<<<< FINAL FILE CONTENTS: >>>>> ", Color::RED);
+            String buffer = file.readAll();
+            LOG(buffer, Color::RED);
+
+            Size size = file.getFileSize();
+            LOG( "Size in bytes: " + TS(size) );
+
+        }
+        else
+        {
+            LOG( "Creating new file...\n" );
+
+            file.write( "TEST" );
+
+            String buffer = file.readAll();
+            LOG( buffer );
+        }
+    }
+
+
+    
+
+
+
 
     {
         //AutoClock clock;
 
-        LOG( "Hello World" );
-        LOG( "IMPORTANT", Logging::LOG_LEVEL_IMPORTANT, Color::BLUE );
-        WARN( "NOT SO IMPORTANT", Logging::LOG_LEVEL_NOT_SO_IMPORTANT );
-        //ERROR("NOT IMPORTANT ERROR", Logging::LOG_LEVEL_NOT_IMPORTANT);
+        //LOG( "Hello World" );
+        //LOG( "IMPORTANT", Logging::LOG_LEVEL_IMPORTANT, Color::BLUE );
+        //WARN( "NOT SO IMPORTANT", Logging::LOG_LEVEL_NOT_SO_IMPORTANT );
 
-        LOG( SID("Hello") );
-        Color color( 16, 52, 128, 255);
+        //LOG( SID("Hello") );
+        //Color color( 16, 52, 128, 255);
         //LOG( color.toString(true), Color::RED );
     }
 
