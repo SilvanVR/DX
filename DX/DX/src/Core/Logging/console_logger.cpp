@@ -47,13 +47,13 @@ namespace Core { namespace Logging {
         if ( _CheckLogLevel( logLevel ) || _Filterchannel( channel ) )
             return;
 
-        if ( m_dumpToDisk )
+        if (m_dumpToDisk)
             _StoreLogMessage( channel, msg, logLevel );
 
         m_console.setColor( LOGTYPE_COLOR_CHANNEL );
 
         const char* preface = _GetchannelAsString( channel );
-        if( preface != "" )
+        if (preface != "")
             m_console.write( preface );
 
         m_console.setColor( color );
@@ -100,15 +100,27 @@ namespace Core { namespace Logging {
             logFile.write( "\n" );
         }*/
 
-        std::ofstream logFile( s_logFilePath, std::ios::out | std::ios::app );
-        for (auto& message : m_messageBuffer)
-        {
-            const char* preface = _GetchannelAsString(message.channel);
-            if (preface != "")
-                logFile << preface;
+        //std::ofstream logFile( s_logFilePath, std::ios::out | std::ios::app );
+        //for (auto& message : m_messageBuffer)
+        //{
+        //    const char* preface = _GetchannelAsString(message.channel);
+        //    if (preface != "")
+        //        logFile << preface;
 
-            logFile << message.message;
-            logFile << "\n";
+        //    logFile << message.message;
+        //    logFile << "\n";
+        //}
+
+        if (m_dumpToDisk)
+        {
+            FILE* f;
+            f = fopen( s_logFilePath.c_str(), "a" );
+
+            for (auto& message : m_messageBuffer)
+            {
+                fwrite( message.message.c_str(), sizeof(char), message.message.size(), f );
+                fwrite( "\n", sizeof(char), 1, f );
+            }
         }
 
         m_messageBuffer.clear();

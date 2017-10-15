@@ -11,7 +11,7 @@
 
 #include "Core/locator.h"
 
-namespace Core {
+namespace Core { namespace OS {
 
     //----------------------------------------------------------------------
     std::map<String, const char*> VirtualFileSystem::mountPoints;
@@ -58,5 +58,4 @@ namespace Core {
     }
 
 
-
-}
+} } // end namespaces

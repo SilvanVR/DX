@@ -97,7 +97,7 @@ namespace Core { namespace Logging {
         void setELogLevel(ELogLevel newLogLevel) { m_logLevel = newLogLevel; }
 
         //----------------------------------------------------------------------
-        // Send logmessage buffer immediately to the disk
+        // Manually flush message buffer to disk
         //----------------------------------------------------------------------
         virtual void _DumpToDisk() {}
 

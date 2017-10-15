@@ -4,9 +4,7 @@
 #include "Core/MemoryManagement/include.hpp"
 #include "Core/subsystem_manager.h"
 
-#include "Core/OS/FileSystem/file_system.h"
-#include "Core/VirtualFileSystem/virtual_file_system.h"
-#include <fstream>
+#include "Core/OS/VirtualFileSystem/virtual_file_system.h"
 
 using namespace Core;
 
@@ -111,7 +109,6 @@ public:
 //@TODO: 
 // - Profiler
 
-// Store log stuff in ringbuffer -> if buffer fill save to file
 // - FileSystem
 //    -> Configuration-File(s) .ini
 
@@ -125,6 +122,7 @@ int main(void)
     Core::SubSystemManager gSubSystemManager;
     gSubSystemManager.init();
 
+    Locator::getLogger().setSaveToDisk( false );
 
     {
         //String path = VirtualFileSystem::resolvePhysicalPath( "/logs/test.txt" );
@@ -133,11 +131,6 @@ int main(void)
 
     {
           //OS::File file("res/logs/log.log");
-
-          //std::fstream file;
-          //file.open("res/logs/log.log");
-          //file.close();
-
 
     //    if ( file.exists() )
     //    {

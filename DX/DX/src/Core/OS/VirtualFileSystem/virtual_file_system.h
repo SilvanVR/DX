@@ -9,7 +9,7 @@
 
 **********************************************************************/
 
-namespace Core {
+namespace Core { namespace OS {
 
     //*********************************************************************
     // Maps symbolic directories to real directories. 
@@ -62,4 +62,4 @@ namespace Core {
         VirtualFileSystem& operator = (VirtualFileSystem&& other)       = delete;
     };
 
-}
+} } // end namespaces

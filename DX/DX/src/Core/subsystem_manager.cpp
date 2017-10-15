@@ -10,7 +10,7 @@
 #include "locator.h"
 #include "Logging/console_logger.h"
 #include "MemoryManagement/memory_manager.h"
-#include "VirtualFileSystem/virtual_file_system.h"
+#include "OS/VirtualFileSystem/virtual_file_system.h"
 
 namespace Core
 {
@@ -27,54 +27,58 @@ namespace Core
     //----------------------------------------------------------------------
     void SubSystemManager::init()
     {
+        _InitVirtualFilePaths();
+
         // Initialize Logger first
         m_logger = initializeSubSystem( new Logging::ConsoleLogger() );
 
-        // Initialize memory manager
+        // Initialize memory manager after logger, before anything else
         m_memoryManager = initializeSubSystem( new MemoryManagement::MemoryManager() );
 
-
         // Initialize every Sub-System here
-        LOG( "Initialize Sub-Systems..." );
-        //_InitVirtualFilePaths();
+        LOG( "<<< Initialize Sub-Systems >>>" );
+        LOG( "Logger initialized!" );
+        LOG( "MemoryManager initialized!" );
+
 
     }
-
-
 
 
     //----------------------------------------------------------------------
     void SubSystemManager::shutdown()
     {
-        LOG( "Shutting down Sub-Systems..." );
-
         // Shutdown every Sub-System here in reversed order to above
-        //_ShutdownVirtualFilePaths();
+        LOG( "<<< Shutting down Sub-Systems >>>" );
 
 
 
-        // Shutdown memory manager before logger, after anything else
+
+        //----------------------------------------------------------------------
         LOG( "Shutdown MemoryManager..." );
-        m_logger->_DumpToDisk(); // This is necessary
+        // This is necessary, because the logger has to dump all allocated stuff, 
+        // otherwise the memory manager will report a memory leak
+        m_logger->_DumpToDisk();
         shutdownSubSystem( m_memoryManager );
 
-        // Delete Logger at last
+        // Shutdown logger now
         LOG( "Shutdown Logger..." );
         shutdownSubSystem( m_logger );
+
+        _ShutdownVirtualFilePaths();
     }
 
     //----------------------------------------------------------------------
     void SubSystemManager::_InitVirtualFilePaths()
     {
-        VirtualFileSystem::mount("logs",     "res/logs");
-        VirtualFileSystem::mount("textures", "res/textures");
-        VirtualFileSystem::mount("shaders",  "res/shaders");
-        VirtualFileSystem::mount("models",   "res/models");
+        OS::VirtualFileSystem::mount("logs",     "res/logs");
+        OS::VirtualFileSystem::mount("textures", "res/textures");
+        OS::VirtualFileSystem::mount("shaders",  "res/shaders");
+        OS::VirtualFileSystem::mount("models",   "res/models");
     }
 
     void SubSystemManager::_ShutdownVirtualFilePaths()
     {
-        VirtualFileSystem::unmountAll();
+        OS::VirtualFileSystem::unmountAll();
     }
 
 }

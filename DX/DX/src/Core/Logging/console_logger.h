@@ -39,7 +39,8 @@ namespace Core {  namespace Logging  {
         virtual void _Warn(ELogChannel channel, const char* msg, ELogLevel ELogLevel) override;
         virtual void _Error(ELogChannel channel, const char* msg, ELogLevel ELogLevel) override;
 
-        virtual void _DumpToDisk() override;
+        // Write messages in MessageBuffer to disk
+        void _DumpToDisk() override;
 
     private:
         Console                     m_console;
