@@ -27,16 +27,16 @@ namespace Core
     //----------------------------------------------------------------------
     void SubSystemManager::init()
     {
-        // Initialize Logger first before anything
+        // Initialize Logger first
         m_logger = initializeSubSystem( new Logging::ConsoleLogger() );
 
-        LOG( "Initialize Sub-Systems..." );
+        // Initialize memory manager
+        m_memoryManager = initializeSubSystem( new MemoryManagement::MemoryManager() );
+
 
         // Initialize every Sub-System here
-        _InitVirtualFilePaths();
-
-        LOG("Initialize Memory-Manager...");
-        m_memoryManager = initializeSubSystem( new MemoryManagement::MemoryManager() );
+        LOG( "Initialize Sub-Systems..." );
+        //_InitVirtualFilePaths();
 
     }
 
@@ -49,8 +49,13 @@ namespace Core
         LOG( "Shutting down Sub-Systems..." );
 
         // Shutdown every Sub-System here in reversed order to above
+        //_ShutdownVirtualFilePaths();
 
+
+
+        // Shutdown memory manager before logger, after anything else
         LOG( "Shutdown MemoryManager..." );
+        m_logger->_DumpToDisk(); // This is necessary
         shutdownSubSystem( m_memoryManager );
 
         // Delete Logger at last

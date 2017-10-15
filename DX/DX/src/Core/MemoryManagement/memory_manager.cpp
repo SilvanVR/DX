@@ -23,9 +23,10 @@ namespace Core { namespace MemoryManagement {
     void MemoryManager::shutdown()
     {
         auto currentAllocationInfo = getAllocationInfo();
+        currentAllocationInfo.log();
 
         if (currentAllocationInfo.currentBytesAllocated != 0)
-            _ReportMemoryLeak();
+            _ReportMemoryLeak( currentAllocationInfo );
     }
 
     //----------------------------------------------------------------------
@@ -47,10 +48,10 @@ namespace Core { namespace MemoryManagement {
     }
 
     //----------------------------------------------------------------------
-    void MemoryManager::_ReportMemoryLeak()
+    void MemoryManager::_ReportMemoryLeak(const AllocationMemoryInfo& allocationInfo)
     {
         WARN_MEMORY( "<<<< MemoryLeak detected somewhere! >>>>\nPrinting current memory info:" );
-        log();
+        allocationInfo.log();
 
     #ifdef _WIN32
         __debugbreak();

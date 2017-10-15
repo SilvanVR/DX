@@ -6,9 +6,7 @@
     author: S. Hau
     date: October 10, 2017
 
-    Features:
-     - Basic logging functionality to the console
-
+    See below for a class description.
 **********************************************************************/
 
 #include "i_logger.hpp"
@@ -16,13 +14,12 @@
 
 namespace Core {  namespace Logging  {
 
-
     //**********************************************************************
     // Basic logging functionality to the console
     //**********************************************************************
     class ConsoleLogger : public ILogger
     {
-        const Color defaultColor = Color::WHITE;
+        static const U32 MESSAGE_BUFFER_CAPACITY = 100;
 
     public:
         ConsoleLogger() {}
@@ -42,13 +39,11 @@ namespace Core {  namespace Logging  {
         virtual void _Warn(ELogChannel channel, const char* msg, ELogLevel ELogLevel) override;
         virtual void _Error(ELogChannel channel, const char* msg, ELogLevel ELogLevel) override;
 
-    private:
-        Console m_console;
+        virtual void _DumpToDisk() override;
 
-        //----------------------------------------------------------------------
-        // Write all LogMessage to the given file
-        //----------------------------------------------------------------------
-        void _WriteToFile(const char* fileName, bool append = false);
+    private:
+        Console                     m_console;
+        std::vector<_LOGMESSAGE>    m_messageBuffer;
 
         //----------------------------------------------------------------------
         // Store the given message and flush the buffer if necessary

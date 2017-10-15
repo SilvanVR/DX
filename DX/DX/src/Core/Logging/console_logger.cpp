@@ -8,20 +8,37 @@
 **********************************************************************/
 
 #include "Utils/utils.h"
+#include "Core/OS/PlatformTimer/platform_timer.h"
+
+#include "Core/OS/FileSystem/file.h"
+#include <fstream>
 
 namespace Core { namespace Logging {
 
     //----------------------------------------------------------------------
+    static String s_logFilePath;
+
+    //----------------------------------------------------------------------
     void ConsoleLogger::init()
     {
-       // Nothing to do yet!
+        // @ TODO: Virtual-Path Resolve
+        s_logFilePath = "res/logs/" + OS::PlatformTimer::getCurrentTime().toString() + ".log";
+
+        // Windows does not allow ":" characters in a filename
+        std::replace( s_logFilePath.begin(), s_logFilePath.end(), ':', '_' );
+
+        m_messageBuffer.reserve( MESSAGE_BUFFER_CAPACITY );
     }
 
     //----------------------------------------------------------------------
     void ConsoleLogger::shutdown()
     {
-        // @TODO:
         // Write logged stuff to file if desired
+        if (m_dumpToDisk)
+        {
+            _DumpToDisk();
+        }
+        m_messageBuffer.clear();
     }
 
     //----------------------------------------------------------------------
@@ -69,27 +86,48 @@ namespace Core { namespace Logging {
     }
 
     //----------------------------------------------------------------------
-    void ConsoleLogger::_WriteToFile(const char* fileName, bool append)
+    void ConsoleLogger::_DumpToDisk()
     {
-        // @TODO
+        //@TODO Virtual Path!!
+        //OS::File logFile( s_logFilePath.c_str(), true );
+        /*for (auto& message : m_messageBuffer)
+        {
+            const char* preface = _GetchannelAsString( message.channel );
+            if (preface != "")
+                logFile.write( preface );
+
+            logFile.write( message.message.c_str() );
+            logFile.write( "\n" );
+        }*/
+
+        std::ofstream logFile( s_logFilePath, std::ios::out | std::ios::app );
+        for (auto& message : m_messageBuffer)
+        {
+            const char* preface = _GetchannelAsString(message.channel);
+            if (preface != "")
+                logFile << preface;
+
+            logFile << message.message;
+            logFile << "\n";
+        }
+
+        m_messageBuffer.clear();
     }
 
     //----------------------------------------------------------------------
     void ConsoleLogger::_StoreLogMessage(ELogChannel channel, const char* msg, ELogLevel logLevel)
     {
         _LOGMESSAGE logMessage;
-        logMessage.message  = StringID(msg);
-        logMessage.level    = logLevel;
-        logMessage.channel  = channel;
+        logMessage.message = String( msg );
+        logMessage.channel = channel;
 
-        // Store message in a ringbuffer.
+        // Store message in a buffer.
+        m_messageBuffer.push_back( logMessage );
 
-
-        // Flush to disk if buffer is full and enabled.
-        bool isFull = false;
-        if (isFull)
+        // Flush to disk if buffer is full.
+        if ( m_messageBuffer.size() == MESSAGE_BUFFER_CAPACITY )
         {
-            _WriteToFile("", true);
+            _DumpToDisk();
         }
     }
 

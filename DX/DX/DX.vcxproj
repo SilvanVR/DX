@@ -222,6 +222,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\commenting_style.hpp" />
+    <ClInclude Include="src\Core\DataStructures\array_buffer.hpp" />
+    <ClInclude Include="src\Core\DataStructures\ring_buffer.hpp" />
     <ClInclude Include="src\Core\locator.h" />
     <ClInclude Include="src\Core\Logging\null_logger.hpp" />
     <ClInclude Include="src\Core\Logging\i_logger.hpp" />

@@ -62,8 +62,10 @@ namespace Core { namespace Logging {
         bool        m_dumpToDisk        = true;
 
     public:
+        virtual ~ILogger() {}
+
         //----------------------------------------------------------------------
-        // Set whether log messages should be saved and dumped to disk
+        // Set whether log messages should be saved to disk
         //----------------------------------------------------------------------
         void setSaveToDisk(bool saveToDisk){ m_dumpToDisk = saveToDisk; }
 
@@ -93,6 +95,11 @@ namespace Core { namespace Logging {
         // will be displayed (and stored).
         //----------------------------------------------------------------------
         void setELogLevel(ELogLevel newLogLevel) { m_logLevel = newLogLevel; }
+
+        //----------------------------------------------------------------------
+        // Send logmessage buffer immediately to the disk
+        //----------------------------------------------------------------------
+        virtual void _DumpToDisk() {}
 
     private:
         //----------------------------------------------------------------------
@@ -226,9 +233,8 @@ namespace Core { namespace Logging {
     protected:
         struct _LOGMESSAGE
         {
-            StringID        message;
+            String          message;
             ELogChannel     channel;
-            ELogLevel       level;
         };
 
         const char* _GetchannelAsString(ELogChannel channel) const

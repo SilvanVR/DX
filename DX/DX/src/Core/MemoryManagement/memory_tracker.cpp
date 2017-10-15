@@ -35,6 +35,9 @@ namespace Core { namespace MemoryManagement {
     //----------------------------------------------------------------------
     void _GlobalNewAndDeleteAllocator::deallocate( void* memory )
     {
+        if (memory == nullptr)
+            return;
+
         Byte* mem = reinterpret_cast<Byte*>( memory );
         mem -= sizeof( Size );
 

@@ -19,12 +19,26 @@ namespace Core { namespace OS {
     {
     public:
         //----------------------------------------------------------------------
+        // Creates a new file object. Use open() to open the file.
+        //----------------------------------------------------------------------
+        File();
+
+        //----------------------------------------------------------------------
         // @Params:
-        // "path": Physical path on disk
+        // "path": Physical path on disk.
         // "append": Whether add new contents directly to the end of the file.
         //----------------------------------------------------------------------
         File(const char* path, bool append = false);
         ~File();
+
+        //----------------------------------------------------------------------
+        // @Params:
+        // "path": Physical path on disk.
+        // "append": Whether add new contents directly to the end of the file.
+        // @Return:
+        // "Whether opening the file succeeded or not.
+        //----------------------------------------------------------------------
+        bool open(const char* path, bool append = false);
 
         //----------------------------------------------------------------------
         // @Return:

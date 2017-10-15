@@ -12,6 +12,11 @@
 namespace Core { namespace OS {
 
     //----------------------------------------------------------------------
+    File::File()
+        : m_filePath(""), m_exists(false), m_file(nullptr), m_readCursorPos(0), m_writeCursorPos(0), m_eof(false)
+    {}
+
+    //----------------------------------------------------------------------
     File::File(const char* path, bool append)
         : m_filePath(path), m_exists( _FileExists( path ) ), m_file(nullptr), m_readCursorPos(0), m_writeCursorPos(0), m_eof(false)
     {
@@ -25,6 +30,21 @@ namespace Core { namespace OS {
     File::~File()
     {
         _CloseFile();
+    }
+
+    //----------------------------------------------------------------------
+    bool File::open(const char* path, bool append)
+    {
+        m_filePath = path;
+        m_exists = _FileExists(path);
+
+        if (m_exists)
+        {
+            _OpenFile(append);
+            return true;
+        }
+
+        return false;
     }
 
     //----------------------------------------------------------------------

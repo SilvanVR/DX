@@ -63,7 +63,7 @@ namespace Core { namespace MemoryManagement{
         AllocationMemoryInfo m_staticAllocationInfo;
 
         //----------------------------------------------------------------------
-        void _ReportMemoryLeak();
+        void _ReportMemoryLeak(const AllocationMemoryInfo& allocationInfo);
 
         //----------------------------------------------------------------------
         MemoryManager(const MemoryManager& other)               = delete;

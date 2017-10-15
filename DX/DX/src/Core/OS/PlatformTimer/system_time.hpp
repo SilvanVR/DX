@@ -79,7 +79,7 @@ namespace Core { namespace OS {
             const char* leadingZeroMinute = minute < 10 ? "0" : "";
             const char* leadingZeroHour = hour < 10 ? "0" : "";
 
-            return TS(day) + "/" + TS(month) + "/" + TS(year) + " " + 
+            return TS(day) + "." + TS(month) + "." + TS(year) + " " + 
                   leadingZeroHour + TS(hour) + ":" +
                   leadingZeroMinute + TS(minute) + ":" +
                   leadingZeroSecond + TS(second);

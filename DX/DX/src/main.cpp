@@ -6,6 +6,7 @@
 
 #include "Core/OS/FileSystem/file_system.h"
 #include "Core/VirtualFileSystem/virtual_file_system.h"
+#include <fstream>
 
 using namespace Core;
 
@@ -114,7 +115,6 @@ public:
 // - FileSystem
 //    -> Configuration-File(s) .ini
 
-
 int main(void)
 {
     //MemoryManagement::UniversalAllocator gUniversalAllocator(1000);
@@ -127,12 +127,17 @@ int main(void)
 
 
     {
-        String path = VirtualFileSystem::resolvePhysicalPath( "/logs/test.txt" );
-        WARN_TEST( path );
+        //String path = VirtualFileSystem::resolvePhysicalPath( "/logs/test.txt" );
+        //WARN_TEST( path );
     }
 
-    //{
-    //    OS::File file( "test.txt" );
+    {
+          //OS::File file("res/logs/log.log");
+
+          //std::fstream file;
+          //file.open("res/logs/log.log");
+          //file.close();
+
 
     //    if ( file.exists() )
     //    {
@@ -165,13 +170,7 @@ int main(void)
     //        String buffer = file.readAll();
     //        LOG( buffer );
     //    }
-    //}
-
-
-    
-
-
-
+    }
 
     {
         //AutoClock clock;
@@ -186,7 +185,6 @@ int main(void)
     }
 
 
-    Locator::getMemoryManager().log();
     gSubSystemManager.shutdown();
 
     system("pause");
