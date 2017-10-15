@@ -26,8 +26,6 @@ namespace Core { namespace Logging {
 
         // Windows does not allow ":" characters in a filename
         std::replace( s_logFilePath.begin(), s_logFilePath.end(), ':', '_' );
-
-        m_messageBuffer.reserve( MESSAGE_BUFFER_CAPACITY );
     }
 
     //----------------------------------------------------------------------
@@ -115,32 +113,38 @@ namespace Core { namespace Logging {
         {
             FILE* f;
             f = fopen( s_logFilePath.c_str(), "a" );
-
-            for (auto& message : m_messageBuffer)
-            {
-                fwrite( message.message.c_str(), sizeof(char), message.message.size(), f );
-                fwrite( "\n", sizeof(char), 1, f );
-            }
+            fwrite(m_messageBuffer.data(), sizeof(Byte), m_messageBuffer.size(), f);
+            //fflush(f);
+            fclose(f);
         }
 
         m_messageBuffer.clear();
     }
 
     //----------------------------------------------------------------------
-    void ConsoleLogger::_StoreLogMessage(ELogChannel channel, const char* msg, ELogLevel logLevel)
+    void ConsoleLogger::_StoreLogMessage( ELogChannel channel, const char* msg, ELogLevel logLevel )
     {
-        _LOGMESSAGE logMessage;
-        logMessage.message = String( msg );
-        logMessage.channel = channel;
+        // Write stuff to the message-buffer. Always flush before if necessary.
+        const char* preface = _GetchannelAsString( channel );
+        if ( preface != "" )
+            _WriteToBuffer( preface );
 
-        // Store message in a buffer.
-        m_messageBuffer.push_back( logMessage );
+        _WriteToBuffer( msg );
 
-        // Flush to disk if buffer is full.
-        if ( m_messageBuffer.size() == MESSAGE_BUFFER_CAPACITY )
-        {
+        // And finally the newline character
+        if ( not m_messageBuffer.hasEnoughPlace( 1 ) )
             _DumpToDisk();
-        }
+        m_messageBuffer.write('\n');
+    }
+
+    //----------------------------------------------------------------------
+    void ConsoleLogger::_WriteToBuffer( const char* msg )
+    {
+        Size len = strlen( msg );
+        if ( not m_messageBuffer.hasEnoughPlace( len ) )
+            _DumpToDisk();
+
+        m_messageBuffer.write( msg );
     }
 
 } }

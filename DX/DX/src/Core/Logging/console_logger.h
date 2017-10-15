@@ -12,6 +12,8 @@
 #include "i_logger.hpp"
 #include "Console/console.h"
 
+#include "Core/DataStructures/byte_array.hpp"
+
 namespace Core {  namespace Logging  {
 
     //**********************************************************************
@@ -19,7 +21,7 @@ namespace Core {  namespace Logging  {
     //**********************************************************************
     class ConsoleLogger : public ILogger
     {
-        static const U32 MESSAGE_BUFFER_CAPACITY = 100;
+        static const U32 MSG_BUFFER_CAPACITY_BYTES = 1024;
 
     public:
         ConsoleLogger() {}
@@ -39,17 +41,22 @@ namespace Core {  namespace Logging  {
         virtual void _Warn(ELogChannel channel, const char* msg, ELogLevel ELogLevel) override;
         virtual void _Error(ELogChannel channel, const char* msg, ELogLevel ELogLevel) override;
 
-        // Write messages in MessageBuffer to disk
-        void _DumpToDisk() override;
 
     private:
-        Console                     m_console;
-        std::vector<_LOGMESSAGE>    m_messageBuffer;
+        Console                                 m_console;
+        ByteArray<MSG_BUFFER_CAPACITY_BYTES>    m_messageBuffer;
 
         //----------------------------------------------------------------------
-        // Store the given message and flush the buffer if necessary
-        //----------------------------------------------------------------------
+
+        // Write messages in MessageBuffer to disk
+        void _DumpToDisk();
+
+        // Store a message as desired in the message buffer byte array
         void _StoreLogMessage(ELogChannel channel, const char* msg, ELogLevel logLevel);
+
+        // Small helper function to write an character into the message buffer
+        void _WriteToBuffer(const char* msg);
+
 
         ConsoleLogger(const ConsoleLogger& other)               = delete;
         ConsoleLogger& operator = (const ConsoleLogger& other)  = delete;

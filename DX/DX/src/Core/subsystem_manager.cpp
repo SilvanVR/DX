@@ -27,17 +27,16 @@ namespace Core
     //----------------------------------------------------------------------
     void SubSystemManager::init()
     {
+        // The logger uses the virtual file-paths, so they have to be initialized first
         _InitVirtualFilePaths();
 
-        // Initialize Logger first
         m_logger = initializeSubSystem( new Logging::ConsoleLogger() );
-
-        // Initialize memory manager after logger, before anything else
-        m_memoryManager = initializeSubSystem( new MemoryManagement::MemoryManager() );
+        LOG( "Logger initialized!" );
 
         // Initialize every Sub-System here
         LOG( "<<< Initialize Sub-Systems >>>" );
-        LOG( "Logger initialized!" );
+
+        m_memoryManager = initializeSubSystem( new MemoryManagement::MemoryManager() );
         LOG( "MemoryManager initialized!" );
 
 
@@ -51,16 +50,9 @@ namespace Core
         LOG( "<<< Shutting down Sub-Systems >>>" );
 
 
-
-
-        //----------------------------------------------------------------------
         LOG( "Shutdown MemoryManager..." );
-        // This is necessary, because the logger has to dump all allocated stuff, 
-        // otherwise the memory manager will report a memory leak
-        m_logger->_DumpToDisk();
         shutdownSubSystem( m_memoryManager );
 
-        // Shutdown logger now
         LOG( "Shutdown Logger..." );
         shutdownSubSystem( m_logger );
 

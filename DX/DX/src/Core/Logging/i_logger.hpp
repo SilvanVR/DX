@@ -96,11 +96,6 @@ namespace Core { namespace Logging {
         //----------------------------------------------------------------------
         void setELogLevel(ELogLevel newLogLevel) { m_logLevel = newLogLevel; }
 
-        //----------------------------------------------------------------------
-        // Manually flush message buffer to disk
-        //----------------------------------------------------------------------
-        virtual void _DumpToDisk() {}
-
     private:
         //----------------------------------------------------------------------
         // Functions to override. Because templates does not work well with the
@@ -231,12 +226,6 @@ namespace Core { namespace Logging {
         }
 
     protected:
-        struct _LOGMESSAGE
-        {
-            String          message;
-            ELogChannel     channel;
-        };
-
         const char* _GetchannelAsString(ELogChannel channel) const
         {
             switch (channel)

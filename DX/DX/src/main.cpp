@@ -112,6 +112,8 @@ public:
 // - FileSystem
 //    -> Configuration-File(s) .ini
 
+
+
 int main(void)
 {
     //MemoryManagement::UniversalAllocator gUniversalAllocator(1000);
@@ -122,11 +124,25 @@ int main(void)
     Core::SubSystemManager gSubSystemManager;
     gSubSystemManager.init();
 
-    Locator::getLogger().setSaveToDisk( false );
+    //Locator::getLogger().setSaveToDisk( false );
 
     {
         //String path = VirtualFileSystem::resolvePhysicalPath( "/logs/test.txt" );
         //WARN_TEST( path );
+
+        //const char* test = "Test";
+        //const char* test2 = "Hello World";
+
+        //arr.write(test);
+        //arr.write('\n');
+        //arr.write(test2);
+
+        //const char* data = (const char*)arr.data();
+
+        //LOG( data );
+        //arr.clear();
+
+        //int i = 52;
     }
 
     {

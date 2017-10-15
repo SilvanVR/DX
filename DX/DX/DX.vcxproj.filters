@@ -176,5 +176,8 @@
     <ClInclude Include="src\Core\OS\VirtualFileSystem\virtual_file_system.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Core\DataStructures\byte_array.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
