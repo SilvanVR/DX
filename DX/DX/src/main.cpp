@@ -5,6 +5,7 @@
 #include "Core/subsystem_manager.h"
 
 #include "Core/OS/FileSystem/file_system.h"
+#include "Core/VirtualFileSystem/virtual_file_system.h"
 
 using namespace Core;
 
@@ -113,12 +114,6 @@ public:
 // - FileSystem
 //    -> Configuration-File(s) .ini
 
-// Datei lesen
-// Datei schreiben / erstellen
-// Binary Datei lesen
-// Binary Datei schreiben / erstellen
-
-
 
 int main(void)
 {
@@ -132,34 +127,45 @@ int main(void)
 
 
     {
-        OS::File file( "test.txt" );
-
-        if ( file.exists() )
-        {
-            LOG( "File exists!\n" );
-
-            // file.deleteFromDisk();
-            file.clear();
-            file.write("1");
-
-            LOG( "<<<<< FINAL FILE CONTENTS: >>>>> ", Color::RED);
-            String buffer = file.readAll();
-            LOG(buffer, Color::RED);
-
-            Size size = file.getFileSize();
-            LOG( "Size in bytes: " + TS(size) );
-
-        }
-        else
-        {
-            LOG( "Creating new file...\n" );
-
-            file.write( "TEST" );
-
-            String buffer = file.readAll();
-            LOG( buffer );
-        }
+        String path = VirtualFileSystem::resolvePhysicalPath( "/logs/test.txt" );
+        WARN_TEST( path );
     }
+
+    //{
+    //    OS::File file( "test.txt" );
+
+    //    if ( file.exists() )
+    //    {
+    //        LOG( "File exists!\n" );
+
+    //        // file.deleteFromDisk();
+    //        file.clear();
+    //        file.write("1\n");
+
+    //        while (!file.eof())
+    //        {
+    //            char c = file.readChar();
+    //            int i = 0;
+    //        }
+
+    //        LOG( "<<<<< FINAL FILE CONTENTS: >>>>> ", Color::RED);
+    //        String buffer = file.readAll();
+    //        LOG(buffer, Color::RED);
+
+    //        Size size = file.getFileSize();
+    //        LOG( "Size in bytes: " + TS(size) );
+
+    //    }
+    //    else
+    //    {
+    //        LOG( "Creating new file...\n" );
+
+    //        file.write( "TEST" );
+
+    //        String buffer = file.readAll();
+    //        LOG( buffer );
+    //    }
+    //}
 
 
     

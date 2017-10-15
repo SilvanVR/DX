@@ -44,6 +44,9 @@ namespace Core {
         MemoryManagement::MemoryManager*    m_memoryManager;
 
 
+        //----------------------------------------------------------------------
+        void _InitVirtualFilePaths();
+        void _ShutdownVirtualFilePaths();
 
         //----------------------------------------------------------------------
         template <class T>

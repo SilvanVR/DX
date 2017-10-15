@@ -31,20 +31,21 @@ namespace Core { namespace Logging {
     //----------------------------------------------------------------------
     enum ELogLevel
     {
-        LOG_LEVEL_VERY_IMPORTANT    = 0x00,
-        LOG_LEVEL_IMPORTANT         = 0x01,
-        LOG_LEVEL_NOT_SO_IMPORTANT  = 0x02,
-        LOG_LEVEL_NOT_IMPORTANT     = 0x04,
+        LOG_LEVEL_VERY_IMPORTANT    = 0,
+        LOG_LEVEL_IMPORTANT         = 1,
+        LOG_LEVEL_NOT_SO_IMPORTANT  = 2,
+        LOG_LEVEL_NOT_IMPORTANT     = 4,
         LOG_LEVEL_ALL
     };
 
     //----------------------------------------------------------------------
     enum ELogChannel
     {
-        LOG_CHANNEL_DEFAULT      = 0x01,
-        LOG_CHANNEL_MEMORY       = 0x02,
-        LOG_CHANNEL_RENDERING    = 0x04,
-        LOG_CHANNEL_PHYSICS      = 0x08,
+        LOG_CHANNEL_DEFAULT      = 1,
+        LOG_CHANNEL_MEMORY       = 2,
+        LOG_CHANNEL_RENDERING    = 4,
+        LOG_CHANNEL_PHYSICS      = 8,
+        LOG_CHANNEL_TEST         = 16,
         LOG_CHANNEL_ALL          = ~0
     };
 
@@ -237,6 +238,7 @@ namespace Core { namespace Logging {
             case LOG_CHANNEL_MEMORY:     return "[Memory] ";
             case LOG_CHANNEL_RENDERING:  return "[Rendering] ";
             case LOG_CHANNEL_PHYSICS:    return "[Physics] ";
+            case LOG_CHANNEL_TEST:       return "[TEST] ";
             default:
                 return "";
             }

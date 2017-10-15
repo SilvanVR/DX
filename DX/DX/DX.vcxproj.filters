@@ -72,7 +72,7 @@
     <ClCompile Include="src\Core\OS\FileSystem\file_system.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Core\VirtualFileSystem\vfs.cpp">
+    <ClCompile Include="src\Core\VirtualFileSystem\virtual_file_system.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -167,7 +167,7 @@
     <ClInclude Include="src\Core\OS\FileSystem\file.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\VirtualFileSystem\vfs.h">
+    <ClInclude Include="src\Core\VirtualFileSystem\virtual_file_system.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

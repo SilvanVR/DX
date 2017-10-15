@@ -10,6 +10,7 @@
 #include "locator.h"
 #include "Logging/console_logger.h"
 #include "MemoryManagement/memory_manager.h"
+#include "VirtualFileSystem/virtual_file_system.h"
 
 namespace Core
 {
@@ -32,6 +33,7 @@ namespace Core
         LOG( "Initialize Sub-Systems..." );
 
         // Initialize every Sub-System here
+        _InitVirtualFilePaths();
 
         LOG("Initialize Memory-Manager...");
         m_memoryManager = initializeSubSystem( new MemoryManagement::MemoryManager() );
@@ -46,7 +48,7 @@ namespace Core
     {
         LOG( "Shutting down Sub-Systems..." );
 
-        // Shutdown every Sub-System here
+        // Shutdown every Sub-System here in reversed order to above
 
         LOG( "Shutdown MemoryManager..." );
         shutdownSubSystem( m_memoryManager );
@@ -56,5 +58,18 @@ namespace Core
         shutdownSubSystem( m_logger );
     }
 
+    //----------------------------------------------------------------------
+    void SubSystemManager::_InitVirtualFilePaths()
+    {
+        VirtualFileSystem::mount("logs",     "res/logs");
+        VirtualFileSystem::mount("textures", "res/textures");
+        VirtualFileSystem::mount("shaders",  "res/shaders");
+        VirtualFileSystem::mount("models",   "res/models");
+    }
+
+    void SubSystemManager::_ShutdownVirtualFilePaths()
+    {
+        VirtualFileSystem::unmountAll();
+    }
 
 }

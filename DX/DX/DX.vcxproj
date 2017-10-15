@@ -202,7 +202,7 @@
     <ClCompile Include="src\Core\Logging\console_logger.cpp" />
     <ClCompile Include="src\Core\OS\FileSystem\file.cpp" />
     <ClCompile Include="src\Core\OS\FileSystem\file_system.cpp" />
-    <ClCompile Include="src\Core\VirtualFileSystem\vfs.cpp" />
+    <ClCompile Include="src\Core\VirtualFileSystem\virtual_file_system.cpp" />
     <ClCompile Include="src\Core\OS\PlatformTimer\platform_timer.cpp" />
     <ClCompile Include="src\Core\subsystem_manager.cpp" />
     <ClCompile Include="src\main.cpp" />
@@ -241,7 +241,7 @@
     <ClInclude Include="src\Core\Misc\bit_mask.hpp" />
     <ClInclude Include="src\Core\OS\FileSystem\file.h" />
     <ClInclude Include="src\Core\OS\FileSystem\file_system.h" />
-    <ClInclude Include="src\Core\VirtualFileSystem\vfs.h" />
+    <ClInclude Include="src\Core\VirtualFileSystem\virtual_file_system.h" />
     <ClInclude Include="src\Core\subsystem_manager.h" />
     <ClInclude Include="src\Core\i_subsystem.hpp" />
     <ClInclude Include="src\PrecompiledHeaders\data_types.hpp" />
