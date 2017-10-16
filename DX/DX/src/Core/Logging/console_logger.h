@@ -11,7 +11,6 @@
 
 #include "i_logger.hpp"
 #include "Console/console.h"
-
 #include "Core/DataStructures/byte_array.hpp"
 
 namespace Core {  namespace Logging  {
@@ -40,7 +39,6 @@ namespace Core {  namespace Logging  {
 
         virtual void _Warn(ELogChannel channel, const char* msg, ELogLevel ELogLevel) override;
         virtual void _Error(ELogChannel channel, const char* msg, ELogLevel ELogLevel) override;
-
 
     private:
         Console                                 m_console;

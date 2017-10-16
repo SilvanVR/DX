@@ -34,18 +34,18 @@ namespace Core { namespace Logging {
         LOG_LEVEL_VERY_IMPORTANT    = 0,
         LOG_LEVEL_IMPORTANT         = 1,
         LOG_LEVEL_NOT_SO_IMPORTANT  = 2,
-        LOG_LEVEL_NOT_IMPORTANT     = 4,
+        LOG_LEVEL_NOT_IMPORTANT     = 3,
         LOG_LEVEL_ALL
     };
 
     //----------------------------------------------------------------------
     enum ELogChannel
     {
-        LOG_CHANNEL_DEFAULT      = 1,
-        LOG_CHANNEL_MEMORY       = 2,
-        LOG_CHANNEL_RENDERING    = 4,
-        LOG_CHANNEL_PHYSICS      = 8,
-        LOG_CHANNEL_TEST         = 16,
+        LOG_CHANNEL_DEFAULT      = 1 << 0,
+        LOG_CHANNEL_MEMORY       = 1 << 1,
+        LOG_CHANNEL_RENDERING    = 1 << 2,
+        LOG_CHANNEL_PHYSICS      = 1 << 3,
+        LOG_CHANNEL_TEST         = 1 << 4,
         LOG_CHANNEL_ALL          = ~0
     };
 

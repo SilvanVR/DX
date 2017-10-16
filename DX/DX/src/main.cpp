@@ -4,7 +4,7 @@
 #include "Core/MemoryManagement/include.hpp"
 #include "Core/subsystem_manager.h"
 
-#include "Core/OS/VirtualFileSystem/virtual_file_system.h"
+#include "Core/OS/FileSystem/file.h"
 
 using namespace Core;
 
@@ -109,10 +109,17 @@ public:
 //@TODO: 
 // - Profiler
 
-// - FileSystem
-//    -> Configuration-File(s) .ini
+//ConfigFile("path.ini");
+//ConfigFile["General"]["ResolutionX"] = 100;
+//ConfigFile["General"]["ResolutionY"] = 100;
+// <<< produces >>>>
+// [General]
+// ResolutionX = 100
+// ResolutionY = 100
 
+// Reading chars + numbers!
 
+// TODO: Different amount of decimals
 
 int main(void)
 {
@@ -124,29 +131,63 @@ int main(void)
     Core::SubSystemManager gSubSystemManager;
     gSubSystemManager.init();
 
-    //Locator::getLogger().setSaveToDisk( false );
+    Locator::getLogger().setSaveToDisk( false );
 
     {
-        //String path = VirtualFileSystem::resolvePhysicalPath( "/logs/test.txt" );
-        //WARN_TEST( path );
+        OS::File file;
+        file.open( "test.txt", false );
 
-        //const char* test = "Test";
-        //const char* test2 = "Hello World";
+        //Thread& t = file.readAsync( []( String data ) {
+        //    LOG( data );
+        //});
+        // t.wait();
 
-        //arr.write(test);
-        //arr.write('\n');
-        //arr.write(test2);
+        float i = 65.0f;
+        float* p = &i;
 
-        //const char* data = (const char*)arr.data();
+        struct Vertex
+        {
+            float x;
+            float y;
+        };
+        Vertex v{65,66};
 
-        //LOG( data );
-        //arr.clear();
+        if ( file.exists() )
+        {
+            LOG( "File exists!\n" );
 
-        //int i = 52;
-    }
+            file.write("A\n");
+            file.write("B\n");
+            file.write("C\n");
+            file.write("[General]\n");
+            file.write("Value=");
+            file.write(66.0);
+            file.write("\n");
+            file.write(77);
 
-    {
-          //OS::File file("res/logs/log.log");
+            Size fileSize = file.getFileSize();
+            LOG( fileSize );
+
+            while (!file.eof())
+            {
+                U8 nextChar = file.readChar();
+                String c(1, nextChar);
+                LOG( c );
+            }
+
+
+
+        }
+        else
+        {
+            LOG( "Creating new file...\n" );
+
+            file.write( "TEST" );
+
+            //String buffer = file.readAll();
+            //LOG( buffer );
+        }
+
 
     //    if ( file.exists() )
     //    {

@@ -5,20 +5,29 @@
     author: S. Hau
     date: October 13, 2017
 
+    fopen - modes:
+      r - open for reading
+      w - open for writing(file need not exist)
+      a - open for appending(file need not exist)
+      r + -open for reading and writing, start at beginning
+      w + -open for reading and writing(overwrite file)
+      a + -open for reading and writing(append if file exists)
 **********************************************************************/
 
-#include <fstream>
+#include "virtual_file_system.h"
 
 namespace Core { namespace OS {
 
     //----------------------------------------------------------------------
     File::File()
-        : m_filePath(""), m_exists(false), m_file(nullptr), m_readCursorPos(0), m_writeCursorPos(0), m_eof(false)
+        : m_filePath( "" ), m_exists( false ), m_file( nullptr ),
+          m_readCursorPos( 0 ), m_writeCursorPos( 0 ), m_eof( false )
     {}
 
     //----------------------------------------------------------------------
     File::File(const char* path, bool append)
-        : m_filePath(path), m_exists( _FileExists( path ) ), m_file(nullptr), m_readCursorPos(0), m_writeCursorPos(0), m_eof(false)
+        : m_filePath( _GetPhysicalPath( path ) ), m_exists( _FileExists( m_filePath.c_str() ) ),
+          m_file( nullptr ), m_readCursorPos( 0 ), m_writeCursorPos( 0 ), m_eof( false )
     {
         if (m_exists)
         {
@@ -35,12 +44,12 @@ namespace Core { namespace OS {
     //----------------------------------------------------------------------
     bool File::open(const char* path, bool append)
     {
-        m_filePath = path;
-        m_exists = _FileExists(path);
+        m_filePath  = _GetPhysicalPath( path );
+        m_exists    = _FileExists( m_filePath.c_str() );
 
         if (m_exists)
         {
-            _OpenFile(append);
+            _OpenFile( append );
             return true;
         }
 
@@ -48,64 +57,80 @@ namespace Core { namespace OS {
     }
 
     //----------------------------------------------------------------------
-    char File::readChar()
+    void File::close()
+    {
+        if (m_exists)
+        {
+            _CloseFile();
+            m_filePath.clear();
+            m_exists = m_eof = false;
+            m_readCursorPos = m_writeCursorPos = 0;
+        }
+    }
+
+    //----------------------------------------------------------------------
+    unsigned char File::readChar()
     {
         ASSERT( m_exists && !eof() && "File does not exist or read-cursor is at the end!" );
 
-        m_file->seekg( m_readCursorPos );
+        int c = fgetc( m_file );
 
-        char c = m_file->get();
-
-        m_readCursorPos = m_file->tellg();
-
-        _CheckEOF();
+        if (c == EOF)
+        {
+            m_eof = true;
+        }
 
         return c;
     }
 
     //----------------------------------------------------------------------
-    String File::readLine()
-    {
-        ASSERT( m_exists && !eof() && "File does not exist or read-cursor is at the end!" );
+    //String File::readLine()
+    //{
+    //    ASSERT( m_exists && !eof() && "File does not exist or read-cursor is at the end!" );
 
-        m_file->seekg( m_readCursorPos );
+    //    m_file->seekg( m_readCursorPos );
 
-        String line;
-        std::getline( (*m_file), line);
+    //    String line;
+    //    std::getline( (*m_file), line);
 
-        m_readCursorPos = m_file->tellg();
+    //    m_readCursorPos = m_file->tellg();
 
-        _CheckEOF();
+    //    _CheckEOF();
 
-        return line;
-    }
+    //    return line;
+    //}
 
     //----------------------------------------------------------------------
-    String File::readAll() const
-    {
-        ASSERT( m_exists );
+    //String File::readAll() const
+    //{
+    //    ASSERT( m_exists );
 
-        const Size fileSize = getFileSize();
+    //    const Size fileSize = getFileSize();
 
-        if (fileSize == 0)
-            return ""; // Nothing to read, file is empty
+    //    if (fileSize == 0)
+    //        return ""; // Nothing to read, file is empty
 
-        // Create buffer and read data into it
-        char* buffer = new char[fileSize + 1];
-        buffer[fileSize] = '\0';
+    //    // Create buffer and read data into it
+    //    char* buffer = new char[fileSize + 1];
+    //    buffer[fileSize] = '\0';
 
-        // Move to beginning and read all bytes
-        m_file->seekg( 0, std::ios::beg );
-        m_file->read( buffer, fileSize );
+    //    // Move to beginning and read all bytes
+    //    m_file->seekg( 0, std::ios::beg );
+    //    m_file->read( buffer, fileSize );
 
-        // Clear eof-bit
-        m_file->clear();
+    //    // Clear eof-bit
+    //    m_file->clear();
 
-        String str( buffer );
-        delete[] buffer;
+    //    String str( buffer );
+    //    delete[] buffer;
 
-        return str;
-    }
+    //    return str;
+    //}
+
+#define WRITE_FUNC(type) void File::write(type data) \
+    { \
+        if (not m_exists) \
+            _CreateFile(); \
 
     //----------------------------------------------------------------------
     void File::write(const char* data)
@@ -113,30 +138,35 @@ namespace Core { namespace OS {
         if (not m_exists)
             _CreateFile();
 
-        // not at end anymore
-        if ( m_writeCursorPos == m_readCursorPos )
-            m_eof = false;
+        fwrite( data, sizeof( char ), strlen( data ), m_file );
+    }
 
-        // write data to file
-        m_file->seekg( m_writeCursorPos );
-        (*m_file) << data;
-        m_writeCursorPos = m_file->tellg();
+    WRITE_FUNC(int)
+        fprintf( m_file, "%d", data );
+    }
+
+    WRITE_FUNC(float)
+        fprintf( m_file, "%f", data );
+    }
+
+    WRITE_FUNC(double)
+        fprintf( m_file, "%f", data );
     }
 
     //----------------------------------------------------------------------
-    void File::append(const char* data)
-    {
-        if (not m_exists)
-            _CreateFile();
+    //void File::append(const char* data)
+    //{
+    //    if (not m_exists)
+    //        _CreateFile();
 
-        // not at end anymore
-        if (m_writeCursorPos == m_readCursorPos)
-            m_eof = false;
+    //    // not at end anymore
+    //    if (m_writeCursorPos == m_readCursorPos)
+    //        m_eof = false;
 
-        // append data to the end
-        m_file->seekg( 0, std::ios::end );
-        (*m_file) << data;
-    }
+    //    // append data to the end
+    //    m_file->seekg( 0, std::ios::end );
+    //    (*m_file) << data;
+    //}
 
     //----------------------------------------------------------------------
     void File::clear()
@@ -152,7 +182,7 @@ namespace Core { namespace OS {
             return;
 
         _CloseFile();
-        std::remove( m_filePath );
+        std::remove( m_filePath.c_str() );
         m_exists = false;
     }
 
@@ -161,9 +191,11 @@ namespace Core { namespace OS {
     {
         ASSERT( m_exists && "File does not exist" );
 
-        m_file->seekg( 0, std::ios::end );
-        auto length = m_file->tellg();
-        ASSERT( length >= 0 );
+        fseek( m_file, 0L, SEEK_END );
+        long length = ftell( m_file );
+
+        // SEEK TO OLD POS?
+        fseek( m_file, 0L, SEEK_SET );
 
         return length;
     }
@@ -171,35 +203,30 @@ namespace Core { namespace OS {
     //----------------------------------------------------------------------
     String File::getExtension() const
     {
-        String filePath( m_filePath );
-
-        Size dotPosition = (filePath.find_last_of(".") + 1);
-        return filePath.substr( dotPosition, (filePath.size() - dotPosition) );
+        Size dotPosition = ( m_filePath.find_last_of( "." ) + 1 );
+        return m_filePath.substr( dotPosition, ( m_filePath.size() - dotPosition ) );
     }
 
     //----------------------------------------------------------------------
     String File::getDirectoryPath() const
     {
-        String filePath( m_filePath );
-        return filePath.substr( 0, filePath.find_last_of( "/\\" ) ) + "/";
+        return m_filePath.substr( 0, m_filePath.find_last_of( "/\\" ) ) + "/";
     }
 
     //----------------------------------------------------------------------
-    bool File::_FileExists( const char* path )
+    bool File::_FileExists(const char* filePath)
     {
         struct stat buffer;
-        return ( stat( path, &buffer ) == 0 );
+        return ( stat( filePath, &buffer ) == 0 );
     }
 
     //----------------------------------------------------------------------
     void File::_OpenFile( bool append )
     {
-        auto flags = (std::fstream::in | std::fstream::out);
-
         if (append)
-            flags |= std::fstream::app;
-
-        m_file = new std::fstream( m_filePath, flags );
+            m_file = fopen( m_filePath.c_str(), "a+" );
+        else
+            m_file = fopen( m_filePath.c_str(), "w+" );
 
         _CheckEOF();
     }
@@ -207,9 +234,10 @@ namespace Core { namespace OS {
     //----------------------------------------------------------------------
     void File::_CloseFile()
     {
-        if (m_file != nullptr)
+        if ( m_file != nullptr )
         {
-            delete m_file;
+            int err = fclose( m_file );
+            ASSERT( err == 0 );
             m_file = nullptr;
         }
     }
@@ -217,34 +245,23 @@ namespace Core { namespace OS {
     //----------------------------------------------------------------------
     void File::_CreateFile()
     {
-        auto flags = (std::fstream::in | std::fstream::out | std::fstream::trunc);
-        m_file = new std::fstream( m_filePath, flags );
+        // create file with appropriate flags
+        m_file = fopen( m_filePath.c_str(), "w+" );
+        ASSERT( m_file != NULL );
 
-        if (m_file->is_open())
-        {
-            m_exists = true;
-            m_eof = true;
-        }
-        else
-        {
-            ASSERT( false && "Could not create a file. Maybe the directory does not exist?" );
-        }
+        m_exists = true;
     }
 
     //----------------------------------------------------------------------
     void File::_CheckEOF()
     {
-        // Handle eof manually
-        // Why do i handle it manually?
-        // Because seekg() + tellg() does not return proper results
-        // when the eof bit is set in the fstream. But for reading
-        // the contents or calculating the size of the file, those
-        // functions are needed.
-        char eofCheck = m_file->peek();
-        m_eof = m_file->eof();
 
-        // clear eof-bit from file
-        m_file->clear();
+    }
+
+    //----------------------------------------------------------------------
+    String File::_GetPhysicalPath(const char* vpath)
+    {
+        return VirtualFileSystem::resolvePhysicalPath( vpath );
     }
 
 

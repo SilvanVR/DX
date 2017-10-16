@@ -5,13 +5,15 @@
 
     author: S. Hau
     date: October 10, 2017
+
+    @Considerations:
+      - Class which holds the message buffer and writes automatically
+        to file when buffer is full.
 **********************************************************************/
 
 #include "Utils/utils.h"
 #include "Core/OS/PlatformTimer/platform_timer.h"
 
-#include "Core/OS/FileSystem/file.h"
-#include <fstream>
 
 namespace Core { namespace Logging {
 
@@ -21,10 +23,10 @@ namespace Core { namespace Logging {
     //----------------------------------------------------------------------
     void ConsoleLogger::init()
     {
-        // @ TODO: Virtual-Path Resolve
-        s_logFilePath = "res/logs/" + OS::PlatformTimer::getCurrentTime().toString() + ".log";
+        // Guaranteed unique filename per run
+        s_logFilePath = "/logs/" + OS::PlatformTimer::getCurrentTime().toString() + ".log";
 
-        // Windows does not allow ":" characters in a filename
+        // Replace ":" characters (Windows does not allow those in a filename)
         std::replace( s_logFilePath.begin(), s_logFilePath.end(), ':', '_' );
     }
 

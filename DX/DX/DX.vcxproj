@@ -207,8 +207,7 @@
     <ClCompile Include="src\Core\Logging\Console\console_win.cpp" />
     <ClCompile Include="src\Core\Logging\console_logger.cpp" />
     <ClCompile Include="src\Core\OS\FileSystem\file.cpp" />
-    <ClCompile Include="src\Core\OS\FileSystem\file_system.cpp" />
-    <ClCompile Include="src\Core\OS\VirtualFileSystem\virtual_file_system.cpp" />
+    <ClCompile Include="src\Core\OS\FileSystem\virtual_file_system.cpp" />
     <ClCompile Include="src\Core\OS\PlatformTimer\platform_timer.cpp" />
     <ClCompile Include="src\Core\subsystem_manager.cpp" />
     <ClCompile Include="src\main.cpp" />
@@ -228,9 +227,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\commenting_style.hpp" />
-    <ClInclude Include="src\Core\DataStructures\array_buffer.hpp" />
     <ClInclude Include="src\Core\DataStructures\byte_array.hpp" />
-    <ClInclude Include="src\Core\DataStructures\ring_buffer.hpp" />
     <ClInclude Include="src\Core\locator.h" />
     <ClInclude Include="src\Core\Logging\null_logger.hpp" />
     <ClInclude Include="src\Core\Logging\i_logger.hpp" />
@@ -249,8 +246,7 @@
     <ClInclude Include="src\Core\MemoryManagement\memory_structs.h" />
     <ClInclude Include="src\Core\Misc\bit_mask.hpp" />
     <ClInclude Include="src\Core\OS\FileSystem\file.h" />
-    <ClInclude Include="src\Core\OS\FileSystem\file_system.h" />
-    <ClInclude Include="src\Core\OS\VirtualFileSystem\virtual_file_system.h" />
+    <ClInclude Include="src\Core\OS\FileSystem\virtual_file_system.h" />
     <ClInclude Include="src\Core\subsystem_manager.h" />
     <ClInclude Include="src\Core\i_subsystem.hpp" />
     <ClInclude Include="src\PrecompiledHeaders\data_types.hpp" />

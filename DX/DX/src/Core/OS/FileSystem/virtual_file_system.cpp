@@ -1,15 +1,11 @@
 #include "virtual_file_system.h"
 /**********************************************************************
-    class: VFS (virtual_file_system.cpp)
+    class: VirtualFileSystem (virtual_file_system.cpp)
 
     author: S. Hau
     date: October 13, 2017
 
-    See below for a class description.
-
 **********************************************************************/
-
-#include "Core/locator.h"
 
 namespace Core { namespace OS {
 
@@ -22,7 +18,6 @@ namespace Core { namespace OS {
         if ( mountPoints.count( name ) != 0 && !overrideOldOne ) 
             return;
 
-        LOG( "Mount virtual-path '" + name + "' to '" + String( path ) + "'", Logging::LOG_LEVEL_NOT_IMPORTANT );
         mountPoints[name] = path;
     }
 
