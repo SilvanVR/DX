@@ -70,19 +70,20 @@ namespace Core { namespace OS {
         {
             _READ_FUNC_BEGIN();
             int numMatches = fscanf( m_file, str, args... );
-            const int numArguments = sizeof...(Args);
-            ASSERT( (numMatches == numArguments) && "Scanf could not read valid data for every argument!" );
+            ASSERT( ( numMatches == sizeof...(Args) ) && "Scanf could not read valid data for every argument!" );
             _READ_FUNC_END();
         }
-        I8  nextI8()    { I8 val;  read("%c",   &val); return val; }
-        U8  nextU8()    { U8 val;  read("%c",   &val); return val; }
-        I32 nextI32()   { I32 val; read("%d",   &val); return val; }
-        U32 nextU32()   { U32 val; read("%u",   &val); return val; }
-        I64 nextI64()   { I64 val; read("%lld", &val); return val; }
-        U64 nextU64()   { U64 val; read("%llu", &val); return val; }
-        F32 nextF32()   { F32 val; read("%f",   &val); return val; }
-        F64 nextF64()   { F64 val; read("%lf",  &val); return val; }
-        I8  nextChar()  { return nextI8(); }
+        I8   nextI8()   { I8 val;   read("%hhd", &val); return val; }
+        U8   nextU8()   { U8 val;   read("%hhu", &val); return val; }
+        I16  nextI16()  { I16 val;  read("%hd",  &val); return val; }
+        U16  nextU16()  { U16 val;  read("%hu",  &val); return val; }
+        I32  nextI32()  { I32 val;  read("%d",   &val); return val; }
+        U32  nextU32()  { U32 val;  read("%u",   &val); return val; }
+        I64  nextI64()  { I64 val;  read("%lld", &val); return val; }
+        U64  nextU64()  { U64 val;  read("%llu", &val); return val; }
+        F32  nextF32()  { F32 val;  read("%f",   &val); return val; }
+        F64  nextF64()  { F64 val;  read("%lf",  &val); return val; }
+        char nextChar() { char val; read("%c",   &val); return val; }
 
         //----------------------------------------------------------------------
         // @Return:
@@ -114,9 +115,13 @@ namespace Core { namespace OS {
             fprintf( m_file, str, args... );
             _WRITE_FUNC_END();
         }
-        void write(const char* data)                 { write( "%s", data ); }
-        void write(I32 data)                         { write( "%d", data ); }
-        void write(U32 data)                         { write( "%u", data ); }
+        void write(const char* data)                 { write( "%s",   data ); }
+        void write(I8 data)                          { write( "%hhd", data ); }
+        void write(U8 data)                          { write( "%hhu", data ); }
+        void write(I16 data)                         { write( "%hd",  data ); }
+        void write(U16 data)                         { write( "%hu",  data ); }
+        void write(I32 data)                         { write( "%d",   data ); }
+        void write(U32 data)                         { write( "%u",   data ); }
         void write(I64 data)                         { write( "%lld", data ); }
         void write(U64 data)                         { write( "%llu", data ); }
         void write(F32 data, Byte fractionWidth = 6) { write( String( "%." + TS( fractionWidth ) + "f" ).c_str(), data ); }

@@ -117,9 +117,11 @@ public:
 // ResolutionX = 100
 // ResolutionY = 100
 
+// Binary-File!!!
+
 // Read until specific character has been reached
 // jump to line
-// different modes
+// --> make config file
 
 int main(void)
 {
@@ -149,21 +151,8 @@ int main(void)
 
             file.clear();
 
-            file.write(152);
-            file.write(" ");
-            file.write(3.14f);
-            file.write(" ");
-            file.write(17.14353);
-
-            U32 n1 = file.nextU32();
-            F32 n2 = file.nextF32();
-            F64 n3 = file.nextF64();
-
-            if (!file.eof())
-            {
-                F64 n4 = file.nextChar();
-
-            }
+            file.write("G");
+            auto n1 = file.nextChar();
 
             //file.write("%s= %d\n", "Value", 42);
             //file.write("%s= %d\n", "Value2", 13);
