@@ -94,7 +94,7 @@ namespace Core { namespace Logging {
         // Change the Log-Level. Only messages with Log-Level <= Current-Level
         // will be displayed (and stored).
         //----------------------------------------------------------------------
-        void setELogLevel(ELogLevel newLogLevel) { m_logLevel = newLogLevel; }
+        void setLogLevel(ELogLevel newLogLevel) { m_logLevel = newLogLevel; }
 
     private:
         //----------------------------------------------------------------------

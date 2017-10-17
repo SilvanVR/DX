@@ -54,7 +54,9 @@ namespace Core { namespace MemoryManagement {
         static void log();
 
     private:
+#ifndef STATIC_LIB
         static MemoryTracker        s_memoryLeakDetectionInstance;
+#endif
         static AllocationMemoryInfo s_memoryInfo;
 
         // Check for a memory leak. Halt the program if one detected.

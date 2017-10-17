@@ -72,13 +72,19 @@ namespace Core { namespace MemoryManagement {
     }
 
     //----------------------------------------------------------------------
+#ifndef STATIC_LIB
     MemoryTracker MemoryTracker::s_memoryLeakDetectionInstance;
+#endif
 
     void MemoryTracker::_CheckForMemoryLeak()
     {
 #ifdef _WIN32
-        if( s_memoryInfo.currentBytesAllocated != 0 )
+        if (s_memoryInfo.currentBytesAllocated != 0)
+        {
+            printf("Current bytes allocated: %lld \n", s_memoryInfo.currentBytesAllocated);
+            printf("Num allocations left: %lld", s_memoryInfo.totalAllocations - s_memoryInfo.totalDeallocations);
             __debugbreak();
+        }
 #elif
         ASSERT( false && "Memory Leak detected somewhere");
 

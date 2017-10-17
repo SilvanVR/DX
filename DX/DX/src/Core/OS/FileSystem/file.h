@@ -142,9 +142,13 @@ namespace Core { namespace OS {
             fprintf( m_file, str, args... );
             _APPEND_FUNC_END();
         }
-        void append(const char* data)                   { append( "%s", data ); }
-        void append(I32 data)                           { append( "%d", data ); }
-        void append(U32 data)                           { append( "%u", data ); }
+        void append(const char* data)                   { append( "%s",   data ); }
+        void append(I8 data)                            { append( "%hhd", data ); }
+        void append(U8 data)                            { append( "%hhu", data ); }
+        void append(I16 data)                           { append( "%hd",  data ); }
+        void append(U16 data)                           { append( "%hu",  data ); }
+        void append(I32 data)                           { append( "%d",   data ); }
+        void append(U32 data)                           { append( "%u",   data ); }
         void append(I64 data)                           { append( "%lld", data ); }
         void append(U64 data)                           { append( "%llu", data ); }
         void append(F32 data, Byte fractionWidth = 6)   { append( String( "%." + TS( fractionWidth ) + "f" ).c_str(), data ); }
@@ -233,7 +237,7 @@ namespace Core { namespace OS {
 
     //----------------------------------------------------------------------
 
-    //using TextFile   = File<true>;
+    using TextFile = File;
     //using BinaryFile = File<false>;
 
 } }

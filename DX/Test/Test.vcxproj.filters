@@ -29,5 +29,8 @@
     <ClInclude Include="Includes.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="FileStuff.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

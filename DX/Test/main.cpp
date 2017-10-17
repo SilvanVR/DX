@@ -6,16 +6,22 @@
 #include "Includes.hpp"
 #include "TestClasses.hpp"
 #include "MemoryManagement.hpp"
+#include "FileStuff.hpp"
 
 
 int main()
 {
+    SubSystemManager subSystemManager;
+    subSystemManager.init();
+    Locator::getLogger().setSaveToDisk(false);
 
-    TestMemoryManagement();
+    {
+        //TestMemoryManagement();
+        TestFileStuff();
+    }
 
 
-
-
+    subSystemManager.shutdown();
     system("pause");
     return 0;
 }
