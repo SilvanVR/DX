@@ -117,9 +117,8 @@ public:
 // ResolutionX = 100
 // ResolutionY = 100
 
-// Reading chars + numbers!
-
-// TODO: Different amount of decimals
+// Read until specific character has been reached
+// jump to line
 
 int main(void)
 {
@@ -132,9 +131,9 @@ int main(void)
     gSubSystemManager.init();
 
     Locator::getLogger().setSaveToDisk( false );
-
     {
         OS::File file;
+
         file.open( "test.txt", false );
 
         //Thread& t = file.readAsync( []( String data ) {
@@ -146,24 +145,30 @@ int main(void)
         {
             LOG( "File exists!\n" );
 
-            file.write("A\n");
-            file.write("B\n");
-            file.write("C\n");
+            file.clear();
 
+            file.write(3.14f);
+            file.write("\n");
+            file.write(3.14);
+
+            //file.write("A\n");
             //file.write("B\n");
             //file.write("C\n");
             //file.write("[General]\n");
             //file.write("Value=");
-            //file.write(66.0);
-            //file.write("\n");
-            //file.write(77);
+            //file.write(66);
+
+            //file.seekWriteCursor(0);
+            //file.append("Z");
+
+            String fileContents = file.readAll();
+            LOG(fileContents);
 
             //while (!file.eof())
             //{
             //    String line = file.readLine();
             //    LOG(line);
             //}
-            //String line = file.readLine();
 
             Size fileSize = file.getFileSize();
             LOG( "Bytes: " + TS(fileSize) );
@@ -174,19 +179,12 @@ int main(void)
                 LOG( c );
             }*/
 
-            String fileContents = file.readAll();
-            LOG( fileContents );
-
-
         }
         else
         {
             LOG( "Creating new file...\n" );
 
-            file.write( "TEST" );
-
-            //String buffer = file.readAll();
-            //LOG( buffer );
+            file.write("");
         }
 
 

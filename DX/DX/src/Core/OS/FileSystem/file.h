@@ -60,19 +60,19 @@ namespace Core { namespace OS {
 
         //----------------------------------------------------------------------
         // @Return:
-        //  A single character from the file. Check if end is reached with "eof()"
+        //  A single character from the file. Check if end is reached with "eof()".
         //----------------------------------------------------------------------
         unsigned char readChar();
 
         //----------------------------------------------------------------------
         // @Return:
-        //  A single line from the file. Check if end is reached with "eof()"
+        //  A single line from the file. Check if end is reached with "eof()".
         //----------------------------------------------------------------------
         String readLine();
 
         //----------------------------------------------------------------------
         // @Return:
-        //  The content of the whole file as a string. 
+        //  The content of the whole file as a string.
         //  Independent of the read / write cursor.
         //  Dynamically allocates the buffer.
         //----------------------------------------------------------------------
@@ -82,11 +82,12 @@ namespace Core { namespace OS {
         // Write the given data into the file. If the file does not exist, it
         // will be created.
         // @Params:
-        //  The data which should be written to the file.
+        //  "data": The data which should be written to the file.
+        //  "fractionWidth": Only for floating point numbers. Amount of numbers
+        //                   written after the dot.
         //----------------------------------------------------------------------
         void write(const char* data);
-        void write(float data);
-        void write(double data);
+        void write(double data, Byte fractionWidth = 6);
         void write(int data);
 
         //----------------------------------------------------------------------
@@ -97,9 +98,11 @@ namespace Core { namespace OS {
         //  The data which should be written to the end of the file.
         //----------------------------------------------------------------------
         void append(const char* data);
+        void append(double data);
+        void append(int data);
 
         //----------------------------------------------------------------------
-        // Clears the whole file.
+        // Clears the whole file and resets both read + write cursor pos.
         //----------------------------------------------------------------------
         void clear();
 
@@ -116,14 +119,14 @@ namespace Core { namespace OS {
 
         //----------------------------------------------------------------------
         // @Return:
-        //  The directory path from the file-path. 
+        //  The directory path from the file-path.
         //  Example: "dir/test.png" => "dir/"
         //----------------------------------------------------------------------
         String getDirectoryPath() const;
 
         //----------------------------------------------------------------------
         // @Return:
-        //  Whether the read cursor is at the end of file
+        //  Whether the read cursor is at the end of file.
         //----------------------------------------------------------------------
         bool eof() const { return m_eof; }
 
@@ -131,23 +134,22 @@ namespace Core { namespace OS {
         // @Params:
         //  "pos": New position of the read cursor. 0 = Beginning of file.
         //----------------------------------------------------------------------
-        void setReadCursor(long pos) { m_readCursorPos = pos; m_eof = false; }
+        void seekReadCursor(long pos) { m_readCursorPos = pos; m_eof = false; }
 
         //----------------------------------------------------------------------
         // @Params:
         //  "pos": New position of the write cursor. 0 = Beginning of file.
+        // Be careful about overwriting subsequent bytes or newlines.
         //----------------------------------------------------------------------
-        void setWriteCursor(long pos) { m_writeCursorPos = pos; }
-
-
-        // Get FileTime
-
+        void seekWriteCursor(long pos) { m_writeCursorPos = pos; }
 
         //----------------------------------------------------------------------
-        const String& getFilePath() const { return m_filePath; }
+        const String&   getFilePath() const { return m_filePath; }
+        long            tellWriteCursor() const { return m_writeCursorPos; }
+        long            tellReadCursor() const { return m_readCursorPos; }
 
-        File& operator << (const char* data) { write(data); return (*this); }
-        File& operator >> (String& buff) { buff = readAll();  return (*this); }
+        template <class T> File& operator << (T data) { write( data ); return (*this); }
+        template <class T> File& operator >> (T& buff) { buff = readAll(); return (*this); }
 
     private:
         String  m_filePath;
@@ -158,14 +160,14 @@ namespace Core { namespace OS {
         bool    m_eof;
 
         //----------------------------------------------------------------------
-        bool    _FileExists(const char* filePath);
-        void    _OpenFile(bool append = false);
-        void    _CloseFile();
-        void    _CreateFile();
-        void    _CheckEOF();
-        String  _GetPhysicalPath(const char* vpath);
-
-        String _NextLine();
+        bool        _FileExists(const char* filePath);
+        bool        _OpenFile(bool append = false);
+        void        _CloseFile();
+        void        _CreateFile();
+        void        _PeekNextCharAndSetEOF();
+        String      _GetPhysicalPath(const char* vpath);
+        String      _NextLine();
+        inline void _File_Seek(long pos) const;
     };
 
     //----------------------------------------------------------------------
