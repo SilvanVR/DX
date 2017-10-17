@@ -11,9 +11,8 @@
         to file when buffer is full.
 **********************************************************************/
 
-#include "Utils/utils.h"
 #include "Core/OS/PlatformTimer/platform_timer.h"
-
+#include "Core/OS/FileSystem/file.h"
 
 namespace Core { namespace Logging {
 
@@ -38,7 +37,6 @@ namespace Core { namespace Logging {
         {
             _DumpToDisk();
         }
-        m_messageBuffer.clear();
     }
 
     //----------------------------------------------------------------------
@@ -86,44 +84,6 @@ namespace Core { namespace Logging {
     }
 
     //----------------------------------------------------------------------
-    void ConsoleLogger::_DumpToDisk()
-    {
-        //@TODO Virtual Path!!
-        //OS::File logFile( s_logFilePath.c_str(), true );
-        /*for (auto& message : m_messageBuffer)
-        {
-            const char* preface = _GetchannelAsString( message.channel );
-            if (preface != "")
-                logFile.write( preface );
-
-            logFile.write( message.message.c_str() );
-            logFile.write( "\n" );
-        }*/
-
-        //std::ofstream logFile( s_logFilePath, std::ios::out | std::ios::app );
-        //for (auto& message : m_messageBuffer)
-        //{
-        //    const char* preface = _GetchannelAsString(message.channel);
-        //    if (preface != "")
-        //        logFile << preface;
-
-        //    logFile << message.message;
-        //    logFile << "\n";
-        //}
-
-        if (m_dumpToDisk)
-        {
-            FILE* f;
-            f = fopen( s_logFilePath.c_str(), "a" );
-            fwrite(m_messageBuffer.data(), sizeof(Byte), m_messageBuffer.size(), f);
-            //fflush(f);
-            fclose(f);
-        }
-
-        m_messageBuffer.clear();
-    }
-
-    //----------------------------------------------------------------------
     void ConsoleLogger::_StoreLogMessage( ELogChannel channel, const char* msg, ELogLevel logLevel )
     {
         // Write stuff to the message-buffer. Always flush before if necessary.
@@ -147,6 +107,17 @@ namespace Core { namespace Logging {
             _DumpToDisk();
 
         m_messageBuffer.write( msg );
+    }
+
+    //----------------------------------------------------------------------
+    void ConsoleLogger::_DumpToDisk()
+    {
+        static OS::File logFile( s_logFilePath.c_str() );
+
+        logFile.write( m_messageBuffer.data(), m_messageBuffer.size() );
+        logFile.flush();
+
+        m_messageBuffer.clear();
     }
 
 } }

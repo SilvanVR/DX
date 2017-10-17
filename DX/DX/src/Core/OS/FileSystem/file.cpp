@@ -124,7 +124,7 @@ namespace Core { namespace OS {
 
     // No templates, because i do not want to have a generic write() - function
 
-#define WRITE_FUNC_BEGIN(type) void File::write(type data) \
+#define WRITE_FUNC_BEGIN \
     { \
         if (not m_exists) \
             _CreateFile(); \
@@ -136,29 +136,31 @@ namespace Core { namespace OS {
             m_eof = false; \
     } \
 
-    WRITE_FUNC_BEGIN(const char*)
-        fwrite( data, sizeof( char ), strlen( data ), m_file );
-    WRITE_FUNC_END
+    void File::write( const char* data )
+        WRITE_FUNC_BEGIN
+            fwrite( data, sizeof( char ), strlen( data ), m_file );
+        WRITE_FUNC_END
 
-    WRITE_FUNC_BEGIN(int)
-        fprintf( m_file, "%d", data );
-    WRITE_FUNC_END
+    void File::write( int data )
+        WRITE_FUNC_BEGIN
+            fprintf( m_file, "%d", data );
+        WRITE_FUNC_END
 
-    void File::write(double data, Byte amountOfFraction)
-    {
-        if (not m_exists)
-            _CreateFile();
+    void File::write( double data, Byte amountOfFraction )
+        WRITE_FUNC_BEGIN
+            String format = "%." + TS(amountOfFraction) + "f";
+            fprintf( m_file, format.c_str(), data );
+        WRITE_FUNC_END
 
-        _File_Seek(m_writeCursorPos);
-
-        String format = "%." + TS(amountOfFraction) + "f";
-        fprintf( m_file, format.c_str(), data );
-    WRITE_FUNC_END
+    void File::write( const Byte* data, Size amountOfBytes )
+        WRITE_FUNC_BEGIN
+            fwrite( data, sizeof(Byte), amountOfBytes, m_file );
+        WRITE_FUNC_END
 
     //**********************************************************************
     // APPEND
     //**********************************************************************
-    #define APPEND_FUNC_BEGIN(type) void File::append(type data) \
+    #define APPEND_FUNC_BEGIN \
         { \
             if (not m_exists) \
                 _CreateFile(); \
@@ -168,17 +170,26 @@ namespace Core { namespace OS {
             m_eof = false; \
         } \
 
-    APPEND_FUNC_BEGIN(const char*)
-        fwrite(data, sizeof(char), strlen(data), m_file);
-    APPEND_FUNC_END
+    void File::append( const char* data )
+        APPEND_FUNC_BEGIN
+            fwrite( data, sizeof(char), strlen( data ), m_file );
+        APPEND_FUNC_END
 
-    APPEND_FUNC_BEGIN(int)
-        fprintf(m_file, "%d", data);
-    APPEND_FUNC_END
+    void File::append( int data )
+        APPEND_FUNC_BEGIN
+            fprintf( m_file, "%d", data );
+        APPEND_FUNC_END
 
-    APPEND_FUNC_BEGIN(double)
-        fprintf(m_file, "%f", data);
-    APPEND_FUNC_END
+    void File::append( double data, Byte amountOfFraction )
+        APPEND_FUNC_BEGIN
+            String format = "%." + TS( amountOfFraction ) + "f";
+            fprintf( m_file, "%f", data );
+        APPEND_FUNC_END
+
+    void File::append(const Byte* data, Size amountOfBytes)
+        APPEND_FUNC_BEGIN
+            fwrite( data, sizeof(Byte), amountOfBytes, m_file );
+        APPEND_FUNC_END
 
     //----------------------------------------------------------------------
     void File::clear()
@@ -232,9 +243,15 @@ namespace Core { namespace OS {
     bool File::_OpenFile( bool append )
     {
         if (append)
+        {
             m_file = fopen( m_filePath.c_str(), "a+" );
+            if ( m_file != nullptr )
+                m_writeCursorPos = ftell( m_file );
+        }
         else
+        {
             m_file = fopen( m_filePath.c_str(), "w+" );
+        }
 
         _PeekNextCharAndSetEOF();
 

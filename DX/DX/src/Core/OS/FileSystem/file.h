@@ -74,7 +74,7 @@ namespace Core { namespace OS {
         // @Return:
         //  The content of the whole file as a string.
         //  Independent of the read / write cursor.
-        //  Dynamically allocates the buffer.
+        //  Dynamically allocates the buffer for the content.
         //----------------------------------------------------------------------
         String readAll() const;
 
@@ -85,9 +85,11 @@ namespace Core { namespace OS {
         //  "data": The data which should be written to the file.
         //  "fractionWidth": Only for floating point numbers. Amount of numbers
         //                   written after the dot.
+        //  "amountOfBytes": Amount of bytes to write.
         //----------------------------------------------------------------------
-        void write(const char* data);
+        void write(const Byte* data, Size amountOfBytes);
         void write(double data, Byte fractionWidth = 6);
+        void write(const char* data);
         void write(int data);
 
         //----------------------------------------------------------------------
@@ -95,10 +97,11 @@ namespace Core { namespace OS {
         // the write cursor. It simply adds the contents to the end.
         // If the file does not exist, it will be created.
         // @Params:
-        //  The data which should be written to the end of the file.
+        //  See write function for param explanation.
         //----------------------------------------------------------------------
+        void append(const Byte* data, Size amountOfBytes);
+        void append(double data, Byte fractionWidth = 6);
         void append(const char* data);
-        void append(double data);
         void append(int data);
 
         //----------------------------------------------------------------------
@@ -144,9 +147,10 @@ namespace Core { namespace OS {
         void seekWriteCursor(long pos) { m_writeCursorPos = pos; }
 
         //----------------------------------------------------------------------
-        const String&   getFilePath() const { return m_filePath; }
-        long            tellWriteCursor() const { return m_writeCursorPos; }
-        long            tellReadCursor() const { return m_readCursorPos; }
+        const String&   getFilePath()       const { return m_filePath; }
+        long            tellWriteCursor()   const { return m_writeCursorPos; }
+        long            tellReadCursor()    const { return m_readCursorPos; }
+        void            flush()             const { fflush( m_file ); }
 
         template <class T> File& operator << (T data) { write( data ); return (*this); }
         template <class T> File& operator >> (T& buff) { buff = readAll(); return (*this); }

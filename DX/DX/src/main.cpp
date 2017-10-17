@@ -119,6 +119,7 @@ public:
 
 // Read until specific character has been reached
 // jump to line
+// different modes
 
 int main(void)
 {
@@ -131,6 +132,7 @@ int main(void)
     gSubSystemManager.init();
 
     Locator::getLogger().setSaveToDisk( false );
+
     {
         OS::File file;
 
