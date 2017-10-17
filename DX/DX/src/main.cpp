@@ -149,17 +149,36 @@ int main(void)
 
             file.clear();
 
-            file.write("a     ");
+            file.write(152);
+            file.write(" ");
             file.write(3.14f);
-            file.write("\n");
-            file.write(3.14);
-            file.write("\n");
+            file.write(" ");
+            file.write(17.14353);
 
-            file.write("%s=%d", "Value", 42);
+            U32 n1 = file.nextU32();
+            F32 n2 = file.nextF32();
+            F64 n3 = file.nextF64();
 
-            file.setReadCursor(2);
-            double num = file.nextDouble();
-            LOG( TS(num) );
+            if (!file.eof())
+            {
+                F64 n4 = file.nextChar();
+
+            }
+
+            //file.write("%s= %d\n", "Value", 42);
+            //file.write("%s= %d\n", "Value2", 13);
+
+            //char str[10];
+            //int number;
+            //file.read("%s %d", str, &number);
+
+            //char str2[10];
+            //int number2;
+            //file.read("%s %d", str2, &number2);
+
+            //file.setReadCursor(2);
+            //double num = file.nextDouble();
+            //LOG( TS(num) );
 
             //file.write("A\n");
             //file.write("B\n");

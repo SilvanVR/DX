@@ -59,12 +59,30 @@ namespace Core { namespace OS {
         Size getFileSize() const;
 
         //----------------------------------------------------------------------
-        // @Return:
-        //  A single character from the file. Check if end is reached with "eof()".
+        // Reads data from the file. Use either c-style or one of the 
+        // predefined functions which returns the result.
+        // @Params:
+        //  "str": Format of data to read in c-style (e.g."%s %f").
+        //  "args": Arguments in which to put the data into.
         //----------------------------------------------------------------------
-        U8      nextChar();
-        U64     nextInt();
-        double  nextDouble();
+        template <class... Args>
+        void read(const char* str, Args&&... args)
+        {
+            _READ_FUNC_BEGIN();
+            int numMatches = fscanf( m_file, str, args... );
+            const int numArguments = sizeof...(Args);
+            ASSERT( (numMatches == numArguments) && "Scanf could not read valid data for every argument!" );
+            _READ_FUNC_END();
+        }
+        I8  nextI8()    { I8 val;  read("%c",   &val); return val; }
+        U8  nextU8()    { U8 val;  read("%c",   &val); return val; }
+        I32 nextI32()   { I32 val; read("%d",   &val); return val; }
+        U32 nextU32()   { U32 val; read("%u",   &val); return val; }
+        I64 nextI64()   { I64 val; read("%lld", &val); return val; }
+        U64 nextU64()   { U64 val; read("%llu", &val); return val; }
+        F32 nextF32()   { F32 val; read("%f",   &val); return val; }
+        F64 nextF64()   { F64 val; read("%lf",  &val); return val; }
+        I8  nextChar()  { return nextI8(); }
 
         //----------------------------------------------------------------------
         // @Return:
@@ -81,8 +99,8 @@ namespace Core { namespace OS {
         String readAll() const;
 
         //----------------------------------------------------------------------
-        // Write the given data into the file. If the file does not exist, it
-        // will be created.
+        // Write the given data into the file. If the file does not exist, it will be created.
+        // Use either c-style (e.g. write("%d %f", int, float)) or one of the predefined functions.
         // @Params:
         //  "data": The data which should be written.
         //  "fractionWidth": Only for floating point numbers. Amount of numbers
@@ -197,11 +215,15 @@ namespace Core { namespace OS {
         String      _NextLine();
         inline void _File_Seek(long pos) const;
 
-        inline void _WRITE_FUNC_BEGIN();
-        inline void _WRITE_FUNC_END();
+        //----------------------------------------------------------------------
+        void _WRITE_FUNC_BEGIN();
+        void _WRITE_FUNC_END();
 
-        inline void _APPEND_FUNC_BEGIN();
-        inline void _APPEND_FUNC_END();
+        void _APPEND_FUNC_BEGIN();
+        void _APPEND_FUNC_END();
+
+        void _READ_FUNC_BEGIN();
+        void _READ_FUNC_END();
     };
 
     //----------------------------------------------------------------------

@@ -69,43 +69,17 @@ namespace Core { namespace OS {
     //**********************************************************************
     // READING
     //**********************************************************************
-    unsigned char File::nextChar()
+    void File::_READ_FUNC_BEGIN()
     {
         FILE_EXISTS_AND_NOT_EOF();
 
         _File_Seek( m_readCursorPos );
-        int c = fgetc( m_file );
+    }
+
+    void File::_READ_FUNC_END()
+    {
         m_readCursorPos = ftell( m_file );
-
         _PeekNextCharAndSetEOF();
-
-        return c;
-    }
-
-    U64 File::nextInt()
-    {
-        FILE_EXISTS_AND_NOT_EOF();
-
-        _File_Seek( m_readCursorPos );
-
-        U64 num;
-        int numItemsMatches = fscanf( m_file, "%lld", &num );
-        ASSERT( numItemsMatches != 0 && "Next item is not a double!" );
-
-        return num;
-    }
-
-    double File::nextDouble()
-    {
-        FILE_EXISTS_AND_NOT_EOF();
-
-        _File_Seek( m_readCursorPos );
-
-        double num;
-        int numItemsMatches = fscanf( m_file, "%lf", &num );
-        ASSERT( numItemsMatches != 0 && "Next item is not a double!" );
-
-        return num;
     }
 
     //----------------------------------------------------------------------
