@@ -142,16 +142,6 @@ int main(void)
         //});
         // t.wait();
 
-        float i = 65.0f;
-        float* p = &i;
-
-        struct Vertex
-        {
-            float x;
-            float y;
-        };
-        Vertex v{65,66};
-
         if ( file.exists() )
         {
             LOG( "File exists!\n" );
@@ -159,22 +149,33 @@ int main(void)
             file.write("A\n");
             file.write("B\n");
             file.write("C\n");
-            file.write("[General]\n");
-            file.write("Value=");
-            file.write(66.0);
-            file.write("\n");
-            file.write(77);
+
+            //file.write("B\n");
+            //file.write("C\n");
+            //file.write("[General]\n");
+            //file.write("Value=");
+            //file.write(66.0);
+            //file.write("\n");
+            //file.write(77);
+
+            //while (!file.eof())
+            //{
+            //    String line = file.readLine();
+            //    LOG(line);
+            //}
+            //String line = file.readLine();
 
             Size fileSize = file.getFileSize();
-            LOG( fileSize );
-
-            while (!file.eof())
+            LOG( "Bytes: " + TS(fileSize) );
+      /*      while (!file.eof())
             {
                 U8 nextChar = file.readChar();
                 String c(1, nextChar);
                 LOG( c );
-            }
+            }*/
 
+            String fileContents = file.readAll();
+            LOG( fileContents );
 
 
         }

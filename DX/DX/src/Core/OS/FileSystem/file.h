@@ -72,7 +72,9 @@ namespace Core { namespace OS {
 
         //----------------------------------------------------------------------
         // @Return:
-        //  The content of the whole file as a string.
+        //  The content of the whole file as a string. 
+        //  Independent of the read / write cursor.
+        //  Dynamically allocates the buffer.
         //----------------------------------------------------------------------
         String readAll() const;
 
@@ -129,13 +131,13 @@ namespace Core { namespace OS {
         // @Params:
         //  "pos": New position of the read cursor. 0 = Beginning of file.
         //----------------------------------------------------------------------
-        void setReadCursor(Size pos) { m_readCursorPos = pos; }
+        void setReadCursor(long pos) { m_readCursorPos = pos; m_eof = false; }
 
         //----------------------------------------------------------------------
         // @Params:
         //  "pos": New position of the write cursor. 0 = Beginning of file.
         //----------------------------------------------------------------------
-        void setWriteCursor(Size pos) { m_writeCursorPos = pos; }
+        void setWriteCursor(long pos) { m_writeCursorPos = pos; }
 
 
         // Get FileTime
@@ -150,8 +152,8 @@ namespace Core { namespace OS {
     private:
         String  m_filePath;
         FILE*   m_file;
-        Size    m_readCursorPos;
-        Size    m_writeCursorPos;
+        long    m_readCursorPos;
+        long    m_writeCursorPos;
         bool    m_exists;
         bool    m_eof;
 
@@ -162,6 +164,8 @@ namespace Core { namespace OS {
         void    _CreateFile();
         void    _CheckEOF();
         String  _GetPhysicalPath(const char* vpath);
+
+        String _NextLine();
     };
 
     //----------------------------------------------------------------------

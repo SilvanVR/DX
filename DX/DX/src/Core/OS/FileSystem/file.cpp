@@ -73,59 +73,56 @@ namespace Core { namespace OS {
     {
         ASSERT( m_exists && !eof() && "File does not exist or read-cursor is at the end!" );
 
+        fseek( m_file, (long)m_readCursorPos, SEEK_SET );
         int c = fgetc( m_file );
+        m_readCursorPos = ftell( m_file );
 
-        if (c == EOF)
-        {
-            m_eof = true;
-        }
+        _CheckEOF();
 
         return c;
     }
 
     //----------------------------------------------------------------------
-    //String File::readLine()
-    //{
-    //    ASSERT( m_exists && !eof() && "File does not exist or read-cursor is at the end!" );
+    String File::readLine()
+    {
+        ASSERT( m_exists && !eof() && "File does not exist or read-cursor is at the end!" );
 
-    //    m_file->seekg( m_readCursorPos );
+        fseek( m_file, (long)m_readCursorPos, SEEK_SET );
+        String line = _NextLine();
+        m_readCursorPos = ftell( m_file );
 
-    //    String line;
-    //    std::getline( (*m_file), line);
+        _CheckEOF();
 
-    //    m_readCursorPos = m_file->tellg();
+        return line;
+    }
 
-    //    _CheckEOF();
-
-    //    return line;
-    //}
 
     //----------------------------------------------------------------------
-    //String File::readAll() const
-    //{
-    //    ASSERT( m_exists );
+    String File::readAll() const
+    {
+        ASSERT( m_exists );
 
-    //    const Size fileSize = getFileSize();
+        const Size fileSize = getFileSize();
 
-    //    if (fileSize == 0)
-    //        return ""; // Nothing to read, file is empty
+        if ( fileSize == 0 )
+            return ""; // Nothing to read, file is empty
 
-    //    // Create buffer and read data into it
-    //    char* buffer = new char[fileSize + 1];
-    //    buffer[fileSize] = '\0';
+        // Create buffer and read data into it
+        char* buffer = new char[fileSize + 1];
+        buffer[fileSize] = '\0';
 
-    //    // Move to beginning and read all bytes
-    //    m_file->seekg( 0, std::ios::beg );
-    //    m_file->read( buffer, fileSize );
+        // Move to beginning and read all bytes
+        fseek( m_file, 0, SEEK_SET );
+        fread( buffer, sizeof(char), fileSize, m_file );
 
-    //    // Clear eof-bit
-    //    m_file->clear();
+        // Move to old read position
+        fseek( m_file, (long)m_readCursorPos, SEEK_SET );
 
-    //    String str( buffer );
-    //    delete[] buffer;
+        String str( buffer );
+        delete[] buffer;
 
-    //    return str;
-    //}
+        return str;
+    }
 
 #define WRITE_FUNC(type) void File::write(type data) \
     { \
@@ -138,7 +135,13 @@ namespace Core { namespace OS {
         if (not m_exists)
             _CreateFile();
 
-        fwrite( data, sizeof( char ), strlen( data ), m_file );
+        fseek( m_file, m_writeCursorPos, SEEK_SET );
+        Size len = strlen( data );
+        fwrite( data, sizeof( char ), len, m_file );
+        m_writeCursorPos += ftell( m_file );
+
+        // Bytes were written, so the readCursor is not longer at the end
+        m_eof = false;
     }
 
     WRITE_FUNC(int)
@@ -193,9 +196,6 @@ namespace Core { namespace OS {
 
         fseek( m_file, 0L, SEEK_END );
         long length = ftell( m_file );
-
-        // SEEK TO OLD POS?
-        fseek( m_file, 0L, SEEK_SET );
 
         return length;
     }
@@ -255,6 +255,16 @@ namespace Core { namespace OS {
     //----------------------------------------------------------------------
     void File::_CheckEOF()
     {
+        int c = fgetc( m_file );
+
+        if (c == EOF)
+        {
+            m_eof = feof( m_file );
+        }
+        else
+        {
+            ungetc( c, m_file );
+        }
 
     }
 
@@ -264,5 +274,26 @@ namespace Core { namespace OS {
         return VirtualFileSystem::resolvePhysicalPath( vpath );
     }
 
+    
+    //----------------------------------------------------------------------
+    String File::_NextLine()
+    {
+        // @TODO: Increase buffer size automatically if line is longer
+        static const int bufferSize = 1024;
+
+        char lineBuffer[bufferSize];
+        memset( lineBuffer, 0, bufferSize );
+
+        // Read line. It returns whenever '\n', EOF or (bufferSize - 1) are reached.
+        char* err = fgets( lineBuffer, bufferSize, m_file );
+
+        if ( err == nullptr )
+            return ""; // Special case: Empty line
+
+        // Remove trailing '\n' and '\r'
+        lineBuffer[strcspn( lineBuffer, "\r\n" )] = 0;
+       
+        return String( lineBuffer );
+    }
 
 } }
