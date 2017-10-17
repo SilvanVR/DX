@@ -62,7 +62,9 @@ namespace Core { namespace OS {
         // @Return:
         //  A single character from the file. Check if end is reached with "eof()".
         //----------------------------------------------------------------------
-        unsigned char readChar();
+        U8      nextChar();
+        U64     nextInt();
+        double  nextDouble();
 
         //----------------------------------------------------------------------
         // @Return:
@@ -82,15 +84,26 @@ namespace Core { namespace OS {
         // Write the given data into the file. If the file does not exist, it
         // will be created.
         // @Params:
-        //  "data": The data which should be written to the file.
+        //  "data": The data which should be written.
         //  "fractionWidth": Only for floating point numbers. Amount of numbers
         //                   written after the dot.
         //  "amountOfBytes": Amount of bytes to write.
         //----------------------------------------------------------------------
+        template <class... Args>
+        void write(const char* str, Args&&... args)
+        {
+            _WRITE_FUNC_BEGIN();
+            fprintf( m_file, str, args... );
+            _WRITE_FUNC_END();
+        }
+        void write(const char* data)                 { write( "%s", data ); }
+        void write(I32 data)                         { write( "%d", data ); }
+        void write(U32 data)                         { write( "%u", data ); }
+        void write(I64 data)                         { write( "%lld", data ); }
+        void write(U64 data)                         { write( "%llu", data ); }
+        void write(F32 data, Byte fractionWidth = 6) { write( String( "%." + TS( fractionWidth ) + "f" ).c_str(), data ); }
+        void write(F64 data, Byte fractionWidth = 6) { write( String( "%." + TS( fractionWidth ) + "lf" ).c_str(), data ); }
         void write(const Byte* data, Size amountOfBytes);
-        void write(double data, Byte fractionWidth = 6);
-        void write(const char* data);
-        void write(int data);
 
         //----------------------------------------------------------------------
         // Write the given data to the end of the file. This does not modify
@@ -99,10 +112,21 @@ namespace Core { namespace OS {
         // @Params:
         //  See write function for param explanation.
         //----------------------------------------------------------------------
+        template <class... Args>
+        void append(const char* str, Args&&... args)
+        {
+            _APPEND_FUNC_BEGIN();
+            fprintf( m_file, str, args... );
+            _APPEND_FUNC_END();
+        }
+        void append(const char* data)                   { append( "%s", data ); }
+        void append(I32 data)                           { append( "%d", data ); }
+        void append(U32 data)                           { append( "%u", data ); }
+        void append(I64 data)                           { append( "%lld", data ); }
+        void append(U64 data)                           { append( "%llu", data ); }
+        void append(F32 data, Byte fractionWidth = 6)   { append( String( "%." + TS( fractionWidth ) + "f" ).c_str(), data ); }
+        void append(F64 data, Byte fractionWidth = 6)   { append( String( "%." + TS( fractionWidth ) + "lf" ).c_str(), data ); }
         void append(const Byte* data, Size amountOfBytes);
-        void append(double data, Byte fractionWidth = 6);
-        void append(const char* data);
-        void append(int data);
 
         //----------------------------------------------------------------------
         // Clears the whole file and resets both read + write cursor pos.
@@ -137,14 +161,14 @@ namespace Core { namespace OS {
         // @Params:
         //  "pos": New position of the read cursor. 0 = Beginning of file.
         //----------------------------------------------------------------------
-        void seekReadCursor(long pos) { m_readCursorPos = pos; m_eof = false; }
+        void setReadCursor(long pos) { m_readCursorPos = pos; m_eof = false; }
 
         //----------------------------------------------------------------------
         // @Params:
         //  "pos": New position of the write cursor. 0 = Beginning of file.
         // Be careful about overwriting subsequent bytes or newlines.
         //----------------------------------------------------------------------
-        void seekWriteCursor(long pos) { m_writeCursorPos = pos; }
+        void setWriteCursor(long pos) { m_writeCursorPos = pos; }
 
         //----------------------------------------------------------------------
         const String&   getFilePath()       const { return m_filePath; }
@@ -172,6 +196,12 @@ namespace Core { namespace OS {
         String      _GetPhysicalPath(const char* vpath);
         String      _NextLine();
         inline void _File_Seek(long pos) const;
+
+        inline void _WRITE_FUNC_BEGIN();
+        inline void _WRITE_FUNC_END();
+
+        inline void _APPEND_FUNC_BEGIN();
+        inline void _APPEND_FUNC_END();
     };
 
     //----------------------------------------------------------------------

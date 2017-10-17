@@ -19,6 +19,8 @@
 
 namespace Core { namespace OS {
 
+    #define FILE_EXISTS_AND_NOT_EOF() ASSERT( m_exists && !eof() && "File does not exist or read-cursor is at the end!" );
+
     //----------------------------------------------------------------------
     File::File()
         : m_filePath( "" ), m_exists( false ), m_file( nullptr ),
@@ -67,9 +69,9 @@ namespace Core { namespace OS {
     //**********************************************************************
     // READING
     //**********************************************************************
-    unsigned char File::readChar()
+    unsigned char File::nextChar()
     {
-        ASSERT( m_exists && !eof() && "File does not exist or read-cursor is at the end!" );
+        FILE_EXISTS_AND_NOT_EOF();
 
         _File_Seek( m_readCursorPos );
         int c = fgetc( m_file );
@@ -80,10 +82,36 @@ namespace Core { namespace OS {
         return c;
     }
 
+    U64 File::nextInt()
+    {
+        FILE_EXISTS_AND_NOT_EOF();
+
+        _File_Seek( m_readCursorPos );
+
+        U64 num;
+        int numItemsMatches = fscanf( m_file, "%lld", &num );
+        ASSERT( numItemsMatches != 0 && "Next item is not a double!" );
+
+        return num;
+    }
+
+    double File::nextDouble()
+    {
+        FILE_EXISTS_AND_NOT_EOF();
+
+        _File_Seek( m_readCursorPos );
+
+        double num;
+        int numItemsMatches = fscanf( m_file, "%lf", &num );
+        ASSERT( numItemsMatches != 0 && "Next item is not a double!" );
+
+        return num;
+    }
+
     //----------------------------------------------------------------------
     String File::readLine()
     {
-        ASSERT( m_exists && !eof() && "File does not exist or read-cursor is at the end!" );
+        FILE_EXISTS_AND_NOT_EOF();
 
         _File_Seek( m_readCursorPos );
         String line = _NextLine();
@@ -121,75 +149,49 @@ namespace Core { namespace OS {
     //**********************************************************************
     // WRITING
     //**********************************************************************
+    void File::_WRITE_FUNC_BEGIN()
+    {
+        if (not m_exists)
+            _CreateFile();
 
-    // No templates, because i do not want to have a generic write() - function
+        _File_Seek(m_writeCursorPos);
+    }
 
-#define WRITE_FUNC_BEGIN \
-    { \
-        if (not m_exists) \
-            _CreateFile(); \
-        _File_Seek( m_writeCursorPos ); \
+    void File::_WRITE_FUNC_END()
+    {
+        m_writeCursorPos = ftell(m_file);
+        if (m_writeCursorPos == m_readCursorPos)
+            m_eof = false;
+    }
 
-#define WRITE_FUNC_END \
-        m_writeCursorPos = ftell( m_file ); \
-        if (m_writeCursorPos == m_readCursorPos) \
-            m_eof = false; \
-    } \
-
-    void File::write( const char* data )
-        WRITE_FUNC_BEGIN
-            fwrite( data, sizeof( char ), strlen( data ), m_file );
-        WRITE_FUNC_END
-
-    void File::write( int data )
-        WRITE_FUNC_BEGIN
-            fprintf( m_file, "%d", data );
-        WRITE_FUNC_END
-
-    void File::write( double data, Byte amountOfFraction )
-        WRITE_FUNC_BEGIN
-            String format = "%." + TS(amountOfFraction) + "f";
-            fprintf( m_file, format.c_str(), data );
-        WRITE_FUNC_END
-
-    void File::write( const Byte* data, Size amountOfBytes )
-        WRITE_FUNC_BEGIN
+    void File::write(const Byte* data, Size amountOfBytes)
+    {
+        _WRITE_FUNC_BEGIN();
             fwrite( data, sizeof(Byte), amountOfBytes, m_file );
-        WRITE_FUNC_END
+        _WRITE_FUNC_END();
+    }
 
     //**********************************************************************
     // APPEND
     //**********************************************************************
-    #define APPEND_FUNC_BEGIN \
-        { \
-            if (not m_exists) \
-                _CreateFile(); \
-            fseek( m_file, 0L, SEEK_END ); \
+    void File::_APPEND_FUNC_BEGIN()
+    {
+        if (not m_exists)
+            _CreateFile();
+        fseek(m_file, 0L, SEEK_END);
+    }
 
-    #define APPEND_FUNC_END \
-            m_eof = false; \
-        } \
-
-    void File::append( const char* data )
-        APPEND_FUNC_BEGIN
-            fwrite( data, sizeof(char), strlen( data ), m_file );
-        APPEND_FUNC_END
-
-    void File::append( int data )
-        APPEND_FUNC_BEGIN
-            fprintf( m_file, "%d", data );
-        APPEND_FUNC_END
-
-    void File::append( double data, Byte amountOfFraction )
-        APPEND_FUNC_BEGIN
-            String format = "%." + TS( amountOfFraction ) + "f";
-            fprintf( m_file, "%f", data );
-        APPEND_FUNC_END
+    void File::_APPEND_FUNC_END()
+    {
+        m_eof = false; 
+    }
 
     void File::append(const Byte* data, Size amountOfBytes)
-        APPEND_FUNC_BEGIN
-            fwrite( data, sizeof(Byte), amountOfBytes, m_file );
-        APPEND_FUNC_END
+    {
+        _APPEND_FUNC_BEGIN();
+        fwrite( data, sizeof(Byte), amountOfBytes, m_file );
+        _APPEND_FUNC_END();
+    }
 
     //----------------------------------------------------------------------
     void File::clear()

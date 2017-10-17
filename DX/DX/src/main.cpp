@@ -149,9 +149,17 @@ int main(void)
 
             file.clear();
 
+            file.write("a     ");
             file.write(3.14f);
             file.write("\n");
             file.write(3.14);
+            file.write("\n");
+
+            file.write("%s=%d", "Value", 42);
+
+            file.setReadCursor(2);
+            double num = file.nextDouble();
+            LOG( TS(num) );
 
             //file.write("A\n");
             //file.write("B\n");
@@ -163,9 +171,10 @@ int main(void)
             //file.seekWriteCursor(0);
             //file.append("Z");
 
+            LOG("----- Listing File-Contents: ----- ", Color::YELLOW);
             String fileContents = file.readAll();
-            LOG(fileContents);
-
+            LOG(fileContents, Color::YELLOW);
+            LOG("---------------------------------- ", Color::YELLOW);
             //while (!file.eof())
             //{
             //    String line = file.readLine();
