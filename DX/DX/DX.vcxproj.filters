@@ -66,13 +66,19 @@
     <ClCompile Include="src\Core\MemoryManagement\memory_structs.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Core\Config\config_file.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\OS\FileSystem\file_system.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="src\Core\OS\FileSystem\file.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\OS\FileSystem\virtual_file_system.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Core\Config\config_file.cpp">
+    <ClCompile Include="src\Core\OS\FileSystem\file_system_win.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -164,16 +170,19 @@
     <ClInclude Include="src\Core\DataStructures\byte_array.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\OS\FileSystem\file.h">
+    <ClInclude Include="src\Core\Misc\variant_type.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Config\config_file.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\OS\FileSystem\file_system.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\OS\FileSystem\virtual_file_system.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\Misc\variant_type.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Core\Config\config_file.h">
+    <ClInclude Include="src\Core\OS\FileSystem\file.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

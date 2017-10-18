@@ -12,8 +12,27 @@
 namespace Core { namespace OS {
 
     //*********************************************************************
+    // Different modes used for working with a bare file.
+    // READ                 | open for reading
+    // WRITE                | open for writing(file need not exist)
+    // APPEND               | open for appending(file need not exist)
+    // READ_WRITE           | open for reading and writing, start at beginning
+    // READ_WRITE_OVERWRITE | open for reading and writing(overwrite file)
+    // READ_WRITE_APPEND    | open for reading and writing(append if file exists)
+    //*********************************************************************
+    enum class EFileMode
+    {
+        INVALID,
+        READ,
+        WRITE,
+        APPEND,
+        READ_WRITE,
+        READ_WRITE_OVERWRITE,
+        READ_WRITE_APPEND
+    };
+
+    //*********************************************************************
     // Represents a file on disk.
-    // Allows both reading and writing.
     // Supports virtual file paths.
     //*********************************************************************
     class File
@@ -29,7 +48,7 @@ namespace Core { namespace OS {
         //  "path": Virtual path or Physical path on disk.
         //  "append": Whether add new contents directly to the end of the file.
         //----------------------------------------------------------------------
-        explicit File(const char* vpath, bool append = false);
+        explicit File(const char* vpath, EFileMode mode = EFileMode::READ_WRITE);
         ~File();
 
         //----------------------------------------------------------------------
@@ -39,7 +58,7 @@ namespace Core { namespace OS {
         // @Return:
         //  "Whether opening the file succeeded or not.
         //----------------------------------------------------------------------
-        bool open(const char* path, bool append = false);
+        bool open(const char* path, EFileMode mode = EFileMode::READ_WRITE);
 
         //----------------------------------------------------------------------
         // Close the file manually
@@ -207,16 +226,17 @@ namespace Core { namespace OS {
         template <class T> File& operator >> (T& buff) { buff = readAll(); return (*this); }
 
     private:
-        String  m_filePath;
-        FILE*   m_file;
-        long    m_readCursorPos;
-        long    m_writeCursorPos;
-        bool    m_exists;
-        bool    m_eof;
+        String      m_filePath;
+        FILE*       m_file;
+        long        m_readCursorPos;
+        long        m_writeCursorPos;
+        bool        m_exists;
+        bool        m_eof;
+        EFileMode   m_mode;
 
         //----------------------------------------------------------------------
         bool        _FileExists(const char* filePath);
-        bool        _OpenFile(bool append = false);
+        bool        _OpenFile(EFileMode mode);
         void        _CloseFile();
         void        _CreateFile();
         void        _PeekNextCharAndSetEOF();

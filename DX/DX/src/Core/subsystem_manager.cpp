@@ -10,7 +10,7 @@
 #include "locator.h"
 #include "Logging/console_logger.h"
 #include "MemoryManagement/memory_manager.h"
-#include "OS/FileSystem/virtual_file_system.h"
+#include "Core/OS/FileSystem/virtual_file_system.h"
 
 namespace Core
 {

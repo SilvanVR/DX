@@ -4,7 +4,10 @@
 
     author: S. Hau
     date: October 13, 2017
-
+    
+    @Consideration:
+      - If directories when mounting does not exist:
+         => recursively create directories
 **********************************************************************/
 
 namespace Core { namespace OS {

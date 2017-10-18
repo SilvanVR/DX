@@ -3,7 +3,7 @@
 #include "Core/OS/PlatformTimer/platform_timer.h"
 #include "Core/MemoryManagement/include.hpp"
 #include "Core/subsystem_manager.h"
-#include "Core/OS/FileSystem/file.h"
+#include "Core/OS/FileSystem/file_system.h"
 
 #include "Core/Config/config_file.h"
 
@@ -112,9 +112,6 @@ public:
 // Binary-File!!!
 // Threading -> async file reading/writing
 
-// FileSystem class
-// Create directories when mount new VPath
-
 // Read until specific character has been reached
 // jump to line
 
@@ -132,6 +129,17 @@ int main(void)
 
     {
         //Config::ConfigFile configFile("/config/engine.ini");
+
+        OS::File file("confi/text.txt");
+        //file.write("Hello");
+
+        bool exists = OS::FileSystem::dirExists("confi");
+        OS::FileSystem::createDirectory("confi");
+        bool exists2 = OS::FileSystem::dirExists("confi");
+
+        //float resX = configFile["General"]["ResolutionX"];
+        //float resY = configFile["General"]["ResolutionY"];
+
         //configFile["General"]["ResolutionX"] = 1280;
         //configFile["General"]["ResolutionY"] = 720;
 

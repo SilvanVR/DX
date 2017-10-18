@@ -12,10 +12,14 @@
       r + -open for reading and writing, start at beginning
       w + -open for reading and writing(overwrite file)
       a + -open for reading and writing(append if file exists)
+
+      @Consideration:
+        - If directories in given path does not exist:
+           => recursively create directories
 **********************************************************************/
 
 #include "virtual_file_system.h"
-
+#include "file_system.h"
 
 namespace Core { namespace OS {
 
@@ -24,17 +28,17 @@ namespace Core { namespace OS {
     //----------------------------------------------------------------------
     File::File()
         : m_filePath( "" ), m_exists( false ), m_file( nullptr ),
-          m_readCursorPos( 0 ), m_writeCursorPos( 0 ), m_eof( false )
+          m_readCursorPos( 0 ), m_writeCursorPos( 0 ), m_eof( false ), m_mode( EFileMode::INVALID )
     {}
 
     //----------------------------------------------------------------------
-    File::File(const char* path, bool append)
+    File::File(const char* path, EFileMode mode)
         : m_filePath( _GetPhysicalPath( path ) ), m_exists( _FileExists( m_filePath.c_str() ) ),
-          m_file( nullptr ), m_readCursorPos( 0 ), m_writeCursorPos( 0 ), m_eof( false )
+          m_file( nullptr ), m_readCursorPos( 0 ), m_writeCursorPos( 0 ), m_eof( false ), m_mode( mode )
     {
         if (m_exists)
         {
-            _OpenFile( append );
+            _OpenFile( m_mode );
         }
     }
 
@@ -48,14 +52,15 @@ namespace Core { namespace OS {
     }
 
     //----------------------------------------------------------------------
-    bool File::open(const char* path, bool append)
+    bool File::open(const char* path, EFileMode mode)
     {
         ASSERT( not m_exists && "File was already opened!" );
 
         m_filePath  = _GetPhysicalPath( path );
         m_exists    = _FileExists( m_filePath.c_str() );
+        m_mode      = mode;
 
-        return _OpenFile( append );
+        return _OpenFile( m_mode );
     }
 
     //----------------------------------------------------------------------
@@ -211,23 +216,30 @@ namespace Core { namespace OS {
     //----------------------------------------------------------------------
     bool File::_FileExists(const char* filePath)
     {
-        struct stat buffer;
-        return ( stat( filePath, &buffer ) == 0 );
+        return FileSystem::exists( filePath );
     }
 
     //----------------------------------------------------------------------
-    bool File::_OpenFile( bool append )
+    bool File::_OpenFile( EFileMode mode )
     {
-        if (append)
+        switch ( mode )
         {
-            m_file = fopen( m_filePath.c_str(), "a+" );
-            if ( m_file != nullptr )
-                m_writeCursorPos = ftell( m_file );
+            case EFileMode::READ:
+                m_file = fopen( m_filePath.c_str(), "r" ); break;
+            case EFileMode::WRITE:
+                m_file = fopen( m_filePath.c_str(), "w" ); break;
+            case EFileMode::READ_WRITE:
+                m_file = fopen( m_filePath.c_str(), "r+" ); break;
+            case EFileMode::READ_WRITE_OVERWRITE:
+                m_file = fopen( m_filePath.c_str(), "w+" ); break;
+            case EFileMode::APPEND:
+                m_file = fopen( m_filePath.c_str(), "a" ); break;
+            case EFileMode::READ_WRITE_APPEND:
+                m_file = fopen( m_filePath.c_str(), "a+" ); break;
         }
-        else
-        {
-            m_file = fopen( m_filePath.c_str(), "w+" );
-        }
+
+        if (m_file != nullptr)
+            m_writeCursorPos = ftell( m_file );
 
         _PeekNextCharAndSetEOF();
 
@@ -250,7 +262,7 @@ namespace Core { namespace OS {
     //----------------------------------------------------------------------
     void File::_CreateFile()
     {
-        // create file with appropriate flags
+        // Open file with appropriate flag to create it
         m_file = fopen( m_filePath.c_str(), "w+" );
         ASSERT( m_file != NULL && "Could not create a new file" );
 
