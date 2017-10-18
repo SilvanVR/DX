@@ -8,22 +8,69 @@
 
 **********************************************************************/
 
-#include "Core/locator.h"
 #include "Utils/utils.h"
 
 namespace Core { namespace MemoryManagement {
 
-
-    void AllocationMemoryInfo::log() const
+    //----------------------------------------------------------------------
+    void AllocationMemoryInfo::addAllocation(Size amtOfBytes)
     {
-        LOG("-------------- MEMORY INFO ---------------");
-        LOG("Current Allocated: " + Utils::bytesToString(currentBytesAllocated));
-        LOG("Total Allocated: " + Utils::bytesToString(totalBytesAllocated));
-        LOG("Total Freed: " + Utils::bytesToString(totalBytesFreed));
-        LOG("Total Allocations: " + TS(totalAllocations));
-        LOG("Total Deallocations: " + TS(totalDeallocations));
-        LOG("------------------------------------------");
+        currentBytesAllocated += amtOfBytes;
+        totalBytesAllocated += amtOfBytes;
+        totalAllocations++;
     }
 
+    //----------------------------------------------------------------------
+    void AllocationMemoryInfo::removeAllocation(Size amtOfBytes)
+    {
+        currentBytesAllocated -= amtOfBytes;
+        totalBytesFreed += amtOfBytes;
+        totalDeallocations++;
+    }
+
+    //----------------------------------------------------------------------
+    String AllocationMemoryInfo::toString() const
+    {
+        String result;
+        result.reserve( 255 );
+
+        result += ( "\n-------------- MEMORY INFO ---------------");
+        result += ( "\nCurrent Allocated: " + Utils::bytesToString( currentBytesAllocated ) );
+        result += ( "\nTotal Allocated: " + Utils::bytesToString( totalBytesAllocated ) );
+        result += ( "\nTotal Freed: " + Utils::bytesToString( totalBytesFreed ) );
+        result += ( "\nTotal Allocations: " + TS( totalAllocations ) );
+        result += ( "\nTotal Deallocations: " + TS( totalDeallocations ) );
+        result += ( "\n------------------------------------------\n" );
+
+        return result;
+    }
+
+    //----------------------------------------------------------------------
+    AllocationMemoryInfo  AllocationMemoryInfo::operator - (const AllocationMemoryInfo& other) const
+    {
+        AllocationMemoryInfo result = {};
+
+        result.currentBytesAllocated = currentBytesAllocated - other.currentBytesAllocated;
+        result.totalBytesAllocated   = totalBytesAllocated - other.totalBytesAllocated;
+        result.totalBytesFreed       = totalBytesFreed - other.totalBytesFreed;
+        result.totalAllocations      = totalAllocations - other.totalAllocations;
+        result.totalDeallocations    = totalDeallocations - other.totalDeallocations;
+
+        return result;
+    }
+
+    //----------------------------------------------------------------------
+    AllocationMemoryInfo  AllocationMemoryInfo::operator + (const AllocationMemoryInfo& other) const
+    {
+        AllocationMemoryInfo result = {};
+
+        result.currentBytesAllocated = currentBytesAllocated + other.currentBytesAllocated;
+        result.totalBytesAllocated   = totalBytesAllocated + other.totalBytesAllocated;
+        result.totalBytesFreed       = totalBytesFreed + other.totalBytesFreed;
+        result.totalAllocations      = totalAllocations + other.totalAllocations;
+        result.totalDeallocations    = totalDeallocations + other.totalDeallocations;
+
+        return result;
+    }
 
 } } // end namespaces

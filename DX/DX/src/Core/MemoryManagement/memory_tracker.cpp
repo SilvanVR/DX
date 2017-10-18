@@ -68,7 +68,7 @@ namespace Core { namespace MemoryManagement {
         // It's important to fetch a local copy of the mem-info, otherwise the 
         // dynamically allocated string stuff will mess up the result
         AllocationMemoryInfo memInfo = MemoryTracker::getAllocationMemoryInfo();
-        memInfo.log();
+        LOG( memInfo.toString() );
     }
 
     //----------------------------------------------------------------------

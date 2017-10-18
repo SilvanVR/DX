@@ -62,6 +62,7 @@ namespace Core
     //----------------------------------------------------------------------
     void SubSystemManager::_InitVirtualFilePaths()
     {
+        OS::VirtualFileSystem::mount("config",   "res");
         OS::VirtualFileSystem::mount("logs",     "res/logs");
         OS::VirtualFileSystem::mount("textures", "res/textures");
         OS::VirtualFileSystem::mount("shaders",  "res/shaders");

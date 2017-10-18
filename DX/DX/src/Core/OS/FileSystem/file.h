@@ -233,6 +233,12 @@ namespace Core { namespace OS {
 
         void _READ_FUNC_BEGIN();
         void _READ_FUNC_END();
+
+        //----------------------------------------------------------------------
+        File(const File& other)                 = delete;
+        File& operator = (const File& other)    = delete;
+        File(File&& other)                      = delete;
+        File& operator = (File&& other)         = delete;
     };
 
     //----------------------------------------------------------------------

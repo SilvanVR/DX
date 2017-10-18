@@ -22,48 +22,14 @@ namespace Core { namespace MemoryManagement {
         U64 totalAllocations        = 0;
         U64 totalDeallocations      = 0;
 
-        void addAllocation(Size amtOfBytes)
-        {
-            currentBytesAllocated += amtOfBytes;
-            totalBytesAllocated += amtOfBytes;
-            totalAllocations++;
-        }
+        //----------------------------------------------------------------------
+        void addAllocation(Size amtOfBytes);
+        void removeAllocation(Size amtOfBytes);
 
-        void removeAllocation(Size amtOfBytes)
-        {
-            currentBytesAllocated -= amtOfBytes;
-            totalBytesFreed += amtOfBytes;
-            totalDeallocations++;
-        }
+        String toString() const;
 
-        // Log to console
-        void log() const;
-
-        AllocationMemoryInfo operator - (const AllocationMemoryInfo& other) const
-        {
-            AllocationMemoryInfo result = {};
-
-            result.currentBytesAllocated = currentBytesAllocated - other.currentBytesAllocated;
-            result.totalBytesAllocated   = totalBytesAllocated - other.totalBytesAllocated;
-            result.totalBytesFreed       = totalBytesFreed - other.totalBytesFreed;
-            result.totalAllocations      = totalAllocations - other.totalAllocations;
-            result.totalDeallocations    = totalDeallocations - other.totalDeallocations;
-
-            return result;
-        }
-
-        AllocationMemoryInfo operator + (const AllocationMemoryInfo& other) const
-        {
-            AllocationMemoryInfo result = {};
-
-            result.currentBytesAllocated = currentBytesAllocated + other.currentBytesAllocated;
-            result.totalBytesAllocated   = totalBytesAllocated + other.totalBytesAllocated;
-            result.totalBytesFreed       = totalBytesFreed + other.totalBytesFreed;
-            result.totalAllocations      = totalAllocations + other.totalAllocations;
-            result.totalDeallocations    = totalDeallocations + other.totalDeallocations;
-
-            return result;
-        }
+        AllocationMemoryInfo operator - (const AllocationMemoryInfo& other) const;
+        AllocationMemoryInfo operator + (const AllocationMemoryInfo& other) const;
     };
 
 } } // end namespaces

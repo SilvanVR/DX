@@ -5,6 +5,8 @@
 #include "Core/subsystem_manager.h"
 #include "Core/OS/FileSystem/file.h"
 
+#include "Core/Config/config_file.h"
+
 using namespace Core;
 
 class AutoClock
@@ -110,24 +112,11 @@ public:
 // Binary-File!!!
 // Threading -> async file reading/writing
 
+// FileSystem class
+// Create directories when mount new VPath
+
 // Read until specific character has been reached
 // jump to line
-
-//ConfigFile("path.ini");
-//ConfigFile["General"]["ResolutionX"] = 100;
-//ConfigFile["General"]["ResolutionY"] = 100;
-// <<< produces >>>>
-// [General]
-// ResolutionX = 100
-// ResolutionY = 100
-
-class ConfigFile
-{
-public:
-
-private:
-    OS::TextFile m_configFile;
-};
 
 int main(void)
 {
@@ -142,8 +131,28 @@ int main(void)
     Locator::getLogger().setSaveToDisk( false );
 
     {
+        //Config::ConfigFile configFile("/config/engine.ini");
+        //configFile["General"]["ResolutionX"] = 1280;
+        //configFile["General"]["ResolutionY"] = 720;
+
+        //configFile["Rendering"]["Alpha"] = false;
+        //ConfigFile::Category& general = configFile["General"];
+
+        //general["test"] = 52;
+
+        //int val = general["test"];
 
 
+        //VariantType t(20);
+        //VariantType t2(3.14f);
+        //VariantType t3(2.5353);
+        //F32 test = t;
+        //U64 test2 = t2;
+        //F64 test3 = t3;
+        //VariantType t4("Hello World");
+        //const char* test4 = t4;
+
+        int ehehe = 52;
     }
 
     {

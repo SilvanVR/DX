@@ -11,6 +11,8 @@
 
 #define TS(s)                   std::to_string(s)
 #define not                     !
+#define and                     &&
+#define or                      ||
 
 #ifdef _DEBUG
     #define NEW                 new(__FILE__, __LINE__)
