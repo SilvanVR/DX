@@ -1,0 +1,109 @@
+#pragma once
+
+/**********************************************************************
+    class: VariantType (variant_type.hpp)
+
+    author: S. Hau
+    date: October 18, 2017
+
+    Represents a class which can be different types. Illegal
+    conversions from one type to another asserts at runtime.
+    @Considerations:
+      - add more datatypes
+      - Compile-Time checking of conversions (possible?)
+      - Objects
+      - Move-Semantics
+
+**********************************************************************/
+
+namespace Core {
+
+    //**********************************************************************
+    // All Datatypes supported by the Variant
+    //**********************************************************************
+    enum class EVariantType
+    {
+        UNKNOWN,
+        I32, 
+        U32, 
+        I64, 
+        U64, 
+        F32, 
+        F64,
+        String
+    };
+
+    //**********************************************************************
+    // Encapsulates exactly one type of a list of supported types.
+    //**********************************************************************
+    class VariantType 
+    {
+    public:
+        VariantType()                   : m_i64(0), m_type( EVariantType::UNKNOWN ) {}
+        VariantType(I32 val)            : m_i32( val ), m_type( EVariantType::I32 ) {}
+        VariantType(U32 val)            : m_u32( val ), m_type( EVariantType::U32 ) {}
+        VariantType(I64 val)            : m_i64( val ), m_type( EVariantType::I64 ) {}
+        VariantType(U64 val)            : m_u64( val ), m_type( EVariantType::U64 ) {}
+        VariantType(F32 val)            : m_f32( val ), m_type( EVariantType::F32 ) {}
+        VariantType(F64 val)            : m_f64( val ), m_type( EVariantType::F64 ) {}
+        VariantType(const char* val)    : m_str( val ), m_type( EVariantType::String ) {}
+        ~VariantType() {}
+
+        //----------------------------------------------------------------------
+        EVariantType getType() const { return m_type; }
+
+
+        //----------------------------------------------------------------------
+        template <class T> T get() const { return _GetVal<T>(); }
+        template <class T> operator T () const { return _GetVal<T>(); }
+
+        //VirtualType& operator = (const VirtualType& other) { return *this; }
+
+    private:
+        EVariantType    m_type;
+
+        union
+        {
+            I32         m_i32;
+            U32         m_u32;
+            I64         m_i64;
+            U64         m_u64;
+            F32         m_f32;
+            F64         m_f64;
+            const char* m_str;
+        };
+
+        //----------------------------------------------------------------------
+        template <class T>
+        T _GetVal() const
+        {
+            switch (m_type)
+            {
+            case EVariantType::I32:    return static_cast<T>( m_i32 );
+            case EVariantType::U32:    return static_cast<T>( m_u32 );
+            case EVariantType::I64:    return static_cast<T>( m_i64 );
+            case EVariantType::U64:    return static_cast<T>( m_u64 );
+            case EVariantType::F32:    return static_cast<T>( m_f32 );
+            case EVariantType::F64:    return static_cast<T>( m_f64 );
+            }
+
+            ASSERT( false && "Runtime datatype error. No conversion possible or unknown type." );
+            return 0;
+        }
+    
+        template <>
+        const char* _GetVal() const
+        {
+            switch (m_type)
+            {
+            case EVariantType::String: return m_str;
+            }
+
+            ASSERT( false && "Runtime datatype error. No conversion possible or unknown type." );
+            return 0;
+        }
+
+    };
+
+
+}
