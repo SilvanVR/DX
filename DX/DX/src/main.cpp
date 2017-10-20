@@ -3,9 +3,10 @@
 #include "Core/OS/PlatformTimer/platform_timer.h"
 #include "Core/MemoryManagement/include.hpp"
 #include "Core/subsystem_manager.h"
-#include "Core/OS/FileSystem/file_system.h"
 
-#include "Core/Config/config_file.h"
+#include "Core/OS/FileSystem/file.h"
+
+
 
 using namespace Core;
 
@@ -110,7 +111,6 @@ public:
 //@TODO: 
 // - Profiler
 // Threading -> async file reading/writing
-// Binary-File!!!
 
 
 int main(void)
@@ -126,23 +126,13 @@ int main(void)
     Locator::getLogger().setSaveToDisk( false );
 
     {
-        //Config::ConfigFile configFile("/config/engine.ini");
+        int k = 65;
 
-        //Config::ConfigFile& configFile = Locator::getConfiguration().getEngineIni();
-        //U32 x = configFile["General"]["ResolutionX"];
-        //U32 y = configFile["General"]["ResolutionY"];
-        //const char* name = configFile["General"]["EngineName"];
+        //OS::TextFile file("test.txt", OS::EFileMode::READ_WRITE_OVERWRITE);
+        //file << 525 << "\n" << 42;
 
-        //U32 x = configFile["General"]["ResolutionX"];
-        //U32 y = configFile["General"]["ResolutionY"];
-        //const char* name = configFile["General"]["EngineName"];
-        //
-        //configFile["General"]["ResolutionX"] = 1280;
-        //configFile["General"]["ResolutionY"] = 720;
-        //configFile["General"]["String"] = "HelloWorld!";
-        //
-        //bool alphaEnabled = configFile["Rendering"]["Alpha"];
-        //configFile["Rendering"]["Alpha"] = 0;
+
+        int i = 5252;
     }
 
     {

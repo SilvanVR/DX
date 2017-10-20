@@ -4,6 +4,13 @@
 
     author: S. Hau
     date: October 18, 2017
+
+    @Considerations:
+      - Overthink how to write data to disk, because of:
+         1.) Lines which could not be read will be removed on flush
+         2.) Why flush when only one line has changed? (or even nothing)
+           -> Write only lines which has changed?
+         3.) Integrate a order for categories
 **********************************************************************/
 
 #include "Core/locator.h"

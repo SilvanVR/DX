@@ -16,6 +16,8 @@
 namespace Core
 {
 
+    #define COLOR Color(0, 255, 255)
+
     //----------------------------------------------------------------------
     static bool INITIALIZED = false;
     SubSystemManager::SubSystemManager()
@@ -32,16 +34,16 @@ namespace Core
         _InitVirtualFilePaths();
 
         m_logger = initializeSubSystem( new Logging::ConsoleLogger() );
-        LOG( "Logger initialized!" );
+        LOG( "Logger initialized!", COLOR);
 
         // Initialize every Sub-System here
-        LOG( "<<< Initialize Sub-Systems >>>" );
+        LOG( "<<< Initialize Sub-Systems >>>", COLOR);
 
         m_memoryManager = initializeSubSystem( new MemoryManagement::MemoryManager() );
-        LOG( "MemoryManager initialized!" );
+        LOG( "MemoryManager initialized!", COLOR);
 
-        m_configManager = initializeSubSystem( new Config::ConfigurationManager() );
-        LOG( "ConfigurationManager initialized!" );
+        //m_configManager = initializeSubSystem( new Config::ConfigurationManager() );
+        //LOG( "ConfigurationManager initialized!", COLOR );
 
     }
 
@@ -50,15 +52,15 @@ namespace Core
     void SubSystemManager::shutdown()
     {
         // Shutdown every Sub-System here in reversed order to above
-        LOG( "<<< Shutting down Sub-Systems >>>" );
+        LOG( "<<< Shutting down Sub-Systems >>>", COLOR);
 
-        LOG( "Shutdown ConfigurationManager..." );
-        shutdownSubSystem( m_configManager );
+        //LOG( "Shutdown ConfigurationManager...", COLOR );
+        //shutdownSubSystem( m_configManager );
 
-        LOG( "Shutdown MemoryManager..." );
+        LOG( "Shutdown MemoryManager...", COLOR);
         shutdownSubSystem( m_memoryManager );
 
-        LOG( "Shutdown Logger..." );
+        LOG( "Shutdown Logger...", COLOR);
         shutdownSubSystem( m_logger );
 
         _ShutdownVirtualFilePaths();

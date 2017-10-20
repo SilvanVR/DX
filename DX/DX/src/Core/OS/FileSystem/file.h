@@ -41,15 +41,15 @@ namespace Core { namespace OS {
         //----------------------------------------------------------------------
         // Creates a new file object. Use open() to open the file.
         //----------------------------------------------------------------------
-        File();
+        File(bool binary = false);
 
         //----------------------------------------------------------------------
         // @Params:
         //  "path": Virtual path or Physical path on disk.
         //  "append": Whether add new contents directly to the end of the file.
         //----------------------------------------------------------------------
-        explicit File(const char* vpath, EFileMode mode = EFileMode::READ_WRITE);
-        ~File();
+        explicit File(const char* vpath, EFileMode mode = EFileMode::READ_WRITE, bool binary = false);
+        virtual ~File();
 
         //----------------------------------------------------------------------
         // @Params:
@@ -232,11 +232,12 @@ namespace Core { namespace OS {
         long        m_writeCursorPos;
         bool        m_exists;
         bool        m_eof;
+        bool        m_binary;
         EFileMode   m_mode;
 
         //----------------------------------------------------------------------
         bool        _FileExists(const char* filePath);
-        bool        _OpenFile(EFileMode mode);
+        bool        _OpenFile(EFileMode mode, bool binary);
         void        _CloseFile();
         void        _CreateFile();
         void        _PeekNextCharAndSetEOF();
@@ -259,6 +260,36 @@ namespace Core { namespace OS {
         File& operator = (const File& other)    = delete;
         File(File&& other)                      = delete;
         File& operator = (File&& other)         = delete;
+    };
+
+    //*********************************************************************
+    // Text-File
+    //*********************************************************************
+    class TextFile : public File
+    {
+    public:
+        TextFile()
+            : File(false)
+        {}
+
+        explicit TextFile(const char* vpath, EFileMode mode = EFileMode::READ_WRITE)
+            : File(vpath, mode, false)
+        {}
+    };
+
+    //*********************************************************************
+    // Binary-File
+    //*********************************************************************
+    class BinaryFile : public File
+    {
+    public:
+        BinaryFile() 
+            : File(true) 
+        {}
+
+        explicit BinaryFile(const char* vpath, EFileMode mode = EFileMode::READ_WRITE)
+            : File(vpath, mode, true)
+        {}
     };
 
 } }

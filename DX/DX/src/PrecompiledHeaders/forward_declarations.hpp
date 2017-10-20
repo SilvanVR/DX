@@ -16,8 +16,8 @@ namespace Core
     namespace OS
     {
         class File;
-        using TextFile = File;
-        using BinaryFile = File;
+        class TextFile;
+        class BinaryFile;
     }
 
 

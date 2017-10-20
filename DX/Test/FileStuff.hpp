@@ -4,9 +4,9 @@
 
 void TestFileStuff()
 {
-    OS::File file;
+    OS::BinaryFile file;
 
-    file.open("test.txt", false);
+    file.open("test.txt", OS::EFileMode::READ_WRITE_OVERWRITE);
 
     //Thread& t = file.readAsync( []( String data ) {
     //    LOG( data );

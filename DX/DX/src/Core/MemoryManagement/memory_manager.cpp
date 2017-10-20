@@ -25,8 +25,8 @@ namespace Core { namespace MemoryManagement {
         auto currentAllocationInfo = getAllocationInfo();
         LOG( currentAllocationInfo.toString() );
 
-        //if (currentAllocationInfo.currentBytesAllocated != 0)
-        //    _ReportMemoryLeak( currentAllocationInfo );
+        if (currentAllocationInfo.currentBytesAllocated != 0)
+            _ReportMemoryLeak( currentAllocationInfo );
     }
 
     //----------------------------------------------------------------------

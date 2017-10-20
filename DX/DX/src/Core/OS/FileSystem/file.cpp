@@ -26,19 +26,19 @@ namespace Core { namespace OS {
     #define FILE_EXISTS_AND_NOT_EOF() ASSERT( m_exists && !eof() && "File does not exist or read-cursor is at the end!" );
 
     //----------------------------------------------------------------------
-    File::File()
-        : m_filePath( "" ), m_exists( false ), m_file( nullptr ),
+    File::File(bool binary)
+        : m_filePath( "" ), m_exists( false ), m_file( nullptr ), m_binary( binary ),
           m_readCursorPos( 0 ), m_writeCursorPos( 0 ), m_eof( false ), m_mode( EFileMode::INVALID )
     {}
 
     //----------------------------------------------------------------------
-    File::File(const char* path, EFileMode mode)
-        : m_filePath( _GetPhysicalPath( path ) ), m_exists( _FileExists( m_filePath.c_str() ) ),
+    File::File(const char* path, EFileMode mode, bool binary)
+        : m_filePath( _GetPhysicalPath( path ) ), m_exists( _FileExists( m_filePath.c_str() ) ), m_binary( binary ),
           m_file( nullptr ), m_readCursorPos( 0 ), m_writeCursorPos( 0 ), m_eof( false ), m_mode( mode )
     {
         if (m_exists)
         {
-            _OpenFile( m_mode );
+            _OpenFile( m_mode, m_binary );
         }
     }
 
@@ -60,7 +60,7 @@ namespace Core { namespace OS {
         m_exists    = _FileExists( m_filePath.c_str() );
         m_mode      = mode;
 
-        return _OpenFile( m_mode );
+        return _OpenFile( m_mode, m_binary );
     }
 
     //----------------------------------------------------------------------
@@ -133,14 +133,15 @@ namespace Core { namespace OS {
         if (not m_exists)
             _CreateFile();
 
-        _File_Seek(m_writeCursorPos);
+        _File_Seek( m_writeCursorPos );
     }
 
     void File::_WRITE_FUNC_END()
     {
-        m_writeCursorPos = ftell(m_file);
         if (m_writeCursorPos == m_readCursorPos)
             m_eof = false;
+
+        m_writeCursorPos = ftell( m_file );
     }
 
     void File::write(const Byte* data, Size amountOfBytes)
@@ -220,24 +221,21 @@ namespace Core { namespace OS {
     }
 
     //----------------------------------------------------------------------
-    bool File::_OpenFile( EFileMode mode )
-    {
+    bool File::_OpenFile( EFileMode mode, bool binary )
+    { 
+        String cmode = "  ";
+
         switch ( mode )
         {
-            case EFileMode::READ:
-                m_file = fopen( m_filePath.c_str(), "r" ); break;
-            case EFileMode::WRITE:
-                m_file = fopen( m_filePath.c_str(), "w" ); break;
-            case EFileMode::READ_WRITE:
-                m_file = fopen( m_filePath.c_str(), "r+" ); break;
-            case EFileMode::READ_WRITE_OVERWRITE:
-                m_file = fopen( m_filePath.c_str(), "w+" ); break;
-            case EFileMode::APPEND:
-                m_file = fopen( m_filePath.c_str(), "a" ); break;
-            case EFileMode::READ_WRITE_APPEND:
-                m_file = fopen( m_filePath.c_str(), "a+" ); break;
+            case EFileMode::READ:                   cmode = binary ? "rb"  : "r";  break;
+            case EFileMode::WRITE:                  cmode = binary ? "wb"  : "w";  break;
+            case EFileMode::READ_WRITE:             cmode = binary ? "rb+" : "r+"; break;
+            case EFileMode::READ_WRITE_OVERWRITE:   cmode = binary ? "wb+" : "w+"; break;
+            case EFileMode::APPEND:                 cmode = binary ? "ab"  : "a";  break;
+            case EFileMode::READ_WRITE_APPEND:      cmode = binary ? "ab+" : "a+"; break;
         }
 
+        m_file = fopen( m_filePath.c_str(), cmode.c_str() );
         if (m_file != nullptr)
             m_writeCursorPos = ftell( m_file );
 
@@ -263,7 +261,7 @@ namespace Core { namespace OS {
     void File::_CreateFile()
     {
         // Open file with appropriate flag to create it
-        m_file = fopen( m_filePath.c_str(), "w+" );
+        m_file = m_binary ? fopen( m_filePath.c_str(), "wb+" ) : fopen( m_filePath.c_str(), "w+" );
         ASSERT( m_file != NULL && "Could not create a new file" );
 
         m_exists = true;

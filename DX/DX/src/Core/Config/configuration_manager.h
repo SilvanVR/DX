@@ -7,8 +7,6 @@
     date: October 20, 2017
 
     Manages initial configuration stuff and files.
-    @Considerations
-      - 
 **********************************************************************/
 
 #include "Core/i_subsystem.hpp"
@@ -17,7 +15,7 @@
 namespace Core { namespace Config {
 
     //*********************************************************************
-    // MemoryManager class, which tracks memory allocations.
+    // Manages a configuration file on disk.
     //*********************************************************************
     class ConfigurationManager : public ISubSystem
     {
