@@ -130,12 +130,13 @@ int main(void)
     {
         Config::ConfigFile configFile("/config/engine.ini");
 
-        //float resX = configFile["General"]["ResolutionX"];
-        //float resY = configFile["General"]["ResolutionY"];
+        float resX = configFile["General"]["ResolutionX"];
+        float resY = configFile["General"]["ResolutionY"];
 
         U32 x = configFile["General"]["ResolutionX"];
         U32 y = configFile["General"]["ResolutionY"];
         const char* name = configFile["General"]["Name"];
+
 
         configFile["General"]["ResolutionX"] = 1280;
         configFile["General"]["ResolutionY"] = 720;
@@ -172,7 +173,6 @@ int main(void)
         //Color color( 16, 52, 128, 255);
         //LOG( color.toString(true), Color::RED );
     }
-
 
     gSubSystemManager.shutdown();
 

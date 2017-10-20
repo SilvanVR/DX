@@ -162,7 +162,7 @@ namespace Core { namespace Logging {
         }
         template <>
         void log<StringID>(ELogChannel channel, StringID msg, ELogLevel logLevel, Color color) {
-            _Log( channel, msg.str, logLevel, color );
+            _Log( channel, msg.c_str(), logLevel, color );
         }
         template <>
         void log<String>(ELogChannel channel, String msg, ELogLevel logLevel, Color color) {
@@ -176,7 +176,7 @@ namespace Core { namespace Logging {
         }
         template <>
         void log<StringID>(ELogChannel channel, StringID msg, ELogLevel logLevel) {
-            _Log( channel, msg.str, logLevel, m_defaultColor );
+            _Log( channel, msg.c_str(), logLevel, m_defaultColor );
         }
         template <>
         void log<String>(ELogChannel channel, String msg, ELogLevel logLevel) {
@@ -190,7 +190,7 @@ namespace Core { namespace Logging {
         }
         template <>
         void log<StringID>(ELogChannel channel, StringID msg, Color color) {
-            _Log( channel, msg.str, LOG_LEVEL_VERY_IMPORTANT, color );
+            _Log( channel, msg.c_str(), LOG_LEVEL_VERY_IMPORTANT, color );
         }
         template <>
         void log<String>(ELogChannel channel, String msg, Color color) {
@@ -204,7 +204,7 @@ namespace Core { namespace Logging {
         }
         template <>
         void warn<StringID>(ELogChannel channel, StringID msg, ELogLevel logLevel) {
-            _Warn( channel, msg.str, logLevel );
+            _Warn( channel, msg.c_str(), logLevel );
         }
         template <>
         void warn<String>(ELogChannel channel, String msg, ELogLevel logLevel) {
@@ -218,7 +218,7 @@ namespace Core { namespace Logging {
         }
         template <>
         void error<StringID>(ELogChannel channel, StringID msg, ELogLevel logLevel) {
-            _Error( channel, msg.str, logLevel );
+            _Error( channel, msg.c_str(), logLevel );
         }
         template <>
         void error<String>(ELogChannel channel, String msg, ELogLevel logLevel) {

@@ -8,6 +8,7 @@
 
 #include "Core/locator.h"
 #include "Utils/string_utils.h"
+#include "Core/OS/FileSystem/file.h"
 
 namespace Core { namespace Config {
 
@@ -17,32 +18,23 @@ namespace Core { namespace Config {
     const char* ConfigFile::DEFAULT_CATEGORY_NAME = "Default";
 
     //----------------------------------------------------------------------
-    VariantType& ConfigFile::Category::operator [] (const String& name)
+    ConfigFile::ConfigFile(const char* vpath)
     {
-        bool existing = (m_entries.count( name ) != 0);
-
-        if (not existing)
-        {
-
-            return m_entries[name];
-        }
-
-        return m_entries[name];
+        m_configFile = new OS::TextFile( vpath, OS::EFileMode::READ_WRITE );
+        _Read();
     }
 
     //----------------------------------------------------------------------
-    ConfigFile::Category& ConfigFile::operator [] ( const String& category )
+    ConfigFile::~ConfigFile()
     {
-        bool existing = (m_categories.count( category ) != 0);
+        delete m_configFile;
+        flush();
+    }
 
-        if (existing)
-            return m_categories[category];
-
-        // Category does not exist, so create it
-        Category newCategory;
-
-        m_categories[category] = newCategory;
-
+    //----------------------------------------------------------------------
+    ConfigFile::Category& ConfigFile::operator [] ( const char* str)
+    {
+        StringID category = StringID( str );
         return m_categories[category];
     }
 
@@ -51,51 +43,51 @@ namespace Core { namespace Config {
     {
         return;
 
-        m_configFile.clear();
+        m_configFile->clear();
 
         for (auto& categoryPair : m_categories)
         {
-            const String& categoryName = categoryPair.first;
+            const char* categoryName = categoryPair.first.c_str();
 
-            if (categoryName == DEFAULT_CATEGORY_NAME)
+            if (categoryPair.first == StringID( DEFAULT_CATEGORY_NAME ) )
                 continue;
 
             Category& category = categoryPair.second;
 
-            m_configFile.write( "[%s]\n", categoryName.c_str());
+            m_configFile->write( "[%s]\n", categoryName );
             for (auto& linePair : category.m_entries)
             {
-                const String& name = linePair.first;
-                m_configFile.write( "%s = ", name.c_str() );
+                const char* name = linePair.first.c_str();
+                m_configFile->write( "%s = ", name );
 
                 VariantType& value = linePair.second;
                 switch ( value.getType() )
                 {
-                case EVariantType::I32:     m_configFile << value.get<I32>(); break;
-                case EVariantType::U32:     m_configFile << value.get<U32>(); break;
-                case EVariantType::I64:     m_configFile << value.get<I64>(); break;
-                case EVariantType::U64:     m_configFile << value.get<U64>(); break;
-                case EVariantType::F32:     m_configFile << value.get<F32>(); break;
-                case EVariantType::F64:     m_configFile << value.get<F64>(); break;
-                case EVariantType::String:  m_configFile << "\"" << value.get<const char*>() << "\""; break;
+                case EVariantType::I32:     *m_configFile << value.get<I32>(); break;
+                case EVariantType::U32:     *m_configFile << value.get<U32>(); break;
+                case EVariantType::I64:     *m_configFile << value.get<I64>(); break;
+                case EVariantType::U64:     *m_configFile << value.get<U64>(); break;
+                case EVariantType::F32:     *m_configFile << value.get<F32>(); break;
+                case EVariantType::F64:     *m_configFile << value.get<F64>(); break;
+                case EVariantType::String:  *m_configFile << "\"" << value.get<const char*>() << "\""; break;
                 }
-                m_configFile.write( "\n" );
+                m_configFile->write( "\n" );
             }
-            m_configFile.write( "\n" );
+            m_configFile->write( "\n" );
         }
 
-        m_configFile.flush();
+        m_configFile->flush();
     }
 
     //----------------------------------------------------------------------
     void ConfigFile::_Read()
     {
-        String currentCategory = DEFAULT_CATEGORY_NAME;
+        StringID currentCategory = StringID( DEFAULT_CATEGORY_NAME );
         m_categories[currentCategory] = Category();
 
-        while ( not m_configFile.eof() )
+        while ( not m_configFile->eof() )
         {
-            String line = m_configFile.readLine();
+            String line = m_configFile->readLine();
 
             // Skip empty lines
             if (line.size() == 0)
@@ -107,8 +99,9 @@ namespace Core { namespace Config {
             if (categoryName.size() > 0 )
             {
                 // Add new category
-                m_categories[categoryName] = Category();
-                currentCategory = categoryName;
+                StringID nameAsID = StringID( categoryName.c_str() );
+                m_categories[nameAsID] = Category();
+                currentCategory = nameAsID;
 
                 continue;
             }
@@ -121,13 +114,24 @@ namespace Core { namespace Config {
                 const String& value     = strings[1];
 
                 // Add value to current category
-                m_categories[currentCategory][valueName] = value;
+                m_categories[currentCategory][valueName.c_str()] = value;
 
                 continue;
             }
 
-            WARN( "ConfigFile: Could not read line: '" + line + "'" );
+            WARN( "ConfigFile '" + m_configFile->getFilePath() + "': Could not read line: '" + line + "'" );
         }
     }
+
+    //**********************************************************************
+    // CATEGORY 
+    //**********************************************************************
+
+    VariantType& ConfigFile::Category::operator [] (const char* str)
+    {
+        StringID name = StringID( str );
+        return m_entries[name];
+    }
+
 
 } }

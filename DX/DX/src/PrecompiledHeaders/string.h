@@ -22,6 +22,11 @@ using String = std::string;
 #define SID(str) StringID( str )
 
 //----------------------------------------------------------------------
+// Returns the string-tables which stores the connection of id <-> string
+//----------------------------------------------------------------------
+std::map<U32, const char*>& getStringTable();
+
+//----------------------------------------------------------------------
 // Represents a string as a number.
 //----------------------------------------------------------------------
 struct StringID
@@ -30,7 +35,7 @@ struct StringID
     U32 id;
 
     StringID() 
-        : id(0), str("") {}
+        : id(0), str(nullptr) {}
 
     //----------------------------------------------------------------------
     // Converts a string to an unsigned integer using a hash function and
@@ -46,7 +51,12 @@ struct StringID
     bool operator != (const StringID& other) const { return id != other.id; }
 
     //----------------------------------------------------------------------
+    // Returns the corresponding c-style array for this string
+    //----------------------------------------------------------------------
+    const char* c_str() const;
+
+    //----------------------------------------------------------------------
     // Converts a StringID back to the corresponding string.
     //----------------------------------------------------------------------
-    String toString(){ return String( str ); }
+    String toString() const;
 };

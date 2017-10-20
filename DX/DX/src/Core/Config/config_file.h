@@ -18,21 +18,25 @@
     ResolutionY = 720
 **********************************************************************/
 
-#include "Core/OS/FileSystem/file.h"
 #include "Core/Misc/variant_type.h"
+
+//----------------------------------------------------------------------
+// Forward Declarations
+//----------------------------------------------------------------------
+namespace Core { namespace OS { class File; } }
+
 
 namespace Core { namespace Config {
 
     //**********************************************************************
-    // 
+    // Opens or creates a new configuration file.
     //**********************************************************************
     class ConfigFile
     {
         static const char* DEFAULT_CATEGORY_NAME;
 
-    public:
         //**********************************************************************
-        // 
+        // Represents a category in the config-file [CATEGORY]
         //**********************************************************************
         class Category
         {
@@ -41,35 +45,31 @@ namespace Core { namespace Config {
         public:
             Category() {}
 
-            VariantType& operator [] (const String& name);
+            VariantType& operator [] (const char* name);
 
         private:
-            std::map<String, VariantType> m_entries;
+            std::map<StringID, VariantType> m_entries;
         };
+
         //----------------------------------------------------------------------
 
     public:
-        ConfigFile(const char* vpath)
-            : m_configFile( vpath, OS::EFileMode::READ_WRITE )
-        {
-            _Read();
-        }
-
-        ~ConfigFile(){ flush(); }
+        ConfigFile(const char* vpath);
+        ~ConfigFile();
 
         //----------------------------------------------------------------------
-        // 
+        // Return a category object by name.
         //----------------------------------------------------------------------
-        Category& operator [] (const String& category);
+        Category& operator [] (const char* category);
 
         //----------------------------------------------------------------------
-        // 
+        // Flush whole data immediately to disk.
         //----------------------------------------------------------------------
         void flush();
 
     private:
-        OS::TextFile                    m_configFile; // AS POINTER?
-        std::map<String, Category>      m_categories;
+        OS::TextFile*                   m_configFile;
+        std::map<StringID, Category>    m_categories;
 
         void _Read();
 

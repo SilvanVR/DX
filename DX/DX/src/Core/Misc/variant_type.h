@@ -39,9 +39,9 @@ namespace Core {
     public:
         //----------------------------------------------------------------------
         // Extract an appropriate data-type manually from the given string.
+        // If the given string represents a number it will be used as it.
         //----------------------------------------------------------------------
         VariantType(const String& string);
-        ~VariantType();
 
         //----------------------------------------------------------------------
         VariantType()                   : m_i64(0), m_type( EVariantType::UNKNOWN ) {}
@@ -51,7 +51,8 @@ namespace Core {
         VariantType(U64 val)            : m_u64( val ), m_type( EVariantType::U64 ) {}
         VariantType(F32 val)            : m_f32( val ), m_type( EVariantType::F32 ) {}
         VariantType(F64 val)            : m_f64( val ), m_type( EVariantType::F64 ) {}
-        VariantType(const char* val)    : m_str( val ), m_type( EVariantType::String ) {}
+        VariantType(StringID val)       : m_str( val ), m_type( EVariantType::String ) {}
+        VariantType(const char* val)    : m_str( StringID(val) ), m_type(EVariantType::String) {}
         ~VariantType() {}
 
         //----------------------------------------------------------------------
@@ -72,7 +73,7 @@ namespace Core {
             U64         m_u64;
             F32         m_f32;
             F64         m_f64;
-            const char* m_str;
+            StringID    m_str;
         };
 
         //----------------------------------------------------------------------
@@ -98,7 +99,7 @@ namespace Core {
         {
             switch (m_type)
             {
-            case EVariantType::String: return m_str;
+            case EVariantType::String: return m_str.c_str();
             }
 
             ASSERT( false && "Runtime datatype error. No conversion possible or unknown type." );

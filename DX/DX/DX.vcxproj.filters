@@ -194,5 +194,8 @@
     <ClInclude Include="src\Core\Misc\variant_type.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\PrecompiledHeaders\forward_declarations.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -60,7 +60,7 @@ namespace Core { namespace MemoryManagement{
 
     private:
         // Contains all allocations made before this class was initialized
-        AllocationMemoryInfo m_staticAllocationInfo;
+        AllocationMemoryInfo    m_staticAllocationInfo;
 
         //----------------------------------------------------------------------
         void _ReportMemoryLeak(const AllocationMemoryInfo& allocationInfo);

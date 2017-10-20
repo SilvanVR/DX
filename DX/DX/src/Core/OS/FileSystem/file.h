@@ -261,9 +261,4 @@ namespace Core { namespace OS {
         File& operator = (File&& other)         = delete;
     };
 
-    //----------------------------------------------------------------------
-
-    using TextFile = File;
-    //using BinaryFile = File<false>;
-
 } }

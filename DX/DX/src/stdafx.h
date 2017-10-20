@@ -21,6 +21,6 @@
 #include <map>
 #include <set>
 
+#include "PrecompiledHeaders/forward_declarations.hpp"
 #include "PrecompiledHeaders/data_types.hpp"
 #include "PrecompiledHeaders/macros.hpp"
-//#include "PrecompiledHeaders/color.h"

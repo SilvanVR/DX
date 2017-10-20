@@ -81,8 +81,8 @@ namespace Core { namespace MemoryManagement {
 #ifdef _WIN32
         if (s_memoryInfo.currentBytesAllocated != 0)
         {
-            printf("Current bytes allocated: %lld \n", s_memoryInfo.currentBytesAllocated);
-            printf("Num allocations left: %lld", s_memoryInfo.totalAllocations - s_memoryInfo.totalDeallocations);
+            printf( "Current bytes allocated: %lld \n", s_memoryInfo.currentBytesAllocated );
+            printf( "Num allocations left: %lld", s_memoryInfo.totalAllocations - s_memoryInfo.totalDeallocations );
             __debugbreak();
         }
 #elif
