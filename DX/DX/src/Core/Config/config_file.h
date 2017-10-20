@@ -19,7 +19,7 @@
 **********************************************************************/
 
 #include "Core/OS/FileSystem/file.h"
-#include "Core/Misc/variant_type.hpp"
+#include "Core/Misc/variant_type.h"
 
 namespace Core { namespace Config {
 
@@ -28,6 +28,8 @@ namespace Core { namespace Config {
     //**********************************************************************
     class ConfigFile
     {
+        static const char* DEFAULT_CATEGORY_NAME;
+
     public:
         //**********************************************************************
         // 
@@ -37,13 +39,12 @@ namespace Core { namespace Config {
             friend class ConfigFile;
 
         public:
-            Category(const char* name = "NO NAME") : m_name(name) {}
+            Category() {}
 
-            VariantType& operator [] (const char* name);
+            VariantType& operator [] (const String& name);
 
         private:
-            const char* m_name;
-            std::map<const char*, VariantType> m_entries;
+            std::map<String, VariantType> m_entries;
         };
         //----------------------------------------------------------------------
 
@@ -59,7 +60,7 @@ namespace Core { namespace Config {
         //----------------------------------------------------------------------
         // 
         //----------------------------------------------------------------------
-        Category& operator [] (const char* category);
+        Category& operator [] (const String& category);
 
         //----------------------------------------------------------------------
         // 
@@ -67,8 +68,8 @@ namespace Core { namespace Config {
         void flush();
 
     private:
-        OS::TextFile                    m_configFile;
-        std::map<const char*, Category> m_categories;
+        OS::TextFile                    m_configFile; // AS POINTER?
+        std::map<String, Category>      m_categories;
 
         void _Read();
 

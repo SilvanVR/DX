@@ -1,7 +1,6 @@
 #pragma once
-
 /**********************************************************************
-    class: VariantType (variant_type.hpp)
+    class: VariantType (variant_type.h)
 
     author: S. Hau
     date: October 18, 2017
@@ -13,7 +12,6 @@
       - Compile-Time checking of conversions (possible?)
       - Objects
       - Move-Semantics
-
 **********************************************************************/
 
 namespace Core {
@@ -34,11 +32,18 @@ namespace Core {
     };
 
     //**********************************************************************
-    // Encapsulates exactly one type of a list of supported types.
+    // Encapsulates one type of data.
     //**********************************************************************
     class VariantType 
     {
     public:
+        //----------------------------------------------------------------------
+        // Extract an appropriate data-type manually from the given string.
+        //----------------------------------------------------------------------
+        VariantType(const String& string);
+        ~VariantType();
+
+        //----------------------------------------------------------------------
         VariantType()                   : m_i64(0), m_type( EVariantType::UNKNOWN ) {}
         VariantType(I32 val)            : m_i32( val ), m_type( EVariantType::I32 ) {}
         VariantType(U32 val)            : m_u32( val ), m_type( EVariantType::U32 ) {}
@@ -52,12 +57,9 @@ namespace Core {
         //----------------------------------------------------------------------
         EVariantType getType() const { return m_type; }
 
-
         //----------------------------------------------------------------------
         template <class T> T get() const { return _GetVal<T>(); }
         template <class T> operator T () const { return _GetVal<T>(); }
-
-        //VirtualType& operator = (const VirtualType& other) { return *this; }
 
     private:
         EVariantType    m_type;
@@ -90,7 +92,7 @@ namespace Core {
             ASSERT( false && "Runtime datatype error. No conversion possible or unknown type." );
             return 0;
         }
-    
+
         template <>
         const char* _GetVal() const
         {

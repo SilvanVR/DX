@@ -128,20 +128,18 @@ int main(void)
     Locator::getLogger().setSaveToDisk( false );
 
     {
-        //Config::ConfigFile configFile("/config/engine.ini");
-
-        OS::File file("confi/text.txt");
-        //file.write("Hello");
-
-        bool exists = OS::FileSystem::dirExists("confi");
-        OS::FileSystem::createDirectory("confi");
-        bool exists2 = OS::FileSystem::dirExists("confi");
+        Config::ConfigFile configFile("/config/engine.ini");
 
         //float resX = configFile["General"]["ResolutionX"];
         //float resY = configFile["General"]["ResolutionY"];
 
-        //configFile["General"]["ResolutionX"] = 1280;
-        //configFile["General"]["ResolutionY"] = 720;
+        U32 x = configFile["General"]["ResolutionX"];
+        U32 y = configFile["General"]["ResolutionY"];
+        const char* name = configFile["General"]["Name"];
+
+        configFile["General"]["ResolutionX"] = 1280;
+        configFile["General"]["ResolutionY"] = 720;
+        configFile["General"]["String"] = "Hello World!";
 
         //configFile["Rendering"]["Alpha"] = false;
         //ConfigFile::Category& general = configFile["General"];

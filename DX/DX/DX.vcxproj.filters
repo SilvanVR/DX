@@ -81,6 +81,12 @@
     <ClCompile Include="src\Core\OS\FileSystem\file_system_win.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Utils\string_utils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Misc\variant_type.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\commenting_style.hpp">
@@ -170,9 +176,6 @@
     <ClInclude Include="src\Core\DataStructures\byte_array.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\Misc\variant_type.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\Core\Config\config_file.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -183,6 +186,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\OS\FileSystem\file.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Utils\string_utils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Misc\variant_type.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
