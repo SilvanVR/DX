@@ -24,6 +24,7 @@
 
 #include "Logging/null_logger.hpp"
 #include "MemoryManagement/memory_manager.h"
+#include "Config/configuration_manager.h"
 
 //----------------------------------------------------------------------
 // Defines
@@ -60,12 +61,14 @@ namespace Core {
         //----------------------------------------------------------------------
         static Logging::ILogger&                    getLogger();
         static MemoryManagement::MemoryManager&     getMemoryManager();
+        static Config::ConfigurationManager&        getConfiguration();
 
         //----------------------------------------------------------------------
         // Provide a Sub-System
         //----------------------------------------------------------------------
         static void provide(Logging::ILogger* logger) { gLogger = (logger != nullptr) ? logger : &gNullLogger; }
         static void provide(MemoryManagement::MemoryManager* memoryManager){ gMemoryManager = memoryManager; }
+        static void provide(Config::ConfigurationManager* manager) { gConfigManager = manager; }
 
     private:
 
@@ -76,6 +79,7 @@ namespace Core {
         static Logging::ILogger*                    gLogger;
 
         static MemoryManagement::MemoryManager*     gMemoryManager;
+        static Config::ConfigurationManager*        gConfigManager;
 
 
         // Do not allow construction of an Locator-Object

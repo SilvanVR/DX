@@ -10,7 +10,8 @@
 #include "locator.h"
 #include "Logging/console_logger.h"
 #include "MemoryManagement/memory_manager.h"
-#include "Core/OS/FileSystem/virtual_file_system.h"
+#include "OS/FileSystem/virtual_file_system.h"
+#include "Config/configuration_manager.h"
 
 namespace Core
 {
@@ -39,6 +40,8 @@ namespace Core
         m_memoryManager = initializeSubSystem( new MemoryManagement::MemoryManager() );
         LOG( "MemoryManager initialized!" );
 
+        m_configManager = initializeSubSystem( new Config::ConfigurationManager() );
+        LOG( "ConfigurationManager initialized!" );
 
     }
 
@@ -49,6 +52,8 @@ namespace Core
         // Shutdown every Sub-System here in reversed order to above
         LOG( "<<< Shutting down Sub-Systems >>>" );
 
+        LOG( "Shutdown ConfigurationManager..." );
+        shutdownSubSystem( m_configManager );
 
         LOG( "Shutdown MemoryManager..." );
         shutdownSubSystem( m_memoryManager );

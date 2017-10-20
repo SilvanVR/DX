@@ -17,7 +17,7 @@ namespace Core {
     Logging::ILogger*                   Locator::gLogger = &gNullLogger;
 
     MemoryManagement::MemoryManager*    Locator::gMemoryManager = nullptr;
-
+    Config::ConfigurationManager*       Locator::gConfigManager = nullptr;
 
     //----------------------------------------------------------------------
     MemoryManagement::MemoryManager& Locator::getMemoryManager()
@@ -28,6 +28,11 @@ namespace Core {
     Logging::ILogger& Locator::getLogger() 
     { 
         return (*gLogger); 
+    }
+
+    Config::ConfigurationManager& Locator::getConfiguration()
+    {
+        return (*gConfigManager);
     }
 
 

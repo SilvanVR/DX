@@ -87,6 +87,9 @@
     <ClCompile Include="src\Core\Misc\variant_type.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Core\Config\configuration_manager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\commenting_style.hpp">
@@ -195,6 +198,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\PrecompiledHeaders\forward_declarations.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Config\configuration_manager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

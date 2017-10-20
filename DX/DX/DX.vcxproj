@@ -268,6 +268,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Core\Config\configuration_manager.cpp" />
     <ClCompile Include="src\Core\Config\config_file.cpp" />
     <ClCompile Include="src\Core\locator.cpp" />
     <ClCompile Include="src\Core\MemoryManagement\memory_manager.cpp" />
@@ -304,6 +305,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\commenting_style.hpp" />
+    <ClInclude Include="src\Core\Config\configuration_manager.h" />
     <ClInclude Include="src\Core\Config\config_file.h" />
     <ClInclude Include="src\Core\DataStructures\byte_array.hpp" />
     <ClInclude Include="src\Core\locator.h" />

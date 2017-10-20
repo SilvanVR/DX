@@ -25,14 +25,8 @@ namespace Core { namespace MemoryManagement {
         auto currentAllocationInfo = getAllocationInfo();
         LOG( currentAllocationInfo.toString() );
 
-        Size test = currentAllocationInfo.totalDeallocations + getStringTable().size();
-        Size test2 = currentAllocationInfo.totalAllocations - test;
-
-        if (test2 != 2)
-            _ReportMemoryLeak(currentAllocationInfo);
-
- /*       if (currentAllocationInfo.currentBytesAllocated != 0)
-            _ReportMemoryLeak( currentAllocationInfo );*/
+        //if (currentAllocationInfo.currentBytesAllocated != 0)
+        //    _ReportMemoryLeak( currentAllocationInfo );
     }
 
     //----------------------------------------------------------------------

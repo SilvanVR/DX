@@ -18,6 +18,7 @@ namespace Core {
     //----------------------------------------------------------------------
     namespace Logging { class ILogger; }
     namespace MemoryManagement { class MemoryManager; }
+    namespace Config { class ConfigurationManager; }
 
 
     //*********************************************************************
@@ -42,6 +43,7 @@ namespace Core {
         //----------------------------------------------------------------------
         Logging::ILogger*                   m_logger;
         MemoryManagement::MemoryManager*    m_memoryManager;
+        Config::ConfigurationManager*       m_configManager;
 
 
         //----------------------------------------------------------------------

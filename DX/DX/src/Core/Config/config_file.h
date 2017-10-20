@@ -16,14 +16,13 @@
     [General]
     ResolutionX = 1280
     ResolutionY = 720
+
+    Read with same mechanism:
+    U32 x = configFile["General"]["ResolutionX"];
+    U32 y = configFile["General"]["ResolutionY"];
 **********************************************************************/
 
 #include "Core/Misc/variant_type.h"
-
-//----------------------------------------------------------------------
-// Forward Declarations
-//----------------------------------------------------------------------
-namespace Core { namespace OS { class File; } }
 
 
 namespace Core { namespace Config {
@@ -40,14 +39,11 @@ namespace Core { namespace Config {
         //**********************************************************************
         class Category
         {
-            friend class ConfigFile;
-
         public:
-            Category() {}
-
-            VariantType& operator [] (const char* name);
+            VariantType& operator [] (const char* name) { return m_entries[ SID( name ) ]; }
 
         private:
+            friend class ConfigFile;
             std::map<StringID, VariantType> m_entries;
         };
 
@@ -71,6 +67,7 @@ namespace Core { namespace Config {
         OS::TextFile*                   m_configFile;
         std::map<StringID, Category>    m_categories;
 
+        // Read config file from disk
         void _Read();
 
         ConfigFile(const ConfigFile& other)                 = delete;
@@ -78,9 +75,6 @@ namespace Core { namespace Config {
         ConfigFile(ConfigFile&& other)                      = delete;
         ConfigFile& operator = (ConfigFile&& other)         = delete;
     };
-
-
-
 
 
 } }

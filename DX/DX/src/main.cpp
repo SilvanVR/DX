@@ -109,11 +109,9 @@ public:
 
 //@TODO: 
 // - Profiler
-// Binary-File!!!
 // Threading -> async file reading/writing
+// Binary-File!!!
 
-// Read until specific character has been reached
-// jump to line
 
 int main(void)
 {
@@ -128,38 +126,23 @@ int main(void)
     Locator::getLogger().setSaveToDisk( false );
 
     {
-        Config::ConfigFile configFile("/config/engine.ini");
+        //Config::ConfigFile configFile("/config/engine.ini");
 
-        float resX = configFile["General"]["ResolutionX"];
-        float resY = configFile["General"]["ResolutionY"];
+        //Config::ConfigFile& configFile = Locator::getConfiguration().getEngineIni();
+        //U32 x = configFile["General"]["ResolutionX"];
+        //U32 y = configFile["General"]["ResolutionY"];
+        //const char* name = configFile["General"]["EngineName"];
 
-        U32 x = configFile["General"]["ResolutionX"];
-        U32 y = configFile["General"]["ResolutionY"];
-        const char* name = configFile["General"]["Name"];
-
-
-        configFile["General"]["ResolutionX"] = 1280;
-        configFile["General"]["ResolutionY"] = 720;
-        configFile["General"]["String"] = "Hello World!";
-
-        //configFile["Rendering"]["Alpha"] = false;
-        //ConfigFile::Category& general = configFile["General"];
-
-        //general["test"] = 52;
-
-        //int val = general["test"];
-
-
-        //VariantType t(20);
-        //VariantType t2(3.14f);
-        //VariantType t3(2.5353);
-        //F32 test = t;
-        //U64 test2 = t2;
-        //F64 test3 = t3;
-        //VariantType t4("Hello World");
-        //const char* test4 = t4;
-
-        int ehehe = 52;
+        //U32 x = configFile["General"]["ResolutionX"];
+        //U32 y = configFile["General"]["ResolutionY"];
+        //const char* name = configFile["General"]["EngineName"];
+        //
+        //configFile["General"]["ResolutionX"] = 1280;
+        //configFile["General"]["ResolutionY"] = 720;
+        //configFile["General"]["String"] = "HelloWorld!";
+        //
+        //bool alphaEnabled = configFile["Rendering"]["Alpha"];
+        //configFile["Rendering"]["Alpha"] = 0;
     }
 
     {
