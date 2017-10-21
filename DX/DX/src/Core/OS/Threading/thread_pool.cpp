@@ -10,7 +10,7 @@
 namespace Core { namespace OS {
 
     //----------------------------------------------------------------------
-    ThreadPool::ThreadPool(U8 numThreads)
+    ThreadPool::ThreadPool( U8 numThreads )
         : m_numThreads( numThreads )
     {
         if (m_numThreads == MAX_HARDWARE_CONCURRENCY)
@@ -37,6 +37,17 @@ namespace Core { namespace OS {
             m_threads[i] = nullptr;
         }
     }
+
+    //----------------------------------------------------------------------
+    void ThreadPool::addJob( const std::function<void()>& job, const std::function<void()>& calledWhenDone )
+    {
+        // Add job to job queue
+        m_jobs.push( std::move( job ) );
+
+        // Try to wake up a thread, which will fetch a job from the queue
+
+    }
+
 
     //----------------------------------------------------------------------
     void ThreadPool::waitForThreads()

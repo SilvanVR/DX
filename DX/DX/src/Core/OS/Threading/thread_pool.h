@@ -28,7 +28,21 @@ namespace Core { namespace OS {
         ~ThreadPool();
 
         //----------------------------------------------------------------------
+        U8 numThreads() const { return m_numThreads; }
+
+        //----------------------------------------------------------------------
+        // Adds a new job. The job will executed by an arbitrary thread. When
+        // the job is done, a callback will be called if desired.
+        // @Params:
+        //  "job": Job/Task to execute.
+        //  "calledWhenDone": Function to be called by the main thread 
+        //                    when the job is done.
+        //----------------------------------------------------------------------
+        void addJob(const std::function<void()>& job, const std::function<void()>& calledWhenDone = nullptr);
+
+        //----------------------------------------------------------------------
         // Wait until all threads have finished their execution.
+        // TODO: Until all jobs are done ??
         //----------------------------------------------------------------------
         void waitForThreads();
 
@@ -37,8 +51,10 @@ namespace Core { namespace OS {
 
 
     private:
-        Thread* m_threads[MAX_POSSIBLE_THREADS];
-        U8      m_numThreads;
+        Thread*                             m_threads[MAX_POSSIBLE_THREADS];
+        U8                                  m_numThreads;
+        std::queue<std::function<void()>>   m_jobs;
+
 
         //----------------------------------------------------------------------
         ThreadPool(const ThreadPool& other)                 = delete;

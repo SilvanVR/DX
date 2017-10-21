@@ -20,14 +20,18 @@ namespace Core { namespace OS {
     //----------------------------------------------------------------------
     Thread::~Thread()
     {
-        m_running = false;
-        m_thread.join();
+        if ( m_thread.joinable() )
+        {
+            waitIdle();
+            m_running = false;
+            m_thread.join();
+        }
     }
 
     //----------------------------------------------------------------------
     void Thread::waitIdle()
     {
-
+        m_running = false;
     }
 
     //----------------------------------------------------------------------

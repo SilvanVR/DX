@@ -11,6 +11,8 @@
 
 
 #include <thread>
+//#include <mutex>
+//#include <condition_variable>
 
 
 namespace Core { namespace OS {
@@ -30,10 +32,18 @@ namespace Core { namespace OS {
         //----------------------------------------------------------------------
         void waitIdle();
 
-    private:
-        std::thread     m_thread;
-        bool            m_running;
+        //----------------------------------------------------------------------
+        // Check whether this thread currently executes a job (is idle)
+        //----------------------------------------------------------------------
+        bool hasJob() const { return m_currentJob != nullptr; }
+        bool isIdle() const { return !hasJob(); }
 
+    private:
+        std::thread             m_thread;
+        bool                    m_running;
+        std::function<void()>   m_currentJob;
+
+        //----------------------------------------------------------------------
         void _ThreadLoop();
 
         //----------------------------------------------------------------------

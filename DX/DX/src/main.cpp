@@ -143,8 +143,8 @@ int main(void)
         //    LOG( "NEW JOB!" );
         //});
 
+        threadPool.waitForThreads();
 
-        // Thread Pool creates and destroys threads
         // Add a job to the Pool -> Arbitrary Thread will pick it up and execute it
             // When done -> Thread checks if still jobs available 
                 // if not go to sleep, otherwise grab one
@@ -154,7 +154,9 @@ int main(void)
 
     {
         //OS::TextFile file("test.txt", OS::EFileMode::READ_WRITE_OVERWRITE);
-        //file << 525 << "\n" << 42;
+        //file.readAsync([] (err, data) {
+        //    LOG( "File was read!" );
+        //});
     }
 
     {
