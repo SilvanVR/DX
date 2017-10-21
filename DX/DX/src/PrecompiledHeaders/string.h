@@ -13,6 +13,9 @@
      - When comparing hashed strings in eg. a function,
        make the compared string static, so it gets interned only once,
        when the function is called for the first time.
+     - For now StringID's can only be used after the string table was
+       externally created (atm after the memory manager). This is needed
+       in order to properly detect memory leaks instantaneously.
 **********************************************************************/
 
 #include <string>
@@ -20,11 +23,6 @@
 using String = std::string;
 
 #define SID(str) StringID( str )
-
-//----------------------------------------------------------------------
-// Returns the string-tables which stores the connection of id <-> string
-//----------------------------------------------------------------------
-std::map<U32, const char*>& getStringTable();
 
 //----------------------------------------------------------------------
 // Represents a string as a number.
@@ -43,6 +41,7 @@ struct StringID
     //----------------------------------------------------------------------
     explicit StringID(const char* str);
 
+    //----------------------------------------------------------------------
     bool operator <  (const StringID& other) const { return id < other.id; }
     bool operator >  (const StringID& other) const { return id > other.id; }
     bool operator <= (const StringID& other) const { return id <= other.id; }
@@ -60,3 +59,7 @@ struct StringID
     //----------------------------------------------------------------------
     String toString() const;
 };
+
+//----------------------------------------------------------------------
+void _CreateStringTable();
+void _DestroyStringTable();

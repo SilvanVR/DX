@@ -26,7 +26,9 @@ namespace Core { namespace Config {
     ConfigFile::ConfigFile(const char* vpath)
     {
         m_configFile = new OS::TextFile( vpath, OS::EFileMode::READ_WRITE );
-        _Read();
+
+        if ( m_configFile->exists() )
+            _Read();
     }
 
     //----------------------------------------------------------------------
@@ -86,8 +88,6 @@ namespace Core { namespace Config {
     {
         StringID currentCategory = SID( DEFAULT_CATEGORY_NAME );
         m_categories[currentCategory] = Category();
-
-        U8 orderNum = 0;
 
         while ( not m_configFile->eof() )
         {

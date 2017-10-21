@@ -33,17 +33,27 @@ namespace Core
         // The logger uses the virtual file-paths, so they have to be initialized first
         _InitVirtualFilePaths();
 
+        //----------------------------------------------------------------------
         m_logger = initializeSubSystem( new Logging::ConsoleLogger() );
-        LOG( "Logger initialized!", COLOR);
 
-        // Initialize every Sub-System here
         LOG( "<<< Initialize Sub-Systems >>>", COLOR);
+        LOG( " > Logger initialized!", COLOR);
 
+        //----------------------------------------------------------------------
         m_memoryManager = initializeSubSystem( new MemoryManagement::MemoryManager() );
-        LOG( "MemoryManager initialized!", COLOR);
+        LOG( " > MemoryManager initialized!", COLOR);
 
-        //m_configManager = initializeSubSystem( new Config::ConfigurationManager() );
-        //LOG( "ConfigurationManager initialized!", COLOR );
+        //----------------------------------------------------------------------
+        // String table needs to be created after the memory manager but before anything else
+        _CreateStringTable();
+        LOG( " > StringTable created!", COLOR );
+
+        //----------------------------------------------------------------------
+        m_configManager = initializeSubSystem( new Config::ConfigurationManager() );
+        LOG( " > ConfigurationManager initialized!", COLOR );
+
+        //----------------------------------------------------------------------
+
 
     }
 
@@ -54,15 +64,24 @@ namespace Core
         // Shutdown every Sub-System here in reversed order to above
         LOG( "<<< Shutting down Sub-Systems >>>", COLOR);
 
-        //LOG( "Shutdown ConfigurationManager...", COLOR );
-        //shutdownSubSystem( m_configManager );
 
-        LOG( "Shutdown MemoryManager...", COLOR);
+        //----------------------------------------------------------------------
+        LOG( " > Shutdown ConfigurationManager...", COLOR );
+        shutdownSubSystem( m_configManager );
+
+        //----------------------------------------------------------------------
+        LOG( " > Destroy StringTable..." , COLOR);
+        _DestroyStringTable();
+
+        //----------------------------------------------------------------------
+        LOG( " > Shutdown MemoryManager...", COLOR);
         shutdownSubSystem( m_memoryManager );
 
-        LOG( "Shutdown Logger...", COLOR);
+        //----------------------------------------------------------------------
+        LOG( " > Shutdown Logger...", COLOR);
         shutdownSubSystem( m_logger );
 
+        //----------------------------------------------------------------------
         _ShutdownVirtualFilePaths();
     }
 

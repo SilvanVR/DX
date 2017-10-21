@@ -12,15 +12,28 @@
         1.) HashTable for storing string <-> ids or
         2.) StringID class which stores pointer to c-style array
     - Optimize for release builds. Do i need the c-style string?
+       => YES, in order to dump StringIDs as string to disk.
 **********************************************************************/
 
-// Retrieving the table with a function ensures that it 
-// get's initialized first when it is really needed
-std::map<U32, const char*>& getStringTable()
-{
-    static std::map<U32, const char*> gStringIdTable;
+// Table which maps [HASH <-> STRING]
+std::map<U32, const char*>* gStringIdTable;
 
-    return gStringIdTable;
+//----------------------------------------------------------------------
+void _CreateStringTable()
+{
+    ASSERT( gStringIdTable == nullptr );
+    // Why dynamically allocate the string-table?
+    // The reason for this is to control when to delete all
+    // the memory allocated from the table. This is needed so
+    // the memory manager can properly detect memory leaks.
+    gStringIdTable = new std::map<U32, const char*>();
+}
+
+void _DestroyStringTable()
+{
+    if (gStringIdTable != nullptr)
+        delete gStringIdTable;
+    gStringIdTable = nullptr;
 }
 
 //----------------------------------------------------------------------
@@ -53,19 +66,18 @@ String StringID::toString() const
 //----------------------------------------------------------------------
 U32 internString( const char* str )
 {
+    ASSERT( gStringIdTable != nullptr && "String-Table was not created." );
     U32 sid = hash( str );
 
-    auto it = getStringTable().find( sid );
+    auto it = gStringIdTable->find( sid );
 
-    if (it == getStringTable().end())
+    if (it == gStringIdTable->end())
     {
-        // This string has not yet been added to the
-        // table. Add it, being sure to copy it in case
-        // the original was dynamically allocated and
-        // might later be freed. 
+        // This string has not yet been added to the table. Add it, being sure to copy it 
+        // in case the original was dynamically allocated and might later be freed. 
         // Normally you have to free this memory manually later, but because it is
         // global anyway, it's OK to let it deleted from the OS when the program terminates.
-        getStringTable()[sid] = _strdup(str);
+        (*gStringIdTable)[sid] = _strdup( str );
     }
 
     return sid;
@@ -74,10 +86,10 @@ U32 internString( const char* str )
 //----------------------------------------------------------------------
 const char* externString( StringID sid )
 {
-    auto it = getStringTable().find( sid.id );
-    if (it != getStringTable().end())
+    auto it = gStringIdTable->find( sid.id );
+    if ( it != gStringIdTable->end() )
     {
-        return getStringTable()[ sid.id ];
+        return (*gStringIdTable)[ sid.id ];
     }
     ASSERT( false && "Given StringID does not exist.");
     return "";

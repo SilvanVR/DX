@@ -5,7 +5,7 @@
 #include "Core/subsystem_manager.h"
 
 #include "Core/OS/FileSystem/file.h"
-
+#include <thread>
 
 
 using namespace Core;
@@ -125,14 +125,16 @@ int main(void)
 
     Locator::getLogger().setSaveToDisk( false );
 
-    {
-        int k = 65;
 
+    {
+        //std::map<U32, const char*> map;
+        //Config::ConfigFile config("/config/engine2.ini");
+        //StringID str = SID( "Hello World" );
+    }
+
+    {
         //OS::TextFile file("test.txt", OS::EFileMode::READ_WRITE_OVERWRITE);
         //file << 525 << "\n" << 42;
-
-
-        int i = 5252;
     }
 
     {
@@ -147,8 +149,8 @@ int main(void)
         //LOG( color.toString(true), Color::RED );
     }
 
-    gSubSystemManager.shutdown();
 
+    gSubSystemManager.shutdown();
     system("pause");
 
     return 0;

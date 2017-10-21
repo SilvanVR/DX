@@ -176,6 +176,7 @@ namespace Core { namespace OS {
 
         //----------------------------------------------------------------------
         // Clears the whole file and resets both read + write cursor pos.
+        // If the file not exists, it will be created.
         //----------------------------------------------------------------------
         void clear();
 

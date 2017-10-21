@@ -176,7 +176,8 @@ namespace Core { namespace OS {
     //----------------------------------------------------------------------
     void File::clear()
     {
-        _CloseFile();
+        if ( m_exists )
+            _CloseFile();
         _CreateFile();
     }
 
