@@ -62,7 +62,7 @@ namespace Core
     void SubSystemManager::shutdown()
     {
         // Shutdown every Sub-System here in reversed order to above
-        LOG( "<<< Shutting down Sub-Systems >>>", COLOR);
+        LOG( "<<< Shutting down Sub-Systems >>>", COLOR );
 
 
         //----------------------------------------------------------------------

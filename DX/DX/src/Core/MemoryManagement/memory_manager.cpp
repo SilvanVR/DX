@@ -28,7 +28,7 @@ namespace Core { namespace MemoryManagement {
         if (currentAllocationInfo.currentBytesAllocated != 0)
             _ReportMemoryLeak( currentAllocationInfo );
         else
-            LOG( "No memory leak detected. Goodbye!", Color::GREEN);
+            LOG( " ~ No memory leak detected. Goodbye! ~ ", Color::GREEN );
     }
 
     //----------------------------------------------------------------------

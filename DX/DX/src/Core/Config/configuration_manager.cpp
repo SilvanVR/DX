@@ -13,21 +13,19 @@ namespace Core { namespace Config {
 
     //----------------------------------------------------------------------
     ConfigurationManager::ConfigurationManager()
-        : m_engineIni("/config/engine.ini")
-    {
-
-    }
+        : m_engineIni( nullptr )
+    {}
 
     //----------------------------------------------------------------------
     void ConfigurationManager::init()
     {
-
+        m_engineIni = new ConfigFile( "/config/engine.ini" );
     }
 
     //----------------------------------------------------------------------
     void ConfigurationManager::shutdown()
     {
-
+        delete m_engineIni;
     }
 
 

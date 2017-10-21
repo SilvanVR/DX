@@ -284,6 +284,8 @@
     <ClCompile Include="src\Core\OS\FileSystem\file_system_win.cpp" />
     <ClCompile Include="src\Core\OS\FileSystem\virtual_file_system.cpp" />
     <ClCompile Include="src\Core\OS\PlatformTimer\platform_timer.cpp" />
+    <ClCompile Include="src\Core\OS\Threading\thread.cpp" />
+    <ClCompile Include="src\Core\OS\Threading\thread_pool.cpp" />
     <ClCompile Include="src\Core\subsystem_manager.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Core\MemoryManagement\Allocators\iallocator.cpp" />
@@ -329,6 +331,8 @@
     <ClInclude Include="src\Core\OS\FileSystem\file.h" />
     <ClInclude Include="src\Core\OS\FileSystem\file_system.h" />
     <ClInclude Include="src\Core\OS\FileSystem\virtual_file_system.h" />
+    <ClInclude Include="src\Core\OS\Threading\thread.h" />
+    <ClInclude Include="src\Core\OS\Threading\thread_pool.h" />
     <ClInclude Include="src\Core\subsystem_manager.h" />
     <ClInclude Include="src\Core\i_subsystem.hpp" />
     <ClInclude Include="src\PrecompiledHeaders\data_types.hpp" />

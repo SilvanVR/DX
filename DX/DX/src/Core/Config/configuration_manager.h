@@ -31,10 +31,10 @@ namespace Core { namespace Config {
         //----------------------------------------------------------------------
         // Return the main engine.ini file-object
         //----------------------------------------------------------------------
-        ConfigFile& getEngineIni() { return m_engineIni; }
+        ConfigFile& getEngineIni() { return (*m_engineIni); }
 
     private:
-        ConfigFile m_engineIni;
+        ConfigFile* m_engineIni;
 
         //----------------------------------------------------------------------
         ConfigurationManager(const ConfigurationManager& other)               = delete;

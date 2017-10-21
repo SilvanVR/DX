@@ -48,11 +48,13 @@ namespace Core { namespace Logging {
         if (m_dumpToDisk)
             _StoreLogMessage( channel, msg, logLevel );
 
-        m_console.setColor( LOGTYPE_COLOR_CHANNEL );
 
         const char* preface = _GetchannelAsString( channel );
         if (preface != "")
+        {
+            m_console.setColor( LOGTYPE_COLOR_CHANNEL );
             m_console.write( preface );
+        }
 
         m_console.setColor( color );
         m_console.writeln( msg );

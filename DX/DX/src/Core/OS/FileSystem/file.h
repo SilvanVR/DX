@@ -6,7 +6,6 @@
     date: October 16, 2017
 
     See below for a class description.
-
 **********************************************************************/
 
 namespace Core { namespace OS {

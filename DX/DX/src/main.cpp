@@ -5,6 +5,7 @@
 #include "Core/subsystem_manager.h"
 
 #include "Core/OS/FileSystem/file.h"
+#include "Core/OS/Threading/thread_pool.h"
 #include <thread>
 
 
@@ -113,6 +114,11 @@ public:
 // Threading -> async file reading/writing
 
 
+void func(int i)
+{
+    LOG( "Hello " + TS(i) , Color::RED );
+}
+
 int main(void)
 {
     //MemoryManagement::UniversalAllocator gUniversalAllocator(1000);
@@ -124,12 +130,26 @@ int main(void)
     gSubSystemManager.init();
 
     Locator::getLogger().setSaveToDisk( false );
-
-
     {
-        //std::map<U32, const char*> map;
-        //Config::ConfigFile config("/config/engine2.ini");
-        //StringID str = SID( "Hello World" );
+        //U32 numThreads = std::thread::hardware_concurrency();
+        //std::thread thread(func, 42);
+        ////LOG("TEST");
+        //thread.join();
+
+        OS::ThreadPool threadPool(MAX_HARDWARE_CONCURRENCY);
+        OS::Thread& thread = threadPool[0];
+
+        //threadPool.addJob([] {
+        //    LOG( "NEW JOB!" );
+        //});
+
+
+        // Thread Pool creates and destroys threads
+        // Add a job to the Pool -> Arbitrary Thread will pick it up and execute it
+            // When done -> Thread checks if still jobs available 
+                // if not go to sleep, otherwise grab one
+
+        // Return threads directly to work with one if desired
     }
 
     {
