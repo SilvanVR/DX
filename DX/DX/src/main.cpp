@@ -6,8 +6,6 @@
 
 #include "Core/OS/FileSystem/file.h"
 #include "Core/OS/Threading/thread_pool.h"
-#include <thread>
-
 
 using namespace Core;
 
@@ -131,18 +129,12 @@ int main(void)
     Locator::getLogger().setSaveToDisk( false );
 
     {
-        //U32 numThreads = std::thread::hardware_concurrency();
-        //std::thread thread(func, 42);
-        ////LOG("TEST");
-        //thread.join();
-
-        OS::ThreadPool threadPool(7);
-        //OS::Thread& thread = threadPool[0];
+        OS::ThreadPool& threadPool = Locator::getThreadManager().getThreadPool();
 
         threadPool.addJob([] {
             LOG( "NEW JOB!", Color::BLUE );
         }, [] {
-            LOG( "NEW JOB IS DONE" );
+            LOG( "NEW JOB IS DONE", Color::GREY );
         });
 
         threadPool.addJob([] {
@@ -153,11 +145,18 @@ int main(void)
             LOG("A super awesome job", Color::RED);
         });
 
-        //threadPool.waitForThreads();
+      /*  threadPool.addJob([] {
+            OS::TextFile file("test.txt", OS::EFileMode::READ);
+            LOG( file.readAll(), Color::RED);
+        });*/
+
+  /*      OS::TextFile file("test.txt", OS::EFileMode::READ);
+        file.readAsync([] (err, data) {
+            LOG( "File was read!" );
+        });*/
     }
 
     {
-        //OS::TextFile file("test.txt", OS::EFileMode::READ_WRITE_OVERWRITE);
         //file.readAsync([] (err, data) {
         //    LOG( "File was read!" );
         //});

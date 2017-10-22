@@ -99,6 +99,9 @@
     <ClCompile Include="src\Core\OS\Threading\jobs\job_queue.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Core\ThreadManager\thread_manager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\commenting_style.hpp">
@@ -222,6 +225,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\Logging\shared_console_logger.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\OS\Threading\jobs\job.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\ThreadManager\thread_manager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

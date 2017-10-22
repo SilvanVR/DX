@@ -18,22 +18,6 @@ namespace Core {
 
     MemoryManagement::MemoryManager*    Locator::gMemoryManager = nullptr;
     Config::ConfigurationManager*       Locator::gConfigManager = nullptr;
-
-    //----------------------------------------------------------------------
-    MemoryManagement::MemoryManager& Locator::getMemoryManager()
-    {
-        return (*gMemoryManager);
-    }
-
-    Logging::ILogger& Locator::getLogger() 
-    { 
-        return (*gLogger); 
-    }
-
-    Config::ConfigurationManager& Locator::getConfiguration()
-    {
-        return (*gConfigManager);
-    }
-
+    Threading::ThreadManager*           Locator::gThreadManager = nullptr;
 
 }

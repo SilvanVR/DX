@@ -25,6 +25,7 @@
 #include "Logging/null_logger.hpp"
 #include "MemoryManagement/memory_manager.h"
 #include "Config/configuration_manager.h"
+#include "ThreadManager/thread_manager.h"
 
 //----------------------------------------------------------------------
 // Defines
@@ -59,16 +60,18 @@ namespace Core {
         //----------------------------------------------------------------------
         // Retrieve a Sub-System
         //----------------------------------------------------------------------
-        static Logging::ILogger&                    getLogger();
-        static MemoryManagement::MemoryManager&     getMemoryManager();
-        static Config::ConfigurationManager&        getConfiguration();
+        static Logging::ILogger&                    getLogger()         { return *gLogger; }
+        static MemoryManagement::MemoryManager&     getMemoryManager()  { return *gMemoryManager; }
+        static Config::ConfigurationManager&        getConfiguration()  { return *gConfigManager; }
+        static Threading::ThreadManager&            getThreadManager()  { return *gThreadManager; }
 
         //----------------------------------------------------------------------
         // Provide a Sub-System
         //----------------------------------------------------------------------
-        static void provide(Logging::ILogger* logger) { gLogger = (logger != nullptr) ? logger : &gNullLogger; }
-        static void provide(MemoryManagement::MemoryManager* memoryManager){ gMemoryManager = memoryManager; }
-        static void provide(Config::ConfigurationManager* manager) { gConfigManager = manager; }
+        static void provide(Logging::ILogger* logger)                       { gLogger = (logger != nullptr) ? logger : &gNullLogger; }
+        static void provide(MemoryManagement::MemoryManager* memoryManager) { gMemoryManager = memoryManager; }
+        static void provide(Config::ConfigurationManager* manager)          { gConfigManager = manager; }
+        static void provide(Threading::ThreadManager* manager)              { gThreadManager = manager; }
 
     private:
 
@@ -80,6 +83,7 @@ namespace Core {
 
         static MemoryManagement::MemoryManager*     gMemoryManager;
         static Config::ConfigurationManager*        gConfigManager;
+        static Threading::ThreadManager*            gThreadManager;
 
 
         // Do not allow construction of an Locator-Object

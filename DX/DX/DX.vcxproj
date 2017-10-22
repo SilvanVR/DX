@@ -288,6 +288,7 @@
     <ClCompile Include="src\Core\OS\Threading\thread.cpp" />
     <ClCompile Include="src\Core\OS\Threading\thread_pool.cpp" />
     <ClCompile Include="src\Core\subsystem_manager.cpp" />
+    <ClCompile Include="src\Core\ThreadManager\thread_manager.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Core\MemoryManagement\Allocators\iallocator.cpp" />
     <ClCompile Include="src\Core\OS\PlatformTimer\platform_timer_chrono.cpp" />
@@ -333,11 +334,13 @@
     <ClInclude Include="src\Core\OS\FileSystem\file.h" />
     <ClInclude Include="src\Core\OS\FileSystem\file_system.h" />
     <ClInclude Include="src\Core\OS\FileSystem\virtual_file_system.h" />
+    <ClInclude Include="src\Core\OS\Threading\jobs\job.hpp" />
     <ClInclude Include="src\Core\OS\Threading\jobs\job_queue.h" />
     <ClInclude Include="src\Core\OS\Threading\thread.h" />
     <ClInclude Include="src\Core\OS\Threading\thread_pool.h" />
     <ClInclude Include="src\Core\subsystem_manager.h" />
     <ClInclude Include="src\Core\i_subsystem.hpp" />
+    <ClInclude Include="src\Core\ThreadManager\thread_manager.h" />
     <ClInclude Include="src\PrecompiledHeaders\data_types.hpp" />
     <ClInclude Include="src\PrecompiledHeaders\forward_declarations.hpp" />
     <ClInclude Include="src\PrecompiledHeaders\macros.hpp" />

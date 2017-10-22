@@ -13,6 +13,7 @@
 #include "OS/FileSystem/virtual_file_system.h"
 #include "Config/configuration_manager.h"
 #include "Logging/shared_console_logger.hpp"
+#include "ThreadManager/thread_manager.h"
 
 namespace Core
 {
@@ -54,8 +55,8 @@ namespace Core
         //LOG( " > ConfigurationManager initialized!", COLOR );
 
         //----------------------------------------------------------------------
-
-
+        m_threadManager = initializeSubSystem( new Threading::ThreadManager() );
+        LOG( " > ThreadManager initialized!", COLOR );
     }
 
 
@@ -65,6 +66,9 @@ namespace Core
         // Shutdown every Sub-System here in reversed order to above
         LOG( "<<< Shutting down Sub-Systems >>>", COLOR );
 
+        //----------------------------------------------------------------------
+        LOG( " > Shutdown ThreadManager...", COLOR );
+        shutdownSubSystem( m_threadManager );
 
         //----------------------------------------------------------------------
     /*    LOG( " > Shutdown ConfigurationManager...", COLOR );
@@ -83,7 +87,7 @@ namespace Core
         shutdownSubSystem( m_logger );
 
         //----------------------------------------------------------------------
-        _ShutdownVirtualFilePaths();
+        _ClearVirtualFilePaths();
     }
 
     //----------------------------------------------------------------------
@@ -96,7 +100,7 @@ namespace Core
         OS::VirtualFileSystem::mount("models",   "res/models");
     }
 
-    void SubSystemManager::_ShutdownVirtualFilePaths()
+    void SubSystemManager::_ClearVirtualFilePaths()
     {
         OS::VirtualFileSystem::unmountAll();
     }

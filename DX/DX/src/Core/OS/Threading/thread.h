@@ -11,7 +11,6 @@
 
 #include "jobs/job_queue.h"
 
-
 namespace Core { namespace OS {
 
 
@@ -20,14 +19,11 @@ namespace Core { namespace OS {
     //**********************************************************************
     class Thread
     {
+        static U32 s_threadCounter;
+
     public:
         Thread(JobQueue& jobQueue);
         ~Thread();
-
-        //----------------------------------------------------------------------
-        // Wait for this thread to finish his current job
-        //----------------------------------------------------------------------
-        void waitIdle();
 
         //----------------------------------------------------------------------
         // Check whether this thread currently executes a job (is not idle)
@@ -36,8 +32,8 @@ namespace Core { namespace OS {
         bool isIdle() const { return !hasJob(); }
 
     private:
-        // Order of initialization matters. "m_running" has to be set to true first.
-        bool                    m_running       = true;
+        // Order of initialization matters.
+        U32                     m_threadID      = s_threadCounter++;
         Job                     m_currentJob    = nullptr;
         JobQueue&               m_jobQueue;
 

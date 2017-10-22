@@ -55,9 +55,9 @@ namespace Core { namespace OS {
         void addJob(const std::function<void()>& job, const std::function<void()>& calledWhenDone = nullptr);
 
         //----------------------------------------------------------------------
-        // Wait until all threads have finished their execution and all jobs are done.
+        // Wait until all threads have finished their execution and terminate them.
         //----------------------------------------------------------------------
-        void waitForThreads();
+        void _TerminateThreads();
 
         //----------------------------------------------------------------------
         Thread& operator[] (U32 index){ ASSERT( index < m_numThreads ); return (*m_threads[index]); }

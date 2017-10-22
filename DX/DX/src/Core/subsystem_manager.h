@@ -16,9 +16,10 @@ namespace Core {
     //----------------------------------------------------------------------
     // Forward Declarations
     //----------------------------------------------------------------------
-    namespace Logging { class ILogger; }
-    namespace MemoryManagement { class MemoryManager; }
-    namespace Config { class ConfigurationManager; }
+    namespace Logging           { class ILogger; }
+    namespace MemoryManagement  { class MemoryManager; }
+    namespace Config            { class ConfigurationManager; }
+    namespace Threading         { class ThreadManager; }
 
 
     //*********************************************************************
@@ -44,11 +45,12 @@ namespace Core {
         Logging::ILogger*                   m_logger        = nullptr;
         MemoryManagement::MemoryManager*    m_memoryManager = nullptr;
         Config::ConfigurationManager*       m_configManager = nullptr;
+        Threading::ThreadManager*           m_threadManager = nullptr;
 
 
         //----------------------------------------------------------------------
         void _InitVirtualFilePaths();
-        void _ShutdownVirtualFilePaths();
+        void _ClearVirtualFilePaths();
 
         //----------------------------------------------------------------------
         template <class T>

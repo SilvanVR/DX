@@ -7,6 +7,8 @@
     date: October 21, 2017
 **********************************************************************/
 
+#include "jobs/job_queue.h"
+
 namespace Core { namespace OS {
 
     //----------------------------------------------------------------------
@@ -28,14 +30,7 @@ namespace Core { namespace OS {
     //----------------------------------------------------------------------
     ThreadPool::~ThreadPool()
     {
-        waitForThreads();
-
-        // Destroy threads
-        for (U8 i = 0; i < m_numThreads; i++)
-        {
-            delete m_threads[i];
-            m_threads[i] = nullptr;
-        }
+        _TerminateThreads();
     }
 
     //----------------------------------------------------------------------
@@ -46,15 +41,21 @@ namespace Core { namespace OS {
     }
 
     //----------------------------------------------------------------------
-    void ThreadPool::waitForThreads()
+    void ThreadPool::_TerminateThreads()
     {
-        // Wait until job queue is empty
-        m_jobQueue.waitIsEmpty();
+        // Add termination jobs to the queue.
+        // They will be picked up by any thread to terminate itself.
+        for (U8 i = 0; i < m_numThreads; i++)
+            m_jobQueue.addJob( nullptr );
 
-        // Now wait until all jobs are done
+        // Wait until job queue is empty
+        m_jobQueue.waitUntilQueueIsEmpty();
+
+        // Destroy threads
         for (U8 i = 0; i < m_numThreads; i++)
         {
-            m_threads[i]->waitIdle();
+            delete m_threads[i];
+            m_threads[i] = nullptr;
         }
     }
 
