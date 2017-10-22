@@ -13,7 +13,6 @@ namespace Core { namespace Config {
 
     //----------------------------------------------------------------------
     ConfigurationManager::ConfigurationManager()
-        : m_engineIni( nullptr )
     {}
 
     //----------------------------------------------------------------------

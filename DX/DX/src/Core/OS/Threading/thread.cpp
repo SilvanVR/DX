@@ -12,10 +12,7 @@ namespace Core { namespace OS {
 
     //----------------------------------------------------------------------
     Thread::Thread()
-        : m_running( true )
-    {
-        m_thread = std::thread( &Thread::_ThreadLoop, this );
-    }
+    {}
 
     //----------------------------------------------------------------------
     Thread::~Thread()

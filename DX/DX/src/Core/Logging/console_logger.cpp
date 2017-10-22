@@ -9,6 +9,7 @@
     @Considerations:
       - Class which holds the message buffer and writes automatically
         to file when buffer is full.
+      - add [WARNING] / [ERROR] when writing to output stream ?
 **********************************************************************/
 
 #include "Core/OS/PlatformTimer/platform_timer.h"
@@ -22,8 +23,13 @@ namespace Core { namespace Logging {
     //----------------------------------------------------------------------
     void ConsoleLogger::init()
     {
+#ifdef _DEBUG
+        const char* configuration = "_debug";
+#else
+        const char* configuration = "";
+#endif
         // Guaranteed unique filename per run
-        s_logFilePath = "/logs/" + OS::PlatformTimer::getCurrentTime().toString() + ".log";
+        s_logFilePath = "/logs/" + OS::PlatformTimer::getCurrentTime().toString() + configuration + ".log";
 
         // Replace ":" characters (Windows does not allow those in a filename)
         std::replace( s_logFilePath.begin(), s_logFilePath.end(), ':', '_' );
@@ -36,6 +42,9 @@ namespace Core { namespace Logging {
         if (m_dumpToDisk)
         {
             _DumpToDisk();
+
+            String msg = " >> Written log to file '" + s_logFilePath + "'";
+            _Log( ELogChannel::DEFAULT, msg.c_str(), Color::GREEN );
         }
     }
 
@@ -47,7 +56,6 @@ namespace Core { namespace Logging {
 
         if (m_dumpToDisk)
             _StoreLogMessage( channel, msg, logLevel );
-
 
         const char* preface = _GetchannelAsString( channel );
         if (preface != "")
@@ -64,7 +72,7 @@ namespace Core { namespace Logging {
     //----------------------------------------------------------------------
     void ConsoleLogger::_Log( ELogChannel channel, const char* msg, Color color )
     {
-        _Log( Logging::LOG_CHANNEL_DEFAULT, msg, Logging::LOG_LEVEL_VERY_IMPORTANT, color );
+        _Log( ELogChannel::DEFAULT, msg, ELogLevel::VERY_IMPORTANT, color );
     }
 
     //----------------------------------------------------------------------
@@ -77,6 +85,9 @@ namespace Core { namespace Logging {
     void ConsoleLogger::_Error( ELogChannel channel, const char* msg, ELogLevel logLevel )
     {
         _Log( channel, msg, logLevel, LOGTYPE_COLOR_ERROR );
+
+        if (m_dumpToDisk)
+            _DumpToDisk();
 
         #ifdef _WIN32
             __debugbreak();
@@ -114,7 +125,7 @@ namespace Core { namespace Logging {
     //----------------------------------------------------------------------
     void ConsoleLogger::_DumpToDisk()
     {
-        static OS::File logFile( s_logFilePath.c_str() );
+        static OS::TextFile logFile( s_logFilePath.c_str() );
 
         logFile.write( m_messageBuffer.data(), m_messageBuffer.size() );
         logFile.flush();

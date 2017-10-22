@@ -29,24 +29,24 @@ namespace Core { namespace Logging {
     #define LOGTYPE_COLOR_CHANNEL       Color::VIOLET
 
     //----------------------------------------------------------------------
-    enum ELogLevel
+    enum class ELogLevel
     {
-        LOG_LEVEL_VERY_IMPORTANT    = 0,
-        LOG_LEVEL_IMPORTANT         = 1,
-        LOG_LEVEL_NOT_SO_IMPORTANT  = 2,
-        LOG_LEVEL_NOT_IMPORTANT     = 3,
-        LOG_LEVEL_ALL
+        VERY_IMPORTANT    = 0,
+        IMPORTANT         = 1,
+        NOT_SO_IMPORTANT  = 2,
+        NOT_IMPORTANT     = 3,
+        ALL
     };
 
     //----------------------------------------------------------------------
-    enum ELogChannel
+    enum class ELogChannel
     {
-        LOG_CHANNEL_DEFAULT      = 1 << 0,
-        LOG_CHANNEL_MEMORY       = 1 << 1,
-        LOG_CHANNEL_RENDERING    = 1 << 2,
-        LOG_CHANNEL_PHYSICS      = 1 << 3,
-        LOG_CHANNEL_TEST         = 1 << 4,
-        LOG_CHANNEL_ALL          = ~0
+        DEFAULT      = 1 << 0,
+        MEMORY       = 1 << 1,
+        RENDERING    = 1 << 2,
+        PHYSICS      = 1 << 3,
+        TEST         = 1 << 4,
+        ALL          = ~0
     };
 
     //**********************************************************************
@@ -54,11 +54,11 @@ namespace Core { namespace Logging {
     //**********************************************************************
     class ILogger : public ISubSystem
     {
-        BitMask     m_channelMask       = BitMask( LOG_CHANNEL_ALL );
+        BitMask     m_channelMask       = BitMask( static_cast<U32>( ELogChannel::ALL ) );
 
     protected:
         Color       m_defaultColor      = LOGTYPE_COLOR_DEFAULT;
-        ELogLevel   m_logLevel          = LOG_LEVEL_ALL;
+        ELogLevel   m_logLevel          = ELogLevel::ALL;
         bool        m_dumpToDisk        = true;
 
     public:
@@ -127,7 +127,7 @@ namespace Core { namespace Logging {
 
         //----------------------------------------------------------------------
         template <class T>
-        void log(ELogChannel channel, T num, ELogLevel logLevel = LOG_LEVEL_VERY_IMPORTANT)
+        void log(ELogChannel channel, T num, ELogLevel logLevel = ELogLevel::VERY_IMPORTANT)
         {
             _Log( channel, TS( num ).c_str(), logLevel, m_defaultColor );
         }
@@ -136,19 +136,19 @@ namespace Core { namespace Logging {
         template <class T>
         void log(ELogChannel channel, T num, Color color)
         { 
-            _Log( channel, TS( num ).c_str(), LOG_LEVEL_VERY_IMPORTANT, LOG_channel_DEFAULT, color );
+            _Log( channel, TS( num ).c_str(), ELogLevel::VERY_IMPORTANT, LOG_channel_DEFAULT, color );
         };
 
         //----------------------------------------------------------------------
         template <class T>
-        void warn(ELogChannel channel, T num, ELogLevel logLevel = LOG_LEVEL_VERY_IMPORTANT)
+        void warn(ELogChannel channel, T num, ELogLevel logLevel = ELogLevel::VERY_IMPORTANT)
         {
             _Warn( channel, TS( num ).c_str(), logLevel );
         }
 
         //----------------------------------------------------------------------
         template <class T>
-        void error(ELogChannel channel, T num, ELogLevel logLevel = LOG_LEVEL_VERY_IMPORTANT)
+        void error(ELogChannel channel, T num, ELogLevel logLevel = ELogLevel::VERY_IMPORTANT)
         {
             _Error( channel, TS( num ).c_str(), logLevel );
         }
@@ -186,15 +186,15 @@ namespace Core { namespace Logging {
         //----------------------------------------------------------------------
         template <>
         void log<const char*>(ELogChannel channel, const char* msg, Color color) {
-            _Log( channel, msg, LOG_LEVEL_VERY_IMPORTANT, color );
+            _Log( channel, msg, ELogLevel::VERY_IMPORTANT, color );
         }
         template <>
         void log<StringID>(ELogChannel channel, StringID msg, Color color) {
-            _Log( channel, msg.c_str(), LOG_LEVEL_VERY_IMPORTANT, color );
+            _Log( channel, msg.c_str(), ELogLevel::VERY_IMPORTANT, color );
         }
         template <>
         void log<String>(ELogChannel channel, String msg, Color color) {
-            _Log( channel, msg.c_str(), LOG_LEVEL_VERY_IMPORTANT, color );
+            _Log( channel, msg.c_str(), ELogLevel::VERY_IMPORTANT, color );
         }
 
         //----------------------------------------------------------------------
@@ -230,10 +230,10 @@ namespace Core { namespace Logging {
         {
             switch (channel)
             {
-            case LOG_CHANNEL_MEMORY:     return "[Memory] ";
-            case LOG_CHANNEL_RENDERING:  return "[Rendering] ";
-            case LOG_CHANNEL_PHYSICS:    return "[Physics] ";
-            case LOG_CHANNEL_TEST:       return "[TEST] ";
+            case ELogChannel::MEMORY:     return "[Memory] ";
+            case ELogChannel::RENDERING:  return "[Rendering] ";
+            case ELogChannel::PHYSICS:    return "[Physics] ";
+            case ELogChannel::TEST:       return "[TEST] ";
             default:
                 return "";
             }
@@ -256,7 +256,7 @@ namespace Core { namespace Logging {
         //----------------------------------------------------------------------
         bool _Filterchannel(ELogChannel channel) const
         {
-            return ( not m_channelMask.isBitSet( channel ) );
+            return ( not m_channelMask.isBitSet( static_cast<U32>( channel ) ) );
         }
 
     };

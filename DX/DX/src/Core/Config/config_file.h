@@ -64,7 +64,7 @@ namespace Core { namespace Config {
         void flush();
 
     private:
-        OS::TextFile*                   m_configFile;
+        OS::TextFile*                   m_configFile = nullptr;
         std::map<StringID, Category>    m_categories;
 
         // Read config file from disk

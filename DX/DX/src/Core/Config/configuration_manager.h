@@ -34,7 +34,7 @@ namespace Core { namespace Config {
         ConfigFile& getEngineIni() { return (*m_engineIni); }
 
     private:
-        ConfigFile* m_engineIni;
+        ConfigFile* m_engineIni = nullptr;
 
         //----------------------------------------------------------------------
         ConfigurationManager(const ConfigurationManager& other)               = delete;

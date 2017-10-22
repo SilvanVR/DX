@@ -41,9 +41,9 @@ namespace Core {
         //----------------------------------------------------------------------
         // Every Sub-System is enumerated here
         //----------------------------------------------------------------------
-        Logging::ILogger*                   m_logger;
-        MemoryManagement::MemoryManager*    m_memoryManager;
-        Config::ConfigurationManager*       m_configManager;
+        Logging::ILogger*                   m_logger        = nullptr;
+        MemoryManagement::MemoryManager*    m_memoryManager = nullptr;
+        Config::ConfigurationManager*       m_configManager = nullptr;
 
 
         //----------------------------------------------------------------------

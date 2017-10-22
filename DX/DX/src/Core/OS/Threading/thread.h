@@ -39,9 +39,10 @@ namespace Core { namespace OS {
         bool isIdle() const { return !hasJob(); }
 
     private:
-        std::thread             m_thread;
-        bool                    m_running;
-        std::function<void()>   m_currentJob;
+        // Order of initialization matters. "m_running" has to be set to true first,
+        bool                    m_running       = true;
+        std::function<void()>   m_currentJob    = nullptr;
+        std::thread             m_thread        = std::thread( &Thread::_ThreadLoop, this );
 
         //----------------------------------------------------------------------
         void _ThreadLoop();
