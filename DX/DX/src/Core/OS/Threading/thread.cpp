@@ -38,11 +38,12 @@ namespace Core { namespace OS {
                 break;
 
             // Execute the job
-            LOG( "Job executed by thread #" + TS( m_threadID ) );
+            //LOG( "Job executed by thread #" + TS( m_threadID ) );
             m_currentJob();
 
             m_currentJob = nullptr;
         }
+
         LOG( "Terminate thread #" + TS( m_threadID ) );
     }
 

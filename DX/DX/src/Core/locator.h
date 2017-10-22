@@ -49,6 +49,8 @@
 #define WARN_PHYSICS(...)       Core::Locator::getLogger().warn( Logging::ELogChannel::PHYSICS, __VA_ARGS__ )
 #define ERROR_PHYSICS(...)      Core::Locator::getLogger().error( Logging::ELogChannel::PHYSICS, __VA_ARGS__ )
 
+#define ASYNC_JOB(...)          Core::Locator::getThreadManager().getThreadPool().addJob( __VA_ARGS__ )
+
 namespace Core {
 
     //*********************************************************************

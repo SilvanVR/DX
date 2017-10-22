@@ -20,6 +20,7 @@
 
 #include "virtual_file_system.h"
 #include "file_system.h"
+#include "Core/locator.h"
 
 namespace Core { namespace OS {
 
@@ -27,14 +28,13 @@ namespace Core { namespace OS {
 
     //----------------------------------------------------------------------
     File::File(bool binary)
-        : m_filePath( "" ), m_exists( false ), m_file( nullptr ), m_binary( binary ),
-          m_readCursorPos( 0 ), m_writeCursorPos( 0 ), m_eof( false ), m_mode( EFileMode::INVALID )
+        : m_binary( binary )
     {}
 
     //----------------------------------------------------------------------
     File::File(const char* path, EFileMode mode, bool binary)
-        : m_filePath( _GetPhysicalPath( path ) ), m_exists( _FileExists( m_filePath.c_str() ) ), m_binary( binary ),
-          m_file( nullptr ), m_readCursorPos( 0 ), m_writeCursorPos( 0 ), m_eof( false ), m_mode( mode )
+        : m_filePath( _GetPhysicalPath( path ) ), m_exists( _FileExists( m_filePath.c_str() ) ), 
+          m_binary( binary ), m_mode( mode )
     {
         if (m_exists)
         {
@@ -316,5 +316,31 @@ namespace Core { namespace OS {
         fseek( m_file, pos, SEEK_SET );
     }
 
+
+    //**********************************************************************
+    // ASYNC
+    //**********************************************************************
+
+    //----------------------------------------------------------------------
+    void File::readAsync(const std::function<void(const String&)>& callback)
+    {
+        FILE_EXISTS_AND_NOT_EOF();
+
+        ASYNC_JOB([=]() {
+            String contents = readAll();
+            callback( contents );
+        });
+    }
+
+    //----------------------------------------------------------------------
+    //void File::readAsync(const std::function<void(const Byte*, Size)>& callback)
+    //{
+    //    FILE_EXISTS_AND_NOT_EOF();
+
+    //    ASYNC_JOB([=]() {
+    //        //String contents = readAll();
+    //        //callback(contents);
+    //    });
+    //}
 
 } }

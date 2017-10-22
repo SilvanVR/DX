@@ -7,6 +7,8 @@
 #include "Core/OS/FileSystem/file.h"
 #include "Core/OS/Threading/thread_pool.h"
 
+#include <Windows.h>
+
 using namespace Core;
 
 class AutoClock
@@ -145,15 +147,18 @@ int main(void)
             LOG("A super awesome job", Color::RED);
         });
 
-      /*  threadPool.addJob([] {
-            OS::TextFile file("test.txt", OS::EFileMode::READ);
-            LOG( file.readAll(), Color::RED);
-        });*/
+        //OS::TextFile file("test.txt", OS::EFileMode::READ);
+        //file.readAsync([] (const String& c) {
+        //    LOG( "File was read: " + c );
+        //});
 
-  /*      OS::TextFile file("test.txt", OS::EFileMode::READ);
-        file.readAsync([] (err, data) {
-            LOG( "File was read!" );
-        });*/
+
+        // Need a mechanism for wait on jobs / threads
+
+        //threadPool.waitForThreads();
+
+
+        Sleep(100);
     }
 
     {

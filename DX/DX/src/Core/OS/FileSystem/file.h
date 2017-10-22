@@ -8,6 +8,7 @@
     See below for a class description.
 **********************************************************************/
 
+
 namespace Core { namespace OS {
 
     //*********************************************************************
@@ -225,15 +226,24 @@ namespace Core { namespace OS {
         template <class T> File& operator << (T data) { write( data ); return (*this); }
         template <class T> File& operator >> (T& buff) { buff = readAll(); return (*this); }
 
+
+        //----------------------------------------------------------------------
+        // Read the file asynchronously via the job system. Be careful about
+        // that the file does not get deleted until the read has been finished.
+        //----------------------------------------------------------------------
+        void readAsync(const std::function<void(const String& contents)>& callback);
+        //void readAsync(const std::function<void(const Byte* contents, Size amountOfBytes)>& callback);
+
+
     private:
-        String      m_filePath;
-        FILE*       m_file;
-        long        m_readCursorPos;
-        long        m_writeCursorPos;
-        bool        m_exists;
-        bool        m_eof;
-        bool        m_binary;
-        EFileMode   m_mode;
+        String      m_filePath          = "";
+        FILE*       m_file              = nullptr;
+        long        m_readCursorPos     = 0;
+        long        m_writeCursorPos    = 0;
+        bool        m_exists            = false;
+        bool        m_eof               = false;
+        bool        m_binary            = false;
+        EFileMode   m_mode              = EFileMode::INVALID;
 
         //----------------------------------------------------------------------
         bool        _FileExists(const char* filePath);
