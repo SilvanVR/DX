@@ -43,8 +43,10 @@ namespace Core {  namespace Logging  {
     private:
         Console                                 m_console;
         ByteArray<MSG_BUFFER_CAPACITY_BYTES>    m_messageBuffer;
+        String                                  m_logFilePath;
 
         //----------------------------------------------------------------------
+        void _LOG( ELogChannel channel, const char* msg, ELogLevel ELogLevel, Color color );
 
         // Write messages in MessageBuffer to disk
         void _DumpToDisk();

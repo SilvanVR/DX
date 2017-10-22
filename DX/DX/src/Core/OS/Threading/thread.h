@@ -9,10 +9,7 @@
 
 **********************************************************************/
 
-
-#include <thread>
-//#include <mutex>
-//#include <condition_variable>
+#include "jobs/job_queue.h"
 
 
 namespace Core { namespace OS {
@@ -24,7 +21,7 @@ namespace Core { namespace OS {
     class Thread
     {
     public:
-        Thread();
+        Thread(JobQueue& jobQueue);
         ~Thread();
 
         //----------------------------------------------------------------------
@@ -33,19 +30,23 @@ namespace Core { namespace OS {
         void waitIdle();
 
         //----------------------------------------------------------------------
-        // Check whether this thread currently executes a job (is idle)
+        // Check whether this thread currently executes a job (is not idle)
         //----------------------------------------------------------------------
         bool hasJob() const { return m_currentJob != nullptr; }
         bool isIdle() const { return !hasJob(); }
 
     private:
-        // Order of initialization matters. "m_running" has to be set to true first,
+        // Order of initialization matters. "m_running" has to be set to true first.
         bool                    m_running       = true;
-        std::function<void()>   m_currentJob    = nullptr;
+        Job                     m_currentJob    = nullptr;
+        JobQueue&               m_jobQueue;
+
+        // Initialize thread at last. !IMPORTANT!
         std::thread             m_thread        = std::thread( &Thread::_ThreadLoop, this );
 
         //----------------------------------------------------------------------
         void _ThreadLoop();
+        void _Join();
 
         //----------------------------------------------------------------------
         Thread(const Thread& other)                 = delete;

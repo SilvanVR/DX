@@ -12,15 +12,15 @@
 **********************************************************************/
 
 #include <unordered_map>
+#include <functional>
 #include <algorithm>
 #include <assert.h>
 #include <cstddef>
 #include <vector>
 #include <memory>
+#include <mutex>
 #include <queue>
-#include <list>
 #include <map>
-#include <set>
 
 #include "PrecompiledHeaders/forward_declarations.hpp"
 #include "PrecompiledHeaders/data_types.hpp"

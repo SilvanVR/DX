@@ -2,7 +2,7 @@
 
 /**********************************************************************
     class: ThreadPool (thread_pool.cpp)
-    
+
     author: S. Hau
     date: October 21, 2017
 **********************************************************************/
@@ -10,18 +10,18 @@
 namespace Core { namespace OS {
 
     //----------------------------------------------------------------------
+    U8 ThreadPool::s_maxHardwareConcurrency = std::thread::hardware_concurrency();
+
+    //----------------------------------------------------------------------
     ThreadPool::ThreadPool( U8 numThreads )
         : m_numThreads( numThreads )
     {
-        if (m_numThreads == MAX_HARDWARE_CONCURRENCY)
-            m_numThreads = std::thread::hardware_concurrency();
-
-        ASSERT( m_numThreads < MAX_POSSIBLE_THREADS );
+        ASSERT( (m_numThreads > 0) && (m_numThreads < MAX_POSSIBLE_THREADS) );
 
         // Create threads
         for (U8 i = 0; i < m_numThreads; i++)
         {
-            m_threads[i] = new Thread();
+            m_threads[i] = new Thread( m_jobQueue );
         }
     }
 
@@ -42,16 +42,16 @@ namespace Core { namespace OS {
     void ThreadPool::addJob( const std::function<void()>& job, const std::function<void()>& calledWhenDone )
     {
         // Add job to job queue
-        m_jobs.push( std::move( job ) );
-
-        // Try to wake up a thread, which will fetch a job from the queue
-
+        m_jobQueue.addJob( { job, calledWhenDone } );
     }
-
 
     //----------------------------------------------------------------------
     void ThreadPool::waitForThreads()
     {
+        // Wait until job queue is empty
+        m_jobQueue.waitIsEmpty();
+
+        // Now wait until all jobs are done
         for (U8 i = 0; i < m_numThreads; i++)
         {
             m_threads[i]->waitIdle();

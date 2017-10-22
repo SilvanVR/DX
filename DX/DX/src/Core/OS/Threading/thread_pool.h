@@ -6,7 +6,14 @@
     author: S. Hau
     date: October 21, 2017
 
-    See below for a class description.
+    Manages a bunch of threads via a job system. A job is basically
+    comprised of two functions. The first is the job itself,
+    and the latter a function which will be called when the job is done.
+    A job will be executed by an arbitrary thread.
+    @Considerations:
+      - Give each job an ID, wait until a job has been finished:
+         JobID id = pool.addJob(...);
+         pool.waitForJob( id );
 **********************************************************************/
 
 #include "thread.h"
@@ -15,7 +22,6 @@ namespace Core { namespace OS {
 
     //----------------------------------------------------------------------
     #define MAX_POSSIBLE_THREADS        32
-    #define MAX_HARDWARE_CONCURRENCY    0
 
 
     //**********************************************************************
@@ -23,12 +29,20 @@ namespace Core { namespace OS {
     //**********************************************************************
     class ThreadPool
     {
+        static U8 s_maxHardwareConcurrency;
+
     public:
-        ThreadPool(U8 numThreads = MAX_HARDWARE_CONCURRENCY);
+        //----------------------------------------------------------------------
+        // Create a new threadpool with the specified amount of threads.
+        // @Params:
+        //  "numThreads": Number of threads to create.
+        //----------------------------------------------------------------------
+        ThreadPool(U8 numThreads = (s_maxHardwareConcurrency - 1));
         ~ThreadPool();
 
         //----------------------------------------------------------------------
         U8 numThreads() const { return m_numThreads; }
+        U8 maxHardwareConcurrency() const { return s_maxHardwareConcurrency; }
 
         //----------------------------------------------------------------------
         // Adds a new job. The job will executed by an arbitrary thread. When
@@ -41,8 +55,7 @@ namespace Core { namespace OS {
         void addJob(const std::function<void()>& job, const std::function<void()>& calledWhenDone = nullptr);
 
         //----------------------------------------------------------------------
-        // Wait until all threads have finished their execution.
-        // TODO: Until all jobs are done ??
+        // Wait until all threads have finished their execution and all jobs are done.
         //----------------------------------------------------------------------
         void waitForThreads();
 
@@ -51,9 +64,9 @@ namespace Core { namespace OS {
 
 
     private:
-        Thread*                             m_threads[MAX_POSSIBLE_THREADS];
-        U8                                  m_numThreads;
-        std::queue<std::function<void()>>   m_jobs;
+        Thread*         m_threads[MAX_POSSIBLE_THREADS];
+        U8              m_numThreads;
+        JobQueue        m_jobQueue;
 
 
         //----------------------------------------------------------------------

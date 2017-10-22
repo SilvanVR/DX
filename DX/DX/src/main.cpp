@@ -128,28 +128,32 @@ int main(void)
 
     Core::SubSystemManager gSubSystemManager;
     gSubSystemManager.init();
-
     Locator::getLogger().setSaveToDisk( false );
+
     {
         //U32 numThreads = std::thread::hardware_concurrency();
         //std::thread thread(func, 42);
         ////LOG("TEST");
         //thread.join();
 
-        OS::ThreadPool threadPool(MAX_HARDWARE_CONCURRENCY);
-        OS::Thread& thread = threadPool[0];
+        OS::ThreadPool threadPool(7);
+        //OS::Thread& thread = threadPool[0];
 
-        //threadPool.addJob([] {
-        //    LOG( "NEW JOB!" );
-        //});
+        threadPool.addJob([] {
+            LOG( "NEW JOB!", Color::BLUE );
+        }, [] {
+            LOG( "NEW JOB IS DONE" );
+        });
 
-        threadPool.waitForThreads();
+        threadPool.addJob([] {
+            LOG("ANOTHER JOB!", Color::RED);
+        });
 
-        // Add a job to the Pool -> Arbitrary Thread will pick it up and execute it
-            // When done -> Thread checks if still jobs available 
-                // if not go to sleep, otherwise grab one
+        threadPool.addJob([] {
+            LOG("A super awesome job", Color::RED);
+        });
 
-        // Return threads directly to work with one if desired
+        //threadPool.waitForThreads();
     }
 
     {

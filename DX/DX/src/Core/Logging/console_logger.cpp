@@ -18,9 +18,6 @@
 namespace Core { namespace Logging {
 
     //----------------------------------------------------------------------
-    static String s_logFilePath;
-
-    //----------------------------------------------------------------------
     void ConsoleLogger::init()
     {
 #ifdef _DEBUG
@@ -29,10 +26,10 @@ namespace Core { namespace Logging {
         const char* configuration = "";
 #endif
         // Guaranteed unique filename per run
-        s_logFilePath = "/logs/" + OS::PlatformTimer::getCurrentTime().toString() + configuration + ".log";
+        m_logFilePath = "/logs/" + OS::PlatformTimer::getCurrentTime().toString() + configuration + ".log";
 
         // Replace ":" characters (Windows does not allow those in a filename)
-        std::replace( s_logFilePath.begin(), s_logFilePath.end(), ':', '_' );
+        std::replace( m_logFilePath.begin(), m_logFilePath.end(), ':', '_' );
     }
 
     //----------------------------------------------------------------------
@@ -43,13 +40,13 @@ namespace Core { namespace Logging {
         {
             _DumpToDisk();
 
-            String msg = " >> Written log to file '" + s_logFilePath + "'";
-            _Log( ELogChannel::DEFAULT, msg.c_str(), Color::GREEN );
+            String msg = " >> Written log to file '" + m_logFilePath + "'";
+            _LOG( ELogChannel::DEFAULT, msg.c_str(), ELogLevel::VERY_IMPORTANT, Color::GREEN );
         }
     }
 
     //----------------------------------------------------------------------
-    void ConsoleLogger::_Log( ELogChannel channel, const char* msg, ELogLevel logLevel, Color color )
+    void ConsoleLogger::_LOG( ELogChannel channel, const char* msg, ELogLevel logLevel, Color color )
     {
         if ( _CheckLogLevel( logLevel ) || _Filterchannel( channel ) )
             return;
@@ -70,21 +67,27 @@ namespace Core { namespace Logging {
     }
 
     //----------------------------------------------------------------------
+    void ConsoleLogger::_Log( ELogChannel channel, const char* msg, ELogLevel logLevel, Color color )
+    {
+        _LOG( channel, msg, logLevel, color );
+    }
+
+    //----------------------------------------------------------------------
     void ConsoleLogger::_Log( ELogChannel channel, const char* msg, Color color )
     {
-        _Log( ELogChannel::DEFAULT, msg, ELogLevel::VERY_IMPORTANT, color );
+        _LOG( ELogChannel::DEFAULT, msg, ELogLevel::VERY_IMPORTANT, color );
     }
 
     //----------------------------------------------------------------------
     void ConsoleLogger::_Warn( ELogChannel channel, const char* msg, ELogLevel logLevel)
     {
-        _Log( channel, msg, logLevel, LOGTYPE_COLOR_WARNING );
+        _LOG( channel, msg, logLevel, LOGTYPE_COLOR_WARNING );
     }
 
     //----------------------------------------------------------------------
     void ConsoleLogger::_Error( ELogChannel channel, const char* msg, ELogLevel logLevel )
     {
-        _Log( channel, msg, logLevel, LOGTYPE_COLOR_ERROR );
+        _LOG( channel, msg, logLevel, LOGTYPE_COLOR_ERROR );
 
         if (m_dumpToDisk)
             _DumpToDisk();
@@ -125,7 +128,7 @@ namespace Core { namespace Logging {
     //----------------------------------------------------------------------
     void ConsoleLogger::_DumpToDisk()
     {
-        static OS::TextFile logFile( s_logFilePath.c_str() );
+        static OS::TextFile logFile( m_logFilePath.c_str() );
 
         logFile.write( m_messageBuffer.data(), m_messageBuffer.size() );
         logFile.flush();

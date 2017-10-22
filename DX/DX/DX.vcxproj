@@ -284,6 +284,7 @@
     <ClCompile Include="src\Core\OS\FileSystem\file_system_win.cpp" />
     <ClCompile Include="src\Core\OS\FileSystem\virtual_file_system.cpp" />
     <ClCompile Include="src\Core\OS\PlatformTimer\platform_timer.cpp" />
+    <ClCompile Include="src\Core\OS\Threading\jobs\job_queue.cpp" />
     <ClCompile Include="src\Core\OS\Threading\thread.cpp" />
     <ClCompile Include="src\Core\OS\Threading\thread_pool.cpp" />
     <ClCompile Include="src\Core\subsystem_manager.cpp" />
@@ -313,6 +314,7 @@
     <ClInclude Include="src\Core\locator.h" />
     <ClInclude Include="src\Core\Logging\null_logger.hpp" />
     <ClInclude Include="src\Core\Logging\i_logger.hpp" />
+    <ClInclude Include="src\Core\Logging\shared_console_logger.hpp" />
     <ClInclude Include="src\Core\MemoryManagement\memory_manager.h" />
     <ClInclude Include="src\Core\MemoryManagement\memory_tracker.h" />
     <ClInclude Include="src\Core\Misc\color.h" />
@@ -331,6 +333,7 @@
     <ClInclude Include="src\Core\OS\FileSystem\file.h" />
     <ClInclude Include="src\Core\OS\FileSystem\file_system.h" />
     <ClInclude Include="src\Core\OS\FileSystem\virtual_file_system.h" />
+    <ClInclude Include="src\Core\OS\Threading\jobs\job_queue.h" />
     <ClInclude Include="src\Core\OS\Threading\thread.h" />
     <ClInclude Include="src\Core\OS\Threading\thread_pool.h" />
     <ClInclude Include="src\Core\subsystem_manager.h" />

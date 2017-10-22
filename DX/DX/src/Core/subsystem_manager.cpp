@@ -12,6 +12,7 @@
 #include "MemoryManagement/memory_manager.h"
 #include "OS/FileSystem/virtual_file_system.h"
 #include "Config/configuration_manager.h"
+#include "Logging/shared_console_logger.hpp"
 
 namespace Core
 {
@@ -34,7 +35,7 @@ namespace Core
         _InitVirtualFilePaths();
 
         //----------------------------------------------------------------------
-        m_logger = initializeSubSystem( new Logging::ConsoleLogger() );
+        m_logger = initializeSubSystem( new Logging::SharedConsoleLogger() );
 
         LOG( "<<< Initialize Sub-Systems >>>", COLOR);
         LOG( " > Logger initialized!", COLOR);
@@ -49,8 +50,8 @@ namespace Core
         LOG( " > StringTable created!", COLOR );
 
         //----------------------------------------------------------------------
-        m_configManager = initializeSubSystem( new Config::ConfigurationManager() );
-        LOG( " > ConfigurationManager initialized!", COLOR );
+        //m_configManager = initializeSubSystem( new Config::ConfigurationManager() );
+        //LOG( " > ConfigurationManager initialized!", COLOR );
 
         //----------------------------------------------------------------------
 
@@ -66,8 +67,8 @@ namespace Core
 
 
         //----------------------------------------------------------------------
-        LOG( " > Shutdown ConfigurationManager...", COLOR );
-        shutdownSubSystem( m_configManager );
+    /*    LOG( " > Shutdown ConfigurationManager...", COLOR );
+        shutdownSubSystem( m_configManager );*/
 
         //----------------------------------------------------------------------
         LOG( " > Destroy StringTable..." , COLOR);
