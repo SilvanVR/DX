@@ -46,13 +46,13 @@ namespace Core {  namespace Logging  {
         String                                  m_logFilePath;
 
         //----------------------------------------------------------------------
-        void _LOG( ELogChannel channel, const char* msg, ELogLevel ELogLevel, Color color );
+        void _LOG( ELogType type, ELogChannel channel, const char* msg, ELogLevel ELogLevel, Color color );
 
         // Write messages in MessageBuffer to disk
         void _DumpToDisk();
 
         // Store a message as desired in the message buffer byte array
-        void _StoreLogMessage(ELogChannel channel, const char* msg, ELogLevel logLevel);
+        void _StoreLogMessage(ELogType logType, ELogChannel channel, const char* msg, ELogLevel logLevel);
 
         // Small helper function to write an character into the message buffer
         void _WriteToBuffer(const char* msg);

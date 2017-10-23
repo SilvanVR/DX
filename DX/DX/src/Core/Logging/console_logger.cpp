@@ -9,7 +9,6 @@
     @Considerations:
       - Class which holds the message buffer and writes automatically
         to file when buffer is full.
-      - add [WARNING] / [ERROR] when writing to output stream ?
 **********************************************************************/
 
 #include "Core/OS/PlatformTimer/platform_timer.h"
@@ -41,53 +40,56 @@ namespace Core { namespace Logging {
             _DumpToDisk();
 
             String msg = " >> Written log to file '" + m_logFilePath + "'";
-            _LOG( ELogChannel::DEFAULT, msg.c_str(), ELogLevel::VERY_IMPORTANT, Color::GREEN );
+            _LOG( ELogType::INFO, LOG_CHANNEL_DEFAULT, msg.c_str(), ELogLevel::VERY_IMPORTANT, Color::GREEN );
         }
     }
 
     //----------------------------------------------------------------------
-    void ConsoleLogger::_LOG( ELogChannel channel, const char* msg, ELogLevel logLevel, Color color )
+    void ConsoleLogger::_LOG( ELogType logType, ELogChannel channel, const char* msg, ELogLevel logLevel, Color color )
     {
         if ( _CheckLogLevel( logLevel ) || _Filterchannel( channel ) )
             return;
 
         if (m_dumpToDisk)
-            _StoreLogMessage( channel, msg, logLevel );
-
-        const char* preface = _GetchannelAsString( channel );
-        if (preface != "")
-        {
-            m_console.setColor( LOGTYPE_COLOR_CHANNEL );
-            m_console.write( preface );
-        }
+            _StoreLogMessage( logType, channel, msg, logLevel );
 
         m_console.setColor( color );
-        m_console.writeln( msg );
+        {
+            const char* type = _GetLogTypeAsString( logType );
+            if (type != "")
+                m_console.write( type );
+
+            const char* preface = _GetChannelAsString( channel );
+            if (preface != "")
+                m_console.write( preface );
+
+            m_console.writeln( msg );
+        }
         m_console.setColor( m_defaultColor );
     }
 
     //----------------------------------------------------------------------
     void ConsoleLogger::_Log( ELogChannel channel, const char* msg, ELogLevel logLevel, Color color )
     {
-        _LOG( channel, msg, logLevel, color );
+        _LOG( ELogType::INFO, channel, msg, logLevel, color );
     }
 
     //----------------------------------------------------------------------
     void ConsoleLogger::_Log( ELogChannel channel, const char* msg, Color color )
     {
-        _LOG( ELogChannel::DEFAULT, msg, ELogLevel::VERY_IMPORTANT, color );
+        _LOG( ELogType::INFO, LOG_CHANNEL_DEFAULT, msg, ELogLevel::VERY_IMPORTANT, color );
     }
 
     //----------------------------------------------------------------------
     void ConsoleLogger::_Warn( ELogChannel channel, const char* msg, ELogLevel logLevel)
     {
-        _LOG( channel, msg, logLevel, LOGTYPE_COLOR_WARNING );
+        _LOG( ELogType::WARNING, channel, msg, logLevel, LOGTYPE_COLOR_WARNING );
     }
 
     //----------------------------------------------------------------------
     void ConsoleLogger::_Error( ELogChannel channel, const char* msg, ELogLevel logLevel )
     {
-        _LOG( channel, msg, logLevel, LOGTYPE_COLOR_ERROR );
+        _LOG( ELogType::ERROR, channel, msg, logLevel, LOGTYPE_COLOR_ERROR );
 
         if (m_dumpToDisk)
             _DumpToDisk();
@@ -100,10 +102,14 @@ namespace Core { namespace Logging {
     }
 
     //----------------------------------------------------------------------
-    void ConsoleLogger::_StoreLogMessage( ELogChannel channel, const char* msg, ELogLevel logLevel )
+    void ConsoleLogger::_StoreLogMessage( ELogType logType, ELogChannel channel, const char* msg, ELogLevel logLevel )
     {
         // Write stuff to the message-buffer. Always flush before if necessary.
-        const char* preface = _GetchannelAsString( channel );
+        const char* type = _GetLogTypeAsString( logType );
+        if ( type != "" )
+            _WriteToBuffer( type );
+
+        const char* preface = _GetChannelAsString( channel );
         if ( preface != "" )
             _WriteToBuffer( preface );
 
@@ -112,7 +118,7 @@ namespace Core { namespace Logging {
         // And finally the newline character
         if ( not m_messageBuffer.hasEnoughPlace( 1 ) )
             _DumpToDisk();
-        m_messageBuffer.write('\n');
+        m_messageBuffer.write( '\n' );
     }
 
     //----------------------------------------------------------------------

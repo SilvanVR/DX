@@ -16,7 +16,7 @@ int main()
     Locator::getLogger().setSaveToDisk(false);
 
     {
-        //TestMemoryManagement();
+        TestMemoryManagement();
         TestFileStuff();
     }
 

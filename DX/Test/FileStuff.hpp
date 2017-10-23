@@ -4,7 +4,7 @@
 
 void TestFileStuff()
 {
-    OS::BinaryFile file;
+    OS::TextFile file;
 
     file.open("test.txt", OS::EFileMode::READ_WRITE_OVERWRITE);
 

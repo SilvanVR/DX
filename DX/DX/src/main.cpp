@@ -110,7 +110,6 @@ public:
 
 //@TODO: 
 // - Profiler
-// Threading -> async file reading/writing
 
 
 void func(int i)
@@ -143,7 +142,7 @@ int main(void)
         });
 
         threadPool.addJob([] {
-            ERROR("A super awesome job");
+            WARN_RENDERING("A super awesome job");
         });
 
         //file.readAsync([] (const String& c) {
@@ -154,7 +153,7 @@ int main(void)
         // Need a mechanism for wait on jobs / threads
 
         //threadPool.waitForThreads();
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
 
     {

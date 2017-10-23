@@ -5,7 +5,7 @@
     author: S. Hau
     date: October 11, 2017
 
-    Implements the Service-Locator Pattern.
+    Implements the Service-Locator Pattern.//----------------------------------------------------------------------
     Every Sub-System can be retrieved via a static method.
 
     Features:
@@ -30,24 +30,24 @@
 //----------------------------------------------------------------------
 // Defines
 //----------------------------------------------------------------------
-#define LOG(...)                Core::Locator::getLogger().log( Logging::ELogChannel::DEFAULT, __VA_ARGS__ )
-#define WARN(...)               Core::Locator::getLogger().warn( Logging::ELogChannel::DEFAULT, __VA_ARGS__ )
-#define ERROR(...)              Core::Locator::getLogger().error( Logging::ELogChannel::DEFAULT, __VA_ARGS__ )
+#define LOG(...)                Core::Locator::getLogger().log( Logging::LOG_CHANNEL_DEFAULT, __VA_ARGS__ )
+#define WARN(...)               Core::Locator::getLogger().warn( Logging::LOG_CHANNEL_DEFAULT, __VA_ARGS__ )
+#define ERROR(...)              Core::Locator::getLogger().error( Logging::LOG_CHANNEL_DEFAULT, __VA_ARGS__ )
 
-#define LOG_TEST(...)           Core::Locator::getLogger().log( Logging::ELogChannel::TEST, __VA_ARGS__ )
-#define WARN_TEST(...)          Core::Locator::getLogger().warn( Logging::ELogChannel::TEST, __VA_ARGS__ )
+#define LOG_TEST(...)           Core::Locator::getLogger().log( Logging::LOG_CHANNEL_TEST, __VA_ARGS__ )
+#define WARN_TEST(...)          Core::Locator::getLogger().warn( Logging::LOG_CHANNEL_TEST, __VA_ARGS__ )
 
-#define LOG_MEMORY(...)         Core::Locator::getLogger().log( Logging::ELogChannel::MEMORY, __VA_ARGS__ )
-#define WARN_MEMORY(...)        Core::Locator::getLogger().warn( Logging::ELogChannel::MEMORY, __VA_ARGS__ )
-#define ERROR_MEMORY(...)       Core::Locator::getLogger().error( Logging::ELogChannel::MEMORY, __VA_ARGS__ )
+#define LOG_MEMORY(...)         Core::Locator::getLogger().log( Logging::LOG_CHANNEL_MEMORY, __VA_ARGS__ )
+#define WARN_MEMORY(...)        Core::Locator::getLogger().warn( Logging::LOG_CHANNEL_MEMORY, __VA_ARGS__ )
+#define ERROR_MEMORY(...)       Core::Locator::getLogger().error( Logging::LOG_CHANNEL_MEMORY, __VA_ARGS__ )
 
-#define LOG_RENDERING(...)      Core::Locator::getLogger().log( Logging::ELogChannel::RENDERING, __VA_ARGS__ )
-#define WARN_RENDERING(...)     Core::Locator::getLogger().warn( Logging::ELogChannel::RENDERING, __VA_ARGS__ )
-#define ERROR_RENDERING(...)    Core::Locator::getLogger().error( Logging::ELogChannel::RENDERING, __VA_ARGS__ )
+#define LOG_RENDERING(...)      Core::Locator::getLogger().log( Logging::LOG_CHANNEL_RENDERING, __VA_ARGS__ )
+#define WARN_RENDERING(...)     Core::Locator::getLogger().warn( Logging::LOG_CHANNEL_RENDERING, __VA_ARGS__ )
+#define ERROR_RENDERING(...)    Core::Locator::getLogger().error( Logging::LOG_CHANNEL_RENDERING, __VA_ARGS__ )
 
-#define LOG_PHYSICS(...)        Core::Locator::getLogger().log( Logging::ELogChannel::PHYSICS, __VA_ARGS__ )
-#define WARN_PHYSICS(...)       Core::Locator::getLogger().warn( Logging::ELogChannel::PHYSICS, __VA_ARGS__ )
-#define ERROR_PHYSICS(...)      Core::Locator::getLogger().error( Logging::ELogChannel::PHYSICS, __VA_ARGS__ )
+#define LOG_PHYSICS(...)        Core::Locator::getLogger().log( Logging::LOG_CHANNEL_PHYSICS, __VA_ARGS__ )
+#define WARN_PHYSICS(...)       Core::Locator::getLogger().warn( Logging::LOG_CHANNEL_PHYSICS, __VA_ARGS__ )
+#define ERROR_PHYSICS(...)      Core::Locator::getLogger().error( Logging::LOG_CHANNEL_PHYSICS, __VA_ARGS__ )
 
 #define ASYNC_JOB(...)          Core::Locator::getThreadManager().getThreadPool().addJob( __VA_ARGS__ )
 

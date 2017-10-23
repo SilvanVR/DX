@@ -26,7 +26,6 @@ namespace Core { namespace Logging {
     #define LOGTYPE_COLOR_DEFAULT       Color::WHITE
     #define LOGTYPE_COLOR_WARNING       Color::YELLOW
     #define LOGTYPE_COLOR_ERROR         Color::RED
-    #define LOGTYPE_COLOR_CHANNEL       Color::VIOLET
 
     //----------------------------------------------------------------------
     enum class ELogLevel
@@ -39,14 +38,23 @@ namespace Core { namespace Logging {
     };
 
     //----------------------------------------------------------------------
-    enum class ELogChannel
+    enum ELogChannel
     {
-        DEFAULT      = 1 << 0,
-        MEMORY       = 1 << 1,
-        RENDERING    = 1 << 2,
-        PHYSICS      = 1 << 3,
-        TEST         = 1 << 4,
-        ALL          = ~0
+        LOG_CHANNEL_DEFAULT      = 1 << 0,
+        LOG_CHANNEL_MEMORY       = 1 << 1,
+        LOG_CHANNEL_RENDERING    = 1 << 2,
+        LOG_CHANNEL_PHYSICS      = 1 << 3,
+        LOG_CHANNEL_TEST         = 1 << 4,
+        LOG_CHANNEL_ALL          = ~0
+    };
+
+    //----------------------------------------------------------------------
+    enum class ELogType
+    {
+        NONE,
+        INFO,
+        WARNING,
+        ERROR
     };
 
     //**********************************************************************
@@ -54,7 +62,7 @@ namespace Core { namespace Logging {
     //**********************************************************************
     class ILogger : public ISubSystem
     {
-        BitMask     m_channelMask       = BitMask( static_cast<U32>( ELogChannel::ALL ) );
+        BitMask     m_channelMask       = BitMask( static_cast<U32>( LOG_CHANNEL_ALL ) );
 
     protected:
         Color       m_defaultColor      = LOGTYPE_COLOR_DEFAULT;
@@ -226,14 +234,26 @@ namespace Core { namespace Logging {
         }
 
     protected:
-        const char* _GetchannelAsString(ELogChannel channel) const
+        const char* _GetChannelAsString(ELogChannel channel) const
         {
             switch (channel)
             {
-            case ELogChannel::MEMORY:     return "[Memory] ";
-            case ELogChannel::RENDERING:  return "[Rendering] ";
-            case ELogChannel::PHYSICS:    return "[Physics] ";
-            case ELogChannel::TEST:       return "[TEST] ";
+            case LOG_CHANNEL_MEMORY:     return "[Memory] ";
+            case LOG_CHANNEL_RENDERING:  return "[Rendering] ";
+            case LOG_CHANNEL_PHYSICS:    return "[Physics] ";
+            case LOG_CHANNEL_TEST:       return "[TEST] ";
+            default:  
+                return "";
+            }
+        }
+
+        const char* _GetLogTypeAsString(ELogType type) const
+        {
+            switch (type)
+            {
+            case ELogType::INFO:     return "[INFO] ";
+            case ELogType::WARNING:  return "[WARNING] ";
+            case ELogType::ERROR:    return "[ERROR] ";
             default:
                 return "";
             }
