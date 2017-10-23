@@ -131,29 +131,42 @@ int main(void)
     {
         OS::ThreadPool& threadPool = Locator::getThreadManager().getThreadPool();
 
-        //threadPool.addJob([] {
-        //    LOG( "NEW JOB!", Color::BLUE );
-        //}, [] {
-        //    LOG( "NEW JOB IS DONE", Color::GREY );
-        //});
+#define SIZE 10
+        OS::JobPtr jobs[SIZE];
 
-        threadPool.addJob([] {
-            WARN("ANOTHER JOB!");
-        });
+        for (int i = 0; i < SIZE; i++)
+        {
+            jobs[i] = threadPool.addJob([=] {
+                LOG("Job #" + TS(i) + " executing....", Color::VIOLET);
+            });
+        }
 
-        threadPool.addJob([] {
-            WARN_RENDERING("A super awesome job");
-        });
+        /*
+        for (int i = 0; i < SIZE; i++)
+        {
+            jobs[i]->wait();
+        }*/
+        //OS::JobPtr job;
 
         //file.readAsync([] (const String& c) {
         //    LOG( "File was read: " + c );
         //});
 
+ /*       OS::JobPtr i = threadPool.addJob([] {
+            WARN("A super awesome job");
+        });*/
 
-        // Need a mechanism for wait on jobs / threads
 
-        //threadPool.waitForThreads();
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        // Add 1 - N jobs to the Pool (In a list)
+            // It can be wait on the returned ID to wait that all jobs has been completed
+            // List stuff can be simulated with a loop
+
+        // Whats with threads running a persistent loop?
+          // Need a mechanism of telling them to stop / synchronize aswell
+
+        threadPool.waitForThreads();
+       // threadPool.waitForThreads();
+        //std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }
 
     {

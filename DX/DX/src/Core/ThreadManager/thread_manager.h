@@ -6,7 +6,7 @@
     author: S. Hau
     date: October 22, 2017
 
-    See below for a class description.
+    Represents the primary interface for threading stuff.
 
 **********************************************************************/
 
@@ -26,8 +26,7 @@ namespace Core { namespace Threading {
         void init() override;
         void shutdown() override;
 
-        //----------------------------------------------------------------------
-        // Return the main engine.ini file-object
+
         //----------------------------------------------------------------------
         OS::ThreadPool& getThreadPool() { return m_threadPool; }
 

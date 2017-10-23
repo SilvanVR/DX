@@ -1,6 +1,6 @@
 #pragma once
 /**********************************************************************
-    class: JobQueue + Job (job_queue.h)
+    class: JobQueue (job_queue.h)
     
     author: S. Hau
     date: October 22, 2017
@@ -26,16 +26,16 @@ namespace Core { namespace OS {
         //----------------------------------------------------------------------
         // Add a new to the queue. The job will be executed by an arbitrary
         // thread immediately if one is idle. Otherwise the execution will
-        // deferred until the job is in turn.
+        // deferred until a thread will pick it up.
         //----------------------------------------------------------------------
-        void addJob(const Job& job);
+        void addJob(JobPtr job);
 
         //----------------------------------------------------------------------
         // Grab a job from the queue. If the queue is empty, the thread goes
         // to sleep until a job arrives. If more than one thread waits only
         // the CHOSEN ONE will get the job.
         //----------------------------------------------------------------------
-        Job grabJob();
+        JobPtr grabJob();
 
         //----------------------------------------------------------------------
         // Wait until the queue becomes empty. Returns immediately if already empty.
@@ -43,10 +43,10 @@ namespace Core { namespace OS {
         void waitUntilQueueIsEmpty();
 
     private:
-        std::queue<Job>         m_jobs;
-        std::mutex              m_mutex;
-        std::condition_variable m_jobCV;
-        std::condition_variable m_isEmptyCV;
+        std::queue<JobPtr>          m_jobs;
+        std::mutex                  m_mutex;
+        std::condition_variable     m_jobCV;
+        std::condition_variable     m_isEmptyCV;
 
         //----------------------------------------------------------------------
         JobQueue(const JobQueue& other)                 = delete;

@@ -13,17 +13,21 @@
 
 namespace Core { namespace OS {
 
-
     //**********************************************************************
     // Represents a thread in the system. Run's concurrently to the main thread.
     //**********************************************************************
     class Thread
     {
-        static U32 s_threadCounter;
+        static U32 s_threadCounter; // Used as ID for a thread.
 
     public:
         Thread(JobQueue& jobQueue);
         ~Thread();
+
+        //----------------------------------------------------------------------
+        // Wait until the current job is done.
+        //----------------------------------------------------------------------
+        void waitForCurrentJob() const { if( hasJob() ) m_currentJob->wait(); }
 
         //----------------------------------------------------------------------
         // Check whether this thread currently executes a job (is not idle)
@@ -34,7 +38,7 @@ namespace Core { namespace OS {
     private:
         // Order of initialization matters.
         U32                     m_threadID      = s_threadCounter++;
-        Job                     m_currentJob    = nullptr;
+        JobPtr                  m_currentJob    = nullptr;
         JobQueue&               m_jobQueue;
 
         // Initialize thread at last. !IMPORTANT!

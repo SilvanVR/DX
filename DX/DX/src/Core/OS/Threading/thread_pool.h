@@ -7,13 +7,12 @@
     date: October 21, 2017
 
     Manages a bunch of threads via a job system. A job is basically
-    comprised of two functions. The first is the job itself,
-    and the latter a function which will be called when the job is done.
-    A job will be executed by an arbitrary thread.
+    just a function. A job will be executed by an arbitrary thread.
+    When adding a new job the job itself will be returned, so the
+    calling thread can wait until this specific job has been executed.
     @Considerations:
-      - Give each job an ID, wait until a job has been finished:
-         JobID id = pool.addJob(...);
-         pool.waitForJob( id );
+      - Support "Persistens Jobs", aka jobs running in a while(true) loop.
+        For now all jobs have to have a clear end.
 **********************************************************************/
 
 #include "thread.h"
@@ -41,33 +40,36 @@ namespace Core { namespace OS {
         ~ThreadPool();
 
         //----------------------------------------------------------------------
-        U8 numThreads() const { return m_numThreads; }
+        U8 numThreads()             const { return m_numThreads; }
         U8 maxHardwareConcurrency() const { return s_maxHardwareConcurrency; }
 
         //----------------------------------------------------------------------
-        // Adds a new job. The job will executed by an arbitrary thread. When
-        // the job is done, a callback will be called if desired.
-        // @Params:
-        //  "job": Job/Task to execute.
-        //  "calledWhenDone": Function to be called by the main thread 
-        //                    when the job is done.
+        // Waits until all jobs has been executed. After this call, all threads
+        // will be idle and no job is left in the queue.
         //----------------------------------------------------------------------
-        void addJob(const std::function<void()>& job, const std::function<void()>& calledWhenDone = nullptr);
+        void waitForThreads();
 
         //----------------------------------------------------------------------
-        // Wait until all threads have finished their execution and terminate them.
+        // Adds a new job. The job will executed by an arbitrary thread.
+        // @Params:
+        //  "job": Job/Task to execute.
         //----------------------------------------------------------------------
-        void _TerminateThreads();
+        JobPtr addJob(const std::function<void()>& job);
+
 
         //----------------------------------------------------------------------
         Thread& operator[] (U32 index){ ASSERT( index < m_numThreads ); return (*m_threads[index]); }
-
 
     private:
         Thread*         m_threads[MAX_POSSIBLE_THREADS];
         U8              m_numThreads;
         JobQueue        m_jobQueue;
 
+
+        //----------------------------------------------------------------------
+        // Wait until all threads have finished their execution and terminate them.
+        //----------------------------------------------------------------------
+        void _TerminateThreads();
 
         //----------------------------------------------------------------------
         ThreadPool(const ThreadPool& other)                 = delete;

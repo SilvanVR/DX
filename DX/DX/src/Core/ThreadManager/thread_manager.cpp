@@ -1,6 +1,6 @@
 #include "thread_manager.h"
 /**********************************************************************
-    class: ConfigurationManager (configuration_manager.cpp)
+    class: ThreadManager (thread_manager.cpp)
 
     author: S. Hau
     date: October 22, 2017

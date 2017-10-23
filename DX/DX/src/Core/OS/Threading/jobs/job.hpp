@@ -1,44 +1,56 @@
 #pragma once
+/**********************************************************************
+    class: Job (job.hpp)
 
+    author: S. Hau
+    date: October 22, 2017
 
+    See below for a class description.
+
+**********************************************************************/
 
 namespace Core { namespace OS {
 
     //**********************************************************************
     // Represents a job, which will be executed by any thread.
-    // It consists of the function to execute by the thread and an 
-    // additional function to call when the job is done.
     //**********************************************************************
     class Job
     {
     public:
-        Job(std::nullptr_t null) 
-            : Job( null, null ) 
-        {}
-
-        Job(const std::function<void()>& job = nullptr, const std::function<void()>& func = nullptr)
-            : job( job ), calledWhenJobDone( func ) 
+        Job(const std::function<void()>& job = nullptr)
+            : m_job( job )
         {}
 
         //----------------------------------------------------------------------
-        // Executes the job. If its done execute the "calledWhenJobDone" function.
+        // Wait on this job until it a thread completed its execution
         //----------------------------------------------------------------------
-        void operator() () 
+        void wait()
         {
-            job();
-
-            if (calledWhenJobDone != nullptr)
-                calledWhenJobDone();
+            std::unique_lock<std::mutex> lock( m_mutex );
+            m_cv.wait( lock, [this]() -> bool { return m_done; } );
         }
 
         //----------------------------------------------------------------------
-        bool operator == (std::nullptr_t null) const { return job == null; }
-        bool operator != (std::nullptr_t null) const { return job != null; }
+        // Executes the job. Notify possible waiting threads when it's done.
+        //----------------------------------------------------------------------
+        void operator() () 
+        {
+            std::unique_lock<std::mutex> lock( m_mutex );
+            m_job();
+
+            m_done = true;
+            m_cv.notify_all();
+        }
 
     private:
-        std::function<void()> job;
-        std::function<void()> calledWhenJobDone;
+        std::function<void()>       m_job;
+        std::mutex                  m_mutex;
+        std::condition_variable     m_cv;
+        bool                        m_done = false;
     };
+
+    //----------------------------------------------------------------------
+    using JobPtr = std::shared_ptr<Job>;
 
 
 } } // end namespaces

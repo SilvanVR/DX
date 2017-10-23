@@ -34,10 +34,22 @@ namespace Core { namespace OS {
     }
 
     //----------------------------------------------------------------------
-    void ThreadPool::addJob( const std::function<void()>& job, const std::function<void()>& calledWhenDone )
+    void ThreadPool::waitForThreads()
+    {
+        m_jobQueue.waitUntilQueueIsEmpty();
+
+        for (U8 i = 0; i < m_numThreads; i++)
+            m_threads[i]->waitForCurrentJob();
+    }
+
+    //----------------------------------------------------------------------
+    JobPtr ThreadPool::addJob( const std::function<void()>& job )
     {
         // Add job to job queue
-        m_jobQueue.addJob( { job, calledWhenDone } );
+        JobPtr newJob = std::make_shared<Job>( std::move( job ) );
+        m_jobQueue.addJob( newJob );
+
+        return newJob;
     }
 
     //----------------------------------------------------------------------

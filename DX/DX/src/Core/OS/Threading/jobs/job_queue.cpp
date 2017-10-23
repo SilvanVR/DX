@@ -9,12 +9,12 @@
 namespace Core { namespace OS {
 
         //----------------------------------------------------------------------
-        void JobQueue::addJob(const Job& job)
+        void JobQueue::addJob(JobPtr job)
         {
             // Add job to queue
             {
                 std::unique_lock<std::mutex> lock( m_mutex );
-                m_jobs.push( std::move( job ) );
+                m_jobs.push( job );
             }
 
             // Notify one thread that a job is available
@@ -22,7 +22,7 @@ namespace Core { namespace OS {
         }
 
         //----------------------------------------------------------------------
-        Job JobQueue::grabJob()
+        JobPtr JobQueue::grabJob()
         {
             // Lock access to queue
             std::unique_lock<std::mutex> lock( m_mutex );
@@ -33,13 +33,13 @@ namespace Core { namespace OS {
             } );
 
             // Retrieve next job
-            Job job = m_jobs.front();
+            JobPtr job = m_jobs.front();
             m_jobs.pop();
 
             if ( m_jobs.empty() )
                 m_isEmptyCV.notify_all();
 
-            return std::move( job );
+            return job;
         }
 
         //----------------------------------------------------------------------
