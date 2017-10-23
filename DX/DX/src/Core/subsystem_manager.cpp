@@ -15,6 +15,9 @@
 #include "Logging/shared_console_logger.hpp"
 #include "ThreadManager/thread_manager.h"
 
+#define ENABLE_THREADING 1
+#define ENABLE_CONFIG    0
+
 namespace Core
 {
 
@@ -51,12 +54,15 @@ namespace Core
         LOG( " > StringTable created!", COLOR );
 
         //----------------------------------------------------------------------
-        //m_configManager = initializeSubSystem( new Config::ConfigurationManager() );
-        //LOG( " > ConfigurationManager initialized!", COLOR );
-
+#if ENABLE_CONFIG
+        m_configManager = initializeSubSystem( new Config::ConfigurationManager() );
+        LOG( " > ConfigurationManager initialized!", COLOR );
+#endif
         //----------------------------------------------------------------------
+#if ENABLE_THREADING
         m_threadManager = initializeSubSystem( new Threading::ThreadManager() );
         LOG( " > ThreadManager initialized!", COLOR );
+#endif
     }
 
 
@@ -67,13 +73,16 @@ namespace Core
         LOG( "<<< Shutting down Sub-Systems >>>", COLOR );
 
         //----------------------------------------------------------------------
+#if ENABLE_THREADING
         LOG( " > Shutdown ThreadManager...", COLOR );
         shutdownSubSystem( m_threadManager );
+#endif
 
         //----------------------------------------------------------------------
-    /*    LOG( " > Shutdown ConfigurationManager...", COLOR );
-        shutdownSubSystem( m_configManager );*/
-
+#if ENABLE_CONFIG
+        LOG( " > Shutdown ConfigurationManager...", COLOR );
+        shutdownSubSystem( m_configManager );
+#endif
         //----------------------------------------------------------------------
         LOG( " > Destroy StringTable..." , COLOR);
         _DestroyStringTable();

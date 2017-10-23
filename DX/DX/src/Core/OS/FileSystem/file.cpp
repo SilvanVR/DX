@@ -27,12 +27,12 @@ namespace Core { namespace OS {
     #define FILE_EXISTS_AND_NOT_EOF() ASSERT( m_exists && !eof() && "File does not exist or read-cursor is at the end!" );
 
     //----------------------------------------------------------------------
-    File::File(bool binary)
+    File::File( bool binary )
         : m_binary( binary )
     {}
 
     //----------------------------------------------------------------------
-    File::File(const char* path, EFileMode mode, bool binary)
+    File::File( const char* path, EFileMode mode, bool binary )
         : m_filePath( _GetPhysicalPath( path ) ), m_exists( _FileExists( m_filePath.c_str() ) ), 
           m_binary( binary ), m_mode( mode )
     {
@@ -88,6 +88,27 @@ namespace Core { namespace OS {
     }
 
     //----------------------------------------------------------------------
+    Size File::read( void* mem, Size amountOfBytes )
+    {
+        FILE_EXISTS_AND_NOT_EOF();
+
+        // Ensure that reading does not happen after the end
+        Size bytesToRead = amountOfBytes;
+        if ( (m_readCursorPos + bytesToRead) > m_fileSize)
+            bytesToRead = (m_fileSize - m_readCursorPos);
+
+        if ( bytesToRead == 0 )
+            return 0; // Nothing to read, file is empty or read cursor at end
+
+        // Read bytes from file
+        _File_Seek( m_readCursorPos );
+        fread( mem, sizeof(Byte), bytesToRead, m_file );
+        m_readCursorPos = ftell( m_file );
+
+        return bytesToRead;
+    }
+
+    //----------------------------------------------------------------------
     String File::readLine()
     {
         FILE_EXISTS_AND_NOT_EOF();
@@ -106,18 +127,16 @@ namespace Core { namespace OS {
     {
         ASSERT( m_exists && "File does not exist or was already closed" );
 
-        const Size fileSize = getFileSize();
-
-        if ( fileSize == 0 )
+        if (m_fileSize == 0)
             return ""; // Nothing to read, file is empty
 
-        // Create buffer and read data into it
-        char* buffer = new char[fileSize + 1];
-        buffer[fileSize] = '\0';
+        // Create buffer
+        char* buffer = new char[m_fileSize + 1];
+        buffer[m_fileSize] = '\0';
 
         // Move to beginning and read all bytes
         _File_Seek( 0 );
-        fread( buffer, sizeof(char), fileSize, m_file );
+        fread( buffer, sizeof(char), m_fileSize, m_file );
 
         String str( buffer );
         delete[] buffer;
@@ -142,9 +161,13 @@ namespace Core { namespace OS {
             m_eof = false;
 
         m_writeCursorPos = ftell( m_file );
+
+        // Update filesize if we wrote over the end
+        if (m_writeCursorPos > m_fileSize)
+            m_fileSize = m_writeCursorPos;
     }
 
-    void File::write(const Byte* data, Size amountOfBytes)
+    void File::write( const Byte* data, Size amountOfBytes )
     {
         _WRITE_FUNC_BEGIN();
             fwrite( data, sizeof(Byte), amountOfBytes, m_file );
@@ -158,15 +181,16 @@ namespace Core { namespace OS {
     {
         if (not m_exists)
             _CreateFile();
-        fseek(m_file, 0L, SEEK_END);
+        fseek( m_file, 0L, SEEK_END );
     }
 
     void File::_APPEND_FUNC_END()
     {
         m_eof = false; 
+        m_fileSize = ftell( m_file );
     }
 
-    void File::append(const Byte* data, Size amountOfBytes)
+    void File::append( const Byte* data, Size amountOfBytes )
     {
         _APPEND_FUNC_BEGIN();
         fwrite( data, sizeof(Byte), amountOfBytes, m_file );
@@ -189,17 +213,6 @@ namespace Core { namespace OS {
 
         _CloseFile();
         std::remove( m_filePath.c_str() );
-    }
-
-    //----------------------------------------------------------------------
-    Size File::getFileSize() const
-    {
-        ASSERT( m_exists && "File does not exist" );
-
-        fseek( m_file, 0L, SEEK_END );
-        long length = ftell( m_file );
-
-        return length;
     }
 
     //----------------------------------------------------------------------
@@ -242,6 +255,8 @@ namespace Core { namespace OS {
 
         _PeekNextCharAndSetEOF();
 
+        m_fileSize = _GetFileSize();
+
         return (m_file != nullptr);
     }
 
@@ -255,7 +270,7 @@ namespace Core { namespace OS {
 
         m_file = nullptr;
         m_eof = m_exists = false;
-        m_readCursorPos = m_writeCursorPos = 0;
+        m_fileSize = m_readCursorPos = m_writeCursorPos = 0;
     }
 
     //----------------------------------------------------------------------
@@ -269,18 +284,23 @@ namespace Core { namespace OS {
     }
 
     //----------------------------------------------------------------------
+    Size File::_GetFileSize() const
+    {
+        fseek( m_file, 0L, SEEK_END );
+        long length = ftell( m_file );
+
+        return length;
+    }
+
+    //----------------------------------------------------------------------
     void File::_PeekNextCharAndSetEOF()
     {
         int c = fgetc( m_file );
 
         if (c == EOF)
-        {
             m_eof = true;
-        }
         else
-        {
             ungetc( c, m_file );
-        }
     }
 
     //----------------------------------------------------------------------

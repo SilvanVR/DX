@@ -1,13 +1,12 @@
-
-
 #include "Core/OS/PlatformTimer/platform_timer.h"
 #include "Core/MemoryManagement/include.hpp"
 #include "Core/subsystem_manager.h"
 
-#include "Core/OS/FileSystem/file.h"
+#include "Core/OS/FileSystem/file_system.h"
 #include "Core/OS/Threading/thread_pool.h"
+#include "Core/OS/FileSystem/file.h"
 
-#include <Windows.h>
+#include <chrono>
 
 using namespace Core;
 
@@ -121,7 +120,7 @@ void func(int i)
 
 int main(void)
 {
-    //MemoryManagement::UniversalAllocator gUniversalAllocator(1000);
+    MemoryManagement::UniversalAllocator gUniversalAllocator(1000);
     //StringID te = SID("Hello");
     //StringID te2 = SID("World");
     //LOG(te.toString() + " " + te2.toString());
@@ -133,21 +132,20 @@ int main(void)
     {
         OS::ThreadPool& threadPool = Locator::getThreadManager().getThreadPool();
 
+        //threadPool.addJob([] {
+        //    LOG( "NEW JOB!", Color::BLUE );
+        //}, [] {
+        //    LOG( "NEW JOB IS DONE", Color::GREY );
+        //});
+
         threadPool.addJob([] {
-            LOG( "NEW JOB!", Color::BLUE );
-        }, [] {
-            LOG( "NEW JOB IS DONE", Color::GREY );
+            WARN("ANOTHER JOB!");
         });
 
         threadPool.addJob([] {
-            LOG("ANOTHER JOB!", Color::RED);
+            ERROR("A super awesome job");
         });
 
-        threadPool.addJob([] {
-            LOG("A super awesome job", Color::RED);
-        });
-
-        //OS::TextFile file("test.txt", OS::EFileMode::READ);
         //file.readAsync([] (const String& c) {
         //    LOG( "File was read: " + c );
         //});
@@ -156,9 +154,7 @@ int main(void)
         // Need a mechanism for wait on jobs / threads
 
         //threadPool.waitForThreads();
-
-
-        Sleep(100);
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
 
     {

@@ -72,12 +72,6 @@ namespace Core { namespace OS {
         bool exists() const { return m_exists; }
 
         //----------------------------------------------------------------------
-        // @Return:
-        //  The size of the file in bytes.
-        //----------------------------------------------------------------------
-        Size getFileSize() const;
-
-        //----------------------------------------------------------------------
         // Reads data from the file. Use either c-style or one of the 
         // predefined functions which returns the result.
         // @Params:
@@ -103,6 +97,17 @@ namespace Core { namespace OS {
         F32  nextF32()  { F32 val;  read("%f",   &val); return val; }
         F64  nextF64()  { F64 val;  read("%lf",  &val); return val; }
         char nextChar() { char val; read("%c",   &val); return val; }
+
+        //----------------------------------------------------------------------
+        // Read raw bytes from the file into the given mem address.
+        // @Params:
+        //  "mem": The address of the buffer in which to put the data
+        //  "amountOfBytes": Maximum amount of bytes to read. If the read cursor
+        //                   exceeds the end it will only read up to the end.
+        // @Return:
+        //  Real amount of bytes which were read.
+        //----------------------------------------------------------------------
+        Size read(void* mem, Size amountOfBytes);
 
         //----------------------------------------------------------------------
         // @Return:
@@ -219,6 +224,7 @@ namespace Core { namespace OS {
 
         //----------------------------------------------------------------------
         const String&   getFilePath()       const { return m_filePath; }
+        Size            getFileSize()       const { return m_fileSize; }
         long            tellWriteCursor()   const { return m_writeCursorPos; }
         long            tellReadCursor()    const { return m_readCursorPos; }
         void            flush()             const { fflush( m_file ); }
@@ -244,6 +250,7 @@ namespace Core { namespace OS {
         bool        m_eof               = false;
         bool        m_binary            = false;
         EFileMode   m_mode              = EFileMode::INVALID;
+        Size        m_fileSize          = 0;
 
         //----------------------------------------------------------------------
         bool        _FileExists(const char* filePath);
@@ -254,6 +261,7 @@ namespace Core { namespace OS {
         String      _GetPhysicalPath(const char* vpath);
         String      _NextLine();
         inline void _File_Seek(long pos) const;
+        Size        _GetFileSize() const;
 
         //----------------------------------------------------------------------
         void _WRITE_FUNC_BEGIN();
