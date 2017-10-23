@@ -13,6 +13,8 @@
     @Considerations:
       - Support "Persistens Jobs", aka jobs running in a while(true) loop.
         For now all jobs have to have a clear end.
+      - Add a batch of jobs simultanously. Wait for a batch.
+      - Fetch memory for jobs from an custom allocator
 **********************************************************************/
 
 #include "thread.h"

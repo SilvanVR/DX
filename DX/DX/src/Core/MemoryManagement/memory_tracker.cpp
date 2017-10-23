@@ -11,6 +11,9 @@
 
 namespace Core { namespace MemoryManagement {
 
+    //----------------------------------------------------------------------
+    static std::mutex mutex;
+
     AllocationMemoryInfo MemoryTracker::s_memoryInfo;
 
     //----------------------------------------------------------------------
@@ -27,6 +30,7 @@ namespace Core { namespace MemoryManagement {
         memcpy( mem, &allocationSize, sizeof( Size ));
         mem += sizeof( Size );
 
+        std::lock_guard<std::mutex> lock( mutex );
         MemoryTracker::s_memoryInfo.addAllocation( allocationSize );
 
         return mem;
@@ -42,6 +46,7 @@ namespace Core { namespace MemoryManagement {
         mem -= sizeof( Size );
 
         Size allocatedSize = *(reinterpret_cast<Size*>( mem ));
+        std::lock_guard<std::mutex> lock( mutex );
         MemoryTracker::s_memoryInfo.removeAllocation( allocatedSize );
 
         std::free( mem );

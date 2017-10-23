@@ -50,7 +50,7 @@ namespace Core { namespace Logging {
         if ( _CheckLogLevel( logLevel ) || _Filterchannel( channel ) )
             return;
 
-        if (m_dumpToDisk)
+        if ( m_dumpToDisk )
             _StoreLogMessage( logType, channel, msg, logLevel );
 
         m_console.setColor( color );

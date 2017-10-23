@@ -12,13 +12,9 @@
 
 namespace Core { namespace MemoryManagement {
 
-    static std::mutex mutex;
-
     //----------------------------------------------------------------------
     void AllocationMemoryInfo::addAllocation( Size amtOfBytes )
     {
-        std::lock_guard<std::mutex> lock( mutex );
-
         currentBytesAllocated += amtOfBytes;
         totalBytesAllocated += amtOfBytes;
         totalAllocations++;
@@ -27,8 +23,6 @@ namespace Core { namespace MemoryManagement {
     //----------------------------------------------------------------------
     void AllocationMemoryInfo::removeAllocation( Size amtOfBytes )
     {
-        std::lock_guard<std::mutex> lock(mutex);
-
         ASSERT( totalDeallocations != totalAllocations );
         currentBytesAllocated -= amtOfBytes;
         totalBytesFreed += amtOfBytes;

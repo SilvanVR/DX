@@ -33,7 +33,7 @@ namespace Core { namespace OS {
 
     //----------------------------------------------------------------------
     File::File( const char* path, EFileMode mode, bool binary )
-        : m_filePath( _GetPhysicalPath( path ) ), m_exists( _FileExists( m_filePath.c_str() ) ), 
+        : m_filePath( StringID( path ) ), m_exists( _FileExists( m_filePath.c_str() ) ),
           m_binary( binary ), m_mode( mode )
     {
         if (m_exists)
@@ -56,7 +56,7 @@ namespace Core { namespace OS {
     {
         ASSERT( not m_exists && "File was already opened!" );
 
-        m_filePath  = _GetPhysicalPath( path );
+        m_filePath  = StringID( path );
         m_exists    = _FileExists( m_filePath.c_str() );
         m_mode      = mode;
 
@@ -67,7 +67,6 @@ namespace Core { namespace OS {
     void File::close()
     {
         _CloseFile();
-        m_filePath.clear();
         m_exists = false;
     }
 
@@ -218,14 +217,16 @@ namespace Core { namespace OS {
     //----------------------------------------------------------------------
     String File::getExtension() const
     {
-        Size dotPosition = ( m_filePath.find_last_of( "." ) + 1 );
-        return m_filePath.substr( dotPosition, ( m_filePath.size() - dotPosition ) );
+        String filePath = m_filePath.toString();
+        Size dotPosition = ( filePath.find_last_of( "." ) + 1 );
+        return filePath.substr( dotPosition, ( filePath.size() - dotPosition ) );
     }
 
     //----------------------------------------------------------------------
     String File::getDirectoryPath() const
     {
-        return m_filePath.substr( 0, m_filePath.find_last_of( "/\\" ) ) + "/";
+        String filePath = m_filePath.toString();
+        return filePath.substr( 0, filePath.find_last_of( "/\\" ) ) + "/";
     }
 
     //----------------------------------------------------------------------
@@ -304,12 +305,6 @@ namespace Core { namespace OS {
     }
 
     //----------------------------------------------------------------------
-    String File::_GetPhysicalPath(const char* vpath)
-    {
-        return VirtualFileSystem::resolvePhysicalPath( vpath );
-    }
-
-    //----------------------------------------------------------------------
     String File::_NextLine()
     {
         // @TODO: Increase buffer size automatically if line is longer
@@ -352,15 +347,17 @@ namespace Core { namespace OS {
         });
     }
 
-    //----------------------------------------------------------------------
-    //void File::readAsync(const std::function<void(const Byte*, Size)>& callback)
-    //{
-    //    FILE_EXISTS_AND_NOT_EOF();
 
-    //    ASYNC_JOB([=]() {
-    //        //String contents = readAll();
-    //        //callback(contents);
-    //    });
-    //}
+    //**********************************************************************
+    // TextFile + BinaryFile
+    //**********************************************************************
+
+    TextFile::TextFile(const char* vpath, EFileMode mode)
+        : File( VirtualFileSystem::resolvePhysicalPath( vpath ).c_str(), mode, false )
+    {}
+
+    BinaryFile::BinaryFile(const char* vpath, EFileMode mode)
+        : File( VirtualFileSystem::resolvePhysicalPath( vpath ).c_str(), mode, true )
+    {}
 
 } }

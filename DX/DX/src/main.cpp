@@ -6,8 +6,6 @@
 #include "Core/OS/Threading/thread_pool.h"
 #include "Core/OS/FileSystem/file.h"
 
-#include <chrono>
-
 using namespace Core;
 
 class AutoClock
@@ -111,15 +109,12 @@ public:
 //@TODO: 
 // - Profiler
 
+// Bunch of jobs
 
-void func(int i)
-{
-    LOG( "Hello " + TS(i) , Color::RED );
-}
 
 int main(void)
 {
-    MemoryManagement::UniversalAllocator gUniversalAllocator(1000);
+    //MemoryManagement::UniversalAllocator gUniversalAllocator(1000);
     //StringID te = SID("Hello");
     //StringID te2 = SID("World");
     //LOG(te.toString() + " " + te2.toString());
@@ -131,56 +126,34 @@ int main(void)
     {
         OS::ThreadPool& threadPool = Locator::getThreadManager().getThreadPool();
 
-#define SIZE 10
+
+#define SIZE 100
         OS::JobPtr jobs[SIZE];
 
         for (int i = 0; i < SIZE; i++)
         {
-            jobs[i] = threadPool.addJob([=] {
+            jobs[i] = ASYNC_JOB([=] {
                 LOG("Job #" + TS(i) + " executing....", Color::VIOLET);
             });
         }
 
-        /*
         for (int i = 0; i < SIZE; i++)
         {
             jobs[i]->wait();
-        }*/
-        //OS::JobPtr job;
+        }
 
-        //file.readAsync([] (const String& c) {
-        //    LOG( "File was read: " + c );
-        //});
-
- /*       OS::JobPtr i = threadPool.addJob([] {
+        /* OS::JobPtr i = threadPool.addJob([] {
             WARN("A super awesome job");
         });*/
-
-
-        // Add 1 - N jobs to the Pool (In a list)
-            // It can be wait on the returned ID to wait that all jobs has been completed
-            // List stuff can be simulated with a loop
-
-        // Whats with threads running a persistent loop?
-          // Need a mechanism of telling them to stop / synchronize aswell
-
-        threadPool.waitForThreads();
-       // threadPool.waitForThreads();
-        //std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }
 
-    {
-        //file.readAsync([] (err, data) {
-        //    LOG( "File was read!" );
-        //});
-    }
 
     {
         //AutoClock clock;
 
         //LOG( "Hello World" );
-        //LOG( "IMPORTANT", Logging::LOG_LEVEL_IMPORTANT, Color::BLUE );
-        //WARN( "NOT SO IMPORTANT", Logging::LOG_LEVEL_NOT_SO_IMPORTANT );
+        //LOG( "IMPORTANT", Logging::ELogLevel::IMPORTANT, Color::BLUE );
+        //WARN( "NOT SO IMPORTANT", Logging::ELogLevel::NOT_SO_IMPORTANT );
 
         //LOG( SID("Hello") );
         //Color color( 16, 52, 128, 255);

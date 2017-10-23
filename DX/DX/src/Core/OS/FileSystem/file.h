@@ -33,7 +33,8 @@ namespace Core { namespace OS {
 
     //*********************************************************************
     // Represents a file on disk.
-    // Supports virtual file paths.
+    // Does not support virtual file paths.
+    // Use the class TextFile/BinaryFile instead.
     //*********************************************************************
     class File
     {
@@ -48,7 +49,7 @@ namespace Core { namespace OS {
         //  "path": Virtual path or Physical path on disk.
         //  "append": Whether add new contents directly to the end of the file.
         //----------------------------------------------------------------------
-        explicit File(const char* vpath, EFileMode mode = EFileMode::READ_WRITE, bool binary = false);
+        explicit File(const char* path, EFileMode mode = EFileMode::READ_WRITE, bool binary = false);
         virtual ~File();
 
         //----------------------------------------------------------------------
@@ -223,7 +224,7 @@ namespace Core { namespace OS {
         void setWriteCursor(long pos) { m_writeCursorPos = pos; }
 
         //----------------------------------------------------------------------
-        const String&   getFilePath()       const { return m_filePath; }
+        String          getFilePath()       const { return m_filePath.toString(); }
         Size            getFileSize()       const { return m_fileSize; }
         long            tellWriteCursor()   const { return m_writeCursorPos; }
         long            tellReadCursor()    const { return m_readCursorPos; }
@@ -238,19 +239,18 @@ namespace Core { namespace OS {
         // that the file does not get deleted until the read has been finished.
         //----------------------------------------------------------------------
         void readAsync(const std::function<void(const String& contents)>& callback);
-        //void readAsync(const std::function<void(const Byte* contents, Size amountOfBytes)>& callback);
 
 
     private:
-        String      m_filePath          = "";
+        StringID    m_filePath;
+        Size        m_fileSize          = 0;
         FILE*       m_file              = nullptr;
         long        m_readCursorPos     = 0;
         long        m_writeCursorPos    = 0;
+        EFileMode   m_mode              = EFileMode::INVALID;
         bool        m_exists            = false;
         bool        m_eof               = false;
         bool        m_binary            = false;
-        EFileMode   m_mode              = EFileMode::INVALID;
-        Size        m_fileSize          = 0;
 
         //----------------------------------------------------------------------
         bool        _FileExists(const char* filePath);
@@ -258,7 +258,6 @@ namespace Core { namespace OS {
         void        _CloseFile();
         void        _CreateFile();
         void        _PeekNextCharAndSetEOF();
-        String      _GetPhysicalPath(const char* vpath);
         String      _NextLine();
         inline void _File_Seek(long pos) const;
         Size        _GetFileSize() const;
@@ -290,9 +289,7 @@ namespace Core { namespace OS {
             : File(false)
         {}
 
-        explicit TextFile(const char* vpath, EFileMode mode = EFileMode::READ_WRITE)
-            : File(vpath, mode, false)
-        {}
+        explicit TextFile(const char* vpath, EFileMode mode = EFileMode::READ_WRITE);
     };
 
     //*********************************************************************
@@ -305,9 +302,7 @@ namespace Core { namespace OS {
             : File(true) 
         {}
 
-        explicit BinaryFile(const char* vpath, EFileMode mode = EFileMode::READ_WRITE)
-            : File(vpath, mode, true)
-        {}
+        explicit BinaryFile(const char* vpath, EFileMode mode = EFileMode::READ_WRITE);
     };
 
 } }
