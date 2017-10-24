@@ -1,11 +1,12 @@
 #pragma once
 
 
-MemoryManagement::UniversalAllocator gUniversalAllocator(1000);
 
 
 void TestMemoryManagement()
 {
+    MemoryManagement::UniversalAllocator gUniversalAllocator(1000);
+
     const int SIZE = 1000;
 
     LOG("MEASURE NEW + DELETE...");

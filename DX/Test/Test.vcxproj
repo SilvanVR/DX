@@ -157,6 +157,7 @@
     <ClInclude Include="Includes.hpp" />
     <ClInclude Include="MemoryManagement.hpp" />
     <ClInclude Include="TestClasses.hpp" />
+    <ClInclude Include="Threading.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DX\DX.vcxproj">

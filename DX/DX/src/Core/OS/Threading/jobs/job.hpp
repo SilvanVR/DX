@@ -12,7 +12,7 @@
 namespace Core { namespace OS {
 
     //**********************************************************************
-    // Represents a job, which will be executed by any thread.
+    // Represents a job, which will be executed by a thread.
     //**********************************************************************
     class Job
     {
@@ -22,7 +22,7 @@ namespace Core { namespace OS {
         {}
 
         //----------------------------------------------------------------------
-        // Wait on this job until it a thread completed its execution
+        // Wait until a thread has completed its execution.
         //----------------------------------------------------------------------
         void wait()
         {

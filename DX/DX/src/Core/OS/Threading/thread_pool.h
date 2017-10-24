@@ -15,6 +15,7 @@
         For now all jobs have to have a clear end.
       - Add a batch of jobs simultanously. Wait for a batch.
       - Fetch memory for jobs from an custom allocator
+        (No dynamic allocations via shared-ptr)
 **********************************************************************/
 
 #include "thread.h"
@@ -30,7 +31,7 @@ namespace Core { namespace OS {
     //**********************************************************************
     class ThreadPool
     {
-        static U8 s_maxHardwareConcurrency;
+        static U8 s_hardwareConcurrency;
 
     public:
         //----------------------------------------------------------------------
@@ -38,12 +39,12 @@ namespace Core { namespace OS {
         // @Params:
         //  "numThreads": Number of threads to create.
         //----------------------------------------------------------------------
-        ThreadPool(U8 numThreads = (s_maxHardwareConcurrency - 1));
+        ThreadPool(U8 numThreads = (s_hardwareConcurrency - 1));
         ~ThreadPool();
 
         //----------------------------------------------------------------------
         U8 numThreads()             const { return m_numThreads; }
-        U8 maxHardwareConcurrency() const { return s_maxHardwareConcurrency; }
+        U8 maxHardwareConcurrency() const { return s_hardwareConcurrency; }
 
         //----------------------------------------------------------------------
         // Waits until all jobs has been executed. After this call, all threads
@@ -62,6 +63,7 @@ namespace Core { namespace OS {
         //----------------------------------------------------------------------
         Thread& operator[] (U32 index){ ASSERT( index < m_numThreads ); return (*m_threads[index]); }
 
+
     private:
         Thread*         m_threads[MAX_POSSIBLE_THREADS];
         U8              m_numThreads;
@@ -69,7 +71,7 @@ namespace Core { namespace OS {
 
 
         //----------------------------------------------------------------------
-        // Wait until all threads have finished their execution and terminate them.
+        // Wait until all threads have finished their execution and terminates them.
         //----------------------------------------------------------------------
         void _TerminateThreads();
 

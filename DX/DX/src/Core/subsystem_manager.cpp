@@ -15,7 +15,7 @@
 #include "Logging/shared_console_logger.hpp"
 #include "ThreadManager/thread_manager.h"
 
-#define ENABLE_THREADING 1
+#define ENABLE_THREADING 0
 #define ENABLE_CONFIG    0
 
 namespace Core

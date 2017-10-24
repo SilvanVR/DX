@@ -7,6 +7,7 @@
 #include "TestClasses.hpp"
 #include "MemoryManagement.hpp"
 #include "FileStuff.hpp"
+#include "Threading.hpp"
 
 
 int main()
@@ -18,8 +19,8 @@ int main()
     {
         TestMemoryManagement();
         TestFileStuff();
+        TestThreading();
     }
-
 
     subSystemManager.shutdown();
     system("pause");

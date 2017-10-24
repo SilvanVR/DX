@@ -12,7 +12,8 @@
 namespace Core { namespace OS {
 
     //----------------------------------------------------------------------
-    U8 ThreadPool::s_maxHardwareConcurrency = std::thread::hardware_concurrency();
+    U8 ThreadPool::s_hardwareConcurrency = std::thread::hardware_concurrency();
+
 
     //----------------------------------------------------------------------
     ThreadPool::ThreadPool( U8 numThreads )

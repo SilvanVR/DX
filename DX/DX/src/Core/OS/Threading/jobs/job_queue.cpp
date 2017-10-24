@@ -17,7 +17,7 @@ namespace Core { namespace OS {
                 m_jobs.push( job );
             }
 
-            // Notify one thread that a job is available
+            // Notify a thread that a job is available
             m_jobCV.notify_one();
         }
 

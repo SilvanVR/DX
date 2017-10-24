@@ -109,9 +109,6 @@ public:
 //@TODO: 
 // - Profiler
 
-// Bunch of jobs
-
-
 int main(void)
 {
     //MemoryManagement::UniversalAllocator gUniversalAllocator(1000);
@@ -124,27 +121,9 @@ int main(void)
     Locator::getLogger().setSaveToDisk( false );
 
     {
-        OS::ThreadPool& threadPool = Locator::getThreadManager().getThreadPool();
 
 
-#define SIZE 100
-        OS::JobPtr jobs[SIZE];
 
-        for (int i = 0; i < SIZE; i++)
-        {
-            jobs[i] = ASYNC_JOB([=] {
-                LOG("Job #" + TS(i) + " executing....", Color::VIOLET);
-            });
-        }
-
-        for (int i = 0; i < SIZE; i++)
-        {
-            jobs[i]->wait();
-        }
-
-        /* OS::JobPtr i = threadPool.addJob([] {
-            WARN("A super awesome job");
-        });*/
     }
 
 

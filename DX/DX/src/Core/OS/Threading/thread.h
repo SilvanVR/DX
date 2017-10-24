@@ -5,8 +5,6 @@
     author: S. Hau
     date: October 21, 2017
 
-    See below for a class description.
-
 **********************************************************************/
 
 #include "jobs/job_queue.h"
@@ -14,7 +12,8 @@
 namespace Core { namespace OS {
 
     //**********************************************************************
-    // Represents a thread in the system. Run's concurrently to the main thread.
+    // Represents a thread in the system. Run's concurrently to the main
+    // thread and executes arbitrary jobs.
     //**********************************************************************
     class Thread
     {
@@ -34,6 +33,10 @@ namespace Core { namespace OS {
         //----------------------------------------------------------------------
         bool hasJob() const { return m_currentJob != nullptr; }
         bool isIdle() const { return !hasJob(); }
+
+        //----------------------------------------------------------------------
+        U32  getID()  const { return m_threadID; }
+
 
     private:
         // Order of initialization matters.
