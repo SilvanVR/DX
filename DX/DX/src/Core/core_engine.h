@@ -15,8 +15,8 @@ namespace Core {
 
     class CoreEngine
     {
-        static const U8 CORE_UPDATE_RATE      = 60;
-        static const U8 PHYSICS_UPDATE_RATE   = 100;
+    protected:
+        static const U8 GAME_TICK_RATE      = 60;
 
     public:
         CoreEngine() = default;
@@ -28,7 +28,7 @@ namespace Core {
         void start();
 
         //----------------------------------------------------------------------
-        // Immediately stops the core game loop.
+        // Stops the core game loop.
         //----------------------------------------------------------------------
         void terminate() { m_isRunning = false; };
 

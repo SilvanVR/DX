@@ -23,7 +23,7 @@ public:
         LOG( "Tick: " + TS(ticks) );
 
 
-        if ( ticks == 1000 )
+        if ( ticks == GAME_TICK_RATE * 1.1f)
             terminate();
     }
 
