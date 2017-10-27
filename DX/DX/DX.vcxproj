@@ -270,10 +270,12 @@
   <ItemGroup>
     <ClCompile Include="src\Core\Config\configuration_manager.cpp" />
     <ClCompile Include="src\Core\Config\config_file.cpp" />
-    <ClCompile Include="src\Core\locator.cpp" />
+    <ClCompile Include="src\Core\core_engine.cpp" />
+    <ClCompile Include="src\locator.cpp" />
     <ClCompile Include="src\Core\MemoryManagement\memory_manager.cpp" />
     <ClCompile Include="src\Core\MemoryManagement\memory_structs.cpp" />
     <ClCompile Include="src\Core\MemoryManagement\memory_tracker.cpp" />
+    <ClCompile Include="src\Core\Misc\clock.cpp" />
     <ClCompile Include="src\Core\Misc\color.cpp" />
     <ClCompile Include="src\Core\Logging\Console\console.cpp" />
     <ClCompile Include="src\Core\Logging\Console\console_win.cpp" />
@@ -289,7 +291,6 @@
     <ClCompile Include="src\Core\OS\Threading\thread_pool.cpp" />
     <ClCompile Include="src\Core\subsystem_manager.cpp" />
     <ClCompile Include="src\Core\ThreadManager\thread_manager.cpp" />
-    <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Core\MemoryManagement\Allocators\iallocator.cpp" />
     <ClCompile Include="src\Core\OS\PlatformTimer\platform_timer_chrono.cpp" />
     <ClCompile Include="src\Core\OS\PlatformTimer\platform_timer_win.cpp" />
@@ -311,13 +312,15 @@
     <ClInclude Include="src\commenting_style.hpp" />
     <ClInclude Include="src\Core\Config\configuration_manager.h" />
     <ClInclude Include="src\Core\Config\config_file.h" />
+    <ClInclude Include="src\Core\core_engine.h" />
     <ClInclude Include="src\Core\DataStructures\byte_array.hpp" />
-    <ClInclude Include="src\Core\locator.h" />
+    <ClInclude Include="src\locator.h" />
     <ClInclude Include="src\Core\Logging\null_logger.hpp" />
     <ClInclude Include="src\Core\Logging\i_logger.hpp" />
     <ClInclude Include="src\Core\Logging\shared_console_logger.hpp" />
     <ClInclude Include="src\Core\MemoryManagement\memory_manager.h" />
     <ClInclude Include="src\Core\MemoryManagement\memory_tracker.h" />
+    <ClInclude Include="src\Core\Misc\clock.h" />
     <ClInclude Include="src\Core\Misc\color.h" />
     <ClInclude Include="src\Core\Logging\Console\console.h" />
     <ClInclude Include="src\Core\Logging\console_logger.h" />
@@ -341,6 +344,8 @@
     <ClInclude Include="src\Core\subsystem_manager.h" />
     <ClInclude Include="src\Core\i_subsystem.hpp" />
     <ClInclude Include="src\Core\ThreadManager\thread_manager.h" />
+    <ClInclude Include="src\DX.h" />
+    <ClInclude Include="src\GameInterface\i_game.hpp" />
     <ClInclude Include="src\PrecompiledHeaders\data_types.hpp" />
     <ClInclude Include="src\PrecompiledHeaders\forward_declarations.hpp" />
     <ClInclude Include="src\PrecompiledHeaders\macros.hpp" />

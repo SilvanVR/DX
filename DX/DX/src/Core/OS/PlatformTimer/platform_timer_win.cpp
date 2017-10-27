@@ -13,6 +13,7 @@
 
 #ifdef _WIN32
 
+#define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 
 namespace Core { namespace OS {
@@ -28,12 +29,12 @@ namespace Core { namespace OS {
     }
 
     //----------------------------------------------------------------------
-    I64 PlatformTimer::getTicks()
+    U64 PlatformTimer::getTicks()
     {
         LARGE_INTEGER ticks;
         QueryPerformanceCounter( &ticks );
 
-        return I64( ticks.QuadPart );
+        return U64( ticks.QuadPart );
     }
 
     //----------------------------------------------------------------------

@@ -7,7 +7,7 @@
     date: October 7, 2017
 **********************************************************************/
 
-#include "Core/locator.h"
+#include "locator.h"
 
 namespace Core { namespace MemoryManagement {
 

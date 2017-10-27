@@ -8,7 +8,7 @@
 
 **********************************************************************/
 
-#include "Core/locator.h"
+#include "locator.h"
 #include "memory_tracker.h"
 
 namespace Core { namespace MemoryManagement {

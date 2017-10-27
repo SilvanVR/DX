@@ -108,14 +108,16 @@ public:
 
 //@TODO: 
 // - Profiler
+// - Input
+
+// - CoreEngine
+// - Clock
+// - Game Class
+// - Window
+
 
 int main(void)
 {
-    //MemoryManagement::UniversalAllocator gUniversalAllocator(1000);
-    //StringID te = SID("Hello");
-    //StringID te2 = SID("World");
-    //LOG(te.toString() + " " + te2.toString());
-
     Core::SubSystemManager gSubSystemManager;
     gSubSystemManager.init();
     Locator::getLogger().setSaveToDisk( false );
@@ -125,7 +127,6 @@ int main(void)
 
 
     }
-
 
     {
         //AutoClock clock;
@@ -138,7 +139,6 @@ int main(void)
         //Color color( 16, 52, 128, 255);
         //LOG( color.toString(true), Color::RED );
     }
-
 
     gSubSystemManager.shutdown();
     system("pause");

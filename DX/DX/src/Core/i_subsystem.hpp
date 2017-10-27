@@ -22,7 +22,7 @@ namespace Core
         ~ISubSystem() {}
 
         virtual void init() = 0;
-        virtual void update(F32 delta) {}
+        virtual void update() {}
         virtual void shutdown() = 0;
     };
 

@@ -20,7 +20,7 @@
 **********************************************************************/
 
 #include "universal_allocator.hpp"
-#include "Core/locator.h"
+#include "locator.h"
 
 namespace Core { namespace MemoryManagement {
 

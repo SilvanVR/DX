@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26730.16
+VisualStudioVersion = 15.0.27004.2005
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DX", "DX\DX.vcxproj", "{696DBD41-D438-4702-AB30-D6D3BF73A44A}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test", "Test\Test.vcxproj", "{1E777CA9-6A8E-4EB9-88C0-4A3026AFF4D3}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestGame", "TestGame\TestGame.vcxproj", "{36A94491-ABB0-46C6-B139-2F8308F0F8F3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,6 +53,22 @@ Global
 		{1E777CA9-6A8E-4EB9-88C0-4A3026AFF4D3}.StaticLib - Release|x64.Build.0 = Release|x64
 		{1E777CA9-6A8E-4EB9-88C0-4A3026AFF4D3}.StaticLib - Release|x86.ActiveCfg = Release|Win32
 		{1E777CA9-6A8E-4EB9-88C0-4A3026AFF4D3}.StaticLib - Release|x86.Build.0 = Release|Win32
+		{36A94491-ABB0-46C6-B139-2F8308F0F8F3}.Debug|x64.ActiveCfg = Debug|x64
+		{36A94491-ABB0-46C6-B139-2F8308F0F8F3}.Debug|x64.Build.0 = Debug|x64
+		{36A94491-ABB0-46C6-B139-2F8308F0F8F3}.Debug|x86.ActiveCfg = Debug|Win32
+		{36A94491-ABB0-46C6-B139-2F8308F0F8F3}.Debug|x86.Build.0 = Debug|Win32
+		{36A94491-ABB0-46C6-B139-2F8308F0F8F3}.Release|x64.ActiveCfg = Release|x64
+		{36A94491-ABB0-46C6-B139-2F8308F0F8F3}.Release|x64.Build.0 = Release|x64
+		{36A94491-ABB0-46C6-B139-2F8308F0F8F3}.Release|x86.ActiveCfg = Release|Win32
+		{36A94491-ABB0-46C6-B139-2F8308F0F8F3}.Release|x86.Build.0 = Release|Win32
+		{36A94491-ABB0-46C6-B139-2F8308F0F8F3}.StaticLib - Debug|x64.ActiveCfg = Debug|x64
+		{36A94491-ABB0-46C6-B139-2F8308F0F8F3}.StaticLib - Debug|x64.Build.0 = Debug|x64
+		{36A94491-ABB0-46C6-B139-2F8308F0F8F3}.StaticLib - Debug|x86.ActiveCfg = Debug|Win32
+		{36A94491-ABB0-46C6-B139-2F8308F0F8F3}.StaticLib - Debug|x86.Build.0 = Debug|Win32
+		{36A94491-ABB0-46C6-B139-2F8308F0F8F3}.StaticLib - Release|x64.ActiveCfg = Release|x64
+		{36A94491-ABB0-46C6-B139-2F8308F0F8F3}.StaticLib - Release|x64.Build.0 = Release|x64
+		{36A94491-ABB0-46C6-B139-2F8308F0F8F3}.StaticLib - Release|x86.ActiveCfg = Release|Win32
+		{36A94491-ABB0-46C6-B139-2F8308F0F8F3}.StaticLib - Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

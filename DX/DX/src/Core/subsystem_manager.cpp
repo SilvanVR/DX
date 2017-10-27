@@ -63,6 +63,22 @@ namespace Core
         m_threadManager = initializeSubSystem( new Threading::ThreadManager() );
         LOG( " > ThreadManager initialized!", COLOR );
 #endif
+        //----------------------------------------------------------------------
+
+
+    }
+
+    //----------------------------------------------------------------------
+    void SubSystemManager::update()
+    {
+        m_logger->update();
+        m_memoryManager->update();
+#if ENABLE_CONFIG
+        m_configManager->update();
+#endif
+#if ENABLE_THREADING
+        m_threadManager->update();
+#endif
     }
 
 
@@ -71,6 +87,10 @@ namespace Core
     {
         // Shutdown every Sub-System here in reversed order to above
         LOG( "<<< Shutting down Sub-Systems >>>", COLOR );
+
+        //----------------------------------------------------------------------
+
+
 
         //----------------------------------------------------------------------
 #if ENABLE_THREADING

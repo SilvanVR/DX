@@ -20,7 +20,7 @@
 
 #include "virtual_file_system.h"
 #include "file_system.h"
-#include "Core/locator.h"
+#include "locator.h"
 
 namespace Core { namespace OS {
 

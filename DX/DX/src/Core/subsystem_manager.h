@@ -32,9 +32,8 @@ namespace Core {
         SubSystemManager();
 
         //----------------------------------------------------------------------
-        // Initializes / Deinitializes every Sub-System
-        //----------------------------------------------------------------------
         void init();
+        void update();
         void shutdown();
 
 

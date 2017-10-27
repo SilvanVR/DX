@@ -13,7 +13,7 @@
          3.) Integrate a order for categories
 **********************************************************************/
 
-#include "Core/locator.h"
+#include "locator.h"
 #include "Utils/string_utils.h"
 #include "Core/OS/FileSystem/file.h"
 

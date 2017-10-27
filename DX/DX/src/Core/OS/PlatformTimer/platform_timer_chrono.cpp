@@ -29,9 +29,9 @@ namespace Core { namespace OS {
     }
 
     //----------------------------------------------------------------------
-    I64 PlatformTimer::getTicks()
+    U64 PlatformTimer::getTicks()
     {
-        return I64( Clock::now().time_since_epoch().count() );
+        return U64( Clock::now().time_since_epoch().count() );
     }
 
     //----------------------------------------------------------------------
