@@ -6,9 +6,10 @@
     author: S. Hau
     date: October 7, 2017
 
-    Overloads the global new/delete operator to 
-    keep track of all allocated memory.
+    Overloads the global new/delete operator.
 **********************************************************************/
+
+#include "locator.h"
 
 void* operator new( Size size )
 {

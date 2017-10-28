@@ -1,7 +1,7 @@
 #pragma once
 /**********************************************************************
-    class: Timer + CallbackTimer (timers.h)
-    
+    class: CallbackTimer (timers.h)
+
     author: S. Hau
     date: October 28, 2017
 **********************************************************************/
@@ -20,9 +20,9 @@ namespace Core { namespace Time {
     class CallbackTimer
     {
     public:
+        CallbackTimer(const CallbackInfo& cbInfo, F32 durationInMs, bool loop);
         CallbackTimer() = default;
         ~CallbackTimer() = default;
-        CallbackTimer(const CallbackInfo& cbInfo, F32 durationInMs, bool loop);
 
         //---------------------------------------------------------------------------
         // Update this clock. Calls the callback when necessary.

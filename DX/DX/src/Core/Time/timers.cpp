@@ -1,9 +1,9 @@
 #include "timers.h"
 /**********************************************************************
-    class: Timer + CallbackTimer (timers.cpp)
-    
+    class: CallbackTimer (timers.cpp)
+
     author: S. Hau
-    date: October 27, 2017
+    date: October 28, 2017
 **********************************************************************/
 
 
@@ -12,7 +12,7 @@ namespace Core { namespace Time {
 
     //---------------------------------------------------------------------------
     CallbackTimer::CallbackTimer(const CallbackInfo& cbInfo, F32 durationInMs, bool loop)
-        : m_callbackInfo( cbInfo ), m_duration( durationInMs * 0.001f ), m_loop( loop )
+        : m_callbackInfo( cbInfo ), m_duration( durationInMs * 0.001 ), m_loop( loop )
     {}
 
     //---------------------------------------------------------------------------

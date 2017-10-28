@@ -134,9 +134,9 @@ public:
         //    LOG("Hello World!");
         //}, 1000);
 
-        Locator::getMasterClock().setTimeout([] {
-            LOG("ONCE");
-        }, 1000);
+        //Locator::getMasterClock().setTimeout([] {
+        //    LOG("ONCE");
+        //}, 1000);
 
    /*     Locator::getMasterClock().setTimeout([this] {
             terminate();
