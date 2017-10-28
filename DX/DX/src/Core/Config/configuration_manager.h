@@ -20,7 +20,8 @@ namespace Core { namespace Config {
     class ConfigurationManager : public ISubSystem
     {
     public:
-        ConfigurationManager();
+        ConfigurationManager() = default;
+        ~ConfigurationManager() = default;
 
         //----------------------------------------------------------------------
         // ISubSystem Interface

@@ -9,10 +9,11 @@
 **********************************************************************/
 
 #include "subsystem_manager.h"
+#include "Core/Time/master_clock.h"
 
 namespace Core {
 
-
+    //**********************************************************************
     class CoreEngine
     {
     protected:
@@ -38,8 +39,9 @@ namespace Core {
         virtual void shutdown() = 0;
 
     private:
-        SubSystemManager m_subSystemManager;
-        bool             m_isRunning = true;
+        Time::MasterClock   m_gameClock;
+        SubSystemManager    m_subSystemManager;
+        bool                m_isRunning = true;
 
         //----------------------------------------------------------------------
         void _RunCoreGameLoop();

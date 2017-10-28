@@ -271,11 +271,12 @@
     <ClCompile Include="src\Core\Config\configuration_manager.cpp" />
     <ClCompile Include="src\Core\Config\config_file.cpp" />
     <ClCompile Include="src\Core\core_engine.cpp" />
+    <ClCompile Include="src\Core\Profiling\profiler.cpp" />
+    <ClCompile Include="src\Core\Time\master_clock.cpp" />
     <ClCompile Include="src\locator.cpp" />
     <ClCompile Include="src\Core\MemoryManagement\memory_manager.cpp" />
     <ClCompile Include="src\Core\MemoryManagement\memory_structs.cpp" />
     <ClCompile Include="src\Core\MemoryManagement\memory_tracker.cpp" />
-    <ClCompile Include="src\Core\Misc\clock.cpp" />
     <ClCompile Include="src\Core\Misc\color.cpp" />
     <ClCompile Include="src\Core\Logging\Console\console.cpp" />
     <ClCompile Include="src\Core\Logging\Console\console_win.cpp" />
@@ -292,7 +293,6 @@
     <ClCompile Include="src\Core\subsystem_manager.cpp" />
     <ClCompile Include="src\Core\ThreadManager\thread_manager.cpp" />
     <ClCompile Include="src\Core\MemoryManagement\Allocators\iallocator.cpp" />
-    <ClCompile Include="src\Core\OS\PlatformTimer\platform_timer_chrono.cpp" />
     <ClCompile Include="src\Core\OS\PlatformTimer\platform_timer_win.cpp" />
     <ClCompile Include="src\PrecompiledHeaders\string.cpp" />
     <ClCompile Include="src\stdafx.cpp">
@@ -314,13 +314,14 @@
     <ClInclude Include="src\Core\Config\config_file.h" />
     <ClInclude Include="src\Core\core_engine.h" />
     <ClInclude Include="src\Core\DataStructures\byte_array.hpp" />
+    <ClInclude Include="src\Core\Profiling\profiler.h" />
     <ClInclude Include="src\locator.h" />
     <ClInclude Include="src\Core\Logging\null_logger.hpp" />
     <ClInclude Include="src\Core\Logging\i_logger.hpp" />
     <ClInclude Include="src\Core\Logging\shared_console_logger.hpp" />
     <ClInclude Include="src\Core\MemoryManagement\memory_manager.h" />
     <ClInclude Include="src\Core\MemoryManagement\memory_tracker.h" />
-    <ClInclude Include="src\Core\Misc\clock.h" />
+    <ClInclude Include="src\Core\Time\master_clock.h" />
     <ClInclude Include="src\Core\Misc\color.h" />
     <ClInclude Include="src\Core\Logging\Console\console.h" />
     <ClInclude Include="src\Core\Logging\console_logger.h" />

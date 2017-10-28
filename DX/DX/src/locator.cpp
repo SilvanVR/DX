@@ -18,3 +18,5 @@ Core::Logging::ILogger*                   Locator::gLogger = &gNullLogger;
 Core::MemoryManagement::MemoryManager*    Locator::gMemoryManager = nullptr;
 Core::Config::ConfigurationManager*       Locator::gConfigManager = nullptr;
 Core::Threading::ThreadManager*           Locator::gThreadManager = nullptr;
+Core::Profiling::Profiler*                Locator::gProfiler      = nullptr;
+Core::Time::MasterClock*                  Locator::gMasterClock   = nullptr;

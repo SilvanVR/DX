@@ -20,6 +20,7 @@ namespace Core {
     namespace MemoryManagement  { class MemoryManager; }
     namespace Config            { class ConfigurationManager; }
     namespace Threading         { class ThreadManager; }
+    namespace Profiling         { class Profiler; }
 
 
     //*********************************************************************
@@ -33,7 +34,7 @@ namespace Core {
 
         //----------------------------------------------------------------------
         void init();
-        void update();
+        void update(F32 delta);
         void shutdown();
 
 
@@ -45,6 +46,7 @@ namespace Core {
         MemoryManagement::MemoryManager*    m_memoryManager = nullptr;
         Config::ConfigurationManager*       m_configManager = nullptr;
         Threading::ThreadManager*           m_threadManager = nullptr;
+        Profiling::Profiler*                m_profiler      = nullptr;
 
 
         //----------------------------------------------------------------------

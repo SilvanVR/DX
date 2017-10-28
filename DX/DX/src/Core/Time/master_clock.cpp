@@ -1,6 +1,6 @@
-#include "clock.h"
+#include "master_clock.h"
 /**********************************************************************
-    class: Clock (clock.cpp)
+    class: Clock (master_clock.cpp)
     
     author: S. Hau
     date: October 27, 2017
@@ -8,37 +8,33 @@
 
 #include "Core/OS/PlatformTimer/platform_timer.h"
 
-
-namespace Core {
+namespace Core { namespace Time {
 
     //----------------------------------------------------------------------
-    Clock::Clock(bool loop)
-        : m_loop( loop ), m_startTicks( OS::PlatformTimer::getTicks() )
+    MasterClock::MasterClock()
+        : m_startTicks( OS::PlatformTimer::getTicks() )
     {
     }
 
     //----------------------------------------------------------------------
-    F64 Clock::getDelta()
+    F64 MasterClock::_Update()
     {
         static U64 lastTicks = 0;
-        U64 curTicks = getCurTicks();
-        U64 deltaTicks = curTicks - lastTicks;
-        lastTicks = curTicks;
 
-        return OS::PlatformTimer::ticksToSeconds( deltaTicks );
+        m_curTicks = OS::PlatformTimer::getTicks() - m_startTicks;
+        U64 deltaTicks = m_curTicks - lastTicks;
+        lastTicks = m_curTicks;
+
+        m_delta = OS::PlatformTimer::ticksToSeconds( deltaTicks );
+        return m_delta;
     }
 
-    //----------------------------------------------------------------------
-    U64 Clock::getCurTicks()
-    {
-        return (OS::PlatformTimer::getTicks() - m_startTicks);
-    }
 
     //----------------------------------------------------------------------
-    F64 Clock::getTime()
+    F64 MasterClock::getTime()
     {
         return OS::PlatformTimer::ticksToSeconds( getCurTicks() );
     }
 
 
-} // end namespaces
+} } // end namespaces

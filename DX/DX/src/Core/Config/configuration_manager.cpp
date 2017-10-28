@@ -11,9 +11,6 @@
 
 namespace Core { namespace Config {
 
-    //----------------------------------------------------------------------
-    ConfigurationManager::ConfigurationManager()
-    {}
 
     //----------------------------------------------------------------------
     void ConfigurationManager::init()

@@ -14,6 +14,7 @@
 #include "Config/configuration_manager.h"
 #include "Logging/shared_console_logger.hpp"
 #include "ThreadManager/thread_manager.h"
+#include "Profiling/profiler.h"
 
 #define ENABLE_THREADING 0
 #define ENABLE_CONFIG    0
@@ -64,21 +65,22 @@ namespace Core
         LOG( " > ThreadManager initialized!", COLOR );
 #endif
         //----------------------------------------------------------------------
-
-
+        m_profiler = initializeSubSystem( new Profiling::Profiler() );
+        LOG( " > Profiler initialized!", COLOR );
     }
 
     //----------------------------------------------------------------------
-    void SubSystemManager::update()
+    void SubSystemManager::update( F32 delta )
     {
-        m_logger->update();
-        m_memoryManager->update();
+        m_logger->update( delta );
+        m_memoryManager->update( delta );
 #if ENABLE_CONFIG
-        m_configManager->update();
+        m_configManager->update( delta );
 #endif
 #if ENABLE_THREADING
-        m_threadManager->update();
+        m_threadManager->update( delta );
 #endif
+        m_profiler->update( delta );
     }
 
 
@@ -89,15 +91,14 @@ namespace Core
         LOG( "<<< Shutting down Sub-Systems >>>", COLOR );
 
         //----------------------------------------------------------------------
-
-
+        LOG( " > Shutdown Profiler...", COLOR );
+        shutdownSubSystem( m_profiler );
 
         //----------------------------------------------------------------------
 #if ENABLE_THREADING
         LOG( " > Shutdown ThreadManager...", COLOR );
         shutdownSubSystem( m_threadManager );
 #endif
-
         //----------------------------------------------------------------------
 #if ENABLE_CONFIG
         LOG( " > Shutdown ConfigurationManager...", COLOR );

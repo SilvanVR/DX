@@ -11,13 +11,15 @@
 **********************************************************************/
 
 #include "locator.h"
-#include "Misc/clock.h"
 
 namespace Core {
 
     //----------------------------------------------------------------------
     void CoreEngine::start()
     {
+        // Provide game clock to the locator class
+        Locator::provide( &m_gameClock );
+
         // Initialize all subsystems
         m_subSystemManager.init();
 
@@ -30,18 +32,14 @@ namespace Core {
 
     void PrintFPS(F64 delta)
     {
-        static U64 frameCounter = 0;
         static F64 secTimer = 0;
 
-        frameCounter++;
         secTimer += delta;
-        if (secTimer > 1.0f)
+        if (secTimer > 1.05)
         {
-            LOG("FPS: " + TS(frameCounter));
-            secTimer = 0;
-            frameCounter = 0;
+            secTimer -= 1.05;
+            LOG( "FPS: " + TS( Locator::getProfiler().getFPS() ) );
         }
-        //LOG( "FPS: " + TS( Locator::getProfiler().getFPS() ) );
     }
 
     //----------------------------------------------------------------------
@@ -50,7 +48,6 @@ namespace Core {
         constexpr F64 TICK_RATE_IN_SECONDS  = (1.0f / GAME_TICK_RATE);
         const     U8  MAX_TICKS_PER_FRAME   = 5; // Prevents the "spiral of death"
 
-        Clock gameClock;
         F64 gameTickAccumulator = 0;
 
         LOG( "Entering Core-Loop." );
@@ -58,13 +55,14 @@ namespace Core {
         {
             // Update window class
 
-            F64 delta = gameClock.getDelta();
-            if (delta > 0.5f) delta = 0.5f;
-            PrintFPS(delta);
+
+            F64 delta = m_gameClock._Update();
+            if (delta > 0.5f) 
+                delta = 0.5f;
 
             {
                 // Update subsystems every frame
-                m_subSystemManager.update();
+                m_subSystemManager.update( (F32) delta );
 
                 // Update game in fixed intervals
                 U8 ticksPerFrame = 0;
@@ -74,13 +72,16 @@ namespace Core {
                     tick( (F32)TICK_RATE_IN_SECONDS );
                     gameTickAccumulator -= TICK_RATE_IN_SECONDS;
                 }
-
             }
+
+
+            PrintFPS(delta);
+
 
             {
                 // Render as fast as possible with interpolated state
                 F64 lerp = (gameTickAccumulator / TICK_RATE_IN_SECONDS);
-                ASSERT( lerp <= 1.0 );
+                //ASSERT( lerp <= 1.0 );
                 // m_renderer->render( lerp );
             }
 
