@@ -1,5 +1,5 @@
 #include "Core/OS/PlatformTimer/platform_timer.h"
-#include "Core/MemoryManagement/include.hpp"
+#include "Core/MemoryManagement/Allocators/include.hpp"
 #include "Core/subsystem_manager.h"
 
 #include "Core/OS/FileSystem/file_system.h"
@@ -110,12 +110,7 @@ public:
 //@TODO: 
 // - Profiler
 // - Input
-
-// - CoreEngine
-// - Clock
-// - Game Class
 // - Window
-
 
 
 class Game : public IGame
@@ -128,19 +123,17 @@ public:
         LOG( "Init game..." );
         Locator::getLogger().setSaveToDisk( false );
 
-        //// Want to call a function every x-milliseconds or after x-millis
-        //Locator::getMasterClock().setInterval([] {
-        //    //LOG( "Time: " + TS( Locator::getMasterClock().getTime() ) );
-        //    LOG("Hello World!");
-        //}, 1000);
+        Locator::getMasterClock().setInterval([] {
+            LOG( "Time: " + TS( Locator::getMasterClock().getTime() ) + " FPS: " + TS( Locator::getProfiler().getFPS() ) );
+            //LOG( String("Hello") );
 
-        //Locator::getMasterClock().setTimeout([] {
-        //    LOG("ONCE");
-        //}, 1000);
+            //std::string t;
+            //String t = "tes";
+        }, 1000);
 
-   /*     Locator::getMasterClock().setTimeout([this] {
+        Locator::getMasterClock().setTimeout([this] {
             terminate();
-        }, 3000);*/
+        }, 3000);
     }
 
     //----------------------------------------------------------------------
@@ -150,8 +143,8 @@ public:
         ticks++;
         //LOG( "Tick: " + TS(ticks) );
 
-        if ( ticks == GAME_TICK_RATE * 1.1f)
-            terminate();
+        //if ( ticks == GAME_TICK_RATE * 1.1f)
+        //    terminate();
     }
 
     //----------------------------------------------------------------------

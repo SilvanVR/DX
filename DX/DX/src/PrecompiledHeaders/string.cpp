@@ -16,25 +16,8 @@
 **********************************************************************/
 
 // Table which maps [HASH <-> STRING]
-std::map<U32, const char*>* gStringIdTable;
+std::map<U32, const char*> gStringIdTable;
 
-//----------------------------------------------------------------------
-void _CreateStringTable()
-{
-    ASSERT( gStringIdTable == nullptr );
-    // Why dynamically allocate the string-table?
-    // The reason for this is to control when to delete all
-    // the memory allocated from the table. This is needed so
-    // the memory manager can properly detect memory leaks.
-    gStringIdTable = new std::map<U32, const char*>();
-}
-
-void _DestroyStringTable()
-{
-    if (gStringIdTable != nullptr)
-        delete gStringIdTable;
-    gStringIdTable = nullptr;
-}
 
 //----------------------------------------------------------------------
 // Forward Declarations
@@ -66,18 +49,17 @@ String StringID::toString() const
 //----------------------------------------------------------------------
 U32 internString( const char* str )
 {
-    ASSERT( gStringIdTable != nullptr && "String-Table was not created." );
     U32 sid = hash( str );
 
-    auto it = gStringIdTable->find( sid );
+    auto it = gStringIdTable.find( sid );
 
-    if (it == gStringIdTable->end())
+    if (it == gStringIdTable.end())
     {
         // This string has not yet been added to the table. Add it, being sure to copy it 
         // in case the original was dynamically allocated and might later be freed. 
         // Normally you have to free this memory manually later, but because it is
         // global anyway, it's OK to let it deleted from the OS when the program terminates.
-        (*gStringIdTable)[sid] = _strdup( str );
+        gStringIdTable[sid] = _strdup( str );
     }
 
     return sid;
@@ -86,10 +68,10 @@ U32 internString( const char* str )
 //----------------------------------------------------------------------
 const char* externString( StringID sid )
 {
-    auto it = gStringIdTable->find( sid.id );
-    if ( it != gStringIdTable->end() )
+    auto it = gStringIdTable.find( sid.id );
+    if ( it != gStringIdTable.end() )
     {
-        return (*gStringIdTable)[ sid.id ];
+        return gStringIdTable[sid.id];
     }
     ASSERT( false && "Given StringID does not exist.");
     return "";

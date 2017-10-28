@@ -11,6 +11,8 @@
 #include "locator.h"
 #include "memory_tracker.h"
 
+#define REPORT_CONTINOUS_ALLOCATIONS 1
+
 namespace Core { namespace MemoryManagement {
 
     //----------------------------------------------------------------------
@@ -24,21 +26,37 @@ namespace Core { namespace MemoryManagement {
     {
         static const F32 tickRate = 0.5f;
         static F32 timer = 0;
-        static U64 lastTimeBytesAllocated = 0;
+        static U64 lastTimeBytesAllocated, lastTimeTotalBytesAllocated = 0;
 
         timer += delta;
         if (timer > tickRate)
         {
             auto allocInfo = getAllocationInfo();
-            
-            if ( (lastTimeBytesAllocated != 0) && (lastTimeBytesAllocated != allocInfo.totalBytesAllocated) )
+
             {
-                WARN_MEMORY( "Maybe Memory-Leak detected!" );
-                WARN_MEMORY( "Total Bytes Allocated Last Time: " + TS( lastTimeBytesAllocated ) );
-                WARN_MEMORY( "Total Bytes Allocated Now: " + TS( allocInfo.totalBytesAllocated ) );
+                #if REPORT_CONTINOUS_ALLOCATIONS
+                    if ( (lastTimeTotalBytesAllocated != 0) && (lastTimeTotalBytesAllocated != allocInfo.totalBytesAllocated) )
+                    {
+                        WARN_MEMORY( "Continous dynamic memory allocations in game-loop!" );
+                        WARN_MEMORY( "Total Bytes Allocated Last Time: " + TS( lastTimeTotalBytesAllocated ) );
+                        WARN_MEMORY( "Total Bytes Allocated Now: " + TS( allocInfo.totalBytesAllocated ) );
+                    }
+                #endif
             }
 
-            lastTimeBytesAllocated = getAllocationInfo().totalBytesAllocated;
+            {
+                if ( (lastTimeBytesAllocated != 0) && (lastTimeBytesAllocated < allocInfo.currentBytesAllocated) )
+                {
+                    WARN_MEMORY( "Perhaps memory leak detected!" );
+                    WARN_MEMORY( "Total Bytes Allocated Last Time: " + TS( lastTimeBytesAllocated ) );
+                    WARN_MEMORY( "Total Bytes Allocated Now: " + TS( allocInfo.currentBytesAllocated ) );
+                }
+            }
+
+            allocInfo = getAllocationInfo();
+            lastTimeBytesAllocated = allocInfo.currentBytesAllocated;
+            lastTimeTotalBytesAllocated = allocInfo.totalBytesAllocated;
+
             timer -= tickRate;
         }
     }
@@ -49,10 +67,10 @@ namespace Core { namespace MemoryManagement {
         auto currentAllocationInfo = getAllocationInfo();
         LOG( currentAllocationInfo.toString() );
 
-        if (currentAllocationInfo.currentBytesAllocated != 0)
-            _ReportMemoryLeak( currentAllocationInfo );
-        else
-            LOG( " ~ No memory leak detected. Goodbye! ~ ", Color::GREEN );
+        //if (currentAllocationInfo.currentBytesAllocated != 0)
+        //    _ReportMemoryLeak( currentAllocationInfo );
+        //else
+        //    LOG( " ~ No memory leak detected. Goodbye! ~ ", Color::GREEN );
     }
 
     //----------------------------------------------------------------------

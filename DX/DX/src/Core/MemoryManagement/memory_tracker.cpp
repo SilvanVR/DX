@@ -8,11 +8,16 @@
 **********************************************************************/
 
 #include "locator.h"
+#include "memory.hpp"
 
 namespace Core { namespace MemoryManagement {
 
     //----------------------------------------------------------------------
-    static std::mutex mutex;
+    std::mutex& getMutex()
+    {
+        static std::mutex mutex;
+        return mutex;
+    }
 
     AllocationMemoryInfo MemoryTracker::s_memoryInfo;
 
@@ -30,7 +35,7 @@ namespace Core { namespace MemoryManagement {
         memcpy( mem, &allocationSize, sizeof( Size ));
         mem += sizeof( Size );
 
-        std::lock_guard<std::mutex> lock( mutex );
+        // std::lock_guard<std::mutex> lock( getMutex() );
         MemoryTracker::s_memoryInfo.addAllocation( allocationSize );
 
         return mem;
@@ -46,7 +51,7 @@ namespace Core { namespace MemoryManagement {
         mem -= sizeof( Size );
 
         Size allocatedSize = *(reinterpret_cast<Size*>( mem ));
-        std::lock_guard<std::mutex> lock( mutex );
+        // std::lock_guard<std::mutex> lock( getMutex() );
         MemoryTracker::s_memoryInfo.removeAllocation( allocatedSize );
 
         std::free( mem );

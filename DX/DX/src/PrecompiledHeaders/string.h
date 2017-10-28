@@ -59,7 +59,3 @@ struct StringID
     //----------------------------------------------------------------------
     String toString() const;
 };
-
-//----------------------------------------------------------------------
-void _CreateStringTable();
-void _DestroyStringTable();

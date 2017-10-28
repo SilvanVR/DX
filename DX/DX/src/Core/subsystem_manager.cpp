@@ -50,11 +50,6 @@ namespace Core
         LOG( " > MemoryManager initialized!", COLOR);
 
         //----------------------------------------------------------------------
-        // String table needs to be created after the memory manager but before anything else
-        _CreateStringTable();
-        LOG( " > StringTable created!", COLOR );
-
-        //----------------------------------------------------------------------
 #if ENABLE_CONFIG
         m_configManager = initializeSubSystem( new Config::ConfigurationManager() );
         LOG( " > ConfigurationManager initialized!", COLOR );
@@ -104,10 +99,6 @@ namespace Core
         LOG( " > Shutdown ConfigurationManager...", COLOR );
         shutdownSubSystem( m_configManager );
 #endif
-        //----------------------------------------------------------------------
-        LOG( " > Destroy StringTable..." , COLOR);
-        _DestroyStringTable();
-
         //----------------------------------------------------------------------
         LOG( " > Shutdown MemoryManager...", COLOR);
         shutdownSubSystem( m_memoryManager );

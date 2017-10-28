@@ -149,9 +149,6 @@
     <ClInclude Include="src\Core\MemoryManagement\Allocators\universal_allocator_defragmented.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\MemoryManagement\include.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\Core\MemoryManagement\memory.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -258,6 +255,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\Time\timers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\MemoryManagement\Allocators\include.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

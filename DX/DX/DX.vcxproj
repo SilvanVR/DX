@@ -316,6 +316,7 @@
     <ClInclude Include="src\Core\Config\config_file.h" />
     <ClInclude Include="src\Core\core_engine.h" />
     <ClInclude Include="src\Core\DataStructures\byte_array.hpp" />
+    <ClInclude Include="src\Core\MemoryManagement\Allocators\include.hpp" />
     <ClInclude Include="src\Core\Profiling\profiler.h" />
     <ClInclude Include="src\Core\Time\timers.h" />
     <ClInclude Include="src\locator.h" />
@@ -334,7 +335,6 @@
     <ClInclude Include="src\Core\MemoryManagement\Allocators\pool_list_allocator.hpp" />
     <ClInclude Include="src\Core\MemoryManagement\Allocators\universal_allocator_defragmented.hpp" />
     <ClInclude Include="src\Core\MemoryManagement\memory.hpp" />
-    <ClInclude Include="src\Core\MemoryManagement\include.hpp" />
     <ClInclude Include="src\Core\MemoryManagement\memory_structs.h" />
     <ClInclude Include="src\Core\Misc\bit_mask.hpp" />
     <ClInclude Include="src\Core\Misc\variant_type.h" />

@@ -38,15 +38,10 @@ namespace Core {
 
         F64 gameTickAccumulator = 0;
 
-        LOG( "Entering Core-Loop." );
         while (m_isRunning)
         {
-            // Update window class
-
-
             F64 delta = m_gameClock._Update();
-            if (delta > 0.5f) 
-                delta = 0.5f;
+            //if (delta > 0.5f) delta = 0.5f;
 
             {
                 // Update subsystems every frame
@@ -68,7 +63,6 @@ namespace Core {
                 //ASSERT( lerp <= 1.0 );
                 // m_renderer->render( lerp );
             }
-
         }
 
         _Shutdown();

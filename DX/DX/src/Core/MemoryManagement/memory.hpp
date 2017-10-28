@@ -9,8 +9,6 @@
     Overloads the global new/delete operator.
 **********************************************************************/
 
-#include "locator.h"
-
 void* operator new( Size size )
 {
     return Core::MemoryManagement::_GlobalNewAndDeleteAllocator::allocate( size );

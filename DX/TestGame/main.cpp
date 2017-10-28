@@ -20,6 +20,10 @@ public:
         Locator::getMasterClock().setTimeout([] {
             LOG("ONCE");
         }, 1000);
+
+        Locator::getMasterClock().setTimeout([this] {
+            terminate();
+        }, 3000);
     }
 
     //----------------------------------------------------------------------
