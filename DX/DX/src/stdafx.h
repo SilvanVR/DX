@@ -20,6 +20,7 @@
 #include <memory>
 #include <mutex>
 #include <queue>
+#include <array>
 #include <map>
 
 #include "PrecompiledHeaders/forward_declarations.hpp"

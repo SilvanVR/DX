@@ -25,6 +25,8 @@ using I64 = __int64;
 using F32 = float;
 using F64 = double;
 
+using CallbackID = U64;
+
 using Size = std::size_t;
 
 #include "string.h"

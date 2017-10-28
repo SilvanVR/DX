@@ -1,5 +1,3 @@
-
-
 #include <DX.h>
 
 
@@ -12,6 +10,16 @@ public:
     {
         LOG( "Init game..." );
         Locator::getLogger().setSaveToDisk( false );
+
+        // Want to call a function every x-milliseconds or after x-millis
+        Locator::getMasterClock().setInterval([] {
+            LOG( "Time: " + TS( Locator::getMasterClock().getTime() ) );
+            //LOG( "FPS: " + TS( Locator::getProfiler().getFPS() ) );
+        }, 1000);
+
+        Locator::getMasterClock().setTimeout([] {
+            LOG("ONCE");
+        }, 1000);
     }
 
     //----------------------------------------------------------------------
@@ -20,10 +28,9 @@ public:
         static U64 ticks = 0;
 
         ticks++;
-        LOG( "Tick: " + TS(ticks) );
+        //LOG( "Tick: " + TS(ticks) );
 
-
-        if ( ticks == GAME_TICK_RATE * 1.1f)
+        if ( ticks == GAME_TICK_RATE * 100.1f)
             terminate();
     }
 

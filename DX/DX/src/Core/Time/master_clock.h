@@ -8,12 +8,11 @@
     Represents a clock which measures past time using the PlatformTimer.
 
     @Consideration:
-      - Add mechanism for binding functions to a clock
-        -> Function called only once / intervals
-      - Add super class: Clock
-      - Loop clock
       - Scale time
+      - No dynamic allocations for callbacks
 **********************************************************************/
+
+#include "timers.h"
 
 //----------------------------------------------------------------------
 namespace Core{ class CoreEngine; }
@@ -38,13 +37,34 @@ namespace Core { namespace Time {
         //----------------------------------------------------------------------
         F64 getTime();
 
-        // void addFunction(TimePoint);
+        //----------------------------------------------------------------------
+        // Attach a function to this clock.
+        // @Params:
+        //  "func": The function to call.
+        //  "ms": Time in milliseconds between each function call.
+        //----------------------------------------------------------------------
+        CallbackID  setInterval(const std::function<void()>& func, F32 ms);
+
+        //----------------------------------------------------------------------
+        // Attach a function to this clock.
+        // @Params:
+        //  "func": The function to call once.
+        //  "ms": Time in milliseconds after the function will be called.
+        //----------------------------------------------------------------------
+        CallbackID  setTimeout(const std::function<void()>& func, F32 ms);
+
+        //----------------------------------------------------------------------
+        // Remove a callback from this clock.
+        //----------------------------------------------------------------------
+        void        clearCallback(CallbackID id);
 
     private:
         F64 m_delta         = 0;
         U64 m_startTicks    = 0;
         U64 m_curTicks      = 0;
 
+        std::vector<CallbackID> idsToRemove;
+        std::map<CallbackID, CallbackTimer> m_timers;
 
         //----------------------------------------------------------------------
         // Used for other clocks to poll the cpu time.
@@ -58,6 +78,11 @@ namespace Core { namespace Time {
         //----------------------------------------------------------------------
         friend class Core::CoreEngine;
         F64 _Update();
+
+
+        //----------------------------------------------------------------------
+        CallbackID _AttachCallback(const std::function<void()>& func, F32 ms, bool loop);
+        void _UpdateTimer();
 
         //----------------------------------------------------------------------
         MasterClock(const MasterClock& other)                 = delete;

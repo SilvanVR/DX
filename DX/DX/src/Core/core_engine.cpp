@@ -30,18 +30,6 @@ namespace Core {
         _RunCoreGameLoop();
     }
 
-    void PrintFPS(F64 delta)
-    {
-        static F64 secTimer = 0;
-
-        secTimer += delta;
-        if (secTimer > 1.05)
-        {
-            secTimer -= 1.05;
-            LOG( "FPS: " + TS( Locator::getProfiler().getFPS() ) );
-        }
-    }
-
     //----------------------------------------------------------------------
     void CoreEngine::_RunCoreGameLoop()
     {
@@ -73,10 +61,6 @@ namespace Core {
                     gameTickAccumulator -= TICK_RATE_IN_SECONDS;
                 }
             }
-
-
-            PrintFPS(delta);
-
 
             {
                 // Render as fast as possible with interpolated state

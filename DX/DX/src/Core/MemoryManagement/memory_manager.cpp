@@ -20,6 +20,30 @@ namespace Core { namespace MemoryManagement {
     }
 
     //----------------------------------------------------------------------
+    void MemoryManager::update(F32 delta)
+    {
+        static const F32 tickRate = 0.5f;
+        static F32 timer = 0;
+        static U64 lastTimeBytesAllocated = 0;
+
+        timer += delta;
+        if (timer > tickRate)
+        {
+            auto allocInfo = getAllocationInfo();
+            
+            if ( (lastTimeBytesAllocated != 0) && (lastTimeBytesAllocated != allocInfo.totalBytesAllocated) )
+            {
+                WARN_MEMORY( "Maybe Memory-Leak detected!" );
+                WARN_MEMORY( "Total Bytes Allocated Last Time: " + TS( lastTimeBytesAllocated ) );
+                WARN_MEMORY( "Total Bytes Allocated Now: " + TS( allocInfo.totalBytesAllocated ) );
+            }
+
+            lastTimeBytesAllocated = getAllocationInfo().totalBytesAllocated;
+            timer -= tickRate;
+        }
+    }
+
+    //----------------------------------------------------------------------
     void MemoryManager::shutdown()
     {
         auto currentAllocationInfo = getAllocationInfo();

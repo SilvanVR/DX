@@ -32,6 +32,7 @@ namespace Core { namespace MemoryManagement{
         // ISubSystem Interface
         //----------------------------------------------------------------------
         void init() override;
+        void update(F32 delta) override;
         void shutdown() override;
 
         //----------------------------------------------------------------------

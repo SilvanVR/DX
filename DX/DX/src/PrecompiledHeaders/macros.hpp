@@ -9,6 +9,7 @@
     Common macros used throughout whole program.
 **********************************************************************/
 
+#define INVALID_CALLBACK_ID     0
 #define TS(s)                   std::to_string(s)
 #define not                     !
 #define and                     &&
