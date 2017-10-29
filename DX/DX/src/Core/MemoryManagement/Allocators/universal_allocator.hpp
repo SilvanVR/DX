@@ -59,9 +59,9 @@ namespace Core { namespace MemoryManagement {
                 : m_address(address), m_sizeInBytes(size) {}
 
             // Try to allocate the given amount of bytes. Nullptr if not enough space in this chunk.
-            void* allocateRaw(Size amountOfBytes, Size alignment);;
+            void* allocateRaw(Size amountOfBytes, Size alignment);
 
-            bool touches(const FreeChunk& other) const { 
+            bool touches(const FreeChunk& other) const {
                 return (other.m_address + other.m_sizeInBytes) == m_address || (m_address + m_sizeInBytes) == other.m_address;
             }
 
@@ -196,7 +196,7 @@ namespace Core { namespace MemoryManagement {
                     _RemoveFreeChunk( freeChunk );
                 }
 
-                _LogAllocatedBytes(amountOfBytes);
+                _LogAllocatedBytes( amountOfBytes );
 
                 return data;
             }
@@ -237,7 +237,7 @@ namespace Core { namespace MemoryManagement {
         FreeChunk newFreeChunk( newChunkAddress, realBytes );
         _MergeChunk( &newFreeChunk );
 
-        _LogDeallocatedBytes(amountOfBytes);
+        _LogDeallocatedBytes( amountOfBytes );
     }
 
     //----------------------------------------------------------------------

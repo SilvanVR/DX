@@ -202,7 +202,7 @@ namespace Core { namespace MemoryManagement {
             destructor();
         m_destructors.clear();
 
-        _LogDeallocatedBytes( getAllocationMemoryInfo().currentBytesAllocated );
+        _LogDeallocatedBytes( getAllocationMemoryInfo().bytesAllocated );
     }
 
     //----------------------------------------------------------------------

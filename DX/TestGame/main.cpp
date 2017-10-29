@@ -12,16 +12,16 @@ public:
         Locator::getLogger().setSaveToDisk( false );
 
         // Want to call a function every x-milliseconds or after x-millis
-        Locator::getMasterClock().setInterval([] {
-            LOG( "Time: " + TS( Locator::getMasterClock().getTime() ) );
+        Locator::getEngineClock().setInterval([] {
+            LOG( "Time: " + TS( Locator::getEngineClock().getTime() ) );
             //LOG( "FPS: " + TS( Locator::getProfiler().getFPS() ) );
         }, 1000);
 
-        Locator::getMasterClock().setTimeout([] {
+        Locator::getEngineClock().setTimeout([] {
             LOG("ONCE");
         }, 1000);
 
-        Locator::getMasterClock().setTimeout([this] {
+        Locator::getEngineClock().setTimeout([this] {
             terminate();
         }, 3000);
     }

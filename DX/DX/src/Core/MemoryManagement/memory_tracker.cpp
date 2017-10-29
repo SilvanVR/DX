@@ -15,7 +15,7 @@ namespace Core { namespace MemoryManagement {
     //----------------------------------------------------------------------
     std::mutex& getMutex()
     {
-        static std::mutex mutex;
+        static std::mutex mutex; // Ensures that the mutex will be first initialized when needed
         return mutex;
     }
 
@@ -35,7 +35,7 @@ namespace Core { namespace MemoryManagement {
         memcpy( mem, &allocationSize, sizeof( Size ));
         mem += sizeof( Size );
 
-        // std::lock_guard<std::mutex> lock( getMutex() );
+        std::lock_guard<std::mutex> lock( getMutex() );
         MemoryTracker::s_memoryInfo.addAllocation( allocationSize );
 
         return mem;
@@ -51,7 +51,7 @@ namespace Core { namespace MemoryManagement {
         mem -= sizeof( Size );
 
         Size allocatedSize = *(reinterpret_cast<Size*>( mem ));
-        // std::lock_guard<std::mutex> lock( getMutex() );
+        std::lock_guard<std::mutex> lock( getMutex() );
         MemoryTracker::s_memoryInfo.removeAllocation( allocatedSize );
 
         std::free( mem );
@@ -89,9 +89,9 @@ namespace Core { namespace MemoryManagement {
     void MemoryTracker::_CheckForMemoryLeak()
     {
 #ifdef _WIN32
-        if (s_memoryInfo.currentBytesAllocated != 0)
+        if (s_memoryInfo.bytesAllocated != 0)
         {
-            printf( "Current bytes allocated: %lld \n", s_memoryInfo.currentBytesAllocated );
+            printf( "Current bytes allocated: %lld \n", s_memoryInfo.bytesAllocated);
             printf( "Num allocations left: %lld", s_memoryInfo.totalAllocations - s_memoryInfo.totalDeallocations );
             __debugbreak();
         }

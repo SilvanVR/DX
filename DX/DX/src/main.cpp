@@ -37,81 +37,10 @@ public:
     }
 };
 
-class A
-{
-public:
-    A() {
-        //LOG("Constructor");
-    }
-    ~A() {
-        int i = 25;
-        //LOG("Destructor");
-    }
-
-    A(const A& other)
-    {
-        LOG("Copy Constructor");
-    }
-
-    A& operator=(const A& other)
-    {
-        LOG("Assignment Operator");
-        return *this;
-    }
-
-    A(const A&& other)
-    {
-        LOG("Move Constructor");
-        time = other.time;
-    }
-
-    A& operator=(const A&& other)
-    {
-        LOG("Move Assignment");
-        time = other.time;
-        return *this;
-    }
-
-
-    //static void* operator new(Size sz)
-    //{
-    //    std::cout << "custom new for size " << sz << '\n';
-    //    return gPoolAllocator.allocateRaw( sz, alignof(A) );
-    //}
-
-    //static void operator delete(void* mem)
-    //{
-    //    std::cout << "custom delete \n";
-    //    return gPoolAllocator.deallocate( mem );
-    //}
-
-    //static void* operator new[](std::size_t sz)
-    //{
-    //    std::cout << "custom new[] for size " << sz << '\n';
-    //    return gPoolAllocator.allocateRaw(sz, alignof(A));
-    //}
-
-    //static void operator delete[](void* mem)
-    //{
-    //    std::cout << "custom delete[] \n";
-    //    return gPoolAllocator.deallocate(mem);
-    //}
-
-
-    OS::SystemTime time;
-};
-
-class B : public A
-{
-public:
-    U32 lols;
-};
-
 //@TODO: 
 // - Profiler
 // - Input
 // - Window
-
 
 class Game : public IGame
 {
@@ -123,18 +52,13 @@ public:
         LOG( "Init game..." );
         Locator::getLogger().setSaveToDisk( false );
 
-        //Locator::getMasterClock().setInterval([] {
-        //    //LOG( "Time: " + TS( Locator::getMasterClock().getTime() ) + " FPS: " + TS( Locator::getProfiler().getFPS() ) );
-        //    //LOG( String("Hello") );
+        Locator::getEngineClock().setInterval([] {
+            LOG( "Time: " + TS( Locator::getEngineClock().getTime() ) + " FPS: " + TS( Locator::getProfiler().getFPS() ) );
+        }, 1000);
 
-        //    //std::string t;
-        //    //String t = "tes";
-        //}, 1000);
-
-  /*      Locator::getMasterClock().setTimeout([this] {
+        Locator::getEngineClock().setTimeout([this] {
             terminate();
-        }, 1000);*/
-        StringID test = StringID("hello world");
+        }, 3000);
     }
 
     //----------------------------------------------------------------------
@@ -144,8 +68,8 @@ public:
         ticks++;
         //LOG( "Tick: " + TS(ticks) );
 
-        if ( ticks == GAME_TICK_RATE * 1.1f)
-            terminate();
+        //if ( ticks == GAME_TICK_RATE * 2)
+        //    terminate();
     }
 
     //----------------------------------------------------------------------

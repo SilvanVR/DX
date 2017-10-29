@@ -75,6 +75,8 @@ namespace Core {
         // Deinitialize game class
         shutdown();
 
+        LOG(" ~ Goodbye! ~ ", Color::GREEN);
+
         // Deinitialize every subsystem
         m_subSystemManager.shutdown();
     }

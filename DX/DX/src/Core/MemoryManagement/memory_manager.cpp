@@ -6,6 +6,25 @@
     author: S. Hau
     date: October 12, 2017
 
+    So let's talk about memory leak detection for a moment. The problem
+    is how to prevent dynamic memory allocation within the core loop.
+    Technically it is possible, but not if you gonna use stuff from the STL.
+    I investigated two solutions:
+    1.) You could write custom allocators for each STL class, this
+        would work but is a very tedious task and you would have to
+        write some STL function yourself e.g. std::to_string(), because 
+        they return an object with the default allocator.
+        Before doing that i would prefer writing own classes (as EA did with the eastl).
+    2.) You could use a static instance of an allocater which preallocates
+        a large chunk of memory and allocate from it within the global
+        new + delete. But it's not worth to do this because it
+        could decrease performance tremendously (Custom allocator overhead, 
+        thread-safety via mutex and rewrite of the allocator to not do dynamic allocations itself).
+    So yea i accept the dynamic allocations from the STL within the core
+    loop. They won't happen every frame/gametick so i guess it's still a
+    viable solution.
+    Nonetheless the MemoryManager tries to detect possible memory leaks,
+    whilst keeping an eye on the global new/delete allocations.
 **********************************************************************/
 
 #include "locator.h"
@@ -18,59 +37,29 @@ namespace Core { namespace MemoryManagement {
     //----------------------------------------------------------------------
     void MemoryManager::init()
     {
-        m_staticAllocationInfo = getGlobalAllocationInfo();
     }
 
     //----------------------------------------------------------------------
     void MemoryManager::update(F32 delta)
     {
-        static const F32 tickRate = 0.5f;
+        static const F32 tickRate = 1.0f / 60.0f;
         static F32 timer = 0;
-        static U64 lastTimeBytesAllocated, lastTimeTotalBytesAllocated = 0;
 
         timer += delta;
         if (timer > tickRate)
         {
-            auto allocInfo = getAllocationInfo();
-
-            {
-                #if REPORT_CONTINOUS_ALLOCATIONS
-                    if ( (lastTimeTotalBytesAllocated != 0) && (lastTimeTotalBytesAllocated != allocInfo.totalBytesAllocated) )
-                    {
-                        WARN_MEMORY( "Continous dynamic memory allocations in game-loop!" );
-                        WARN_MEMORY( "Total Bytes Allocated Last Time: " + TS( lastTimeTotalBytesAllocated ) );
-                        WARN_MEMORY( "Total Bytes Allocated Now: " + TS( allocInfo.totalBytesAllocated ) );
-                    }
-                #endif
-            }
-
-            {
-                if ( (lastTimeBytesAllocated != 0) && (lastTimeBytesAllocated < allocInfo.currentBytesAllocated) )
-                {
-                    WARN_MEMORY( "Perhaps memory leak detected!" );
-                    WARN_MEMORY( "Total Bytes Allocated Last Time: " + TS( lastTimeBytesAllocated ) );
-                    WARN_MEMORY( "Total Bytes Allocated Now: " + TS( allocInfo.currentBytesAllocated ) );
-                }
-            }
-
-            allocInfo = getAllocationInfo();
-            lastTimeBytesAllocated = allocInfo.currentBytesAllocated;
-            lastTimeTotalBytesAllocated = allocInfo.totalBytesAllocated;
-
+            _BasicLeakDetection();
             timer -= tickRate;
         }
+        //_ContinousAllocationLeakDetection();
     }
 
     //----------------------------------------------------------------------
     void MemoryManager::shutdown()
     {
         auto currentAllocationInfo = getAllocationInfo();
-        LOG( currentAllocationInfo.toString() );
+        LOG( "Allocations made throughout the program:" + currentAllocationInfo.toString() );
 
-        //if (currentAllocationInfo.currentBytesAllocated != 0)
-        //    _ReportMemoryLeak( currentAllocationInfo );
-        //else
-        //    LOG( " ~ No memory leak detected. Goodbye! ~ ", Color::GREEN );
     }
 
     //----------------------------------------------------------------------
@@ -80,28 +69,51 @@ namespace Core { namespace MemoryManagement {
     }
 
     //----------------------------------------------------------------------
-    const AllocationMemoryInfo& MemoryManager::getGlobalAllocationInfo() const
+    const AllocationMemoryInfo MemoryManager::getAllocationInfo() const
     {
         return MemoryTracker::getAllocationMemoryInfo();
     }
 
+
     //----------------------------------------------------------------------
-    const AllocationMemoryInfo MemoryManager::getAllocationInfo() const
+    void MemoryManager::_ContinousAllocationLeakDetection()
     {
-        return (getGlobalAllocationInfo() - m_staticAllocationInfo);
+        // Create viable solution for detecting memory leaks
+    }
+
+
+    //----------------------------------------------------------------------
+    void MemoryManager::_BasicLeakDetection()
+    {
+        static AllocationMemoryInfo lastAllocInfo;
+        auto allocInfo = getAllocationInfo();
+
+#if REPORT_CONTINOUS_ALLOCATIONS
+        // Problem: STL stuff allocates dynamically. Mainly string stuff e.g. std::to_string() when logging.
+        if ((lastAllocInfo.totalBytesAllocated != 0) && (lastAllocInfo.totalBytesAllocated != allocInfo.totalBytesAllocated))
+        {
+            WARN_MEMORY("Continous dynamic memory allocations in game-loop!");
+            WARN_MEMORY("Total Bytes Allocated Last Time: " + TS(lastAllocInfo.totalBytesAllocated));
+            WARN_MEMORY("Total Bytes Allocated Now: " + TS(allocInfo.totalBytesAllocated));
+        }
+#endif
+
+        // Check if this time the amount of bytes increased. If so there was a new allocation.
+        if ( (lastAllocInfo.bytesAllocated < allocInfo.bytesAllocated) && (lastAllocInfo.bytesAllocated != 0) )
+        {
+            _ReportPossibleMemoryLeak( lastAllocInfo, allocInfo );
+        }
+
+        // Print messages allocates itself memory because std::to_string, that's why retrieve the current alloc info again
+        allocInfo = getAllocationInfo();
+        lastAllocInfo = allocInfo;
     }
 
     //----------------------------------------------------------------------
-    void MemoryManager::_ReportMemoryLeak(const AllocationMemoryInfo& allocationInfo)
+    void MemoryManager::_ReportPossibleMemoryLeak(const AllocationMemoryInfo& lastAllocationInfo, const AllocationMemoryInfo& allocInfo)
     {
-        WARN_MEMORY( "<<<< MemoryLeak detected somewhere! >>>>\nPrinting current memory info:" );
-        LOG( allocationInfo.toString() );
-
-    #ifdef _WIN32
-        __debugbreak();
-    #elif
-        ASSERT( false && "MemoryLeak detected somewhere." );
-    #endif
+        WARN_MEMORY( "<<<< Perhaps MemoryLeak detected somewhere! >>>>\nPrinting last and current memory info:"
+                      "\n" + lastAllocationInfo.toString() + allocInfo.toString() );
     }
 
 

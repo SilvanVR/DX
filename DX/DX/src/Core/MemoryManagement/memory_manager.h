@@ -8,7 +8,6 @@
 
     Reports memory leaks on shutdown.
     @Considerations
-      - Check for memory leak while the program is running
       - Allocations from Allocators fetch there memory from a
         universalalloctor in this class?
          => Preallocate a large chunk of memory
@@ -36,35 +35,23 @@ namespace Core { namespace MemoryManagement{
         void shutdown() override;
 
         //----------------------------------------------------------------------
-        // Log the current allocation info to the console (exclude static allocs)
+        // Log the current allocation info to the console.
         //----------------------------------------------------------------------
         void log();
 
         //----------------------------------------------------------------------
         // @Return:
-        //   Contains all allocations made with global new/delete
-        //----------------------------------------------------------------------
-        const AllocationMemoryInfo& getGlobalAllocationInfo() const;
-
-        //----------------------------------------------------------------------
-        // @Return: 
-        //   Contains all allocations made before this class was initialized
-        //   These are most likely allocations made from static objects.
-        //----------------------------------------------------------------------
-        const AllocationMemoryInfo& getStaticAllocationInfo() const { return m_staticAllocationInfo; }
-
-        //----------------------------------------------------------------------
-        // @Return:
-        //   Contains all allocations made after this class was initialized
+        //   Contains all allocations made in this program.
         //----------------------------------------------------------------------
         const AllocationMemoryInfo getAllocationInfo() const;
 
     private:
-        // Contains all allocations made before this class was initialized
-        AllocationMemoryInfo m_staticAllocationInfo;
-
         //----------------------------------------------------------------------
-        void _ReportMemoryLeak(const AllocationMemoryInfo& allocationInfo);
+        void _ReportPossibleMemoryLeak(const AllocationMemoryInfo& lastAllocationInfo, const AllocationMemoryInfo& allocationInfo);
+
+        // List here different strategies for memory leak detection
+        void _ContinousAllocationLeakDetection();
+        void _BasicLeakDetection();
 
         //----------------------------------------------------------------------
         MemoryManager(const MemoryManager& other)               = delete;

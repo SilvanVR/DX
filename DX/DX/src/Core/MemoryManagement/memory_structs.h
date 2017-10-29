@@ -16,7 +16,7 @@ namespace Core { namespace MemoryManagement {
     //----------------------------------------------------------------------
     struct AllocationMemoryInfo
     {
-        U64 currentBytesAllocated   = 0;
+        U64 bytesAllocated          = 0;
         U64 totalBytesAllocated     = 0;
         U64 totalBytesFreed         = 0;
         U64 totalAllocations        = 0;

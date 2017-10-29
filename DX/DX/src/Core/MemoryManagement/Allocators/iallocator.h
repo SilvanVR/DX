@@ -69,7 +69,7 @@ namespace Core { namespace MemoryManagement {
     public:
         //----------------------------------------------------------------------
         const AllocationMemoryInfo&  getAllocationMemoryInfo() const { return m_allocationMemoryInfo; }
-        bool hasAllocatedBytes() const { return m_allocationMemoryInfo.currentBytesAllocated == 0; }
+        bool hasAllocatedBytes() const { return m_allocationMemoryInfo.bytesAllocated == 0; }
         _IParentAllocator* getParentAllocator() const { return m_parentAllocator; }
 
     protected:

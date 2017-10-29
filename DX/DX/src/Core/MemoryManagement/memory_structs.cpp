@@ -15,7 +15,7 @@ namespace Core { namespace MemoryManagement {
     //----------------------------------------------------------------------
     void AllocationMemoryInfo::addAllocation( Size amtOfBytes )
     {
-        currentBytesAllocated += amtOfBytes;
+        bytesAllocated += amtOfBytes;
         totalBytesAllocated += amtOfBytes;
         totalAllocations++;
     }
@@ -24,7 +24,7 @@ namespace Core { namespace MemoryManagement {
     void AllocationMemoryInfo::removeAllocation( Size amtOfBytes )
     {
         ASSERT( totalDeallocations != totalAllocations );
-        currentBytesAllocated -= amtOfBytes;
+        bytesAllocated -= amtOfBytes;
         totalBytesFreed += amtOfBytes;
         totalDeallocations++;
     }
@@ -36,7 +36,7 @@ namespace Core { namespace MemoryManagement {
         result.reserve( 255 );
 
         result += ( "\n-------------- MEMORY INFO ---------------");
-        result += ( "\nCurrent Allocated: " + Utils::bytesToString( currentBytesAllocated ) );
+        result += ( "\nCurrent Allocated: " + Utils::bytesToString( bytesAllocated ) );
         result += ( "\nTotal Allocated: " + Utils::bytesToString( totalBytesAllocated ) );
         result += ( "\nTotal Freed: " + Utils::bytesToString( totalBytesFreed ) );
         result += ( "\nTotal Allocations: " + TS( totalAllocations ) );
@@ -51,7 +51,7 @@ namespace Core { namespace MemoryManagement {
     {
         AllocationMemoryInfo result = {};
 
-        result.currentBytesAllocated = currentBytesAllocated - other.currentBytesAllocated;
+        result.bytesAllocated        = bytesAllocated - other.bytesAllocated;
         result.totalBytesAllocated   = totalBytesAllocated - other.totalBytesAllocated;
         result.totalBytesFreed       = totalBytesFreed - other.totalBytesFreed;
         result.totalAllocations      = totalAllocations - other.totalAllocations;
@@ -65,7 +65,7 @@ namespace Core { namespace MemoryManagement {
     {
         AllocationMemoryInfo result = {};
 
-        result.currentBytesAllocated = currentBytesAllocated + other.currentBytesAllocated;
+        result.bytesAllocated        = bytesAllocated + other.bytesAllocated;
         result.totalBytesAllocated   = totalBytesAllocated + other.totalBytesAllocated;
         result.totalBytesFreed       = totalBytesFreed + other.totalBytesFreed;
         result.totalAllocations      = totalAllocations + other.totalAllocations;
