@@ -26,7 +26,13 @@ namespace Core { namespace Profiling {
         U32 getFPS() const { return m_fps; }
 
         //----------------------------------------------------------------------
+        void profileCodeSectionBegin( const char* name );
+        void profileCodeSectionEnd( const char* name );
 
+        F64 getCodeSectionTime( const char* name );
+
+
+        void log();
 
         //----------------------------------------------------------------------
         // ISubSystem Interface
@@ -37,7 +43,10 @@ namespace Core { namespace Profiling {
 
 
     private:
-        U32 m_fps = 0;
+        U32                     m_fps = 0;
+
+        // Maps [Name] <-> [Time]
+        std::map<StringID, U64> m_entries;
 
 
         //----------------------------------------------------------------------

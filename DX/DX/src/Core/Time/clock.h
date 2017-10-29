@@ -10,7 +10,7 @@
     @Consideration:
       - Scale time
       - No dynamic allocations for callbacks
-      - attach functions to specific points in time
+      - attach functions to specific points in time (sync timers with clock)
 **********************************************************************/
 
 #include "timers.h"

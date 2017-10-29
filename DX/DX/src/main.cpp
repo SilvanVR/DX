@@ -97,12 +97,6 @@ int main()
 //    Locator::getLogger().setSaveToDisk( false );
 //
 //    {
-//
-//
-//
-//    }
-//
-//    {
 //        //AutoClock clock;
 //
 //        //LOG( "Hello World" );
