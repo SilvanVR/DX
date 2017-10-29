@@ -11,7 +11,7 @@
 #include "locator.h"
 #include "memory_tracker.h"
 
-#define REPORT_CONTINOUS_ALLOCATIONS 1
+#define REPORT_CONTINOUS_ALLOCATIONS 0
 
 namespace Core { namespace MemoryManagement {
 

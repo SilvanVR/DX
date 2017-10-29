@@ -272,7 +272,7 @@
     <ClCompile Include="src\Core\Config\config_file.cpp" />
     <ClCompile Include="src\Core\core_engine.cpp" />
     <ClCompile Include="src\Core\Profiling\profiler.cpp" />
-    <ClCompile Include="src\Core\Time\master_clock.cpp" />
+    <ClCompile Include="src\Core\Time\clock.cpp" />
     <ClCompile Include="src\Core\Time\timers.cpp" />
     <ClCompile Include="src\locator.cpp" />
     <ClCompile Include="src\Core\MemoryManagement\memory_manager.cpp" />
@@ -325,7 +325,7 @@
     <ClInclude Include="src\Core\Logging\shared_console_logger.hpp" />
     <ClInclude Include="src\Core\MemoryManagement\memory_manager.h" />
     <ClInclude Include="src\Core\MemoryManagement\memory_tracker.h" />
-    <ClInclude Include="src\Core\Time\master_clock.h" />
+    <ClInclude Include="src\Core\Time\clock.h" />
     <ClInclude Include="src\Core\Misc\color.h" />
     <ClInclude Include="src\Core\Logging\Console\console.h" />
     <ClInclude Include="src\Core\Logging\console_logger.h" />

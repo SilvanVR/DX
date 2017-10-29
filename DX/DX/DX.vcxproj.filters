@@ -102,13 +102,13 @@
     <ClCompile Include="src\Core\Profiling\profiler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Core\Time\master_clock.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\Core\Time\timers.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Time\clock.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -251,13 +251,13 @@
     <ClInclude Include="src\Core\Profiling\profiler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\Time\master_clock.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\Core\Time\timers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\MemoryManagement\Allocators\include.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Time\clock.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

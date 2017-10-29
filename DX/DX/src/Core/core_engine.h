@@ -9,7 +9,7 @@
 **********************************************************************/
 
 #include "subsystem_manager.h"
-#include "Core/Time/master_clock.h"
+#include "Time/clock.h"
 
 namespace Core {
 
@@ -17,7 +17,7 @@ namespace Core {
     class CoreEngine
     {
     protected:
-        static const U8 GAME_TICK_RATE      = 60;
+        static const U8 GAME_TICK_RATE = 60;
 
     public:
         CoreEngine() = default;
@@ -39,7 +39,7 @@ namespace Core {
         virtual void shutdown() = 0;
 
     private:
-        Time::MasterClock   m_gameClock;
+        Time::Clock         m_engineClock;
         SubSystemManager    m_subSystemManager;
         bool                m_isRunning = true;
 

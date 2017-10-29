@@ -18,7 +18,7 @@ namespace Core {
     void CoreEngine::start()
     {
         // Provide game clock to the locator class
-        Locator::provide( &m_gameClock );
+        Locator::provide( &m_engineClock );
 
         // Initialize all subsystems
         m_subSystemManager.init();
@@ -40,7 +40,7 @@ namespace Core {
 
         while (m_isRunning)
         {
-            F64 delta = m_gameClock._Update();
+            F64 delta = m_engineClock._Update();
             //if (delta > 0.5f) delta = 0.5f;
 
             {

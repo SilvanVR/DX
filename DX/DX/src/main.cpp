@@ -123,17 +123,18 @@ public:
         LOG( "Init game..." );
         Locator::getLogger().setSaveToDisk( false );
 
-        Locator::getMasterClock().setInterval([] {
-            LOG( "Time: " + TS( Locator::getMasterClock().getTime() ) + " FPS: " + TS( Locator::getProfiler().getFPS() ) );
-            //LOG( String("Hello") );
+        //Locator::getMasterClock().setInterval([] {
+        //    //LOG( "Time: " + TS( Locator::getMasterClock().getTime() ) + " FPS: " + TS( Locator::getProfiler().getFPS() ) );
+        //    //LOG( String("Hello") );
 
-            //std::string t;
-            //String t = "tes";
-        }, 1000);
+        //    //std::string t;
+        //    //String t = "tes";
+        //}, 1000);
 
-        Locator::getMasterClock().setTimeout([this] {
+  /*      Locator::getMasterClock().setTimeout([this] {
             terminate();
-        }, 3000);
+        }, 1000);*/
+        StringID test = StringID("hello world");
     }
 
     //----------------------------------------------------------------------
@@ -143,8 +144,8 @@ public:
         ticks++;
         //LOG( "Tick: " + TS(ticks) );
 
-        //if ( ticks == GAME_TICK_RATE * 1.1f)
-        //    terminate();
+        if ( ticks == GAME_TICK_RATE * 1.1f)
+            terminate();
     }
 
     //----------------------------------------------------------------------
