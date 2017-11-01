@@ -6,14 +6,12 @@
     date: October 28, 2017
 
     @TODO:
-      - Add mechanism for measuring code sections
       - Add gpu profiling
 **********************************************************************/
 
 #include "Core/i_subsystem.hpp"
 
 namespace Core { namespace Profiling {
-
 
     //**********************************************************************
     class Profiler : public ISubSystem
@@ -23,23 +21,40 @@ namespace Core { namespace Profiling {
         ~Profiler() = default;
 
         //----------------------------------------------------------------------
-        U32 getFPS() const { return m_fps; }
-
-        //----------------------------------------------------------------------
-        void profileCodeSectionBegin( const char* name );
-        void profileCodeSectionEnd( const char* name );
-
-        F64 getCodeSectionTime( const char* name );
-
-
-        void log();
-
-        //----------------------------------------------------------------------
         // ISubSystem Interface
         //----------------------------------------------------------------------
         void init() override;
         void update(F32 delta) override;
         void shutdown() override;
+
+        //----------------------------------------------------------------------
+        U32 getFPS() const { return m_fps; }
+
+        //----------------------------------------------------------------------
+        // Start a new profiling section.
+        // @Params:
+        //  "name": The name of the section, by which the measurements can be found.
+        //----------------------------------------------------------------------
+        void profileCodeSectionBegin( const char* name );
+
+        //----------------------------------------------------------------------
+        // End a profiling section.
+        // @Params:
+        //  "name": The name of the section, by which the measurements can be found.
+        //----------------------------------------------------------------------
+        void profileCodeSectionEnd( const char* name );
+
+        //----------------------------------------------------------------------
+        // End a profiling section.
+        // @Return:
+        //   The time the given code section took.
+        //----------------------------------------------------------------------
+        F64 getCodeSectionTime( const char* name );
+
+        //----------------------------------------------------------------------
+        // Log the whole profiling stuff to the console.
+        //----------------------------------------------------------------------
+        void log();
 
 
     private:

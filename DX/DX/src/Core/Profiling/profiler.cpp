@@ -6,7 +6,7 @@
     date: October 28, 2017
 
     @Considerations:
-      - Calculate the average of each sample
+      - Calculate the average of several samples across several frames
         and issue a warning if a new sample with a very different
         amount occurs.
 **********************************************************************/
@@ -41,7 +41,8 @@ namespace Core { namespace Profiling {
     //----------------------------------------------------------------------
     void Profiler::shutdown()
     {
-        log();
+        if ( m_entries.size() > 0 )
+            log();
     }
 
     //----------------------------------------------------------------------
@@ -83,7 +84,7 @@ namespace Core { namespace Profiling {
 
             F64 ms = OS::PlatformTimer::ticksToMilliSeconds( ticks );
 
-            // [Name]: 2ms
+            // Example: [Name]: 2ms
             LOG( "[" + name.toString() + "]: " + TS( ms ) + "ms", color );
         }
     }
