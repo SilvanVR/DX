@@ -24,9 +24,13 @@ namespace Core { namespace Time {
         struct Duration
         {
             F64 value;
-            Duration(F64 val) 
+            Duration(F64 val)
                 : value( val ) {}
-            virtual ~Duration() = 0 {}
+#ifdef _DEBUG
+            virtual ~Duration() = 0 {} // Virtual doubles the size of the type because of the vtable
+#else
+            ~Duration() = default;
+#endif
 
             explicit operator F64() const { return value; }
 
