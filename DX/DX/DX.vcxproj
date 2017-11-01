@@ -274,6 +274,7 @@
     <ClCompile Include="src\Core\OS\Window\window.cpp" />
     <ClCompile Include="src\Core\Profiling\profiler.cpp" />
     <ClCompile Include="src\Core\Time\clock.cpp" />
+    <ClCompile Include="src\Core\Time\master_clock.cpp" />
     <ClCompile Include="src\Core\Time\timers.cpp" />
     <ClCompile Include="src\Core\Time\durations.cpp" />
     <ClCompile Include="src\locator.cpp" />
@@ -321,6 +322,7 @@
     <ClInclude Include="src\Core\MemoryManagement\Allocators\include.hpp" />
     <ClInclude Include="src\Core\OS\Window\window.h" />
     <ClInclude Include="src\Core\Profiling\profiler.h" />
+    <ClInclude Include="src\Core\Time\master_clock.h" />
     <ClInclude Include="src\Core\Time\timers.h" />
     <ClInclude Include="src\Core\Time\durations.h" />
     <ClInclude Include="src\locator.h" />

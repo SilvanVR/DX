@@ -11,8 +11,8 @@ namespace Core { namespace Time {
 
 
     //---------------------------------------------------------------------------
-    CallbackTimer::CallbackTimer(const CallbackInfo& cbInfo, Milliseconds ms, bool loop)
-        : m_callbackInfo( cbInfo ), m_duration( ms ), m_loop( loop )
+    CallbackTimer::CallbackTimer( const std::function<void()>& callback, Milliseconds duration, bool loop )
+        : m_callback( callback ), m_duration( duration ), m_loop( loop )
     {}
 
     //---------------------------------------------------------------------------
@@ -22,7 +22,7 @@ namespace Core { namespace Time {
 
         if (m_elapsedTime > m_duration)
         {
-            m_callbackInfo.callback();
+            m_callback();
             m_elapsedTime -= m_duration;
 
             if ( !m_loop )

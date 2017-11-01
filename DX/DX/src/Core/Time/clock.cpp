@@ -7,73 +7,64 @@
 
     @Considerations:
        - Sophisticated ID generator
+       - U64 for time measurements?
+       - Better data structure for callback-functions
+         + sorted linked-list and check only next elem? (Save index where you were at last frame)
 **********************************************************************/
 
-#include "Core/OS/PlatformTimer/platform_timer.h"
 #include "locator.h"
+#include "master_clock.h"
+#include "Core/OS/PlatformTimer/platform_timer.h"
 
 namespace Core { namespace Time {
 
+
     //----------------------------------------------------------------------
-    U64 NextID()
+    static U64 NextID()
     {
-        static U64 clockIDs = 0;
-        clockIDs++;
-        return clockIDs;
+        static U64 callbackIDs = 0;
+        callbackIDs++;
+        return callbackIDs;
     }
 
     //----------------------------------------------------------------------
     Clock::Clock( Milliseconds duration )
-        : m_startTicks( OS::PlatformTimer::getTicks() ), m_duration( duration )
+        : m_duration( duration )
     {
     }
 
     //----------------------------------------------------------------------
     Seconds Clock::_Update()
     {
-        static U64 lastTicks = 0;
+        U64 m_curTicks = MasterClock::getCurTicks();
+        U64 deltaTicks = m_curTicks - m_lastTicks;
+        m_lastTicks = m_curTicks;
 
-        m_curTicks = OS::PlatformTimer::getTicks() - m_startTicks;
-        U64 deltaTicks = m_curTicks - lastTicks;
-        lastTicks = m_curTicks;
+        m_delta = OS::PlatformTimer::ticksToMilliSeconds( deltaTicks );
 
-        m_delta = OS::PlatformTimer::ticksToSeconds( deltaTicks );
+        m_lastTime = m_curTime;
+        m_curTime += m_delta;
+        if (m_curTime > m_duration)
+            m_curTime -= m_duration;
 
-        _UpdateTimer();
+        _CheckCallbacks();
 
         return m_delta;
     }
 
     //----------------------------------------------------------------------
-    Seconds Clock::getTime() const
+    CallbackID  Clock::attachCallback( const std::function<void()>& func, Milliseconds ms, ECallFrequency freq )
     {
-        return OS::PlatformTimer::ticksToSeconds( getCurTicks() );
+        AttachedCallback newFunc;
+        newFunc.callback   = func;
+        newFunc.id         = NextID();
+        newFunc.freq       = freq;
+        newFunc.time       = (ms % m_duration);
+
+        m_attachedCallbacks.push_back( newFunc );
+
+        return newFunc.id;
     }
-
-    //----------------------------------------------------------------------
-    CallbackID Clock::setInterval( const std::function<void()>& func, Milliseconds ms )
-    {
-        return _AttachCallback( func, ms, true );
-    }
-
-    //----------------------------------------------------------------------
-    CallbackID Clock::setTimeout( const std::function<void()>& func, Milliseconds ms )
-    {
-        return _AttachCallback( func, ms, false );
-    }
-
-    //----------------------------------------------------------------------
-    //CallbackID  Clock::attachFunction( const std::function<void()>& func, F32 ms, ECallFrequency freq )
-    //{
-    //    CallbackInfo info;
-    //    info.callback   = func;
-    //    info.id         = NextID();
-
-    //    bool loop = (freq == ECallFrequency::REPEAT);
-    //    m_timers[info.id] = CallbackTimer( info, ms, loop );
-
-    //    return info.id;
-    //}
 
     //----------------------------------------------------------------------
     void Clock::clearCallback(CallbackID id)
@@ -81,45 +72,58 @@ namespace Core { namespace Time {
         if (id == INVALID_CALLBACK_ID)
             return;
 
-        if (m_timers.count( id ) == 0)
+        for (auto it = m_attachedCallbacks.begin(); it != m_attachedCallbacks.end(); it++)
         {
-            WARN( "Clock::clearCallback(): Given CallbackID #" + TS( id ) + " does not exist." );
-            return;
+            if (it->id == id)
+            {
+                m_attachedCallbacks.erase(it);
+                return;
+            }
         }
 
-        m_timers.erase( id );
+        WARN( "Clock::clearCallback(): Given CallbackID #" + TS( id ) + " does not exist." );
     }
 
     //----------------------------------------------------------------------
-    void Clock::_UpdateTimer()
+    void Clock::_CheckCallbacks()
     {
-        m_idsToRemove.clear();
-
-        // Update timers
-        for (auto& pair : m_timers)
+        for (auto it = m_attachedCallbacks.begin(); it != m_attachedCallbacks.end(); )
         {
-            auto& timer = pair.second;
-            timer.update( m_delta );
-
-            if ( timer.isFinished() )
-                m_idsToRemove.push_back( pair.first );
+            if ( isBetween( m_lastTime, it->time, m_curTime ) )
+            {
+                it->callback();
+                switch ( it->freq )
+                {
+                    case ECallFrequency::ONCE:
+                    {
+                        it = m_attachedCallbacks.erase( it );
+                        continue;
+                    }
+                    case ECallFrequency::REPEAT:
+                        // do nothing
+                        break;
+                }
+            }
+            it++;
         }
-
-        // Remove timer now
-        for (auto id : m_idsToRemove)
-            clearCallback( id );
     }
+
 
     //----------------------------------------------------------------------
-    CallbackID Clock::_AttachCallback(const std::function<void()>& func, Milliseconds ms, bool loop)
-    {
-        CallbackInfo info;
-        info.callback   = std::move( func );
-        info.id         = NextID();
-
-        m_timers[info.id] = std::move( CallbackTimer( info, ms, loop ) );
-
-        return info.id;
-    }
+    //void Clock::_AddFunction(const AttachedCallback& func)
+    //{
+    //    bool foundSlot = false;
+    //    for (auto it = m_attachedFunctions.begin(); it != m_attachedFunctions.end(); it++)
+    //    {
+    //        if (func.time > m_curTime && func.time < it->time)
+    //        {
+    //            m_attachedFunctions.insert( it, func );
+    //            foundSlot = true;
+    //            break;
+    //        }
+    //    }
+    //    if (!foundSlot)
+    //        m_attachedFunctions.push_back( func );
+    //}
 
 } } // end namespaces

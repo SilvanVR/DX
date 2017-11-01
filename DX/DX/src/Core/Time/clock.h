@@ -5,27 +5,27 @@
     author: S. Hau
     date: October 27, 2017
 
-    Represents a clock which measures past time using the PlatformTimer.
+    Represents a clock, from which time can be queried and to which 
+    functions can be attached.
 
     @Consideration:
       - Scale time
       - No dynamic allocations for callbacks
-      - attach functions to specific points in time (sync timers with clock)
       - Lerp callbacks
+      - Add clocks behinds the scenes to a "ClockManager" and update all their
 **********************************************************************/
 
-#include "timers.h"
-
+#include "durations.h"
 
 namespace Core { namespace Time {
 
     //**********************************************************************
-    #define DURATION_INFINITY 0
+    #define INFINITY_DURATION 0
 
     //**********************************************************************
     enum class ECallFrequency
     {
-        CALL_ONCE,
+        ONCE,
         REPEAT
     };
 
@@ -33,39 +33,18 @@ namespace Core { namespace Time {
     class Clock
     {
     public:
-        Clock(Milliseconds duration = DURATION_INFINITY);
+        Clock(Milliseconds duration = INFINITY_DURATION);
         ~Clock() = default;
 
         //----------------------------------------------------------------------
-        // @Return: Delta time (in seconds) between two frames.
+        // @Return: Delta time (in seconds) between two ticks of this clock.
         //----------------------------------------------------------------------
         Seconds getDelta() const { return m_delta; }
 
         //----------------------------------------------------------------------
         // @Return: Time in seconds since this clock was created.
         //----------------------------------------------------------------------
-        Seconds getTime() const;
-
-        //----------------------------------------------------------------------
-        // Attach a function to this clock.
-        // @Params:
-        //  "func": The function to call.
-        //  "ms": Time in milliseconds between each function call.
-        //----------------------------------------------------------------------
-        CallbackID  setInterval(const std::function<void()>& func, Milliseconds ms);
-
-        //----------------------------------------------------------------------
-        // Attach a function to this clock.
-        // @Params:
-        //  "func": The function to call once.
-        //  "ms": Time in milliseconds after the function will be called.
-        //----------------------------------------------------------------------
-        CallbackID  setTimeout(const std::function<void()>& func, Milliseconds ms);
-
-        //----------------------------------------------------------------------
-        // Remove a callback from this clock.
-        //----------------------------------------------------------------------
-        void        clearCallback(CallbackID id);
+        Seconds getTime() const { return m_curTime; }
 
         //----------------------------------------------------------------------
         // Attach a function to this clock.
@@ -75,7 +54,12 @@ namespace Core { namespace Time {
         //        the duration, the modulus operator is applied.
         //  "freq": Determines if the function should be called once or repeated.
         //----------------------------------------------------------------------
-       // CallbackID  attachFunction(const std::function<void()>& func, F32 ms, ECallFrequency freq = ECallFrequency::REPEAT );
+        CallbackID  attachCallback(const std::function<void()>& func, Milliseconds ms, ECallFrequency freq = ECallFrequency::REPEAT );
+
+        //----------------------------------------------------------------------
+        // Remove a callback from this clock.
+        //----------------------------------------------------------------------
+        void        clearCallback(CallbackID id);
 
         //----------------------------------------------------------------------
         // !!!!! Call this function every frame / update !!!!!
@@ -85,24 +69,25 @@ namespace Core { namespace Time {
         Seconds _Update();
 
     private:
-        Seconds         m_delta         = 0;
-        U64             m_startTicks    = 0;
-        U64             m_curTicks      = 0;
+        U64             m_lastTicks     = 0;
+        Milliseconds    m_delta         = 0;
+        Milliseconds    m_curTime       = 0;
+        Milliseconds    m_lastTime      = 0;
         Milliseconds    m_duration      = 0;
 
-        std::vector<CallbackID>             m_idsToRemove;
-        std::map<CallbackID, CallbackTimer> m_timers;
+        struct AttachedCallback
+        {
+            CallbackID              id;
+            std::function<void()>   callback;
+            ECallFrequency          freq;
+            Milliseconds            time;
+        };
+
+        // List of attached functions
+        std::vector<AttachedCallback> m_attachedCallbacks;
 
         //----------------------------------------------------------------------
-        // Used for other clocks to poll the cpu time.
-        // @Return:
-        //   Amount of ticks since this clock was created.
-        //----------------------------------------------------------------------
-        U64 getCurTicks() const { return m_curTicks; }
-
-        //----------------------------------------------------------------------
-        CallbackID  _AttachCallback(const std::function<void()>& func, Milliseconds ms, bool loop);
-        void        _UpdateTimer();
+        void _CheckCallbacks();
 
         //----------------------------------------------------------------------
         Clock(const Clock& other)                 = delete;
@@ -111,5 +96,16 @@ namespace Core { namespace Time {
         Clock& operator = (Clock&& other)         = delete;
     };
 
+
+    //----------------------------------------------------------------------
+    // Check if a given value is between the two boundaries b1 and b2.
+    // @Return:
+    //   True if [b1 <= val <= b2]
+    //----------------------------------------------------------------------
+    template <class T>
+    bool isBetween(T b1, T val, T b2)
+    {
+        return ( ( val >= b1 ) && ( val <= b2 ) );
+    }
 
 } } // end namespaces

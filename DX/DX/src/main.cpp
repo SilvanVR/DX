@@ -44,8 +44,12 @@ public:
 
 class Game : public IGame
 {
+    const F64 duration = 1000;
+    Core::Time::Clock clock;
 
 public:
+    Game() : clock( duration ) {}
+
     //----------------------------------------------------------------------
     void init() override 
     {
@@ -54,21 +58,29 @@ public:
 
         Core::Time::Seconds startTime = Locator::getEngineClock().getTime();
 
+        clock.attachCallback( [] { 
+            LOG("HELLO WORLD");
+        }, 0);
+
+        // TODO: EDGE CASE 
+
+        auto id = clock.attachCallback([] {
+            LOG("750");
+        }, 750);
+
+        clock.attachCallback([] {
+            LOG("500");
+        }, 500, Core::Time::ECallFrequency::ONCE);
+
+
         Locator::getEngineClock().setInterval([] {
             LOG( "Time: " + TS( (F64)Locator::getEngineClock().getTime() ) + " FPS: " + TS( Locator::getProfiler().getFPS() ) );
         }, 1000);
 
-        //F64 duration = 3000;
-        //Core::Time::Clock clock( duration );
-        //clock.attachFunction( [] { 
-        //    // Do something
-        //}, 2000, Core::Time::ECallFrequency::REPEAT );
-
-        // EndlessClock clock
 
         Locator::getEngineClock().setTimeout([this] {
             terminate();
-        }, 3000);
+        }, 2000);
     }
 
     //----------------------------------------------------------------------
@@ -76,7 +88,12 @@ public:
     {
         static U64 ticks = 0;
         ticks++;
+
+        clock._Update();
         //LOG( "Tick: " + TS(ticks) );
+
+        auto time = clock.getTime();
+        LOG( TS( clock.getTime().value ) );
 
         //if ( ticks == GAME_TICK_RATE * 2)
         //    terminate();

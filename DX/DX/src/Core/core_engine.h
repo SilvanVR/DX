@@ -6,10 +6,12 @@
     date: October 27, 2017
 
     The heart of the engine. Manages the core game loop.
+    @Considerations:
+     - Terminate engine from everywhere
 **********************************************************************/
 
 #include "subsystem_manager.h"
-#include "Time/clock.h"
+#include "Time/master_clock.h"
 
 namespace Core {
 
@@ -39,7 +41,7 @@ namespace Core {
         virtual void shutdown() = 0;
 
     private:
-        Time::Clock         m_engineClock;
+        Time::MasterClock   m_engineClock;
         SubSystemManager    m_subSystemManager;
         bool                m_isRunning = true;
 

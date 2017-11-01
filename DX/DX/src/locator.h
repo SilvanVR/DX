@@ -27,7 +27,7 @@
 #include "Core/Config/configuration_manager.h"
 #include "Core/ThreadManager/thread_manager.h"
 #include "Core/Profiling/profiler.h"
-#include "Core/Time/clock.h"
+#include "Core/Time/master_clock.h"
 
 //----------------------------------------------------------------------
 // Defines
@@ -68,7 +68,7 @@ public:
     static Core::Config::ConfigurationManager&        getConfiguration()  { return *gConfigManager; }
     static Core::Threading::ThreadManager&            getThreadManager()  { return *gThreadManager; }
     static Core::Profiling::Profiler&                 getProfiler()       { return *gProfiler; }
-    static Core::Time::Clock&                         getEngineClock()    { return *gEngineClock; }
+    static Core::Time::MasterClock&                   getEngineClock()    { return *gEngineClock; }
 
     //----------------------------------------------------------------------
     // Provide a Sub-System
@@ -78,7 +78,7 @@ public:
     static void provide(Core::Config::ConfigurationManager* manager)          { gConfigManager = manager; }
     static void provide(Core::Threading::ThreadManager* manager)              { gThreadManager = manager; }
     static void provide(Core::Profiling::Profiler* profiler)                  { gProfiler = profiler; }
-    static void provide(Core::Time::Clock* clock)                             { gEngineClock = clock; }
+    static void provide(Core::Time::MasterClock* clock)                       { gEngineClock = clock; }
 
 private:
 
@@ -92,7 +92,7 @@ private:
     static Core::Config::ConfigurationManager*        gConfigManager;
     static Core::Threading::ThreadManager*            gThreadManager;
     static Core::Profiling::Profiler*                 gProfiler;
-    static Core::Time::Clock*                         gEngineClock;
+    static Core::Time::MasterClock*                   gEngineClock;
 
 
     //----------------------------------------------------------------------
