@@ -7,7 +7,7 @@
     date: October 27, 2017
 
     @Considerations:
-      - Tick physics subsystem in a different fixed rate
+      - Tick physics subsystem in a different rate
 **********************************************************************/
 
 #include "locator.h"
@@ -33,26 +33,26 @@ namespace Core {
     //----------------------------------------------------------------------
     void CoreEngine::_RunCoreGameLoop()
     {
-        constexpr F64 TICK_RATE_IN_SECONDS  = (1.0f / GAME_TICK_RATE);
-        const     U8  MAX_TICKS_PER_FRAME   = 5; // Prevents the "spiral of death"
+        const Time::Seconds TICK_RATE_IN_SECONDS  = (1.0f / GAME_TICK_RATE);
+        const           U8  MAX_TICKS_PER_FRAME   = 5; // Prevents the "spiral of death"
 
-        F64 gameTickAccumulator = 0;
+        Time::Seconds gameTickAccumulator = 0;
 
         while (m_isRunning)
         {
-            F64 delta = m_engineClock._Update();
+            Time::Seconds delta = m_engineClock._Update();
             //if (delta > 0.5f) delta = 0.5f;
 
             {
                 // Update subsystems every frame
-                m_subSystemManager.update( (F32) delta );
+                m_subSystemManager.update( delta );
 
                 // Update game in fixed intervals
                 U8 ticksPerFrame = 0;
                 gameTickAccumulator += delta;
                 while ( (gameTickAccumulator >= TICK_RATE_IN_SECONDS) && (ticksPerFrame++ != MAX_TICKS_PER_FRAME))
                 {
-                    tick( (F32)TICK_RATE_IN_SECONDS );
+                    tick( TICK_RATE_IN_SECONDS );
                     gameTickAccumulator -= TICK_RATE_IN_SECONDS;
                 }
             }

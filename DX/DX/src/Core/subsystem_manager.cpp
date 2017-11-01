@@ -65,7 +65,7 @@ namespace Core
     }
 
     //----------------------------------------------------------------------
-    void SubSystemManager::update( F32 delta )
+    void SubSystemManager::update( Time::Seconds delta )
     {
         m_logger->update( delta );
         m_memoryManager->update( delta );

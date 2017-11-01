@@ -22,10 +22,10 @@ namespace Core { namespace Profiling {
     }
 
     //----------------------------------------------------------------------
-    void Profiler::update( F32 delta )
+    void Profiler::update(  Time::Seconds delta )
     {
         static U32 frameCounter = 0;
-        static F32 secTimer = 0;
+        static Time::Seconds secTimer = 0;
 
         frameCounter++;
         secTimer += delta;

@@ -10,6 +10,7 @@
 
 **********************************************************************/
 
+#include "Time/durations.h"
 
 namespace Core {
 
@@ -34,7 +35,7 @@ namespace Core {
 
         //----------------------------------------------------------------------
         void init();
-        void update(F32 delta);
+        void update(Time::Seconds delta);
         void shutdown();
 
 

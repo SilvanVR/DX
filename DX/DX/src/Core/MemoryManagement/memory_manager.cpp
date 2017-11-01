@@ -40,10 +40,10 @@ namespace Core { namespace MemoryManagement {
     }
 
     //----------------------------------------------------------------------
-    void MemoryManager::update(F32 delta)
+    void MemoryManager::update(Time::Seconds delta)
     {
-        static const F32 tickRate = 1.0f / 60.0f;
-        static F32 timer = 0;
+        static const    Time::Seconds tickRate  = 1.0f / 60.0f;
+        static          Time::Seconds timer     = 0;
 
         timer += delta;
         if (timer > tickRate)

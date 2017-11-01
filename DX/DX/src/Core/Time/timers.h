@@ -6,6 +6,7 @@
     date: October 28, 2017
 **********************************************************************/
 
+#include "durations.h"
 
 namespace Core { namespace Time {
 
@@ -20,14 +21,14 @@ namespace Core { namespace Time {
     class CallbackTimer
     {
     public:
-        CallbackTimer(const CallbackInfo& cbInfo, F32 durationInMs, bool loop);
+        CallbackTimer(const CallbackInfo& cbInfo, Milliseconds ms, bool loop);
         CallbackTimer() = default;
         ~CallbackTimer() = default;
 
         //---------------------------------------------------------------------------
         // Update this clock. Calls the callback when necessary.
         //---------------------------------------------------------------------------
-        void            update(F64 delta);
+        void            update(Seconds delta);
 
         //---------------------------------------------------------------------------
         CallbackID      getID()         const { return m_callbackInfo.id; }
@@ -35,8 +36,8 @@ namespace Core { namespace Time {
 
     private:
         CallbackInfo    m_callbackInfo;
-        F64             m_elapsedTime   = 0;
-        F64             m_duration      = 0;
+        Seconds         m_elapsedTime   = 0;
+        Seconds         m_duration      = 0;
         bool            m_loop          = true;
         bool            m_finished      = false;
     };

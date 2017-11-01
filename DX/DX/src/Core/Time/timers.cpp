@@ -11,12 +11,12 @@ namespace Core { namespace Time {
 
 
     //---------------------------------------------------------------------------
-    CallbackTimer::CallbackTimer(const CallbackInfo& cbInfo, F32 durationInMs, bool loop)
-        : m_callbackInfo( cbInfo ), m_duration( durationInMs * 0.001 ), m_loop( loop )
+    CallbackTimer::CallbackTimer(const CallbackInfo& cbInfo, Milliseconds ms, bool loop)
+        : m_callbackInfo( cbInfo ), m_duration( ms ), m_loop( loop )
     {}
 
     //---------------------------------------------------------------------------
-    void CallbackTimer::update( F64 delta )
+    void CallbackTimer::update( Seconds delta )
     {
         m_elapsedTime += delta;
 

@@ -35,7 +35,7 @@ namespace Core {
 
         //----------------------------------------------------------------------
         virtual void init() = 0;
-        virtual void tick(F32 delta) = 0;
+        virtual void tick(Time::Seconds delta) = 0;
         virtual void shutdown() = 0;
 
     private:
