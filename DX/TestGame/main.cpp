@@ -13,12 +13,7 @@ public:
 
         // Want to call a function every x-milliseconds or after x-millis
         Locator::getEngineClock().setInterval([] {
-            LOG( "Time: " + TS( Locator::getEngineClock().getTime() ) );
-            //LOG( "FPS: " + TS( Locator::getProfiler().getFPS() ) );
-        }, 1000);
-
-        Locator::getEngineClock().setTimeout([] {
-            LOG("ONCE");
+            LOG( "Time: " + TS( Locator::getEngineClock().getTime().value ) + " FPS: " + TS( Locator::getProfiler().getFPS() ) );
         }, 1000);
 
         Locator::getEngineClock().setTimeout([this] {
@@ -27,7 +22,7 @@ public:
     }
 
     //----------------------------------------------------------------------
-    void tick(F32 delta) override
+    void tick(Core::Time::Seconds delta) override
     {
         static U64 ticks = 0;
 
