@@ -9,13 +9,13 @@
     functions can be attached.
 
     @Consideration:
-      - Scale time
       - No dynamic allocations for callbacks
       - Lerp callbacks
-      - Add clocks behinds the scenes to a "ClockManager" and update all their
+      - Add clocks behinds the scenes to a "ClockManager" ?
 **********************************************************************/
 
 #include "durations.h"
+#include "Utils/finite_range.hpp"
 
 namespace Core { namespace Time {
 
@@ -37,17 +37,23 @@ namespace Core { namespace Time {
         ~Clock() = default;
 
         //----------------------------------------------------------------------
-        // @Return: Delta time (in seconds) between two ticks of this clock.
-        //----------------------------------------------------------------------
-        Seconds getDelta() const { return m_delta; }
+        Seconds     getDuration() const { return m_curTime.getUpperBound(); }
 
         //----------------------------------------------------------------------
-        // @Return: Time in seconds since this clock was created.
+        // Change the tickrate of the clock. A negative number means the clock
+        // runs backwards.
+        // @Params:
+        //  "modifier": The new modifier applied to the clock.
         //----------------------------------------------------------------------
-        Seconds getTime() const { return m_curTime; }
+        void        setTickModifier(F32 modifier) { m_tickModifier = modifier; }
 
         //----------------------------------------------------------------------
-        // Attach a function to this clock.
+        // @Return: Time in seconds this clock currently has.
+        //----------------------------------------------------------------------
+        Seconds     getTime() const { return m_curTime.value(); }
+
+        //----------------------------------------------------------------------
+        // Attach a callback to this clock.
         // @Params:
         //  "func": The function to call.
         //  "ms": Time in milliseconds when to call the func. If the time exceeds
@@ -63,27 +69,24 @@ namespace Core { namespace Time {
 
         //----------------------------------------------------------------------
         // !!!!! Call this function every frame / update !!!!!
-        // Updates the clock, returns the newly calculated delta and calls
-        // callback functions if required.
+        // Updates the clock and calls callback functions if required.
         //----------------------------------------------------------------------
-        Seconds _Update();
+        void        tick(Seconds delta);
 
     private:
-        U64             m_lastTicks     = 0;
-        Milliseconds    m_delta         = 0;
-        Milliseconds    m_curTime       = 0;
-        Milliseconds    m_lastTime      = 0;
-        Milliseconds    m_duration      = 0;
+        FiniteRange<Milliseconds>   m_curTime       = 0;
+        Milliseconds                m_lastTime      = 0;
+        F32                         m_tickModifier  = 1.0f;
 
         struct AttachedCallback
         {
-            CallbackID              id;
             std::function<void()>   callback;
-            ECallFrequency          freq;
             Milliseconds            time;
+            CallbackID              id;
+            ECallFrequency          freq;
         };
 
-        // List of attached functions
+        // List of attached callbacks
         std::vector<AttachedCallback> m_attachedCallbacks;
 
         //----------------------------------------------------------------------
@@ -100,12 +103,16 @@ namespace Core { namespace Time {
     //----------------------------------------------------------------------
     // Check if a given value is between the two boundaries b1 and b2.
     // @Return:
-    //   True if [b1 <= val <= b2]
+    //   True if [b1 <= val <= b2] or 
+    //     WRAP-CASE (b1 < b2): [val >= b1 || val <= v2]
     //----------------------------------------------------------------------
     template <class T>
-    bool isBetween(T b1, T val, T b2)
+    bool isBetweenCircular(T b1, T val, T b2)
     {
-        return ( ( val >= b1 ) && ( val <= b2 ) );
+        if ( b1 <= b2 )
+            return ( ( val >= b1 ) && ( val <= b2 ) );
+        else
+            return ( (val >= b1) || (val <= b2) );
     }
 
 } } // end namespaces

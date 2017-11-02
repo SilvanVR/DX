@@ -58,7 +58,7 @@ namespace Core { namespace Profiling {
 
 
     private:
-        U32                     m_fps = 0;
+        U32 m_fps = 0;
 
         // Maps [Name] <-> [Time]
         std::map<StringID, U64> m_entries;

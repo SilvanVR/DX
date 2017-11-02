@@ -42,10 +42,11 @@ public:
 // - Input
 // - Window
 
+
 class Game : public IGame
 {
     const F64 duration = 1000;
-    Core::Time::Clock clock;
+    Time::Clock clock;
 
 public:
     Game() : clock( duration ) {}
@@ -56,27 +57,9 @@ public:
         LOG( "Init game..." );
         Locator::getLogger().setSaveToDisk( false );
 
-        Core::Time::Seconds startTime = Locator::getEngineClock().getTime();
-
-        clock.attachCallback( [] { 
-            LOG("HELLO WORLD");
-        }, 0);
-
-        // TODO: EDGE CASE 
-
-        auto id = clock.attachCallback([] {
-            LOG("750");
-        }, 750);
-
-        clock.attachCallback([] {
-            LOG("500");
-        }, 500, Core::Time::ECallFrequency::ONCE);
-
-
         Locator::getEngineClock().setInterval([] {
-            LOG( "Time: " + TS( (F64)Locator::getEngineClock().getTime() ) + " FPS: " + TS( Locator::getProfiler().getFPS() ) );
+            LOG("Time: " + TS( Locator::getEngineClock().getTime().value ) + " FPS: " + TS( Locator::getProfiler().getFPS() ) );
         }, 1000);
-
 
         Locator::getEngineClock().setTimeout([this] {
             terminate();
@@ -89,12 +72,11 @@ public:
         static U64 ticks = 0;
         ticks++;
 
-        clock._Update();
+        clock.tick( delta );
+        //auto time = clock.getTime();
+        //LOG( TS( clock.getTime().value ) );
+
         //LOG( "Tick: " + TS(ticks) );
-
-        auto time = clock.getTime();
-        LOG( TS( clock.getTime().value ) );
-
         //if ( ticks == GAME_TICK_RATE * 2)
         //    terminate();
     }

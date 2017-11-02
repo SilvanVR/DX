@@ -7,14 +7,11 @@
 
     @Considerations:
        - Sophisticated ID generator
-       - U64 for time measurements?
        - Better data structure for callback-functions
          + sorted linked-list and check only next elem? (Save index where you were at last frame)
 **********************************************************************/
 
 #include "locator.h"
-#include "master_clock.h"
-#include "Core/OS/PlatformTimer/platform_timer.h"
 
 namespace Core { namespace Time {
 
@@ -29,37 +26,27 @@ namespace Core { namespace Time {
 
     //----------------------------------------------------------------------
     Clock::Clock( Milliseconds duration )
-        : m_duration( duration )
+        : m_curTime( 0, duration )
     {
     }
 
     //----------------------------------------------------------------------
-    Seconds Clock::_Update()
+    void Clock::tick(Seconds delta)
     {
-        U64 m_curTicks = MasterClock::getCurTicks();
-        U64 deltaTicks = m_curTicks - m_lastTicks;
-        m_lastTicks = m_curTicks;
-
-        m_delta = OS::PlatformTimer::ticksToMilliSeconds( deltaTicks );
-
-        m_lastTime = m_curTime;
-        m_curTime += m_delta;
-        if (m_curTime > m_duration)
-            m_curTime -= m_duration;
+        m_lastTime = m_curTime.value();
+        m_curTime += (delta * m_tickModifier);
 
         _CheckCallbacks();
-
-        return m_delta;
     }
 
     //----------------------------------------------------------------------
-    CallbackID  Clock::attachCallback( const std::function<void()>& func, Milliseconds ms, ECallFrequency freq )
+    CallbackID Clock::attachCallback( const std::function<void()>& func, Milliseconds ms, ECallFrequency freq )
     {
         AttachedCallback newFunc;
         newFunc.callback   = func;
         newFunc.id         = NextID();
         newFunc.freq       = freq;
-        newFunc.time       = (ms % m_duration);
+        newFunc.time       = ( ms % m_curTime.getUpperBound() );
 
         m_attachedCallbacks.push_back( newFunc );
 
@@ -76,7 +63,7 @@ namespace Core { namespace Time {
         {
             if (it->id == id)
             {
-                m_attachedCallbacks.erase(it);
+                m_attachedCallbacks.erase( it );
                 return;
             }
         }
@@ -89,7 +76,10 @@ namespace Core { namespace Time {
     {
         for (auto it = m_attachedCallbacks.begin(); it != m_attachedCallbacks.end(); )
         {
-            if ( isBetween( m_lastTime, it->time, m_curTime ) )
+            Milliseconds min = m_tickModifier < 0 ? m_curTime.value()   : m_lastTime;
+            Milliseconds max = m_tickModifier < 0 ? m_lastTime          : m_curTime.value();
+
+            if ( isBetweenCircular( min, it->time, max ) )
             {
                 it->callback();
                 switch ( it->freq )

@@ -20,6 +20,7 @@ namespace Core { namespace Time {
     //**********************************************************************
     namespace INTERNAL
     {
+        template <class T>
         struct Duration
         {
             F64 value = 0;
@@ -30,9 +31,10 @@ namespace Core { namespace Time {
 #else
             ~Duration() = default;
 #endif
-
+            //----------------------------------------------------------------------
             explicit operator F64() const { return value; }
 
+            //----------------------------------------------------------------------
             Duration&   operator +=  (F64 val)       { value += val; return *this; }
             Duration&   operator -=  (F64 val)       { value -= val; return *this; }
             Duration&   operator *=  (F64 val)       { value *= val; return *this; }
@@ -43,12 +45,32 @@ namespace Core { namespace Time {
             bool        operator >   (F64 val) const { return value > val; }
             bool        operator <=  (F64 val) const { return value <= val; }
             bool        operator >=  (F64 val) const { return value >= val; }
+            F64         operator +   (F64 val) const { return value + val; }
+            F64         operator -   (F64 val) const { return value - val; }
+            F64         operator *   (F64 val) const { return value * val; }
             F64         operator /   (F64 val) const { return value / val; }
+
+            //----------------------------------------------------------------------
+            void        operator +=  (const T& other)       { value += other.value; }
+            void        operator -=  (const T& other)       { value -= other.value; }
+            void        operator *=  (const T& other)       { value *= other.value; }
+            void        operator /=  (const T& other)       { value /= other.value; }
+            bool        operator ==  (const T& other) const { return value == other.value; }
+            bool        operator !=  (const T& other) const { return value != other.value; }
+            bool        operator <   (const T& other) const { return value < other.value; }
+            bool        operator >   (const T& other) const { return value > other.value; }
+            bool        operator <=  (const T& other) const { return value <= other.value; }
+            bool        operator >=  (const T& other) const { return value >= other.value; }
+            T           operator %   (const T& other) const { return T( fmod( value, other.value ) ); }
+            T           operator +   (const T& other) const { return T( value + other.value ); }
+            T           operator -   (const T& other) const { return T( value - other.value ); }
+            T           operator *   (const T& other) const { return T( value * other.value ); }
+            T           operator /   (const T& other) const { return T( value / other.value ); }
         };
     }
 
     //**********************************************************************
-    struct Minutes : public INTERNAL::Duration
+    struct Minutes : public INTERNAL::Duration<Minutes>
     {
         Minutes(F64 minutes = 0)
             : Duration( minutes ) {}
@@ -58,23 +80,10 @@ namespace Core { namespace Time {
         operator Milliseconds() const;
         operator Microseconds() const;
         operator Nanoseconds() const;
-
-        Minutes&    operator +=  (const Minutes& other)         { value += other.value; return *this; }
-        Minutes&    operator -=  (const Minutes& other)         { value -= other.value; return *this; }
-        Minutes&    operator *=  (const Minutes& other)         { value *= other.value; return *this; }
-        Minutes&    operator /=  (const Minutes& other)         { value /= other.value; return *this; }
-        bool        operator ==  (const Minutes& other) const   { return value == other.value; }
-        bool        operator !=  (const Minutes& other) const   { return value != other.value; }
-        bool        operator <   (const Minutes& other) const   { return value < other.value; }
-        bool        operator >   (const Minutes& other) const   { return value > other.value; }
-        bool        operator <=  (const Minutes& other) const   { return value <= other.value; }
-        bool        operator >=  (const Minutes& other) const   { return value >= other.value; }
-        F64         operator /   (const Minutes& other) const   { return value / other.value; }
-        Minutes     operator %   (const Minutes& other) const   { return fmod( value, other.value ); }
     };
 
     //**********************************************************************
-    struct Seconds : public INTERNAL::Duration
+    struct Seconds : public INTERNAL::Duration<Seconds>
     {
         Seconds(F64 seconds = 0)
             : Duration( seconds ) {}
@@ -84,23 +93,10 @@ namespace Core { namespace Time {
         operator Milliseconds() const;
         operator Microseconds() const;
         operator Nanoseconds() const;
-
-        Seconds&    operator +=  (const Seconds& other)         { value += other.value; return *this; }
-        Seconds&    operator -=  (const Seconds& other)         { value -= other.value; return *this; }
-        Seconds&    operator *=  (const Seconds& other)         { value *= other.value; return *this; }
-        Seconds&    operator /=  (const Seconds& other)         { value /= other.value; return *this; }
-        bool        operator ==  (const Seconds& other) const   { return value == other.value; }
-        bool        operator !=  (const Seconds& other) const   { return value != other.value; }
-        bool        operator <   (const Seconds& other) const   { return value < other.value; }
-        bool        operator >   (const Seconds& other) const   { return value > other.value; }
-        bool        operator <=  (const Seconds& other) const   { return value <= other.value; }
-        bool        operator >=  (const Seconds& other) const   { return value >= other.value; }
-        F64         operator /   (const Seconds& other) const   { return value / other.value; }
-        Seconds     operator %   (const Seconds& other) const   { return fmod( value, other.value ); }
     };
 
     //**********************************************************************
-    struct Milliseconds : public INTERNAL::Duration
+    struct Milliseconds : public INTERNAL::Duration<Milliseconds>
     {
         Milliseconds(F64 milliseconds = 0)
             : Duration( milliseconds ) {}
@@ -110,25 +106,10 @@ namespace Core { namespace Time {
         operator Seconds() const;
         operator Microseconds() const;
         operator Nanoseconds() const;
-
-        Milliseconds&    operator +=  (const Milliseconds& other)       { value += other.value; return *this; }
-        Milliseconds&    operator -=  (const Milliseconds& other)       { value -= other.value; return *this; }
-        Milliseconds&    operator *=  (const Milliseconds& other)       { value *= other.value; return *this; }
-        Milliseconds&    operator /=  (const Milliseconds& other)       { value /= other.value; return *this; }
-        bool             operator ==  (const Milliseconds& other) const { return value == other.value; }
-        bool             operator !=  (const Milliseconds& other) const { return value != other.value; }
-        bool             operator <   (const Milliseconds& other) const { return value < other.value; }
-        bool             operator >   (const Milliseconds& other) const { return value > other.value; }
-        bool             operator <=  (const Milliseconds& other) const { return value <= other.value; }
-        bool             operator >=  (const Milliseconds& other) const { return value >= other.value; }
-        F64              operator /   (const Milliseconds& other) const { return value / other.value; }
-        Milliseconds     operator %   (const Milliseconds& other) const { return fmod( value, other.value ); }
-        Milliseconds     operator -   (const Milliseconds& other) const { return Milliseconds( value - other.value ); }
-        Milliseconds     operator +   (const Milliseconds& other) const { return Milliseconds( value + other.value ); }
     };
 
     //**********************************************************************
-    struct Microseconds : public INTERNAL::Duration
+    struct Microseconds : public INTERNAL::Duration<Microseconds>
     {
         Microseconds(F64 microseconds = 0)
             : Duration( microseconds ) {}
@@ -138,23 +119,10 @@ namespace Core { namespace Time {
         operator Seconds() const;
         operator Milliseconds() const;
         operator Nanoseconds() const;
-
-        Microseconds&    operator +=  (const Microseconds& other)       { value += other.value; return *this; }
-        Microseconds&    operator -=  (const Microseconds& other)       { value -= other.value; return *this; }
-        Microseconds&    operator *=  (const Microseconds& other)       { value *= other.value; return *this; }
-        Microseconds&    operator /=  (const Microseconds& other)       { value /= other.value; return *this; }
-        bool             operator ==  (const Microseconds& other) const { return value == other.value; }
-        bool             operator !=  (const Microseconds& other) const { return value != other.value; }
-        bool             operator <   (const Microseconds& other) const { return value < other.value; }
-        bool             operator >   (const Microseconds& other) const { return value > other.value; }
-        bool             operator <=  (const Microseconds& other) const { return value <= other.value; }
-        bool             operator >=  (const Microseconds& other) const { return value >= other.value; }
-        F64              operator /   (const Microseconds& other) const { return value / other.value; }
-        Microseconds     operator %   (const Microseconds& other) const { return fmod( value, other.value ); }
     };
 
     //**********************************************************************
-    struct Nanoseconds : public INTERNAL::Duration
+    struct Nanoseconds : public INTERNAL::Duration<Nanoseconds>
     {
         Nanoseconds(F64 nanoseconds = 0)
             : Duration( nanoseconds ) {}
@@ -164,19 +132,6 @@ namespace Core { namespace Time {
         operator Seconds() const;
         operator Milliseconds() const;
         operator Microseconds() const;
-
-        Nanoseconds&     operator +=  (const Nanoseconds& other)       { value += other.value; return *this; }
-        Nanoseconds&     operator -=  (const Nanoseconds& other)       { value -= other.value; return *this; }
-        Nanoseconds&     operator *=  (const Nanoseconds& other)       { value *= other.value; return *this; }
-        Nanoseconds&     operator /=  (const Nanoseconds& other)       { value /= other.value; return *this; }
-        bool             operator ==  (const Nanoseconds& other) const { return value == other.value; }
-        bool             operator !=  (const Nanoseconds& other) const { return value != other.value; }
-        bool             operator <   (const Nanoseconds& other) const { return value < other.value; }
-        bool             operator >   (const Nanoseconds& other) const { return value > other.value; }
-        bool             operator <=  (const Nanoseconds& other) const { return value <= other.value; }
-        bool             operator >=  (const Nanoseconds& other) const { return value >= other.value; }
-        F64              operator /   (const Nanoseconds& other) const { return value / other.value; }
-        Nanoseconds      operator %   (const Nanoseconds& other) const { return fmod( value, other.value ); }
     };
 
 

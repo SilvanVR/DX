@@ -15,8 +15,11 @@
       setTimeout():  Attach a callback function, which will be called
                      once after the specified amount of time.
 
+    Why std::function instead of raw function pointer? 
+     - Simple reason: std::function can capture states, whereas raw
+       function pointers can not. I think that justifies the overhead.
+
     @Consideration:
-      - Scale time
       - No dynamic allocations for callbacks
 **********************************************************************/
 
@@ -28,8 +31,6 @@ namespace Core { namespace Time {
     //**********************************************************************
     class MasterClock
     {
-        static MasterClock* s_Instance;
-
     public:
         MasterClock();
         ~MasterClock() = default;
@@ -37,12 +38,12 @@ namespace Core { namespace Time {
         //----------------------------------------------------------------------
         // @Return: Delta time (in seconds) between two frames.
         //----------------------------------------------------------------------
-        Seconds getDelta() const { return m_delta; }
+        Seconds     getDelta() const { return m_delta; }
 
         //----------------------------------------------------------------------
         // @Return: Time in seconds since this clock was created.
         //----------------------------------------------------------------------
-        Seconds getTime() const;
+        Seconds     getTime() const;
 
         //----------------------------------------------------------------------
         // Attach a function to this clock.
@@ -66,17 +67,17 @@ namespace Core { namespace Time {
         void        clearCallback(CallbackID id);
 
         //----------------------------------------------------------------------
-        // !!!!! Call this function every frame / update !!!!!
+        // !!!!! Call this function every frame !!!!!
         // Updates the clock, returns the newly calculated delta and calls
         // callback functions if required.
         //----------------------------------------------------------------------
-        Seconds _Update();
+        Seconds     _Update();
 
     private:
-        Seconds         m_delta         = 0;
-        U64             m_startTicks    = 0;
-        U64             m_curTicks      = 0;
-        U64             m_lastTicks     = 0;
+        Seconds m_delta         = 0;
+        U64     m_startTicks    = 0;
+        U64     m_curTicks      = 0;
+        U64     m_lastTicks     = 0;
 
         std::map<CallbackID, CallbackTimer> m_timers;
 
@@ -85,8 +86,9 @@ namespace Core { namespace Time {
         // @Return:
         //   Amount of ticks since this clock was created.
         //----------------------------------------------------------------------
-        friend class Clock;
-        static U64 getCurTicks() { return s_Instance->m_curTicks; }
+        //friend class Clock;
+        //static MasterClock* s_Instance;
+        //static U64 getCurTicks() { return s_Instance->m_curTicks; }
 
         //----------------------------------------------------------------------
         CallbackID  _AttachCallback(const std::function<void()>& func, Milliseconds ms, bool loop);

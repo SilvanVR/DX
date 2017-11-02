@@ -22,15 +22,10 @@ namespace Core { namespace Time {
         return callbackIDs;
     }
 
-    MasterClock* MasterClock::s_Instance = nullptr;
-
     //----------------------------------------------------------------------
     MasterClock::MasterClock()
         : m_startTicks( OS::PlatformTimer::getTicks() )
-    {
-        ASSERT( s_Instance == nullptr );
-        s_Instance = this;
-    }
+    {}
 
     //----------------------------------------------------------------------
     Seconds MasterClock::_Update()
@@ -49,7 +44,7 @@ namespace Core { namespace Time {
     //----------------------------------------------------------------------
     Seconds MasterClock::getTime() const
     {
-        return OS::PlatformTimer::ticksToSeconds( getCurTicks() );
+        return OS::PlatformTimer::ticksToSeconds( m_curTicks );
     }
 
     //----------------------------------------------------------------------
