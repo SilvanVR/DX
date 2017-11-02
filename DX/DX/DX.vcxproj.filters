@@ -197,9 +197,6 @@
     <ClInclude Include="src\Core\MemoryManagement\memory_structs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\Misc\bit_mask.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\Core\DataStructures\byte_array.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -279,6 +276,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Utils\finite_range.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Utils\bit_mask.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

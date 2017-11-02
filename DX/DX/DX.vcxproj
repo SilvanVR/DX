@@ -343,7 +343,7 @@
     <ClInclude Include="src\Core\MemoryManagement\Allocators\universal_allocator_defragmented.hpp" />
     <ClInclude Include="src\Core\MemoryManagement\memory.hpp" />
     <ClInclude Include="src\Core\MemoryManagement\memory_structs.h" />
-    <ClInclude Include="src\Core\Misc\bit_mask.hpp" />
+    <ClInclude Include="src\Utils\bit_mask.hpp" />
     <ClInclude Include="src\Core\Misc\variant_type.h" />
     <ClInclude Include="src\Core\OS\FileSystem\file.h" />
     <ClInclude Include="src\Core\OS\FileSystem\file_system.h" />

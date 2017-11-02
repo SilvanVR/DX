@@ -18,7 +18,7 @@
 
 #include "Core/i_subsystem.hpp"
 #include "Core/Misc/color.h"
-#include "Core/Misc/bit_mask.hpp"
+#include "Utils/bit_mask.hpp"
 
 namespace Core { namespace Logging {
 
