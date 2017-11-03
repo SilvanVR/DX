@@ -35,20 +35,20 @@ namespace Core { namespace Time {
             explicit operator F64() const { return value; }
 
             //----------------------------------------------------------------------
-            Duration&   operator +=  (F64 val)       { value += val; return *this; }
-            Duration&   operator -=  (F64 val)       { value -= val; return *this; }
-            Duration&   operator *=  (F64 val)       { value *= val; return *this; }
-            Duration&   operator /=  (F64 val)       { value /= val; return *this; }
-            bool        operator ==  (F64 val) const { return value == val; }
-            bool        operator !=  (F64 val) const { return value != val; }
-            bool        operator <   (F64 val) const { return value < val; }
-            bool        operator >   (F64 val) const { return value > val; }
-            bool        operator <=  (F64 val) const { return value <= val; }
-            bool        operator >=  (F64 val) const { return value >= val; }
-            F64         operator +   (F64 val) const { return value + val; }
-            F64         operator -   (F64 val) const { return value - val; }
-            F64         operator *   (F64 val) const { return value * val; }
-            F64         operator /   (F64 val) const { return value / val; }
+            template <class T2> void    operator +=  (T2 val)       { value += val; }
+            template <class T2> void    operator -=  (T2 val)       { value -= val; }
+            template <class T2> void    operator *=  (T2 val)       { value *= val; }
+            template <class T2> void    operator /=  (T2 val)       { value /= val; }
+            template <class T2> bool    operator ==  (T2 val) const { return value == val; }
+            template <class T2> bool    operator !=  (T2 val) const { return value != val; }
+            template <class T2> bool    operator <   (T2 val) const { return value < val; }
+            template <class T2> bool    operator >   (T2 val) const { return value > val; }
+            template <class T2> bool    operator <=  (T2 val) const { return value <= val; }
+            template <class T2> bool    operator >=  (T2 val) const { return value >= val; }
+            template <class T2> T       operator +   (T2 val) const { return T( value + val ); }
+            template <class T2> T       operator -   (T2 val) const { return T( value - val ); }
+            template <class T2> T       operator *   (T2 val) const { return T( value * val ); }
+            template <class T2> T       operator /   (T2 val) const { return T( value / val ); }
 
             //----------------------------------------------------------------------
             void        operator +=  (const T& other)       { value += other.value; }

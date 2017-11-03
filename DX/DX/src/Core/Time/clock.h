@@ -37,7 +37,8 @@ namespace Core { namespace Time {
         ~Clock() = default;
 
         //----------------------------------------------------------------------
-        Seconds     getDuration() const { return m_curTime.getUpperBound(); }
+        Seconds     getDuration()       const { return m_curTime.getUpperBound(); }
+        bool        ticksBackwards()    const { return (m_tickModifier < 0); }
 
         //----------------------------------------------------------------------
         // Change the tickrate of the clock. A negative number means the clock
@@ -57,7 +58,8 @@ namespace Core { namespace Time {
         // @Params:
         //  "func": The function to call.
         //  "ms": Time in milliseconds when to call the func. If the time exceeds
-        //        the duration, the modulus operator is applied.
+        //        the duration, the modulus operator is applied. If the time is 
+        //        negative, it starts from the end and goes backwards.
         //  "freq": Determines if the function should be called once or repeated.
         //----------------------------------------------------------------------
         CallbackID  attachCallback(const std::function<void()>& func, Milliseconds ms, ECallFrequency freq = ECallFrequency::REPEAT );
@@ -74,7 +76,7 @@ namespace Core { namespace Time {
         void        tick(Seconds delta);
 
     private:
-        FiniteRange<Milliseconds>   m_curTime       = 0;
+        FiniteRange<Milliseconds>   m_curTime;
         Milliseconds                m_lastTime      = 0;
         F32                         m_tickModifier  = 1.0f;
 
@@ -99,20 +101,5 @@ namespace Core { namespace Time {
         Clock& operator = (Clock&& other)         = delete;
     };
 
-
-    //----------------------------------------------------------------------
-    // Check if a given value is between the two boundaries b1 and b2.
-    // @Return:
-    //   True if [b1 <= val <= b2] or 
-    //     WRAP-CASE (b1 < b2): [val >= b1 || val <= v2]
-    //----------------------------------------------------------------------
-    template <class T>
-    bool isBetweenCircular(T b1, T val, T b2)
-    {
-        if ( b1 <= b2 )
-            return ( ( val >= b1 ) && ( val <= b2 ) );
-        else
-            return ( (val >= b1) || (val <= b2) );
-    }
 
 } } // end namespaces

@@ -32,8 +32,8 @@ namespace Core { namespace Time {
 
     private:
         std::function<void()>   m_callback;
-        Milliseconds            m_elapsedTime   = 0;
-        Milliseconds            m_duration      = 0;
+        Seconds                 m_elapsedTime   = 0;
+        Seconds                 m_duration      = 0;
         bool                    m_loop          = true;
         bool                    m_finished      = false;
     };

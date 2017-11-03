@@ -20,11 +20,11 @@
        function pointers can not. I think that justifies the overhead.
 
     @Consideration:
-      - No dynamic allocations for callbacks
+      - No dynamic allocations for callbacks 
+        (Isn't that bad because it happens rarely)
 **********************************************************************/
 
 #include "timers.h"
-#include "clock.h"
 
 namespace Core { namespace Time {
 

@@ -6,6 +6,7 @@
 #include "Core/OS/Threading/thread_pool.h"
 #include "Core/OS/FileSystem/file.h"
 #include "GameInterface/i_game.hpp"
+#include "Core/Time/clock.h"
 
 using namespace Core;
 
@@ -64,6 +65,18 @@ public:
         Locator::getEngineClock().setTimeout([this] {
             terminate();
         }, 2000);
+
+        clock.attachCallback([] {
+            LOG("HELLO WORLD");
+        }, 3300);
+
+        clock.attachCallback([] {
+            LOG("HELLO WORLD");
+        }, -200);
+
+        clock.attachCallback([] {
+            LOG("HELLO WORLD");
+        }, -3500);
     }
 
     //----------------------------------------------------------------------
@@ -73,8 +86,8 @@ public:
         ticks++;
 
         clock.tick( delta );
-        //auto time = clock.getTime();
         //LOG( TS( clock.getTime().value ) );
+        //auto time = clock.getTime();
 
         //LOG( "Tick: " + TS(ticks) );
         //if ( ticks == GAME_TICK_RATE * 2)

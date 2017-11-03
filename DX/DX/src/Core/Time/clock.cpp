@@ -15,6 +15,19 @@
 
 namespace Core { namespace Time {
 
+    //----------------------------------------------------------------------
+    // Check if a given value is between the two boundaries b1 and b2.
+    // @Return:
+    //   True if [b1 <= val <= b2] or 
+    //     WRAP-CASE (b1 < b2): [val >= b1 || val <= v2]
+    //----------------------------------------------------------------------
+    bool isBetweenCircular(Milliseconds b1, Milliseconds val, Milliseconds b2)
+    {
+        if (b1 <= b2)
+            return ( ( val >= b1 ) && ( val <= b2 ) );
+        else
+            return ( ( val >= b1 ) || ( val <= b2 ) );
+    }
 
     //----------------------------------------------------------------------
     static U64 NextID()
@@ -46,7 +59,7 @@ namespace Core { namespace Time {
         newFunc.callback   = func;
         newFunc.id         = NextID();
         newFunc.freq       = freq;
-        newFunc.time       = ( ms % m_curTime.getUpperBound() );
+        newFunc.time       = m_curTime.getValueInRange( ms );
 
         m_attachedCallbacks.push_back( newFunc );
 
@@ -76,9 +89,11 @@ namespace Core { namespace Time {
     {
         for (auto it = m_attachedCallbacks.begin(); it != m_attachedCallbacks.end(); )
         {
-            Milliseconds min = m_tickModifier < 0 ? m_curTime.value()   : m_lastTime;
-            Milliseconds max = m_tickModifier < 0 ? m_lastTime          : m_curTime.value();
+            // Reverse min and max if the clock ticks backwards
+            Milliseconds min = ticksBackwards() ? m_curTime.value() : m_lastTime;
+            Milliseconds max = ticksBackwards() ? m_lastTime        : m_curTime.value();
 
+            // Check if the current tick passed the time of the callback. If so, call it.
             if ( isBetweenCircular( min, it->time, max ) )
             {
                 it->callback();
@@ -98,22 +113,5 @@ namespace Core { namespace Time {
         }
     }
 
-
-    //----------------------------------------------------------------------
-    //void Clock::_AddFunction(const AttachedCallback& func)
-    //{
-    //    bool foundSlot = false;
-    //    for (auto it = m_attachedFunctions.begin(); it != m_attachedFunctions.end(); it++)
-    //    {
-    //        if (func.time > m_curTime && func.time < it->time)
-    //        {
-    //            m_attachedFunctions.insert( it, func );
-    //            foundSlot = true;
-    //            break;
-    //        }
-    //    }
-    //    if (!foundSlot)
-    //        m_attachedFunctions.push_back( func );
-    //}
 
 } } // end namespaces
