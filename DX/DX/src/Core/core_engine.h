@@ -13,7 +13,10 @@
 #include "subsystem_manager.h"
 #include "Time/master_clock.h"
 
+
 namespace Core {
+
+    namespace OS { class Window; }
 
     //**********************************************************************
     class CoreEngine
@@ -28,7 +31,7 @@ namespace Core {
         //----------------------------------------------------------------------
         // Initiate the startup sequence for the engine.
         //----------------------------------------------------------------------
-        void start();
+        void start(const char* title, U32 width, U32 height);
 
         //----------------------------------------------------------------------
         // Stops the core game loop.
@@ -43,6 +46,7 @@ namespace Core {
     private:
         Time::MasterClock   m_engineClock;
         SubSystemManager    m_subSystemManager;
+        OS::Window*         m_window;
         bool                m_isRunning = true;
 
         //----------------------------------------------------------------------

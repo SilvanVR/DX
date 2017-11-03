@@ -272,6 +272,7 @@
     <ClCompile Include="src\Core\Config\config_file.cpp" />
     <ClCompile Include="src\Core\core_engine.cpp" />
     <ClCompile Include="src\Core\OS\Window\window.cpp" />
+    <ClCompile Include="src\Core\OS\Window\window_win32.cpp" />
     <ClCompile Include="src\Core\Profiling\profiler.cpp" />
     <ClCompile Include="src\Core\Time\clock.cpp" />
     <ClCompile Include="src\Core\Time\master_clock.cpp" />

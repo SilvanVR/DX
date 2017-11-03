@@ -10,13 +10,17 @@
       - Tick physics subsystem in a different rate
 **********************************************************************/
 
+#include "OS/Window/window.h"
 #include "locator.h"
 
 namespace Core {
 
     //----------------------------------------------------------------------
-    void CoreEngine::start()
+    void CoreEngine::start( const char* title, U32 width, U32 height )
     {
+        m_window = new OS::Window( title, width, height );
+        m_window->create();
+
         // Provide game clock to the locator class
         Locator::provide( &m_engineClock );
 
@@ -38,7 +42,7 @@ namespace Core {
 
         Time::Seconds gameTickAccumulator = 0;
 
-        while (m_isRunning)
+        while ( m_isRunning && m_window->pollEvents() )
         {
             Time::Seconds delta = m_engineClock._Update();
             //if (delta > 0.5f) delta = 0.5f;
@@ -79,6 +83,9 @@ namespace Core {
 
         // Deinitialize every subsystem
         m_subSystemManager.shutdown();
+
+        // Close the window
+        SAFE_DELETE( m_window );
     }
 
 

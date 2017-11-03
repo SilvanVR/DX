@@ -62,21 +62,9 @@ public:
             LOG("Time: " + TS( Locator::getEngineClock().getTime().value ) + " FPS: " + TS( Locator::getProfiler().getFPS() ) );
         }, 1000);
 
-        Locator::getEngineClock().setTimeout([this] {
-            terminate();
-        }, 2000);
-
-        clock.attachCallback([] {
-            LOG("HELLO WORLD");
-        }, 3300);
-
-        clock.attachCallback([] {
-            LOG("HELLO WORLD");
-        }, -200);
-
-        clock.attachCallback([] {
-            LOG("HELLO WORLD");
-        }, -3500);
+        //Locator::getEngineClock().setTimeout([this] {
+        //    terminate();
+        //}, 2000);
     }
 
     //----------------------------------------------------------------------
@@ -105,7 +93,7 @@ public:
 int main()
 {
     Game game;
-    game.start();
+    game.start( "Awesome Game!", 800, 600 );
 
     system("pause");
     return 0;
