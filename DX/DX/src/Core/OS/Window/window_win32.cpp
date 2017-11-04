@@ -38,9 +38,6 @@ namespace Core { namespace OS {
         // TODO: Handle Input
         // TODO: Handle Resize
 
-        case WM_SETCURSOR:
-            return 0; // Default WindowProc uses default cursor, so just return here.
-
         default:
             return DefWindowProc( hwnd, uMsg, wParam, lParam );
         }
@@ -116,6 +113,7 @@ namespace Core { namespace OS {
         lpWndClass.cbWndExtra = 0;
         lpWndClass.hInstance = hInstance;
         lpWndClass.hIcon = LoadIcon( NULL, IDI_APPLICATION );
+        HCURSOR cursor = (HCURSOR)loadImageFromFile("res/internal/cursors/Areo Cursor Red.cur", IMAGE_CURSOR);
         lpWndClass.hCursor = LoadCursor( NULL, IDC_ARROW );
         lpWndClass.hbrBackground = NULL;
         lpWndClass.lpszMenuName = NULL;
@@ -213,7 +211,8 @@ namespace Core { namespace OS {
            return;
         }
 
-        SetCursor( cursor );
+        // Set the windows class cursor (otherwise WM_SETCURSOR must be properly handled)
+        SetClassLongPtr( hwnd, GCLP_HCURSOR, (LONG_PTR) cursor );
     }
 
     //----------------------------------------------------------------------
@@ -226,7 +225,8 @@ namespace Core { namespace OS {
            return;
         }
 
-        SendMessage( hwnd, (UINT) WM_SETICON, ICON_BIG, (LPARAM) icon );
+        SetClassLongPtr( hwnd, GCLP_HICON, (LONG_PTR) icon );
+        SetClassLongPtr( hwnd, GCLP_HICONSM, (LONG_PTR) icon );
     }
 
     //----------------------------------------------------------------------

@@ -56,22 +56,23 @@ public:
     void init() override 
     {
         LOG( "Init game..." );
-        getWindow().setCursor("/cursors/Areo Cursor Red.cur");
+        getWindow().setCursor( "/cursors/Areo Cursor Red.cur" );
+        getWindow().setIcon( "/internal/icon.ico" );
         Locator::getLogger().setSaveToDisk( false );
 
         Locator::getEngineClock().setInterval([] {
             LOG("Time: " + TS( Locator::getEngineClock().getTime().value ) + " FPS: " + TS( Locator::getProfiler().getFPS() ) );
         }, 1000);
 
-        Locator::getEngineClock().setTimeout([this] {
-            getWindow().setBorderlessFullscreen(true);
-        }, 1000);
+        //getWindow().setBorderlessFullscreen( true );
+        //Locator::getEngineClock().setTimeout([this] {
+        //    getWindow().setBorderlessFullscreen(true);
+        //}, 1000);
 
-        Locator::getEngineClock().setTimeout([this] {
-            getWindow().setBorderlessFullscreen(false);
-            getWindow().center();
-        }, 3000);
-
+        //Locator::getEngineClock().setTimeout([this] {
+        //    getWindow().setBorderlessFullscreen(false);
+        //    getWindow().center();
+        //}, 3000);
     }
 
     //----------------------------------------------------------------------
