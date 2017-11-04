@@ -26,10 +26,6 @@ namespace Core {
         // Initialize all subsystems
         m_subSystemManager.init();
 
-        // Change default settings
-        m_window.setCursor( "/cursors/Areo Cursor Red.cur" );
-        m_window.setIcon( "/internal/icon.ico" );
-
         // Call virtual init function for game class
         init();
 

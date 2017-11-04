@@ -19,8 +19,8 @@
 namespace Core { namespace OS {
 
     //----------------------------------------------------------------------
-    HINSTANCE hInstance;
-    HWND hwnd;
+    HINSTANCE   hInstance;
+    HWND        hwnd;
 
     //----------------------------------------------------------------------
     bool RegisterClassWindow( HINSTANCE hInstance, LPCSTR className );
@@ -65,8 +65,10 @@ namespace Core { namespace OS {
     void Window::create( const char* title, U32 width, U32 height )
     {
         ASSERT( m_created == false );
-        LPCSTR className = "DXWNDClassName";
+        m_width  = width;
+        m_height = height;
 
+        LPCSTR className = "DXWNDClassName";
         if ( not RegisterClassWindow( hInstance, className ) )
         {
             ERROR( "Window[Win32]::create(): Failed to register a window class." );
@@ -113,7 +115,6 @@ namespace Core { namespace OS {
         lpWndClass.cbClsExtra = 0;
         lpWndClass.cbWndExtra = 0;
         lpWndClass.hInstance = hInstance;
-
         lpWndClass.hIcon = LoadIcon( NULL, IDI_APPLICATION );
         lpWndClass.hCursor = LoadCursor( NULL, IDC_ARROW );
         lpWndClass.hbrBackground = NULL;
@@ -125,13 +126,85 @@ namespace Core { namespace OS {
     }
 
     //----------------------------------------------------------------------
-    void Window::showCursor(bool b) const
+    void Window::setBorderlessFullscreen(bool enabled)
+    {
+        static U32 oldResolutionX = 0;
+        static U32 oldResolutionY = 0;
+
+        LONG lStyle = GetWindowLong( hwnd, GWL_STYLE );
+        if (enabled)
+        {
+            // Change style to borderless
+            lStyle &= ~( WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU );
+
+            // Save old position in case of reverting
+            oldResolutionX = m_width;
+            oldResolutionY = m_height;
+
+            // Maximize window
+            m_width  = GetSystemMetrics( SM_CXSCREEN );
+            m_height = GetSystemMetrics( SM_CYSCREEN );
+        }
+        else
+        {
+            // Revert style
+            lStyle |= (WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU );
+
+            // Change size of the window
+            m_width  = oldResolutionX;
+            m_height = oldResolutionY;
+        }
+
+        SetWindowLongPtr( hwnd, GWL_STYLE, lStyle );
+        SetWindowPos( hwnd, NULL, 0, 0, m_width, m_height, SWP_NOZORDER | SWP_NOOWNERZORDER );
+    }
+
+    //----------------------------------------------------------------------
+    void Window::center() const
+    {
+        UINT screenResX = GetSystemMetrics( SM_CXSCREEN );
+        UINT screenResY = GetSystemMetrics( SM_CYSCREEN );
+
+        UINT x = (UINT) ( ( screenResX * 0.5f ) - ( m_width  * 0.5f ) );
+        UINT y = (UINT) ( ( screenResY * 0.5f ) - ( m_height * 0.5f ) );
+
+        SetWindowPos( hwnd, NULL, x, y, 0, 0, SWP_NOSIZE | SWP_NOZORDER | SWP_NOOWNERZORDER );
+    }
+
+    //----------------------------------------------------------------------
+    void Window::setTitle( const char* newTitle ) const
+    {
+        SetWindowText( hwnd, newTitle );
+    }
+
+    //----------------------------------------------------------------------
+    void Window::setCursorPosition( U32 x, U32 y ) const
+    {
+        POINT point { (LONG) x, (LONG) y };
+        ClientToScreen( hwnd, &point );
+        SetCursorPos( point.x, point.y );
+    }
+
+    //----------------------------------------------------------------------
+    void Window::centerCursor() const
+    {
+        I32 width  = GetSystemMetrics( SM_CXCURSOR );
+        I32 height = GetSystemMetrics( SM_CYCURSOR );
+
+        I32 centerX = (I32) ( ( m_width  * 0.5f ) - ( width  * 0.5f ) );
+        I32 centerY = (I32) ( ( m_height * 0.5f ) - ( height * 0.5f ) );
+
+        setCursorPosition( centerX, centerY );
+    }
+
+    //----------------------------------------------------------------------
+    void Window::showCursor( bool b ) const
     {
         ShowCursor( b );
     }
 
     //----------------------------------------------------------------------
-    void Window::setCursor(const Path& path) const
+    void Window::setCursor( const Path& path ) const
     {
         HCURSOR cursor = (HCURSOR) loadImageFromFile( path, IMAGE_CURSOR );
         if (cursor == NULL)
@@ -144,7 +217,7 @@ namespace Core { namespace OS {
     }
 
     //----------------------------------------------------------------------
-    void Window::setIcon(const Path& path) const
+    void Window::setIcon( const Path& path ) const
     {
         HICON icon = (HICON) loadImageFromFile( path, IMAGE_ICON );
         if (icon == NULL)
@@ -159,7 +232,7 @@ namespace Core { namespace OS {
     //----------------------------------------------------------------------
     void PrintLastErrorAsString()
     {
-        //Get the error message, if any.
+        //Get the error message, if any
         DWORD errorMessageID = GetLastError();
         LPSTR messageBuffer = nullptr;
         Size size = FormatMessageA( FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
@@ -167,8 +240,8 @@ namespace Core { namespace OS {
 
         printf( "Last Win32 Error: %s", messageBuffer );
 
-        //Free the buffer.
-        LocalFree(messageBuffer);
+        // Free buffer
+        LocalFree( messageBuffer );
     }
 
     //----------------------------------------------------------------------

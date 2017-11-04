@@ -1,6 +1,8 @@
 #include <DX.h>
 
 
+#define USE_CONSOLE 1
+
 class Game : public IGame
 {
 
@@ -16,9 +18,8 @@ public:
             LOG( "Time: " + TS( Locator::getEngineClock().getTime().value ) + " FPS: " + TS( Locator::getProfiler().getFPS() ) );
         }, 1000);
 
-        Locator::getEngineClock().setTimeout([this] {
-            terminate();
-        }, 3000);
+        getWindow().setCursor( "../dx/res/internal/cursors/Areo Cursor Red.cur" );
+        getWindow().setIcon( "../dx/res/internal/icon.ico" );
     }
 
     //----------------------------------------------------------------------
@@ -40,12 +41,31 @@ public:
     }
 };
 
+#if USE_CONSOLE
 
-int main()
-{
-    Game game;
-    game.start();
+    int main()
+    {
+        Game game;
+        game.start( "Awesome Game!", 800, 600 );
 
-    system("pause");
-    return 0;
-}
+        system("pause");
+        return 0;
+    }
+
+#else
+
+    #undef ERROR
+    #include <Windows.h>
+
+    int APIENTRY WinMain(HINSTANCE hInstance,
+        HINSTANCE hPrevInstance,
+        LPTSTR    lpCmdLine,
+        int       nCmdShow)
+    {
+        Game game;
+        game.start("Awesome Game!", 800, 600);
+
+        return 0;
+    }
+
+#endif

@@ -25,6 +25,12 @@ namespace Core { namespace OS {
 
         //----------------------------------------------------------------------
         bool shouldBeClosed() const { return m_shouldBeClosed; }
+        U32 getWidth() const { return m_width; }
+        U32 getHeight() const { return m_height; }
+
+        //----------------------------------------------------------------------
+        void setTitle(const char* newTitle) const;
+        void center() const;
 
         //----------------------------------------------------------------------
         // Creates the window.
@@ -58,6 +64,19 @@ namespace Core { namespace OS {
         // Changes the window icon. Extension must be ".ico"
         //----------------------------------------------------------------------
         void setIcon(const Path& path) const;
+
+        //----------------------------------------------------------------------
+        // Directly manipulate the mouse position. (0,0) is Top-Left corner.
+        //----------------------------------------------------------------------
+        void setCursorPosition(U32 x, U32 y) const;
+        void centerCursor() const;
+
+        //----------------------------------------------------------------------
+        // Enables / Disables borderless fullscreen for this window.
+        // @Params:
+        //  "enabled": True when the window should be maximized/borderless.
+        //----------------------------------------------------------------------
+        void setBorderlessFullscreen(bool enabled);
 
     private:
         U32         m_width             = 0;
