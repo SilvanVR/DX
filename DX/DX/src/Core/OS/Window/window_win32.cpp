@@ -12,6 +12,7 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#include <windowsx.h> /* GET_X_LPARAM, GET_Y_LPARAM */
 #undef ERROR
 
 #include "locator.h"
@@ -23,8 +24,8 @@ namespace Core { namespace OS {
     HWND        hwnd;
 
     //----------------------------------------------------------------------
-    bool RegisterClassWindow( HINSTANCE hInstance, LPCSTR className );
-    HANDLE loadImageFromFile(const char* path, UINT type);
+    bool    RegisterWindowClass( HINSTANCE hInstance, LPCSTR className );
+    HANDLE  loadImageFromFile( const char* path, UINT type );
 
     //----------------------------------------------------------------------
     LRESULT CALLBACK WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
@@ -35,8 +36,53 @@ namespace Core { namespace OS {
             PostQuitMessage(0);
             return 0;
 
-        // TODO: Handle Input
-        // TODO: Handle Resize
+        // Handle resize
+        case WM_SIZE:
+            // Set the size and position of the window. 
+            return 0;
+
+        // Handle Input
+        case WM_LBUTTONDOWN:
+        {
+
+            bool cDown = wParam & MK_CONTROL;
+            if (cDown)
+                LOG("CONTROL", Color::GREEN);
+            bool shiftDown = wParam & MK_SHIFT;
+            if (shiftDown)
+                LOG("SHIFT", Color::GREEN);
+            SetCapture( hwnd );
+            LOG( "Left Mouse Down", Color::RED );
+            return 0;
+        }
+        case WM_LBUTTONUP:
+            ReleaseCapture();
+            LOG( "Left Mouse Up", Color::RED ); 
+            return 0;
+
+        case WM_MBUTTONDOWN:
+            SetCapture(hwnd);
+            LOG("Middle Mouse Down", Color::RED);
+            return 0;
+        case WM_MBUTTONUP:
+            ReleaseCapture();
+            LOG("Middle Mouse Up", Color::RED);
+            return 0;
+
+        case WM_RBUTTONDOWN:
+            SetCapture(hwnd);
+            LOG("Right Mouse Down", Color::RED);
+            return 0;
+        case WM_RBUTTONUP:
+            ReleaseCapture();
+            LOG("Right Mouse Up", Color::RED);
+            return 0;
+        case WM_MOUSEWHEEL:
+            Window::_GetCallbackHelper().callMouseWheelCallback( GET_WHEEL_DELTA_WPARAM( wParam ) > 0 ? 1 : -1 );
+            return 0;
+        case WM_MOUSEMOVE:
+            Window::_GetCallbackHelper().callCursorCallback(  GET_X_LPARAM( lParam ), GET_Y_LPARAM( lParam ) );
+            return 0;
 
         default:
             return DefWindowProc( hwnd, uMsg, wParam, lParam );
@@ -44,7 +90,7 @@ namespace Core { namespace OS {
     }
 
     //----------------------------------------------------------------------
-    void Window::pollEvents()
+    void Window::processOSMessages()
     {
         MSG msg;
         while ( PeekMessage( &msg, NULL, NULL, NULL, PM_REMOVE ) )
@@ -57,7 +103,6 @@ namespace Core { namespace OS {
         }
     }
 
-
     //----------------------------------------------------------------------
     void Window::create( const char* title, U32 width, U32 height )
     {
@@ -66,7 +111,7 @@ namespace Core { namespace OS {
         m_height = height;
 
         LPCSTR className = "DXWNDClassName";
-        if ( not RegisterClassWindow( hInstance, className ) )
+        if ( not RegisterWindowClass( hInstance, className ) )
         {
             ERROR( "Window[Win32]::create(): Failed to register a window class." );
         }
@@ -103,31 +148,10 @@ namespace Core { namespace OS {
     }
 
     //----------------------------------------------------------------------
-    bool RegisterClassWindow( HINSTANCE hInstance, LPCSTR className )
-    {
-        WNDCLASSEX lpWndClass;
-        lpWndClass.cbSize = sizeof( WNDCLASSEX );
-        lpWndClass.style = ( CS_HREDRAW | CS_VREDRAW );
-        lpWndClass.lpfnWndProc = WindowProc;
-        lpWndClass.cbClsExtra = 0;
-        lpWndClass.cbWndExtra = 0;
-        lpWndClass.hInstance = hInstance;
-        lpWndClass.hIcon = LoadIcon( NULL, IDI_APPLICATION );
-        HCURSOR cursor = (HCURSOR)loadImageFromFile("res/internal/cursors/Areo Cursor Red.cur", IMAGE_CURSOR);
-        lpWndClass.hCursor = LoadCursor( NULL, IDC_ARROW );
-        lpWndClass.hbrBackground = NULL;
-        lpWndClass.lpszMenuName = NULL;
-        lpWndClass.lpszClassName = className;
-        lpWndClass.hIconSm = LoadIcon( NULL, IDI_APPLICATION );
-
-        return RegisterClassEx( &lpWndClass );
-    }
-
-    //----------------------------------------------------------------------
     void Window::setBorderlessFullscreen(bool enabled)
     {
-        static U32 oldResolutionX = 0;
-        static U32 oldResolutionY = 0;
+        static U32 oldResolutionX = 800;
+        static U32 oldResolutionY = 600;
 
         LONG lStyle = GetWindowLong( hwnd, GWL_STYLE );
         if (enabled)
@@ -176,7 +200,7 @@ namespace Core { namespace OS {
     }
 
     //----------------------------------------------------------------------
-    void Window::setCursorPosition( U32 x, U32 y ) const
+    void Window::setCursorPosition( U16 x, U16 y ) const
     {
         POINT point { (LONG) x, (LONG) y };
         ClientToScreen( hwnd, &point );
@@ -251,6 +275,25 @@ namespace Core { namespace OS {
         return img;
     }
 
+    //----------------------------------------------------------------------
+    bool RegisterWindowClass( HINSTANCE hInstance, LPCSTR className )
+    {
+        WNDCLASSEX lpWndClass;
+        lpWndClass.cbSize = sizeof( WNDCLASSEX );
+        lpWndClass.style = ( CS_HREDRAW | CS_VREDRAW );
+        lpWndClass.lpfnWndProc = WindowProc;
+        lpWndClass.cbClsExtra = 0;
+        lpWndClass.cbWndExtra = 0;
+        lpWndClass.hInstance = hInstance;
+        lpWndClass.hIcon = LoadIcon( NULL, IDI_APPLICATION );
+        lpWndClass.hCursor = LoadCursor( NULL, IDC_ARROW );
+        lpWndClass.hbrBackground = NULL;
+        lpWndClass.lpszMenuName = NULL;
+        lpWndClass.lpszClassName = className;
+        lpWndClass.hIconSm = LoadIcon( NULL, IDI_APPLICATION );
+
+        return RegisterClassEx( &lpWndClass );
+    }
 
 } } // end namespaces
 

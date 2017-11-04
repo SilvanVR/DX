@@ -32,7 +32,7 @@ namespace StringUtils {
     //   Substring enclosed by "first" and "second" if found one.
     //   Empty string ("") if not.
     //----------------------------------------------------------------------
-    String substringBetween( const String& str, const char first, const char second );
+    String substringBetween(const String& str, const char first, const char second);
 
     //----------------------------------------------------------------------
     // Split a string by the given delimiter.

@@ -67,7 +67,7 @@ namespace Core {
                 // m_renderer->render( lerp );
             }
 
-            m_window.pollEvents();
+            m_window.processOSMessages();
         }
 
         _Shutdown();

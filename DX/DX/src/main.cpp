@@ -39,9 +39,9 @@ public:
 };
 
 //@TODO: 
+// - In Game console -> Map Name to Functions
 // - Profiler
 // - Input
-// - Window
 
 
 class Game : public IGame
@@ -63,6 +63,15 @@ public:
         Locator::getEngineClock().setInterval([] {
             LOG("Time: " + TS( Locator::getEngineClock().getTime().value ) + " FPS: " + TS( Locator::getProfiler().getFPS() ) );
         }, 1000);
+
+        getWindow().setCallbackCursorMove([] (I16 x, I16 y) {
+            String s = "(" + TS(x) + "," + TS(y) + ")";
+            LOG(s, Color::GREEN);
+        });
+
+        getWindow().setCallbackMouseWheel([](I16 delta) {
+            LOG("Mouse Wheel: " + TS(delta), Color::RED);
+        });
 
         //getWindow().setBorderlessFullscreen( true );
         //Locator::getEngineClock().setTimeout([this] {
@@ -96,6 +105,8 @@ public:
         LOG( "Shutdown game..." );
     }
 };
+
+
 
 
 int main()

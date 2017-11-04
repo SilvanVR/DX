@@ -7,20 +7,23 @@
 
     Responsibilites:
       - Create a window in which the engine can draw.
-      - Peek and Dispatch OS messages
+      - Process OS messages
+        > Subscribe to the window via callbacks functions, which will
+          be called when a corresponding event has happened
 **********************************************************************/
 
 #include "../FileSystem/path.h"
 
 namespace Core { namespace OS {
 
+    typedef void(*WindowCursorMoveFunc)(I16, I16);
+    typedef void(*WindowMouseWheelFunc)(I16);
+
     //**********************************************************************
     class Window
     {
-        static Window* s_instance;
-
     public:
-        Window();
+        Window() = default;
         ~Window();
 
         //----------------------------------------------------------------------
@@ -48,7 +51,7 @@ namespace Core { namespace OS {
         //----------------------------------------------------------------------
         // Processes event messages from the OS. 
         //----------------------------------------------------------------------
-        void pollEvents();
+        void processOSMessages();
 
         //----------------------------------------------------------------------
         // Enables / Disables the mouse cursor
@@ -68,21 +71,66 @@ namespace Core { namespace OS {
         //----------------------------------------------------------------------
         // Directly manipulate the mouse position. (0,0) is Top-Left corner.
         //----------------------------------------------------------------------
-        void setCursorPosition(U32 x, U32 y) const;
+        void setCursorPosition(U16 x, U16 y) const;
         void centerCursor() const;
 
         //----------------------------------------------------------------------
         // Enables / Disables borderless fullscreen for this window.
         // @Params:
-        //  "enabled": True when the window should be maximized/borderless.
+        //  "enabled": True when the window should be maximized and 
+        //             become borderless.
         //----------------------------------------------------------------------
         void setBorderlessFullscreen(bool enabled);
 
+        //----------------------------------------------------------------------
+        // Given function will be called whenever the mouse gets a new position.
+        // @Function-Params:
+        //   I16: X-Coordinate of the new position
+        //   I16: Y-Coordinate of the new position
+        //----------------------------------------------------------------------
+        void setCallbackCursorMove(WindowCursorMoveFunc func) { m_callbackHelper.m_cursorMoveCallback = func; }
+
+        //----------------------------------------------------------------------
+        // Given function will be called whenever the mouse-wheel was used.
+        // @Function-Params:
+        //   I16: +1 for FORWARD, -1 for BACKWARDS
+        //----------------------------------------------------------------------
+        void setCallbackMouseWheel(WindowMouseWheelFunc func) { m_callbackHelper.m_mouseWheelFunc = func; }
+
     private:
-        U32         m_width             = 0;
-        U32         m_height            = 0;
-        bool        m_created           = false;
-        bool        m_shouldBeClosed    = false;
+        U16             m_width             = 0;
+        U16             m_height            = 0;
+        bool            m_created           = false;
+        bool            m_shouldBeClosed    = false;
+
+        //**********************************************************************
+        // Small helper class which stores all the different window callbacks.
+        // The WindowProc function access those via a static instance of this
+        // object. If a callback is not set, it it simply ignored.
+        //**********************************************************************
+        class WindowCallbackHelper
+        {
+        public:
+            void callCursorCallback(I16 x, I16 y) const;
+            void callMouseWheelCallback(I16 delta) const;
+
+        private:
+            friend class Window;
+            WindowCursorMoveFunc m_cursorMoveCallback = nullptr;
+            WindowMouseWheelFunc m_mouseWheelFunc = nullptr;
+        };
+
+        static WindowCallbackHelper m_callbackHelper;
+
+    public:
+        //----------------------------------------------------------------------
+        static Window::WindowCallbackHelper _GetCallbackHelper() { return m_callbackHelper; }
+
+    private:
+        Window(const Window& other)                 = delete;
+        Window& operator = (const Window& other)    = delete;
+        Window(Window&& other)                      = delete;
+        Window& operator = (Window&& other)         = delete;
     };
 
 

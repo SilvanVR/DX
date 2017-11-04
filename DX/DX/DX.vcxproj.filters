@@ -287,10 +287,10 @@
     <ClInclude Include="src\Utils\bit_mask.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\OS\Input\keycodes.hpp">
+    <ClInclude Include="src\Core\OS\FileSystem\path.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\OS\FileSystem\path.h">
+    <ClInclude Include="src\Core\OS\Window\keycodes.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

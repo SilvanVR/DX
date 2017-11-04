@@ -189,10 +189,14 @@
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
       <PreprocessorDefinitions>_MBCS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ExceptionHandling>Sync</ExceptionHandling>
+      <BrowseInformation>true</BrowseInformation>
     </ClCompile>
     <Link>
       <SubSystem>NotSet</SubSystem>
     </Link>
+    <Bscmake>
+      <PreserveSbr>true</PreserveSbr>
+    </Bscmake>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='StaticLib - Debug|x64'">
     <ClCompile>
@@ -335,7 +339,7 @@
     <ClInclude Include="src\Core\DataStructures\byte_array.hpp" />
     <ClInclude Include="src\Core\MemoryManagement\Allocators\include.hpp" />
     <ClInclude Include="src\Core\OS\FileSystem\path.h" />
-    <ClInclude Include="src\Core\OS\Input\keycodes.hpp" />
+    <ClInclude Include="src\Core\OS\Window\keycodes.hpp" />
     <ClInclude Include="src\Utils\finite_range.hpp" />
     <ClInclude Include="src\Core\OS\Window\window.h" />
     <ClInclude Include="src\Core\Profiling\profiler.h" />

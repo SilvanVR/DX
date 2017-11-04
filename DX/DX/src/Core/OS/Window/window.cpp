@@ -9,15 +9,10 @@
 
 namespace Core { namespace OS {
 
-    //----------------------------------------------------------------------
-    Window* Window::s_instance = nullptr;
 
     //----------------------------------------------------------------------
-    Window::Window()
-    {
-        ASSERT( s_instance == nullptr );
-        s_instance = this;
-    }
+    Window::WindowCallbackHelper Window::m_callbackHelper;
+
 
     //----------------------------------------------------------------------
     Window::~Window()
@@ -26,5 +21,22 @@ namespace Core { namespace OS {
             destroy();
     }
 
+    //**********************************************************************
+    // WindowCallbackHelper
+    //**********************************************************************
+
+    //----------------------------------------------------------------------
+    void Window::WindowCallbackHelper::callCursorCallback(I16 x, I16 y) const 
+    { 
+        if (m_cursorMoveCallback) 
+            m_cursorMoveCallback( x, y ); 
+    }
+
+    //----------------------------------------------------------------------
+    void Window::WindowCallbackHelper::callMouseWheelCallback(I16 delta) const 
+    { 
+        if (m_mouseWheelFunc) 
+            m_mouseWheelFunc( delta );
+    }
 
 } } // end namespaces
