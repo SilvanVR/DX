@@ -120,7 +120,7 @@ namespace Core { namespace Config {
                 continue;
             }
 
-            WARN( "ConfigFile '" + m_configFile->getFilePath() + "': Could not read line: '" + line + "'" );
+            WARN( "ConfigFile '" + m_configFile->getFilePath().toString() + "': Could not read line: '" + line + "'" );
         }
     }
 

@@ -62,6 +62,8 @@ public:
             LOG("Time: " + TS( Locator::getEngineClock().getTime().value ) + " FPS: " + TS( Locator::getProfiler().getFPS() ) );
         }, 1000);
 
+        //getWindow().showCursor( false );
+
         //Locator::getEngineClock().setTimeout([this] {
         //    terminate();
         //}, 2000);

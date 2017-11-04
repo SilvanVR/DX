@@ -8,17 +8,18 @@
     See below for a class description.
 **********************************************************************/
 
+#include "path.h"
 
 namespace Core { namespace OS {
 
     //*********************************************************************
-    // Different modes used for working with a bare file.
+    // Different modes used for working with a raw file.
     // READ                 | open for reading
-    // WRITE                | open for writing(file need not exist)
-    // APPEND               | open for appending(file need not exist)
+    // WRITE                | open for writing (file need not exist)
+    // APPEND               | open for appending (file need not exist)
     // READ_WRITE           | open for reading and writing, start at beginning
-    // READ_WRITE_OVERWRITE | open for reading and writing(overwrite file)
-    // READ_WRITE_APPEND    | open for reading and writing(append if file exists)
+    // READ_WRITE_OVERWRITE | open for reading and writing (overwrite file)
+    // READ_WRITE_APPEND    | open for reading and writing (append if file exists)
     //*********************************************************************
     enum class EFileMode
     {
@@ -49,7 +50,7 @@ namespace Core { namespace OS {
         //  "path": Virtual path or Physical path on disk.
         //  "append": Whether add new contents directly to the end of the file.
         //----------------------------------------------------------------------
-        explicit File(const char* path, EFileMode mode = EFileMode::READ_WRITE, bool binary = false);
+        explicit File(const Path& path, EFileMode mode = EFileMode::READ_WRITE, bool binary = false);
         virtual ~File();
 
         //----------------------------------------------------------------------
@@ -59,7 +60,7 @@ namespace Core { namespace OS {
         // @Return:
         //  "Whether opening the file succeeded or not.
         //----------------------------------------------------------------------
-        bool open(const char* path, EFileMode mode = EFileMode::READ_WRITE);
+        bool open(const Path& path, EFileMode mode = EFileMode::READ_WRITE);
 
         //----------------------------------------------------------------------
         // Close the file manually
@@ -193,19 +194,6 @@ namespace Core { namespace OS {
 
         //----------------------------------------------------------------------
         // @Return:
-        //  The file extension from the path. Example: "test.png" => "png"
-        //----------------------------------------------------------------------
-        String getExtension() const;
-
-        //----------------------------------------------------------------------
-        // @Return:
-        //  The directory path from the file-path.
-        //  Example: "dir/test.png" => "dir/"
-        //----------------------------------------------------------------------
-        String getDirectoryPath() const;
-
-        //----------------------------------------------------------------------
-        // @Return:
         //  Whether the read cursor is at the end of file.
         //----------------------------------------------------------------------
         bool eof() const { return m_eof; }
@@ -224,7 +212,7 @@ namespace Core { namespace OS {
         void setWriteCursor(long pos) { m_writeCursorPos = pos; }
 
         //----------------------------------------------------------------------
-        String          getFilePath()       const { return m_filePath.toString(); }
+        const Path&     getFilePath()       const { return m_filePath; }
         Size            getFileSize()       const { return m_fileSize; }
         long            tellWriteCursor()   const { return m_writeCursorPos; }
         long            tellReadCursor()    const { return m_readCursorPos; }
@@ -242,7 +230,7 @@ namespace Core { namespace OS {
 
 
     private:
-        StringID    m_filePath;
+        Path        m_filePath;
         Size        m_fileSize          = 0;
         FILE*       m_file              = nullptr;
         long        m_readCursorPos     = 0;
@@ -286,10 +274,12 @@ namespace Core { namespace OS {
     {
     public:
         TextFile()
-            : File(false)
+            : File( false )
         {}
 
-        explicit TextFile(const char* vpath, EFileMode mode = EFileMode::READ_WRITE);
+        explicit TextFile::TextFile(const Path& path, EFileMode mode = EFileMode::READ_WRITE)
+            : File( path, mode, false )
+        {}
     };
 
     //*********************************************************************
@@ -302,7 +292,9 @@ namespace Core { namespace OS {
             : File(true) 
         {}
 
-        explicit BinaryFile(const char* vpath, EFileMode mode = EFileMode::READ_WRITE);
+        explicit BinaryFile::BinaryFile(const Path& path, EFileMode mode = EFileMode::READ_WRITE)
+            : File( path, mode, true )
+        {}
     };
 
 } }

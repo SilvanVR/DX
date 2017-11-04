@@ -10,7 +10,6 @@
       - Tick physics subsystem in a different rate
 **********************************************************************/
 
-#include "OS/Window/window.h"
 #include "locator.h"
 
 namespace Core {
@@ -18,14 +17,18 @@ namespace Core {
     //----------------------------------------------------------------------
     void CoreEngine::start( const char* title, U32 width, U32 height )
     {
-        m_window = new OS::Window( title, width, height );
-        m_window->create();
+        // Create Window
+        m_window.create( title, width, height );
 
         // Provide game clock to the locator class
         Locator::provide( &m_engineClock );
 
         // Initialize all subsystems
         m_subSystemManager.init();
+
+        // Change default settings
+        m_window.setCursor( "/cursors/Areo Cursor Red.cur" );
+        m_window.setIcon( "/internal/icon.ico" );
 
         // Call virtual init function for game class
         init();
@@ -42,7 +45,7 @@ namespace Core {
 
         Time::Seconds gameTickAccumulator = 0;
 
-        while ( m_isRunning && m_window->pollEvents() )
+        while ( m_isRunning && not m_window.shouldBeClosed() )
         {
             Time::Seconds delta = m_engineClock._Update();
             //if (delta > 0.5f) delta = 0.5f;
@@ -67,6 +70,8 @@ namespace Core {
                 //ASSERT( lerp <= 1.0 );
                 // m_renderer->render( lerp );
             }
+
+            m_window.pollEvents();
         }
 
         _Shutdown();
@@ -83,9 +88,6 @@ namespace Core {
 
         // Deinitialize every subsystem
         m_subSystemManager.shutdown();
-
-        // Close the window
-        SAFE_DELETE( m_window );
     }
 
 

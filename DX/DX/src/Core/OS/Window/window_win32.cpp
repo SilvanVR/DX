@@ -24,7 +24,7 @@ namespace Core { namespace OS {
 
     //----------------------------------------------------------------------
     bool RegisterClassWindow( HINSTANCE hInstance, LPCSTR className );
-
+    HANDLE loadImageFromFile(const char* path, UINT type);
 
     //----------------------------------------------------------------------
     LRESULT CALLBACK WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
@@ -36,7 +36,10 @@ namespace Core { namespace OS {
             return 0;
 
         // TODO: Handle Input
+        // TODO: Handle Resize
 
+        case WM_SETCURSOR:
+            return 0; // Default WindowProc uses default cursor, so just return here.
 
         default:
             return DefWindowProc( hwnd, uMsg, wParam, lParam );
@@ -44,26 +47,24 @@ namespace Core { namespace OS {
     }
 
     //----------------------------------------------------------------------
-    bool Window::pollEvents()
+    void Window::pollEvents()
     {
         MSG msg;
-
         while ( PeekMessage( &msg, NULL, NULL, NULL, PM_REMOVE ) )
         {
             if ( msg.message == WM_QUIT )
-                return false;
+                m_shouldBeClosed = true;
 
             TranslateMessage( &msg );
             DispatchMessage( &msg );
         }
-
-        return true;
     }
 
 
     //----------------------------------------------------------------------
-    void Window::create()
+    void Window::create( const char* title, U32 width, U32 height )
     {
+        ASSERT( m_created == false );
         LPCSTR className = "DXWNDClassName";
 
         if ( not RegisterClassWindow( hInstance, className ) )
@@ -74,13 +75,13 @@ namespace Core { namespace OS {
         UINT screenResX = GetSystemMetrics( SM_CXSCREEN );
         UINT screenResY = GetSystemMetrics( SM_CYSCREEN );
 
-        UINT x = (UINT) ( screenResX * 0.5f - (m_width * 0.5f) );
-        UINT y = (UINT) ( screenResY * 0.5f - (m_height * 0.5f) );
+        UINT x = (UINT) ( screenResX * 0.5f - (width * 0.5f) );
+        UINT y = (UINT) ( screenResY * 0.5f - (height * 0.5f) );
 
-        hwnd = CreateWindow( className, m_title.c_str(), 
+        hwnd = CreateWindow( className, title,
                              WS_OVERLAPPEDWINDOW, 
                              x, y, 
-                             m_width, m_height, 
+                             width, height, 
                              NULL, NULL, hInstance, NULL );
 
         if ( not hwnd )
@@ -112,6 +113,7 @@ namespace Core { namespace OS {
         lpWndClass.cbClsExtra = 0;
         lpWndClass.cbWndExtra = 0;
         lpWndClass.hInstance = hInstance;
+
         lpWndClass.hIcon = LoadIcon( NULL, IDI_APPLICATION );
         lpWndClass.hCursor = LoadCursor( NULL, IDC_ARROW );
         lpWndClass.hbrBackground = NULL;
@@ -121,6 +123,61 @@ namespace Core { namespace OS {
 
         return RegisterClassEx( &lpWndClass );
     }
+
+    //----------------------------------------------------------------------
+    void Window::showCursor(bool b) const
+    {
+        ShowCursor( b );
+    }
+
+    //----------------------------------------------------------------------
+    void Window::setCursor(const Path& path) const
+    {
+        HCURSOR cursor = (HCURSOR) loadImageFromFile( path, IMAGE_CURSOR );
+        if (cursor == NULL)
+        {
+           WARN( "Window[Win32]::setCursor(): Could not load cursor '" + path.toString() + "'. Wrong Extension? (.cur)." );
+           return;
+        }
+
+        SetCursor( cursor );
+    }
+
+    //----------------------------------------------------------------------
+    void Window::setIcon(const Path& path) const
+    {
+        HICON icon = (HICON) loadImageFromFile( path, IMAGE_ICON );
+        if (icon == NULL)
+        {
+           WARN( "Window[Win32]::setIcon(): Could not load icon '" + path.toString() + "'. Wrong Extension? (.ico)." );
+           return;
+        }
+
+        SendMessage( hwnd, (UINT) WM_SETICON, ICON_BIG, (LPARAM) icon );
+    }
+
+    //----------------------------------------------------------------------
+    void PrintLastErrorAsString()
+    {
+        //Get the error message, if any.
+        DWORD errorMessageID = GetLastError();
+        LPSTR messageBuffer = nullptr;
+        Size size = FormatMessageA( FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+                                    NULL, errorMessageID, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&messageBuffer, 0, NULL );
+
+        printf( "Last Win32 Error: %s", messageBuffer );
+
+        //Free the buffer.
+        LocalFree(messageBuffer);
+    }
+
+    //----------------------------------------------------------------------
+    HANDLE loadImageFromFile( const char* path, UINT type )
+    {
+        HANDLE img = LoadImage( NULL, path, type, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE );
+        return img;
+    }
+
 
 } } // end namespaces
 

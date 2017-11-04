@@ -16,7 +16,7 @@ namespace Core { namespace OS {
     std::map<String, const char*> VirtualFileSystem::mountPoints;
 
     //----------------------------------------------------------------------
-    void VirtualFileSystem::mount( String name, const char* path, bool overrideOldOne )
+    void VirtualFileSystem::mount( const String& name, const char* path, bool overrideOldOne )
     {
         if ( mountPoints.count( name ) != 0 && !overrideOldOne ) 
             return;
@@ -25,7 +25,7 @@ namespace Core { namespace OS {
     }
 
     //----------------------------------------------------------------------
-    void VirtualFileSystem::unmount( String name )
+    void VirtualFileSystem::unmount( const String& name )
     {
         ASSERT( mountPoints.count( name ) != 0 );
         mountPoints.erase( name );
@@ -38,7 +38,7 @@ namespace Core { namespace OS {
     }
 
     //----------------------------------------------------------------------
-    String VirtualFileSystem::resolvePhysicalPath( String virtualPath )
+    String VirtualFileSystem::resolvePhysicalPath( const String& virtualPath )
     {
         ASSERT( virtualPath.size() > 1 );
 

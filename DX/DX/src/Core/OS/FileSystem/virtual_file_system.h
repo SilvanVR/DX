@@ -28,7 +28,7 @@ namespace Core { namespace OS {
         // "path": The path to associated with.
         // "overrideOldOne": Override old entry if one exists.
         //----------------------------------------------------------------------
-        static void mount(String name, const char* path, bool overrideOldOne = true);
+        static void mount(const String& name, const char* path, bool overrideOldOne = true);
 
         //----------------------------------------------------------------------
         // Resolves the given virtual path to a physical path. Symbolic
@@ -36,14 +36,14 @@ namespace Core { namespace OS {
         // @Params:
         // "virtualPath": Virtual path to resolve
         //----------------------------------------------------------------------
-        static String resolvePhysicalPath(String virtualPath);
+        static String resolvePhysicalPath(const String& virtualPath);
 
         //----------------------------------------------------------------------
         // Erase an entry.
         // @Params:
         // "name": The name of the symbolic directory to erase.
         //----------------------------------------------------------------------
-        static void unmount(String name);
+        static void unmount(const String& name);
 
         //----------------------------------------------------------------------
         // Unmount all symbolic directories.

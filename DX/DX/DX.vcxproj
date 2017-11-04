@@ -271,6 +271,7 @@
     <ClCompile Include="src\Core\Config\configuration_manager.cpp" />
     <ClCompile Include="src\Core\Config\config_file.cpp" />
     <ClCompile Include="src\Core\core_engine.cpp" />
+    <ClCompile Include="src\Core\OS\FileSystem\path.cpp" />
     <ClCompile Include="src\Core\OS\Window\window.cpp" />
     <ClCompile Include="src\Core\OS\Window\window_win32.cpp" />
     <ClCompile Include="src\Core\Profiling\profiler.cpp" />
@@ -321,6 +322,8 @@
     <ClInclude Include="src\Core\core_engine.h" />
     <ClInclude Include="src\Core\DataStructures\byte_array.hpp" />
     <ClInclude Include="src\Core\MemoryManagement\Allocators\include.hpp" />
+    <ClInclude Include="src\Core\OS\FileSystem\path.h" />
+    <ClInclude Include="src\Core\OS\Input\keycodes.hpp" />
     <ClInclude Include="src\Utils\finite_range.hpp" />
     <ClInclude Include="src\Core\OS\Window\window.h" />
     <ClInclude Include="src\Core\Profiling\profiler.h" />

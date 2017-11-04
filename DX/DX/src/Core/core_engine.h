@@ -12,7 +12,7 @@
 
 #include "subsystem_manager.h"
 #include "Time/master_clock.h"
-
+#include "OS/Window/window.h"
 
 namespace Core {
 
@@ -27,6 +27,9 @@ namespace Core {
     public:
         CoreEngine() = default;
         virtual ~CoreEngine() = default;
+
+        //----------------------------------------------------------------------
+        OS::Window& getWindow() { return m_window; }
 
         //----------------------------------------------------------------------
         // Initiate the startup sequence for the engine.
@@ -46,7 +49,7 @@ namespace Core {
     private:
         Time::MasterClock   m_engineClock;
         SubSystemManager    m_subSystemManager;
-        OS::Window*         m_window;
+        OS::Window          m_window;
         bool                m_isRunning = true;
 
         //----------------------------------------------------------------------

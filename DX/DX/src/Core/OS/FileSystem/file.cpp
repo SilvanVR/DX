@@ -18,7 +18,6 @@
            => recursively create directories
 **********************************************************************/
 
-#include "virtual_file_system.h"
 #include "file_system.h"
 #include "locator.h"
 
@@ -32,8 +31,8 @@ namespace Core { namespace OS {
     {}
 
     //----------------------------------------------------------------------
-    File::File( const char* path, EFileMode mode, bool binary )
-        : m_filePath( StringID( path ) ), m_exists( _FileExists( m_filePath.c_str() ) ),
+    File::File( const Path& path, EFileMode mode, bool binary )
+        : m_filePath( path ), m_exists( _FileExists( m_filePath.c_str() ) ),
           m_binary( binary ), m_mode( mode )
     {
         if (m_exists)
@@ -52,11 +51,11 @@ namespace Core { namespace OS {
     }
 
     //----------------------------------------------------------------------
-    bool File::open(const char* path, EFileMode mode)
+    bool File::open( const Path& path, EFileMode mode)
     {
         ASSERT( not m_exists && "File was already opened!" );
 
-        m_filePath  = StringID( path );
+        m_filePath  = path;
         m_exists    = _FileExists( m_filePath.c_str() );
         m_mode      = mode;
 
@@ -215,21 +214,6 @@ namespace Core { namespace OS {
     }
 
     //----------------------------------------------------------------------
-    String File::getExtension() const
-    {
-        String filePath = m_filePath.toString();
-        Size dotPosition = ( filePath.find_last_of( "." ) + 1 );
-        return filePath.substr( dotPosition, ( filePath.size() - dotPosition ) );
-    }
-
-    //----------------------------------------------------------------------
-    String File::getDirectoryPath() const
-    {
-        String filePath = m_filePath.toString();
-        return filePath.substr( 0, filePath.find_last_of( "/\\" ) ) + "/";
-    }
-
-    //----------------------------------------------------------------------
     bool File::_FileExists(const char* filePath)
     {
         return FileSystem::exists( filePath );
@@ -346,18 +330,5 @@ namespace Core { namespace OS {
             callback( contents );
         });
     }
-
-
-    //**********************************************************************
-    // TextFile + BinaryFile
-    //**********************************************************************
-
-    TextFile::TextFile(const char* vpath, EFileMode mode)
-        : File( VirtualFileSystem::resolvePhysicalPath( vpath ).c_str(), mode, false )
-    {}
-
-    BinaryFile::BinaryFile(const char* vpath, EFileMode mode)
-        : File( VirtualFileSystem::resolvePhysicalPath( vpath ).c_str(), mode, true )
-    {}
 
 } }
