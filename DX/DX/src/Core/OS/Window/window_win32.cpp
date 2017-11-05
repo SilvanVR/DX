@@ -5,7 +5,7 @@
     author: S. Hau
     date: November 3, 2017
 
-    Windows implementation for creating a window.
+    Windows implementation.
 **********************************************************************/
 
 #ifdef _WIN32
@@ -24,9 +24,11 @@ namespace Core { namespace OS {
     HWND        hwnd;
 
     //----------------------------------------------------------------------
-    bool    RegisterWindowClass( HINSTANCE hInstance, LPCSTR className );
-    HANDLE  LoadImageFromFile( const char* path, UINT type );
-    KeyMod  GetKeyMod( WPARAM wParam );
+    bool        RegisterWindowClass( HINSTANCE hInstance, LPCSTR className );
+    HANDLE      LoadImageFromFile( const char* path, UINT type );
+    KeyMod      GetMouseKeyMod( WPARAM wParam );
+    Key         GetKey( WPARAM wParam );
+    KeyMod      GetKeyKeyMod();
 
     //----------------------------------------------------------------------
     LRESULT CALLBACK WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
@@ -46,33 +48,33 @@ namespace Core { namespace OS {
         //----------------------------------------------------------------------
         // Handle Mouse Input
         case WM_LBUTTONDOWN:
-            SetCapture( hwnd );
-            Window::_GetCallbackHelper().callMouseButtonCallback( KeyCode::LMOUSEBUTTON, KeyAction::DOWN, GetKeyMod( wParam ) );
+            SetCapture( hwnd ); // This ensures, that the corresponding BUTTONUP message is generated, even when the mouse is out of the window
+            Window::_GetCallbackHelper().callMouseButtonCallback( MouseKey::LButton, KeyAction::DOWN, GetMouseKeyMod( wParam ) );
             return 0;
         //----------------------------------------------------------------------
         case WM_LBUTTONUP:
             ReleaseCapture();
-            Window::_GetCallbackHelper().callMouseButtonCallback( KeyCode::LMOUSEBUTTON, KeyAction::UP, GetKeyMod( wParam ) );
+            Window::_GetCallbackHelper().callMouseButtonCallback( MouseKey::LButton, KeyAction::UP, GetMouseKeyMod( wParam ) );
             return 0;
         //----------------------------------------------------------------------
         case WM_MBUTTONDOWN:
             SetCapture( hwnd );
-            Window::_GetCallbackHelper().callMouseButtonCallback( KeyCode::MMOUSEBUTTON, KeyAction::DOWN, GetKeyMod( wParam ) );
+            Window::_GetCallbackHelper().callMouseButtonCallback( MouseKey::MButton, KeyAction::DOWN, GetMouseKeyMod( wParam ) );
             return 0;
         //----------------------------------------------------------------------
         case WM_MBUTTONUP:
             ReleaseCapture();
-            Window::_GetCallbackHelper().callMouseButtonCallback( KeyCode::MMOUSEBUTTON, KeyAction::UP, GetKeyMod( wParam ) );
+            Window::_GetCallbackHelper().callMouseButtonCallback( MouseKey::MButton, KeyAction::UP, GetMouseKeyMod( wParam ) );
             return 0;
         //----------------------------------------------------------------------
         case WM_RBUTTONDOWN:
             SetCapture( hwnd );
-            Window::_GetCallbackHelper().callMouseButtonCallback( KeyCode::RMOUSEBUTTON, KeyAction::DOWN, GetKeyMod( wParam ) );
+            Window::_GetCallbackHelper().callMouseButtonCallback( MouseKey::RButton, KeyAction::DOWN, GetMouseKeyMod( wParam ) );
             return 0;
         //----------------------------------------------------------------------
         case WM_RBUTTONUP:
             ReleaseCapture();
-            Window::_GetCallbackHelper().callMouseButtonCallback( KeyCode::RMOUSEBUTTON, KeyAction::UP, GetKeyMod( wParam ) );
+            Window::_GetCallbackHelper().callMouseButtonCallback( MouseKey::RButton, KeyAction::UP, GetMouseKeyMod( wParam ) );
             return 0;
         //----------------------------------------------------------------------
         case WM_MOUSEWHEEL:
@@ -85,7 +87,27 @@ namespace Core { namespace OS {
 
         //----------------------------------------------------------------------
         // Handle Keyboard Input
-        //  void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+        case WM_KEYDOWN:
+        case WM_SYSKEYDOWN:
+            // Bit 30: 1 if message was automatically generated from the OS
+            Window::_GetCallbackHelper().callKeyCallback( GetKey( wParam ), lParam & (1 << 30) ? KeyAction::REPEAT : KeyAction::DOWN, GetKeyKeyMod() );
+            return 0;
+        case WM_KEYUP:
+        case WM_SYSKEYUP:
+            Window::_GetCallbackHelper().callKeyCallback( GetKey( wParam ), KeyAction::UP, 0 );
+            return 0;
+        case WM_CHAR:
+        case WM_DEADCHAR:
+            Window::_GetCallbackHelper().callCharCallback( (char)wParam );
+            return 0;
+
+        //----------------------------------------------------------------------
+        case WM_SETFOCUS:
+            Window::_GetCallbackHelper().callGainFocusCallback();
+            return 0;
+        case WM_KILLFOCUS:
+            Window::_GetCallbackHelper().callLooseFocusCallback();
+            return 0;
 
         //----------------------------------------------------------------------
         default:
@@ -300,14 +322,38 @@ namespace Core { namespace OS {
     }
 
     //----------------------------------------------------------------------
-    KeyMod GetKeyMod( WPARAM wParam )
+    KeyMod GetMouseKeyMod( WPARAM wParam )
     {
         KeyMod mod = KeyModBits::NONE;
-        if (wParam & MK_CONTROL)
+        if ( wParam & MK_CONTROL )
             mod |= KeyModBits::CONTROL;
-        if (wParam & MK_SHIFT)
+        if ( wParam & MK_SHIFT )
             mod |= KeyModBits::SHIFT;
+        if ( GetKeyState( VK_MENU ) & 0x8000 )
+            mod |= KeyModBits::ALT;
         return mod;
+    }
+
+    //----------------------------------------------------------------------
+    KeyMod GetKeyKeyMod()
+    {
+        KeyMod mod = KeyModBits::NONE;
+
+        // Higher Order bit is set when pressed, lower order bit when toggled
+        if ( GetKeyState(VK_CONTROL) & 0x8000 )
+            mod |= KeyModBits::CONTROL;
+        if ( GetKeyState( VK_SHIFT ) & 0x8000 )
+            mod |= KeyModBits::SHIFT;
+        if ( GetKeyState( VK_MENU ) & 0x8000 )
+            mod |= KeyModBits::ALT;
+        return mod;
+    }
+
+    //----------------------------------------------------------------------
+    Key GetKey( WPARAM wParam )
+    {
+        // Simple 1:1 Mapping of window keycodes
+        return (Key) wParam;
     }
 
 } } // end namespaces

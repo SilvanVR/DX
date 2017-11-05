@@ -15,6 +15,7 @@
 #include "Logging/shared_console_logger.hpp"
 #include "ThreadManager/thread_manager.h"
 #include "Profiling/profiler.h"
+#include "Input/input_manager.h"
 
 #define ENABLE_THREADING 0
 #define ENABLE_CONFIG    0
@@ -62,6 +63,10 @@ namespace Core
         //----------------------------------------------------------------------
         m_profiler = initializeSubSystem( new Profiling::Profiler() );
         LOG( " > Profiler initialized!", COLOR );
+
+        //----------------------------------------------------------------------
+        m_inputManager = initializeSubSystem( new Input::InputManager() );
+        LOG(" > InputManager initialized!", COLOR);
     }
 
     //----------------------------------------------------------------------
@@ -76,6 +81,7 @@ namespace Core
         m_threadManager->update( delta );
 #endif
         m_profiler->update( delta );
+        m_inputManager->update( delta );
     }
 
 
@@ -84,6 +90,10 @@ namespace Core
     {
         // Shutdown every Sub-System here in reversed order to above
         LOG( "<<< Shutting down Sub-Systems >>>", COLOR );
+
+        //----------------------------------------------------------------------
+        LOG(" > Shutdown InputManager...", COLOR);
+        shutdownSubSystem( m_inputManager );
 
         //----------------------------------------------------------------------
         LOG( " > Shutdown Profiler...", COLOR );

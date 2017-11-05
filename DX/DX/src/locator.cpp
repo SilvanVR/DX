@@ -20,3 +20,5 @@ Core::Config::ConfigurationManager*       Locator::gConfigManager = nullptr;
 Core::Threading::ThreadManager*           Locator::gThreadManager = nullptr;
 Core::Profiling::Profiler*                Locator::gProfiler      = nullptr;
 Core::Time::MasterClock*                  Locator::gEngineClock   = nullptr;
+Core::OS::Window*                         Locator::gWindow        = nullptr;
+Core::Input::InputManager*                Locator::gInputManager  = nullptr;

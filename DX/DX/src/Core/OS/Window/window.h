@@ -13,14 +13,19 @@
 **********************************************************************/
 
 #include "../FileSystem/path.h"
-#include "keycodes.hpp"
+#include "keycodes.h"
 
 namespace Core { namespace OS {
 
+    //----------------------------------------------------------------------
     typedef void(*WindowCursorMoveFunc)(I16, I16);
     typedef void(*WindowMouseWheelFunc)(I16);
-    typedef void(*WindowMouseButtonFunc)(KeyCode, KeyAction, KeyMod);
+    typedef void(*WindowMouseButtonFunc)(MouseKey, KeyAction, KeyMod);
     typedef void(*WindowSizeChangedFunc)(U16, U16);
+    typedef void(*WindowKeyButtonFunc)(Key, KeyAction, KeyMod);
+    typedef void(*WindowLooseFocusFunc)();
+    typedef void(*WindowGainFocusFunc)();
+    typedef void(*WindowCharFunc)(char);
 
     //**********************************************************************
     class Window
@@ -98,16 +103,16 @@ namespace Core { namespace OS {
         // @Function-Params:
         //   |I16|: +1 if FORWARD, -1 if BACKWARDS
         //---------------------------------------------------------------------
-        void setCallbackMouseWheel(WindowMouseWheelFunc func) { m_callbackHelper.m_mouseWheelFunc = func; }
+        void setCallbackMouseWheel(WindowMouseWheelFunc func) { m_callbackHelper.m_mouseWheelCallback = func; }
 
         //----------------------------------------------------------------------
         // Given function will be called whenever a mouse button was pressed.
         // @Function-Params:
-        //  |KeyCode|:    KeyCode of the corresponding button
+        //  |MouseKey|:   KeyCode of the corresponding mouse button
         //  |KeyAction|:  Action of the button, e.g. pressed or released
         //  |KeyMod|:     Additional modifiers, e.g. control/shift was down
         //----------------------------------------------------------------------
-        void setCallbackMouseButtons(WindowMouseButtonFunc func) { m_callbackHelper.m_mouseButtonFunc = func; }
+        void setCallbackMouseButtons(WindowMouseButtonFunc func) { m_callbackHelper.m_mouseButtonCallback = func; }
 
         //----------------------------------------------------------------------
         // Given function will be called whenever the window size has changed.
@@ -115,7 +120,35 @@ namespace Core { namespace OS {
         //   |U16|: New width of the window.
         //   |U16|: New height of the window.
         //---------------------------------------------------------------------
-        void setCallbackSizeChanged(WindowSizeChangedFunc func) { m_callbackHelper.m_sizeChangedFunc = func; }
+        void setCallbackSizeChanged(WindowSizeChangedFunc func) { m_callbackHelper.m_sizeChangedCallback = func; }
+
+        //----------------------------------------------------------------------
+        // Given function will be called whenever a key is pressed or released.
+        // @Function-Params:
+        //  |Key|:        Keycode of the corresponding button
+        //  |KeyAction|:  Action of the button, e.g. pressed or released
+        //  |KeyMod|:     Additional modifiers, e.g. control/shift was down
+        //---------------------------------------------------------------------
+        void setCallbackKey(WindowKeyButtonFunc func) { m_callbackHelper.m_keyCallback = func; }
+
+        //----------------------------------------------------------------------
+        // Given function will be called whenever the window looses focus.
+        //---------------------------------------------------------------------
+        void setCallbackLooseFocus(WindowLooseFocusFunc func) { m_callbackHelper.m_looseFocusCallback = func; }
+
+        //----------------------------------------------------------------------
+        // Given function will be called whenever the window gains focus.
+        //---------------------------------------------------------------------
+        void setCallbackGainFocus(WindowGainFocusFunc func) { m_callbackHelper.m_gainFocusCallback = func; }
+
+        //----------------------------------------------------------------------
+        // Given function will be called whenever a character button was pressed.
+        // The difference to the "KeyCallback" is that this function returns
+        // the correct encoded character. E.g. ("Shift + a" = A) wherever only ("a" = a)
+        // @Function-Params:
+        //  |char|: Character which was pressed.
+        //---------------------------------------------------------------------
+        void setCallbackChar(WindowCharFunc func) { m_callbackHelper.m_charCallback = func; }
 
     private:
         U16             m_width             = 0;
@@ -123,28 +156,35 @@ namespace Core { namespace OS {
         bool            m_created           = false;
         bool            m_shouldBeClosed    = false;
 
+
         //**********************************************************************
         // Small helper class which stores all the different window callbacks.
         // The WindowProc function access those via a static instance of this
-        // object. If a callback is not set, it it simply ignored.
+        // object. If a callback is not set, it it simply ignored, when called.
         //**********************************************************************
         class WindowCallbackHelper
         {
         public:
             void callCursorCallback(I16 x, I16 y) const;
             void callMouseWheelCallback(I16 delta) const;
-            void callMouseButtonCallback(KeyCode, KeyAction, KeyMod) const;
+            void callMouseButtonCallback(MouseKey, KeyAction, KeyMod) const;
             void callSizeChangedCallback(U16 width, U16 height) const;
+            void callKeyCallback(Key, KeyAction, KeyMod) const;
+            void callLooseFocusCallback() const;
+            void callGainFocusCallback() const;
+            void callCharCallback(char) const;
 
         private:
             friend class Window;
             WindowCursorMoveFunc    m_cursorMoveCallback    = nullptr;
-            WindowMouseWheelFunc    m_mouseWheelFunc        = nullptr;
-            WindowMouseButtonFunc   m_mouseButtonFunc       = nullptr;
-            WindowSizeChangedFunc   m_sizeChangedFunc       = nullptr;
-        };
-
-        static WindowCallbackHelper m_callbackHelper;
+            WindowMouseWheelFunc    m_mouseWheelCallback    = nullptr;
+            WindowMouseButtonFunc   m_mouseButtonCallback   = nullptr;
+            WindowSizeChangedFunc   m_sizeChangedCallback   = nullptr;
+            WindowKeyButtonFunc     m_keyCallback           = nullptr;
+            WindowLooseFocusFunc    m_looseFocusCallback    = nullptr;
+            WindowGainFocusFunc     m_gainFocusCallback     = nullptr;
+            WindowCharFunc          m_charCallback          = nullptr;
+        } static m_callbackHelper;
 
     public:
         //----------------------------------------------------------------------

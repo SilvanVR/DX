@@ -22,6 +22,7 @@ namespace Core {
     namespace Config            { class ConfigurationManager; }
     namespace Threading         { class ThreadManager; }
     namespace Profiling         { class Profiler; }
+    namespace Input             { class InputManager; }
 
 
     //*********************************************************************
@@ -48,6 +49,7 @@ namespace Core {
         Config::ConfigurationManager*       m_configManager = nullptr;
         Threading::ThreadManager*           m_threadManager = nullptr;
         Profiling::Profiler*                m_profiler      = nullptr;
+        Input::InputManager*                m_inputManager  = nullptr;
 
 
         //----------------------------------------------------------------------

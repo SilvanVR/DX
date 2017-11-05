@@ -20,8 +20,9 @@ namespace Core {
         // Create Window
         m_window.create( title, width, height );
 
-        // Provide game clock to the locator class
+        // Provide game clock and window to the locator class
         Locator::provide( &m_engineClock );
+        Locator::provide( &m_window );
 
         // Initialize all subsystems
         m_subSystemManager.init();
@@ -50,11 +51,15 @@ namespace Core {
                 // Update subsystems every frame
                 m_subSystemManager.update( delta );
 
+                // Notify OnUpdate
+
+
                 // Update game in fixed intervals
                 U8 ticksPerFrame = 0;
                 gameTickAccumulator += delta;
                 while ( (gameTickAccumulator >= TICK_RATE_IN_SECONDS) && (ticksPerFrame++ != MAX_TICKS_PER_FRAME))
                 {
+                    // Notify OnTick
                     tick( TICK_RATE_IN_SECONDS );
                     gameTickAccumulator -= TICK_RATE_IN_SECONDS;
                 }

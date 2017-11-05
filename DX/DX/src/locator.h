@@ -28,6 +28,8 @@
 #include "Core/ThreadManager/thread_manager.h"
 #include "Core/Profiling/profiler.h"
 #include "Core/Time/master_clock.h"
+#include "Core/OS/Window/window.h"
+#include "Core/Input/input_manager.h"
 
 //----------------------------------------------------------------------
 // Defines
@@ -69,6 +71,8 @@ public:
     static Core::Threading::ThreadManager&            getThreadManager()  { return *gThreadManager; }
     static Core::Profiling::Profiler&                 getProfiler()       { return *gProfiler; }
     static Core::Time::MasterClock&                   getEngineClock()    { return *gEngineClock; }
+    static Core::OS::Window&                          getWindow()         { return *gWindow; }
+    static Core::Input::InputManager&                 getInputManager()   { return *gInputManager; }
 
     //----------------------------------------------------------------------
     // Provide a Sub-System
@@ -79,6 +83,8 @@ public:
     static void provide(Core::Threading::ThreadManager* manager)              { gThreadManager = manager; }
     static void provide(Core::Profiling::Profiler* profiler)                  { gProfiler = profiler; }
     static void provide(Core::Time::MasterClock* clock)                       { gEngineClock = clock; }
+    static void provide(Core::OS::Window* window)                             { gWindow = window; }
+    static void provide(Core::Input::InputManager* input)                     { gInputManager = input;  }
 
 private:
 
@@ -93,7 +99,8 @@ private:
     static Core::Threading::ThreadManager*            gThreadManager;
     static Core::Profiling::Profiler*                 gProfiler;
     static Core::Time::MasterClock*                   gEngineClock;
-
+    static Core::OS::Window*                          gWindow;
+    static Core::Input::InputManager*                 gInputManager;
 
     //----------------------------------------------------------------------
     Locator()                                   = delete;

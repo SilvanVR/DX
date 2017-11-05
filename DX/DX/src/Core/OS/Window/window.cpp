@@ -9,10 +9,8 @@
 
 namespace Core { namespace OS {
 
-
     //----------------------------------------------------------------------
     Window::WindowCallbackHelper Window::m_callbackHelper;
-
 
     //----------------------------------------------------------------------
     Window::~Window()
@@ -35,22 +33,51 @@ namespace Core { namespace OS {
     //----------------------------------------------------------------------
     void Window::WindowCallbackHelper::callMouseWheelCallback( I16 delta ) const 
     { 
-        if (m_mouseWheelFunc) 
-            m_mouseWheelFunc( delta );
+        if (m_mouseWheelCallback) 
+            m_mouseWheelCallback( delta );
     }
 
     //----------------------------------------------------------------------
-    void Window::WindowCallbackHelper::callMouseButtonCallback( KeyCode code, KeyAction action, KeyMod mod ) const
+    void Window::WindowCallbackHelper::callMouseButtonCallback( MouseKey code, KeyAction action, KeyMod mod ) const
     {
-        if (m_mouseButtonFunc)
-            m_mouseButtonFunc( code, action, mod );
+        if (m_mouseButtonCallback)
+            m_mouseButtonCallback( code, action, mod );
     }
 
     //----------------------------------------------------------------------
-    void Window::WindowCallbackHelper::callSizeChangedCallback(U16 width, U16 height) const
+    void Window::WindowCallbackHelper::callSizeChangedCallback( U16 width, U16 height ) const
     {
-        if (m_sizeChangedFunc)
-            m_sizeChangedFunc( width, height );
+        if (m_sizeChangedCallback)
+            m_sizeChangedCallback( width, height );
     }
+
+    //----------------------------------------------------------------------
+    void Window::WindowCallbackHelper::callKeyCallback( Key key, KeyAction action, KeyMod mod ) const
+    {
+        if (m_keyCallback)
+            m_keyCallback( key, action, mod );
+    }
+
+    //----------------------------------------------------------------------
+    void Window::WindowCallbackHelper::callLooseFocusCallback() const
+    {
+        if (m_looseFocusCallback)
+            m_looseFocusCallback();
+    }
+
+    //----------------------------------------------------------------------
+    void Window::WindowCallbackHelper::callGainFocusCallback() const
+    {
+        if (m_gainFocusCallback)
+            m_gainFocusCallback();
+    }
+
+    //----------------------------------------------------------------------
+    void Window::WindowCallbackHelper::callCharCallback( char c ) const
+    {
+        if (m_charCallback)
+            m_charCallback( c );
+    }
+
 
 } } // end namespaces

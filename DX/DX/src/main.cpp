@@ -64,46 +64,9 @@ public:
             LOG("Time: " + TS( Locator::getEngineClock().getTime().value ) + " FPS: " + TS( Locator::getProfiler().getFPS() ) );
         }, 1000);
 
-        getWindow().setCallbackCursorMove([] (I16 x, I16 y) {
-            //LOG("(" + TS(x) + "," + TS(y) + ")", Color::GREEN);
-        });
-
-        getWindow().setCallbackMouseWheel([](I16 delta) {
-            LOG("Mouse Wheel: " + TS(delta), Color::RED);
-        });
-
-        getWindow().setCallbackMouseButtons([](KeyCode code, KeyAction action, KeyMod mod){
-            switch (action)
-            {
-                case KeyAction::DOWN:
-                    if(code == KeyCode::LMOUSEBUTTON)
-                        LOG("Left Mouse Down", Color::RED);
-                    else if(code == KeyCode::MMOUSEBUTTON)
-                        LOG("Middle Mouse Down", Color::RED);
-                    else if (code == KeyCode::RMOUSEBUTTON)
-                        LOG("Right Mouse Down", Color::RED);
-                break;
-
-                case KeyAction::UP:
-                    if (code == KeyCode::LMOUSEBUTTON)
-                        LOG("Left Mouse Up", Color::RED);
-                    else if (code == KeyCode::MMOUSEBUTTON)
-                        LOG("Middle Mouse Up", Color::RED);
-                    else if (code == KeyCode::RMOUSEBUTTON)
-                        LOG("Right Mouse Up", Color::RED);
-                break;
-            }
-
-            if (mod & KeyModBits::CONTROL)
-                LOG("Control Pressed!", Color::BLUE);
-            if (mod & KeyModBits::SHIFT)
-                LOG("Shift Pressed!", Color::VIOLET);
-        });
-
         getWindow().setCallbackSizeChanged([](U16 w, U16 h) {
-            //LOG( "New Window-Size: " + TS(w) + "," + TS(h) );
+            LOG( "New Window-Size: " + TS(w) + "," + TS(h) );
         });
-
 
         //Locator::getEngineClock().setTimeout([this] {
         //    getWindow().setBorderlessFullscreen(true);
@@ -136,8 +99,6 @@ public:
         LOG( "Shutdown game..." );
     }
 };
-
-
 
 
 int main()
