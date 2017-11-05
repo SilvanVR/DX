@@ -13,11 +13,13 @@
 **********************************************************************/
 
 #include "../FileSystem/path.h"
+#include "keycodes.hpp"
 
 namespace Core { namespace OS {
 
     typedef void(*WindowCursorMoveFunc)(I16, I16);
     typedef void(*WindowMouseWheelFunc)(I16);
+    typedef void(*WindowMouseButtonFunc)(KeyCode, KeyAction, KeyMod);
 
     //**********************************************************************
     class Window
@@ -85,17 +87,26 @@ namespace Core { namespace OS {
         //----------------------------------------------------------------------
         // Given function will be called whenever the mouse gets a new position.
         // @Function-Params:
-        //   I16: X-Coordinate of the new position
-        //   I16: Y-Coordinate of the new position
+        //   |I16|: X-Coordinate of the new position
+        //   |I16|: Y-Coordinate of the new position
         //----------------------------------------------------------------------
         void setCallbackCursorMove(WindowCursorMoveFunc func) { m_callbackHelper.m_cursorMoveCallback = func; }
 
         //----------------------------------------------------------------------
         // Given function will be called whenever the mouse-wheel was used.
         // @Function-Params:
-        //   I16: +1 for FORWARD, -1 for BACKWARDS
-        //----------------------------------------------------------------------
+        //   |I16|: +1 if FORWARD, -1 if BACKWARDS
+        //---------------------------------------------------------------------
         void setCallbackMouseWheel(WindowMouseWheelFunc func) { m_callbackHelper.m_mouseWheelFunc = func; }
+
+        //----------------------------------------------------------------------
+        // Given function will be called whenever a mouse button was pressed.
+        // @Function-Params:
+        //  |KeyCode|:    KeyCode of the corresponding button
+        //  |KeyAction|:  Action of the button, e.g. pressed or released
+        //  |KeyMod|:     Additional modifiers, e.g. control/shift was down
+        //----------------------------------------------------------------------
+        void setCallbackMouseButtons(WindowMouseButtonFunc func) { m_callbackHelper.m_mouseButtonFunc = func; }
 
     private:
         U16             m_width             = 0;
@@ -113,11 +124,13 @@ namespace Core { namespace OS {
         public:
             void callCursorCallback(I16 x, I16 y) const;
             void callMouseWheelCallback(I16 delta) const;
+            void callMouseButtonCallback(KeyCode, KeyAction, KeyMod) const;
 
         private:
             friend class Window;
-            WindowCursorMoveFunc m_cursorMoveCallback = nullptr;
-            WindowMouseWheelFunc m_mouseWheelFunc = nullptr;
+            WindowCursorMoveFunc    m_cursorMoveCallback    = nullptr;
+            WindowMouseWheelFunc    m_mouseWheelFunc        = nullptr;
+            WindowMouseButtonFunc   m_mouseButtonFunc       = nullptr;
         };
 
         static WindowCallbackHelper m_callbackHelper;

@@ -28,6 +28,17 @@ namespace Core { namespace OS {
     HANDLE  loadImageFromFile( const char* path, UINT type );
 
     //----------------------------------------------------------------------
+    KeyMod getKeyMod(WPARAM wParam)
+    {
+        KeyMod mod = KeyModBits::NONE;
+        if (wParam & MK_CONTROL)
+            mod |= KeyModBits::CONTROL;
+        if (wParam & MK_SHIFT)
+            mod |= KeyModBits::SHIFT;
+        return mod;
+    }
+
+    //----------------------------------------------------------------------
     LRESULT CALLBACK WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
     {
         switch ( uMsg )
@@ -42,48 +53,46 @@ namespace Core { namespace OS {
             return 0;
 
         // Handle Input
+        //----------------------------------------------------------------------
         case WM_LBUTTONDOWN:
-        {
-
-            bool cDown = wParam & MK_CONTROL;
-            if (cDown)
-                LOG("CONTROL", Color::GREEN);
-            bool shiftDown = wParam & MK_SHIFT;
-            if (shiftDown)
-                LOG("SHIFT", Color::GREEN);
             SetCapture( hwnd );
-            LOG( "Left Mouse Down", Color::RED );
+            Window::_GetCallbackHelper().callMouseButtonCallback( KeyCode::LMOUSEBUTTON, KeyAction::DOWN, getKeyMod( wParam ) );
             return 0;
-        }
+        //----------------------------------------------------------------------
         case WM_LBUTTONUP:
             ReleaseCapture();
-            LOG( "Left Mouse Up", Color::RED ); 
+            Window::_GetCallbackHelper().callMouseButtonCallback( KeyCode::LMOUSEBUTTON, KeyAction::UP, getKeyMod( wParam ) );
             return 0;
-
+        //----------------------------------------------------------------------
         case WM_MBUTTONDOWN:
-            SetCapture(hwnd);
-            LOG("Middle Mouse Down", Color::RED);
+            SetCapture( hwnd );
+            Window::_GetCallbackHelper().callMouseButtonCallback( KeyCode::MMOUSEBUTTON, KeyAction::DOWN, getKeyMod( wParam ) );
             return 0;
+        //----------------------------------------------------------------------
         case WM_MBUTTONUP:
             ReleaseCapture();
-            LOG("Middle Mouse Up", Color::RED);
+            Window::_GetCallbackHelper().callMouseButtonCallback( KeyCode::MMOUSEBUTTON, KeyAction::UP, getKeyMod( wParam ) );
             return 0;
-
+        //----------------------------------------------------------------------
         case WM_RBUTTONDOWN:
-            SetCapture(hwnd);
-            LOG("Right Mouse Down", Color::RED);
+            SetCapture( hwnd );
+            Window::_GetCallbackHelper().callMouseButtonCallback( KeyCode::RMOUSEBUTTON, KeyAction::DOWN, getKeyMod( wParam ) );
             return 0;
+        //----------------------------------------------------------------------
         case WM_RBUTTONUP:
             ReleaseCapture();
-            LOG("Right Mouse Up", Color::RED);
+            Window::_GetCallbackHelper().callMouseButtonCallback( KeyCode::RMOUSEBUTTON, KeyAction::UP, getKeyMod( wParam ) );
             return 0;
+        //----------------------------------------------------------------------
         case WM_MOUSEWHEEL:
             Window::_GetCallbackHelper().callMouseWheelCallback( GET_WHEEL_DELTA_WPARAM( wParam ) > 0 ? 1 : -1 );
             return 0;
+        //----------------------------------------------------------------------
         case WM_MOUSEMOVE:
-            Window::_GetCallbackHelper().callCursorCallback(  GET_X_LPARAM( lParam ), GET_Y_LPARAM( lParam ) );
+            Window::_GetCallbackHelper().callCursorCallback( GET_X_LPARAM( lParam ), GET_Y_LPARAM( lParam ) );
             return 0;
 
+        //----------------------------------------------------------------------
         default:
             return DefWindowProc( hwnd, uMsg, wParam, lParam );
         }

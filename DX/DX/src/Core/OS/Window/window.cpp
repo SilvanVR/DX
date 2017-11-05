@@ -26,17 +26,24 @@ namespace Core { namespace OS {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    void Window::WindowCallbackHelper::callCursorCallback(I16 x, I16 y) const 
+    void Window::WindowCallbackHelper::callCursorCallback( I16 x, I16 y ) const 
     { 
         if (m_cursorMoveCallback) 
             m_cursorMoveCallback( x, y ); 
     }
 
     //----------------------------------------------------------------------
-    void Window::WindowCallbackHelper::callMouseWheelCallback(I16 delta) const 
+    void Window::WindowCallbackHelper::callMouseWheelCallback( I16 delta ) const 
     { 
         if (m_mouseWheelFunc) 
             m_mouseWheelFunc( delta );
+    }
+
+    //----------------------------------------------------------------------
+    void Window::WindowCallbackHelper::callMouseButtonCallback( KeyCode code, KeyAction action, KeyMod mod ) const
+    {
+        if (m_mouseButtonFunc)
+            m_mouseButtonFunc( code, action, mod );
     }
 
 } } // end namespaces

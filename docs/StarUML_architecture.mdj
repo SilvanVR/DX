@@ -18002,66 +18002,6 @@
 									"model": {
 										"$ref": "AAAAAAFfXpmXCUCXLAo="
 									},
-									"subViews": [
-										{
-											"_type": "UMLOperationView",
-											"_id": "AAAAAAFfXpsLWUFyRAQ=",
-											"_parent": {
-												"$ref": "AAAAAAFfXpmXCkCg8KQ="
-											},
-											"model": {
-												"$ref": "AAAAAAFfXpsLLUFvFUw="
-											},
-											"visible": true,
-											"enabled": true,
-											"lineColor": "#000000",
-											"fillColor": "#568eff",
-											"fontColor": "#000000",
-											"font": "Arial;13;0",
-											"showShadow": true,
-											"containerChangeable": false,
-											"containerExtending": false,
-											"left": 405,
-											"top": 616,
-											"width": 279,
-											"height": 13,
-											"autoResize": false,
-											"underline": false,
-											"text": "+shouldWindowClosed()",
-											"horizontalAlignment": 0,
-											"verticalAlignment": 5,
-											"wordWrap": false
-										},
-										{
-											"_type": "UMLOperationView",
-											"_id": "AAAAAAFfXpt3x0F5n0Q=",
-											"_parent": {
-												"$ref": "AAAAAAFfXpmXCkCg8KQ="
-											},
-											"model": {
-												"$ref": "AAAAAAFfXpt3oUF25CE="
-											},
-											"visible": true,
-											"enabled": true,
-											"lineColor": "#000000",
-											"fillColor": "#568eff",
-											"fontColor": "#000000",
-											"font": "Arial;13;0",
-											"showShadow": true,
-											"containerChangeable": false,
-											"containerExtending": false,
-											"left": 405,
-											"top": 631,
-											"width": 279,
-											"height": 13,
-											"autoResize": false,
-											"underline": false,
-											"text": "+PeekForMessage()",
-											"horizontalAlignment": 0,
-											"verticalAlignment": 5,
-											"wordWrap": false
-										}
-									],
 									"visible": true,
 									"enabled": true,
 									"lineColor": "#000000",
@@ -18074,7 +18014,7 @@
 									"left": 400,
 									"top": 611,
 									"width": 289,
-									"height": 38,
+									"height": 10,
 									"autoResize": false
 								},
 								{
@@ -21564,6 +21504,29 @@
 							"headQualifiersCompartment": {
 								"$ref": "AAAAAAFfY0Ig6eXC4Y0="
 							}
+						},
+						{
+							"_type": "UMLNoteView",
+							"_id": "AAAAAAFfiNdMRxa8CzM=",
+							"_parent": {
+								"$ref": "AAAAAAFfXpkSnjkDVPs="
+							},
+							"visible": true,
+							"enabled": true,
+							"lineColor": "#000000",
+							"fillColor": "#ffffff",
+							"fontColor": "#000000",
+							"font": "Arial;13;0",
+							"showShadow": true,
+							"containerChangeable": false,
+							"containerExtending": false,
+							"left": 368,
+							"top": 472,
+							"width": 240,
+							"height": 88,
+							"autoResize": false,
+							"text": "Subscribe to an window object for different events, e.g. button press, mouse move etc",
+							"wordWrap": true
 						}
 					]
 				},
@@ -21622,36 +21585,6 @@
 						}
 					],
 					"visibility": "public",
-					"operations": [
-						{
-							"_type": "UMLOperation",
-							"_id": "AAAAAAFfXpsLLUFvFUw=",
-							"_parent": {
-								"$ref": "AAAAAAFfXpmXCUCXLAo="
-							},
-							"name": "shouldWindowClosed",
-							"visibility": "public",
-							"isStatic": false,
-							"isLeaf": false,
-							"concurrency": "sequential",
-							"isQuery": false,
-							"isAbstract": false
-						},
-						{
-							"_type": "UMLOperation",
-							"_id": "AAAAAAFfXpt3oUF25CE=",
-							"_parent": {
-								"$ref": "AAAAAAFfXpmXCUCXLAo="
-							},
-							"name": "PeekForMessage",
-							"visibility": "public",
-							"isStatic": false,
-							"isLeaf": false,
-							"concurrency": "sequential",
-							"isQuery": false,
-							"isAbstract": false
-						}
-					],
 					"isAbstract": false,
 					"isFinalSpecialization": false,
 					"isLeaf": false,
@@ -22131,7 +22064,7 @@
 											"containerExtending": false,
 											"left": 32,
 											"top": -176,
-											"width": 80.9072265625,
+											"width": 81,
 											"height": 13,
 											"autoResize": false,
 											"underline": false,
@@ -22450,7 +22383,7 @@
 											"containerExtending": false,
 											"left": -96,
 											"top": -384,
-											"width": 80.9072265625,
+											"width": 81,
 											"height": 13,
 											"autoResize": false,
 											"underline": false,

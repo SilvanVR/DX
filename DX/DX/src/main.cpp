@@ -73,6 +73,34 @@ public:
             LOG("Mouse Wheel: " + TS(delta), Color::RED);
         });
 
+        getWindow().setCallbackMouseButtons([](KeyCode code, KeyAction action, KeyMod mod){
+            switch (action)
+            {
+                case KeyAction::DOWN:
+                    if(code == KeyCode::LMOUSEBUTTON)
+                        LOG("Left Mouse Down", Color::RED);
+                    else if(code == KeyCode::MMOUSEBUTTON)
+                        LOG("Middle Mouse Down", Color::RED);
+                    else if (code == KeyCode::RMOUSEBUTTON)
+                        LOG("Right Mouse Down", Color::RED);
+                break;
+
+                case KeyAction::UP:
+                    if (code == KeyCode::LMOUSEBUTTON)
+                        LOG("Left Mouse Up", Color::RED);
+                    else if (code == KeyCode::MMOUSEBUTTON)
+                        LOG("Middle Mouse Up", Color::RED);
+                    else if (code == KeyCode::RMOUSEBUTTON)
+                        LOG("Right Mouse Up", Color::RED);
+                break;
+            }
+
+            if (mod & KeyModBits::CONTROL)
+                LOG("Control Pressed!", Color::BLUE);
+            if (mod & KeyModBits::SHIFT)
+                LOG("Shift Pressed!", Color::VIOLET);
+        });
+
         //getWindow().setBorderlessFullscreen( true );
         //Locator::getEngineClock().setTimeout([this] {
         //    getWindow().setBorderlessFullscreen(true);
