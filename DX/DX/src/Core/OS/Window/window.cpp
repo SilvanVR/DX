@@ -46,4 +46,11 @@ namespace Core { namespace OS {
             m_mouseButtonFunc( code, action, mod );
     }
 
+    //----------------------------------------------------------------------
+    void Window::WindowCallbackHelper::callSizeChangedCallback(U16 width, U16 height) const
+    {
+        if (m_sizeChangedFunc)
+            m_sizeChangedFunc( width, height );
+    }
+
 } } // end namespaces

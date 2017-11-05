@@ -20,6 +20,7 @@ namespace Core { namespace OS {
     typedef void(*WindowCursorMoveFunc)(I16, I16);
     typedef void(*WindowMouseWheelFunc)(I16);
     typedef void(*WindowMouseButtonFunc)(KeyCode, KeyAction, KeyMod);
+    typedef void(*WindowSizeChangedFunc)(U16, U16);
 
     //**********************************************************************
     class Window
@@ -108,6 +109,14 @@ namespace Core { namespace OS {
         //----------------------------------------------------------------------
         void setCallbackMouseButtons(WindowMouseButtonFunc func) { m_callbackHelper.m_mouseButtonFunc = func; }
 
+        //----------------------------------------------------------------------
+        // Given function will be called whenever the window size has changed.
+        // @Function-Params:
+        //   |U16|: New width of the window.
+        //   |U16|: New height of the window.
+        //---------------------------------------------------------------------
+        void setCallbackSizeChanged(WindowSizeChangedFunc func) { m_callbackHelper.m_sizeChangedFunc = func; }
+
     private:
         U16             m_width             = 0;
         U16             m_height            = 0;
@@ -125,12 +134,14 @@ namespace Core { namespace OS {
             void callCursorCallback(I16 x, I16 y) const;
             void callMouseWheelCallback(I16 delta) const;
             void callMouseButtonCallback(KeyCode, KeyAction, KeyMod) const;
+            void callSizeChangedCallback(U16 width, U16 height) const;
 
         private:
             friend class Window;
             WindowCursorMoveFunc    m_cursorMoveCallback    = nullptr;
             WindowMouseWheelFunc    m_mouseWheelFunc        = nullptr;
             WindowMouseButtonFunc   m_mouseButtonFunc       = nullptr;
+            WindowSizeChangedFunc   m_sizeChangedFunc       = nullptr;
         };
 
         static WindowCallbackHelper m_callbackHelper;

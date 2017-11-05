@@ -65,8 +65,7 @@ public:
         }, 1000);
 
         getWindow().setCallbackCursorMove([] (I16 x, I16 y) {
-            String s = "(" + TS(x) + "," + TS(y) + ")";
-            LOG(s, Color::GREEN);
+            //LOG("(" + TS(x) + "," + TS(y) + ")", Color::GREEN);
         });
 
         getWindow().setCallbackMouseWheel([](I16 delta) {
@@ -101,7 +100,11 @@ public:
                 LOG("Shift Pressed!", Color::VIOLET);
         });
 
-        //getWindow().setBorderlessFullscreen( true );
+        getWindow().setCallbackSizeChanged([](U16 w, U16 h) {
+            //LOG( "New Window-Size: " + TS(w) + "," + TS(h) );
+        });
+
+
         //Locator::getEngineClock().setTimeout([this] {
         //    getWindow().setBorderlessFullscreen(true);
         //}, 1000);

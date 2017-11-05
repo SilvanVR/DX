@@ -25,18 +25,8 @@ namespace Core { namespace OS {
 
     //----------------------------------------------------------------------
     bool    RegisterWindowClass( HINSTANCE hInstance, LPCSTR className );
-    HANDLE  loadImageFromFile( const char* path, UINT type );
-
-    //----------------------------------------------------------------------
-    KeyMod getKeyMod(WPARAM wParam)
-    {
-        KeyMod mod = KeyModBits::NONE;
-        if (wParam & MK_CONTROL)
-            mod |= KeyModBits::CONTROL;
-        if (wParam & MK_SHIFT)
-            mod |= KeyModBits::SHIFT;
-        return mod;
-    }
+    HANDLE  LoadImageFromFile( const char* path, UINT type );
+    KeyMod  GetKeyMod( WPARAM wParam );
 
     //----------------------------------------------------------------------
     LRESULT CALLBACK WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
@@ -47,41 +37,42 @@ namespace Core { namespace OS {
             PostQuitMessage(0);
             return 0;
 
+        //----------------------------------------------------------------------
         // Handle resize
         case WM_SIZE:
-            // Set the size and position of the window. 
+            Window::_GetCallbackHelper().callSizeChangedCallback( LOWORD( lParam ), HIWORD( lParam ) );
             return 0;
 
-        // Handle Input
         //----------------------------------------------------------------------
+        // Handle Mouse Input
         case WM_LBUTTONDOWN:
             SetCapture( hwnd );
-            Window::_GetCallbackHelper().callMouseButtonCallback( KeyCode::LMOUSEBUTTON, KeyAction::DOWN, getKeyMod( wParam ) );
+            Window::_GetCallbackHelper().callMouseButtonCallback( KeyCode::LMOUSEBUTTON, KeyAction::DOWN, GetKeyMod( wParam ) );
             return 0;
         //----------------------------------------------------------------------
         case WM_LBUTTONUP:
             ReleaseCapture();
-            Window::_GetCallbackHelper().callMouseButtonCallback( KeyCode::LMOUSEBUTTON, KeyAction::UP, getKeyMod( wParam ) );
+            Window::_GetCallbackHelper().callMouseButtonCallback( KeyCode::LMOUSEBUTTON, KeyAction::UP, GetKeyMod( wParam ) );
             return 0;
         //----------------------------------------------------------------------
         case WM_MBUTTONDOWN:
             SetCapture( hwnd );
-            Window::_GetCallbackHelper().callMouseButtonCallback( KeyCode::MMOUSEBUTTON, KeyAction::DOWN, getKeyMod( wParam ) );
+            Window::_GetCallbackHelper().callMouseButtonCallback( KeyCode::MMOUSEBUTTON, KeyAction::DOWN, GetKeyMod( wParam ) );
             return 0;
         //----------------------------------------------------------------------
         case WM_MBUTTONUP:
             ReleaseCapture();
-            Window::_GetCallbackHelper().callMouseButtonCallback( KeyCode::MMOUSEBUTTON, KeyAction::UP, getKeyMod( wParam ) );
+            Window::_GetCallbackHelper().callMouseButtonCallback( KeyCode::MMOUSEBUTTON, KeyAction::UP, GetKeyMod( wParam ) );
             return 0;
         //----------------------------------------------------------------------
         case WM_RBUTTONDOWN:
             SetCapture( hwnd );
-            Window::_GetCallbackHelper().callMouseButtonCallback( KeyCode::RMOUSEBUTTON, KeyAction::DOWN, getKeyMod( wParam ) );
+            Window::_GetCallbackHelper().callMouseButtonCallback( KeyCode::RMOUSEBUTTON, KeyAction::DOWN, GetKeyMod( wParam ) );
             return 0;
         //----------------------------------------------------------------------
         case WM_RBUTTONUP:
             ReleaseCapture();
-            Window::_GetCallbackHelper().callMouseButtonCallback( KeyCode::RMOUSEBUTTON, KeyAction::UP, getKeyMod( wParam ) );
+            Window::_GetCallbackHelper().callMouseButtonCallback( KeyCode::RMOUSEBUTTON, KeyAction::UP, GetKeyMod( wParam ) );
             return 0;
         //----------------------------------------------------------------------
         case WM_MOUSEWHEEL:
@@ -91,6 +82,10 @@ namespace Core { namespace OS {
         case WM_MOUSEMOVE:
             Window::_GetCallbackHelper().callCursorCallback( GET_X_LPARAM( lParam ), GET_Y_LPARAM( lParam ) );
             return 0;
+
+        //----------------------------------------------------------------------
+        // Handle Keyboard Input
+        //  void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 
         //----------------------------------------------------------------------
         default:
@@ -237,7 +232,7 @@ namespace Core { namespace OS {
     //----------------------------------------------------------------------
     void Window::setCursor( const Path& path ) const
     {
-        HCURSOR cursor = (HCURSOR) loadImageFromFile( path, IMAGE_CURSOR );
+        HCURSOR cursor = (HCURSOR) LoadImageFromFile( path, IMAGE_CURSOR );
         if (cursor == NULL)
         {
            WARN( "Window[Win32]::setCursor(): Could not load cursor '" + path.toString() + "'. Wrong Extension? (.cur)." );
@@ -251,7 +246,7 @@ namespace Core { namespace OS {
     //----------------------------------------------------------------------
     void Window::setIcon( const Path& path ) const
     {
-        HICON icon = (HICON) loadImageFromFile( path, IMAGE_ICON );
+        HICON icon = (HICON) LoadImageFromFile( path, IMAGE_ICON );
         if (icon == NULL)
         {
            WARN( "Window[Win32]::setIcon(): Could not load icon '" + path.toString() + "'. Wrong Extension? (.ico)." );
@@ -278,7 +273,7 @@ namespace Core { namespace OS {
     }
 
     //----------------------------------------------------------------------
-    HANDLE loadImageFromFile( const char* path, UINT type )
+    HANDLE LoadImageFromFile( const char* path, UINT type )
     {
         HANDLE img = LoadImage( NULL, path, type, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE );
         return img;
@@ -302,6 +297,17 @@ namespace Core { namespace OS {
         lpWndClass.hIconSm = LoadIcon( NULL, IDI_APPLICATION );
 
         return RegisterClassEx( &lpWndClass );
+    }
+
+    //----------------------------------------------------------------------
+    KeyMod GetKeyMod( WPARAM wParam )
+    {
+        KeyMod mod = KeyModBits::NONE;
+        if (wParam & MK_CONTROL)
+            mod |= KeyModBits::CONTROL;
+        if (wParam & MK_SHIFT)
+            mod |= KeyModBits::SHIFT;
+        return mod;
     }
 
 } } // end namespaces
