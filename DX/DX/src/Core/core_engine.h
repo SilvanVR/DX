@@ -55,6 +55,8 @@ namespace Core {
 
         //----------------------------------------------------------------------
         // Subscribe to the core engine for the OnTick() + OnUpdate() Method.
+        // The order of subscriptions determines the order of the notified
+        // functions. It's guaranteed that OnTick() runs before the Game ticks.
         // @Params:
         //  "subSystem": The subsystem which should be notified.
         //----------------------------------------------------------------------
@@ -64,8 +66,8 @@ namespace Core {
         Time::MasterClock           m_engineClock;
         SubSystemManager            m_subSystemManager;
         OS::Window                  m_window;
-        bool                        m_isRunning = true;
         std::vector<ISubSystem*>    m_subscribers;
+        bool                        m_isRunning = true;
 
         //----------------------------------------------------------------------
         void _RunCoreGameLoop();

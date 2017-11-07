@@ -58,8 +58,9 @@ namespace Core {
                 gameTickAccumulator += delta;
                 while ( (gameTickAccumulator >= TICK_RATE_IN_SECONDS) && (ticksPerFrame++ != MAX_TICKS_PER_FRAME))
                 {
-                    _NotifyOnTick( delta );
-                    tick( TICK_RATE_IN_SECONDS ); // TODO: REPLACE
+                    _NotifyOnTick( TICK_RATE_IN_SECONDS );
+
+                    tick( TICK_RATE_IN_SECONDS );
                     gameTickAccumulator -= TICK_RATE_IN_SECONDS;
                 }
             }

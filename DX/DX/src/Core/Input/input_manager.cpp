@@ -26,7 +26,10 @@ namespace Core { namespace Input {
        ASSERT( s_instance == nullptr );
        s_instance = this;
 
-       // Subscribe to all events
+       // Subscribe to OnTick() event
+       Locator::getCoreEngine().subscribe( this );
+
+       // Subscribe to all window events
        OS::Window& window = Locator::getWindow();
        window.setCallbackKey( KeyCallback );
        window.setCallbackChar( CharCallback );
@@ -36,9 +39,9 @@ namespace Core { namespace Input {
     }
 
     //----------------------------------------------------------------------
-    void InputManager::OnUpdate(Time::Seconds delta)
+    void InputManager::OnTick( Time::Seconds delta )
     {
-
+     
     }
 
     //----------------------------------------------------------------------
