@@ -341,6 +341,7 @@
     <ClInclude Include="src\Core\DataStructures\byte_array.hpp" />
     <ClInclude Include="src\Core\Input\input_manager.h" />
     <ClInclude Include="src\Core\MemoryManagement\Allocators\include.hpp" />
+    <ClInclude Include="src\Core\Misc\Introspection\introspection.h" />
     <ClInclude Include="src\Core\OS\FileSystem\path.h" />
     <ClInclude Include="src\Core\OS\Window\keycodes.h" />
     <ClInclude Include="src\Utils\finite_range.hpp" />

@@ -37,10 +37,11 @@ namespace Core { namespace MemoryManagement {
     //----------------------------------------------------------------------
     void MemoryManager::init()
     {
+        Locator::getCoreEngine().subscribe( this );
     }
 
     //----------------------------------------------------------------------
-    void MemoryManager::update(Time::Seconds delta)
+    void MemoryManager::OnUpdate(Time::Seconds delta)
     {
         static const    Time::Seconds tickRate  = 1.0f / 60.0f;
         static          Time::Seconds timer     = 0;

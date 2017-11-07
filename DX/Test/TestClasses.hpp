@@ -33,8 +33,9 @@ public:
 
 class A
 {
+    int m_i;
 public:
-    A() {
+    explicit A(int i = 42) : m_i(i) {
         //LOG("Constructor");
     }
     ~A() {
@@ -45,11 +46,15 @@ public:
     A(const A& other)
     {
         LOG("Copy Constructor");
+        time = other.time;
+        m_i = other.m_i;
     }
 
     A& operator=(const A& other)
     {
         LOG("Assignment Operator");
+        time = other.time;
+        m_i = other.m_i;
         return *this;
     }
 
@@ -57,12 +62,14 @@ public:
     {
         LOG("Move Constructor");
         time = other.time;
+        m_i = other.m_i;
     }
 
     A& operator=(const A&& other)
     {
         LOG("Move Assignment");
         time = other.time;
+        m_i = other.m_i;
         return *this;
     }
 

@@ -5,6 +5,10 @@
     author: S. Hau
     date: October 27, 2017
 
+    Terminology:
+     - Tick()   : The game tick rate. Usually 60x per second.
+     - Update() : Runs every frame as fast as possible.
+
     The heart of the engine. Manages the core game loop.
     @Considerations:
      - Terminate engine from everywhere
@@ -16,7 +20,9 @@
 
 namespace Core {
 
+    //----------------------------------------------------------------------
     namespace OS { class Window; }
+    class ISubSystem;
 
     //**********************************************************************
     class CoreEngine
@@ -30,6 +36,7 @@ namespace Core {
 
         //----------------------------------------------------------------------
         OS::Window& getWindow() { return m_window; }
+        Time::MasterClock& getMasterClock() { return m_engineClock; }
 
         //----------------------------------------------------------------------
         // Initiate the startup sequence for the engine.
@@ -46,15 +53,26 @@ namespace Core {
         virtual void tick(Time::Seconds delta) = 0;
         virtual void shutdown() = 0;
 
+        //----------------------------------------------------------------------
+        // Subscribe to the core engine for the OnTick() + OnUpdate() Method.
+        // @Params:
+        //  "subSystem": The subsystem which should be notified.
+        //----------------------------------------------------------------------
+        void subscribe(ISubSystem* subSystem) { m_subscribers.push_back( subSystem ); }
+
     private:
-        Time::MasterClock   m_engineClock;
-        SubSystemManager    m_subSystemManager;
-        OS::Window          m_window;
-        bool                m_isRunning = true;
+        Time::MasterClock           m_engineClock;
+        SubSystemManager            m_subSystemManager;
+        OS::Window                  m_window;
+        bool                        m_isRunning = true;
+        std::vector<ISubSystem*>    m_subscribers;
 
         //----------------------------------------------------------------------
         void _RunCoreGameLoop();
         void _Shutdown();
+
+        void _NotifyOnTick(Time::Seconds delta);
+        void _NotifyOnUpdate(Time::Seconds delta);
 
         //----------------------------------------------------------------------
         CoreEngine(const CoreEngine& other)                 = delete;

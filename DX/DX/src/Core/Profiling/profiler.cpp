@@ -19,10 +19,11 @@ namespace Core { namespace Profiling {
     //----------------------------------------------------------------------
     void Profiler::init()
     {
+        Locator::getCoreEngine().subscribe( this );
     }
 
     //----------------------------------------------------------------------
-    void Profiler::update(  Time::Seconds delta )
+    void Profiler::OnUpdate(  Time::Seconds delta )
     {
         static U32 frameCounter = 0;
         static Time::Seconds secTimer = 0;

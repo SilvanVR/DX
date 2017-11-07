@@ -302,5 +302,8 @@
     <ClInclude Include="src\Core\Input\input_manager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Core\Misc\Introspection\introspection.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

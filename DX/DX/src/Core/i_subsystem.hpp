@@ -17,15 +17,20 @@
 namespace Core
 {
 
+    //**********************************************************************
     class ISubSystem
     {
     public:
-        ISubSystem() {}
-        ~ISubSystem() {}
+        ISubSystem() = default;
+        virtual ~ISubSystem() = default;
 
+        // Those two must be overriden
         virtual void init() = 0;
-        virtual void update(Time::Seconds delta) {}
         virtual void shutdown() = 0;
+
+        // Those can be overriden. They will only be called if a subsystem subscribes to the core engine.
+        virtual void OnTick(Time::Seconds delta) {}
+        virtual void OnUpdate(Time::Seconds delta) {}
     };
 
 }

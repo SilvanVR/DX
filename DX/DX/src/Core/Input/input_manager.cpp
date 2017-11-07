@@ -36,7 +36,7 @@ namespace Core { namespace Input {
     }
 
     //----------------------------------------------------------------------
-    void InputManager::update(Time::Seconds delta)
+    void InputManager::OnUpdate(Time::Seconds delta)
     {
 
     }
@@ -56,31 +56,27 @@ namespace Core { namespace Input {
     //----------------------------------------------------------------------
     void InputManager::_MouseCallback( MouseKey key, KeyAction action, KeyMod mod )
     {
-          switch (action)
-            {
-                case KeyAction::DOWN:
-                    if(key == MouseKey::LButton)
-                        LOG("Left Mouse Down", Color::RED);
-                    else if(key == MouseKey::MButton)
-                        LOG("Middle Mouse Down", Color::RED);
-                    else if (key == MouseKey::RButton)
-                        LOG("Right Mouse Down", Color::RED);
+        switch (action)
+        {
+            case KeyAction::DOWN:
+                if(key == MouseKey::LButton)
+                    LOG("Left Mouse Down", Color::RED);
+                else if(key == MouseKey::MButton)
+                    LOG("Middle Mouse Down", Color::RED);
+                else if (key == MouseKey::RButton)
+                    LOG("Right Mouse Down", Color::RED);
+            break;
+            case KeyAction::UP:
+                if (key == MouseKey::LButton)
+                    LOG("Left Mouse Up", Color::RED);
+                else if (key == MouseKey::MButton)
+                    LOG("Middle Mouse Up", Color::RED);
+                else if (key == MouseKey::RButton)
+                    LOG("Right Mouse Up", Color::RED);
+            break;
+            case KeyAction::REPEAT:
                 break;
-                case KeyAction::UP:
-                    if (key == MouseKey::LButton)
-                        LOG("Left Mouse Up", Color::RED);
-                    else if (key == MouseKey::MButton)
-                        LOG("Middle Mouse Up", Color::RED);
-                    else if (key == MouseKey::RButton)
-                        LOG("Right Mouse Up", Color::RED);
-                break;
-            }
-            if (mod & KeyModBits::CONTROL)
-                LOG("Control Pressed!", Color::BLUE);
-            if (mod & KeyModBits::SHIFT)
-                LOG("Shift Pressed!", Color::VIOLET);
-            if (mod & KeyModBits::ALT)
-                LOG("ALT was pressed!", Color::GREEN);
+        }
     }
 
     //----------------------------------------------------------------------
@@ -101,26 +97,25 @@ namespace Core { namespace Input {
         switch (action)
         {
         case KeyAction::DOWN:
-            if (key == Key::Enter)
-                LOG("Enter pressed", Color::YELLOW);
-            if (key == Key::C)
-                LOG("C pressed", Color::YELLOW);
-            if (key == Key::NumPad0)
-                LOG("NumPad0 pressed", Color::YELLOW);
+            break;
+        case KeyAction::UP:
+            break;
+        case KeyAction::REPEAT:
+            break;
         }
     }
 
     //----------------------------------------------------------------------
     void InputManager::_CharCallback( char c )
     {
-        static String buffer;
-        if (c == '\b')
-            buffer = buffer.substr(0, buffer.size() - 1);
-        else
-            buffer += c;
+        //static String buffer;
+        //if (c == '\b')
+        //    buffer = buffer.substr(0, buffer.size() - 1);
+        //else
+        //    buffer += c;
 
-        if (buffer.size() > 0)
-            LOG(buffer);
+        //if (buffer.size() > 0)
+        //    LOG(buffer);
     }
 
 } }

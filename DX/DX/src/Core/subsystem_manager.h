@@ -36,7 +36,6 @@ namespace Core {
 
         //----------------------------------------------------------------------
         void init();
-        void update(Time::Seconds delta);
         void shutdown();
 
 

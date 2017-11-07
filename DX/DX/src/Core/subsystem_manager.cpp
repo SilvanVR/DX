@@ -70,22 +70,6 @@ namespace Core
     }
 
     //----------------------------------------------------------------------
-    void SubSystemManager::update( Time::Seconds delta )
-    {
-        m_logger->update( delta );
-        m_memoryManager->update( delta );
-#if ENABLE_CONFIG
-        m_configManager->update( delta );
-#endif
-#if ENABLE_THREADING
-        m_threadManager->update( delta );
-#endif
-        m_profiler->update( delta );
-        m_inputManager->update( delta );
-    }
-
-
-    //----------------------------------------------------------------------
     void SubSystemManager::shutdown()
     {
         // Shutdown every Sub-System here in reversed order to above

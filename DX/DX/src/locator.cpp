@@ -12,6 +12,7 @@
 //----------------------------------------------------------------------
 // Define Static Instances
 //----------------------------------------------------------------------
+Core::CoreEngine*                         Locator::gCoreEngine;
 Core::Logging::NullLogger                 Locator::gNullLogger;
 Core::Logging::ILogger*                   Locator::gLogger = &gNullLogger;
 

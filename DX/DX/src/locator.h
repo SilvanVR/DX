@@ -30,6 +30,7 @@
 #include "Core/Time/master_clock.h"
 #include "Core/OS/Window/window.h"
 #include "Core/Input/input_manager.h"
+#include "Core/core_engine.h"
 
 //----------------------------------------------------------------------
 // Defines
@@ -65,6 +66,7 @@ public:
     //----------------------------------------------------------------------
     // Retrieve a Sub-System
     //----------------------------------------------------------------------
+    static Core::CoreEngine&                          getCoreEngine()     { return *gCoreEngine; }
     static Core::Logging::ILogger&                    getLogger()         { return *gLogger; }
     static Core::MemoryManagement::MemoryManager&     getMemoryManager()  { return *gMemoryManager; }
     static Core::Config::ConfigurationManager&        getConfiguration()  { return *gConfigManager; }
@@ -85,8 +87,10 @@ public:
     static void provide(Core::Time::MasterClock* clock)                       { gEngineClock = clock; }
     static void provide(Core::OS::Window* window)                             { gWindow = window; }
     static void provide(Core::Input::InputManager* input)                     { gInputManager = input;  }
+    static void setCoreEngine(Core::CoreEngine* coreEngine)                   { gCoreEngine = coreEngine; }
 
 private:
+    static Core::CoreEngine*                          gCoreEngine;
 
     //----------------------------------------------------------------------
     // All Sub-Systems are enumerated here

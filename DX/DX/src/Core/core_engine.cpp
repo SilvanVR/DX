@@ -17,6 +17,9 @@ namespace Core {
     //----------------------------------------------------------------------
     void CoreEngine::start( const char* title, U32 width, U32 height )
     {
+        // Set core engine instance in the locator class
+        Locator::setCoreEngine( this );
+
         // Create Window
         m_window.create( title, width, height );
 
@@ -48,19 +51,15 @@ namespace Core {
             //if (delta > 0.5f) delta = 0.5f;
 
             {
-                // Update subsystems every frame
-                m_subSystemManager.update( delta );
-
-                // Notify OnUpdate
-
+                _NotifyOnUpdate( delta );
 
                 // Update game in fixed intervals
                 U8 ticksPerFrame = 0;
                 gameTickAccumulator += delta;
                 while ( (gameTickAccumulator >= TICK_RATE_IN_SECONDS) && (ticksPerFrame++ != MAX_TICKS_PER_FRAME))
                 {
-                    // Notify OnTick
-                    tick( TICK_RATE_IN_SECONDS );
+                    _NotifyOnTick( delta );
+                    tick( TICK_RATE_IN_SECONDS ); // TODO: REPLACE
                     gameTickAccumulator -= TICK_RATE_IN_SECONDS;
                 }
             }
@@ -89,6 +88,24 @@ namespace Core {
 
         // Deinitialize every subsystem
         m_subSystemManager.shutdown();
+    }
+
+    //----------------------------------------------------------------------
+    void CoreEngine::_NotifyOnTick(Time::Seconds delta)
+    {
+        for (auto& subscriber : m_subscribers)
+        {
+            subscriber->OnTick( delta );
+        }
+    }
+
+    //----------------------------------------------------------------------
+    void CoreEngine::_NotifyOnUpdate(Time::Seconds delta)
+    {
+        for (auto& subscriber : m_subscribers)
+        {
+            subscriber->OnUpdate( delta );
+        }
     }
 
 

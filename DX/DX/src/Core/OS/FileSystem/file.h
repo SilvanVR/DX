@@ -230,7 +230,7 @@ namespace Core { namespace OS {
 
 
     private:
-        Path        m_filePath;
+        Path        m_filePath          = Path("", false);
         Size        m_fileSize          = 0;
         FILE*       m_file              = nullptr;
         long        m_readCursorPos     = 0;

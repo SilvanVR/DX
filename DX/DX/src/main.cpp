@@ -7,6 +7,7 @@
 #include "Core/OS/FileSystem/file.h"
 #include "GameInterface/i_game.hpp"
 #include "Core/Time/clock.h"
+#include "Core/MemoryManagement/Allocators/pool_allocator.hpp"
 
 using namespace Core;
 
@@ -42,7 +43,6 @@ public:
 // - In Game console -> Map Name to Functions
 // - Profiler
 // - Input
-
 
 class Game : public IGame
 {
@@ -101,6 +101,8 @@ public:
 };
 
 
+
+
 int main()
 {
     Game game;
@@ -109,6 +111,21 @@ int main()
     system("pause");
     return 0;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 //int main(void)
