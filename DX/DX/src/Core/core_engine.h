@@ -35,8 +35,8 @@ namespace Core {
         virtual ~CoreEngine() = default;
 
         //----------------------------------------------------------------------
-        OS::Window& getWindow() { return m_window; }
-        Time::MasterClock& getMasterClock() { return m_engineClock; }
+        OS::Window&         getWindow()         { return m_window; }
+        Time::MasterClock&  getMasterClock()    { return m_engineClock; }
 
         //----------------------------------------------------------------------
         // Initiate the startup sequence for the engine.
@@ -46,7 +46,7 @@ namespace Core {
         //----------------------------------------------------------------------
         // Stops the core game loop.
         //----------------------------------------------------------------------
-        void terminate() { m_isRunning = false; };
+        void terminate() { m_isRunning = false; m_window.destroy(); };
 
         //----------------------------------------------------------------------
         virtual void init() = 0;

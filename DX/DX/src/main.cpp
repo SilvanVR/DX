@@ -44,10 +44,48 @@ public:
 // - Profiler
 // - Input
 
-class Game : public IGame
+class TestObject : public Input::IKeyListener, public Input::IMouseListener
+{
+    void OnKeyPressed(Key key) override
+    {
+        LOG( "PRESSED: " + KeyToString(key) );
+
+        if(key == Key::Escape)
+            Locator::getCoreEngine().terminate();
+    }
+
+    void OnMouseMoved(I16 x, I16 y) override
+    {
+        LOG("(" + TS(x) + "," + TS(y) + ")", Color::GREEN);
+    }
+
+    void OnMousePressed(MouseKey key) override
+    {
+        if (key == MouseKey::LButton)
+            LOG("Left Mouse Down", Color::RED);
+        else if (key == MouseKey::MButton)
+            LOG("Middle Mouse Down", Color::RED);
+        else if (key == MouseKey::RButton)
+            LOG("Right Mouse Down", Color::RED);
+    }
+
+    void OnMouseReleased(MouseKey key) override
+    {
+        if (key == MouseKey::LButton)
+            LOG("Left Mouse Up", Color::RED);
+        else if (key == MouseKey::MButton)
+            LOG("Middle Mouse Up", Color::RED);
+        else if (key == MouseKey::RButton)
+            LOG("Right Mouse Up", Color::RED);
+    }
+};
+
+class Game 
+    : public IGame
 {
     const F64 duration = 1000;
     Time::Clock clock;
+    TestObject* obj;
 
 public:
     Game() : clock( duration ) {}
@@ -68,6 +106,8 @@ public:
             LOG( "New Window-Size: " + TS(w) + "," + TS(h) );
         });
 
+
+        obj = new TestObject();
         //Locator::getEngineClock().setTimeout([this] {
         //    getWindow().setBorderlessFullscreen(true);
         //}, 1000);
@@ -77,6 +117,9 @@ public:
         //    getWindow().center();
         //}, 3000);
     }
+
+    // Need a general subscriber model, where entities subscribe to something, which then get notified
+
 
     //----------------------------------------------------------------------
     void tick(Time::Seconds delta) override
@@ -88,6 +131,22 @@ public:
         //LOG( TS( clock.getTime().value ) );
         //auto time = clock.getTime();
 
+        if ( Locator::getInputManager().wasKeyPressed( Key::W ) )
+        {
+            LOG("W PRESSED");
+        }
+
+        if (Locator::getInputManager().wasKeyReleased(Key::E))
+        {
+            LOG("E RELEASED");
+        }
+
+        if (Locator::getInputManager().isKeyDown(Key::R))
+        {
+           // LOG("R DOWN");
+            LOG(TS(Locator::getInputManager().getWheelDelta()), Color::RED);
+        }
+
         //LOG( "Tick: " + TS(ticks) );
         //if ( ticks == GAME_TICK_RATE * 2)
         //    terminate();
@@ -96,7 +155,8 @@ public:
     //----------------------------------------------------------------------
     void shutdown() override 
     {
-        LOG( "Shutdown game..." );
+        LOG( "Shutdown game..." );  
+        delete obj;
     }
 };
 

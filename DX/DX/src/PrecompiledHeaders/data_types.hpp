@@ -35,7 +35,7 @@ using Size = std::size_t;
 template <typename T, typename T2>
 using HashMap = std::map<T, T2>;
 
-template <typename T, typename T2>
-using ArrayList = std::vector<T, T2>;
+template <typename T>
+using ArrayList = std::vector<T>;
 
 #include "string.h"
