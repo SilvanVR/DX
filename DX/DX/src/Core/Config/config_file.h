@@ -44,7 +44,7 @@ namespace Core { namespace Config {
 
         private:
             friend class ConfigFile;
-            std::map<StringID, VariantType> m_entries;
+            HashMap<StringID, VariantType> m_entries;
         };
 
         //----------------------------------------------------------------------
@@ -65,7 +65,7 @@ namespace Core { namespace Config {
 
     private:
         OS::TextFile*                   m_configFile = nullptr;
-        std::map<StringID, Category>    m_categories;
+        HashMap<StringID, Category>    m_categories;
 
         // Read config file from disk
         void _Read();

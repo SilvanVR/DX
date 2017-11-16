@@ -52,7 +52,7 @@ namespace Core { namespace MemoryManagement {
         // @Params:
         // "args": Constructor arguments from the class T
         //----------------------------------------------------------------------
-        template <class T, class... Args>
+        template <typename T, typename... Args>
         T* allocate(Args&&... args);
 
         //----------------------------------------------------------------------
@@ -67,7 +67,7 @@ namespace Core { namespace MemoryManagement {
         // @Params:
         // "data": The object previously allocated from this allocator.
         //----------------------------------------------------------------------
-        template <class T>
+        template <typename T>
         void deallocate(T* data);
 
     private:
@@ -116,7 +116,7 @@ namespace Core { namespace MemoryManagement {
     }
 
     //----------------------------------------------------------------------
-    template <class T, class... Args>
+    template <typename T, typename... Args>
     T* PoolListAllocator::allocate( Args&&... args )
     {
         return _getNearestPool( sizeof(T) ) -> allocate<T>( args... );
@@ -138,7 +138,7 @@ namespace Core { namespace MemoryManagement {
     }
 
     //----------------------------------------------------------------------
-    template <class T>
+    template <typename T>
     void PoolListAllocator::deallocate( T* data )
     {
         _getNearestPool( sizeof(T) ) -> deallocate<T, void>( data );

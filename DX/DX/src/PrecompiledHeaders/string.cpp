@@ -16,7 +16,7 @@
 **********************************************************************/
 
 // Table which maps [HASH <-> STRING]
-std::map<U32, const char*> gStringIdTable;
+HashMap<U32, const char*> gStringIdTable;
 
 
 //----------------------------------------------------------------------

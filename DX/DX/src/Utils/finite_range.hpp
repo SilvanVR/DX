@@ -31,7 +31,7 @@ public:
     }
 
     //----------------------------------------------------------------------
-    template <class T2> explicit operator T2 () const { return m_value; }
+    template <typename T2> explicit operator T2 () const { return m_value; }
 
     //----------------------------------------------------------------------
     // @Return: A new value which is within the bounds of this range object.
@@ -39,7 +39,7 @@ public:
     //  [0,1000]: placeInRange( 1399 ) -> Returns 399
     //  [0,1000]: placeInRange( -400 ) -> Returns 600
     //----------------------------------------------------------------------
-    template <class T2> T2 getValueInRange(T2 val) const { return _MoveInRange( val ); }
+    template <typename T2> T2 getValueInRange(T2 val) const { return _MoveInRange( val ); }
 
     //----------------------------------------------------------------------
     void    setLowerBound(T minBound) { m_lowerBound = minBound; ASSERT( m_lowerBound < m_upperBound && "Min-Bound must be less than Max-Bound." ); }

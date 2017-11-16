@@ -50,7 +50,7 @@ namespace Core { namespace MemoryManagement {
         class StackAllocatorDestructor
         {
         public:
-            template <class T>
+            template <typename T>
             explicit StackAllocatorDestructor(const T& data)
                 : m_data( std::addressof(data) )
             {
@@ -77,7 +77,7 @@ namespace Core { namespace MemoryManagement {
         // "amountOfObjects": Amount of objects to allocate (array-allocation)
         // "args": Constructor arguments from the class T
         //----------------------------------------------------------------------
-        template <class T, class... Args>
+        template <typename T, typename... Args>
         T* allocate(Size amountOfObjects = 1, Args&&... args);
 
         //----------------------------------------------------------------------
@@ -111,12 +111,12 @@ namespace Core { namespace MemoryManagement {
         // Stores destructors for allocates objects
         std::vector<StackAllocatorDestructor> m_destructors;
 
-        template <class T>
+        template <typename T>
         inline typename std::enable_if<std::is_trivially_destructible<T>::value>::type
             _AddDestructorToList(T* object)
         { /* Object is trivially destructible, therefore it's not necessary to destruct it later */ }
 
-        template <class T>
+        template <typename T>
         inline typename std::enable_if<!std::is_trivially_destructible<T>::value>::type
             _AddDestructorToList(T* object)
         {
@@ -173,7 +173,7 @@ namespace Core { namespace MemoryManagement {
     }
 
     //----------------------------------------------------------------------
-    template <class T, class... Args>
+    template <typename T, typename... Args>
     T* StackAllocator::allocate( Size amountOfObjects, Args&&... args )
     {
         Size amountOfBytes = amountOfObjects * sizeof(T);

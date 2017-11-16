@@ -51,7 +51,7 @@ namespace Core { namespace OS {
         static void unmountAll();
 
     private:
-        static std::map<String, const char*> mountPoints;
+        static HashMap<String, const char*> mountPoints;
 
         //----------------------------------------------------------------------
         VirtualFileSystem()                                             = delete;

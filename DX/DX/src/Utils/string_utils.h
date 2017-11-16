@@ -57,7 +57,7 @@ namespace StringUtils {
         char    peekNextChar();
 
         //----------------------------------------------------------------------
-        template <class T>
+        template <typename T>
         IStringStream& operator >> (T& data)
         {
             data = _NextValAs<T>();
@@ -76,7 +76,7 @@ namespace StringUtils {
         String  _NextWord();
 
         //----------------------------------------------------------------------
-        template <class T>
+        template <typename T>
         typename std::enable_if<std::is_floating_point<T>::value, T>::type _NextValAs()
         {
             String nWord = _NextWord();
@@ -91,7 +91,7 @@ namespace StringUtils {
         }
 
         //----------------------------------------------------------------------
-        template <class T>
+        template <typename T>
         typename std::enable_if<std::is_integral<T>::value, T>::type _NextValAs()
         {
             String nWord = _NextWord();
@@ -106,7 +106,7 @@ namespace StringUtils {
         }
 
         //----------------------------------------------------------------------
-        template <class T>
+        template <typename T>
         typename std::enable_if<!std::is_arithmetic<T>::value, T>::type _NextValAs()
         {
             String nWord = _NextWord();

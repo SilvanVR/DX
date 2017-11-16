@@ -79,7 +79,7 @@ namespace Core { namespace Time {
         U64     m_curTicks      = 0;
         U64     m_lastTicks     = 0;
 
-        std::map<CallbackID, CallbackTimer> m_timers;
+        HashMap<CallbackID, CallbackTimer> m_timers;
 
         //----------------------------------------------------------------------
         // Used for other clocks to poll the cpu time.

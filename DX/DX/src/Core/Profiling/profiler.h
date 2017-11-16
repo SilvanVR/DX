@@ -61,7 +61,7 @@ namespace Core { namespace Profiling {
         U32 m_fps = 0;
 
         // Maps [Name] <-> [Time]
-        std::map<StringID, U64> m_entries;
+        HashMap<StringID, U64> m_entries;
 
 
         //----------------------------------------------------------------------

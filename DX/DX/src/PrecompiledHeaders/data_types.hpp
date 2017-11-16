@@ -9,6 +9,9 @@
     Common data-type definitions used throughout the whole program.
 **********************************************************************/
 
+#include <map>
+#include <vector>
+
 using U8 = unsigned __int8;
 using I8 = __int8;
 using Byte = U8;
@@ -28,5 +31,11 @@ using F64 = double;
 using CallbackID = U64;
 
 using Size = std::size_t;
+
+template <typename T, typename T2>
+using HashMap = std::map<T, T2>;
+
+template <typename T, typename T2>
+using ArrayList = std::vector<T, T2>;
 
 #include "string.h"

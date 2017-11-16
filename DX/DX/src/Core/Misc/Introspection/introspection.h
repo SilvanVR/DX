@@ -27,7 +27,7 @@
 //        return &s_manager;
 //    }
 //
-//    template <class T>
+//    template <typename T>
 //    void registerType(Size size, const char* name)
 //    {
 //        TypeInfo* typeInfo = const_cast<TypeInfo*>(getType<T>());
@@ -36,7 +36,7 @@
 //        m_typeInfos[name] = getType<T>();
 //    }
 //
-//    template <class T>
+//    template <typename T>
 //    const TypeInfo* getType() const
 //    {
 //        static TypeInfo typeInfo;
@@ -63,7 +63,7 @@
 //    void*           m_data = nullptr;
 //
 //public:
-//    template <class T>
+//    template <typename T>
 //    Variable(T val)
 //    {
 //        m_typeInfo = GET_TYPE(T);
@@ -74,21 +74,21 @@
 //
 //    ~Variable() { delete m_data; }
 //
-//    template <class T>
+//    template <typename T>
 //    T& getValue()
 //    {
 //        return *(static_cast<T*>(m_data));
 //    }
 //};
 //
-////template <class FunctionType, FunctionType FunctionPtr, class Arg0>
+////template <typename FunctionType, FunctionType FunctionPtr, typename Arg0>
 ////void Call( Variable* ret, Variable *args, U32 argCount )
 ////{
 ////    ASSERT( argCount == 0 );
 ////    (*FunctionPtr)( args[0].getValue<Arg0>() );
 ////};
 //
-//template <class FunctionType, FunctionType FunctionPtr>
+//template <typename FunctionType, FunctionType FunctionPtr>
 //void Call(Variable* ret, Variable *args, U32 argCount)
 //{
 //    ASSERT(argCount == 0);
@@ -105,13 +105,13 @@
 //    void(*m_call) (Variable*, Variable*, U32);
 //};
 //
-////template <class FunctionType, FunctionType FunctionPtr, class Arg0>
+////template <typename FunctionType, FunctionType FunctionPtr, typename Arg0>
 ////Function MakeFunction( void(*fn)( Arg0 ) )
 ////{
 ////    return Function( &Call<FunctionType, FunctionPtr, Arg0> );
 ////}
 //
-//template <class FunctionType, FunctionType FunctionPtr>
+//template <typename FunctionType, FunctionType FunctionPtr>
 //Function MakeFunction(void(*fn)(void))
 //{
 //    return Function(&Call<FunctionType, FunctionPtr>);

@@ -80,7 +80,7 @@ namespace Core { namespace OS {
         //  "str": Format of data to read in c-style (e.g."%s %f").
         //  "args": Arguments in which to put the data into.
         //----------------------------------------------------------------------
-        template <class... Args>
+        template <typename... Args>
         void read(const char* str, Args&&... args)
         {
             _READ_FUNC_BEGIN();
@@ -134,7 +134,7 @@ namespace Core { namespace OS {
         //                   written after the dot.
         //  "amountOfBytes": Amount of bytes to write.
         //----------------------------------------------------------------------
-        template <class... Args>
+        template <typename... Args>
         void write(const char* str, Args&&... args)
         {
             _WRITE_FUNC_BEGIN();
@@ -161,7 +161,7 @@ namespace Core { namespace OS {
         // @Params:
         //  See write function for param explanation.
         //----------------------------------------------------------------------
-        template <class... Args>
+        template <typename... Args>
         void append(const char* str, Args&&... args)
         {
             _APPEND_FUNC_BEGIN();
@@ -218,8 +218,8 @@ namespace Core { namespace OS {
         long            tellReadCursor()    const { return m_readCursorPos; }
         void            flush()             const { fflush( m_file ); }
 
-        template <class T> File& operator << (T data) { write( data ); return (*this); }
-        template <class T> File& operator >> (T& buff) { buff = readAll(); return (*this); }
+        template <typename T> File& operator << (T data) { write( data ); return (*this); }
+        template <typename T> File& operator >> (T& buff) { buff = readAll(); return (*this); }
 
 
         //----------------------------------------------------------------------

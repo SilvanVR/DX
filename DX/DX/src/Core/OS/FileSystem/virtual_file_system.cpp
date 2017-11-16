@@ -13,7 +13,7 @@
 namespace Core { namespace OS {
 
     //----------------------------------------------------------------------
-    std::map<String, const char*> VirtualFileSystem::mountPoints;
+    HashMap<String, const char*> VirtualFileSystem::mountPoints;
 
     //----------------------------------------------------------------------
     void VirtualFileSystem::mount( const String& name, const char* path, bool overrideOldOne )

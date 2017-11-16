@@ -56,10 +56,10 @@ namespace Core {
         void _ClearVirtualFilePaths();
 
         //----------------------------------------------------------------------
-        template <class T>
+        template <typename T>
         T* initializeSubSystem(T* system);
 
-        template <class T>
+        template <typename T>
         void shutdownSubSystem(T*& system);
 
         //----------------------------------------------------------------------
@@ -73,7 +73,7 @@ namespace Core {
     // IMPLEMENTATION
     //**********************************************************************
 
-    template <class T>
+    template <typename T>
     T* SubSystemManager::initializeSubSystem( T* system )
     {
         system->init();
@@ -82,7 +82,7 @@ namespace Core {
         return system;
     }
 
-    template <class T>
+    template <typename T>
     void SubSystemManager::shutdownSubSystem( T*& system )
     {
         system->shutdown();

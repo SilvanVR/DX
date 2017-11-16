@@ -23,9 +23,9 @@
         - Attack callbacks directly to the input system?
     }
 
-    - When update? 
-       each frame: Then it's not possible to detect if key was pressed "last frame"
-       each tick:  This should work, but subsystems can't tick yet, only update...
+    - ActionNames e.g. "MoveForward" -> 
+       should trigger when e.g. "W" is pressed OR controller "Forward"
+       -> Map actions to names, so the action can be triggered regardless of input device
 
 
     Responsibilites:
@@ -41,6 +41,8 @@ namespace Core { namespace Input {
     //**********************************************************************
     class InputManager : public ISubSystem
     {
+        static const U32 MAX_KEYS = 255;
+
     public:
         InputManager() = default;
         ~InputManager() = default;
@@ -61,6 +63,10 @@ namespace Core { namespace Input {
         void _CursorMovedCallback(I16 x, I16 y);
 
     private:
+        bool m_keyPressed[MAX_KEYS];
+        bool m_keyPressedLastTick[MAX_KEYS];
+
+        HashMap<KeyAction, KeyAction> m_virtualKeys;
 
         //----------------------------------------------------------------------
         InputManager(const InputManager& other)                 = delete;

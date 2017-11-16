@@ -65,7 +65,7 @@ namespace Core { namespace MemoryManagement {
     // UniversalAllocationPointer (UAPtr). Encapsulates an object of type T
     // and acts as a normal pointer. Utilizes a HandleTable behind the scenes.
     //**********************************************************************
-    template <class T>
+    template <typename T>
     class UAPtr
     {
         friend class UniversalAllocatorDefragmented; // Access to m_handle
@@ -91,11 +91,11 @@ namespace Core { namespace MemoryManagement {
         void        invalidate(){ m_handleTable = nullptr; m_handle = 0; }
 
         // Conversion to a UAPtr with a subclass can happen implicitly
-        template<class T2, class = std::enable_if<std::is_convertible<T2, T>::value>::type>
+        template<typename T2, typename = std::enable_if<std::is_convertible<T2, T>::value>::type>
         UAPtr(const UAPtr<T2>& other) 
             : m_handleTable( other._GetHandleTable() ), m_handle( other._GetHandle() ) {}
 
-        template<class T2, class = std::enable_if<std::is_convertible<T2, T>::value>::type>
+        template<typename T2, typename = std::enable_if<std::is_convertible<T2, T>::value>::type>
         UAPtr<T>& operator = (const UAPtr<T2>& other)
         {
             m_handleTable = other._GetHandleTable();
@@ -104,7 +104,7 @@ namespace Core { namespace MemoryManagement {
         }
 
         // Still allow explicit typecasting for e.g. casting to a superclass
-        template<class T2>
+        template<typename T2>
         explicit UAPtr(const UAPtr<T2>& other)
             : m_handleTable( other._GetHandleTable() ), m_handle( other._GetHandle() ) {}
 
@@ -145,7 +145,7 @@ namespace Core { namespace MemoryManagement {
             UsedChunk(Size handle, _HandleTable* handleTable)
                 : m_handle(handle), m_handleTable(handleTable) {}
 
-            template <class T>
+            template <typename T>
             UsedChunk(Size handle, Size sizeInBytes, _HandleTable* handleTable, T* type)
                 : m_handle(handle), m_sizeInBytes(sizeInBytes), m_handleTable(handleTable)
             {
@@ -170,7 +170,7 @@ namespace Core { namespace MemoryManagement {
             Size                    m_sizeInBytes;
 
             // Relocates this block to the given address
-            template <class T>
+            template <typename T>
             void relocateTemplate(Byte* newAddr);
         };
 
@@ -214,7 +214,7 @@ namespace Core { namespace MemoryManagement {
         // "amountOfObjects": Amount of objects to allocate (array-allocation)
         // "args": Constructor arguments from the class T
         //----------------------------------------------------------------------
-        template <class T, class... Args>
+        template <typename T, typename... Args>
         UAPtr<T> allocate(Size amountOfObjects = 1, Args&&... args);
 
         //----------------------------------------------------------------------
@@ -229,7 +229,7 @@ namespace Core { namespace MemoryManagement {
         // @Params:
         // "data": The object(s) previously allocated from this allocator.
         //----------------------------------------------------------------------
-        template <class T>
+        template <typename T>
         void deallocate(UAPtr<T>& data);
 
     private:
@@ -237,7 +237,7 @@ namespace Core { namespace MemoryManagement {
         _HandleTable            m_handleTable;
         std::vector<UsedChunk>  m_usedChunks;
 
-        template <class T>
+        template <typename T>
         void _AddUsedChunk(Size handle, Size sizeInBytes, T* type);
         void _RemoveUsedChunk(Size handle);
 
@@ -327,7 +327,7 @@ namespace Core { namespace MemoryManagement {
     }
 
     //----------------------------------------------------------------------
-    template <class T, class... Args>
+    template <typename T, typename... Args>
     UAPtr<T> UniversalAllocatorDefragmented::allocate( Size amountOfObjects, Args&&... args )
     {
         T* mem = m_universalAllocator.allocate<T>( amountOfObjects, args... );
@@ -356,7 +356,7 @@ namespace Core { namespace MemoryManagement {
     }
 
     //----------------------------------------------------------------------
-    template <class T>
+    template <typename T>
     void UniversalAllocatorDefragmented::deallocate( UAPtr<T>& data )
     {
         ASSERT( data.isValid() && "Given data was already deallocated or were never allocated." );
@@ -396,7 +396,7 @@ namespace Core { namespace MemoryManagement {
     }
 
     //----------------------------------------------------------------------
-    template <class T>
+    template <typename T>
     void UniversalAllocatorDefragmented::_AddUsedChunk( Size handle, Size sizeInBytes, T* type )
     {
         m_usedChunks.push_back( UsedChunk(handle, sizeInBytes, &m_handleTable, type) );
@@ -414,7 +414,7 @@ namespace Core { namespace MemoryManagement {
     // IMPLEMENTATION - UsedChunk
     //**********************************************************************
 
-    template <class T>
+    template <typename T>
     void UniversalAllocatorDefragmented::UsedChunk::relocateTemplate(Byte* newAddr)
     {
         static_assert( alignof(T) <= 128, "Max Alignment of 128 was exceeded!" );

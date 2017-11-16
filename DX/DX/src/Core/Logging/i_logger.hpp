@@ -127,35 +127,35 @@ namespace Core { namespace Logging {
         // "channel":   Where the message is coming from.
         // "color":     Color of the message.
         //----------------------------------------------------------------------
-        template <class T>
+        template <typename T>
         void log(ELogChannel channel, T num, ELogLevel logLevel, Color color)
         { 
             _Log( channel, TS( num ).c_str(), logLevel, color );
         }
 
         //----------------------------------------------------------------------
-        template <class T>
+        template <typename T>
         void log(ELogChannel channel, T num, ELogLevel logLevel = ELogLevel::VERY_IMPORTANT)
         {
             _Log( channel, TS( num ).c_str(), logLevel, m_defaultColor );
         }
 
         //----------------------------------------------------------------------
-        template <class T>
+        template <typename T>
         void log(ELogChannel channel, T num, Color color)
         { 
             _Log( channel, TS( num ).c_str(), ELogLevel::VERY_IMPORTANT, LOG_channel_DEFAULT, color );
         };
 
         //----------------------------------------------------------------------
-        template <class T>
+        template <typename T>
         void warn(ELogChannel channel, T num, ELogLevel logLevel = ELogLevel::VERY_IMPORTANT)
         {
             _Warn( channel, TS( num ).c_str(), logLevel );
         }
 
         //----------------------------------------------------------------------
-        template <class T>
+        template <typename T>
         void error(ELogChannel channel, T num, ELogLevel logLevel = ELogLevel::VERY_IMPORTANT)
         {
             _Error( channel, TS( num ).c_str(), logLevel );

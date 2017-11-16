@@ -76,7 +76,7 @@ namespace Core { namespace MemoryManagement {
         // @Params:
         // "args": Constructor arguments from the class T
         //----------------------------------------------------------------------
-        template<class T, class... Args>
+        template<typename T, typename... Args>
         T* allocate(Args&&... args);
 
         //----------------------------------------------------------------------
@@ -84,7 +84,7 @@ namespace Core { namespace MemoryManagement {
         // @Params:
         // "data": The object previously allocated from this pool.
         //----------------------------------------------------------------------
-        template<class T, class T2 = std::enable_if<!std::is_trivially_destructible<T>::value>::type>
+        template<typename T, typename T2 = std::enable_if<!std::is_trivially_destructible<T>::value>::type>
         void deallocate(T* data);
 
         //----------------------------------------------------------------------
@@ -194,7 +194,7 @@ namespace Core { namespace MemoryManagement {
     }
 
     //----------------------------------------------------------------------
-    template<class T, class... Args>
+    template <typename T, typename... Args>
     T* PoolAllocator::allocate( Args&&... args )
     {
         void* location = allocateRaw( sizeof(T), alignof(T) );
@@ -206,7 +206,7 @@ namespace Core { namespace MemoryManagement {
     }
 
     //----------------------------------------------------------------------
-    template<class T, class T2>
+    template <typename T, typename T2>
     void PoolAllocator::deallocate( T* data )
     {
         data->~T();

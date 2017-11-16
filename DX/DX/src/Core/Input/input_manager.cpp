@@ -41,7 +41,7 @@ namespace Core { namespace Input {
     //----------------------------------------------------------------------
     void InputManager::OnTick( Time::Seconds delta )
     {
-     
+       
     }
 
     //----------------------------------------------------------------------
@@ -97,9 +97,12 @@ namespace Core { namespace Input {
     //----------------------------------------------------------------------
     void InputManager::_KeyCallback( Key key, KeyAction action, KeyMod mod )
     {
+        ASSERT( (I32)key < MAX_KEYS );
+
         switch (action)
         {
         case KeyAction::DOWN:
+            m_keyPressed[ (I32)key ] = true;
             break;
         case KeyAction::UP:
             break;

@@ -59,8 +59,8 @@ namespace Core {
         EVariantType getType() const { return m_type; }
 
         //----------------------------------------------------------------------
-        template <class T> T get() const { return _GetVal<T>(); }
-        template <class T> operator T () const { return _GetVal<T>(); }
+        template <typename T> T get() const { return _GetVal<T>(); }
+        template <typename T> operator T () const { return _GetVal<T>(); }
 
     private:
         EVariantType    m_type;
@@ -77,7 +77,7 @@ namespace Core {
         };
 
         //----------------------------------------------------------------------
-        template <class T>
+        template <typename T>
         T _GetVal() const
         {
             switch (m_type)

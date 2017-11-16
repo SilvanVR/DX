@@ -96,7 +96,7 @@ namespace Core { namespace MemoryManagement {
         // "amountOfObjects": Amount of objects to allocate (array-allocation).
         // "args": Constructor arguments from the class T.
         //----------------------------------------------------------------------
-        template <class T, class... Args>
+        template <typename T, typename... Args>
         T* allocate(Size amountOfObjects = 1, Args&&... args);
 
         //----------------------------------------------------------------------
@@ -111,7 +111,7 @@ namespace Core { namespace MemoryManagement {
         // @Params:
         // "data": The object(s) previously allocated from this allocator.
         //----------------------------------------------------------------------
-        template <class T, class T2 = std::enable_if<!std::is_trivially_destructible<T>::value>::type>
+        template <typename T, typename T2 = std::enable_if<!std::is_trivially_destructible<T>::value>::type>
         void deallocate(T* data) { _Deallocate( data, true ); }
 
     private:
@@ -127,7 +127,7 @@ namespace Core { namespace MemoryManagement {
         inline void _RemoveFreeChunk(FreeChunk& freeChunk);
         inline void _AddNewChunk(FreeChunk& newChunk);
 
-        template <class T>
+        template <typename T>
         inline void _Deallocate(T* mem, bool callDestructors);
 
         UniversalAllocator (const UniversalAllocator& other)              = delete;
@@ -154,7 +154,7 @@ namespace Core { namespace MemoryManagement {
     }
 
     //----------------------------------------------------------------------
-    template <class T, class... Args>
+    template <typename T, typename... Args>
     T* UniversalAllocator::allocate( Size amountOfObjects, Args&&... args )
     {
         static_assert( alignof(T) <= 128, "UniversalAllocator: Max alignment of 128 was exceeded." );
@@ -207,7 +207,7 @@ namespace Core { namespace MemoryManagement {
     }
 
     //----------------------------------------------------------------------
-    template <class T>
+    template <typename T>
     void UniversalAllocator::_Deallocate( T* mem, bool callDestructors )
     {
         Byte* alignedAddress = reinterpret_cast<Byte*>(mem);
