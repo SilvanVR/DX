@@ -6,7 +6,6 @@
     date: November 4, 2017
 
     @TODO: Replace Point2D by vector
-    - Wheel Axis
 
     - ActionNames e.g. "MoveForward" ->
        should trigger when e.g. "W" is pressed OR controller "Forward"
@@ -160,10 +159,6 @@ namespace Core { namespace Input {
         bool                            m_firstPersonMode = false;
         HashMap<Key, Key>               m_virtualKeys;
 
-        // <---------- LISTENER ----------->
-        ArrayList<IKeyListener*>        m_keyListener;
-        ArrayList<IMouseListener*>      m_mouseListener;
-
         // <---------- AXIS ----------->
         struct AxisInfo
         {
@@ -176,6 +171,9 @@ namespace Core { namespace Input {
         HashMap<StringID, F64>  m_axisMap;
         F64                     m_wheelAxis;
 
+        // <---------- LISTENER ----------->
+        ArrayList<IKeyListener*>        m_keyListener;
+        ArrayList<IMouseListener*>      m_mouseListener;
 
         //----------------------------------------------------------------------
         friend class IKeyListener;

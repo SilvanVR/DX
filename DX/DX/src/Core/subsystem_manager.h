@@ -76,8 +76,8 @@ namespace Core {
     template <typename T>
     T* SubSystemManager::initializeSubSystem( T* system )
     {
-        system->init();
         Locator::provide( system );
+        system->init();
 
         return system;
     }
