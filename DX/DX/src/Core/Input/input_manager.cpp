@@ -48,6 +48,10 @@ namespace Core { namespace Input {
         memset( m_mouseKeyReleased, 0, MAX_MOUSE_KEYS * sizeof( bool ) );
         memset( m_mouseKeyPressedThisTick, 0, MAX_MOUSE_KEYS * sizeof( bool ) );
         memset( m_mouseKeyPressedLastTick, 0, MAX_MOUSE_KEYS * sizeof( bool ) );
+
+        // Preallocate mem
+        m_keyListener.reserve( 4 );
+        m_mouseListener.reserve( 4 );
     }
 
     //----------------------------------------------------------------------
@@ -56,6 +60,7 @@ namespace Core { namespace Input {
         _UpdateKeyStates();
         _UpdateMouseStates();
         _UpdateCursorDelta();
+        _UpdateAxes( delta );
     }
 
     //----------------------------------------------------------------------
@@ -128,15 +133,44 @@ namespace Core { namespace Input {
     }
 
     //----------------------------------------------------------------------
-    F32 InputManager::getAxis(const char* name)
+    F32 InputManager::getAxis(const char* name) const
     {
-        return 0.0f;
+        StringID axis = SID( name );
+        if ( m_axisMap.count( axis ) == 0 )
+        {
+            WARN( "InputManager::getAxis(): Axis name '" + axis.toString() + "' does not exist." );
+            return 0.0f;
+        }
+        return (F32) m_axisMap.at( axis );
     }
 
     //----------------------------------------------------------------------
-    void InputManager::registerAxis(const char* name, Key a, Key b, F32 acc)
+    void InputManager::registerAxis(const char* name, Key key0, Key key1, F64 acc)
     {
+        StringID axis = SID( name );
+        if ( m_axisMap.count( axis ) != 0 )
+        {
+            WARN( "InputManager::registerAxis(): Axis '" + axis.toString() + "' already exists. Consider a different name." );
+            return;
+        }
 
+        m_axisInfos.push_back( { axis, key0, key1, acc } );
+        m_axisMap[ axis ] = 0.0;
+    }
+
+    //----------------------------------------------------------------------
+    void InputManager::unregisterAxis( const char* name )
+    {
+        StringID axis = SID( name );
+        for ( auto it = m_axisInfos.begin(); it != m_axisInfos.end(); it++ )
+        {
+            if ( axis == it->name )
+            {
+                m_axisInfos.erase( it );
+                break;
+            }
+        }
+        m_axisMap.erase( axis );
     }
 
     //**********************************************************************
@@ -204,6 +238,40 @@ namespace Core { namespace Input {
 
         m_cursorThisTick = m_cursor;
         m_cursorDelta = (m_cursorThisTick - m_cursorLastTick);
+    }
+
+    //----------------------------------------------------------------------
+    void InputManager::_UpdateAxes( Time::Seconds delta )
+    {
+        for (auto& axis : m_axisInfos)
+        {
+            bool key0Down   = isKeyDown( axis.key0 );
+            bool key1Down   = isKeyDown( axis.key1 );
+            F64 step        = (axis.acc * delta.value);
+
+            F64& val = m_axisMap[ axis.name ];
+            if (key0Down)
+            {
+                val += step;
+                if (val > AXIS_MAX) val = AXIS_MAX;
+            }
+
+            if (key1Down)
+            {
+                val -= step;
+                if (val < AXIS_MIN) val = AXIS_MIN;
+            }
+
+            if ( not key0Down && not key1Down )
+            {
+                if (val > step)
+                    val -= step;
+                else if (val < -step)
+                    val += step;
+                else
+                    val = 0;
+            }
+        }
     }
 
     //----------------------------------------------------------------------

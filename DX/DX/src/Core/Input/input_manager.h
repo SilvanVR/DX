@@ -5,7 +5,9 @@
     author: S. Hau
     date: November 4, 2017
 
-    - Axis Mapping
+    - Key Axes
+    - Wheel Axis
+    - Mouse Axis
 
     - ActionNames e.g. "MoveForward" -> 
        should trigger when e.g. "W" is pressed OR controller "Forward"
@@ -33,6 +35,10 @@
 #include "listener/input_listener.h"
 
 namespace Core { namespace Input {
+
+    //----------------------------------------------------------------------
+    #define AXIS_MIN        -1
+    #define AXIS_MAX        1
 
     //**********************************************************************
     class InputManager : public ISubSystem
@@ -104,10 +110,19 @@ namespace Core { namespace Input {
         // @Return:
         //  The value of the registered axis.
         //----------------------------------------------------------------------
-        F32 getAxis(const char* name);
+        F32 getAxis(const char* name) const;
 
-
-        void registerAxis(const char* name, Key a, Key b, F32 acc);
+        //----------------------------------------------------------------------
+        // Register a new axis. The value of the axis interpolates
+        // between -1 and 1 depending on which key is/was pressed.
+        // @Params:
+        //  "name": The name of the new axis.
+        //  "key0": This key increases the axis value.
+        //  "key1": This key decreases the axis value.
+        //  "acc":  How fast the bounds are reached.
+        //----------------------------------------------------------------------
+        void registerAxis(const char* name, Key key0, Key key1, F64 acc = 1.0f);
+        void unregisterAxis(const char* name);
 
         F32 getAxisRaw(const char* name);
 
@@ -146,7 +161,16 @@ namespace Core { namespace Input {
         ArrayList<IKeyListener*>        m_keyListener;
         ArrayList<IMouseListener*>      m_mouseListener;
 
-
+        // <---------- AXIS ----------->
+        struct AxisInfo
+        {
+            StringID    name;
+            Key         key0;
+            Key         key1;
+            F64         acc;
+        };
+        ArrayList<AxisInfo>     m_axisInfos;
+        HashMap<StringID, F64>  m_axisMap;
 
 
         //----------------------------------------------------------------------
@@ -171,6 +195,8 @@ namespace Core { namespace Input {
         void _NotifyMouseWheel(I16 delta) const;
 
         void _UpdateCursorDelta();
+
+        void _UpdateAxes( Time::Seconds delta );
 
      public:
         //----------------------------------------------------------------------
