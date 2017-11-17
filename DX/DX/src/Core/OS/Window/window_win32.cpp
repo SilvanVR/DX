@@ -184,35 +184,38 @@ namespace Core { namespace OS {
     //----------------------------------------------------------------------
     void Window::setBorderlessFullscreen(bool enabled)
     {
-        static U32 oldResolutionX = 800;
-        static U32 oldResolutionY = 600;
+        static U32 oldWindowSizeX = 800;
+        static U32 oldWindowSizeY = 600;
 
         LONG lStyle = GetWindowLong( hwnd, GWL_STYLE );
+        U32 newWidth, newHeight;
         if (enabled)
         {
             // Change style to borderless
             lStyle &= ~( WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU );
 
             // Save old position in case of reverting
-            oldResolutionX = m_width;
-            oldResolutionY = m_height;
+            RECT rect;
+            GetWindowRect( hwnd, &rect );
+            oldWindowSizeX = (rect.right - rect.left);
+            oldWindowSizeY = (rect.bottom - rect.top);
 
             // Maximize window
-            m_width  = GetSystemMetrics( SM_CXSCREEN );
-            m_height = GetSystemMetrics( SM_CYSCREEN );
+            newWidth  = GetSystemMetrics( SM_CXSCREEN );
+            newHeight = GetSystemMetrics( SM_CYSCREEN );
         }
         else
         {
             // Revert style
-            lStyle |= (WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU );
+            lStyle |= ( WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU );
 
-            // Change size of the window
-            m_width  = oldResolutionX;
-            m_height = oldResolutionY;
+            // Revert to old size
+            newWidth  = oldWindowSizeX;
+            newHeight = oldWindowSizeY;
         }
 
         SetWindowLongPtr( hwnd, GWL_STYLE, lStyle );
-        SetWindowPos( hwnd, NULL, 0, 0, m_width, m_height, SWP_NOZORDER | SWP_NOOWNERZORDER );
+        SetWindowPos( hwnd, NULL, 0, 0, newWidth, newHeight, SWP_NOZORDER | SWP_NOOWNERZORDER );
     }
 
     //----------------------------------------------------------------------

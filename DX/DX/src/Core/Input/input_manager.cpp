@@ -111,7 +111,7 @@ namespace Core { namespace Input {
     }
 
     //----------------------------------------------------------------------
-    void InputManager::enableFirstPersonMode( bool enabled )
+    void InputManager::setFirstPersonMode( bool enabled )
     {
         if ( ( enabled && m_firstPersonMode ) || ( not enabled && not m_firstPersonMode ) )
             return; // Was already enabled or disabled
@@ -125,6 +125,18 @@ namespace Core { namespace Input {
             window.centerCursor();
             window.getCursorPosition( &m_cursorLastTick.x, &m_cursorLastTick.y );
         }
+    }
+
+    //----------------------------------------------------------------------
+    F32 InputManager::getAxis(const char* name)
+    {
+        return 0.0f;
+    }
+
+    //----------------------------------------------------------------------
+    void InputManager::registerAxis(const char* name, Key a, Key b, F32 acc)
+    {
+
     }
 
     //**********************************************************************

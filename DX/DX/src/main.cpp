@@ -123,21 +123,9 @@ public:
         getWindow().setCallbackSizeChanged([](U16 w, U16 h) {
             LOG( "New Window-Size: " + TS(w) + "," + TS(h) );
         });
-
-
+        
         obj = new TestObject();
-        //Locator::getEngineClock().setTimeout([this] {
-        //    getWindow().setBorderlessFullscreen(true);
-        //}, 1000);
-
-        //Locator::getEngineClock().setTimeout([this] {
-        //    getWindow().setBorderlessFullscreen(false);
-        //    getWindow().center();
-        //}, 3000);
     }
-
-    // Need a general subscriber model, where entities subscribe to something, which then get notified
-
 
     //----------------------------------------------------------------------
     void tick(Time::Seconds delta) override
@@ -149,28 +137,16 @@ public:
         //LOG( TS( clock.getTime().value ) );
         //auto time = clock.getTime();
 
-        if ( Locator::getInputManager().wasKeyPressed( Key::W ) )
+        static bool inState = false;
+        if ( Locator::getInputManager().wasKeyPressed( Key::Q ) )
         {
-            LOG("W PRESSED");
-            Locator::getInputManager().enableFirstPersonMode(true);
+            inState = !inState;
         }
 
-        if (Locator::getInputManager().wasKeyPressed(Key::E))
+        if (inState)
         {
-            Locator::getInputManager().enableFirstPersonMode(false);
-        }
-
-        if (Locator::getInputManager().wasKeyReleased(Key::E))
-        {
-            LOG("E RELEASED");
-        }
-
-        if (Locator::getInputManager().isKeyDown(Key::R))
-        {
-            //LOG("R DOWN");
-            I16 x, y;
-            Locator::getInputManager().getMouseDelta(x,y);
-            LOG( TS(x) + "|" + TS(y) );
+            F32 axis = Locator::getInputManager().getAxis("Forward");
+            //LOG(TS(axis));
         }
 
         //LOG( "Tick: " + TS(ticks) );

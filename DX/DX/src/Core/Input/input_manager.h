@@ -14,7 +14,8 @@
       - just another level of indirection. 
         Store a map of [Key <-> Key] and check which key corresponds to the "virtual key"
 
-
+    @TODO: Replace Point2D by vector
+    
     Responsibilites:
       - Process the input window callbacks and saves the current state
         of input devices to be queried by anyone.
@@ -94,7 +95,21 @@ namespace Core { namespace Input {
         // Enable/Disable the first person mode.
         // True: Mouse is hidden and cursor is always centered.
         //----------------------------------------------------------------------
-        void enableFirstPersonMode(bool enabled);
+        void setFirstPersonMode(bool enabled);
+
+        //----------------------------------------------------------------------
+        // Return the axis value for the corresponding axis.
+        // @Param:
+        //  "name": The name of the registered axis.
+        // @Return:
+        //  The value of the registered axis.
+        //----------------------------------------------------------------------
+        F32 getAxis(const char* name);
+
+
+        void registerAxis(const char* name, Key a, Key b, F32 acc);
+
+        F32 getAxisRaw(const char* name);
 
     private:
         // <---------- KEYBOARD ----------->
@@ -124,12 +139,15 @@ namespace Core { namespace Input {
         } m_cursor, m_cursorThisTick, m_cursorLastTick, m_cursorDelta;
 
         // <---------- MISC ----------->
-        bool    m_firstPersonMode = false;
+        bool                            m_firstPersonMode = false;
+        HashMap<Key, Key>               m_virtualKeys;
 
         // <---------- LISTENER ----------->
         ArrayList<IKeyListener*>        m_keyListener;
         ArrayList<IMouseListener*>      m_mouseListener;
-        HashMap<Key, Key>               m_virtualKeys;
+
+
+
 
         //----------------------------------------------------------------------
         friend class IKeyListener;
