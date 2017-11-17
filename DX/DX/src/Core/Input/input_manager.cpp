@@ -6,6 +6,7 @@
     date: November 4, 2017
 
     @Considerations:
+      - Move axes stuff in a separate class
 **********************************************************************/
 
 #include "locator.h"
@@ -49,9 +50,14 @@ namespace Core { namespace Input {
         memset( m_mouseKeyPressedThisTick, 0, MAX_MOUSE_KEYS * sizeof( bool ) );
         memset( m_mouseKeyPressedLastTick, 0, MAX_MOUSE_KEYS * sizeof( bool ) );
 
-        // Preallocate mem
+        // Preallocate mem for stl stuff
         m_keyListener.reserve( 4 );
         m_mouseListener.reserve( 4 );
+        m_axisInfos.reserve( 4 );
+
+        // Register some default axes
+        registerAxis( "Forward", Key::W, Key::S, 5.0f );
+        registerAxis( "Left", Key::A, Key::D, 5.0f );
     }
 
     //----------------------------------------------------------------------
@@ -60,7 +66,8 @@ namespace Core { namespace Input {
         _UpdateKeyStates();
         _UpdateMouseStates();
         _UpdateCursorDelta();
-        _UpdateAxes( delta );
+        _UpdateAxes( delta.value );
+        _UpdateMouseWheelAxis( delta.value );
     }
 
     //----------------------------------------------------------------------
@@ -133,7 +140,7 @@ namespace Core { namespace Input {
     }
 
     //----------------------------------------------------------------------
-    F32 InputManager::getAxis(const char* name) const
+    F64 InputManager::getAxis(const char* name) const
     {
         StringID axis = SID( name );
         if ( m_axisMap.count( axis ) == 0 )
@@ -141,7 +148,7 @@ namespace Core { namespace Input {
             WARN( "InputManager::getAxis(): Axis name '" + axis.toString() + "' does not exist." );
             return 0.0f;
         }
-        return (F32) m_axisMap.at( axis );
+        return m_axisMap.at( axis );
     }
 
     //----------------------------------------------------------------------
@@ -221,6 +228,12 @@ namespace Core { namespace Input {
                 m_mouseKeyReleased[i] = false;
             }
         }
+
+        // Reset mouse wheel
+        static bool usedMouseWheel = false;
+        if (usedMouseWheel)
+            m_wheelDelta = 0;
+        usedMouseWheel = (m_wheelDelta != 0);
     }
 
     //----------------------------------------------------------------------
@@ -241,13 +254,13 @@ namespace Core { namespace Input {
     }
 
     //----------------------------------------------------------------------
-    void InputManager::_UpdateAxes( Time::Seconds delta )
+    void InputManager::_UpdateAxes( F64 delta )
     {
         for (auto& axis : m_axisInfos)
         {
             bool key0Down   = isKeyDown( axis.key0 );
             bool key1Down   = isKeyDown( axis.key1 );
-            F64 step        = (axis.acc * delta.value);
+            F64 step        = (axis.acc * delta);
 
             F64& val = m_axisMap[ axis.name ];
             if (key0Down)
@@ -271,6 +284,28 @@ namespace Core { namespace Input {
                 else
                     val = 0;
             }
+        }
+    }
+
+    //----------------------------------------------------------------------
+    void InputManager::_UpdateMouseWheelAxis( F64 delta )
+    {
+        static F32 acceleration = 50.0f;
+        static F32 deceleration = 10.0f;
+
+        if (m_wheelDelta != 0)
+        {
+            m_wheelAxis += acceleration * m_wheelDelta * delta;
+        }
+        else
+        {
+            F64 step = deceleration * delta;
+            if (m_wheelAxis > step)
+                m_wheelAxis -= step;
+            else if (m_wheelAxis < -step)
+                m_wheelAxis += step;
+            else
+                m_wheelAxis = 0;
         }
     }
 

@@ -125,9 +125,6 @@ public:
         });
         
         obj = new TestObject();
-
-        Locator::getInputManager().registerAxis( "Forward", Key::W, Key::S, 5.0f );
-        Locator::getInputManager().registerAxis( "Left", Key::A, Key::D, 5.0f );
     }
 
     //----------------------------------------------------------------------
@@ -148,7 +145,7 @@ public:
 
         if (inState)
         {
-            F32 axis = Locator::getInputManager().getAxis("Left");
+            F64 axis = Locator::getInputManager().getMouseWheelAxis();
             LOG(TS(axis));
         }
 

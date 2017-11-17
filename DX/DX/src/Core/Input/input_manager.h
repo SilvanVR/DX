@@ -5,19 +5,18 @@
     author: S. Hau
     date: November 4, 2017
 
-    - Key Axes
+    @TODO: Replace Point2D by vector
     - Wheel Axis
-    - Mouse Axis
 
-    - ActionNames e.g. "MoveForward" -> 
+    - ActionNames e.g. "MoveForward" ->
        should trigger when e.g. "W" is pressed OR controller "Forward"
        -> Map actions to names, so the action can be triggered regardless of input device
     - Virtual Mappings
-      - just another level of indirection. 
+      - just another level of indirection.
         Store a map of [Key <-> Key] and check which key corresponds to the "virtual key"
 
-    @TODO: Replace Point2D by vector
-    
+    - Axes stuff uses action names
+
     Responsibilites:
       - Process the input window callbacks and saves the current state
         of input devices to be queried by anyone.
@@ -110,7 +109,13 @@ namespace Core { namespace Input {
         // @Return:
         //  The value of the registered axis.
         //----------------------------------------------------------------------
-        F32 getAxis(const char* name) const;
+        F64 getAxis(const char* name) const;
+
+        //----------------------------------------------------------------------
+        // @Return:
+        //  The value of the wheel axis.
+        //----------------------------------------------------------------------
+        F64 getMouseWheelAxis() const { return m_wheelAxis; }
 
         //----------------------------------------------------------------------
         // Register a new axis. The value of the axis interpolates
@@ -123,8 +128,6 @@ namespace Core { namespace Input {
         //----------------------------------------------------------------------
         void registerAxis(const char* name, Key key0, Key key1, F64 acc = 1.0f);
         void unregisterAxis(const char* name);
-
-        F32 getAxisRaw(const char* name);
 
     private:
         // <---------- KEYBOARD ----------->
@@ -171,6 +174,7 @@ namespace Core { namespace Input {
         };
         ArrayList<AxisInfo>     m_axisInfos;
         HashMap<StringID, F64>  m_axisMap;
+        F64                     m_wheelAxis;
 
 
         //----------------------------------------------------------------------
@@ -196,7 +200,8 @@ namespace Core { namespace Input {
 
         void _UpdateCursorDelta();
 
-        void _UpdateAxes( Time::Seconds delta );
+        void _UpdateAxes( F64 delta );
+        void _UpdateMouseWheelAxis( F64 delta );
 
      public:
         //----------------------------------------------------------------------
