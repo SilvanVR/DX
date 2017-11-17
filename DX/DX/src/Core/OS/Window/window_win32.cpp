@@ -23,6 +23,8 @@ namespace Core { namespace OS {
     HINSTANCE   hInstance;
     HWND        hwnd;
 
+    static      Window* window = nullptr;
+
     //----------------------------------------------------------------------
     bool        RegisterWindowClass( HINSTANCE hInstance, LPCSTR className );
     HANDLE      LoadImageFromFile( const char* path, UINT type );
@@ -42,8 +44,13 @@ namespace Core { namespace OS {
         //----------------------------------------------------------------------
         // Handle resize
         case WM_SIZE:
-            Window::_GetCallbackHelper().callSizeChangedCallback( LOWORD( lParam ), HIWORD( lParam ) );
+        {
+            U16 w = LOWORD( lParam );
+            U16 h = HIWORD( lParam );
+            window->_SetSize( w, h );
+            Window::_GetCallbackHelper().callSizeChangedCallback( w, h );
             return 0;
+        }
 
         //----------------------------------------------------------------------
         // Handle Mouse Input
@@ -135,6 +142,7 @@ namespace Core { namespace OS {
         ASSERT( m_created == false );
         m_width  = width;
         m_height = height;
+        window = this;
 
         LPCSTR className = "DXWNDClassName";
         if ( not RegisterWindowClass( hInstance, className ) )
@@ -226,11 +234,21 @@ namespace Core { namespace OS {
     }
 
     //----------------------------------------------------------------------
-    void Window::setCursorPosition( U16 x, U16 y ) const
+    void Window::setCursorPosition( I16 x, I16 y ) const
     {
         POINT point { (LONG) x, (LONG) y };
         ClientToScreen( hwnd, &point );
         SetCursorPos( point.x, point.y );
+    }
+
+    //----------------------------------------------------------------------
+    void Window::getCursorPosition( I16* x, I16* y ) const
+    {
+        POINT p;
+        GetCursorPos( &p );
+        ScreenToClient( hwnd, &p );
+        *x = (I16) p.x;
+        *y = (I16) p.y;
     }
 
     //----------------------------------------------------------------------

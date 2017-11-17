@@ -5,38 +5,32 @@
     author: S. Hau
     date: November 4, 2017
 
+    - ActionNames e.g. "MoveForward" -> 
+       should trigger when e.g. "W" is pressed OR controller "Forward"
+       -> Map actions to names, so the action can be triggered regardless of input device
     - Virtual Mappings
       - just another level of indirection. 
         Store a map of [Key <-> Key] and check which key corresponds to the "virtual key"
 
-    - Fixed mouse pos
-    - Mouse delta
-
-    - Ask if key is pressed CONTINOUSLY
-    - Ask if key is pressed THIS FRAME
-
-    {
-        - Subscribe to events? 
-           - e.g. Component A is interested in OnKeyDown(...);
-             > Locator::getInputManager().subscribeMouseMoved( this );
-                -> OnMouseMove(x, y) is called on this object then.
-    }
-
-    - ActionNames e.g. "MoveForward" -> 
-       should trigger when e.g. "W" is pressed OR controller "Forward"
-       -> Map actions to names, so the action can be triggered regardless of input device
-
+    - Axis Mapping
 
     Responsibilites:
-      - TODO
+      - Process the input window callbacks and saves the current state
+        of input devices to be queried by anyone.
+
+    Features:
+      - Ask the InputManager about the current state e.g. mouse-pos etc.
+      - Subscribe indirectly via inheritation from a listener class:
+         IKeyListener: Override methods to get notified by key events.
+         IMouseListener: Override methods to get notified by mouse events.
+        Listener callbacks will be called whenever they occur in the
+        update loop (possibly faster than tick rate)
 **********************************************************************/
 
 #include "Core/i_subsystem.hpp"
-#include "Core/OS/Window/keycodes.h"
 #include "listener/input_listener.h"
 
 namespace Core { namespace Input {
-
 
     //**********************************************************************
     class InputManager : public ISubSystem
@@ -92,7 +86,14 @@ namespace Core { namespace Input {
 
         //----------------------------------------------------------------------
         //Vec2 getMousePos() const { return Vec2( m_cursorX, m_cursorY ); }
-        //Vec2 getMouseDelta() const {}
+        //Vec2 getMouseDelta() const { return Vec2( (m_cursorThisTickX - m_cursorLastTickX), (m_cursorThisTickY - m_cursorLastTickY) ); }
+        void getMouseDelta(I16& x, I16& y) const { x = m_cursorDeltaX; y = m_cursorDeltaY; }
+
+        //----------------------------------------------------------------------
+        // Enable/Disable the first person mode.
+        // True: Mouse is hidden and cursor is always centered.
+        //----------------------------------------------------------------------
+        void enableFirstPersonMode(bool enabled);
 
         //----------------------------------------------------------------------
         void _KeyCallback(Key key, KeyAction action, KeyMod mod);
@@ -116,9 +117,18 @@ namespace Core { namespace Input {
         bool    m_mouseKeyPressedThisTick[MAX_MOUSE_KEYS];
         bool    m_mouseKeyPressedLastTick[MAX_MOUSE_KEYS];
 
+        I16     m_wheelDelta = 0;
         I16     m_cursorX = 0;
         I16     m_cursorY = 0;
-        I16     m_wheelDelta = 0;
+        I16     m_cursorThisTickX = 0;
+        I16     m_cursorThisTickY = 0;
+        I16     m_cursorLastTickX = 0;
+        I16     m_cursorLastTickY = 0;
+        I16     m_cursorDeltaX = 0;
+        I16     m_cursorDeltaY = 0;
+
+        // <---------- MISC ----------->
+        bool    m_firstPersonMode = false;
 
         // <---------- LISTENER ----------->
         ArrayList<IKeyListener*>        m_keyListener;
@@ -145,6 +155,8 @@ namespace Core { namespace Input {
         void _NotifyMouseKeyPressed(MouseKey key, KeyMod mod) const;
         void _NotifyMouseKeyReleased(MouseKey key, KeyMod mod) const;
         void _NotifyMouseWheel() const;
+
+        void _UpdateCursorDelta();
 
         //----------------------------------------------------------------------
         InputManager(const InputManager& other)                 = delete;

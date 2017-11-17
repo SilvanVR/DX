@@ -18,7 +18,8 @@
 namespace Core { namespace Input {
 
     //**********************************************************************
-    class IKeyListener {
+    class IKeyListener 
+    {
     public:
         IKeyListener();
         virtual ~IKeyListener();
@@ -31,7 +32,8 @@ namespace Core { namespace Input {
     };
 
     //**********************************************************************
-    class IMouseListener {
+    class IMouseListener 
+    {
     public:
         IMouseListener();
         virtual ~IMouseListener();

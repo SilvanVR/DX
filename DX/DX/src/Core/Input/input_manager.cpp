@@ -55,6 +55,7 @@ namespace Core { namespace Input {
     {
         _UpdateKeyStates();
         _UpdateMouseStates();
+        _UpdateCursorDelta();
     }
 
     //----------------------------------------------------------------------
@@ -109,6 +110,20 @@ namespace Core { namespace Input {
         return not m_mouseKeyPressedThisTick[ keyIndex ] && m_mouseKeyPressedLastTick[ keyIndex ];
     }
 
+    //----------------------------------------------------------------------
+    void InputManager::enableFirstPersonMode( bool enabled )
+    {
+        m_firstPersonMode = enabled;
+        OS::Window& window = Locator::getWindow();
+        window.showCursor( not m_firstPersonMode );
+
+        if (m_firstPersonMode)
+        {
+            window.centerCursor();
+            window.getCursorPosition( &m_cursorLastTickX, &m_cursorLastTickY );
+        }
+    }
+
     //**********************************************************************
     // PRIVATE
     //**********************************************************************
@@ -157,6 +172,26 @@ namespace Core { namespace Input {
                 m_mouseKeyReleased[i] = false;
             }
         }
+    }
+
+    //----------------------------------------------------------------------
+    void InputManager::_UpdateCursorDelta()
+    {
+        if (m_firstPersonMode)
+        {
+            Locator::getWindow().centerCursor();
+        }
+        else
+        {
+            m_cursorLastTickX = m_cursorThisTickX;
+            m_cursorLastTickY = m_cursorThisTickY;
+        }
+
+        m_cursorThisTickX = m_cursorX;
+        m_cursorThisTickY = m_cursorY;
+
+        m_cursorDeltaX = (m_cursorThisTickX - m_cursorLastTickX);
+        m_cursorDeltaY = (m_cursorThisTickY - m_cursorLastTickY);
     }
 
     //----------------------------------------------------------------------

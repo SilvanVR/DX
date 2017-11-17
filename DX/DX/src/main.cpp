@@ -73,7 +73,11 @@ class TestObject : public Input::IKeyListener, public Input::IMouseListener
         if (key == MouseKey::LButton)
             LOG("Left Mouse Down", Color::RED);
         else if (key == MouseKey::MButton)
+        {
             LOG("Middle Mouse Down", Color::RED);
+            Locator::getWindow().centerCursor();
+            //Locator::getWindow().showCursor(false);
+        }
         else if (key == MouseKey::RButton)
             LOG("Right Mouse Down", Color::RED);
     }
@@ -148,6 +152,12 @@ public:
         if ( Locator::getInputManager().wasKeyPressed( Key::W ) )
         {
             LOG("W PRESSED");
+            Locator::getInputManager().enableFirstPersonMode(true);
+        }
+
+        if (Locator::getInputManager().wasKeyPressed(Key::E))
+        {
+            Locator::getInputManager().enableFirstPersonMode(false);
         }
 
         if (Locator::getInputManager().wasKeyReleased(Key::E))
@@ -157,7 +167,10 @@ public:
 
         if (Locator::getInputManager().isKeyDown(Key::R))
         {
-            LOG("R DOWN");
+            //LOG("R DOWN");
+            I16 x, y;
+            Locator::getInputManager().getMouseDelta(x,y);
+            LOG( TS(x) + "|" + TS(y) );
         }
 
         //LOG( "Tick: " + TS(ticks) );

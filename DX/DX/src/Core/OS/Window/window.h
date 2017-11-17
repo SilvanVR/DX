@@ -36,8 +36,8 @@ namespace Core { namespace OS {
 
         //----------------------------------------------------------------------
         bool shouldBeClosed() const { return m_shouldBeClosed; }
-        U32 getWidth() const { return m_width; }
-        U32 getHeight() const { return m_height; }
+        U16 getWidth() const { return m_width; }
+        U16 getHeight() const { return m_height; }
 
         //----------------------------------------------------------------------
         void setTitle(const char* newTitle) const;
@@ -79,7 +79,8 @@ namespace Core { namespace OS {
         //----------------------------------------------------------------------
         // Directly manipulate the mouse position. (0,0) is Top-Left corner.
         //----------------------------------------------------------------------
-        void setCursorPosition(U16 x, U16 y) const;
+        void setCursorPosition(I16 x, I16 y) const;
+        void getCursorPosition(I16* x, I16* y) const;
         void centerCursor() const;
 
         //----------------------------------------------------------------------
@@ -156,7 +157,6 @@ namespace Core { namespace OS {
         bool            m_created           = false;
         bool            m_shouldBeClosed    = false;
 
-
         //**********************************************************************
         // Small helper class which stores all the different window callbacks.
         // The WindowProc function access those via a static instance of this
@@ -189,6 +189,7 @@ namespace Core { namespace OS {
     public:
         //----------------------------------------------------------------------
         static Window::WindowCallbackHelper _GetCallbackHelper() { return m_callbackHelper; }
+        void _SetSize(U16 width, U16 height) { m_width = width; m_height = height; }
 
     private:
         Window(const Window& other)                 = delete;
