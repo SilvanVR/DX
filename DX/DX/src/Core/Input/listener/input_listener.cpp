@@ -13,6 +13,7 @@ namespace Core { namespace Input {
     //----------------------------------------------------------------------
     IKeyListener::IKeyListener()
     {
+        ASSERT( &Locator::getInputManager() != nullptr );
         Locator::getInputManager()._Subscribe( this );
     }
 
@@ -25,6 +26,7 @@ namespace Core { namespace Input {
     //----------------------------------------------------------------------
     IMouseListener::IMouseListener()
     {
+        ASSERT( &Locator::getInputManager() != nullptr );
         Locator::getInputManager()._Subscribe( this );
     }
 
@@ -33,7 +35,6 @@ namespace Core { namespace Input {
     {
         Locator::getInputManager()._Unsubscribe( this );
     }
-
 
 
 } } // end namespaces

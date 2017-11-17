@@ -46,20 +46,29 @@ public:
 
 class TestObject : public Input::IKeyListener, public Input::IMouseListener
 {
-    void OnKeyPressed(Key key) override
+    void OnKeyPressed(Key key, KeyMod mod) override
     {
-        LOG( "PRESSED: " + KeyToString(key) );
-
-        if(key == Key::Escape)
-            Locator::getCoreEngine().terminate();
+        //LOG( "PRESSED: " + KeyToString(key) );
     }
 
     void OnMouseMoved(I16 x, I16 y) override
     {
-        LOG("(" + TS(x) + "," + TS(y) + ")", Color::GREEN);
+        //LOG("(" + TS(x) + "," + TS(y) + ")", Color::GREEN);
     }
 
-    void OnMousePressed(MouseKey key) override
+    void OnChar(char c) override
+    {
+        //static String buffer;
+        //if (c == '\b')
+        //    buffer = buffer.substr(0, buffer.size() - 1);
+        //else
+        //    buffer += c;
+
+        //if (buffer.size() > 0)
+        //    LOG(buffer);
+    }
+
+    void OnMousePressed(MouseKey key, KeyMod mod) override
     {
         if (key == MouseKey::LButton)
             LOG("Left Mouse Down", Color::RED);
@@ -69,7 +78,7 @@ class TestObject : public Input::IKeyListener, public Input::IMouseListener
             LOG("Right Mouse Down", Color::RED);
     }
 
-    void OnMouseReleased(MouseKey key) override
+    void OnMouseReleased(MouseKey key, KeyMod mod) override
     {
         if (key == MouseKey::LButton)
             LOG("Left Mouse Up", Color::RED);
@@ -77,6 +86,11 @@ class TestObject : public Input::IKeyListener, public Input::IMouseListener
             LOG("Middle Mouse Up", Color::RED);
         else if (key == MouseKey::RButton)
             LOG("Right Mouse Up", Color::RED);
+    }
+
+    void OnMouseWheel(I16 delta) override
+    {
+        LOG("WHEEL DELTA: " + TS(delta));
     }
 };
 
@@ -143,13 +157,14 @@ public:
 
         if (Locator::getInputManager().isKeyDown(Key::R))
         {
-           // LOG("R DOWN");
-            LOG(TS(Locator::getInputManager().getWheelDelta()), Color::RED);
+            LOG("R DOWN");
         }
 
         //LOG( "Tick: " + TS(ticks) );
         //if ( ticks == GAME_TICK_RATE * 2)
         //    terminate();
+        if( Locator::getInputManager().isKeyDown( Key::Escape ) )
+            terminate();
     }
 
     //----------------------------------------------------------------------

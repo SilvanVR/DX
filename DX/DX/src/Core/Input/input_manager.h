@@ -118,10 +118,7 @@ namespace Core { namespace Input {
 
         I16     m_cursorX = 0;
         I16     m_cursorY = 0;
-        bool    m_mouseMoved = false;
-
         I16     m_wheelDelta = 0;
-        bool    m_scrolledWheel = false;
 
         // <---------- LISTENER ----------->
         ArrayList<IKeyListener*>        m_keyListener;
@@ -138,11 +135,16 @@ namespace Core { namespace Input {
         void _Unsubscribe(IMouseListener* listener) { m_mouseListener.erase( std::remove( m_mouseListener.begin(), m_mouseListener.end(), listener ) ); }
 
         //----------------------------------------------------------------------
-        void _NotifyKeyPressed(Key key) const;
-        void _NotifyKeyReleased(Key key) const;
+        void _UpdateKeyStates();
+        void _NotifyKeyPressed(Key key, KeyMod mod) const;
+        void _NotifyKeyReleased(Key key, KeyMod mod) const;
+        void _NotifyOnChar(char c) const;
+
+        void _UpdateMouseStates();
         void _NotifyMouseMoved() const;
-        void _NotifyMouseKeyPressed(MouseKey key) const;
-        void _NotifyMouseKeyReleased(MouseKey key) const;
+        void _NotifyMouseKeyPressed(MouseKey key, KeyMod mod) const;
+        void _NotifyMouseKeyReleased(MouseKey key, KeyMod mod) const;
+        void _NotifyMouseWheel() const;
 
         //----------------------------------------------------------------------
         InputManager(const InputManager& other)                 = delete;

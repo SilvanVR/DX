@@ -6,9 +6,6 @@
     date: November 4, 2017
 
     @Considerations:
-     - Theorethically it can happen that a button pressed/release
-       will be missed, because the tick-rate occurs in a slower rate
-       than the os-loop TODO
 **********************************************************************/
 
 #include "locator.h"
@@ -47,11 +44,77 @@ namespace Core { namespace Input {
         memset( m_keyReleased, 0, MAX_KEYS * sizeof( bool ) );
         memset( m_keyPressedThisTick, 0, MAX_KEYS * sizeof( bool ) );
         memset( m_keyPressedLastTick, 0, MAX_KEYS * sizeof( bool ) );
+        memset( m_mouseKeyPressed, 0, MAX_MOUSE_KEYS * sizeof( bool ) );
+        memset( m_mouseKeyReleased, 0, MAX_MOUSE_KEYS * sizeof( bool ) );
+        memset( m_mouseKeyPressedThisTick, 0, MAX_MOUSE_KEYS * sizeof( bool ) );
+        memset( m_mouseKeyPressedLastTick, 0, MAX_MOUSE_KEYS * sizeof( bool ) );
     }
 
     //----------------------------------------------------------------------
     void InputManager::OnTick( Time::Seconds delta )
     {
+        _UpdateKeyStates();
+        _UpdateMouseStates();
+    }
+
+    //----------------------------------------------------------------------
+    void InputManager::shutdown()
+    {
+        // Unsubscribe to all events (just for safety)
+        OS::Window& window = Locator::getWindow();
+        window.setCallbackKey( nullptr );
+        window.setCallbackChar( nullptr );
+        window.setCallbackMouseButtons( nullptr );
+        window.setCallbackMouseWheel( nullptr );
+        window.setCallbackCursorMove( nullptr );
+    }
+
+    //----------------------------------------------------------------------
+    bool InputManager::isKeyDown( Key key ) const
+    {
+        return m_keyPressedThisTick[ (I32)key ];
+    }
+
+    //----------------------------------------------------------------------
+    bool InputManager::wasKeyPressed( Key key ) const
+    {
+        I32 keyIndex = (I32)key;
+        return m_keyPressedThisTick[ keyIndex ] && not m_keyPressedLastTick[ keyIndex ];
+    }
+
+    //----------------------------------------------------------------------
+    bool InputManager::wasKeyReleased( Key key ) const
+    {
+        I32 keyIndex = (I32)key;
+        return not m_keyPressedThisTick[ keyIndex ] && m_keyPressedLastTick[ keyIndex ];
+    }
+
+    //----------------------------------------------------------------------
+    bool InputManager::isMouseKeyDown( MouseKey key ) const
+    {
+        return m_mouseKeyPressedThisTick[ (I32)key ];
+    }
+
+    //----------------------------------------------------------------------
+    bool InputManager::wasMouseKeyPressed( MouseKey key ) const
+    {
+        I32 keyIndex = (I32)key;
+        return m_mouseKeyPressedThisTick[ keyIndex ] && not m_mouseKeyPressedLastTick[ keyIndex ];
+    }
+
+    //----------------------------------------------------------------------
+    bool InputManager::wasMouseKeyReleased( MouseKey key ) const
+    {
+        I32 keyIndex = (I32)key;
+        return not m_mouseKeyPressedThisTick[ keyIndex ] && m_mouseKeyPressedLastTick[ keyIndex ];
+    }
+
+    //**********************************************************************
+    // PRIVATE
+    //**********************************************************************
+    void InputManager::_UpdateKeyStates()
+    {
+        // Save last state
         memcpy( m_keyPressedLastTick, m_keyPressedThisTick, MAX_KEYS * sizeof( bool ) );
 
         // Update the "keyPressedThisTick" array.
@@ -72,116 +135,28 @@ namespace Core { namespace Input {
                 m_keyReleased[i] = false;
             }
         }
+    }
 
-        // Notify subscribers
-        for (I32 i = 0; i < MAX_KEYS; i++)
-        {
-            if ( wasKeyPressed( (Key)i ) )
-            {
-                _NotifyKeyPressed( (Key)i );
-            }
-
-            if ( wasKeyReleased( (Key)i ) )
-            {
-                _NotifyKeyReleased( (Key)i );
-            }
-        }
-
-        // ---- MOUSE ----
+    //----------------------------------------------------------------------
+    void InputManager::_UpdateMouseStates()
+    {
+        // Save last state
         memcpy( m_mouseKeyPressedLastTick, m_mouseKeyPressedThisTick, MAX_MOUSE_KEYS * sizeof( bool ) );
+
+        // Same mechanism as with the keyboard. Used to decouple slower tick rate from faster update rate.
         for (I32 i = 0; i < MAX_MOUSE_KEYS; i++)
         {
-            if (m_mouseKeyPressed[i])
+            if ( m_mouseKeyPressed[i] )
             {
                 m_mouseKeyPressedThisTick[i] = true;
                 m_mouseKeyPressed[i] = false;
             }
-            else if (m_mouseKeyReleased[i])
+            else if ( m_mouseKeyReleased[i] )
             {
                 m_mouseKeyPressedThisTick[i] = false;
                 m_mouseKeyReleased[i] = false;
             }
         }
-
-        for (I32 i = 0; i < MAX_MOUSE_KEYS; i++)
-        {
-            if ( wasMouseKeyPressed( (MouseKey)i ) )
-            {
-                _NotifyMouseKeyPressed( (MouseKey)i );
-            }
-
-            if ( wasMouseKeyReleased( (MouseKey)i ) )
-            {
-                _NotifyMouseKeyReleased( (MouseKey)i );
-            }
-        }
-
-        if (m_mouseMoved)
-        {
-            m_mouseMoved = false;
-            _NotifyMouseMoved();
-        }
-
-        if (m_scrolledWheel)
-        {
-            m_scrolledWheel = false;
-        }
-        else
-        {
-            m_wheelDelta = 0;
-        }
-    }
-
-    //----------------------------------------------------------------------
-    void InputManager::shutdown()
-    {
-        // Unsubscribe to all events (just for safety)
-        OS::Window& window = Locator::getWindow();
-        window.setCallbackKey( nullptr );
-        window.setCallbackChar( nullptr );
-        window.setCallbackMouseButtons( nullptr );
-        window.setCallbackMouseWheel( nullptr );
-        window.setCallbackCursorMove( nullptr );
-    }
-
-    //----------------------------------------------------------------------
-    bool InputManager::isKeyDown( Key key ) const
-    {
-        return m_keyPressedThisTick[(I32)key];
-    }
-
-    //----------------------------------------------------------------------
-    bool InputManager::wasKeyPressed( Key key ) const
-    {
-        I32 keyAsNum = (I32)key;
-        return m_keyPressedThisTick[ keyAsNum ] && not m_keyPressedLastTick[ keyAsNum ];
-    }
-
-    //----------------------------------------------------------------------
-    bool InputManager::wasKeyReleased( Key key ) const
-    {
-        I32 keyAsNum = (I32)key;
-        return not m_keyPressedThisTick[ keyAsNum ] && m_keyPressedLastTick[ keyAsNum ];
-    }
-
-    //----------------------------------------------------------------------
-    bool InputManager::isMouseKeyDown(MouseKey key) const
-    {
-        return m_mouseKeyPressedThisTick[ (I32)key ];
-    }
-
-    //----------------------------------------------------------------------
-    bool InputManager::wasMouseKeyPressed( MouseKey key ) const
-    {
-        I32 keyAsNum = (I32)key;
-        return m_mouseKeyPressedThisTick[ keyAsNum ] && not m_mouseKeyPressedLastTick[ keyAsNum ];
-    }
-
-    //----------------------------------------------------------------------
-    bool InputManager::wasMouseKeyReleased( MouseKey key ) const
-    {
-        I32 keyAsNum = (I32)key;
-        return not m_mouseKeyPressedThisTick[ keyAsNum ] && m_mouseKeyPressedLastTick[ keyAsNum ];
     }
 
     //----------------------------------------------------------------------
@@ -191,9 +166,11 @@ namespace Core { namespace Input {
         {
         case KeyAction::DOWN:
             m_mouseKeyPressed[ (I32)key ] = true;
+            _NotifyMouseKeyPressed( key, mod);
             break;
         case KeyAction::UP:
             m_mouseKeyReleased[ (I32)key ] = true;
+            _NotifyMouseKeyReleased( key, mod);
             break;
         }
     }
@@ -203,29 +180,31 @@ namespace Core { namespace Input {
     {
         m_cursorX = x;
         m_cursorY = y;
-        m_mouseMoved = true;
+        _NotifyMouseMoved();
     }
 
     //----------------------------------------------------------------------
     void InputManager::_MouseWheelCallback( I16 delta )
     {
-        //LOG( "Mouse Wheel: " + TS(param), Color::RED );
         m_wheelDelta = delta;
-        m_scrolledWheel = true;
+        _NotifyMouseWheel();
     }
 
     //----------------------------------------------------------------------
     void InputManager::_KeyCallback( Key key, KeyAction action, KeyMod mod )
     {
-        ASSERT( (I32)key < MAX_KEYS );
+        I32 keyIndex = (I32) key;
+        ASSERT( keyIndex < MAX_KEYS );
 
         switch (action)
         {
         case KeyAction::DOWN:
-            m_keyPressed[ (I32)key ] = true;
+            m_keyPressed[ keyIndex ] = true;
+            _NotifyKeyPressed( key, mod );
             break;
         case KeyAction::UP:
-            m_keyReleased[ (I32)key ] = true;
+            m_keyReleased[ keyIndex ] = true;
+            _NotifyKeyReleased( key, mod);
             break;
         }
     }
@@ -233,28 +212,29 @@ namespace Core { namespace Input {
     //----------------------------------------------------------------------
     void InputManager::_CharCallback( char c )
     {
-        //static String buffer;
-        //if (c == '\b')
-        //    buffer = buffer.substr(0, buffer.size() - 1);
-        //else
-        //    buffer += c;
+        _NotifyOnChar( c );
+    }
 
-        //if (buffer.size() > 0)
-        //    LOG(buffer);
+    //**********************************************************************
+
+    //----------------------------------------------------------------------
+    void InputManager::_NotifyKeyPressed( Key key, KeyMod mod ) const
+    {
+        for (auto& listener : m_keyListener)
+            listener->OnKeyPressed( key, mod);
     }
 
     //----------------------------------------------------------------------
-    void InputManager::_NotifyKeyPressed( Key key ) const
+    void InputManager::_NotifyKeyReleased( Key key, KeyMod mod ) const
     {
         for (auto& listener : m_keyListener)
-            listener->OnKeyPressed( key );
+            listener->OnKeyReleased( key, mod);
     }
 
-    //----------------------------------------------------------------------
-    void InputManager::_NotifyKeyReleased( Key key ) const
+    void InputManager::_NotifyOnChar(char c) const
     {
         for (auto& listener : m_keyListener)
-            listener->OnKeyReleased( key );
+            listener->OnChar( c );
     }
 
     //----------------------------------------------------------------------
@@ -265,17 +245,24 @@ namespace Core { namespace Input {
     }
 
     //----------------------------------------------------------------------
-    void InputManager::_NotifyMouseKeyPressed( MouseKey key ) const
+    void InputManager::_NotifyMouseKeyPressed( MouseKey key, KeyMod mod ) const
     {
         for (auto& listener : m_mouseListener)
-            listener->OnMousePressed( key );
+            listener->OnMousePressed( key, mod);
     }
 
     //----------------------------------------------------------------------
-    void InputManager::_NotifyMouseKeyReleased( MouseKey key ) const
+    void InputManager::_NotifyMouseKeyReleased( MouseKey key, KeyMod mod ) const
     {
         for (auto& listener : m_mouseListener)
-            listener->OnMouseReleased( key );
+            listener->OnMouseReleased( key, mod );
+    }
+
+    //----------------------------------------------------------------------
+    void InputManager::_NotifyMouseWheel() const
+    {
+        for (auto& listener : m_mouseListener)
+            listener->OnMouseWheel( m_wheelDelta );
     }
 
 } }
