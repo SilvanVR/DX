@@ -113,6 +113,9 @@ namespace Core { namespace Input {
     //----------------------------------------------------------------------
     void InputManager::enableFirstPersonMode( bool enabled )
     {
+        if ( ( enabled && m_firstPersonMode ) || ( not enabled && not m_firstPersonMode ) )
+            return; // Was already enabled or disabled
+
         m_firstPersonMode = enabled;
         OS::Window& window = Locator::getWindow();
         window.showCursor( not m_firstPersonMode );
@@ -120,7 +123,7 @@ namespace Core { namespace Input {
         if (m_firstPersonMode)
         {
             window.centerCursor();
-            window.getCursorPosition( &m_cursorLastTickX, &m_cursorLastTickY );
+            window.getCursorPosition( &m_cursorLastTick.x, &m_cursorLastTick.y );
         }
     }
 
@@ -180,18 +183,15 @@ namespace Core { namespace Input {
         if (m_firstPersonMode)
         {
             Locator::getWindow().centerCursor();
+            // m_cursorLastTick is always fixed (center of screen)
         }
         else
         {
-            m_cursorLastTickX = m_cursorThisTickX;
-            m_cursorLastTickY = m_cursorThisTickY;
+            m_cursorLastTick = m_cursorThisTick;
         }
 
-        m_cursorThisTickX = m_cursorX;
-        m_cursorThisTickY = m_cursorY;
-
-        m_cursorDeltaX = (m_cursorThisTickX - m_cursorLastTickX);
-        m_cursorDeltaY = (m_cursorThisTickY - m_cursorLastTickY);
+        m_cursorThisTick = m_cursor;
+        m_cursorDelta = (m_cursorThisTick - m_cursorLastTick);
     }
 
     //----------------------------------------------------------------------
@@ -213,16 +213,16 @@ namespace Core { namespace Input {
     //----------------------------------------------------------------------
     void InputManager::_CursorMovedCallback( I16 x, I16 y )
     {
-        m_cursorX = x;
-        m_cursorY = y;
-        _NotifyMouseMoved();
+        m_cursor.x = x;
+        m_cursor.y = y;
+        _NotifyMouseMoved( m_cursor.x, m_cursor.y );
     }
 
     //----------------------------------------------------------------------
     void InputManager::_MouseWheelCallback( I16 delta )
     {
         m_wheelDelta = delta;
-        _NotifyMouseWheel();
+        _NotifyMouseWheel( m_wheelDelta );
     }
 
     //----------------------------------------------------------------------
@@ -266,6 +266,7 @@ namespace Core { namespace Input {
             listener->OnKeyReleased( key, mod);
     }
 
+    //----------------------------------------------------------------------
     void InputManager::_NotifyOnChar(char c) const
     {
         for (auto& listener : m_keyListener)
@@ -273,10 +274,10 @@ namespace Core { namespace Input {
     }
 
     //----------------------------------------------------------------------
-    void InputManager::_NotifyMouseMoved() const
+    void InputManager::_NotifyMouseMoved( I16 x, I16 y ) const
     {
         for (auto& listener : m_mouseListener)
-            listener->OnMouseMoved( m_cursorX, m_cursorY );
+            listener->OnMouseMoved( x, y );
     }
 
     //----------------------------------------------------------------------
@@ -294,10 +295,10 @@ namespace Core { namespace Input {
     }
 
     //----------------------------------------------------------------------
-    void InputManager::_NotifyMouseWheel() const
+    void InputManager::_NotifyMouseWheel( I16 delta ) const
     {
         for (auto& listener : m_mouseListener)
-            listener->OnMouseWheel( m_wheelDelta );
+            listener->OnMouseWheel( delta );
     }
 
 } }
