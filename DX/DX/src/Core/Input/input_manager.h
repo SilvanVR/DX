@@ -7,15 +7,6 @@
 
     @TODO: Replace Point2D by vector
 
-    - ActionNames e.g. "MoveForward" ->
-       should trigger when e.g. "W" is pressed OR controller "Forward"
-       -> Map actions to names, so the action can be triggered regardless of input device
-    - Virtual Mappings
-      - just another level of indirection.
-        Store a map of [Key <-> Key] and check which key corresponds to the "virtual key"
-
-    - Axes stuff uses action names
-
     Responsibilites:
       - Process the input window callbacks and saves the current state
         of input devices to be queried by anyone.
@@ -31,8 +22,21 @@
 
 #include "Core/i_subsystem.hpp"
 #include "listener/input_listener.h"
+#include "mouse.h"
+
+//----------------------------------------------------------------------
+#define MOUSE Locator::getInputManager().getMouse()
 
 namespace Core { namespace Input {
+
+    class InputActionMapper
+    {
+    public:
+        // Triggers action events
+        // Set action events
+    private:
+        // Save state of action events
+    };
 
     //----------------------------------------------------------------------
     #define AXIS_MIN        -1
@@ -41,8 +45,7 @@ namespace Core { namespace Input {
     //**********************************************************************
     class InputManager : public ISubSystem
     {
-        static const U32 MAX_KEYS       = 255;
-        static const U32 MAX_MOUSE_KEYS = 16;
+        static const U32 MAX_KEYS = 255;
 
     public:
         InputManager() = default;
@@ -71,35 +74,10 @@ namespace Core { namespace Input {
         bool wasKeyReleased(Key key) const;
 
         //----------------------------------------------------------------------
-        // @Return: True when the given mousekey is down.
-        //----------------------------------------------------------------------
-        bool isMouseKeyDown(MouseKey key) const;
-
-        //----------------------------------------------------------------------
-        // @Return: True, the frame the mousekey was pressed.
-        //----------------------------------------------------------------------
-        bool wasMouseKeyPressed(MouseKey key) const;
-
-        //----------------------------------------------------------------------
-        // @Return: True, the frame the mousekey was released.
-        //----------------------------------------------------------------------
-        bool wasMouseKeyReleased(MouseKey key) const;
-
-        //----------------------------------------------------------------------
-        // @Return: Forward: 1, Backwards: -1 [For one frame]. Otherwise 0.
-        //----------------------------------------------------------------------
-        I16 getWheelDelta() const { return m_wheelDelta; }
-
-        //----------------------------------------------------------------------
-        //Vec2 getMousePos() const { return Vec2( m_cursorX, m_cursorY ); }
-        //Vec2 getMouseDelta() const { return Vec2( (m_cursorThisTickX - m_cursorLastTickX), (m_cursorThisTickY - m_cursorLastTickY) ); }
-        void getMouseDelta(I16& x, I16& y) const { x = m_cursorDelta.x; y = m_cursorDelta.y; }
-
-        //----------------------------------------------------------------------
         // Enable/Disable the first person mode.
         // True: Mouse is hidden and cursor is always centered.
         //----------------------------------------------------------------------
-        void setFirstPersonMode(bool enabled);
+        void setFirstPersonMode(bool enabled) { m_mouse->setFirstPersonMode(enabled); }
 
         //----------------------------------------------------------------------
         // Return the axis value for the corresponding axis.
@@ -128,6 +106,8 @@ namespace Core { namespace Input {
         void registerAxis(const char* name, Key key0, Key key1, F64 acc = 1.0f);
         void unregisterAxis(const char* name);
 
+        Mouse& getMouse() { return *m_mouse; }
+
     private:
         // <---------- KEYBOARD ----------->
         // Those will be updated per update
@@ -139,24 +119,9 @@ namespace Core { namespace Input {
         bool    m_keyPressedLastTick[MAX_KEYS];
 
         // <---------- MOUSE ----------->
-        bool    m_mouseKeyPressed[MAX_MOUSE_KEYS];
-        bool    m_mouseKeyReleased[MAX_MOUSE_KEYS];
-
-        bool    m_mouseKeyPressedThisTick[MAX_MOUSE_KEYS];
-        bool    m_mouseKeyPressedLastTick[MAX_MOUSE_KEYS];
-
-        I16     m_wheelDelta = 0;
-
-        struct Point2D
-        {
-            I16 x = 0;
-            I16 y = 0;
-
-            Point2D operator - (const Point2D& other) { return Point2D{ x - other.x, y - other.y }; }
-        } m_cursor, m_cursorThisTick, m_cursorLastTick, m_cursorDelta;
+        Mouse*  m_mouse;
 
         // <---------- MISC ----------->
-        bool                            m_firstPersonMode = false;
         HashMap<Key, Key>               m_virtualKeys;
 
         // <---------- AXIS ----------->
@@ -173,30 +138,17 @@ namespace Core { namespace Input {
 
         // <---------- LISTENER ----------->
         ArrayList<IKeyListener*>        m_keyListener;
-        ArrayList<IMouseListener*>      m_mouseListener;
 
         //----------------------------------------------------------------------
         friend class IKeyListener;
         void _Subscribe(IKeyListener* listener) { m_keyListener.push_back( listener ); }
         void _Unsubscribe(IKeyListener* listener) { m_keyListener.erase( std::remove( m_keyListener.begin(), m_keyListener.end(), listener ) ); }
 
-        friend class IMouseListener;
-        void _Subscribe(IMouseListener* listener) { m_mouseListener.push_back( listener ); }
-        void _Unsubscribe(IMouseListener* listener) { m_mouseListener.erase( std::remove( m_mouseListener.begin(), m_mouseListener.end(), listener ) ); }
-
         //----------------------------------------------------------------------
         void _UpdateKeyStates();
         void _NotifyKeyPressed(Key key, KeyMod mod) const;
         void _NotifyKeyReleased(Key key, KeyMod mod) const;
         void _NotifyOnChar(char c) const;
-
-        void _UpdateMouseStates();
-        void _NotifyMouseMoved(I16 x, I16 y) const;
-        void _NotifyMouseKeyPressed(MouseKey key, KeyMod mod) const;
-        void _NotifyMouseKeyReleased(MouseKey key, KeyMod mod) const;
-        void _NotifyMouseWheel(I16 delta) const;
-
-        void _UpdateCursorDelta();
 
         void _UpdateAxes( F64 delta );
         void _UpdateMouseWheelAxis( F64 delta );
@@ -205,9 +157,6 @@ namespace Core { namespace Input {
         //----------------------------------------------------------------------
         void _KeyCallback(Key key, KeyAction action, KeyMod mod);
         void _CharCallback(char c);
-        void _MouseCallback(MouseKey key, KeyAction action, KeyMod mod);
-        void _MouseWheelCallback(I16 param);
-        void _CursorMovedCallback(I16 x, I16 y);
 
     private:
         //----------------------------------------------------------------------

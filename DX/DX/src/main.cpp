@@ -149,6 +149,20 @@ public:
             LOG(TS(axis));
         }
 
+         static bool fpsMode = false;
+        if (Locator::getInputManager().wasKeyPressed(Key::P))
+        {
+            fpsMode = !fpsMode;
+            Locator::getInputManager().setFirstPersonMode(fpsMode);
+        }
+
+        if (fpsMode)
+        {
+            I16 x,y;
+            MOUSE.getMouseDelta(x,y);
+            LOG(TS(x)+ "|" + TS(y));
+        }
+
         //LOG( "Tick: " + TS(ticks) );
         //if ( ticks == GAME_TICK_RATE * 2)
         //    terminate();

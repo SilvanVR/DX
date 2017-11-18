@@ -27,13 +27,13 @@ namespace Core { namespace Input {
     IMouseListener::IMouseListener()
     {
         ASSERT( &Locator::getInputManager() != nullptr );
-        Locator::getInputManager()._Subscribe( this );
+        Locator::getInputManager().getMouse()._Subscribe( this );
     }
 
     //----------------------------------------------------------------------
     IMouseListener::~IMouseListener()
     {
-        Locator::getInputManager()._Unsubscribe( this );
+        Locator::getInputManager().getMouse()._Unsubscribe( this );
     }
 
 

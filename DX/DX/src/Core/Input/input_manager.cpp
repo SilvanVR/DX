@@ -19,9 +19,6 @@ namespace Core { namespace Input {
     //----------------------------------------------------------------------
     void KeyCallback( Key key, KeyAction action, KeyMod mod )        { s_instance->_KeyCallback( key, action, mod ); }
     void CharCallback( char c )                                      { s_instance->_CharCallback( c ); }
-    void MouseCallback( MouseKey key, KeyAction action, KeyMod mod ) { s_instance->_MouseCallback( key, action, mod ); }
-    void MouseWheelCallback( I16 param )                             { s_instance->_MouseWheelCallback( param ); }
-    void CursorMovedCallback( I16 x, I16 y )                         { s_instance->_CursorMovedCallback( x, y ); }
 
     //----------------------------------------------------------------------
     void InputManager::init()
@@ -32,27 +29,22 @@ namespace Core { namespace Input {
         // Subscribe to OnTick() event
         Locator::getCoreEngine().subscribe( this );
 
-        // Subscribe to all window events
+        // Create Input Devices
         OS::Window& window = Locator::getWindow();
+        m_mouse = new Mouse( &window );
+
+        // Subscribe to all window events
         window.setCallbackKey( KeyCallback );
         window.setCallbackChar( CharCallback );
-        window.setCallbackMouseButtons( MouseCallback );
-        window.setCallbackMouseWheel( MouseWheelCallback );
-        window.setCallbackCursorMove( CursorMovedCallback );
 
         // Zero out arrays
         memset( m_keyPressed, 0, MAX_KEYS * sizeof( bool ) );
         memset( m_keyReleased, 0, MAX_KEYS * sizeof( bool ) );
         memset( m_keyPressedThisTick, 0, MAX_KEYS * sizeof( bool ) );
         memset( m_keyPressedLastTick, 0, MAX_KEYS * sizeof( bool ) );
-        memset( m_mouseKeyPressed, 0, MAX_MOUSE_KEYS * sizeof( bool ) );
-        memset( m_mouseKeyReleased, 0, MAX_MOUSE_KEYS * sizeof( bool ) );
-        memset( m_mouseKeyPressedThisTick, 0, MAX_MOUSE_KEYS * sizeof( bool ) );
-        memset( m_mouseKeyPressedLastTick, 0, MAX_MOUSE_KEYS * sizeof( bool ) );
 
         // Preallocate mem for stl stuff
         m_keyListener.reserve( 4 );
-        m_mouseListener.reserve( 4 );
         m_axisInfos.reserve( 4 );
 
         // Register some default axes
@@ -60,12 +52,12 @@ namespace Core { namespace Input {
         registerAxis( "Left", Key::A, Key::D, 5.0f );
     }
 
+
     //----------------------------------------------------------------------
     void InputManager::OnTick( Time::Seconds delta )
     {
         _UpdateKeyStates();
-        _UpdateMouseStates();
-        _UpdateCursorDelta();
+        m_mouse->_UpdateInternalState();
         _UpdateAxes( delta.value );
         _UpdateMouseWheelAxis( delta.value );
     }
@@ -73,13 +65,12 @@ namespace Core { namespace Input {
     //----------------------------------------------------------------------
     void InputManager::shutdown()
     {
+        delete m_mouse;
+
         // Unsubscribe to all events (just for safety)
         OS::Window& window = Locator::getWindow();
         window.setCallbackKey( nullptr );
         window.setCallbackChar( nullptr );
-        window.setCallbackMouseButtons( nullptr );
-        window.setCallbackMouseWheel( nullptr );
-        window.setCallbackCursorMove( nullptr );
     }
 
     //----------------------------------------------------------------------
@@ -100,43 +91,6 @@ namespace Core { namespace Input {
     {
         I32 keyIndex = (I32)key;
         return not m_keyPressedThisTick[ keyIndex ] && m_keyPressedLastTick[ keyIndex ];
-    }
-
-    //----------------------------------------------------------------------
-    bool InputManager::isMouseKeyDown( MouseKey key ) const
-    {
-        return m_mouseKeyPressedThisTick[ (I32)key ];
-    }
-
-    //----------------------------------------------------------------------
-    bool InputManager::wasMouseKeyPressed( MouseKey key ) const
-    {
-        I32 keyIndex = (I32)key;
-        return m_mouseKeyPressedThisTick[ keyIndex ] && not m_mouseKeyPressedLastTick[ keyIndex ];
-    }
-
-    //----------------------------------------------------------------------
-    bool InputManager::wasMouseKeyReleased( MouseKey key ) const
-    {
-        I32 keyIndex = (I32)key;
-        return not m_mouseKeyPressedThisTick[ keyIndex ] && m_mouseKeyPressedLastTick[ keyIndex ];
-    }
-
-    //----------------------------------------------------------------------
-    void InputManager::setFirstPersonMode( bool enabled )
-    {
-        if ( ( enabled && m_firstPersonMode ) || ( not enabled && not m_firstPersonMode ) )
-            return; // Was already enabled or disabled
-
-        m_firstPersonMode = enabled;
-        OS::Window& window = Locator::getWindow();
-        window.showCursor( not m_firstPersonMode );
-
-        if (m_firstPersonMode)
-        {
-            window.centerCursor();
-            window.getCursorPosition( &m_cursorLastTick.x, &m_cursorLastTick.y );
-        }
     }
 
     //----------------------------------------------------------------------
@@ -209,51 +163,6 @@ namespace Core { namespace Input {
     }
 
     //----------------------------------------------------------------------
-    void InputManager::_UpdateMouseStates()
-    {
-        // Save last state
-        memcpy( m_mouseKeyPressedLastTick, m_mouseKeyPressedThisTick, MAX_MOUSE_KEYS * sizeof( bool ) );
-
-        // Same mechanism as with the keyboard. Used to decouple slower tick rate from faster update rate.
-        for (I32 i = 0; i < MAX_MOUSE_KEYS; i++)
-        {
-            if ( m_mouseKeyPressed[i] )
-            {
-                m_mouseKeyPressedThisTick[i] = true;
-                m_mouseKeyPressed[i] = false;
-            }
-            else if ( m_mouseKeyReleased[i] )
-            {
-                m_mouseKeyPressedThisTick[i] = false;
-                m_mouseKeyReleased[i] = false;
-            }
-        }
-
-        // Reset mouse wheel
-        static bool usedMouseWheel = false;
-        if (usedMouseWheel)
-            m_wheelDelta = 0;
-        usedMouseWheel = (m_wheelDelta != 0);
-    }
-
-    //----------------------------------------------------------------------
-    void InputManager::_UpdateCursorDelta()
-    {
-        if (m_firstPersonMode)
-        {
-            Locator::getWindow().centerCursor();
-            // m_cursorLastTick is always fixed (center of screen)
-        }
-        else
-        {
-            m_cursorLastTick = m_cursorThisTick;
-        }
-
-        m_cursorThisTick = m_cursor;
-        m_cursorDelta = (m_cursorThisTick - m_cursorLastTick);
-    }
-
-    //----------------------------------------------------------------------
     void InputManager::_UpdateAxes( F64 delta )
     {
         for (auto& axis : m_axisInfos)
@@ -293,9 +202,10 @@ namespace Core { namespace Input {
         static F32 acceleration = 50.0f;
         static F32 deceleration = 10.0f;
 
-        if (m_wheelDelta != 0)
+        I16 wheelDelta = m_mouse->getWheelDelta();
+        if (wheelDelta != 0)
         {
-            m_wheelAxis += acceleration * m_wheelDelta * delta;
+            m_wheelAxis += acceleration * wheelDelta * delta;
         }
         else
         {
@@ -309,36 +219,7 @@ namespace Core { namespace Input {
         }
     }
 
-    //----------------------------------------------------------------------
-    void InputManager::_MouseCallback( MouseKey key, KeyAction action, KeyMod mod )
-    {
-        switch (action)
-        {
-        case KeyAction::DOWN:
-            m_mouseKeyPressed[ (I32)key ] = true;
-            _NotifyMouseKeyPressed( key, mod);
-            break;
-        case KeyAction::UP:
-            m_mouseKeyReleased[ (I32)key ] = true;
-            _NotifyMouseKeyReleased( key, mod);
-            break;
-        }
-    }
 
-    //----------------------------------------------------------------------
-    void InputManager::_CursorMovedCallback( I16 x, I16 y )
-    {
-        m_cursor.x = x;
-        m_cursor.y = y;
-        _NotifyMouseMoved( m_cursor.x, m_cursor.y );
-    }
-
-    //----------------------------------------------------------------------
-    void InputManager::_MouseWheelCallback( I16 delta )
-    {
-        m_wheelDelta = delta;
-        _NotifyMouseWheel( m_wheelDelta );
-    }
 
     //----------------------------------------------------------------------
     void InputManager::_KeyCallback( Key key, KeyAction action, KeyMod mod )
@@ -388,32 +269,5 @@ namespace Core { namespace Input {
             listener->OnChar( c );
     }
 
-    //----------------------------------------------------------------------
-    void InputManager::_NotifyMouseMoved( I16 x, I16 y ) const
-    {
-        for (auto& listener : m_mouseListener)
-            listener->OnMouseMoved( x, y );
-    }
-
-    //----------------------------------------------------------------------
-    void InputManager::_NotifyMouseKeyPressed( MouseKey key, KeyMod mod ) const
-    {
-        for (auto& listener : m_mouseListener)
-            listener->OnMousePressed( key, mod);
-    }
-
-    //----------------------------------------------------------------------
-    void InputManager::_NotifyMouseKeyReleased( MouseKey key, KeyMod mod ) const
-    {
-        for (auto& listener : m_mouseListener)
-            listener->OnMouseReleased( key, mod );
-    }
-
-    //----------------------------------------------------------------------
-    void InputManager::_NotifyMouseWheel( I16 delta ) const
-    {
-        for (auto& listener : m_mouseListener)
-            listener->OnMouseWheel( delta );
-    }
 
 } }

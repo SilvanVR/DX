@@ -39,7 +39,7 @@ namespace Core { namespace Input {
         virtual ~IMouseListener();
 
     protected:
-        friend class InputManager;
+        friend class Mouse;
         virtual void OnMouseMoved(I16 x, I16 y) {}
         virtual void OnMousePressed(MouseKey key, KeyMod mod) {}
         virtual void OnMouseReleased(MouseKey key, KeyMod mod) {}
