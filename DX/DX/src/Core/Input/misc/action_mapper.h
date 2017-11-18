@@ -12,6 +12,9 @@
       ...
       if ( actionMapper.isKeyPressed("Fire") )
         [fires either when "E" or "LBUTTON" is held down]
+
+    @Considerations:
+      - Integrate axis stuff into this class. (axes should use action names)
 **********************************************************************/
 
 #include "Core/OS/Window/keycodes.h"

@@ -7,8 +7,6 @@
 
     This subsystem serves as the main Hub for all Input stuff.
 
-    // @TODO Axes stuff should use action names
-
     Features:
       - Mouse Input
       - Keyboard Input
@@ -17,6 +15,9 @@
 
      @Considerations:
       - Move axes stuff in a separate class
+       > Axes names should use action names
+        (or integrate axis stuff into action mapper)
+      - Action listener
 **********************************************************************/
 
 #include "Core/i_subsystem.hpp"
@@ -49,7 +50,7 @@ namespace Core { namespace Input {
         //----------------------------------------------------------------------
         Mouse&          getMouse()          { return *m_mouse; }
         Keyboard&       getKeyboard()       { return *m_keyboard; }
-        ActionMapper&   getActionMapper()   { return m_actionMapper; }
+        ActionMapper&   getActionMapper()   { return *m_actionMapper; }
 
         //----------------------------------------------------------------------
         // Enable/Disable the first person mode.
@@ -90,7 +91,7 @@ namespace Core { namespace Input {
         Mouse*          m_mouse     = nullptr;
 
         // <---------- MISC ----------->
-        ActionMapper    m_actionMapper;
+        ActionMapper*   m_actionMapper = nullptr;
 
         // <---------- AXIS ----------->
         struct AxisInfo

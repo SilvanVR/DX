@@ -146,7 +146,7 @@ public:
         }
         if (inState)
         {
-            F64 axis = Locator::getInputManager().getMouseWheelAxis();
+            F64 axis = Locator::getInputManager().getAxis("Forward");
             LOG(TS(axis));
         }
 

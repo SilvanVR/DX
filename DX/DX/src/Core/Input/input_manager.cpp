@@ -25,6 +25,8 @@ namespace Core { namespace Input {
         m_mouse     = new Mouse( &window );
         m_keyboard  = new Keyboard( &window );
 
+        m_actionMapper = new ActionMapper();
+
         // Preallocate mem
         m_axisInfos.reserve( 4 );
 
@@ -38,7 +40,7 @@ namespace Core { namespace Input {
     {
         m_keyboard->_UpdateInternalState();
         m_mouse->_UpdateInternalState();
-        m_actionMapper._UpdateInternalState( *m_keyboard, *m_mouse );
+        m_actionMapper->_UpdateInternalState( *m_keyboard, *m_mouse );
         _UpdateAxes( delta.value );
         _UpdateMouseWheelAxis( delta.value );
     }
@@ -46,8 +48,9 @@ namespace Core { namespace Input {
     //----------------------------------------------------------------------
     void InputManager::shutdown()
     {
-        delete m_mouse;
+        delete m_actionMapper;
         delete m_keyboard;
+        delete m_mouse;
     }
 
     //----------------------------------------------------------------------
