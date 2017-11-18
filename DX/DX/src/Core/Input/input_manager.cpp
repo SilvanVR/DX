@@ -38,6 +38,7 @@ namespace Core { namespace Input {
     {
         m_keyboard->_UpdateInternalState();
         m_mouse->_UpdateInternalState();
+        m_actionMapper._UpdateInternalState( *m_keyboard, *m_mouse );
         _UpdateAxes( delta.value );
         _UpdateMouseWheelAxis( delta.value );
     }
@@ -150,5 +151,6 @@ namespace Core { namespace Input {
                 m_wheelAxis = 0;
         }
     }
+
 
 } }

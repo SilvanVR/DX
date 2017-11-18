@@ -82,14 +82,14 @@ namespace Core { namespace Input {
     bool Mouse::wasKeyPressed( MouseKey key ) const
     {
         I32 keyIndex = (I32)key;
-        return m_mouseKeyPressedThisTick[ keyIndex ] && not m_mouseKeyPressedLastTick[ keyIndex ];
+        return ( m_mouseKeyPressedThisTick[ keyIndex ] && not m_mouseKeyPressedLastTick[ keyIndex ] );
     }
 
     //----------------------------------------------------------------------
     bool Mouse::wasKeyReleased( MouseKey key ) const
     {
         I32 keyIndex = (I32)key;
-        return not m_mouseKeyPressedThisTick[ keyIndex ] && m_mouseKeyPressedLastTick[ keyIndex ];
+        return ( not m_mouseKeyPressedThisTick[ keyIndex ] && m_mouseKeyPressedLastTick[ keyIndex ] );
     }
 
     //----------------------------------------------------------------------

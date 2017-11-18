@@ -291,6 +291,7 @@
     <ClCompile Include="src\Core\Input\input_manager.cpp" />
     <ClCompile Include="src\Core\Input\listener\input_listener.cpp" />
     <ClCompile Include="src\Core\Input\devices\mouse.cpp" />
+    <ClCompile Include="src\Core\Input\misc\action_mapper.cpp" />
     <ClCompile Include="src\Core\OS\FileSystem\path.cpp" />
     <ClCompile Include="src\Core\OS\Window\keycodes.cpp" />
     <ClCompile Include="src\Core\OS\Window\window.cpp" />
@@ -337,6 +338,7 @@
     <ClCompile Include="src\Utils\utils.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Core\Input\misc\action_mapper.h" />
     <ClInclude Include="src\commenting_style.hpp" />
     <ClInclude Include="src\Core\Config\configuration_manager.h" />
     <ClInclude Include="src\Core\Config\config_file.h" />

@@ -141,6 +141,9 @@
     <ClCompile Include="src\Core\Input\devices\keyboard.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Core\Input\misc\action_mapper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\commenting_style.hpp">
@@ -321,6 +324,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\Input\devices\keyboard.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Input\misc\action_mapper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

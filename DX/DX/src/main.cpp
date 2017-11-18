@@ -75,8 +75,7 @@ class TestObject : public Input::IKeyListener, public Input::IMouseListener
         else if (key == MouseKey::MButton)
         {
             LOG("Middle Mouse Down", Color::RED);
-            Locator::getWindow().centerCursor();
-            //Locator::getWindow().showCursor(false);
+            MOUSE.centerCursor();
         }
         else if (key == MouseKey::RButton)
             LOG("Right Mouse Down", Color::RED);
@@ -94,12 +93,11 @@ class TestObject : public Input::IKeyListener, public Input::IMouseListener
 
     void OnMouseWheel(I16 delta) override
     {
-        LOG("WHEEL DELTA: " + TS(delta));
+        //LOG("WHEEL DELTA: " + TS(delta));
     }
 };
 
-class Game 
-    : public IGame
+class Game : public IGame
 {
     const F64 duration = 1000;
     Time::Clock clock;
@@ -125,6 +123,10 @@ public:
         });
         
         obj = new TestObject();
+
+        auto& mapper = Locator::getInputManager().getActionMapper();
+        mapper.attachKeyboardEvent("Fire", Key::E);
+        mapper.attachMouseEvent("Fire", MouseKey::LButton);
     }
 
     //----------------------------------------------------------------------
@@ -142,25 +144,29 @@ public:
         {
             inState = !inState;
         }
-
         if (inState)
         {
             F64 axis = Locator::getInputManager().getMouseWheelAxis();
             LOG(TS(axis));
         }
 
-         static bool fpsMode = false;
+        static bool fpsMode = false;
         if ( KEYBOARD.wasKeyPressed(Key::P) )
         {
             fpsMode = !fpsMode;
             Locator::getInputManager().setFirstPersonMode(fpsMode);
         }
-
         if (fpsMode)
         {
             I16 x,y;
             MOUSE.getMouseDelta(x,y);
             LOG(TS(x)+ "|" + TS(y));
+        }
+
+
+        if ( ACTION_MAPPER.isKeyDown( "Fire" ) )
+        {
+            LOG("FIRE!");
         }
 
         //LOG( "Tick: " + TS(ticks) );

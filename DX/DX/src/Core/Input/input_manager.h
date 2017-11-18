@@ -7,10 +7,13 @@
 
     This subsystem serves as the main Hub for all Input stuff.
 
+    // @TODO Axes stuff should use action names
+
     Features:
       - Mouse Input
       - Keyboard Input
       - Axis calculations (Smooth values based on several keys)
+      - Action Mappings (Names to input events)
 
      @Considerations:
       - Move axes stuff in a separate class
@@ -20,21 +23,14 @@
 #include "listener/input_listener.h"
 #include "devices/keyboard.h"
 #include "devices/mouse.h"
+#include "misc/action_mapper.h"
 
 //----------------------------------------------------------------------
-#define MOUSE       Locator::getInputManager().getMouse()
-#define KEYBOARD    Locator::getInputManager().getKeyboard()
+#define MOUSE           Locator::getInputManager().getMouse()
+#define KEYBOARD        Locator::getInputManager().getKeyboard()
+#define ACTION_MAPPER   Locator::getInputManager().getActionMapper()
 
 namespace Core { namespace Input {
-
-    class InputActionMapper
-    {
-    public:
-        // Triggers action events
-        // Set action events
-    private:
-        // Save state of action events
-    };
 
     //**********************************************************************
     class InputManager : public ISubSystem
@@ -51,8 +47,9 @@ namespace Core { namespace Input {
         void shutdown() override;
 
         //----------------------------------------------------------------------
-        Mouse&      getMouse()      { return *m_mouse; }
-        Keyboard&   getKeyboard()   { return *m_keyboard; }
+        Mouse&          getMouse()          { return *m_mouse; }
+        Keyboard&       getKeyboard()       { return *m_keyboard; }
+        ActionMapper&   getActionMapper()   { return m_actionMapper; }
 
         //----------------------------------------------------------------------
         // Enable/Disable the first person mode.
@@ -89,8 +86,11 @@ namespace Core { namespace Input {
 
     private:
         // <---------- DEVICES ----------->
-        Keyboard*   m_keyboard = nullptr;
-        Mouse*      m_mouse = nullptr;
+        Keyboard*       m_keyboard  = nullptr;
+        Mouse*          m_mouse     = nullptr;
+
+        // <---------- MISC ----------->
+        ActionMapper    m_actionMapper;
 
         // <---------- AXIS ----------->
         struct AxisInfo

@@ -66,14 +66,14 @@ namespace Core { namespace Input {
         bool Keyboard::wasKeyPressed( Key key ) const
         {
             I32 keyIndex = (I32)key;
-            return m_keyPressedThisTick[ keyIndex ] && not m_keyPressedLastTick[ keyIndex ];
+            return ( m_keyPressedThisTick[ keyIndex ] && not m_keyPressedLastTick[ keyIndex ] );
         }
 
         //----------------------------------------------------------------------
         bool Keyboard::wasKeyReleased( Key key ) const
         {
             I32 keyIndex = (I32)key;
-            return not m_keyPressedThisTick[ keyIndex ] && m_keyPressedLastTick[ keyIndex ];
+            return ( not m_keyPressedThisTick[ keyIndex ] && m_keyPressedLastTick[ keyIndex ] );
         }
 
         //**********************************************************************
