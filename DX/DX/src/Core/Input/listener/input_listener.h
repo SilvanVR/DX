@@ -25,7 +25,7 @@ namespace Core { namespace Input {
         virtual ~IKeyListener();
 
     protected:
-        friend class InputManager;
+        friend class Keyboard;
         virtual void OnKeyPressed(Key key, KeyMod mod) {}
         virtual void OnKeyReleased(Key key, KeyMod mod) {}
         virtual void OnChar(char c) {}

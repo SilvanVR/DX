@@ -4,12 +4,10 @@
 
     author: S. Hau
     date: November 18, 2017
-
-    WINDOW CLASS AS MEMBER
 **********************************************************************/
 
 #include "locator.h"
-#include "listener/input_listener.h"
+#include "../listener/input_listener.h"
 
 namespace Core { namespace Input {
 
@@ -60,51 +58,6 @@ namespace Core { namespace Input {
     {
         _UpdateMouseKeyStates();
         _UpdateCursorDelta();
-    }
-
-    //----------------------------------------------------------------------
-    void Mouse::_UpdateMouseKeyStates()
-    {
-        // Save last state
-        memcpy( m_mouseKeyPressedLastTick, m_mouseKeyPressedThisTick, MAX_MOUSE_KEYS * sizeof( bool ) );
-
-        // Same mechanism as with the keyboard. Used to decouple slower tick rate from faster update rate.
-        for (I32 i = 0; i < MAX_MOUSE_KEYS; i++)
-        {
-            if ( m_mouseKeyPressed[i] )
-            {
-                m_mouseKeyPressedThisTick[i] = true;
-                m_mouseKeyPressed[i] = false;
-            }
-            else if ( m_mouseKeyReleased[i] )
-            {
-                m_mouseKeyPressedThisTick[i] = false;
-                m_mouseKeyReleased[i] = false;
-            }
-        }
-
-        // Reset mouse wheel delta. This ensures that the delta is saved for one tick.
-        static bool usedMouseWheel = false;
-        if (usedMouseWheel)
-            m_wheelDelta = 0;
-        usedMouseWheel = (m_wheelDelta != 0);
-    }
-
-    //----------------------------------------------------------------------
-    void Mouse::_UpdateCursorDelta()
-    {
-        if (m_firstPersonMode)
-        {
-            centerCursor();
-            // m_cursorLastTick is always fixed (center of screen)
-        }
-        else
-        {
-            m_cursorLastTick = m_cursorThisTick;
-        }
-
-        m_cursorThisTick = m_cursor;
-        m_cursorDelta = (m_cursorThisTick - m_cursorLastTick);
     }
 
     //----------------------------------------------------------------------
@@ -191,8 +144,51 @@ namespace Core { namespace Input {
     }
 
     //**********************************************************************
+    void Mouse::_UpdateMouseKeyStates()
+    {
+        // Save last state
+        memcpy( m_mouseKeyPressedLastTick, m_mouseKeyPressedThisTick, MAX_MOUSE_KEYS * sizeof( bool ) );
+
+        // Same mechanism as with the keyboard. Used to decouple slower tick rate from faster update rate.
+        for (I32 i = 0; i < MAX_MOUSE_KEYS; i++)
+        {
+            if ( m_mouseKeyPressed[i] )
+            {
+                m_mouseKeyPressedThisTick[i] = true;
+                m_mouseKeyPressed[i] = false;
+            }
+            else if ( m_mouseKeyReleased[i] )
+            {
+                m_mouseKeyPressedThisTick[i] = false;
+                m_mouseKeyReleased[i] = false;
+            }
+        }
+
+        // Reset mouse wheel delta. This ensures that the delta is saved for one tick.
+        static bool usedMouseWheel = false;
+        if (usedMouseWheel)
+            m_wheelDelta = 0;
+        usedMouseWheel = (m_wheelDelta != 0);
+    }
 
     //----------------------------------------------------------------------
+    void Mouse::_UpdateCursorDelta()
+    {
+        if (m_firstPersonMode)
+        {
+            centerCursor();
+            // m_cursorLastTick is always fixed (center of screen)
+        }
+        else
+        {
+            m_cursorLastTick = m_cursorThisTick;
+        }
+
+        m_cursorThisTick = m_cursor;
+        m_cursorDelta = (m_cursorThisTick - m_cursorLastTick);
+    }
+
+    //**********************************************************************
     void Mouse::_NotifyMouseMoved( I16 x, I16 y ) const
     {
         for (auto& listener : m_mouseListener)

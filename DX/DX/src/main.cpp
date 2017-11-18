@@ -138,7 +138,7 @@ public:
         //auto time = clock.getTime();
 
         static bool inState = false;
-        if ( Locator::getInputManager().wasKeyPressed( Key::Q ) )
+        if ( KEYBOARD.wasKeyPressed( Key::Q ) )
         {
             inState = !inState;
         }
@@ -150,7 +150,7 @@ public:
         }
 
          static bool fpsMode = false;
-        if (Locator::getInputManager().wasKeyPressed(Key::P))
+        if ( KEYBOARD.wasKeyPressed(Key::P) )
         {
             fpsMode = !fpsMode;
             Locator::getInputManager().setFirstPersonMode(fpsMode);
@@ -166,7 +166,7 @@ public:
         //LOG( "Tick: " + TS(ticks) );
         //if ( ticks == GAME_TICK_RATE * 2)
         //    terminate();
-        if( Locator::getInputManager().isKeyDown( Key::Escape ) )
+        if( KEYBOARD.isKeyDown( Key::Escape ) )
             terminate();
     }
 

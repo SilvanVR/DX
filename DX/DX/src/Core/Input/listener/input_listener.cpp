@@ -14,13 +14,13 @@ namespace Core { namespace Input {
     IKeyListener::IKeyListener()
     {
         ASSERT( &Locator::getInputManager() != nullptr );
-        Locator::getInputManager()._Subscribe( this );
+        Locator::getInputManager().getKeyboard()._Subscribe( this );
     }
 
     //----------------------------------------------------------------------
     IKeyListener::~IKeyListener()
     {
-        Locator::getInputManager()._Unsubscribe( this );
+        Locator::getInputManager().getKeyboard()._Unsubscribe( this );
     }
 
     //----------------------------------------------------------------------

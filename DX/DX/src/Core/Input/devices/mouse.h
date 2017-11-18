@@ -100,7 +100,7 @@ namespace Core { namespace Input {
         ArrayList<IMouseListener*>  m_mouseListener;
 
         friend class IMouseListener;
-        void _Subscribe(IMouseListener* listener) { m_mouseListener.push_back(listener); }
+        void _Subscribe(IMouseListener* listener) { m_mouseListener.push_back( listener ); }
         void _Unsubscribe(IMouseListener* listener) { m_mouseListener.erase( std::remove( m_mouseListener.begin(), m_mouseListener.end(), listener ) ); }
 
         void _NotifyMouseMoved(I16 x, I16 y) const;

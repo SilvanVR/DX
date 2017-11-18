@@ -3,29 +3,25 @@
     class: InputManager (input_manager.h)
 
     author: S. Hau
-    date: November 4, 2017
+    date: November 18, 2017
 
-    @TODO: Replace Point2D by vector
-
-    Responsibilites:
-      - Process the input window callbacks and saves the current state
-        of input devices to be queried by anyone.
+    Responsbilities:
+      - Main Hub for Input stuff
 
     Features:
-      - Ask the InputManager about the current state e.g. mouse-pos etc.
-      - Subscribe indirectly via inheritation from a listener class:
-         IKeyListener: Override methods to get notified by key events.
-         IMouseListener: Override methods to get notified by mouse events.
-        Listener callbacks will be called whenever they occur in the
-        update loop (possibly faster than tick rate)
+      - Mouse Input
+      - Keyboard Input
+      - Axis calculations (Smooth values based on several keys)
 **********************************************************************/
 
 #include "Core/i_subsystem.hpp"
 #include "listener/input_listener.h"
-#include "mouse.h"
+#include "devices/keyboard.h"
+#include "devices/mouse.h"
 
 //----------------------------------------------------------------------
-#define MOUSE Locator::getInputManager().getMouse()
+#define MOUSE       Locator::getInputManager().getMouse()
+#define KEYBOARD    Locator::getInputManager().getKeyboard()
 
 namespace Core { namespace Input {
 
@@ -45,8 +41,6 @@ namespace Core { namespace Input {
     //**********************************************************************
     class InputManager : public ISubSystem
     {
-        static const U32 MAX_KEYS = 255;
-
     public:
         InputManager() = default;
         ~InputManager() = default;
@@ -59,19 +53,8 @@ namespace Core { namespace Input {
         void shutdown() override;
 
         //----------------------------------------------------------------------
-        // @Return: True when the given key is down.
-        //----------------------------------------------------------------------
-        bool isKeyDown(Key key) const;
-
-        //----------------------------------------------------------------------
-        // @Return: True, the frame the key was pressed.
-        //----------------------------------------------------------------------
-        bool wasKeyPressed(Key key) const;
-
-        //----------------------------------------------------------------------
-        // @Return: True, the frame the key was released.
-        //----------------------------------------------------------------------
-        bool wasKeyReleased(Key key) const;
+        Mouse&      getMouse()      { return *m_mouse; }
+        Keyboard&   getKeyboard()   { return *m_keyboard; }
 
         //----------------------------------------------------------------------
         // Enable/Disable the first person mode.
@@ -106,23 +89,9 @@ namespace Core { namespace Input {
         void registerAxis(const char* name, Key key0, Key key1, F64 acc = 1.0f);
         void unregisterAxis(const char* name);
 
-        Mouse& getMouse() { return *m_mouse; }
-
     private:
-        // <---------- KEYBOARD ----------->
-        // Those will be updated per update
-        bool    m_keyPressed[MAX_KEYS];
-        bool    m_keyReleased[MAX_KEYS];
-
-        // Those will be updated per tick
-        bool    m_keyPressedThisTick[MAX_KEYS];
-        bool    m_keyPressedLastTick[MAX_KEYS];
-
-        // <---------- MOUSE ----------->
-        Mouse*  m_mouse;
-
-        // <---------- MISC ----------->
-        HashMap<Key, Key>               m_virtualKeys;
+        Keyboard*   m_keyboard;
+        Mouse*      m_mouse;
 
         // <---------- AXIS ----------->
         struct AxisInfo
@@ -136,27 +105,8 @@ namespace Core { namespace Input {
         HashMap<StringID, F64>  m_axisMap;
         F64                     m_wheelAxis;
 
-        // <---------- LISTENER ----------->
-        ArrayList<IKeyListener*>        m_keyListener;
-
-        //----------------------------------------------------------------------
-        friend class IKeyListener;
-        void _Subscribe(IKeyListener* listener) { m_keyListener.push_back( listener ); }
-        void _Unsubscribe(IKeyListener* listener) { m_keyListener.erase( std::remove( m_keyListener.begin(), m_keyListener.end(), listener ) ); }
-
-        //----------------------------------------------------------------------
-        void _UpdateKeyStates();
-        void _NotifyKeyPressed(Key key, KeyMod mod) const;
-        void _NotifyKeyReleased(Key key, KeyMod mod) const;
-        void _NotifyOnChar(char c) const;
-
         void _UpdateAxes( F64 delta );
         void _UpdateMouseWheelAxis( F64 delta );
-
-     public:
-        //----------------------------------------------------------------------
-        void _KeyCallback(Key key, KeyAction action, KeyMod mod);
-        void _CharCallback(char c);
 
     private:
         //----------------------------------------------------------------------

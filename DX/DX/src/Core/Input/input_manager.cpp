@@ -3,7 +3,7 @@
     class: InputManager (input_manager.cpp)
 
     author: S. Hau
-    date: November 4, 2017
+    date: November 18, 2017
 
     @Considerations:
       - Move axes stuff in a separate class
@@ -14,37 +14,17 @@
 namespace Core { namespace Input {
 
     //----------------------------------------------------------------------
-    static InputManager* s_instance = nullptr;
-
-    //----------------------------------------------------------------------
-    void KeyCallback( Key key, KeyAction action, KeyMod mod )        { s_instance->_KeyCallback( key, action, mod ); }
-    void CharCallback( char c )                                      { s_instance->_CharCallback( c ); }
-
-    //----------------------------------------------------------------------
     void InputManager::init()
     {
-        ASSERT( s_instance == nullptr );
-        s_instance = this;
-
-        // Subscribe to OnTick() event
+        // Subscribe for OnTick() event
         Locator::getCoreEngine().subscribe( this );
 
         // Create Input Devices
         OS::Window& window = Locator::getWindow();
-        m_mouse = new Mouse( &window );
+        m_mouse     = new Mouse( &window );
+        m_keyboard  = new Keyboard( &window );
 
-        // Subscribe to all window events
-        window.setCallbackKey( KeyCallback );
-        window.setCallbackChar( CharCallback );
-
-        // Zero out arrays
-        memset( m_keyPressed, 0, MAX_KEYS * sizeof( bool ) );
-        memset( m_keyReleased, 0, MAX_KEYS * sizeof( bool ) );
-        memset( m_keyPressedThisTick, 0, MAX_KEYS * sizeof( bool ) );
-        memset( m_keyPressedLastTick, 0, MAX_KEYS * sizeof( bool ) );
-
-        // Preallocate mem for stl stuff
-        m_keyListener.reserve( 4 );
+        // Preallocate mem
         m_axisInfos.reserve( 4 );
 
         // Register some default axes
@@ -52,45 +32,22 @@ namespace Core { namespace Input {
         registerAxis( "Left", Key::A, Key::D, 5.0f );
     }
 
-
     //----------------------------------------------------------------------
     void InputManager::OnTick( Time::Seconds delta )
     {
-        _UpdateKeyStates();
+        Locator::getProfiler().profileCodeSectionBegin("InputManager::OnTick()");
+        m_keyboard->_UpdateInternalState();
         m_mouse->_UpdateInternalState();
         _UpdateAxes( delta.value );
         _UpdateMouseWheelAxis( delta.value );
+        Locator::getProfiler().profileCodeSectionEnd("InputManager::OnTick()");
     }
 
     //----------------------------------------------------------------------
     void InputManager::shutdown()
     {
         delete m_mouse;
-
-        // Unsubscribe to all events (just for safety)
-        OS::Window& window = Locator::getWindow();
-        window.setCallbackKey( nullptr );
-        window.setCallbackChar( nullptr );
-    }
-
-    //----------------------------------------------------------------------
-    bool InputManager::isKeyDown( Key key ) const
-    {
-        return m_keyPressedThisTick[ (I32)key ];
-    }
-
-    //----------------------------------------------------------------------
-    bool InputManager::wasKeyPressed( Key key ) const
-    {
-        I32 keyIndex = (I32)key;
-        return m_keyPressedThisTick[ keyIndex ] && not m_keyPressedLastTick[ keyIndex ];
-    }
-
-    //----------------------------------------------------------------------
-    bool InputManager::wasKeyReleased( Key key ) const
-    {
-        I32 keyIndex = (I32)key;
-        return not m_keyPressedThisTick[ keyIndex ] && m_keyPressedLastTick[ keyIndex ];
+        delete m_keyboard;
     }
 
     //----------------------------------------------------------------------
@@ -137,38 +94,14 @@ namespace Core { namespace Input {
     //**********************************************************************
     // PRIVATE
     //**********************************************************************
-    void InputManager::_UpdateKeyStates()
-    {
-        // Save last state
-        memcpy( m_keyPressedLastTick, m_keyPressedThisTick, MAX_KEYS * sizeof( bool ) );
-
-        // Update the "keyPressedThisTick" array.
-        // This loop decouples the slower tick-rate from the window-callback rate.
-        // Because the window-callbacks will be called every frame it can theoretically
-        // happen that a key is pressed and released at the same time in a tick.
-        // With the "else if" part, no key events will ever be missed.
-        for ( I32 i = 0; i < MAX_KEYS; i++ )
-        {
-            if ( m_keyPressed[i] )
-            {
-                m_keyPressedThisTick[i] = true;
-                m_keyPressed[i] = false;
-            }
-            else if ( m_keyReleased[i] )
-            {
-                m_keyPressedThisTick[i] = false;
-                m_keyReleased[i] = false;
-            }
-        }
-    }
 
     //----------------------------------------------------------------------
     void InputManager::_UpdateAxes( F64 delta )
     {
         for (auto& axis : m_axisInfos)
         {
-            bool key0Down   = isKeyDown( axis.key0 );
-            bool key1Down   = isKeyDown( axis.key1 );
+            bool key0Down   = m_keyboard->isKeyDown( axis.key0 );
+            bool key1Down   = m_keyboard->isKeyDown( axis.key1 );
             F64 step        = (axis.acc * delta);
 
             F64& val = m_axisMap[ axis.name ];
@@ -218,56 +151,5 @@ namespace Core { namespace Input {
                 m_wheelAxis = 0;
         }
     }
-
-
-
-    //----------------------------------------------------------------------
-    void InputManager::_KeyCallback( Key key, KeyAction action, KeyMod mod )
-    {
-        I32 keyIndex = (I32) key;
-        ASSERT( keyIndex < MAX_KEYS );
-
-        switch (action)
-        {
-        case KeyAction::DOWN:
-            m_keyPressed[ keyIndex ] = true;
-            _NotifyKeyPressed( key, mod );
-            break;
-        case KeyAction::UP:
-            m_keyReleased[ keyIndex ] = true;
-            _NotifyKeyReleased( key, mod);
-            break;
-        }
-    }
-
-    //----------------------------------------------------------------------
-    void InputManager::_CharCallback( char c )
-    {
-        _NotifyOnChar( c );
-    }
-
-    //**********************************************************************
-
-    //----------------------------------------------------------------------
-    void InputManager::_NotifyKeyPressed( Key key, KeyMod mod ) const
-    {
-        for (auto& listener : m_keyListener)
-            listener->OnKeyPressed( key, mod);
-    }
-
-    //----------------------------------------------------------------------
-    void InputManager::_NotifyKeyReleased( Key key, KeyMod mod ) const
-    {
-        for (auto& listener : m_keyListener)
-            listener->OnKeyReleased( key, mod);
-    }
-
-    //----------------------------------------------------------------------
-    void InputManager::_NotifyOnChar(char c) const
-    {
-        for (auto& listener : m_keyListener)
-            listener->OnChar( c );
-    }
-
 
 } }

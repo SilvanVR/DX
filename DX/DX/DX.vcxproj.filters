@@ -135,7 +135,10 @@
     <ClCompile Include="src\Core\Input\listener\input_listener.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Core\Input\mouse.cpp">
+    <ClCompile Include="src\Core\Input\devices\mouse.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Input\devices\keyboard.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -314,7 +317,10 @@
     <ClInclude Include="src\Core\Input\listener\input_listener.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\Input\mouse.h">
+    <ClInclude Include="src\Core\Input\devices\mouse.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Input\devices\keyboard.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

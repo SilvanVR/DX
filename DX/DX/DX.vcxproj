@@ -287,9 +287,10 @@
     <ClCompile Include="src\Core\Config\configuration_manager.cpp" />
     <ClCompile Include="src\Core\Config\config_file.cpp" />
     <ClCompile Include="src\Core\core_engine.cpp" />
+    <ClCompile Include="src\Core\Input\devices\keyboard.cpp" />
     <ClCompile Include="src\Core\Input\input_manager.cpp" />
     <ClCompile Include="src\Core\Input\listener\input_listener.cpp" />
-    <ClCompile Include="src\Core\Input\mouse.cpp" />
+    <ClCompile Include="src\Core\Input\devices\mouse.cpp" />
     <ClCompile Include="src\Core\OS\FileSystem\path.cpp" />
     <ClCompile Include="src\Core\OS\Window\keycodes.cpp" />
     <ClCompile Include="src\Core\OS\Window\window.cpp" />
@@ -341,9 +342,10 @@
     <ClInclude Include="src\Core\Config\config_file.h" />
     <ClInclude Include="src\Core\core_engine.h" />
     <ClInclude Include="src\Core\DataStructures\byte_array.hpp" />
+    <ClInclude Include="src\Core\Input\devices\keyboard.h" />
     <ClInclude Include="src\Core\Input\input_manager.h" />
     <ClInclude Include="src\Core\Input\listener\input_listener.h" />
-    <ClInclude Include="src\Core\Input\mouse.h" />
+    <ClInclude Include="src\Core\Input\devices\mouse.h" />
     <ClInclude Include="src\Core\MemoryManagement\Allocators\include.hpp" />
     <ClInclude Include="src\Core\Misc\Introspection\introspection.h" />
     <ClInclude Include="src\Core\OS\FileSystem\path.h" />
