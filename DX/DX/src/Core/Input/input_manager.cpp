@@ -4,14 +4,15 @@
 
     author: S. Hau
     date: November 18, 2017
-
-    @Considerations:
-      - Move axes stuff in a separate class
 **********************************************************************/
 
 #include "locator.h"
 
 namespace Core { namespace Input {
+
+    //----------------------------------------------------------------------
+    #define AXIS_MIN        -1
+    #define AXIS_MAX        1
 
     //----------------------------------------------------------------------
     void InputManager::init()
@@ -35,12 +36,10 @@ namespace Core { namespace Input {
     //----------------------------------------------------------------------
     void InputManager::OnTick( Time::Seconds delta )
     {
-        Locator::getProfiler().profileCodeSectionBegin("InputManager::OnTick()");
         m_keyboard->_UpdateInternalState();
         m_mouse->_UpdateInternalState();
         _UpdateAxes( delta.value );
         _UpdateMouseWheelAxis( delta.value );
-        Locator::getProfiler().profileCodeSectionEnd("InputManager::OnTick()");
     }
 
     //----------------------------------------------------------------------

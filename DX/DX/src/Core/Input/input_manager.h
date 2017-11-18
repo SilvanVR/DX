@@ -5,13 +5,15 @@
     author: S. Hau
     date: November 18, 2017
 
-    Responsbilities:
-      - Main Hub for Input stuff
+    This subsystem serves as the main Hub for all Input stuff.
 
     Features:
       - Mouse Input
       - Keyboard Input
       - Axis calculations (Smooth values based on several keys)
+
+     @Considerations:
+      - Move axes stuff in a separate class
 **********************************************************************/
 
 #include "Core/i_subsystem.hpp"
@@ -33,10 +35,6 @@ namespace Core { namespace Input {
     private:
         // Save state of action events
     };
-
-    //----------------------------------------------------------------------
-    #define AXIS_MIN        -1
-    #define AXIS_MAX        1
 
     //**********************************************************************
     class InputManager : public ISubSystem
@@ -90,8 +88,9 @@ namespace Core { namespace Input {
         void unregisterAxis(const char* name);
 
     private:
-        Keyboard*   m_keyboard;
-        Mouse*      m_mouse;
+        // <---------- DEVICES ----------->
+        Keyboard*   m_keyboard = nullptr;
+        Mouse*      m_mouse = nullptr;
 
         // <---------- AXIS ----------->
         struct AxisInfo
