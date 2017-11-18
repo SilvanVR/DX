@@ -154,7 +154,7 @@ public:
         if ( KEYBOARD.wasKeyPressed(Key::P) )
         {
             fpsMode = !fpsMode;
-            Locator::getInputManager().setFirstPersonMode(fpsMode);
+            MOUSE.setFirstPersonMode(fpsMode);
         }
         if (fpsMode)
         {

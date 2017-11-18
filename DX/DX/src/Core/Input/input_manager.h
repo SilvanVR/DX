@@ -53,12 +53,6 @@ namespace Core { namespace Input {
         ActionMapper&   getActionMapper()   { return *m_actionMapper; }
 
         //----------------------------------------------------------------------
-        // Enable/Disable the first person mode.
-        // True: Mouse is hidden and cursor is always centered.
-        //----------------------------------------------------------------------
-        void setFirstPersonMode(bool enabled) { m_mouse->setFirstPersonMode(enabled); }
-
-        //----------------------------------------------------------------------
         // Return the axis value for the corresponding axis.
         // @Param:
         //  "name": The name of the registered axis.
