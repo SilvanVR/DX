@@ -12,11 +12,9 @@
       ...
       if ( actionMapper.isKeyPressed("Fire") )
         [fires either when "E" or "LBUTTON" is held down]
-
-    @Considerations:
-      - Integrate axis stuff into this class. (axes should use action names)
 **********************************************************************/
 
+#include "Core/Input/input_devices.hpp"
 #include "Core/OS/Window/keycodes.h"
 
 namespace Core { namespace Input {
@@ -24,13 +22,6 @@ namespace Core { namespace Input {
     //----------------------------------------------------------------------
     class Keyboard;
     class Mouse;
-
-    //----------------------------------------------------------------------
-    enum class EInputDevice
-    {
-        Keyboard,
-        Mouse
-    };
 
     //**********************************************************************
     // Maps names to several actions regardless of InputDevice
@@ -57,7 +48,7 @@ namespace Core { namespace Input {
         };
 
     public:
-        ActionMapper() = default;
+        ActionMapper(const Keyboard* keyboard, const Mouse* mouse) : m_keyboard( keyboard ), m_mouse( mouse ) {}
         ~ActionMapper() = default;
 
         //----------------------------------------------------------------------
@@ -77,10 +68,12 @@ namespace Core { namespace Input {
         bool wasKeyReleased(const char* name);
 
         // Should be called once per tick. Checks if actions should be fired.
-        void _UpdateInternalState(const Keyboard& keyboard, const Mouse& mouse);
+        void _UpdateInternalState();
 
     private:
         HashMap<StringID, Action> m_actionEvents;
+        const Keyboard* m_keyboard;
+        const Mouse*    m_mouse;
 
         //----------------------------------------------------------------------
         ActionMapper(const ActionMapper& other)              = delete;

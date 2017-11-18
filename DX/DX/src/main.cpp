@@ -146,7 +146,7 @@ public:
         }
         if (inState)
         {
-            F64 axis = Locator::getInputManager().getAxis("Forward");
+            F64 axis = AXIS_MAPPER.getAxisValue("Forward");
             LOG(TS(axis));
         }
 
@@ -166,7 +166,7 @@ public:
 
         if ( ACTION_MAPPER.isKeyDown( "Fire" ) )
         {
-            LOG("FIRE!");
+           // LOG("FIRE!");
         }
 
         //LOG( "Tick: " + TS(ticks) );

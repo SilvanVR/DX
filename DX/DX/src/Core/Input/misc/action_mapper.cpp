@@ -70,7 +70,7 @@ namespace Core { namespace Input {
     }
 
     //----------------------------------------------------------------------
-    void ActionMapper::_UpdateInternalState( const Keyboard& keyboard, const Mouse& mouse )
+    void ActionMapper::_UpdateInternalState()
     {
         // Loop through each Action and check if it should be fired
         for (auto& pair : m_actionEvents)
@@ -84,10 +84,10 @@ namespace Core { namespace Input {
                 switch (evt.device)
                 {
                 case EInputDevice::Keyboard:
-                    action.activeThisTick = keyboard.isKeyDown( evt.keyboardKey );
+                    action.activeThisTick = m_keyboard->isKeyDown( evt.keyboardKey );
                     break;
                 case EInputDevice::Mouse:
-                    action.activeThisTick = mouse.isKeyDown( evt.mouseKey );
+                    action.activeThisTick = m_mouse->isKeyDown( evt.mouseKey );
                     break;
                 default:
                     WARN( "ActionMapper::_UpdateInternalState: Unknown input device." );
@@ -99,6 +99,5 @@ namespace Core { namespace Input {
             }
         }
     }
-
 
 } } // End namespaces
