@@ -1,5 +1,4 @@
 #include "core_engine.h"
-
 /**********************************************************************
     class: CoreEngine (core_engine.cpp)
 

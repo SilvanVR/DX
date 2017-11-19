@@ -20,7 +20,7 @@
 
 //----------------------------------------------------------------------
 #define ENABLE_THREADING 0
-#define ENABLE_CONFIG    0
+#define ENABLE_CONFIG    1
 
 namespace Core
 {

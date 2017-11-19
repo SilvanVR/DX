@@ -28,6 +28,7 @@ namespace Core {
 
         //----------------------------------------------------------------------
         bool isFull()                   const { return m_index == m_capacity; }
+        bool isEmpty()                  const { return m_index == 0; }
         bool hasEnoughPlace(Size size)  const { return (m_index + size) < m_capacity; }
         Size capacity()                 const { return m_capacity; }
         Size size()                     const { return m_index; }

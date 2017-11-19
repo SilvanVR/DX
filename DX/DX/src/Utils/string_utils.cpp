@@ -21,6 +21,22 @@ namespace StringUtils {
     }
 
     //----------------------------------------------------------------------
+    String toLower(const String& s)
+    {
+        String res = s;
+        std::transform( res.begin(), res.end(), res.begin(), ::tolower );
+        return res;
+    }
+
+    //----------------------------------------------------------------------
+    String toUpper(const String& s)
+    {
+        String res = s;
+        std::transform( res.begin(), res.end(), res.begin(), ::toupper );
+        return res;
+    }
+
+    //----------------------------------------------------------------------
     void ltrim( String& s ) {
         s.erase( s.begin(), std::find_if( s.begin(), s.end(), []( int ch ) {
             return !isspace( ch );

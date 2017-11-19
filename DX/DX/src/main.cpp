@@ -40,61 +40,18 @@ public:
 };
 
 
-class TestObject : public Input::IKeyListener, public Input::IMouseListener
-{
-    void OnKeyPressed(Key key, KeyMod mod) override
-    {
-        //LOG( "PRESSED: " + KeyToString(key) );
-    }
-
-    void OnMouseMoved(I16 x, I16 y) override
-    {
-        //LOG("(" + TS(x) + "," + TS(y) + ")", Color::GREEN);
-    }
-
-    void OnChar(char c) override
-    {
-
-    }
-
-    void OnMousePressed(MouseKey key, KeyMod mod) override
-    {
-        if (key == MouseKey::LButton)
-            LOG("Left Mouse Down", Color::RED);
-        else if (key == MouseKey::MButton)
-        {
-            LOG("Middle Mouse Down", Color::RED);
-            MOUSE.centerCursor();
-        }
-        else if (key == MouseKey::RButton)
-            LOG("Right Mouse Down", Color::RED);
-    }
-
-    void OnMouseReleased(MouseKey key, KeyMod mod) override
-    {
-        if (key == MouseKey::LButton)
-            LOG("Left Mouse Up", Color::RED);
-        else if (key == MouseKey::MButton)
-            LOG("Middle Mouse Up", Color::RED);
-        else if (key == MouseKey::RButton)
-            LOG("Right Mouse Up", Color::RED);
-    }
-
-    void OnMouseWheel(I16 delta) override
-    {
-        //LOG("WHEEL DELTA: " + TS(delta));
-    }
-};
-
-
 class Game : public IGame
 {
     const F64 duration = 1000;
     Time::Clock clock;
-    TestObject* obj;
 
 public:
     Game() : clock( duration ) {}
+
+    void hello()
+    {
+        LOG("Hello World", Color::RED);
+    }
 
     //----------------------------------------------------------------------
     void init() override 
@@ -111,8 +68,8 @@ public:
         getWindow().setCallbackSizeChanged([](U16 w, U16 h) {
             LOG( "New Window-Size: " + TS(w) + "," + TS(h) );
         });
-        
-        obj = new TestObject();
+
+        IGC_REGISTER_COMMAND_WITH_NAME( "Hello", std::bind(&Game::hello, this) );
     }
 
     //----------------------------------------------------------------------
@@ -126,12 +83,13 @@ public:
         //auto time = clock.getTime();
 
         static bool inState = false;
-        if ( KEYBOARD.wasKeyPressed( Key::Q ) )
+        if (KEYBOARD.wasKeyPressed(Key::Q))
+        {
             inState = !inState;
+        }
 
         if (inState)
         {
-
         }
 
         //LOG( "Tick: " + TS(ticks) );
@@ -144,8 +102,7 @@ public:
     //----------------------------------------------------------------------
     void shutdown() override 
     {
-        LOG( "Shutdown game..." );  
-        delete obj;
+        LOG( "Shutdown game..." );
     }
 };
 

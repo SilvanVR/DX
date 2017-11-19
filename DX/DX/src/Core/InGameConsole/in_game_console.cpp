@@ -4,6 +4,9 @@
 
     author: S. Hau
     date: November 19, 2017
+
+    The SET-VARIABLE part is HIGHLY EXPERIMENTIALLY and will be
+    replaced sometime in the future by a proper introspection system.
 **********************************************************************/
 
 #include "locator.h"
@@ -11,32 +14,42 @@
 
 namespace Core { 
 
-    void Test()
-    {
-        LOG( "TEST. ES GEHT!!!!!!!!!!!" );
-    }
+    //----------------------------------------------------------------------
+    #define CONSOLE_INFO_COLOR  Color::GREEN
+    #define CONSOLE_COLOR       Color::VIOLET
 
+    //----------------------------------------------------------------------
     void Quit()
     {
         Locator::getCoreEngine().terminate();
     }
 
     //----------------------------------------------------------------------
-    #define CONSOLE_INFO_COLOR  Color::GREEN
-    #define CONSOLE_COLOR       Color::VIOLET
+    void ProfileLog()
+    {
+        Locator::getProfiler().log();
+    }
 
+    //----------------------------------------------------------------------
+    void Help()
+    {
+        LOG( "\nRegister commands with the macro 'IGC_REGISTER_COMMAND' or 'IGC_REGISTER_COMMAND_WITH_NAME'\n"
+             "Then invoke commands just by the function name (or specified name).\n"
+             "Register functions on objects with std::bind(). Example:\n"
+             "IGC_REGISTER_COMMAND( std::bind( &Class::Function, pObject ) );", CONSOLE_INFO_COLOR );
+    }
 
     //----------------------------------------------------------------------
     void InGameConsole::init()
     {
-        IGC_REGISTER_COMMAND( Test );
         IGC_REGISTER_COMMAND( Quit );
+        IGC_REGISTER_COMMAND( ProfileLog );
+        IGC_REGISTER_COMMAND( Help );
     }
 
     //----------------------------------------------------------------------
     void InGameConsole::shutdown()
     {
-
     }
 
     //----------------------------------------------------------------------
@@ -46,13 +59,9 @@ namespace Core {
         {
             m_enabled = !m_enabled;
             if (m_enabled)
-            {
                 LOG( " >>> Opening Console...", CONSOLE_INFO_COLOR );
-            }
             else
-            {
                 LOG( " >>> Closing Console...", CONSOLE_INFO_COLOR );
-            }
         }
     }
 
@@ -68,14 +77,18 @@ namespace Core {
             m_buffer.erase( 1 );
             break;
         case '\r':
-            _ExecuteCommand( m_buffer.data() );
-            m_buffer.clear();
+            if ( !m_buffer.isEmpty() )
+            {
+                _ExecuteCommand( m_buffer.data() );
+                m_buffer.clear();
+            }
             break;
         default:
             if ( not m_buffer.isFull() )
                 m_buffer.write( c );
         }
 
+        // For now display on each new line
         if (m_buffer.size() > 0)
             LOG( m_buffer.data(), CONSOLE_COLOR );
     }
@@ -96,6 +109,29 @@ namespace Core {
         m_commands[id] = function;
     }
 
+    //----------------------------------------------------------------------
+    void InGameConsole::setVariable( const char* name, const VariantType& var )
+    {
+        String lower = StringUtils::toLower( name );
+        StringID id = SID( lower.c_str() );
+        m_vars[ id ] = var;
+    }
+
+    //----------------------------------------------------------------------
+    VariantType InGameConsole::getVariable( const char* name )
+    {
+        String lower = StringUtils::toLower( name );
+        StringID sid = SID_NO_ADD( lower.c_str() );
+        if ( m_vars.count( sid ) != 0 )
+        {
+            return m_vars[sid];
+        }
+        else
+        {
+            WARN( "InGameConsole::getVariable(): Variable '" + lower + "' does not exist. Use SET_VAR(name,val) before." );
+            return VariantType();
+        }
+    }
 
     //*********************************************************************
     // PRIVATE
@@ -105,20 +141,62 @@ namespace Core {
     void InGameConsole::_ExecuteCommand( const char* command )
     {
         String str = command;
-        StringUtils::toLower( str );
-
         LOG( " >>> Execute command '" + str + "'...", CONSOLE_INFO_COLOR );
 
-        // Execute command if known
-        StringID id = SID_NO_ADD( str.c_str() );
-        if ( m_commands.count( id ) != 0 )
+        StringUtils::IStringStream ss(str);
+        String cmd;
+        ss >> cmd;
+
+        String rest;
+        ss >> rest;
+        if ( not rest.empty() )
         {
-            m_commands[id]();
+            auto splits = StringUtils::splitString( rest, '=' );
+            if ( splits.size() == 2 )
+            {
+                _ExecuteSetVarCommand( splits[0], splits[1] );
+                return;
+            }
+        }
+
+        // Execute command if known
+        StringUtils::toLower( cmd );
+        StringID sid = SID_NO_ADD( cmd.c_str() );
+        if ( m_commands.count( sid ) != 0 )
+        {
+            m_commands[sid]();
         }
         else
         {
             // Command is not known.
-            LOG( " >>> Command '" + str + "' is unknown", CONSOLE_INFO_COLOR );
+            LOG( " >>> Command '" + str + "' is unknown.", CONSOLE_INFO_COLOR );
+        }
+    }
+
+    void InGameConsole::_ExecuteSetVarCommand( const String& name, const String& var )
+    {
+        String lower = StringUtils::toLower( name );
+        StringID sid = SID_NO_ADD( lower.c_str() );
+        if ( m_vars.count( sid ) != 0 )
+        {
+            LOG( "Setting Var...", Color::RED );
+            if (var == "true")
+            {
+                m_vars[sid] = VariantType( true );
+            }
+            else if (var == "false")
+            {
+                m_vars[sid] = VariantType( false );
+            }
+            else
+            {
+                m_vars[ sid ] = var;
+            }
+        }
+        else
+        {
+            LOG( " >>> Variable '" + lower + "' does not exist. Adding it.", CONSOLE_INFO_COLOR );
+            setVariable( lower.c_str(), var );
         }
     }
 

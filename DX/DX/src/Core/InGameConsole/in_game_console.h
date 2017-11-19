@@ -6,10 +6,6 @@
     date: November 19, 2017
 
     In-Game Console for executing commands at runtime.
-
-    @Considerations:
-      - Register/Call arbitrary functions
-      - Use 2D Renderer to display console on screen
 **********************************************************************/
 
 #include "i_in_game_console.hpp"
@@ -41,13 +37,18 @@ namespace Core {
         void OnChar(char c) override;
 
         //----------------------------------------------------------------------
+        // IInGameConsole Interface
+        //----------------------------------------------------------------------
         void registerCommand(const char* name, const std::function<void()>& function) override;
+        void setVariable(const char* name, const VariantType& var) override;
+        VariantType getVariable(const char* name) override;
 
     private:
         CharArray<IGC_BUFFER_SIZE> m_buffer;
 
         //----------------------------------------------------------------------
         void _ExecuteCommand(const char* command);
+        void _ExecuteSetVarCommand(const String& name, const String& var);
 
         //----------------------------------------------------------------------
         InGameConsole(const InGameConsole& other)               = delete;

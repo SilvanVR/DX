@@ -22,6 +22,7 @@ namespace Core {
     enum class EVariantType
     {
         UNKNOWN,
+        BOOL,
         I32, 
         U32, 
         I64, 
@@ -45,28 +46,32 @@ namespace Core {
 
         //----------------------------------------------------------------------
         VariantType()                   : m_i64(0), m_type( EVariantType::UNKNOWN ) {}
-        VariantType(I32 val)            : m_i32( val ), m_type( EVariantType::I32 ) {}
-        VariantType(U32 val)            : m_u32( val ), m_type( EVariantType::U32 ) {}
-        VariantType(I64 val)            : m_i64( val ), m_type( EVariantType::I64 ) {}
-        VariantType(U64 val)            : m_u64( val ), m_type( EVariantType::U64 ) {}
-        VariantType(F32 val)            : m_f32( val ), m_type( EVariantType::F32 ) {}
-        VariantType(F64 val)            : m_f64( val ), m_type( EVariantType::F64 ) {}
-        VariantType(StringID val)       : m_str( val ), m_type( EVariantType::String ) {}
+        VariantType(bool val)           : m_bool( val ), m_type( EVariantType::BOOL ) {}
+        VariantType(I32 val)            : m_i32( val ),  m_type( EVariantType::I32 ) {}
+        VariantType(U32 val)            : m_u32( val ),  m_type( EVariantType::U32 ) {}
+        VariantType(I64 val)            : m_i64( val ),  m_type( EVariantType::I64 ) {}
+        VariantType(U64 val)            : m_u64( val ),  m_type( EVariantType::U64 ) {}
+        VariantType(F32 val)            : m_f32( val ),  m_type( EVariantType::F32 ) {}
+        VariantType(F64 val)            : m_f64( val ),  m_type( EVariantType::F64 ) {}
+        VariantType(StringID val)       : m_str( val ),  m_type( EVariantType::String ) {}
         VariantType(const char* val)    : m_str( StringID(val) ), m_type(EVariantType::String) {}
         ~VariantType() {}
 
         //----------------------------------------------------------------------
-        EVariantType getType() const { return m_type; }
+        EVariantType    getType() const { return m_type; }
+        bool            isValid() const { return m_type != EVariantType::UNKNOWN; }
 
         //----------------------------------------------------------------------
         template <typename T> T get() const { return _GetVal<T>(); }
         template <typename T> operator T () const { return _GetVal<T>(); }
+
 
     private:
         EVariantType    m_type;
 
         union
         {
+            bool        m_bool;
             I32         m_i32;
             U32         m_u32;
             I64         m_i64;
@@ -82,6 +87,7 @@ namespace Core {
         {
             switch (m_type)
             {
+            case EVariantType::BOOL:   return static_cast<T>( m_bool );
             case EVariantType::I32:    return static_cast<T>( m_i32 );
             case EVariantType::U32:    return static_cast<T>( m_u32 );
             case EVariantType::I64:    return static_cast<T>( m_i64 );

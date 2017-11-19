@@ -15,6 +15,9 @@ namespace StringUtils {
     void toLower(String& s);
     void toUpper(String& s);
 
+    String toLower(const String& s);
+    String toUpper(const String& s);
+
     //----------------------------------------------------------------------
     // Trim from start (in place)
     //----------------------------------------------------------------------
