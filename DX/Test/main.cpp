@@ -9,20 +9,11 @@
 #include "FileStuff.hpp"
 #include "Threading.hpp"
 
+// NO LONGER WORKS BECAUSE IT NEEDS CORE ENGINE CLASS
 
 int main()
 {
-    SubSystemManager subSystemManager;
-    subSystemManager.init();
-    Locator::getLogger().setSaveToDisk(false);
 
-    {
-        TestMemoryManagement();
-        TestFileStuff();
-        TestThreading();
-    }
-
-    subSystemManager.shutdown();
     system("pause");
     return 0;
 }

@@ -65,6 +65,8 @@ namespace Core {
         template <typename T> T get() const { return _GetVal<T>(); }
         template <typename T> operator T () const { return _GetVal<T>(); }
 
+        // Log to console
+        void log() const;
 
     private:
         EVariantType    m_type;

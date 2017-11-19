@@ -9,18 +9,6 @@
 namespace StringUtils {
 
     //----------------------------------------------------------------------
-    void toLower( String& s )
-    {
-        std::transform( s.begin(), s.end(), s.begin(), ::tolower );
-    }
-
-    //----------------------------------------------------------------------
-    void toUpper( String& s )
-    {
-        std::transform( s.begin(), s.end(), s.begin(), ::toupper );
-    }
-
-    //----------------------------------------------------------------------
     String toLower(const String& s)
     {
         String res = s;

@@ -67,6 +67,7 @@ namespace Core { namespace Config {
                 VariantType& value = linePair.second;
                 switch ( value.getType() )
                 {
+                case EVariantType::BOOL:    *m_configFile << value.get<bool>(); break;
                 case EVariantType::I32:     *m_configFile << value.get<I32>(); break;
                 case EVariantType::U32:     *m_configFile << value.get<U32>(); break;
                 case EVariantType::I64:     *m_configFile << value.get<I64>(); break;

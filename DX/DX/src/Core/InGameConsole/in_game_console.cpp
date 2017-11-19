@@ -96,9 +96,7 @@ namespace Core {
     //----------------------------------------------------------------------
     void InGameConsole::registerCommand( const char* name, const std::function<void()>& function )
     {
-        String str( name );
-        StringUtils::toLower( str );
-
+        String str = StringUtils::toLower( name );
         StringID id = SID( str.c_str() );
         if ( m_commands.count( id ) > 0 )
         {
@@ -146,12 +144,27 @@ namespace Core {
         StringUtils::IStringStream ss(str);
         String cmd;
         ss >> cmd;
+        cmd = StringUtils::toLower( cmd );
 
         String rest;
         ss >> rest;
         if ( not rest.empty() )
         {
             auto splits = StringUtils::splitString( rest, '=' );
+            if ( cmd == "print" )
+            {
+                String lower = StringUtils::toLower( splits[0] );
+                StringID sid = SID_NO_ADD( lower.c_str() );
+                if (m_vars.count(sid) > 0)
+                {
+                    m_vars[sid].log();
+                }
+                else
+                {
+                    WARN( "Variable '" + splits[0] + "' does not exist." );
+                }
+                return;
+            }
             if ( splits.size() == 2 )
             {
                 _ExecuteSetVarCommand( splits[0], splits[1] );
@@ -160,7 +173,6 @@ namespace Core {
         }
 
         // Execute command if known
-        StringUtils::toLower( cmd );
         StringID sid = SID_NO_ADD( cmd.c_str() );
         if ( m_commands.count( sid ) != 0 )
         {
@@ -173,6 +185,7 @@ namespace Core {
         }
     }
 
+    //----------------------------------------------------------------------
     void InGameConsole::_ExecuteSetVarCommand( const String& name, const String& var )
     {
         String lower = StringUtils::toLower( name );
