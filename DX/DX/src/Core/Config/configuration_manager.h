@@ -1,5 +1,4 @@
 #pragma once
-
 /**********************************************************************
     class: ConfigurationManager (configuration_manager.h)
 

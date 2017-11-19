@@ -39,10 +39,6 @@ public:
     }
 };
 
-//@TODO: 
-// - In Game console -> Map Name to Functions
-// - Profiler
-// - Input
 
 class TestObject : public Input::IKeyListener, public Input::IMouseListener
 {
@@ -58,14 +54,7 @@ class TestObject : public Input::IKeyListener, public Input::IMouseListener
 
     void OnChar(char c) override
     {
-        //static String buffer;
-        //if (c == '\b')
-        //    buffer = buffer.substr(0, buffer.size() - 1);
-        //else
-        //    buffer += c;
 
-        //if (buffer.size() > 0)
-        //    LOG(buffer);
     }
 
     void OnMousePressed(MouseKey key, KeyMod mod) override
@@ -97,6 +86,7 @@ class TestObject : public Input::IKeyListener, public Input::IMouseListener
     }
 };
 
+
 class Game : public IGame
 {
     const F64 duration = 1000;
@@ -123,10 +113,6 @@ public:
         });
         
         obj = new TestObject();
-
-        auto& mapper = Locator::getInputManager().getActionMapper();
-        mapper.attachKeyboardEvent("Fire", Key::E);
-        mapper.attachMouseEvent("Fire", MouseKey::LButton);
     }
 
     //----------------------------------------------------------------------
@@ -141,32 +127,11 @@ public:
 
         static bool inState = false;
         if ( KEYBOARD.wasKeyPressed( Key::Q ) )
-        {
             inState = !inState;
-        }
+
         if (inState)
         {
-            F64 axis = AXIS_MAPPER.getAxisValue("Forward");
-            LOG(TS(axis));
-        }
 
-        static bool fpsMode = false;
-        if ( KEYBOARD.wasKeyPressed(Key::P) )
-        {
-            fpsMode = !fpsMode;
-            MOUSE.setFirstPersonMode(fpsMode);
-        }
-        if (fpsMode)
-        {
-            I16 x,y;
-            MOUSE.getMouseDelta(x,y);
-            LOG(TS(x)+ "|" + TS(y));
-        }
-
-
-        if ( ACTION_MAPPER.isKeyDown( "Fire" ) )
-        {
-           // LOG("FIRE!");
         }
 
         //LOG( "Tick: " + TS(ticks) );

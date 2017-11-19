@@ -6,9 +6,19 @@
     date: October 20, 2017
 **********************************************************************/
 
-#include <sstream>
-
 namespace StringUtils {
+
+    //----------------------------------------------------------------------
+    void toLower( String& s )
+    {
+        std::transform( s.begin(), s.end(), s.begin(), ::tolower );
+    }
+
+    //----------------------------------------------------------------------
+    void toUpper( String& s )
+    {
+        std::transform( s.begin(), s.end(), s.begin(), ::toupper );
+    }
 
     //----------------------------------------------------------------------
     void ltrim( String& s ) {

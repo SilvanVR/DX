@@ -22,14 +22,15 @@
 
 using String = std::string;
 
-#define SID(str) StringID( str )
+#define SID(str)        StringID( str )
+#define SID_NO_ADD(str) StringID( str, false )
 
 //----------------------------------------------------------------------
 // Represents a string as a number.
 //----------------------------------------------------------------------
 struct StringID
 {
-    const char* str;
+    const char* str = nullptr;
     U32 id;
 
     StringID() 
@@ -39,7 +40,7 @@ struct StringID
     // Converts a string to an unsigned integer using a hash function and
     // stores the String<->ID to reverse it if desired.
     //----------------------------------------------------------------------
-    explicit StringID(const char* str);
+    explicit StringID(const char* str, bool addToTable = true);
 
     //----------------------------------------------------------------------
     bool operator <  (const StringID& other) const { return id < other.id; }

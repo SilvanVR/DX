@@ -23,15 +23,16 @@ HashMap<U32, const char*> gStringIdTable;
 // Forward Declarations
 //----------------------------------------------------------------------
 
-U32         internString(const char* str);
+U32         internString(const char* str, bool addToTable);
 const char* externString(StringID sid);
 U32         hash(const char* str);
 
 //----------------------------------------------------------------------
-StringID::StringID( const char* s )
-    : id( internString( s ) )
+StringID::StringID( const char* s, bool addToTable )
+    : id( internString( s, addToTable ) )
 {
-    str = c_str();
+    if( addToTable )
+        str = c_str();
 }
 
 //----------------------------------------------------------------------
@@ -47,19 +48,21 @@ String StringID::toString() const
 }
 
 //----------------------------------------------------------------------
-U32 internString( const char* str )
+U32 internString( const char* str, bool addToTable )
 {
     U32 sid = hash( str );
 
-    auto it = gStringIdTable.find( sid );
-
-    if (it == gStringIdTable.end())
+    if (addToTable)
     {
-        // This string has not yet been added to the table. Add it, being sure to copy it 
-        // in case the original was dynamically allocated and might later be freed. 
-        // Normally you have to free this memory manually later, but because it is
-        // global anyway, it's OK to let it deleted from the OS when the program terminates.
-        gStringIdTable[sid] = _strdup( str );
+        auto it = gStringIdTable.find( sid );
+        if (it == gStringIdTable.end())
+        {
+            // This string has not yet been added to the table. Add it, being sure to copy it 
+            // in case the original was dynamically allocated and might later be freed. 
+            // Normally you have to free this memory manually later, but because it is
+            // global anyway, it's OK to let it deleted from the OS when the program terminates.
+            gStringIdTable[sid] = _strdup( str );
+        }
     }
 
     return sid;

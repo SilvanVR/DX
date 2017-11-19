@@ -16,23 +16,24 @@
 #include "ThreadManager/thread_manager.h"
 #include "Profiling/profiler.h"
 #include "Input/input_manager.h"
+#include "InGameConsole/in_game_console.h"
 
+//----------------------------------------------------------------------
 #define ENABLE_THREADING 0
 #define ENABLE_CONFIG    0
 
 namespace Core
 {
-
+    //----------------------------------------------------------------------
     #define COLOR Color(0, 255, 255)
 
     //----------------------------------------------------------------------
-    static bool INITIALIZED = false;
     SubSystemManager::SubSystemManager()
     {
+        static bool INITIALIZED = false;
         ASSERT( INITIALIZED == false && "Only one instance of this class is allowed!" );
         INITIALIZED = true;
     }
-
 
     //----------------------------------------------------------------------
     void SubSystemManager::init()
@@ -67,6 +68,10 @@ namespace Core
         //----------------------------------------------------------------------
         m_inputManager = initializeSubSystem( new Input::InputManager() );
         LOG(" > InputManager initialized!", COLOR);
+
+        //----------------------------------------------------------------------
+        m_inGameConsole = initializeSubSystem( new InGameConsole() );
+        LOG(" > In-Game Console initialized!", COLOR);
     }
 
     //----------------------------------------------------------------------
@@ -74,6 +79,10 @@ namespace Core
     {
         // Shutdown every Sub-System here in reversed order to above
         LOG( "<<< Shutting down Sub-Systems >>>", COLOR );
+
+        //----------------------------------------------------------------------
+        LOG( " > Shutdown In-Game Console...", COLOR );
+        shutdownSubSystem( m_inGameConsole );
 
         //----------------------------------------------------------------------
         LOG(" > Shutdown InputManager...", COLOR);

@@ -31,6 +31,7 @@
 #include "Core/OS/Window/window.h"
 #include "Core/Input/input_manager.h"
 #include "Core/core_engine.h"
+#include "Core/InGameConsole/i_in_game_console.hpp"
 
 //----------------------------------------------------------------------
 // Defines
@@ -75,10 +76,12 @@ public:
     static Core::Time::MasterClock&                   getEngineClock()    { return *gEngineClock; }
     static Core::OS::Window&                          getWindow()         { return *gWindow; }
     static Core::Input::InputManager&                 getInputManager()   { return *gInputManager; }
+    static Core::IInGameConsole&                      getInGameConsole()  { return *gInGameConsole; }
 
     //----------------------------------------------------------------------
     // Provide a Sub-System
     //----------------------------------------------------------------------
+    static void setCoreEngine(Core::CoreEngine* coreEngine)                   { gCoreEngine = coreEngine; }
     static void provide(Core::Logging::ILogger* logger)                       { gLogger = (logger != nullptr) ? logger : &gNullLogger; }
     static void provide(Core::MemoryManagement::MemoryManager* memoryManager) { gMemoryManager = memoryManager; }
     static void provide(Core::Config::ConfigurationManager* manager)          { gConfigManager = manager; }
@@ -87,7 +90,7 @@ public:
     static void provide(Core::Time::MasterClock* clock)                       { gEngineClock = clock; }
     static void provide(Core::OS::Window* window)                             { gWindow = window; }
     static void provide(Core::Input::InputManager* input)                     { gInputManager = input;  }
-    static void setCoreEngine(Core::CoreEngine* coreEngine)                   { gCoreEngine = coreEngine; }
+    static void provide(Core::IInGameConsole* igc)                            { gInGameConsole = igc; }
 
 private:
     static Core::CoreEngine*                          gCoreEngine;
@@ -105,6 +108,7 @@ private:
     static Core::Time::MasterClock*                   gEngineClock;
     static Core::OS::Window*                          gWindow;
     static Core::Input::InputManager*                 gInputManager;
+    static Core::IInGameConsole*                      gInGameConsole;
 
     //----------------------------------------------------------------------
     Locator()                                   = delete;

@@ -1,7 +1,7 @@
 #pragma once
 
 /**********************************************************************
-    class: ByteArray (byte_array.hpp)
+    class: _ByteArray (byte_array.hpp)
 
     author: S. Hau
     date: October 15, 2017
@@ -16,12 +16,12 @@ namespace Core {
     // as an intermediate storage buffer for arbitrary data and when the
     // buffer is (almost) full, use the whole data at once.
     //**********************************************************************
-    template <Size m_capacity>
-    class ByteArray
+    template <typename T, Size m_capacity>
+    class _ByteArray
     {
     public:
         //----------------------------------------------------------------------
-        ByteArray()
+        _ByteArray()
         {
             clear();
         }
@@ -47,7 +47,7 @@ namespace Core {
         //----------------------------------------------------------------------
         // Write a single byte into this buffer. Assert if not enough space.
         //----------------------------------------------------------------------
-        void write(Byte byte)
+        void write( T byte )
         {
             ASSERT( !isFull() );
             m_data[m_index] = byte;
@@ -55,28 +55,45 @@ namespace Core {
         }
 
         //----------------------------------------------------------------------
+        // Erase "numElements" from the end of the buffer.
+        //----------------------------------------------------------------------
+        void erase( Size numElements )
+        {
+            numElements = (numElements > m_index ? m_index : numElements);
+            m_index -= numElements;
+
+            memset( m_data + m_index, 0, numElements );
+        }
+
+        //----------------------------------------------------------------------
         // Zero out whole buffer and begin next writing from front.
         //----------------------------------------------------------------------
         void clear()
         {
-            memset(m_data, 0, sizeof(Byte) * m_capacity);
+            memset( m_data, 0, sizeof(T) * m_capacity );
             m_index = 0;
         }
 
         //----------------------------------------------------------------------
         // Return a pointer to the byte array.
         //----------------------------------------------------------------------
-        const Byte* data() const { return m_data; }
+        const T* data() const { return m_data; }
 
     private:
-        Byte    m_data[m_capacity];
+        T       m_data[m_capacity];
         Size    m_index;
 
         //----------------------------------------------------------------------
-        ByteArray(const ByteArray& other)               = delete;
-        ByteArray& operator = (const ByteArray& other)  = delete;
-        ByteArray(ByteArray&& other)                    = delete;
-        ByteArray& operator = (ByteArray&& other)       = delete;
+        _ByteArray(const _ByteArray& other)               = delete;
+        _ByteArray& operator = (const _ByteArray& other)  = delete;
+        _ByteArray(_ByteArray&& other)                    = delete;
+        _ByteArray& operator = (_ByteArray&& other)       = delete;
     };
+
+    template <Size cap>
+    using ByteArray = _ByteArray<Byte, cap>;
+
+    template <Size cap>
+    using CharArray = _ByteArray<char, cap>;
 
 } // end namespaces

@@ -23,6 +23,7 @@ namespace Core {
     namespace Threading         { class ThreadManager; }
     namespace Profiling         { class Profiler; }
     namespace Input             { class InputManager; }
+    class IInGameConsole;
 
 
     //*********************************************************************
@@ -49,7 +50,7 @@ namespace Core {
         Threading::ThreadManager*           m_threadManager = nullptr;
         Profiling::Profiler*                m_profiler      = nullptr;
         Input::InputManager*                m_inputManager  = nullptr;
-
+        IInGameConsole*                     m_inGameConsole = nullptr;
 
         //----------------------------------------------------------------------
         void _InitVirtualFilePaths();

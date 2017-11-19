@@ -144,7 +144,7 @@ namespace Core { namespace Logging {
         template <typename T>
         void log(ELogChannel channel, T num, Color color)
         { 
-            _Log( channel, TS( num ).c_str(), ELogLevel::VERY_IMPORTANT, LOG_channel_DEFAULT, color );
+            _Log( channel, TS( num ).c_str(), ELogLevel::VERY_IMPORTANT, LOG_CHANNEL_DEFAULT, color );
         };
 
         //----------------------------------------------------------------------
