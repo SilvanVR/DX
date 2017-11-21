@@ -41,17 +41,9 @@ namespace Core { namespace MemoryManagement {
     }
 
     //----------------------------------------------------------------------
-    void MemoryManager::OnUpdate(Time::Seconds delta)
+    void MemoryManager::OnTick(Time::Seconds delta)
     {
-        static const    Time::Seconds tickRate  = 1.0f / 60.0f;
-        static          Time::Seconds timer     = 0;
-
-        timer += delta;
-        if (timer > tickRate)
-        {
-            _BasicLeakDetection();
-            timer -= tickRate;
-        }
+        _BasicLeakDetection();
         //_ContinousAllocationLeakDetection();
     }
 
