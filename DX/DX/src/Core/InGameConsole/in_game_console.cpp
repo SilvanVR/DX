@@ -31,6 +31,20 @@ namespace Core {
     }
 
     //----------------------------------------------------------------------
+    void MemoryStats()
+    {
+        Locator::getMemoryManager().log();
+    }
+
+    //----------------------------------------------------------------------
+    void ToggleFullscreen()
+    {
+        static bool b = false;
+        b = not b;
+        Locator::getWindow().setBorderlessFullscreen( b );
+    }
+
+    //----------------------------------------------------------------------
     void Help()
     {
         LOG( "\nRegister commands with the macro 'IGC_REGISTER_COMMAND' or 'IGC_REGISTER_COMMAND_WITH_NAME'\n"
@@ -45,6 +59,8 @@ namespace Core {
         IGC_REGISTER_COMMAND( Quit );
         IGC_REGISTER_COMMAND( ProfileLog );
         IGC_REGISTER_COMMAND( Help );
+        IGC_REGISTER_COMMAND( MemoryStats );
+        IGC_REGISTER_COMMAND_WITH_NAME( "fs", ToggleFullscreen );
     }
 
     //----------------------------------------------------------------------
