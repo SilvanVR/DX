@@ -9,7 +9,11 @@
       - Create a window in which the engine can draw.
       - Process OS messages
         > Subscribe to the window via callbacks functions, which will
-          be called when a corresponding event has happened
+          be called when a corresponding event has happened.
+          Use either a plain old c-function or if you want to call a
+          function on an object "std::bind(...)". Macros are available
+          in the way: THIS_FUNC_BIND_[NUM_ARGS]_ARGS(FUNCTION) e.g.
+          "setCallbackChar( THIS_FUNC_BIND_1_ARGS( &Object::Func ) );"
 **********************************************************************/
 
 #include "../FileSystem/path.h"
@@ -28,14 +32,14 @@ namespace Core { namespace OS {
     };
 
     //----------------------------------------------------------------------
-    typedef void(*WindowCursorMoveFunc)(I16, I16);
-    typedef void(*WindowMouseWheelFunc)(I16);
-    typedef void(*WindowMouseButtonFunc)(MouseKey, KeyAction, KeyMod);
-    typedef void(*WindowSizeChangedFunc)(U16, U16);
-    typedef void(*WindowKeyButtonFunc)(Key, KeyAction, KeyMod);
-    typedef void(*WindowLooseFocusFunc)();
-    typedef void(*WindowGainFocusFunc)();
-    typedef void(*WindowCharFunc)(char);
+    typedef std::function<void(I16, I16)>                       WindowCursorMoveFunc;
+    typedef std::function<void(I16)>                            WindowMouseWheelFunc;
+    typedef std::function<void(MouseKey, KeyAction, KeyMod)>    WindowMouseButtonFunc;
+    typedef std::function<void(U16, U16)>                       WindowSizeChangedFunc;
+    typedef std::function<void(Key, KeyAction, KeyMod)>         WindowKeyButtonFunc;
+    typedef std::function<void()>                               WindowLooseFocusFunc;
+    typedef std::function<void()>                               WindowGainFocusFunc;
+    typedef std::function<void(char)>                           WindowCharFunc;
 
     //**********************************************************************
     class Window

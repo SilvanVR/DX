@@ -59,9 +59,6 @@ namespace Core { namespace Input {
         OS::Point2D getMousePos() const { return m_cursorThisTick; }
         OS::Point2D getMouseDelta() const { return m_cursorDelta; }
 
-        //----------------------------------------------------------------------
-        void    _UpdateInternalState();
-
     private:
         OS::Window* m_window            = nullptr;
         bool        m_firstPersonMode   = false;
@@ -95,13 +92,16 @@ namespace Core { namespace Input {
         void _NotifyMouseKeyReleased(MouseKey key, KeyMod mod) const;
         void _NotifyMouseWheel(I16 delta) const;
 
-    public:
+    private:
+        //----------------------------------------------------------------------
+        friend class InputManager;
+        void    _UpdateInternalState();
+
         // Callbacks for windows-messages
         void _MouseCallback(MouseKey key, KeyAction action, KeyMod mod);
         void _MouseWheelCallback(I16 param);
         void _CursorMovedCallback(I16 x, I16 y);
 
-    private:
         //----------------------------------------------------------------------
         Mouse(const Mouse& other)                 = delete;
         Mouse& operator = (const Mouse& other)    = delete;

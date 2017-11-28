@@ -15,20 +15,9 @@ namespace Core { namespace Input {
     #define LISTENER_START_CAPACITY 4
 
     //----------------------------------------------------------------------
-    static Mouse* s_mouse = nullptr;
-
-    //----------------------------------------------------------------------
-    void MouseCallback( MouseKey key, KeyAction action, KeyMod mod ) { s_mouse->_MouseCallback( key, action, mod ); }
-    void MouseWheelCallback( I16 param )                             { s_mouse->_MouseWheelCallback( param ); }
-    void CursorMovedCallback( I16 x, I16 y )                         { s_mouse->_CursorMovedCallback( x, y ); }
-
-    //----------------------------------------------------------------------
     Mouse::Mouse( OS::Window* window )
         : m_window( window )
     {
-        ASSERT( s_mouse == nullptr );
-        s_mouse = this;
-
         // Zero out arrays
         memset( m_mouseKeyPressed, 0, MAX_MOUSE_KEYS * sizeof( bool ) );
         memset( m_mouseKeyReleased, 0, MAX_MOUSE_KEYS * sizeof( bool ) );
@@ -36,9 +25,9 @@ namespace Core { namespace Input {
         memset( m_mouseKeyPressedLastTick, 0, MAX_MOUSE_KEYS * sizeof( bool ) );
 
         // Subscribe to window callbacks
-        m_window->setCallbackMouseButtons( MouseCallback );
-        m_window->setCallbackMouseWheel( MouseWheelCallback );
-        m_window->setCallbackCursorMove( CursorMovedCallback );
+        m_window->setCallbackMouseButtons( THIS_FUNC_BIND_3_ARGS( &Mouse::_MouseCallback ) );
+        m_window->setCallbackMouseWheel( THIS_FUNC_BIND_1_ARGS( &Mouse::_MouseWheelCallback ) );
+        m_window->setCallbackCursorMove( THIS_FUNC_BIND_2_ARGS( &Mouse::_CursorMovedCallback ) );
 
         // Preallocate mem for listener
         m_mouseListener.reserve( LISTENER_START_CAPACITY );

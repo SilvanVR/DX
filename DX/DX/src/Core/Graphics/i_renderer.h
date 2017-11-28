@@ -27,11 +27,13 @@ namespace Core { namespace Graphics {
 
         //----------------------------------------------------------------------
         virtual void render() = 0;
-        virtual void OnWindowSizeChanged(U16 w, U16 h) = 0;
 
 
     protected:
         OS::Window* m_window;
+
+        //----------------------------------------------------------------------
+        virtual void OnWindowSizeChanged(U16 w, U16 h) = 0;
     };
 
 

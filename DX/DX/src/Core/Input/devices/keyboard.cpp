@@ -15,22 +15,12 @@ namespace Core { namespace Input {
         #define LISTENER_START_CAPACITY 4
 
         //----------------------------------------------------------------------
-        static Keyboard* s_keyboard = nullptr;
-
-        //----------------------------------------------------------------------
-        void KeyCallback( Key key, KeyAction action, KeyMod mod )   { s_keyboard->_KeyCallback( key, action, mod ); }
-        void CharCallback( char c )                                 { s_keyboard->_CharCallback( c ); }
-
-        //----------------------------------------------------------------------
         Keyboard::Keyboard( OS::Window* window )
             : m_window( window )
         {
-            ASSERT(s_keyboard == nullptr);
-            s_keyboard = this;
-
             // Subscribe to all window events
-            m_window->setCallbackKey( KeyCallback );
-            m_window->setCallbackChar( CharCallback );
+            m_window->setCallbackKey( THIS_FUNC_BIND_3_ARGS( &Keyboard::_KeyCallback ) );
+            m_window->setCallbackChar( THIS_FUNC_BIND_1_ARGS( &Keyboard::_CharCallback ) );
 
             // Zero out arrays
             memset( m_keyPressed, 0, MAX_KEYS * sizeof( bool ) );

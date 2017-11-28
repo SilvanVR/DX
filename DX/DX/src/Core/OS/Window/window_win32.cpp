@@ -31,7 +31,6 @@ namespace Core { namespace OS {
     KeyMod      GetMouseKeyMod( WPARAM wParam );
     Key         GetKey( WPARAM wParam );
     KeyMod      GetKeyKeyMod();
-    POINT       GetRealWindowSize();
 
     //----------------------------------------------------------------------
     LRESULT CALLBACK WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam )

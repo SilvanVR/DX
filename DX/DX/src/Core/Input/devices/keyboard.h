@@ -45,9 +45,6 @@ namespace Core { namespace Input {
         //----------------------------------------------------------------------
         bool wasKeyReleased(Key key) const;
 
-        //----------------------------------------------------------------------
-        void _UpdateInternalState();
-
     private:
         OS::Window* m_window            = nullptr;
 
@@ -74,12 +71,15 @@ namespace Core { namespace Input {
         void _NotifyKeyReleased(Key key, KeyMod mod) const;
         void _NotifyOnChar(char c) const;
 
-    public:
+    private:
+        //----------------------------------------------------------------------
+        friend class InputManager;
+        void _UpdateInternalState();
+
         // Callbacks for windows-messages
         void _KeyCallback(Key key, KeyAction action, KeyMod mod);
         void _CharCallback(char c);
 
-    private:
         //----------------------------------------------------------------------
         Keyboard(const Keyboard& other)                 = delete;
         Keyboard& operator = (const Keyboard& other)    = delete;
