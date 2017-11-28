@@ -16,7 +16,7 @@ namespace Core { namespace Graphics {
     IRenderer::IRenderer(OS::Window* window) 
         : m_window( window )
     { 
-        m_window->setCallbackSizeChanged( THIS_FUNC_BIND_2_ARGS( &IRenderer::OnWindowSizeChanged ) );
+        m_window->setCallbackSizeChanged( BIND_THIS_FUNC_2_ARGS( &IRenderer::OnWindowSizeChanged ) );
     }
 
 

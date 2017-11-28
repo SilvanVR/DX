@@ -12,8 +12,8 @@
           be called when a corresponding event has happened.
           Use either a plain old c-function or if you want to call a
           function on an object "std::bind(...)". Macros are available
-          in the way: THIS_FUNC_BIND_[NUM_ARGS]_ARGS(FUNCTION) e.g.
-          "setCallbackChar( THIS_FUNC_BIND_1_ARGS( &Object::Func ) );"
+          in the way: BIND_THIS_FUNC_[NUM_ARGS]_ARGS(FUNCTION) e.g.
+          "setCallbackChar( BIND_THIS_FUNC_1_ARGS( &Object::Func ) );"
 **********************************************************************/
 
 #include "../FileSystem/path.h"

@@ -19,8 +19,8 @@ namespace Core { namespace Input {
             : m_window( window )
         {
             // Subscribe to all window events
-            m_window->setCallbackKey( THIS_FUNC_BIND_3_ARGS( &Keyboard::_KeyCallback ) );
-            m_window->setCallbackChar( THIS_FUNC_BIND_1_ARGS( &Keyboard::_CharCallback ) );
+            m_window->setCallbackKey( BIND_THIS_FUNC_3_ARGS( &Keyboard::_KeyCallback ) );
+            m_window->setCallbackChar( BIND_THIS_FUNC_1_ARGS( &Keyboard::_CharCallback ) );
 
             // Zero out arrays
             memset( m_keyPressed, 0, MAX_KEYS * sizeof( bool ) );

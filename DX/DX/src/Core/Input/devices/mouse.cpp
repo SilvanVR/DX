@@ -25,9 +25,9 @@ namespace Core { namespace Input {
         memset( m_mouseKeyPressedLastTick, 0, MAX_MOUSE_KEYS * sizeof( bool ) );
 
         // Subscribe to window callbacks
-        m_window->setCallbackMouseButtons( THIS_FUNC_BIND_3_ARGS( &Mouse::_MouseCallback ) );
-        m_window->setCallbackMouseWheel( THIS_FUNC_BIND_1_ARGS( &Mouse::_MouseWheelCallback ) );
-        m_window->setCallbackCursorMove( THIS_FUNC_BIND_2_ARGS( &Mouse::_CursorMovedCallback ) );
+        m_window->setCallbackMouseButtons( BIND_THIS_FUNC_3_ARGS( &Mouse::_MouseCallback ) );
+        m_window->setCallbackMouseWheel( BIND_THIS_FUNC_1_ARGS( &Mouse::_MouseWheelCallback ) );
+        m_window->setCallbackCursorMove( BIND_THIS_FUNC_2_ARGS( &Mouse::_CursorMovedCallback ) );
 
         // Preallocate mem for listener
         m_mouseListener.reserve( LISTENER_START_CAPACITY );

@@ -25,7 +25,7 @@
 #endif
 
 //----------------------------------------------------------------------
-#define THIS_FUNC_BIND_0_ARGS(F)    std::bind( F, this )
-#define THIS_FUNC_BIND_1_ARGS(F)    std::bind( F, this, std::placeholders::_1 )
-#define THIS_FUNC_BIND_2_ARGS(F)    std::bind( F, this, std::placeholders::_1, std::placeholders::_2 )
-#define THIS_FUNC_BIND_3_ARGS(F)    std::bind( F, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3 )
+#define BIND_THIS_FUNC_0_ARGS(F)    std::bind( F, this )
+#define BIND_THIS_FUNC_1_ARGS(F)    std::bind( F, this, std::placeholders::_1 )
+#define BIND_THIS_FUNC_2_ARGS(F)    std::bind( F, this, std::placeholders::_1, std::placeholders::_2 )
+#define BIND_THIS_FUNC_3_ARGS(F)    std::bind( F, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3 )
