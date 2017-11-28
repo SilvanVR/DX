@@ -24,7 +24,7 @@ namespace Core {  namespace Logging  {
         //----------------------------------------------------------------------
         // ISubSystem Interface
         //----------------------------------------------------------------------
-        void init(CoreEngine* coreEngine) override { ConsoleLogger::init( coreEngine ); }
+        void init() override { ConsoleLogger::init(); }
         void shutdown() override { ConsoleLogger::shutdown(); }
 
         //----------------------------------------------------------------------

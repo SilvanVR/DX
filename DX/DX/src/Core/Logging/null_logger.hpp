@@ -20,7 +20,7 @@ namespace Core { namespace Logging {
     public:
         NullLogger() {}
 
-        void init(CoreEngine* coreEngine) override {}
+        void init() override {}
         void shutdown() override {}
 
         virtual void _Log(ELogChannel channel, const char* msg, ELogLevel ELogLevel, Color color) override {}

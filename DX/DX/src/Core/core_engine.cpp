@@ -28,7 +28,7 @@ namespace Core {
         Locator::provide( &m_window );
 
         // Initialize all subsystems
-        m_subSystemManager.init( this );
+        m_subSystemManager.init();
 
         // Call virtual init function for game class
         init();

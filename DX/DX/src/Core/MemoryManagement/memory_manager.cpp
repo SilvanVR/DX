@@ -35,9 +35,9 @@
 namespace Core { namespace MemoryManagement {
 
     //----------------------------------------------------------------------
-    void MemoryManager::init( CoreEngine* coreEngine )
+    void MemoryManager::init()
     {
-        coreEngine->subscribe( this );
+        Locator::getCoreEngine().subscribe( this );
     }
 
     //----------------------------------------------------------------------

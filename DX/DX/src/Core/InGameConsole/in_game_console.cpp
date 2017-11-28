@@ -62,7 +62,7 @@ namespace Core {
     }
 
     //----------------------------------------------------------------------
-    void InGameConsole::init( CoreEngine* coreEngine )
+    void InGameConsole::init()
     {
         IGC_REGISTER_COMMAND( Quit );
         IGC_REGISTER_COMMAND( ProfileLog );

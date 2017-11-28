@@ -25,7 +25,6 @@ namespace Core {
     namespace Input             { class InputManager; }
     namespace Graphics          { class IRenderer; }
     class IInGameConsole;
-    class CoreEngine;
 
 
     //*********************************************************************
@@ -38,13 +37,11 @@ namespace Core {
         SubSystemManager();
 
         //----------------------------------------------------------------------
-        void init(CoreEngine* coreEngine);
+        void init();
         void shutdown();
 
 
     private:
-        CoreEngine*                         m_coreEngine = nullptr;
-
         //----------------------------------------------------------------------
         // Every Sub-System is enumerated here
         //----------------------------------------------------------------------
@@ -83,7 +80,7 @@ namespace Core {
     T* SubSystemManager::initializeSubSystem( T* system )
     {
         Locator::provide( system );
-        system->init( m_coreEngine );
+        system->init();
 
         return system;
     }

@@ -11,10 +11,10 @@
 namespace Core { namespace Input {
 
     //----------------------------------------------------------------------
-    void InputManager::init( CoreEngine* coreEngine )
+    void InputManager::init()
     {
         // Subscribe for OnTick() event
-        coreEngine->subscribe( this );
+        Locator::getCoreEngine().subscribe( this );
 
         // Create Input Devices
         OS::Window& window = Locator::getWindow();

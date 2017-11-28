@@ -37,10 +37,8 @@ namespace Core
     }
 
     //----------------------------------------------------------------------
-    void SubSystemManager::init( CoreEngine* coreEngine )
+    void SubSystemManager::init()
     {
-        m_coreEngine = coreEngine;
-
         // The logger uses the virtual file-paths, so they have to be initialized first
         _InitVirtualFilePaths();
 
@@ -77,7 +75,8 @@ namespace Core
         LOG(" > In-Game Console initialized!", COLOR);
 
         //----------------------------------------------------------------------
-        m_renderer = initializeSubSystem( new Graphics::D3D11Renderer( &coreEngine->getWindow() ) );
+        ASSERT( &Locator::getWindow() != nullptr );
+        m_renderer = initializeSubSystem( new Graphics::D3D11Renderer( &Locator::getWindow() ) );
         LOG(" > Renderer initialized!", COLOR);
     }
 

@@ -17,7 +17,7 @@ namespace Core { namespace Graphics {
     }
 
     //----------------------------------------------------------------------
-    void D3D11Renderer::init( CoreEngine* coreEngine )
+    void D3D11Renderer::init()
     {
         OS::Point2D size = m_window->getSize();
 

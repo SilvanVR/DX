@@ -23,7 +23,7 @@ namespace Core { namespace Threading {
         //----------------------------------------------------------------------
         // ISubSystem Interface
         //----------------------------------------------------------------------
-        void init(CoreEngine* coreEngine) override;
+        void init() override;
         void shutdown() override;
 
 
