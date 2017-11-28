@@ -5,18 +5,12 @@
     author: S. Hau
     date: November 18, 2017
 
-    @TODO: Replace Point2D by Vec2D
-
     Responsibilites:
       - Encapsulation of an Mouse device. Retrieves the mouse events
         from the underlying OS and makes it suitable for anyone else.
 **********************************************************************/
 
-#include "Core/OS/Window/keycodes.h"
-
-//----------------------------------------------------------------------
-namespace Core { namespace OS { class Window; } }
-
+#include "Core/OS/Window/window.h" /* Point2D, Keycodes */
 
 namespace Core { namespace Input {
 
@@ -62,9 +56,8 @@ namespace Core { namespace Input {
         void    setFirstPersonMode(bool enabled);
 
         //----------------------------------------------------------------------
-        //Vec2 getMousePos() const { return m_cursorThisTick; }
-        //Vec2 getMouseDelta() const { return m_cursorDelta; }
-        void    getMouseDelta(I16& x, I16& y) const { x = m_cursorDelta.x; y = m_cursorDelta.y; }
+        OS::Point2D getMousePos() const { return m_cursorThisTick; }
+        OS::Point2D getMouseDelta() const { return m_cursorDelta; }
 
         //----------------------------------------------------------------------
         void    _UpdateInternalState();
@@ -84,13 +77,7 @@ namespace Core { namespace Input {
         // 1 if Forward, -1 if Backwards (only for one tick)
         I16     m_wheelDelta = 0;
 
-        struct Point2D
-        {
-            I16 x = 0;
-            I16 y = 0;
-
-            Point2D operator - (const Point2D& other) { return Point2D{ x - other.x, y - other.y }; }
-        } m_cursor, m_cursorThisTick, m_cursorLastTick, m_cursorDelta;
+        OS::Point2D m_cursor, m_cursorThisTick, m_cursorLastTick, m_cursorDelta;
 
         //----------------------------------------------------------------------
         void _UpdateMouseKeyStates();

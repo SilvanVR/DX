@@ -45,6 +45,14 @@ namespace Core {
     }
 
     //----------------------------------------------------------------------
+    void FirstPersonMode()
+    {
+        static bool b = false;
+        b = not b;
+        MOUSE.setFirstPersonMode( b );
+    }
+
+    //----------------------------------------------------------------------
     void Help()
     {
         LOG( "\nRegister commands with the macro 'IGC_REGISTER_COMMAND' or 'IGC_REGISTER_COMMAND_WITH_NAME'\n"
@@ -61,6 +69,7 @@ namespace Core {
         IGC_REGISTER_COMMAND( Help );
         IGC_REGISTER_COMMAND_WITH_NAME( "mem", MemoryStats );
         IGC_REGISTER_COMMAND_WITH_NAME( "fs", ToggleFullscreen );
+        IGC_REGISTER_COMMAND_WITH_NAME( "fps", FirstPersonMode );
     }
 
     //----------------------------------------------------------------------
@@ -150,6 +159,10 @@ namespace Core {
     //*********************************************************************
     // PRIVATE
     //*********************************************************************
+
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    // HIGHLY EXPERIMENTAL. THIS CODE IS NOT VERY CLEAN!!!!!!!!!!!!!!
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     //----------------------------------------------------------------------
     void InGameConsole::_ExecuteCommand( const char* command )

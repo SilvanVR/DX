@@ -338,13 +338,13 @@
     <ClInclude Include="src\Core\Input\misc\axis_mapper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\Input\input_devices.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\Core\InGameConsole\in_game_console.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\InGameConsole\i_in_game_console.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Input\e_input_devices.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

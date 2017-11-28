@@ -245,13 +245,12 @@ namespace Core { namespace OS {
     }
 
     //----------------------------------------------------------------------
-    void Window::getCursorPosition( I16* x, I16* y ) const
+    Point2D Window::getCursorPosition() const
     {
         POINT p;
         GetCursorPos( &p );
         ScreenToClient( hwnd, &p );
-        *x = (I16) p.x;
-        *y = (I16) p.y;
+        return Point2D{ (I16)p.x, (I16)p.y };
     }
 
     //----------------------------------------------------------------------

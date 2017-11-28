@@ -68,6 +68,11 @@ namespace Core {
                 // Render as fast as possible with interpolated state
                 F64 lerp = (F64)(gameTickAccumulator / TICK_RATE_IN_SECONDS);
                 //ASSERT( lerp <= 1.0 );
+
+                // State class which extracts the state? Renderer just render this "state"
+                // GameState gs = prevGameState * (1 - lerp) + gameState * lerp;
+                // m_renderer->render( gs );
+
                 // m_renderer->render( lerp );
             }
 

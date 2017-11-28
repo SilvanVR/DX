@@ -17,7 +17,7 @@
      F32 val = axisMapper.getAxis( "Forward" );
 **********************************************************************/
 
-#include "Core/Input/input_devices.hpp"
+#include "Core/Input/e_input_devices.hpp"
 #include "Core/OS/Window/keycodes.h"
 
 namespace Core { namespace Input {

@@ -104,7 +104,7 @@ namespace Core { namespace Input {
         if (m_firstPersonMode)
         {
             centerCursor();
-            m_window->getCursorPosition( &m_cursorLastTick.x, &m_cursorLastTick.y );
+            m_cursorLastTick = m_window->getCursorPosition();
         }
     }
 

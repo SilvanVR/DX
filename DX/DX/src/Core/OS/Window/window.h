@@ -12,10 +12,21 @@
           be called when a corresponding event has happened
 **********************************************************************/
 
+#include "Core/MathUtils/math_utils.h"
 #include "../FileSystem/path.h"
 #include "keycodes.h"
 
 namespace Core { namespace OS {
+
+    //----------------------------------------------------------------------
+    struct Point2D
+    {
+        I16 x = 0;
+        I16 y = 0;
+
+        Point2D operator - (const Point2D& other) { return Point2D{ x - other.x, y - other.y }; }
+        Point2D operator + (const Point2D& other) { return Point2D{ x + other.x, y + other.y }; }
+    };
 
     //----------------------------------------------------------------------
     typedef void(*WindowCursorMoveFunc)(I16, I16);
@@ -35,9 +46,10 @@ namespace Core { namespace OS {
         ~Window();
 
         //----------------------------------------------------------------------
-        bool shouldBeClosed() const { return m_shouldBeClosed; }
-        U16 getWidth() const { return m_width; }
-        U16 getHeight() const { return m_height; }
+        bool        shouldBeClosed() const { return m_shouldBeClosed; }
+        U16         getWidth() const { return m_width; }
+        U16         getHeight() const { return m_height; }
+        Point2D     getSize() const { return Point2D{ (I16)m_width, (I16)m_height }; }
 
         //----------------------------------------------------------------------
         void setTitle(const char* newTitle) const;
@@ -79,9 +91,9 @@ namespace Core { namespace OS {
         //----------------------------------------------------------------------
         // Directly manipulate the mouse position. (0,0) is Top-Left corner.
         //----------------------------------------------------------------------
-        void setCursorPosition(I16 x, I16 y) const;
-        void getCursorPosition(I16* x, I16* y) const;
-        void centerCursor() const;
+        void        setCursorPosition(I16 x, I16 y) const;
+        Point2D     getCursorPosition() const;
+        void        centerCursor() const;
 
         //----------------------------------------------------------------------
         // Enables / Disables borderless fullscreen for this window.

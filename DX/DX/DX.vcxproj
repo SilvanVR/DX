@@ -342,7 +342,7 @@
   <ItemGroup>
     <ClInclude Include="src\Core\InGameConsole\in_game_console.h" />
     <ClInclude Include="src\Core\InGameConsole\i_in_game_console.hpp" />
-    <ClInclude Include="src\Core\Input\input_devices.hpp" />
+    <ClInclude Include="src\Core\Input\e_input_devices.hpp" />
     <ClInclude Include="src\Core\Input\misc\action_mapper.h" />
     <ClInclude Include="src\commenting_style.hpp" />
     <ClInclude Include="src\Core\Config\configuration_manager.h" />
