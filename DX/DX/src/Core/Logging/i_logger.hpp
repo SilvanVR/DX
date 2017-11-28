@@ -1,5 +1,4 @@
 #pragma once
-
 /**********************************************************************
     class: ILogger (i_logger.hpp)
 
@@ -13,7 +12,6 @@
      - Colored Output!
     @Considerations:
      - Set color for a channel.
-
 **********************************************************************/
 
 #include "Core/i_subsystem.hpp"

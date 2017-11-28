@@ -7,11 +7,10 @@
 
     Terminology:
      - Tick()   : The game tick rate. Usually 60x per second.
-     - Update() : Runs every frame as fast as possible.
+     - Update() : Runs every frame as fast as possible if vsync is disabled.
+                  Otherwise it is capped to the vsync frequency.
 
     The heart of the engine. Manages the core game loop.
-    @Considerations:
-     - Terminate engine from everywhere
 **********************************************************************/
 
 #include "subsystem_manager.h"
@@ -22,6 +21,7 @@ namespace Core {
 
     //----------------------------------------------------------------------
     namespace OS { class Window; }
+    namespace Graphics { class IRenderer; }
     class ISubSystem;
 
     //**********************************************************************
@@ -66,6 +66,7 @@ namespace Core {
         Time::MasterClock           m_engineClock;
         SubSystemManager            m_subSystemManager;
         OS::Window                  m_window;
+        Graphics::IRenderer*        m_renderer;
         std::vector<ISubSystem*>    m_subscribers;
         bool                        m_isRunning = true;
 

@@ -20,3 +20,4 @@ Core::Time::MasterClock*                Locator::gEngineClock   = nullptr;
 Core::OS::Window*                       Locator::gWindow        = nullptr;
 Core::Input::InputManager*              Locator::gInputManager  = nullptr;
 Core::IInGameConsole*                   Locator::gInGameConsole = nullptr;
+Core::Graphics::IRenderer*              Locator::gRenderer      = nullptr;

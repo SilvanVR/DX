@@ -10,6 +10,7 @@
 **********************************************************************/
 
 #include "locator.h"
+#include "Renderer/D3D11/D3D11Renderer.h"
 
 namespace Core {
 
@@ -28,6 +29,11 @@ namespace Core {
 
         // Initialize all subsystems
         m_subSystemManager.init();
+
+        // Initialize renderer
+        m_renderer = new Graphics::D3D11Renderer();
+        m_renderer->init();
+        Locator::provide( m_renderer );
 
         // Call virtual init function for game class
         init();
@@ -74,6 +80,7 @@ namespace Core {
                 // m_renderer->render( gs );
 
                 // m_renderer->render( lerp );
+                m_renderer->render();
             }
 
             m_window.processOSMessages();
@@ -90,6 +97,10 @@ namespace Core {
         shutdown();
 
         LOG(" ~ Goodbye! ~ ", Color::GREEN);
+
+        // Deinitialize renderer
+        m_renderer->shutdown();
+        delete m_renderer;
 
         // Deinitialize every subsystem
         m_subSystemManager.shutdown();

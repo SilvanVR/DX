@@ -32,6 +32,7 @@
 #include "Core/Input/input_manager.h"
 #include "Core/core_engine.h"
 #include "Core/InGameConsole/i_in_game_console.hpp"
+#include "Core/Renderer/i_renderer.hpp"
 
 //----------------------------------------------------------------------
 // Defines
@@ -77,6 +78,7 @@ public:
     static Core::OS::Window&                          getWindow()         { return *gWindow; }
     static Core::Input::InputManager&                 getInputManager()   { return *gInputManager; }
     static Core::IInGameConsole&                      getInGameConsole()  { return *gInGameConsole; }
+    static Core::Graphics::IRenderer&                 getRenderer() { return *gRenderer; }
 
     //----------------------------------------------------------------------
     // Provide a Sub-System
@@ -91,6 +93,7 @@ public:
     static void provide(Core::OS::Window* window)                             { gWindow = window; }
     static void provide(Core::Input::InputManager* input)                     { gInputManager = input;  }
     static void provide(Core::IInGameConsole* igc)                            { gInGameConsole = igc; }
+    static void provide(Core::Graphics::IRenderer* r)                         { gRenderer = r; }
 
 private:
     static Core::CoreEngine*                          gCoreEngine;
@@ -109,6 +112,7 @@ private:
     static Core::OS::Window*                          gWindow;
     static Core::Input::InputManager*                 gInputManager;
     static Core::IInGameConsole*                      gInGameConsole;
+    static Core::Graphics::IRenderer*                 gRenderer;
 
     //----------------------------------------------------------------------
     Locator()                                   = delete;
