@@ -17,6 +17,9 @@
 namespace Core { namespace Profiling {
 
     //----------------------------------------------------------------------
+    #define LOGCOLOR Color::GREEN
+
+    //----------------------------------------------------------------------
     void Profiler::init()
     {
         Locator::getCoreEngine().subscribe( this );
@@ -76,17 +79,23 @@ namespace Core { namespace Profiling {
     //----------------------------------------------------------------------
     void Profiler::log()
     {
-        Color color = Color::GREEN;
-        LOG( " >>>> Profiling results: ", color );
-        for (auto& pair : m_entries)
+        if (m_entries.size() != 0)
         {
-            StringID    name  = pair.first;
-            U64         ticks = pair.second;
+            LOG( " >>>> Profiling results: ", LOGCOLOR );
+            for (auto& pair : m_entries)
+            {
+                StringID    name  = pair.first;
+                U64         ticks = pair.second;
 
-            F64 ms = OS::PlatformTimer::ticksToMilliSeconds( ticks );
+                F64 ms = OS::PlatformTimer::ticksToMilliSeconds( ticks );
 
-            // Example: [Name]: 2ms
-            LOG( "[" + name.toString() + "]: " + TS( ms ) + "ms", color );
+                // Example: [Name]: 2ms
+                LOG( "[" + name.toString() + "]: " + TS( ms ) + "ms", LOGCOLOR );
+            }
+        }
+        else
+        {
+            LOG( "No Profiling results.", LOGCOLOR );
         }
     }
 

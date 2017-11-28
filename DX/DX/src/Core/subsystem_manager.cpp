@@ -26,7 +26,7 @@
 namespace Core
 {
     //----------------------------------------------------------------------
-    #define COLOR Color(0, 255, 255)
+    #define LOGCOLOR  Color(0, 255, 255)
 
     //----------------------------------------------------------------------
     SubSystemManager::SubSystemManager()
@@ -45,79 +45,79 @@ namespace Core
         //----------------------------------------------------------------------
         m_logger = initializeSubSystem( new Logging::SharedConsoleLogger() );
 
-        LOG( "<<< Initialize Sub-Systems >>>", COLOR);
-        LOG( " > Logger initialized!", COLOR);
+        LOG( "<<< Initialize Sub-Systems >>>", LOGCOLOR );
+        LOG( " > Logger initialized!", LOGCOLOR );
 
         //----------------------------------------------------------------------
         m_memoryManager = initializeSubSystem( new MemoryManagement::MemoryManager() );
-        LOG( " > MemoryManager initialized!", COLOR);
+        LOG( " > MemoryManager initialized!", LOGCOLOR );
 
         //----------------------------------------------------------------------
 #if ENABLE_CONFIG
         m_configManager = initializeSubSystem( new Config::ConfigurationManager() );
-        LOG( " > ConfigurationManager initialized!", COLOR );
+        LOG( " > ConfigurationManager initialized!", LOGCOLOR  );
 #endif
         //----------------------------------------------------------------------
 #if ENABLE_THREADING
         m_threadManager = initializeSubSystem( new Threading::ThreadManager() );
-        LOG( " > ThreadManager initialized!", COLOR );
+        LOG( " > ThreadManager initialized!", LOGCOLOR  );
 #endif
         //----------------------------------------------------------------------
         m_profiler = initializeSubSystem( new Profiling::Profiler() );
-        LOG( " > Profiler initialized!", COLOR );
+        LOG( " > Profiler initialized!", LOGCOLOR  );
 
         //----------------------------------------------------------------------
         m_inputManager = initializeSubSystem( new Input::InputManager() );
-        LOG(" > InputManager initialized!", COLOR);
+        LOG(" > InputManager initialized!", LOGCOLOR );
 
         //----------------------------------------------------------------------
         m_inGameConsole = initializeSubSystem( new InGameConsole() );
-        LOG(" > In-Game Console initialized!", COLOR);
+        LOG(" > In-Game Console initialized!", LOGCOLOR );
 
         //----------------------------------------------------------------------
         ASSERT( &Locator::getWindow() != nullptr );
         m_renderer = initializeSubSystem( new Graphics::D3D11Renderer( &Locator::getWindow() ) );
-        LOG(" > Renderer initialized!", COLOR);
+        LOG(" > Renderer initialized!", LOGCOLOR );
     }
 
     //----------------------------------------------------------------------
     void SubSystemManager::shutdown()
     {
         // Shutdown every Sub-System here in reversed order to above
-        LOG( "<<< Shutting down Sub-Systems >>>", COLOR );
+        LOG( "<<< Shutting down Sub-Systems >>>", LOGCOLOR  );
 
         //----------------------------------------------------------------------
-        LOG(" > Shutdown Renderer...", COLOR);
+        LOG(" > Shutdown Renderer...", LOGCOLOR );
         shutdownSubSystem( m_renderer );
 
         //----------------------------------------------------------------------
-        LOG( " > Shutdown In-Game Console...", COLOR );
+        LOG( " > Shutdown In-Game Console...", LOGCOLOR  );
         shutdownSubSystem( m_inGameConsole );
 
         //----------------------------------------------------------------------
-        LOG(" > Shutdown InputManager...", COLOR);
+        LOG(" > Shutdown InputManager...", LOGCOLOR );
         shutdownSubSystem( m_inputManager );
 
         //----------------------------------------------------------------------
-        LOG( " > Shutdown Profiler...", COLOR );
+        LOG( " > Shutdown Profiler...", LOGCOLOR  );
         shutdownSubSystem( m_profiler );
 
         //----------------------------------------------------------------------
 #if ENABLE_THREADING
-        LOG( " > Shutdown ThreadManager...", COLOR );
+        LOG( " > Shutdown ThreadManager...", LOGCOLOR  );
         shutdownSubSystem( m_threadManager );
 #endif
         //----------------------------------------------------------------------
 #if ENABLE_CONFIG
-        LOG( " > Shutdown ConfigurationManager...", COLOR );
+        LOG( " > Shutdown ConfigurationManager...", LOGCOLOR  );
         shutdownSubSystem( m_configManager );
 #endif
         //----------------------------------------------------------------------
-        LOG( " > Shutdown MemoryManager...", COLOR);
+        LOG( " > Shutdown MemoryManager...", LOGCOLOR );
         shutdownSubSystem( m_memoryManager );
 
         //----------------------------------------------------------------------
-        LOG( " > Shutdown Logger...", COLOR);
+        LOG( " > Shutdown Logger...", LOGCOLOR );
         shutdownSubSystem( m_logger );
 
         //----------------------------------------------------------------------

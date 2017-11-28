@@ -25,7 +25,7 @@ namespace Core {
     }
 
     //----------------------------------------------------------------------
-    void ProfileLog()
+    void Profile()
     {
         Locator::getProfiler().log();
     }
@@ -65,7 +65,7 @@ namespace Core {
     void InGameConsole::init()
     {
         IGC_REGISTER_COMMAND( Quit );
-        IGC_REGISTER_COMMAND( ProfileLog );
+        IGC_REGISTER_COMMAND( Profile );
         IGC_REGISTER_COMMAND( Help );
         IGC_REGISTER_COMMAND_WITH_NAME( "mem", MemoryStats );
         IGC_REGISTER_COMMAND_WITH_NAME( "fs", ToggleFullscreen );

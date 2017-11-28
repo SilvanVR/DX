@@ -11,7 +11,7 @@
 namespace Core { namespace Graphics {
 
     //----------------------------------------------------------------------
-    D3D11Renderer::D3D11Renderer(OS::Window* window)
+    D3D11Renderer::D3D11Renderer( OS::Window* window )
         : IRenderer( window )
     {
     }
