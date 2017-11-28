@@ -39,7 +39,7 @@ namespace Core { namespace Input {
         //----------------------------------------------------------------------
         // ISubSystem Interface
         //----------------------------------------------------------------------
-        void init() override;
+        void init(CoreEngine* coreEngine) override;
         void OnTick(Time::Seconds delta) override;
         void shutdown() override;
 

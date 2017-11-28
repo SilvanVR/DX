@@ -17,7 +17,7 @@
 namespace Core { namespace Logging {
 
     //----------------------------------------------------------------------
-    void ConsoleLogger::init()
+    void ConsoleLogger::init(CoreEngine* coreEngine)
     {
 #ifdef _DEBUG
         const char* configuration = "_debug";

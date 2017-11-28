@@ -28,7 +28,7 @@ namespace Core {  namespace Logging  {
         //----------------------------------------------------------------------
         // ISubSystem Interface
         //----------------------------------------------------------------------
-        void init() override;
+        void init(CoreEngine* coreEngine) override;
         void shutdown() override;
 
         //----------------------------------------------------------------------

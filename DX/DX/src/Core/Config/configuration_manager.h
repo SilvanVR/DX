@@ -25,7 +25,7 @@ namespace Core { namespace Config {
         //----------------------------------------------------------------------
         // ISubSystem Interface
         //----------------------------------------------------------------------
-        void init() override;
+        void init(CoreEngine* coreEngine) override;
         void shutdown() override;
 
         //----------------------------------------------------------------------

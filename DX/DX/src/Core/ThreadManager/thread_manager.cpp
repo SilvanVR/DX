@@ -12,7 +12,7 @@ namespace Core { namespace Threading {
 
 
     //----------------------------------------------------------------------
-    void ThreadManager::init()
+    void ThreadManager::init( CoreEngine* coreEngine )
     {
     }
 

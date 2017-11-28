@@ -10,14 +10,14 @@
 
 namespace Core { namespace Graphics {
 
+    //----------------------------------------------------------------------
     D3D11Renderer::D3D11Renderer(OS::Window* window)
         : IRenderer( window )
     {
-
     }
 
     //----------------------------------------------------------------------
-    void D3D11Renderer::init()
+    void D3D11Renderer::init( CoreEngine* coreEngine )
     {
         OS::Point2D size = m_window->getSize();
 

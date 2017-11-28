@@ -23,17 +23,12 @@ namespace Core {
         // Create Window
         m_window.create( title, width, height );
 
-        // Provide game clock and window to the locator class
+        // Provide engine clock and window to the locator class
         Locator::provide( &m_engineClock );
         Locator::provide( &m_window );
 
         // Initialize all subsystems
-        m_subSystemManager.init();
-
-        // Initialize renderer
-        m_renderer = new Graphics::D3D11Renderer( &m_window );
-        m_renderer->init();
-        Locator::provide( m_renderer );
+        m_subSystemManager.init( this );
 
         // Call virtual init function for game class
         init();
@@ -80,7 +75,7 @@ namespace Core {
                 // m_renderer->render( gs );
 
                 // m_renderer->render( lerp );
-                m_renderer->render();
+                Locator::getRenderer().render();
             }
 
             m_window.processOSMessages();
@@ -97,10 +92,6 @@ namespace Core {
         shutdown();
 
         LOG(" ~ Goodbye! ~ ", Color::GREEN);
-
-        // Deinitialize renderer
-        m_renderer->shutdown();
-        delete m_renderer;
 
         // Deinitialize every subsystem
         m_subSystemManager.shutdown();

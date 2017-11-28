@@ -21,7 +21,6 @@ namespace Core {
 
     //----------------------------------------------------------------------
     namespace OS { class Window; }
-    namespace Graphics { class IRenderer; }
     class ISubSystem;
 
     //**********************************************************************
@@ -66,7 +65,6 @@ namespace Core {
         Time::MasterClock           m_engineClock;
         SubSystemManager            m_subSystemManager;
         OS::Window                  m_window;
-        Graphics::IRenderer*        m_renderer;
         std::vector<ISubSystem*>    m_subscribers;
         bool                        m_isRunning = true;
 

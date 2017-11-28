@@ -24,7 +24,7 @@ namespace Core { namespace Graphics {
         //----------------------------------------------------------------------
         // ISubSystem Interface
         //----------------------------------------------------------------------
-        void init() override;
+        void init(CoreEngine* coreEngine) override;
         void shutdown() override;
 
         //----------------------------------------------------------------------

@@ -17,9 +17,9 @@
 namespace Core { namespace Profiling {
 
     //----------------------------------------------------------------------
-    void Profiler::init()
+    void Profiler::init( CoreEngine* coreEngine )
     {
-        Locator::getCoreEngine().subscribe( this );
+        coreEngine->subscribe( this );
     }
 
     //----------------------------------------------------------------------

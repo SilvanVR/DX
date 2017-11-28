@@ -13,7 +13,7 @@ namespace Core { namespace Config {
 
 
     //----------------------------------------------------------------------
-    void ConfigurationManager::init()
+    void ConfigurationManager::init( CoreEngine* coreEngine )
     {
         m_engineIni = new ConfigFile( "/config/engine.ini" );
     }

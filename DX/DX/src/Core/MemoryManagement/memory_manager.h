@@ -30,7 +30,7 @@ namespace Core { namespace MemoryManagement{
         //----------------------------------------------------------------------
         // ISubSystem Interface
         //----------------------------------------------------------------------
-        void init() override;
+        void init(CoreEngine* coreEngine) override;
         void OnTick(Time::Seconds delta) override;
         void shutdown() override;
 

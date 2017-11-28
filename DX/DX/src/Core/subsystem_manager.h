@@ -23,7 +23,9 @@ namespace Core {
     namespace Threading         { class ThreadManager; }
     namespace Profiling         { class Profiler; }
     namespace Input             { class InputManager; }
+    namespace Graphics          { class IRenderer; }
     class IInGameConsole;
+    class CoreEngine;
 
 
     //*********************************************************************
@@ -36,11 +38,13 @@ namespace Core {
         SubSystemManager();
 
         //----------------------------------------------------------------------
-        void init();
+        void init(CoreEngine* coreEngine);
         void shutdown();
 
 
     private:
+        CoreEngine*                         m_coreEngine = nullptr;
+
         //----------------------------------------------------------------------
         // Every Sub-System is enumerated here
         //----------------------------------------------------------------------
@@ -51,6 +55,7 @@ namespace Core {
         Profiling::Profiler*                m_profiler      = nullptr;
         Input::InputManager*                m_inputManager  = nullptr;
         IInGameConsole*                     m_inGameConsole = nullptr;
+        Graphics::IRenderer*                m_renderer      = nullptr;
 
         //----------------------------------------------------------------------
         void _InitVirtualFilePaths();
@@ -78,7 +83,7 @@ namespace Core {
     T* SubSystemManager::initializeSubSystem( T* system )
     {
         Locator::provide( system );
-        system->init();
+        system->init( m_coreEngine );
 
         return system;
     }

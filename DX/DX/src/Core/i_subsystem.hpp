@@ -16,6 +16,8 @@
 
 namespace Core
 {
+    //----------------------------------------------------------------------
+    class CoreEngine;
 
     //**********************************************************************
     class ISubSystem
@@ -25,7 +27,7 @@ namespace Core
         virtual ~ISubSystem() = default;
 
         // Those two must be overriden
-        virtual void init() = 0;
+        virtual void init(CoreEngine* coreEngine) = 0;
         virtual void shutdown() = 0;
 
         // Those can be overriden. They will only be called if a subsystem subscribes to the core engine.

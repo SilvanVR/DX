@@ -17,6 +17,7 @@
 #include "Profiling/profiler.h"
 #include "Input/input_manager.h"
 #include "InGameConsole/in_game_console.h"
+#include "Renderer/D3D11/D3D11Renderer.h"
 
 //----------------------------------------------------------------------
 #define ENABLE_THREADING 0
@@ -36,8 +37,10 @@ namespace Core
     }
 
     //----------------------------------------------------------------------
-    void SubSystemManager::init()
+    void SubSystemManager::init( CoreEngine* coreEngine )
     {
+        m_coreEngine = coreEngine;
+
         // The logger uses the virtual file-paths, so they have to be initialized first
         _InitVirtualFilePaths();
 
@@ -72,6 +75,10 @@ namespace Core
         //----------------------------------------------------------------------
         m_inGameConsole = initializeSubSystem( new InGameConsole() );
         LOG(" > In-Game Console initialized!", COLOR);
+
+        //----------------------------------------------------------------------
+        m_renderer = initializeSubSystem( new Graphics::D3D11Renderer( &coreEngine->getWindow() ) );
+        LOG(" > Renderer initialized!", COLOR);
     }
 
     //----------------------------------------------------------------------
@@ -79,6 +86,10 @@ namespace Core
     {
         // Shutdown every Sub-System here in reversed order to above
         LOG( "<<< Shutting down Sub-Systems >>>", COLOR );
+
+        //----------------------------------------------------------------------
+        LOG(" > Shutdown Renderer...", COLOR);
+        shutdownSubSystem( m_renderer );
 
         //----------------------------------------------------------------------
         LOG( " > Shutdown In-Game Console...", COLOR );
