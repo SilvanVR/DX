@@ -78,7 +78,7 @@ public:
     static Core::OS::Window&                          getWindow()         { return *gWindow; }
     static Core::Input::InputManager&                 getInputManager()   { return *gInputManager; }
     static Core::IInGameConsole&                      getInGameConsole()  { return *gInGameConsole; }
-    static Core::Graphics::IRenderer&                 getRenderer() { return *gRenderer; }
+    static Core::Graphics::IRenderer&                 getRenderer()       { return *gRenderer; }
 
     //----------------------------------------------------------------------
     // Provide a Sub-System

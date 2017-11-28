@@ -32,6 +32,8 @@ namespace Core { namespace Graphics {
         //----------------------------------------------------------------------
         void render() override;
         void OnWindowSizeChanged(U16 w, U16 h) override;
+        void setVSync(bool enabled) override;
+
 
     private:
         void _InitD3D11();
