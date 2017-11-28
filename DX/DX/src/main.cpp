@@ -65,10 +65,6 @@ public:
             LOG("Time: " + TS( Locator::getEngineClock().getTime().value ) + " FPS: " + TS( Locator::getProfiler().getFPS() ) );
         }, 1000);
 
-        getWindow().setCallbackSizeChanged([](U16 w, U16 h) {
-            LOG( "New Window-Size: " + TS(w) + "," + TS(h) );
-        });
-
         IGC_REGISTER_COMMAND_WITH_NAME( "Hello", std::bind(&Game::hello, this) );
     }
 

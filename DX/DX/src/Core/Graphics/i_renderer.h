@@ -1,6 +1,6 @@
 #pragma once
 /**********************************************************************
-    class: IRenderer (i_renderer.hpp)
+    class: IRenderer (i_renderer.h)
 
     author: S. Hau
     date: November 28, 2017
@@ -22,15 +22,16 @@ namespace Core { namespace Graphics {
     class IRenderer : public ISubSystem
     {
     public:
-        IRenderer(OS::Window* window) : m_window( window ) {}
+        IRenderer(OS::Window* window);
         virtual ~IRenderer() {}
 
-
+        //----------------------------------------------------------------------
         virtual void render() = 0;
+        virtual void OnWindowSizeChanged(U16 w, U16 h) = 0;
+
 
     protected:
         OS::Window* m_window;
-
     };
 
 

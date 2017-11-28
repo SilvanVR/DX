@@ -17,7 +17,7 @@
 #include "Profiling/profiler.h"
 #include "Input/input_manager.h"
 #include "InGameConsole/in_game_console.h"
-#include "Renderer/D3D11/D3D11Renderer.h"
+#include "Graphics/D3D11/D3D11Renderer.h"
 
 //----------------------------------------------------------------------
 #define ENABLE_THREADING 0

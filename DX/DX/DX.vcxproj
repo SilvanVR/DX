@@ -287,6 +287,7 @@
     <ClCompile Include="src\Core\Config\configuration_manager.cpp" />
     <ClCompile Include="src\Core\Config\config_file.cpp" />
     <ClCompile Include="src\Core\core_engine.cpp" />
+    <ClCompile Include="src\Core\Graphics\i_renderer.cpp" />
     <ClCompile Include="src\Core\InGameConsole\in_game_console.cpp" />
     <ClCompile Include="src\Core\Input\devices\keyboard.cpp" />
     <ClCompile Include="src\Core\Input\input_manager.cpp" />
@@ -299,7 +300,7 @@
     <ClCompile Include="src\Core\OS\Window\window.cpp" />
     <ClCompile Include="src\Core\OS\Window\window_win32.cpp" />
     <ClCompile Include="src\Core\Profiling\profiler.cpp" />
-    <ClCompile Include="src\Core\Renderer\D3D11\D3D11Renderer.cpp" />
+    <ClCompile Include="src\Core\Graphics\D3D11\D3D11Renderer.cpp" />
     <ClCompile Include="src\Core\Time\clock.cpp" />
     <ClCompile Include="src\Core\Time\master_clock.cpp" />
     <ClCompile Include="src\Core\Time\timers.cpp" />
@@ -359,8 +360,8 @@
     <ClInclude Include="src\Core\Misc\Introspection\introspection.h" />
     <ClInclude Include="src\Core\OS\FileSystem\path.h" />
     <ClInclude Include="src\Core\OS\Window\keycodes.h" />
-    <ClInclude Include="src\Core\Renderer\D3D11\D3D11Renderer.h" />
-    <ClInclude Include="src\Core\Renderer\i_renderer.hpp" />
+    <ClInclude Include="src\Core\Graphics\D3D11\D3D11Renderer.h" />
+    <ClInclude Include="src\Core\Graphics\i_renderer.h" />
     <ClInclude Include="src\Utils\finite_range.hpp" />
     <ClInclude Include="src\Core\OS\Window\window.h" />
     <ClInclude Include="src\Core\Profiling\profiler.h" />

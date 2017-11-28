@@ -8,7 +8,7 @@
     D3D11 Renderer.
 **********************************************************************/
 
-#include "../i_renderer.hpp"
+#include "../i_renderer.h"
 
 namespace Core { namespace Graphics {
 
@@ -31,8 +31,11 @@ namespace Core { namespace Graphics {
         // IRenderer Interface
         //----------------------------------------------------------------------
         void render() override;
+        void OnWindowSizeChanged(U16 w, U16 h) override;
 
     private:
+        void _InitD3D11();
+
         //----------------------------------------------------------------------
         D3D11Renderer(const D3D11Renderer& other)               = delete;
         D3D11Renderer& operator = (const D3D11Renderer& other)  = delete;

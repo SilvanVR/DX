@@ -150,7 +150,10 @@
     <ClCompile Include="src\Core\InGameConsole\in_game_console.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Core\Renderer\D3D11\D3D11Renderer.cpp">
+    <ClCompile Include="src\Core\Graphics\D3D11\D3D11Renderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Graphics\i_renderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -350,10 +353,10 @@
     <ClInclude Include="src\Core\Input\e_input_devices.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\Renderer\i_renderer.hpp">
+    <ClInclude Include="src\Core\Graphics\D3D11\D3D11Renderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\Renderer\D3D11\D3D11Renderer.h">
+    <ClInclude Include="src\Core\Graphics\i_renderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

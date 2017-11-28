@@ -10,7 +10,6 @@
 **********************************************************************/
 
 #include "locator.h"
-#include "Renderer/D3D11/D3D11Renderer.h"
 
 namespace Core {
 

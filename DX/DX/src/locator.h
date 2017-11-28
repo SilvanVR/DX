@@ -32,7 +32,7 @@
 #include "Core/Input/input_manager.h"
 #include "Core/core_engine.h"
 #include "Core/InGameConsole/i_in_game_console.hpp"
-#include "Core/Renderer/i_renderer.hpp"
+#include "Core/Graphics/i_renderer.h"
 
 //----------------------------------------------------------------------
 // Defines
