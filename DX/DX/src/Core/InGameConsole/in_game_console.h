@@ -42,6 +42,7 @@ namespace Core {
         void registerCommand(const char* name, const std::function<void()>& function) override;
         void setVariable(const char* name, const VariantType& var) override;
         VariantType getVariable(const char* name) override;
+        void printAllCommands() override;
 
     private:
         CharArray<IGC_BUFFER_SIZE> m_buffer;

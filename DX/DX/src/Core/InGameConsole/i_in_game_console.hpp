@@ -65,6 +65,11 @@ namespace Core {
         //----------------------------------------------------------------------
         virtual VariantType getVariable(const char* name) = 0;
 
+        //----------------------------------------------------------------------
+        // Print all commands
+        //----------------------------------------------------------------------
+        virtual void printAllCommands() {}
+
     protected:
         bool m_enabled = false;
         HashMap<StringID, std::function<void()>>    m_commands;

@@ -59,6 +59,7 @@ namespace Core {
              "Then invoke commands just by the function name (or specified name).\n"
              "Register functions on objects with std::bind(). Example:\n"
              "IGC_REGISTER_COMMAND( std::bind( &Class::Function, pObject ) );", CONSOLE_INFO_COLOR );
+        Locator::getInGameConsole().printAllCommands();
     }
 
     //----------------------------------------------------------------------
@@ -75,6 +76,18 @@ namespace Core {
     //----------------------------------------------------------------------
     void InGameConsole::shutdown()
     {
+    }
+
+    //----------------------------------------------------------------------
+    void InGameConsole::printAllCommands()
+    {
+        LOG( " >>> Printing all registered commands... ", CONSOLE_INFO_COLOR );
+        U32 index = 0;
+        for (auto& pair : m_commands)
+        {
+            String name = pair.first.toString();
+            LOG( TS( index++ ) + ". " + name, Color::ORANGE );
+        }
     }
 
     //----------------------------------------------------------------------
