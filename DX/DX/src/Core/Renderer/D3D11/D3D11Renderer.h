@@ -19,7 +19,7 @@ namespace Core { namespace Graphics {
     class D3D11Renderer : public IRenderer
     {
     public:
-        D3D11Renderer() = default;
+        D3D11Renderer(OS::Window* window);
 
         //----------------------------------------------------------------------
         // ISubSystem Interface

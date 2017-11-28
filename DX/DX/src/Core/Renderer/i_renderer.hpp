@@ -10,8 +10,11 @@
 
 #include "Core/i_subsystem.hpp"
 
-namespace Core { namespace Graphics {
+//----------------------------------------------------------------------
+namespace Core { namespace OS { class Window; } }
 
+
+namespace Core { namespace Graphics {
 
     //**********************************************************************
     // Interface-Class for a Renderer-Subsystem
@@ -19,12 +22,14 @@ namespace Core { namespace Graphics {
     class IRenderer : public ISubSystem
     {
     public:
+        IRenderer(OS::Window* window) : m_window( window ) {}
         virtual ~IRenderer() {}
 
 
         virtual void render() = 0;
 
-    private:
+    protected:
+        OS::Window* m_window;
 
     };
 

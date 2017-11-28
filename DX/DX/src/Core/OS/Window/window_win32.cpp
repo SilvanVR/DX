@@ -31,6 +31,7 @@ namespace Core { namespace OS {
     KeyMod      GetMouseKeyMod( WPARAM wParam );
     Key         GetKey( WPARAM wParam );
     KeyMod      GetKeyKeyMod();
+    POINT       GetRealWindowSize();
 
     //----------------------------------------------------------------------
     LRESULT CALLBACK WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
@@ -150,16 +151,24 @@ namespace Core { namespace OS {
             ERROR( "Window[Win32]::create(): Failed to register a window class." );
         }
 
+        // Center window
         UINT screenResX = GetSystemMetrics( SM_CXSCREEN );
         UINT screenResY = GetSystemMetrics( SM_CYSCREEN );
-
         UINT x = (UINT) ( screenResX * 0.5f - (width * 0.5f) );
         UINT y = (UINT) ( screenResY * 0.5f - (height * 0.5f) );
 
+        DWORD windowStyle = WS_OVERLAPPEDWINDOW;
+
+        // Calculate real window size (with borders)
+        RECT r{ 0, 0, (LONG)width, (LONG)height };
+        AdjustWindowRect( &r, windowStyle, FALSE );
+        UINT w = r.right - r.left;
+        UINT h = r.bottom - r.top;
+
         hwnd = CreateWindow( className, title,
-                             WS_OVERLAPPEDWINDOW, 
+                             windowStyle,
                              x, y, 
-                             width, height, 
+                             w, h, 
                              NULL, NULL, hInstance, NULL );
 
         if ( not hwnd )

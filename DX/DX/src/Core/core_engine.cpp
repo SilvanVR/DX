@@ -31,7 +31,7 @@ namespace Core {
         m_subSystemManager.init();
 
         // Initialize renderer
-        m_renderer = new Graphics::D3D11Renderer();
+        m_renderer = new Graphics::D3D11Renderer( &m_window );
         m_renderer->init();
         Locator::provide( m_renderer );
 
