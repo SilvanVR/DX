@@ -30,6 +30,7 @@ namespace Core { namespace Graphics {
 
         //----------------------------------------------------------------------
         virtual void setVSync(bool enabled) = 0;
+        virtual void setMultiSampleCount(U32 numSamples) = 0;
 
     protected:
         OS::Window* m_window    = nullptr;

@@ -14,7 +14,7 @@ namespace Core { namespace Graphics {
 
 
     //**********************************************************************
-    // Interface-Class for a Renderer-Subsystem
+    // D3D11 Renderer Subsystem.
     //**********************************************************************
     class D3D11Renderer : public IRenderer
     {
@@ -31,12 +31,23 @@ namespace Core { namespace Graphics {
         // IRenderer Interface
         //----------------------------------------------------------------------
         void render() override;
-        void OnWindowSizeChanged(U16 w, U16 h) override;
         void setVSync(bool enabled) override;
-
+        void setMultiSampleCount(U32 numSamples) override;
 
     private:
+        U32 m_multiSampleCount = 1;
+
+        //----------------------------------------------------------------------
         void _InitD3D11();
+        void _DeinitD3D11();
+
+        void _CreateDeviceAndContext();
+        void _CreateSwapchain();
+
+        //----------------------------------------------------------------------
+        // IRenderer Interface
+        //----------------------------------------------------------------------
+        void OnWindowSizeChanged(U16 w, U16 h) override;
 
         //----------------------------------------------------------------------
         D3D11Renderer(const D3D11Renderer& other)               = delete;
