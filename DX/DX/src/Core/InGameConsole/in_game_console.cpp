@@ -40,32 +40,28 @@ namespace Core {
     void ToggleFullscreen()
     {
         static bool b = false;
-        b = not b;
-        Locator::getWindow().setBorderlessFullscreen( b );
+        Locator::getWindow().setBorderlessFullscreen( (b = not b) );
     }
 
     //----------------------------------------------------------------------
     void FirstPersonMode()
     {
         static bool b = false;
-        b = not b;
-        MOUSE.setFirstPersonMode( b );
+        MOUSE.setFirstPersonMode( (b = not b) );
     }
 
     //----------------------------------------------------------------------
     void VSync()
     {
         static bool b = false;
-        b = not b;
-        Locator::getRenderer().setVSync( b );
+        Locator::getRenderer().setVSync( (b = not b) );
     }
 
     //----------------------------------------------------------------------
     void Multisampling()
     {
         static bool b = false;
-        b = not b;
-        Locator::getRenderer().setMultiSampleCount( b ? 8 : 0 );
+        Locator::getRenderer().setMultiSampleCount( (b = not b) ? 8 : 1 );
     }
 
     //----------------------------------------------------------------------

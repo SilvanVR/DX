@@ -91,12 +91,6 @@ public:
 
         }
 
-        if (KEYBOARD.wasKeyPressed(Key::One))
-            Locator::getRenderer().setMultiSampleCount(1);
-        if (KEYBOARD.wasKeyPressed(Key::Eight))
-            Locator::getRenderer().setMultiSampleCount(8);
-
-
         if( KEYBOARD.isKeyDown( Key::Escape ) )
             terminate();
     }
