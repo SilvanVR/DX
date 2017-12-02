@@ -35,7 +35,7 @@ namespace Core { namespace Graphics {
     {
         auto renderTargetView = m_pSwapchain->getRenderTargetView();
         auto depthStencilView = m_pSwapchain->getDepthStencilView();
-       // g_pImmediateContext->OMSetRenderTargets( 1, &renderTargetView, depthStencilView);
+        //g_pImmediateContext->OMSetRenderTargets( 1, &renderTargetView, depthStencilView);
 
         D3D11_VIEWPORT vp;
         vp.TopLeftX = 0.0f;
@@ -44,8 +44,7 @@ namespace Core { namespace Graphics {
         vp.Height   = static_cast<float>( m_window->getSize().y );
         vp.MinDepth = 0.0f;
         vp.MaxDepth = 1.0f;
-        // g_pImmediateContext->RSSetViewports( 1, &vp );
-
+        //g_pImmediateContext->RSSetViewports( 1, &vp );
 
         m_pSwapchain->clear( m_clearColor, 1.0f, 0 );
 
@@ -57,6 +56,10 @@ namespace Core { namespace Graphics {
     //----------------------------------------------------------------------
     void D3D11Renderer::OnWindowSizeChanged( U16 w, U16 h )
     {
+        // Window was minimized
+        if ( w == 0 || h == 0)
+            return;
+
         m_pSwapchain->recreate( w, h );
     }
 

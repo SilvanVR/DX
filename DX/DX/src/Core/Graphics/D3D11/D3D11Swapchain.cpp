@@ -43,7 +43,12 @@ namespace Core { namespace Graphics { namespace D3D11 {
     //----------------------------------------------------------------------
     void Swapchain::recreate( U16 width, U16 height )
     {
+        SAFE_RELEASE( m_pDepthStencilBuffer );
+        SAFE_RELEASE( m_pDepthStencilView );
+        SAFE_RELEASE( m_pRenderTargetView );
         HR( m_pSwapChain->ResizeBuffers( 1 + NUM_BACKBUFFERS, width, height, BACKBUFFER_FORMAT, 0 ) );
+        _CreateRenderTargetView();
+        _CreateDepthBuffer( width, height );
     }
 
     //----------------------------------------------------------------------
@@ -62,6 +67,8 @@ namespace Core { namespace Graphics { namespace D3D11 {
     //----------------------------------------------------------------------
     void Swapchain::_CreateD3D11Swapchain( HWND hwnd, U16 width, U16 height )
     {
+        ASSERT( ( 1 + NUM_BACKBUFFERS ) <= DXGI_MAX_SWAP_CHAIN_BUFFERS );
+
         DXGI_SWAP_CHAIN_DESC1 sd = {};
         sd.Width        = width;
         sd.Height       = height;

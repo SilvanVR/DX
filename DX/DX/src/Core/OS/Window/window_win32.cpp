@@ -10,7 +10,9 @@
 
 #ifdef _WIN32
 
-#include <windowsx.h> /* GET_X_LPARAM, GET_Y_LPARAM */
+#define GET_X_LPARAM(lp)    ((int)(short)LOWORD(lp))
+#define GET_Y_LPARAM(lp)    ((int)(short)HIWORD(lp))
+
 #include "locator.h"
 
 namespace Core { namespace OS {
@@ -34,17 +36,6 @@ namespace Core { namespace OS {
         case WM_DESTROY:
             PostQuitMessage(0);
             return 0;
-
-        //----------------------------------------------------------------------
-        // Handle resize
-        case WM_SIZE:
-        {
-            U16 w = LOWORD( lParam );
-            U16 h = HIWORD( lParam );
-            s_window->_SetSize( w, h );
-            Window::_GetCallbackHelper().callSizeChangedCallback( w, h );
-            return 0;
-        }
 
         //----------------------------------------------------------------------
         // Handle Mouse Input
@@ -110,6 +101,19 @@ namespace Core { namespace OS {
             Window::_GetCallbackHelper().callLooseFocusCallback();
             return 0;
 
+        //----------------------------------------------------------------------
+        // Handle resize
+        case WM_SIZE:
+        {
+            U16 w = LOWORD(lParam);
+            U16 h = HIWORD(lParam);
+            s_window->_SetSize( w, h );
+            Window::_GetCallbackHelper().callSizeChangedCallback( w, h );
+            return 0;
+        }
+        case WM_ENTERSIZEMOVE:
+        case WM_EXITSIZEMOVE:
+            // Do nothing yet
         //----------------------------------------------------------------------
         default:
             return DefWindowProc( hwnd, uMsg, wParam, lParam );

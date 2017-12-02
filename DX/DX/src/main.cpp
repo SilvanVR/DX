@@ -63,7 +63,7 @@ public:
 
         Locator::getEngineClock().setInterval([] {
             U32 fps = Locator::getProfiler().getFPS();
-            F64 delta = (1.0 / fps) * 1000.0;
+            F64 delta = (1000.0 / fps);
             LOG("Time: " + TS( Locator::getEngineClock().getTime().value ) + " FPS: " + TS( fps ) + " Delta: " + TS( delta ) + " ms" );
         }, 1000);
 
