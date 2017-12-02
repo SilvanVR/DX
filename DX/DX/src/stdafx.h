@@ -35,3 +35,5 @@
 #include "PrecompiledHeaders/data_types.hpp"
 #include "PrecompiledHeaders/macros.hpp"
 
+#pragma comment(lib, "D3D11")
+
