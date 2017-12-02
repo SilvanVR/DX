@@ -188,13 +188,13 @@ namespace Core { namespace OS {
     }
 
     //----------------------------------------------------------------------
-    void Window::setBorderlessFullscreen(bool enabled)
+    void Window::setBorderlessFullscreen( bool enabled )
     {
-        static U32 oldWindowSizeX = 800;
-        static U32 oldWindowSizeY = 600;
+        static POINT oldWindowSize = { 800, 600 };
+        static POINT oldWindowPos = { 0 , 0 };
 
         LONG lStyle = GetWindowLong( m_hwnd, GWL_STYLE );
-        U32 newWidth, newHeight;
+        U32 newWidth, newHeight, newPosX, newPosY;
         if (enabled)
         {
             // Change style to borderless
@@ -203,25 +203,29 @@ namespace Core { namespace OS {
             // Save old position in case of reverting
             RECT rect;
             GetWindowRect( m_hwnd, &rect );
-            oldWindowSizeX = (rect.right - rect.left);
-            oldWindowSizeY = (rect.bottom - rect.top);
+            oldWindowSize.x = (rect.right - rect.left);
+            oldWindowSize.y = (rect.bottom - rect.top);
+            oldWindowPos = { rect.left, rect.top };
 
             // Maximize window
             newWidth  = GetSystemMetrics( SM_CXSCREEN );
             newHeight = GetSystemMetrics( SM_CYSCREEN );
+            newPosX = newPosY = 0;
         }
         else
         {
             // Revert style
             lStyle |= ( WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU );
 
-            // Revert to old size
-            newWidth  = oldWindowSizeX;
-            newHeight = oldWindowSizeY;
+            // Revert size and position
+            newWidth  = oldWindowSize.x;
+            newHeight = oldWindowSize.y;
+            newPosX   = oldWindowPos.x;
+            newPosY   = oldWindowPos.y;
         }
 
         SetWindowLongPtr( m_hwnd, GWL_STYLE, lStyle );
-        SetWindowPos( m_hwnd, NULL, 0, 0, newWidth, newHeight, SWP_NOZORDER | SWP_NOOWNERZORDER );
+        SetWindowPos( m_hwnd, NULL, newPosX, newPosY, newWidth, newHeight, SWP_NOZORDER | SWP_NOOWNERZORDER );
     }
 
     //----------------------------------------------------------------------
