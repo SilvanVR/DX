@@ -13,6 +13,12 @@
 
 #include <d3d11_4.h>
 #include <comdef.h> /* _com_error */
+#include "locator.h"
+
+//----------------------------------------------------------------------
+extern ID3D11Device*           g_pDevice;
+extern ID3D11DeviceContext*    g_pImmediateContext;
+
 
 //----------------------------------------------------------------------
 #define SAFE_RELEASE(com) com->Release(); com = nullptr;

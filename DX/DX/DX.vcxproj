@@ -227,6 +227,7 @@
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <Profile>true</Profile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='StaticLib - Release|Win32'">
@@ -269,6 +270,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <SubSystem>NotSet</SubSystem>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <Profile>true</Profile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='StaticLib - Release|x64'">
@@ -293,6 +295,8 @@
     <ClCompile Include="src\Core\Config\configuration_manager.cpp" />
     <ClCompile Include="src\Core\Config\config_file.cpp" />
     <ClCompile Include="src\Core\core_engine.cpp" />
+    <ClCompile Include="src\Core\Graphics\D3D11\D3D11Globals.cpp" />
+    <ClCompile Include="src\Core\Graphics\D3D11\D3D11Swapchain.cpp" />
     <ClCompile Include="src\Core\Graphics\i_renderer.cpp" />
     <ClCompile Include="src\Core\InGameConsole\in_game_console.cpp" />
     <ClCompile Include="src\Core\Input\devices\keyboard.cpp" />
@@ -349,6 +353,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Core\Graphics\D3D11\D3D11.hpp" />
+    <ClInclude Include="src\Core\Graphics\D3D11\D3D11Globals.h" />
+    <ClInclude Include="src\Core\Graphics\D3D11\D3D11Swapchain.h" />
     <ClInclude Include="src\Core\InGameConsole\in_game_console.h" />
     <ClInclude Include="src\Core\InGameConsole\i_in_game_console.hpp" />
     <ClInclude Include="src\Core\Input\e_input_devices.hpp" />
