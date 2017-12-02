@@ -32,6 +32,10 @@ namespace Core { namespace Graphics {
     static ID3D11Device*            pDevice = nullptr;
     static ID3D11DeviceContext*     pImmediateContext = nullptr;
     static IDXGISwapChain1*         pSwapChain = nullptr;
+    static ID3D11RenderTargetView*  pRenderTargetView = nullptr;
+    static ID3D11Texture2D*         pDepthStencilBuffer = nullptr;
+    static ID3D11DepthStencilView*  pDepthStencilView = nullptr;
+
 
     //**********************************************************************
     // INIT STUFF
@@ -58,7 +62,21 @@ namespace Core { namespace Graphics {
     //----------------------------------------------------------------------
     void D3D11Renderer::render()
     {
+        pImmediateContext->OMSetRenderTargets( 1, &pRenderTargetView, pDepthStencilView );
 
+        D3D11_VIEWPORT vp;
+        vp.TopLeftX = 0.0f;
+        vp.TopLeftY = 0.0f;
+        vp.Width    = static_cast<float>( m_window->getSize().x );
+        vp.Height   = static_cast<float>( m_window->getSize().y );
+        vp.MinDepth = 0.0f;
+        vp.MaxDepth = 1.0f;
+        pImmediateContext->RSSetViewports( 1, &vp );
+
+        pImmediateContext->ClearRenderTargetView( pRenderTargetView, m_clearColor.normalized().data() );
+        //pImmediateContext->ClearDepthStencilView(pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+
+        HR( pSwapChain->Present( m_vSync ? 1 : 0, NULL ) );
     }
 
     //----------------------------------------------------------------------
@@ -74,7 +92,7 @@ namespace Core { namespace Graphics {
     //----------------------------------------------------------------------
     void D3D11Renderer::setVSync( bool enabled )
     {
-
+        m_vSync = not m_vSync;
     }
 
     //----------------------------------------------------------------------
@@ -99,6 +117,8 @@ namespace Core { namespace Graphics {
         if ( not _CheckMSAASupport( m_msaaCount ) )
             m_msaaCount = 1;
         _CreateSwapchain();
+        _CreateRenderTargetView();
+        _CreateDepthBuffer();
 
         LOG_RENDERING( "Done initializing D3D11..." );
     }
@@ -106,6 +126,9 @@ namespace Core { namespace Graphics {
     //----------------------------------------------------------------------
     void D3D11Renderer::_DeinitD3D11()
     {
+        SAFE_RELEASE( pDepthStencilBuffer );
+        SAFE_RELEASE( pDepthStencilView );
+        SAFE_RELEASE( pRenderTargetView );
         SAFE_RELEASE( pSwapChain );
         SAFE_RELEASE( pImmediateContext );
         SAFE_RELEASE( pDevice );
@@ -156,10 +179,10 @@ namespace Core { namespace Graphics {
         IDXGIDevice2* pDXGIDevice;
         HR( pDevice->QueryInterface( __uuidof( IDXGIDevice2 ), (void **)&pDXGIDevice ) ) ;
 
-        IDXGIAdapter* pDXGIAdapter = nullptr;
+        IDXGIAdapter* pDXGIAdapter;
         HR( pDXGIDevice->GetAdapter( &pDXGIAdapter ) );
 
-        IDXGIFactory2* pIDXGIFactory = nullptr;
+        IDXGIFactory2* pIDXGIFactory;
         HR( pDXGIAdapter->GetParent( __uuidof( IDXGIFactory2 ), (void **)&pIDXGIFactory ) );
 
         HR( pIDXGIFactory->CreateSwapChainForHwnd( pDevice, m_window->getHWND(), &sd, NULL, NULL, &pSwapChain ) );
@@ -167,6 +190,35 @@ namespace Core { namespace Graphics {
         SAFE_RELEASE( pDXGIAdapter );
         SAFE_RELEASE( pIDXGIFactory );
     }
+
+    //----------------------------------------------------------------------
+    void D3D11Renderer::_CreateRenderTargetView()
+    {
+        ID3D11Texture2D* backBuffer;
+        HR( pSwapChain->GetBuffer( 0, __uuidof( ID3D11Texture2D ), reinterpret_cast<void**>( &backBuffer ) ) );
+        HR( pDevice->CreateRenderTargetView( backBuffer, NULL, &pRenderTargetView ) );
+        SAFE_RELEASE( backBuffer );
+    }
+
+    //----------------------------------------------------------------------
+    void D3D11Renderer::_CreateDepthBuffer()
+    {
+        D3D11_TEXTURE2D_DESC depthStencilDesc = {};
+        depthStencilDesc.Width          = m_window->getSize().x;
+        depthStencilDesc.Height         = m_window->getSize().y;
+        depthStencilDesc.MipLevels      = 1;
+        depthStencilDesc.ArraySize      = 1;
+        depthStencilDesc.Format         = DXGI_FORMAT_D24_UNORM_S8_UINT;
+        depthStencilDesc.SampleDesc     = { m_msaaCount, m_msaaQualityLevel };
+        depthStencilDesc.Usage          = D3D11_USAGE_DEFAULT;
+        depthStencilDesc.BindFlags      = D3D11_BIND_DEPTH_STENCIL;
+        depthStencilDesc.CPUAccessFlags = 0;
+        depthStencilDesc.MiscFlags      = 0;
+
+        HR( pDevice->CreateTexture2D( &depthStencilDesc, NULL, &pDepthStencilBuffer) );
+        HR( pDevice->CreateDepthStencilView( pDepthStencilBuffer, NULL, &pDepthStencilView ) );
+    }
+
 
     //----------------------------------------------------------------------
     bool D3D11Renderer::_CheckMSAASupport( U32 numSamples )

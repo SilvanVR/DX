@@ -9,6 +9,7 @@
 **********************************************************************/
 
 #include "Core/i_subsystem.hpp"
+#include "Core/Misc/color.h"
 
 //----------------------------------------------------------------------
 namespace Core { namespace OS { class Window; } }
@@ -31,6 +32,7 @@ namespace Core { namespace Graphics {
         //----------------------------------------------------------------------
         virtual void setVSync(bool enabled) = 0;
         virtual void setMultiSampleCount(U32 numSamples) = 0;
+        virtual void setClearColor(Color clearColor) = 0;
 
     protected:
         OS::Window* m_window    = nullptr;

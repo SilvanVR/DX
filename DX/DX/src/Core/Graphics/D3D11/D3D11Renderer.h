@@ -36,10 +36,13 @@ namespace Core { namespace Graphics {
         void render() override;
         void setVSync(bool enabled) override;
         void setMultiSampleCount(U32 numSamples) override;
+        void setClearColor(Color clearColor) { m_clearColor = clearColor; }
 
     private:
-        U32 m_msaaCount = 4;
-        U32 m_msaaQualityLevel = 0;
+        U32     m_msaaCount = 4;
+        U32     m_msaaQualityLevel = 0;
+        bool    m_vSync = false;
+        Color   m_clearColor = Color::BLACK;
 
         //----------------------------------------------------------------------
         void _InitD3D11();
@@ -47,6 +50,8 @@ namespace Core { namespace Graphics {
 
         void _CreateDeviceAndContext();
         void _CreateSwapchain();
+        void _CreateRenderTargetView();
+        void _CreateDepthBuffer();
 
         bool _CheckMSAASupport( U32 numSamples );
 

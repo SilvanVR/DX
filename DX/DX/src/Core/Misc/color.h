@@ -13,7 +13,6 @@
     The default format is BGRA.
 **********************************************************************/
 
-
 class Color
 {
     union
@@ -47,6 +46,13 @@ public:
     //----------------------------------------------------------------------
     F32 getLuminance() const;
 
+    //----------------------------------------------------------------------
+    // Return the color as an array of 4 normalized floats. [0.0f - 1.0f]
+    // @Return:
+    //  4 Floats with all components mapped to the range 0.0f - 1.0f
+    //----------------------------------------------------------------------
+    std::array<F32, 4> normalized() const { return { (F32)getRed() / 255.0f, (F32)getGreen() / 255.0f, (F32)getBlue() / 255.0f, (F32)getAlpha() / 255.0f }; }
+   
     // Set all components. Range: [0 - 255]
     void setRGBA(Byte r, Byte g, Byte b, Byte a = 255);
 

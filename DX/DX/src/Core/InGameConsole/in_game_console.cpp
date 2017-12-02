@@ -53,6 +53,27 @@ namespace Core {
     }
 
     //----------------------------------------------------------------------
+    void VSync()
+    {
+        static bool b = false;
+        b = not b;
+        Locator::getRenderer().setVSync( b );
+    }
+
+    //----------------------------------------------------------------------
+    void Multisampling()
+    {
+        static bool b = false;
+        b = not b;
+        Locator::getRenderer().setMultiSampleCount( b ? 8 : 0 );
+    }
+
+    //----------------------------------------------------------------------
+    void Red() { Locator::getRenderer().setClearColor( Color::RED ); }
+    void Green() { Locator::getRenderer().setClearColor(Color::GREEN); }
+    void Blue() { Locator::getRenderer().setClearColor(Color::BLUE); }
+
+    //----------------------------------------------------------------------
     void Help()
     {
         LOG( "\nRegister commands with the macro 'IGC_REGISTER_COMMAND' or 'IGC_REGISTER_COMMAND_WITH_NAME'\n"
@@ -68,6 +89,11 @@ namespace Core {
         IGC_REGISTER_COMMAND( Quit );
         IGC_REGISTER_COMMAND( Profile );
         IGC_REGISTER_COMMAND( Help );
+        IGC_REGISTER_COMMAND( VSync );
+        IGC_REGISTER_COMMAND( Multisampling );
+        IGC_REGISTER_COMMAND( Red );
+        IGC_REGISTER_COMMAND( Green );
+        IGC_REGISTER_COMMAND( Blue );
         IGC_REGISTER_COMMAND_WITH_NAME( "mem", MemoryStats );
         IGC_REGISTER_COMMAND_WITH_NAME( "fs", ToggleFullscreen );
         IGC_REGISTER_COMMAND_WITH_NAME( "fps", FirstPersonMode );
