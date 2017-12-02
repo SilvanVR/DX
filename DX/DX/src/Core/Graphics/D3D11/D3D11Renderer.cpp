@@ -12,19 +12,26 @@
 
 #include "locator.h"
 
-#undef ERROR
 #include <d3d11_4.h>
-
+#include <comdef.h> /* _com_error */
 
 namespace Core { namespace Graphics {
 
     //----------------------------------------------------------------------
     #define BACKBUFFER_FORMAT       DXGI_FORMAT_R8G8B8A8_UNORM
-    #define INITIAL_MULTI_SAMPLES   4
+    #define NUM_BACKBUFFERS         1
+
+    #define HR(x) \
+    if ( FAILED( x ) ) { \
+        _com_error err( x );\
+        LPCTSTR errMsg = err.ErrorMessage();\
+        ERROR_RENDERING( String("D3D11Renderer: @") + __FILE__ + ", line " + TS(__LINE__) + ". Reason: " + errMsg );\
+    }
 
     //----------------------------------------------------------------------
     static ID3D11Device*            pDevice = nullptr;
     static ID3D11DeviceContext*     pImmediateContext = nullptr;
+    static IDXGISwapChain1*         pSwapChain = nullptr;
 
     //**********************************************************************
     // INIT STUFF
@@ -73,22 +80,13 @@ namespace Core { namespace Graphics {
     //----------------------------------------------------------------------
     void D3D11Renderer::setMultiSampleCount( U32 numSamples )
     {
-        // Check if numSamples are supported
-        UINT msaaQuality;
-        HRESULT hr = pDevice->CheckMultisampleQualityLevels( BACKBUFFER_FORMAT, numSamples, &msaaQuality );
-        if ( msaaQuality == 0 )
-        {
-            WARN_RENDERING( "D3D11Renderer::setMultiSampleCount(): #" + TS( numSamples ) + " samples are not supported." );
+        if( not _CheckMSAASupport( numSamples ) )
             return;
-        }
-
-        m_multiSampleCount = numSamples;
 
         // Recreate Swapchain
-        // @TODO
-
+        SAFE_RELEASE( pSwapChain );
+        _CreateSwapchain();
     }
-
 
     //**********************************************************************
     // PRIVATE
@@ -98,11 +96,19 @@ namespace Core { namespace Graphics {
     void D3D11Renderer::_InitD3D11()
     {
         _CreateDeviceAndContext();
-        setMultiSampleCount( INITIAL_MULTI_SAMPLES );
+        if ( not _CheckMSAASupport( m_msaaCount ) )
+            m_msaaCount = 1;
         _CreateSwapchain();
 
-
         LOG_RENDERING( "Done initializing D3D11..." );
+    }
+
+    //----------------------------------------------------------------------
+    void D3D11Renderer::_DeinitD3D11()
+    {
+        SAFE_RELEASE( pSwapChain );
+        SAFE_RELEASE( pImmediateContext );
+        SAFE_RELEASE( pDevice );
     }
 
     //----------------------------------------------------------------------
@@ -124,11 +130,9 @@ namespace Core { namespace Graphics {
     #endif
 
         D3D_FEATURE_LEVEL featureLevel;
-        HRESULT hr = D3D11CreateDevice( NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, createDeviceFlags,
-                                        featureLevels, _countof( featureLevels ), D3D11_SDK_VERSION,
-                                        &pDevice, &featureLevel, &pImmediateContext );
-        if ( FAILED( hr ) )
-            ERROR_RENDERING( "D3D11Renderer: Faled to create a device and device-context." );
+        HR( D3D11CreateDevice( NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, createDeviceFlags,
+                               featureLevels, _countof( featureLevels ), D3D11_SDK_VERSION,
+                               &pDevice, &featureLevel, &pImmediateContext ) );
 
         if ( featureLevel != featureLevels[0] )
             WARN_RENDERING( "D3D11Renderer: Latest feature level not supported. Fallback to a later version." );
@@ -137,30 +141,55 @@ namespace Core { namespace Graphics {
     //----------------------------------------------------------------------
     void D3D11Renderer::_CreateSwapchain()
     {
-        OS::Point2D size = m_window->getSize();
+        DXGI_SWAP_CHAIN_DESC1 sd = {};
+        sd.Width        = m_window->getSize().x;
+        sd.Height       = m_window->getSize().y;
+        sd.Format       = BACKBUFFER_FORMAT;
+        sd.Stereo       = FALSE;
+        sd.SampleDesc   = { m_msaaCount, m_msaaQualityLevel };
+        sd.BufferUsage  = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+        sd.BufferCount  = NUM_BACKBUFFERS;
+        sd.Scaling      = DXGI_SCALING_STRETCH;
+        sd.SwapEffect   = DXGI_SWAP_EFFECT_DISCARD;
+        sd.AlphaMode    = DXGI_ALPHA_MODE_IGNORE;
 
-        DXGI_SWAP_CHAIN_DESC sd = {};
-        sd.BufferCount = 1;
-        sd.BufferDesc.Width = size.x;
-        sd.BufferDesc.Height = size.y;
-        sd.BufferDesc.Format = BACKBUFFER_FORMAT;
-        sd.BufferDesc.RefreshRate.Numerator = 60;
-        sd.BufferDesc.RefreshRate.Denominator = 1;
-        sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-        //sd.OutputWindow = g_hWnd;
-        sd.SampleDesc.Count = 1;
-        sd.SampleDesc.Quality = 0;
-        sd.Windowed = TRUE;
+        IDXGIDevice2* pDXGIDevice;
+        HR( pDevice->QueryInterface( __uuidof( IDXGIDevice2 ), (void **)&pDXGIDevice ) ) ;
+
+        IDXGIAdapter* pDXGIAdapter = nullptr;
+        HR( pDXGIDevice->GetAdapter( &pDXGIAdapter ) );
+
+        IDXGIFactory2* pIDXGIFactory = nullptr;
+        HR( pDXGIAdapter->GetParent( __uuidof( IDXGIFactory2 ), (void **)&pIDXGIFactory ) );
+
+        HR( pIDXGIFactory->CreateSwapChainForHwnd( pDevice, m_window->getHWND(), &sd, NULL, NULL, &pSwapChain ) );
+        SAFE_RELEASE( pDXGIDevice );
+        SAFE_RELEASE( pDXGIAdapter );
+        SAFE_RELEASE( pIDXGIFactory );
     }
 
     //----------------------------------------------------------------------
-    void D3D11Renderer::_DeinitD3D11()
+    bool D3D11Renderer::_CheckMSAASupport( U32 numSamples )
     {
-        pDevice->Release();
-        pImmediateContext->Release();
+        if (numSamples > D3D11_MAX_MULTISAMPLE_SAMPLE_COUNT)
+        {
+            WARN_RENDERING( "D3D11Renderer::setMultiSampleCount(): #" + TS( numSamples ) + " samples are not supported." );
+            return false;
+        }
+
+        UINT msaaQualityLevels;
+        HR( pDevice->CheckMultisampleQualityLevels( BACKBUFFER_FORMAT, numSamples, &msaaQualityLevels ) );
+        if (msaaQualityLevels == 0)
+        {
+            WARN_RENDERING( "D3D11Renderer::setMultiSampleCount(): #" + TS( numSamples ) + " samples are not supported "
+                            "with the current backbuffer format." );
+            return false;
+        }
+
+        m_msaaCount         = numSamples;
+        m_msaaQualityLevel  = (msaaQualityLevels - 1);
+        return true;
     }
-
-
 
 
 } } // End namespaces

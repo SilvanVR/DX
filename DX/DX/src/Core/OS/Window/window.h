@@ -54,6 +54,10 @@ namespace Core { namespace OS {
         U16         getHeight() const { return m_height; }
         Point2D     getSize() const { return Point2D{ (I16)m_width, (I16)m_height }; }
 
+        #ifdef _WIN32
+        HWND        getHWND() const { return m_hwnd; }
+        #endif
+
         //----------------------------------------------------------------------
         void setTitle(const char* newTitle) const;
         void center() const;
@@ -171,6 +175,11 @@ namespace Core { namespace OS {
         U16             m_height            = 0;
         bool            m_created           = false;
         bool            m_shouldBeClosed    = false;
+
+        #ifdef _WIN32
+        HWND            m_hwnd;
+        #endif // _WIN32
+
 
         //**********************************************************************
         // Small helper class which stores all the different window callbacks.

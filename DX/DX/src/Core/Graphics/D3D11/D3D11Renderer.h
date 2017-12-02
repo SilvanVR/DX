@@ -12,6 +12,9 @@
 
 namespace Core { namespace Graphics {
 
+    //----------------------------------------------------------------------
+    #define SAFE_RELEASE(com) com->Release(); com = nullptr;
+
 
     //**********************************************************************
     // D3D11 Renderer Subsystem.
@@ -35,7 +38,8 @@ namespace Core { namespace Graphics {
         void setMultiSampleCount(U32 numSamples) override;
 
     private:
-        U32 m_multiSampleCount = 1;
+        U32 m_msaaCount = 4;
+        U32 m_msaaQualityLevel = 0;
 
         //----------------------------------------------------------------------
         void _InitD3D11();
@@ -43,6 +47,8 @@ namespace Core { namespace Graphics {
 
         void _CreateDeviceAndContext();
         void _CreateSwapchain();
+
+        bool _CheckMSAASupport( U32 numSamples );
 
         //----------------------------------------------------------------------
         // IRenderer Interface

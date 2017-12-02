@@ -10,20 +10,14 @@
 
 #ifdef _WIN32
 
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
 #include <windowsx.h> /* GET_X_LPARAM, GET_Y_LPARAM */
-#undef ERROR
-
 #include "locator.h"
 
 namespace Core { namespace OS {
 
     //----------------------------------------------------------------------
-    HINSTANCE   hInstance;
-    HWND        hwnd;
-
-    static      Window* window = nullptr;
+    static      Window*     s_window = nullptr;
+    static      HINSTANCE   hInstance;
 
     //----------------------------------------------------------------------
     bool        RegisterWindowClass( HINSTANCE hInstance, LPCSTR className );
@@ -47,7 +41,7 @@ namespace Core { namespace OS {
         {
             U16 w = LOWORD( lParam );
             U16 h = HIWORD( lParam );
-            window->_SetSize( w, h );
+            s_window->_SetSize( w, h );
             Window::_GetCallbackHelper().callSizeChangedCallback( w, h );
             return 0;
         }
@@ -142,7 +136,7 @@ namespace Core { namespace OS {
         ASSERT( m_created == false );
         m_width  = width;
         m_height = height;
-        window = this;
+        s_window = this;
 
         LPCSTR className = "DXWNDClassName";
         if ( not RegisterWindowClass( hInstance, className ) )
@@ -164,25 +158,25 @@ namespace Core { namespace OS {
         UINT w = r.right - r.left;
         UINT h = r.bottom - r.top;
 
-        hwnd = CreateWindow( className, title,
-                             windowStyle,
-                             x, y, 
-                             w, h, 
-                             NULL, NULL, hInstance, NULL );
+        m_hwnd = CreateWindow( className, title,
+                               windowStyle,
+                               x, y, 
+                               w, h, 
+                               NULL, NULL, hInstance, NULL );
 
-        if ( not hwnd )
+        if ( not m_hwnd)
         {
             ERROR( "Window[Win32]::create(): Failed to create a window. " );
         }
 
-        ShowWindow( hwnd, SW_SHOW );
+        ShowWindow( m_hwnd, SW_SHOW );
         m_created = true;
     }
 
     //----------------------------------------------------------------------
     void Window::destroy()
     {
-        if ( not DestroyWindow( hwnd ) )
+        if ( not DestroyWindow( m_hwnd ) )
         {
             ERROR( "Window[Win32]::destroy(): Failed to destroy the window. " );
         }
@@ -195,7 +189,7 @@ namespace Core { namespace OS {
         static U32 oldWindowSizeX = 800;
         static U32 oldWindowSizeY = 600;
 
-        LONG lStyle = GetWindowLong( hwnd, GWL_STYLE );
+        LONG lStyle = GetWindowLong( m_hwnd, GWL_STYLE );
         U32 newWidth, newHeight;
         if (enabled)
         {
@@ -204,7 +198,7 @@ namespace Core { namespace OS {
 
             // Save old position in case of reverting
             RECT rect;
-            GetWindowRect( hwnd, &rect );
+            GetWindowRect( m_hwnd, &rect );
             oldWindowSizeX = (rect.right - rect.left);
             oldWindowSizeY = (rect.bottom - rect.top);
 
@@ -222,8 +216,8 @@ namespace Core { namespace OS {
             newHeight = oldWindowSizeY;
         }
 
-        SetWindowLongPtr( hwnd, GWL_STYLE, lStyle );
-        SetWindowPos( hwnd, NULL, 0, 0, newWidth, newHeight, SWP_NOZORDER | SWP_NOOWNERZORDER );
+        SetWindowLongPtr( m_hwnd, GWL_STYLE, lStyle );
+        SetWindowPos( m_hwnd, NULL, 0, 0, newWidth, newHeight, SWP_NOZORDER | SWP_NOOWNERZORDER );
     }
 
     //----------------------------------------------------------------------
@@ -235,20 +229,20 @@ namespace Core { namespace OS {
         UINT x = (UINT) ( ( screenResX * 0.5f ) - ( m_width  * 0.5f ) );
         UINT y = (UINT) ( ( screenResY * 0.5f ) - ( m_height * 0.5f ) );
 
-        SetWindowPos( hwnd, NULL, x, y, 0, 0, SWP_NOSIZE | SWP_NOZORDER | SWP_NOOWNERZORDER );
+        SetWindowPos( m_hwnd, NULL, x, y, 0, 0, SWP_NOSIZE | SWP_NOZORDER | SWP_NOOWNERZORDER );
     }
 
     //----------------------------------------------------------------------
     void Window::setTitle( const char* newTitle ) const
     {
-        SetWindowText( hwnd, newTitle );
+        SetWindowText( m_hwnd, newTitle );
     }
 
     //----------------------------------------------------------------------
     void Window::setCursorPosition( I16 x, I16 y ) const
     {
         POINT point { (LONG) x, (LONG) y };
-        ClientToScreen( hwnd, &point );
+        ClientToScreen( m_hwnd, &point );
         SetCursorPos( point.x, point.y );
     }
 
@@ -257,7 +251,7 @@ namespace Core { namespace OS {
     {
         POINT p;
         GetCursorPos( &p );
-        ScreenToClient( hwnd, &p );
+        ScreenToClient( m_hwnd, &p );
         return Point2D{ (I16)p.x, (I16)p.y };
     }
 
@@ -290,7 +284,7 @@ namespace Core { namespace OS {
         }
 
         // Set the windows class cursor (otherwise WM_SETCURSOR must be properly handled)
-        SetClassLongPtr( hwnd, GCLP_HCURSOR, (LONG_PTR) cursor );
+        SetClassLongPtr( m_hwnd, GCLP_HCURSOR, (LONG_PTR) cursor );
     }
 
     //----------------------------------------------------------------------
@@ -303,8 +297,8 @@ namespace Core { namespace OS {
            return;
         }
 
-        SetClassLongPtr( hwnd, GCLP_HICON, (LONG_PTR) icon );
-        SetClassLongPtr( hwnd, GCLP_HICONSM, (LONG_PTR) icon );
+        SetClassLongPtr( m_hwnd, GCLP_HICON, (LONG_PTR) icon );
+        SetClassLongPtr( m_hwnd, GCLP_HICONSM, (LONG_PTR) icon );
     }
 
     //----------------------------------------------------------------------

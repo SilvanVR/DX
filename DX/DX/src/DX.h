@@ -6,7 +6,7 @@
     author: S. Hau
     date: October 27, 2017
 
-    Main include file for using the engine.
+    Main include file when using the engine.
 **********************************************************************/
 
 #include "stdafx.h"

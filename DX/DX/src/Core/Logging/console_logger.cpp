@@ -95,6 +95,7 @@ namespace Core { namespace Logging {
             _DumpToDisk();
 
         #ifdef _WIN32
+            system( "pause" );
             __debugbreak();
         #elif
             ASSERT( false );
