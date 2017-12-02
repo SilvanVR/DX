@@ -80,6 +80,8 @@ namespace Core { namespace Time {
         operator Milliseconds() const;
         operator Microseconds() const;
         operator Nanoseconds() const;
+
+        String toString() const { return TS( value ) + " min"; }
     };
 
     //**********************************************************************
@@ -93,6 +95,8 @@ namespace Core { namespace Time {
         operator Milliseconds() const;
         operator Microseconds() const;
         operator Nanoseconds() const;
+
+        String toString() const { return TS( value ) + " sec"; }
     };
 
     //**********************************************************************
@@ -106,6 +110,8 @@ namespace Core { namespace Time {
         operator Seconds() const;
         operator Microseconds() const;
         operator Nanoseconds() const;
+
+        String toString() const { return TS( value ) + " ms"; }
     };
 
     //**********************************************************************
@@ -119,6 +125,8 @@ namespace Core { namespace Time {
         operator Seconds() const;
         operator Milliseconds() const;
         operator Nanoseconds() const;
+
+        String toString() const { return TS( value ) + " micros"; }
     };
 
     //**********************************************************************
@@ -132,6 +140,8 @@ namespace Core { namespace Time {
         operator Seconds() const;
         operator Milliseconds() const;
         operator Microseconds() const;
+
+        String toString() const { return TS( value ) + " ns"; }
     };
 
 

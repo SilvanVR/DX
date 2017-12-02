@@ -40,6 +40,8 @@ namespace Core { namespace Profiling {
             secTimer -= 1.0f;
             frameCounter = 0;
         }
+
+        m_updateDelta = delta;
     }
 
     //----------------------------------------------------------------------

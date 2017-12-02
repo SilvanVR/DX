@@ -12,21 +12,13 @@
 
 #include "locator.h"
 
-#include <d3d11_4.h>
-#include <comdef.h> /* _com_error */
+
 
 namespace Core { namespace Graphics {
 
     //----------------------------------------------------------------------
     #define BACKBUFFER_FORMAT       DXGI_FORMAT_R8G8B8A8_UNORM
     #define NUM_BACKBUFFERS         1
-
-    #define HR(x) \
-    if ( FAILED( x ) ) { \
-        _com_error err( x );\
-        LPCTSTR errMsg = err.ErrorMessage();\
-        ERROR_RENDERING( String("D3D11Renderer: @") + __FILE__ + ", line " + TS(__LINE__) + ". Reason: " + errMsg );\
-    }
 
     //----------------------------------------------------------------------
     static ID3D11Device*            pDevice = nullptr;
@@ -74,7 +66,7 @@ namespace Core { namespace Graphics {
         pImmediateContext->RSSetViewports( 1, &vp );
 
         pImmediateContext->ClearRenderTargetView( pRenderTargetView, m_clearColor.normalized().data() );
-        //pImmediateContext->ClearDepthStencilView(pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+        pImmediateContext->ClearDepthStencilView( pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0 );
 
         HR( pSwapChain->Present( m_vSync ? 1 : 0, NULL ) );
     }

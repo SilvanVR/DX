@@ -28,7 +28,8 @@ namespace Core { namespace Profiling {
         void shutdown() override;
 
         //----------------------------------------------------------------------
-        U32 getFPS() const { return m_fps; }
+        U32                 getFPS()            const { return m_fps; }
+        Time::Milliseconds  getUpdateDelta()    const { return m_updateDelta; }
 
         //----------------------------------------------------------------------
         // Start a new profiling section.
@@ -58,7 +59,8 @@ namespace Core { namespace Profiling {
 
 
     private:
-        U32 m_fps = 0;
+        U32                 m_fps = 0;
+        Time::Milliseconds  m_updateDelta = 0.0f;
 
         // Maps [Name] <-> [Time]
         HashMap<StringID, U64> m_entries;

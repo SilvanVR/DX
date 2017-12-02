@@ -62,7 +62,9 @@ public:
         Locator::getLogger().setSaveToDisk( false );
 
         Locator::getEngineClock().setInterval([] {
-            LOG("Time: " + TS( Locator::getEngineClock().getTime().value ) + " FPS: " + TS( Locator::getProfiler().getFPS() ) );
+            U32 fps = Locator::getProfiler().getFPS();
+            F64 delta = (1.0 / fps) * 1000.0;
+            LOG("Time: " + TS( Locator::getEngineClock().getTime().value ) + " FPS: " + TS( fps ) + " Delta: " + TS( delta ) + " ms" );
         }, 1000);
 
         IGC_REGISTER_COMMAND_WITH_NAME( "Hello", std::bind(&Game::hello, this) );
@@ -71,6 +73,7 @@ public:
     //----------------------------------------------------------------------
     void tick(Time::Seconds delta) override
     {
+        getWindow().setTitle(  Locator::getProfiler().getUpdateDelta().toString().c_str() );
         static U64 ticks = 0;
         ticks++;
 
@@ -89,9 +92,6 @@ public:
 
         }
 
-        //LOG( "Tick: " + TS(ticks) );
-        //if ( ticks == GAME_TICK_RATE * 2)
-        //    terminate();
         if( KEYBOARD.isKeyDown( Key::Escape ) )
             terminate();
     }

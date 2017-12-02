@@ -359,5 +359,8 @@
     <ClInclude Include="src\Core\Graphics\i_renderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Core\Graphics\D3D11\D3D11.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

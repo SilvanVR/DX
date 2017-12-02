@@ -9,12 +9,9 @@
 **********************************************************************/
 
 #include "../i_renderer.h"
+#include "D3D11.hpp"
 
 namespace Core { namespace Graphics {
-
-    //----------------------------------------------------------------------
-    #define SAFE_RELEASE(com) com->Release(); com = nullptr;
-
 
     //**********************************************************************
     // D3D11 Renderer Subsystem.
@@ -39,10 +36,10 @@ namespace Core { namespace Graphics {
         void setClearColor(Color clearColor) { m_clearColor = clearColor; }
 
     private:
-        U32     m_msaaCount = 4;
-        U32     m_msaaQualityLevel = 0;
-        bool    m_vSync = false;
-        Color   m_clearColor = Color::BLACK;
+        U32     m_msaaCount         = 4;
+        U32     m_msaaQualityLevel  = 0;
+        bool    m_vSync             = false;
+        Color   m_clearColor        = Color::BLACK;
 
         //----------------------------------------------------------------------
         void _InitD3D11();
