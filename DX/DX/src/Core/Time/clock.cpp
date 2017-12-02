@@ -44,7 +44,7 @@ namespace Core { namespace Time {
     }
 
     //----------------------------------------------------------------------
-    void Clock::tick(Seconds delta)
+    void Clock::tick( Seconds delta )
     {
         m_lastTime = m_curTime.value();
         m_curTime += (delta * m_tickModifier);

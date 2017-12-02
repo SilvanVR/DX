@@ -10,6 +10,7 @@ namespace Core { namespace Graphics { namespace D3D11 {
 
     //----------------------------------------------------------------------
     #define BACKBUFFER_FORMAT       DXGI_FORMAT_R8G8B8A8_UNORM
+    #define DEPTH_STENCIL_FORMAT    DXGI_FORMAT_D24_UNORM_S8_UINT
     #define NUM_BACKBUFFERS         1
 
     //----------------------------------------------------------------------
@@ -21,7 +22,7 @@ namespace Core { namespace Graphics { namespace D3D11 {
 
         // Pick highest quality level
         UINT msaaQualityLevels;
-        HR( g_pDevice->CheckMultisampleQualityLevels( BACKBUFFER_FORMAT, m_msaaCount, &msaaQualityLevels) );
+        HR( g_pDevice->CheckMultisampleQualityLevels( BACKBUFFER_FORMAT, m_msaaCount, &msaaQualityLevels ) );
         m_msaaQualityLevel = (msaaQualityLevels - 1);
 
         // Create backbuffers and depth-buffer 
@@ -42,11 +43,11 @@ namespace Core { namespace Graphics { namespace D3D11 {
     //----------------------------------------------------------------------
     void Swapchain::recreate( U16 width, U16 height )
     {
-        m_pSwapChain->ResizeBuffers( NUM_BACKBUFFERS, width, height, BACKBUFFER_FORMAT, 0 );
+        HR( m_pSwapChain->ResizeBuffers( 1 + NUM_BACKBUFFERS, width, height, BACKBUFFER_FORMAT, 0 ) );
     }
 
     //----------------------------------------------------------------------
-    void Swapchain::clear(Color color, F32 depth, U8 stencil)
+    void Swapchain::clear( Color color, F32 depth, U8 stencil )
     {
         g_pImmediateContext->ClearRenderTargetView( m_pRenderTargetView, color.normalized().data() );
         g_pImmediateContext->ClearDepthStencilView( m_pDepthStencilView, (D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL), 1.0f, 0 );
@@ -106,7 +107,7 @@ namespace Core { namespace Graphics { namespace D3D11 {
         depthStencilDesc.Height         = height;
         depthStencilDesc.MipLevels      = 1;
         depthStencilDesc.ArraySize      = 1;
-        depthStencilDesc.Format         = DXGI_FORMAT_D24_UNORM_S8_UINT;
+        depthStencilDesc.Format         = DEPTH_STENCIL_FORMAT;
         depthStencilDesc.SampleDesc     = { m_msaaCount, m_msaaQualityLevel };
         depthStencilDesc.Usage          = D3D11_USAGE_DEFAULT;
         depthStencilDesc.BindFlags      = D3D11_BIND_DEPTH_STENCIL;
@@ -122,7 +123,8 @@ namespace Core { namespace Graphics { namespace D3D11 {
     {
         if (numSamples > D3D11_MAX_MULTISAMPLE_SAMPLE_COUNT)
         {
-            WARN_RENDERING( "D3D11: #" + TS( numSamples ) + " samples are not supported." );
+            WARN_RENDERING( "D3D11: #" + TS( numSamples ) + " samples are too high. "
+                            "Max is: " + TS( D3D11_MAX_MULTISAMPLE_SAMPLE_COUNT ) );
             return false;
         }
 
