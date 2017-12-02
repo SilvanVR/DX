@@ -12,7 +12,6 @@
 **********************************************************************/
 
 #include <d3d11_4.h>
-#include <comdef.h> /* _com_error */
 #include "locator.h"
 
 //----------------------------------------------------------------------
@@ -23,9 +22,16 @@ extern ID3D11DeviceContext*    g_pImmediateContext;
 //----------------------------------------------------------------------
 #define SAFE_RELEASE(com) com->Release(); com = nullptr;
 
-#define HR(x) \
-    if ( FAILED( x ) ) { \
-        _com_error err( x );\
-        LPCTSTR errMsg = err.ErrorMessage();\
-        ERROR_RENDERING( String("D3D11Renderer: @") + __FILE__ + ", line " + TS(__LINE__) + ". Reason: " + errMsg );\
-    }
+
+#ifdef _DEBUG
+    #include <comdef.h> /* _com_error */
+    #define HR(x) \
+        if ( FAILED( x ) ) { \
+            _com_error err( x );\
+            LPCTSTR errMsg = err.ErrorMessage();\
+            ERROR_RENDERING( String( "D3D11Renderer: @" ) + __FILE__ + ", line " + TS(__LINE__) + ". "\
+                             "Function: " + #x + ". Reason: " + errMsg );\
+        }
+#else
+    #define HR(x) (x)
+#endif

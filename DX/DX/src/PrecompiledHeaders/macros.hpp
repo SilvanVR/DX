@@ -21,7 +21,7 @@
     #define ASSERT(exp)             assert(exp)
 #else
     #define NEW                     new
-    #define ASSERT(exp)             assert(exp) // TODO: Replace by nothing if everything works fine :-)
+    #define ASSERT(exp)             (exp)
 #endif
 
 //----------------------------------------------------------------------

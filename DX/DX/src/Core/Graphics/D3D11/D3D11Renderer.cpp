@@ -45,7 +45,7 @@ namespace Core { namespace Graphics {
         vp.MinDepth = 0.0f;
         vp.MaxDepth = 1.0f;
         //g_pImmediateContext->RSSetViewports( 1, &vp );
-
+        
         m_pSwapchain->clear( m_clearColor, 1.0f, 0 );
 
         // TODO: Render
@@ -74,7 +74,7 @@ namespace Core { namespace Graphics {
             return;
 
         // Recreate Swapchain
-        delete m_pSwapchain;
+        SAFE_DELETE( m_pSwapchain );
         _CreateSwapchain();
     }
 
@@ -94,7 +94,7 @@ namespace Core { namespace Graphics {
     //----------------------------------------------------------------------
     void D3D11Renderer::_DeinitD3D11()
     {
-        delete m_pSwapchain;
+        SAFE_DELETE( m_pSwapchain );
         SAFE_RELEASE( g_pImmediateContext );
         SAFE_RELEASE( g_pDevice );
     }
