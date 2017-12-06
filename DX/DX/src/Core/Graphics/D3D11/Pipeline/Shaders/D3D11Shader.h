@@ -1,32 +1,31 @@
 #pragma once
 /**********************************************************************
-    class: D3D11Shader (D3D11Shader.h)
+    class: IShader + VertexShader etc. (D3D11IShader.h)
 
     author: S. Hau
     date: December 3, 2017
-
 **********************************************************************/
 
-#include "D3D11.hpp"
+#include "../../D3D11.hpp"
 
 namespace Core { namespace Graphics { namespace D3D11 {
 
     //**********************************************************************
-    class Shader
+    class IShader
     {
     public:
-        Shader(CString path);
-        virtual ~Shader() = 0;
+        IShader(CString path);
+        virtual ~IShader() = 0;
 
         //----------------------------------------------------------------------
-        const String& getFilePath() const { return m_filePath; }
-        ID3DBlob* getShaderBlob() { return m_shaderBlob; }
+        const String&   getFilePath() const { return m_filePath; }
+        ID3DBlob*       getShaderBlob() { return m_IShaderBlob; }
 
-        virtual bool compile(const char* entryPoint) = 0;
         virtual void bind() = 0;
+        virtual bool compile(CString entryPoint) = 0;
 
     protected:
-        ID3DBlob*   m_shaderBlob = nullptr;
+        ID3DBlob*   m_IShaderBlob = nullptr;
         String      m_filePath;
 
         //----------------------------------------------------------------------
@@ -34,21 +33,21 @@ namespace Core { namespace Graphics { namespace D3D11 {
 
     private:
         //----------------------------------------------------------------------
-        Shader(const Shader& other)               = delete;
-        Shader& operator = (const Shader& other)  = delete;
-        Shader(Shader&& other)                    = delete;
-        Shader& operator = (Shader&& other)       = delete;
+        IShader(const IShader& other)               = delete;
+        IShader& operator = (const IShader& other)  = delete;
+        IShader(IShader&& other)                    = delete;
+        IShader& operator = (IShader&& other)       = delete;
     };
 
     //**********************************************************************
-    class VertexShader : public Shader
+    class VertexShader : public IShader
     {
     public:
         VertexShader(CString path);
         ~VertexShader();
 
+        void bind() override;
         bool compile(CString entryPoint) override;
-        void bind() override { g_pImmediateContext->VSSetShader( m_pVertexShader, NULL, 0 ); };
 
     private:
         ID3D11VertexShader* m_pVertexShader = nullptr;
@@ -61,14 +60,14 @@ namespace Core { namespace Graphics { namespace D3D11 {
     };
 
     //**********************************************************************
-    class PixelShader : public Shader
+    class PixelShader : public IShader
     {
     public:
         PixelShader(CString path);
         ~PixelShader();
 
-        virtual bool compile(CString entryPoint) override;
-        void bind() override { g_pImmediateContext->PSSetShader( m_pPixelShader, NULL, 0 ); };
+        void bind() override;
+        bool compile(CString entryPoint) override;
 
     private:
         ID3D11PixelShader* m_pPixelShader = nullptr;
@@ -81,8 +80,8 @@ namespace Core { namespace Graphics { namespace D3D11 {
     };
 
 
-    //// Get the latest profile for the specified shader type.
-    //template< class ShaderClass >
+    //// Get the latest profile for the specified IShader type.
+    //template< class IShaderClass >
     //String GetLatestProfile();
 
     //template<>

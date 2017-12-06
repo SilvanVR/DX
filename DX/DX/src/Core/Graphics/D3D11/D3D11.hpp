@@ -12,7 +12,7 @@
 **********************************************************************/
 
 #include <d3d11_4.h>
-#include "locator.h"
+#include "locator.h" /* Logging... */
 
 //----------------------------------------------------------------------
 extern ID3D11Device*           g_pDevice;
@@ -20,7 +20,7 @@ extern ID3D11DeviceContext*    g_pImmediateContext;
 
 
 //----------------------------------------------------------------------
-#define SAFE_RELEASE(com) com->Release(); com = nullptr;
+#define SAFE_RELEASE(com) if( com ) { com->Release(); com = nullptr; }
 
 
 #ifdef _DEBUG

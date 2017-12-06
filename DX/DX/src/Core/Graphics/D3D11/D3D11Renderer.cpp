@@ -11,7 +11,8 @@
 **********************************************************************/
 
 #include "locator.h"
-#include "D3D11Shader.h"
+#include "Pipeline/Shaders/D3D11Shader.h"
+#include "Pipeline/Buffers/D3D11Buffers.h"
 
 namespace Core { namespace Graphics {
 
@@ -44,22 +45,22 @@ namespace Core { namespace Graphics {
         4, 0, 3, 4, 3, 7
     };
 
-    ID3D11Buffer* mVB;
-    ID3D11Buffer* mIB;
-    ID3D11Buffer* mCB;
-
-    ID3D11RasterizerState* pRSState;
-
     D3D11_INPUT_ELEMENT_DESC vertexDesc[] =
     {
         { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
         { "COLOR", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 }
     };
-    ID3D11InputLayout* pInputLayout;
-    ID3D11DepthStencilState* pDepthStencilState;
+
+    ID3D11InputLayout*          pInputLayout;
+    ID3D11DepthStencilState*    pDepthStencilState;
+    ID3D11RasterizerState*      pRSState;
 
     D3D11::VertexShader*    pVertexShader = nullptr;
     D3D11::PixelShader*     pPixelShader = nullptr;
+
+    D3D11::VertexBuffer*    pVertexBuffer = nullptr;
+    D3D11::IndexBuffer*     pIndexBuffer = nullptr;
+    D3D11::ConstantBuffer*  pConstantBuffer = nullptr;
 
     //**********************************************************************
     // INIT STUFF
@@ -71,34 +72,12 @@ namespace Core { namespace Graphics {
         _InitD3D11();
 
         {
-            D3D11_BUFFER_DESC vbd = {};
-            vbd.Usage = D3D11_USAGE_IMMUTABLE;
-            vbd.ByteWidth = sizeof(Vertex) * _countof( vertices );
-            vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-
-            D3D11_SUBRESOURCE_DATA vinitData;
-            vinitData.pSysMem = vertices;
-            HR( g_pDevice->CreateBuffer( &vbd, &vinitData, &mVB) );
+            // Buffers
+            pVertexBuffer = new D3D11::VertexBuffer( sizeof(Vertex) * _countof(vertices), vertices );
+            pIndexBuffer = new D3D11::IndexBuffer( sizeof(UINT) * _countof(indices), indices );
+            pConstantBuffer = new D3D11::ConstantBuffer( sizeof(XMMATRIX) );
         }
-        {
-            D3D11_BUFFER_DESC ibd = {};
-            ibd.Usage = D3D11_USAGE_IMMUTABLE;
-            ibd.ByteWidth = sizeof(UINT) * _countof( indices );
-            ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
 
-            D3D11_SUBRESOURCE_DATA iinitData;
-            iinitData.pSysMem = indices;
-            HR( g_pDevice->CreateBuffer(&ibd, &iinitData, &mIB) );
-        }
-        {
-            D3D11_BUFFER_DESC cbc = {};
-            cbc.Usage = D3D11_USAGE_DEFAULT;
-            cbc.ByteWidth = sizeof(XMMATRIX);
-            cbc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-            cbc.CPUAccessFlags = 0;
-
-            HR( g_pDevice->CreateBuffer( &cbc, NULL, &mCB ) );
-        }
         {
             // Shaders
             pVertexShader = new D3D11::VertexShader( "res/shaders/basicVS.hlsl" );
@@ -141,9 +120,9 @@ namespace Core { namespace Graphics {
         SAFE_RELEASE(pDepthStencilState);
         SAFE_RELEASE(pInputLayout);
         SAFE_RELEASE(pRSState);
-        SAFE_RELEASE(mCB);
-        SAFE_RELEASE(mVB);
-        SAFE_RELEASE(mIB);
+        SAFE_DELETE(pConstantBuffer);
+        SAFE_DELETE(pVertexBuffer);
+        SAFE_DELETE(pIndexBuffer);
         _DeinitD3D11();
     }
 
@@ -164,14 +143,12 @@ namespace Core { namespace Graphics {
         vp.MaxDepth = 1.0f;
 
         // Set Pipeline States
-        UINT stride = sizeof(Vertex);
-        UINT offset = 0;
         g_pImmediateContext->IASetInputLayout(pInputLayout);
-        g_pImmediateContext->IASetVertexBuffers(0, 1, &mVB, &stride, &offset);
-        g_pImmediateContext->IASetIndexBuffer( mIB, DXGI_FORMAT_R32_UINT, 0 );
+        pVertexBuffer->bind( 0, sizeof(Vertex), 0 );
+        pIndexBuffer->bind( DXGI_FORMAT_R32_UINT, 0 );
         g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-        g_pImmediateContext->VSSetConstantBuffers(0, 1, &mCB );
+        pConstantBuffer->bind(0);
         pVertexShader->bind();
 
         g_pImmediateContext->OMSetDepthStencilState(pDepthStencilState, 0);
@@ -182,22 +159,22 @@ namespace Core { namespace Graphics {
 
         // Set constants
         static float angle = 0.0f;
-        F32 delta = Locator::getProfiler().getUpdateDelta().value;
+        F32 delta = (F32)Locator::getProfiler().getUpdateDelta().value;
         angle += delta * 0.01f;
         XMVECTOR rotationAxis = XMVectorSet(0, 1, 1, 0);
         XMMATRIX world = XMMatrixRotationAxis(rotationAxis, XMConvertToRadians(angle));
 
-        static float xPos = 0.0f;
-        static float zPos = 0.0f;
-        zPos += AXIS_MAPPER.getAxisValue("Vertical") * delta * 0.01f;
-        xPos += AXIS_MAPPER.getAxisValue("Horizontal") * delta * -0.01f;
+        static F32 xPos = 0.0f;
+        static F32 zPos = 0.0f;
+        zPos += (F32)AXIS_MAPPER.getAxisValue("Vertical") * delta * 0.01f;
+        xPos += (F32)AXIS_MAPPER.getAxisValue("Horizontal") * delta * -0.01f;
         XMVECTOR eyePosition = XMVectorSet(xPos, 0, -10 + zPos, 1);
-        XMMATRIX view = XMMatrixLookAtLH(eyePosition, { 0,0,0 }, {0,1,0});
-        //XMMATRIX view = XMMatrixLookToLH(eyePosition, {0,0,1}, {0,1,0});
+        //XMMATRIX view = XMMatrixLookAtLH(eyePosition, { 0,0,0 }, {0,1,0});
+        XMMATRIX view = XMMatrixLookToLH(eyePosition, {0,0,1}, {0,1,0});
         XMMATRIX proj = XMMatrixPerspectiveFovLH(XMConvertToRadians(45.0f), vp.Width / vp.Height, 0.1f, 100.0f);
 
         XMMATRIX worldViewProj = world*view*proj;
-        g_pImmediateContext->UpdateSubresource( mCB, 0, nullptr, &worldViewProj, 0, 0 );
+        pConstantBuffer->updateSubresource( &worldViewProj );
 
         g_pImmediateContext->DrawIndexed( _countof(indices), 0, 0 );
 
@@ -208,8 +185,7 @@ namespace Core { namespace Graphics {
     //----------------------------------------------------------------------
     void D3D11Renderer::OnWindowSizeChanged( U16 w, U16 h )
     {
-        // Window was minimized
-        if ( w == 0 || h == 0 )
+        if ( w == 0 || h == 0 ) // Window was minimized
             return;
 
         m_pSwapchain->recreate( w, h );
@@ -288,12 +264,11 @@ namespace Core { namespace Graphics {
         m_pSwapchain = new D3D11::Swapchain( m_window->getHWND(), windowSize.x, windowSize.y, numSamples );
     }
 
-
     //----------------------------------------------------------------------
     void D3D11Renderer::_ReportLiveObjects()
     {
         ID3D11Debug* pDebugDevice = nullptr;
-        HR( g_pDevice->QueryInterface( __uuidof( ID3D11Debug ), reinterpret_cast<void**>(&pDebugDevice) ) );
+        HR( g_pDevice->QueryInterface( __uuidof( ID3D11Debug ), reinterpret_cast<void**>( &pDebugDevice ) ) );
         HR( pDebugDevice->ReportLiveDeviceObjects( D3D11_RLDO_DETAIL ) );
         SAFE_RELEASE( pDebugDevice );
     }

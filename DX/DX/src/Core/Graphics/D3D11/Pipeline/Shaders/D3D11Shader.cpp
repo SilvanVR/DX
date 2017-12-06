@@ -1,6 +1,6 @@
 #include "D3D11Shader.h"
 /**********************************************************************
-    class: D3D11Shader (D3D11Shader.cpp)
+    class: IShader + VertexShader etc. (D3D11IShader.cpp)
 
     author: S. Hau
     date: December 3, 2017
@@ -12,20 +12,19 @@ namespace Core { namespace Graphics { namespace D3D11 {
 
 
     //----------------------------------------------------------------------
-    Shader::Shader( CString path )
+    IShader::IShader( CString path )
         : m_filePath( path )
     {
     }
 
     //----------------------------------------------------------------------
-    Shader::~Shader()
+    IShader::~IShader()
     {
-        if (m_shaderBlob)
-            SAFE_RELEASE( m_shaderBlob );
+        SAFE_RELEASE( m_IShaderBlob );
     }
 
     //----------------------------------------------------------------------
-    bool Shader::_Compile( CString entryPoint, CString profile )
+    bool IShader::_Compile( CString entryPoint, CString profile )
     {
         UINT flags = D3DCOMPILE_ENABLE_STRICTNESS | D3DCOMPILE_WARNINGS_ARE_ERRORS;
     #ifdef _DEBUG
@@ -34,11 +33,11 @@ namespace Core { namespace Graphics { namespace D3D11 {
 
         ID3DBlob* errorBlob = nullptr;
         HRESULT hr = D3DCompileFromFile( ConvertToWString( m_filePath ).c_str(), NULL, D3D_COMPILE_STANDARD_FILE_INCLUDE,
-                                         entryPoint, profile, flags, 0, &m_shaderBlob, &errorBlob );
+                                         entryPoint, profile, flags, 0, &m_IShaderBlob, &errorBlob );
 
         if ( FAILED( hr ) )
         {
-            WARN_RENDERING( "Failed to compile shader '" + m_filePath + "'." );
+            WARN_RENDERING( "Failed to compile Shader '" + m_filePath + "'." );
 
             if (errorBlob)
             {
@@ -46,8 +45,7 @@ namespace Core { namespace Graphics { namespace D3D11 {
                 SAFE_RELEASE( errorBlob );
             }
 
-            if (m_shaderBlob)
-                SAFE_RELEASE( m_shaderBlob );
+            SAFE_RELEASE( m_IShaderBlob );
 
             return false;
         }
@@ -57,20 +55,26 @@ namespace Core { namespace Graphics { namespace D3D11 {
 
 
     //**********************************************************************
-    // VERTEX SHADER
+    // VERTEX IShader
     //**********************************************************************
 
     //----------------------------------------------------------------------
     VertexShader::VertexShader( CString path )
-        : Shader( path )
+        : IShader( path )
     {
     }
 
     //----------------------------------------------------------------------
     VertexShader::~VertexShader()
     {
-        if(m_pVertexShader)
-            SAFE_RELEASE( m_pVertexShader );
+        SAFE_RELEASE( m_pVertexShader );
+    }
+
+    //----------------------------------------------------------------------
+    void VertexShader::bind() 
+    { 
+        ASSERT( m_pVertexShader != nullptr );
+        g_pImmediateContext->VSSetShader( m_pVertexShader, NULL, 0 ); 
     }
 
     //----------------------------------------------------------------------
@@ -80,27 +84,34 @@ namespace Core { namespace Graphics { namespace D3D11 {
         if (not compiled)
             return false;
 
-        // @TODO investigate class linkage
-        HR( g_pDevice->CreateVertexShader(m_shaderBlob->GetBufferPointer(), m_shaderBlob->GetBufferSize(), nullptr, &m_pVertexShader ) );
+        SAFE_RELEASE( m_pVertexShader );
+
+        HR( g_pDevice->CreateVertexShader( m_IShaderBlob->GetBufferPointer(), m_IShaderBlob->GetBufferSize(), nullptr, &m_pVertexShader ) );
 
         return true;
     }
 
     //**********************************************************************
-    // PIXEL SHADER
+    // PIXEL IShader
     //**********************************************************************
 
     //----------------------------------------------------------------------
     PixelShader::PixelShader( CString path )
-        : Shader( path )
+        : IShader( path )
     {
     }
     
     //----------------------------------------------------------------------
     PixelShader::~PixelShader()
     {
-        if (m_pPixelShader)
-            SAFE_RELEASE( m_pPixelShader );
+        SAFE_RELEASE( m_pPixelShader );
+    }
+
+    //----------------------------------------------------------------------
+    void PixelShader::bind()
+    {
+        ASSERT( m_pPixelShader != nullptr );
+        g_pImmediateContext->PSSetShader( m_pPixelShader, NULL, 0 );
     }
 
     //----------------------------------------------------------------------
@@ -110,8 +121,9 @@ namespace Core { namespace Graphics { namespace D3D11 {
         if (not compiled)
             return false;
 
-        // @TODO investigate class linkage
-        HR( g_pDevice->CreatePixelShader(m_shaderBlob->GetBufferPointer(), m_shaderBlob->GetBufferSize(), nullptr, &m_pPixelShader ) );
+        SAFE_RELEASE( m_pPixelShader );
+
+        HR( g_pDevice->CreatePixelShader( m_IShaderBlob->GetBufferPointer(), m_IShaderBlob->GetBufferSize(), nullptr, &m_pPixelShader ) );
 
         return true;
     }
