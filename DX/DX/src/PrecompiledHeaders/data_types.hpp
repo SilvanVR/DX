@@ -15,6 +15,10 @@
 using U8 = unsigned __int8;
 using I8 = __int8;
 using Byte = U8;
+using Char = char;
+using WChar = wchar_t;
+
+typedef const char* CString;
 
 using U16 = unsigned __int16;
 using I16 = __int16;

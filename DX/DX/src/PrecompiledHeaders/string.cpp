@@ -15,6 +15,10 @@
        => YES, in order to dump StringIDs as string to disk.
 **********************************************************************/
 
+#include <codecvt>
+#include <locale>
+
+
 // Table which maps [HASH <-> STRING]
 HashMap<U32, const char*> gStringIdTable;
 
@@ -96,5 +100,21 @@ U32 hash(const char* str)
     hash += (hash << 15);
 
     return hash;
+}
+
+//----------------------------------------------------------------------
+WString ConvertToWString( const String& s )
+{
+    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+    WString wide = converter.from_bytes(s);
+    return wide;
+}
+
+//----------------------------------------------------------------------
+String ConvertToString( const WString& s )
+{
+    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+    String narrow = converter.to_bytes(s);
+    return narrow;
 }
 

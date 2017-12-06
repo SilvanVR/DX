@@ -296,6 +296,7 @@
     <ClCompile Include="src\Core\Config\config_file.cpp" />
     <ClCompile Include="src\Core\core_engine.cpp" />
     <ClCompile Include="src\Core\Graphics\D3D11\D3D11Globals.cpp" />
+    <ClCompile Include="src\Core\Graphics\D3D11\D3D11Shader.cpp" />
     <ClCompile Include="src\Core\Graphics\D3D11\D3D11Swapchain.cpp" />
     <ClCompile Include="src\Core\Graphics\i_renderer.cpp" />
     <ClCompile Include="src\Core\InGameConsole\in_game_console.cpp" />
@@ -354,6 +355,7 @@
   <ItemGroup>
     <ClInclude Include="src\Core\Graphics\D3D11\D3D11.hpp" />
     <ClInclude Include="src\Core\Graphics\D3D11\D3D11Globals.h" />
+    <ClInclude Include="src\Core\Graphics\D3D11\D3D11Shader.h" />
     <ClInclude Include="src\Core\Graphics\D3D11\D3D11Swapchain.h" />
     <ClInclude Include="src\Core\InGameConsole\in_game_console.h" />
     <ClInclude Include="src\Core\InGameConsole\i_in_game_console.hpp" />

@@ -48,7 +48,9 @@ namespace Core { namespace Graphics {
         void _DeinitD3D11();
 
         void _CreateDeviceAndContext();
-        void _CreateSwapchain();
+        void _CreateSwapchain( U32 numSamples );
+
+        void _ReportLiveObjects();
 
         //----------------------------------------------------------------------
         // IRenderer Interface

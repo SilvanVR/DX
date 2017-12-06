@@ -13,17 +13,18 @@
      - When comparing hashed strings in eg. a function,
        make the compared string static, so it gets interned only once,
        when the function is called for the first time.
-     - For now StringID's can only be used after the string table was
-       externally created (atm after the memory manager). This is needed
-       in order to properly detect memory leaks instantaneously.
 **********************************************************************/
 
 #include <string>
 
-using String = std::string;
-
 #define SID(str)        StringID( str )
 #define SID_NO_ADD(str) StringID( str, false )
+
+using String    = std::string;
+using WString   = std::wstring;
+
+WString ConvertToWString(const String& s);
+String ConvertToString(const WString& s);
 
 //----------------------------------------------------------------------
 // Represents a string as a number.
