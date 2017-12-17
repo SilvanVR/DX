@@ -10,7 +10,7 @@
      - Scene Deinitialization
      - Scene Transitions
 
-    All loaded scenes will be updated, but only the last one will be rendered
+    All loaded scenes will be updated, but only the last one will be rendered.
 **********************************************************************/
 
 #include "Core/i_subsystem.hpp"
@@ -74,7 +74,7 @@ namespace Core {
         void SaveCurrentSceneToFile(OS::Path path);
 
     private:
-        std::vector<IScene*> m_sceneStack;
+        ArrayList<IScene*> m_sceneStack;
 
         //----------------------------------------------------------------------
         void _SwitchToScene(IScene* newScene);

@@ -14,6 +14,7 @@
 #include "Core/core_engine.h"
 #include "GameplayLayer/i_scene.h"
 #include "GameplayLayer/gameobject.h"
+#include "GameplayLayer/Components/ctransform.h"
 
 class IGame : public Core::CoreEngine
 {

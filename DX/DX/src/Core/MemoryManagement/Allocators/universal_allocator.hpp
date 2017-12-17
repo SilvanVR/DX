@@ -168,7 +168,7 @@ namespace Core { namespace MemoryManagement {
             for (Size i = 0; i < amountOfObjects; i++)
             {
                 T* objectLocation = std::addressof( alignedAddress[i] );
-                new (objectLocation) T( std::forward<Arguments>( args )... );
+                new (objectLocation) T( std::forward<Args>( args )... );
             }
 
             return alignedAddress;

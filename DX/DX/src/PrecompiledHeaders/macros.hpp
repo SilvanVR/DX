@@ -14,7 +14,7 @@
 #define not                         !
 #define and                         &&
 #define or                          ||
-#define SAFE_DELETE(x)              delete x; x = nullptr;
+#define SAFE_DELETE(x)              { delete x; x = nullptr; }
 
 #ifdef _DEBUG
     #define NEW                     new(__FILE__, __LINE__)

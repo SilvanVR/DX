@@ -52,9 +52,9 @@ namespace Core {
         // Update all scenes in the scene-stack
         for (IScene* scene : m_sceneStack)
         {
-            scene->preTick( delta );
-            scene->tick( delta );
-            scene->lateTick( delta );
+            scene->_PreTick( delta );
+            scene->_Tick( delta );
+            scene->_LateTick( delta );
         }
     }
 

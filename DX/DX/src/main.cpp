@@ -50,11 +50,9 @@ public:
     void init() override
     {
         using namespace std::chrono_literals;
-        std::this_thread::sleep_for(2s);
+        std::this_thread::sleep_for(1s);
         LOG("MyScene2 initialized!", Color::RED);
     }
-
-    void tick(Time::Seconds delta) override {}
 
     void shutdown() override
     {
@@ -65,19 +63,25 @@ public:
 
 class MyScene : public IScene
 {
+    GameObject* go;
+
 public:
     MyScene() : IScene("MyScene"){}
 
     void init() override
     {
-        using namespace std::chrono_literals;
-        std::this_thread::sleep_for(1s);
         LOG("MyScene initialized!", Color::RED);
-    }
 
-    void tick(Time::Seconds delta) override
-    {
-        //LOG("MyScene tick!", Color::RED);
+        go = createGameObject("Test");
+
+        GameObject* go2 = findGameObject("Test");
+        CTransform* c = go2->getComponent<CTransform>();
+
+        bool removed = go2->removeComponent( c );
+
+        //bool destroyed = go2->removeComponent<CTransform>();
+
+        int i = 523;
     }
 
     void shutdown() override
@@ -140,10 +144,6 @@ public:
             Locator::getSceneManager().LoadSceneAsync(new MyScene);
         if (KEYBOARD.wasKeyPressed(Key::Two))
             Locator::getSceneManager().LoadSceneAsync(new MyScene2);
-        if (KEYBOARD.wasKeyPressed(Key::Three))
-            Locator::getSceneManager().PushSceneAsync(new MyScene, false);
-        if (KEYBOARD.wasKeyPressed(Key::Four))
-            Locator::getSceneManager().PopScene();
 
         if (KEYBOARD.wasKeyPressed(Key::One))
             Locator::getRenderer().setMultiSampleCount(1);

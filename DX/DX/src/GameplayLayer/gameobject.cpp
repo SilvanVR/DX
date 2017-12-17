@@ -5,3 +5,19 @@
     author: S. Hau
     date: December 17, 2017
 **********************************************************************/
+
+#define INITIAL_COMPONENT_LIST_SIZE 4
+
+//----------------------------------------------------------------------
+GameObject::GameObject( IScene* scene, CString name )
+    : m_attachedScene( scene ), m_name( name ) 
+{
+    m_components.reserve( INITIAL_COMPONENT_LIST_SIZE );
+}
+
+//----------------------------------------------------------------------
+GameObject::~GameObject()
+{
+    for (IComponent* component : m_components)
+        delete component;
+}

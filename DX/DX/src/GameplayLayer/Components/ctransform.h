@@ -13,7 +13,7 @@ class CTransform : public IComponent
 {
 
 public:
-    CTransform();
+    CTransform() {}
 
 private:
     //XMFLOAT3 pos;

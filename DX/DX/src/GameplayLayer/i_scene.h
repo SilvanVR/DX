@@ -11,6 +11,9 @@
 
 #include "Core/Time/durations.h"
 
+namespace Core { class SceneManager; }
+class GameObject;
+
 //**********************************************************************
 // Interface for a new scene.
 //**********************************************************************
@@ -22,16 +25,37 @@ public:
 
     //----------------------------------------------------------------------
     virtual void init() = 0;
-    virtual void preTick(Core::Time::Seconds delta) {}
-    virtual void tick(Core::Time::Seconds delta) = 0;
-    virtual void lateTick(Core::Time::Seconds delta) {}
     virtual void shutdown() = 0;
 
     //----------------------------------------------------------------------
     const String& getName() const { return m_name; }
 
+    //----------------------------------------------------------------------
+    // Creates a new gameobject, which belongs to this scene.
+    //----------------------------------------------------------------------
+    GameObject* createGameObject(CString name = "NO NAME");
+
+    //----------------------------------------------------------------------
+    // Find a gameobject with the given name in this scene.
+    // Only active gameobjects will be found.
+    //----------------------------------------------------------------------
+    GameObject* findGameObject(CString name);
+
 private:
     String m_name;
+    ArrayList<GameObject*> m_enabledGameObjects;
+    ArrayList<GameObject*> m_disabledGameObjects;
+
+    //----------------------------------------------------------------------
+
+
+
+
+    //----------------------------------------------------------------------
+    friend class Core::SceneManager;
+    void _PreTick(Core::Time::Seconds delta);
+    void _Tick(Core::Time::Seconds delta);
+    void _LateTick(Core::Time::Seconds delta);
 
     //----------------------------------------------------------------------
     IScene(const IScene& other)               = delete;

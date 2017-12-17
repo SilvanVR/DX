@@ -18,10 +18,13 @@ public:
     GameObject* getGameObject() { return m_gameObject; }
     const GameObject* getGameObject() const { return m_gameObject; }
 
+protected:
+    virtual void addedToGameObject(GameObject* go) {}
+
 private:
     GameObject* m_gameObject;
 
-    void _SetGameObject(GameObject* go) { m_gameObject = go; }
+    void _SetGameObject(GameObject* go) { m_gameObject = go; addedToGameObject( m_gameObject ); }
 
     //----------------------------------------------------------------------
     IComponent(const IComponent& other)               = delete;
