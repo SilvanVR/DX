@@ -88,7 +88,7 @@ namespace Core {
     void SceneManager::PopScene()
     {
         ASSERT( numScenes() > 0 && "No scene to delete exists." );
-        IScene* curScene = getCurrentScene();
+        IScene* curScene = m_sceneStack.back();
         curScene->shutdown();
         delete curScene;
         m_sceneStack.pop_back();

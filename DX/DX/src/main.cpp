@@ -77,7 +77,7 @@ public:
         GameObject* go2 = findGameObject("Test");
         CTransform* c = go2->getComponent<CTransform>();
 
-        bool removed = go2->removeComponent( c );
+        //bool removed = go2->removeComponent( c );
 
         //bool destroyed = go2->removeComponent<CTransform>();
 
@@ -91,7 +91,9 @@ public:
 
 };
 
-
+// Current thougts:
+// - GameObject / IComponent data-oriented?
+// Data-Oriented seems okay, but then separate lists for enabled/disabled objects will be a horror
 
 class Game : public IGame
 {
@@ -131,14 +133,23 @@ public:
         //auto time = clock.getTime();
 
         static bool inState = false;
-        if (KEYBOARD.wasKeyPressed(Key::Q))
-        {
+        if (KEYBOARD.wasKeyPressed(Key::Q)) {
             inState = !inState;
         }
-        if (inState)
-        {
-
+        if (inState){
         }
+
+        if (KEYBOARD.wasKeyPressed(Key::E))
+        {
+            auto g = SCENE.findGameObject("Test");
+            static bool enabled = true;
+            enabled = !enabled;
+            g->setActive(enabled);
+            LOG(TS(enabled), Color::BLUE);
+        }
+
+        if (KEYBOARD.wasKeyPressed(Key::R))
+            auto go = SCENE.createGameObject("LOL");
 
         if (KEYBOARD.wasKeyPressed(Key::One))
             Locator::getSceneManager().LoadSceneAsync(new MyScene);

@@ -22,9 +22,11 @@ public:
     ~GameObject();
 
     //----------------------------------------------------------------------
-    StringID    getName()   const   { return m_name; }
-    IScene*     getScene()          { return m_attachedScene; }
-
+    const StringID                  getName()       const   { return m_name; }
+    IScene*                         getScene()              { return m_attachedScene; }
+    const ArrayList<IComponent*>&   getComponents() const   { return m_components; }
+    bool                            isActive()      const   { return m_isActive; }
+    void                            setActive(bool active);
 
     // <---------------------- COMPONENT STUFF ---------------------------->
     template<typename T> T*   getComponent();
@@ -32,10 +34,12 @@ public:
     template<typename T> bool removeComponent(T* comp);
     template<typename T, typename... Args> bool addComponent(Args&&... args);
 
+
 private:
     StringID                m_name;
     IScene*                 m_attachedScene;
     ArrayList<IComponent*>  m_components;
+    bool                    m_isActive = true;
 
     //----------------------------------------------------------------------
     // Creates the component in memory.

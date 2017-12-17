@@ -10,15 +10,17 @@
 **********************************************************************/
 
 #include "Core/Time/durations.h"
+#include "Core/DataStructures/mirrored_list.hpp"
 
 namespace Core { class SceneManager; }
-class GameObject;
 
 //**********************************************************************
 // Interface for a new scene.
 //**********************************************************************
 class IScene
 {
+    friend class GameObject;
+
 public:
     IScene(CString name);
     virtual ~IScene();
@@ -28,7 +30,7 @@ public:
     virtual void shutdown() = 0;
 
     //----------------------------------------------------------------------
-    const String& getName() const { return m_name; }
+    const StringID getName() const { return m_name; }
 
     //----------------------------------------------------------------------
     // Creates a new gameobject, which belongs to this scene.
@@ -41,14 +43,13 @@ public:
     //----------------------------------------------------------------------
     GameObject* findGameObject(CString name);
 
+
 private:
-    String m_name;
-    ArrayList<GameObject*> m_enabledGameObjects;
-    ArrayList<GameObject*> m_disabledGameObjects;
+    StringID                        m_name;
+    Core::MirroredList<GameObject*> m_gameObjects;
 
     //----------------------------------------------------------------------
-
-
+    void _SetGameObjectActive(GameObject* go, bool active);
 
 
     //----------------------------------------------------------------------

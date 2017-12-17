@@ -7,24 +7,48 @@
 
 **********************************************************************/
 
+#include "Core/Time/durations.h"
+
 //**********************************************************************
 class IComponent
 {
+    friend class IScene;
     friend class GameObject;
 
 public:
     IComponent() {}
 
-    GameObject* getGameObject() { return m_gameObject; }
-    const GameObject* getGameObject() const { return m_gameObject; }
+    //----------------------------------------------------------------------
+    GameObject*         getGameObject()         { return m_pGameObject; }
+    const GameObject*   getGameObject() const   { return m_pGameObject; }
+
+    bool                isActive()      const   { return m_isActive; }
+    void                setActive(bool active)  { m_isActive = active; }
+
 
 protected:
+    //----------------------------------------------------------------------
+    // Will be called before this component ticks for the first time.
+    //----------------------------------------------------------------------
+    virtual void Start() {}
+
+    virtual void PreTick(Core::Time::Seconds delta) {}
+    virtual void Tick(Core::Time::Seconds delta) {}
+    virtual void LateTick(Core::Time::Seconds delta) {}
+    virtual void Shutdown() {}
+
+    //----------------------------------------------------------------------
+    // Called immediately after the component was attached to a gameobject.
+    //----------------------------------------------------------------------
     virtual void addedToGameObject(GameObject* go) {}
 
 private:
-    GameObject* m_gameObject;
+    GameObject* m_pGameObject   = nullptr;
+    bool        m_bInitialized  = false;
+    bool        m_isActive      = true;
 
-    void _SetGameObject(GameObject* go) { m_gameObject = go; addedToGameObject( m_gameObject ); }
+    //----------------------------------------------------------------------
+    void _SetGameObject(GameObject* go) { m_pGameObject = go; addedToGameObject( m_pGameObject ); }
 
     //----------------------------------------------------------------------
     IComponent(const IComponent& other)               = delete;

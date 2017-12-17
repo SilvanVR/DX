@@ -361,6 +361,7 @@
     <ClCompile Include="src\Utils\utils.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Core\DataStructures\mirrored_list.hpp" />
     <ClInclude Include="src\Core\Graphics\D3D11\D3D11.hpp" />
     <ClInclude Include="src\Core\Graphics\D3D11\D3D11Globals.h" />
     <ClInclude Include="src\Core\Graphics\D3D11\Pipeline\Buffers\D3D11IBuffer.h" />

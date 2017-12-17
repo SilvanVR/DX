@@ -6,6 +6,7 @@
     date: December 17, 2017
 **********************************************************************/
 
+#include "i_scene.h"
 #define INITIAL_COMPONENT_LIST_SIZE 4
 
 //----------------------------------------------------------------------
@@ -21,3 +22,18 @@ GameObject::~GameObject()
     for (IComponent* component : m_components)
         delete component;
 }
+
+//**********************************************************************
+// PUBLIC
+//**********************************************************************
+
+void GameObject::setActive( bool active )
+{
+    m_isActive = active;
+    m_attachedScene->_SetGameObjectActive( this, m_isActive );
+}
+
+
+//**********************************************************************
+// PRIVATE
+//**********************************************************************

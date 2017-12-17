@@ -15,6 +15,8 @@ class CTransform : public IComponent
 public:
     CTransform() {}
 
+    void Tick(Core::Time::Seconds delta) override;
+
 private:
     //XMFLOAT3 pos;
 

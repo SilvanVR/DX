@@ -19,9 +19,9 @@ IScene::IScene( CString name )
 //----------------------------------------------------------------------
 IScene::~IScene()
 {
-    for (GameObject* go : m_enabledGameObjects)
+    for (auto go : m_gameObjects.ActiveObjects())
         SAFE_DELETE( go );
-    for (GameObject* go : m_disabledGameObjects)
+    for (auto go : m_gameObjects.NonActiveObjects())
         SAFE_DELETE( go );
 }
 
@@ -32,9 +32,10 @@ IScene::~IScene()
 //----------------------------------------------------------------------
 GameObject* IScene::createGameObject( CString name )
 {
+    //@TODO: Use custom allocator
     GameObject* go = new GameObject( this, name );
     go->addComponent<CTransform>();
-    m_enabledGameObjects.push_back( go );
+    m_gameObjects.add( go );
     return go;
 }
 
@@ -42,12 +43,11 @@ GameObject* IScene::createGameObject( CString name )
 GameObject* IScene::findGameObject( CString name )
 {
     StringID nameAsID = SID( name );
-    for (GameObject* go : m_enabledGameObjects)
+    for ( auto go : m_gameObjects.ActiveObjects() )
         if ( go->getName() == nameAsID )
             return go;
     return nullptr;
 }
-
 
 //**********************************************************************
 // PRIVATE
@@ -56,17 +56,57 @@ GameObject* IScene::findGameObject( CString name )
 //----------------------------------------------------------------------
 void IScene::_PreTick( Core::Time::Seconds delta )
 {
-
+    // Update components from all game-objects
+    for ( auto go : m_gameObjects.ActiveObjects() )
+    {
+        if ( go->isActive() )
+        {
+            for ( auto comp : go->getComponents() )
+            {
+                if ( comp->isActive() )
+                    comp->PreTick( delta );
+            }
+        }
+    }
 }
 
 //----------------------------------------------------------------------
 void IScene::_Tick( Core::Time::Seconds delta )
 {
-
+    // Update components from all game-objects
+    for ( auto go : m_gameObjects.ActiveObjects() )
+    {
+        if ( go->isActive() )
+        {
+            for ( auto comp : go->getComponents() )
+            {
+                if ( comp->isActive() )
+                    comp->Tick( delta );
+            }
+        }
+    }
 }
 
 //----------------------------------------------------------------------
 void IScene::_LateTick( Core::Time::Seconds delta )
 {
+    // Update components from all game-objects
+    for ( auto go : m_gameObjects.ActiveObjects() )
+    {
+        if ( go->isActive() )
+        {
+            for ( auto comp : go->getComponents() )
+            {
+                if ( comp->isActive() )
+                    comp->LateTick( delta );
+            }
+        }
+    }
+}
 
+
+//----------------------------------------------------------------------
+void IScene::_SetGameObjectActive( GameObject* go, bool active )
+{
+    m_gameObjects.disable(go);
 }

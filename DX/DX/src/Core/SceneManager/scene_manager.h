@@ -35,7 +35,7 @@ namespace Core {
         void OnTick(Time::Seconds delta) override;
 
         //----------------------------------------------------------------------
-        IScene*     getCurrentScene()           { return m_sceneStack.back(); }
+        IScene&     getCurrentScene()           { return *m_sceneStack.back(); }
         U32         numScenes()         const   { return static_cast<U32>( m_sceneStack.size() ); }
 
         //----------------------------------------------------------------------
