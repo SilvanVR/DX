@@ -18,9 +18,10 @@
 #include "Input/input_manager.h"
 #include "InGameConsole/in_game_console.h"
 #include "Graphics/D3D11/D3D11Renderer.h"
+#include "SceneManager/scene_manager.h"
 
 //----------------------------------------------------------------------
-#define ENABLE_THREADING 0
+#define ENABLE_THREADING 1
 #define ENABLE_CONFIG    1
 
 namespace Core
@@ -78,6 +79,10 @@ namespace Core
         ASSERT( &Locator::getWindow() != nullptr );
         m_renderer = initializeSubSystem( new Graphics::D3D11Renderer( &Locator::getWindow() ) );
         LOG(" > Renderer initialized!", LOGCOLOR );
+
+        //----------------------------------------------------------------------
+        m_sceneManager = initializeSubSystem( new SceneManager() );
+        LOG(" > SceneManager initialized!", LOGCOLOR );
     }
 
     //----------------------------------------------------------------------
@@ -85,6 +90,10 @@ namespace Core
     {
         // Shutdown every Sub-System here in reversed order to above
         LOG( "<<< Shutting down Sub-Systems >>>", LOGCOLOR  );
+
+        //----------------------------------------------------------------------
+        LOG(" > Shutdown SceneManager...", LOGCOLOR );
+        shutdownSubSystem( m_sceneManager );
 
         //----------------------------------------------------------------------
         LOG(" > Shutdown Renderer...", LOGCOLOR );
@@ -136,6 +145,7 @@ namespace Core
         OS::VirtualFileSystem::mount( "cursors",  "res/internal/cursors" );
     }
 
+    //----------------------------------------------------------------------
     void SubSystemManager::_ClearVirtualFilePaths()
     {
         OS::VirtualFileSystem::unmountAll();

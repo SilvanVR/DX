@@ -9,6 +9,9 @@
 #include "Core/Time/clock.h"
 #include "Core/MemoryManagement/Allocators/pool_allocator.hpp"
 
+#include <chrono>
+#include <thread>
+
 using namespace Core;
 
 class AutoClock
@@ -39,6 +42,52 @@ public:
     }
 };
 
+class MyScene2 : public IScene
+{
+public:
+    MyScene2() : IScene("MyScene2") {}
+
+    void init() override
+    {
+        using namespace std::chrono_literals;
+        std::this_thread::sleep_for(2s);
+        LOG("MyScene2 initialized!", Color::RED);
+    }
+
+    void tick(Time::Seconds delta) override {}
+
+    void shutdown() override
+    {
+        LOG("MyScene2 Shutdown!", Color::RED);
+    }
+
+};
+
+class MyScene : public IScene
+{
+public:
+    MyScene() : IScene("MyScene"){}
+
+    void init() override
+    {
+        using namespace std::chrono_literals;
+        std::this_thread::sleep_for(1s);
+        LOG("MyScene initialized!", Color::RED);
+    }
+
+    void tick(Time::Seconds delta) override
+    {
+        //LOG("MyScene tick!", Color::RED);
+    }
+
+    void shutdown() override
+    {
+        LOG("MyScene Shutdown!", Color::RED);
+    }
+
+};
+
+
 
 class Game : public IGame
 {
@@ -47,11 +96,6 @@ class Game : public IGame
 
 public:
     Game() : clock( duration ) {}
-
-    void hello()
-    {
-        LOG("Hello World", Color::RED);
-    }
 
     //----------------------------------------------------------------------
     void init() override 
@@ -62,18 +106,19 @@ public:
         Locator::getLogger().setSaveToDisk( false );
 
         Locator::getEngineClock().setInterval([] {
-            U32 fps = Locator::getProfiler().getFPS();
+            U32 fps = PROFILER.getFPS();
             F64 delta = (1000.0 / fps);
-            LOG("Time: " + TS( Locator::getEngineClock().getTime().value ) + " FPS: " + TS( fps ) + " Delta: " + TS( delta ) + " ms" );
+            LOG("Time: " + TS( TIME.getTime().value ) + " FPS: " + TS( fps ) + " Delta: " + TS( delta ) + " ms" );
+            //LOG("Num Scenes: " + TS(Locator::getSceneManager().numScenes()));
         }, 1000);
 
-        IGC_REGISTER_COMMAND_WITH_NAME( "Hello", std::bind(&Game::hello, this) );
+        Locator::getSceneManager().LoadSceneAsync(new MyScene);
     }
 
     //----------------------------------------------------------------------
     void tick(Time::Seconds delta) override
     {
-        getWindow().setTitle(  Locator::getProfiler().getUpdateDelta().toString().c_str() );
+        getWindow().setTitle( PROFILER.getUpdateDelta().toString().c_str() );
         static U64 ticks = 0;
         ticks++;
 
@@ -91,7 +136,16 @@ public:
 
         }
 
-        if( KEYBOARD.wasKeyPressed(Key::One))
+        if (KEYBOARD.wasKeyPressed(Key::One))
+            Locator::getSceneManager().LoadSceneAsync(new MyScene);
+        if (KEYBOARD.wasKeyPressed(Key::Two))
+            Locator::getSceneManager().LoadSceneAsync(new MyScene2);
+        if (KEYBOARD.wasKeyPressed(Key::Three))
+            Locator::getSceneManager().PushSceneAsync(new MyScene, false);
+        if (KEYBOARD.wasKeyPressed(Key::Four))
+            Locator::getSceneManager().PopScene();
+
+        if (KEYBOARD.wasKeyPressed(Key::One))
             Locator::getRenderer().setMultiSampleCount(1);
         if (KEYBOARD.wasKeyPressed(Key::Four))
             Locator::getRenderer().setMultiSampleCount(4);

@@ -298,6 +298,7 @@
     <ClCompile Include="src\Core\Graphics\D3D11\D3D11Globals.cpp" />
     <ClCompile Include="src\Core\Graphics\D3D11\Pipeline\Buffers\D3D11IBuffer.cpp" />
     <ClCompile Include="src\Core\Graphics\D3D11\Pipeline\Buffers\D3D11Buffers.cpp" />
+    <ClCompile Include="src\Core\Graphics\D3D11\Pipeline\D3D11Pass.cpp" />
     <ClCompile Include="src\Core\Graphics\D3D11\Pipeline\Shaders\D3D11Shader.cpp" />
     <ClCompile Include="src\Core\Graphics\D3D11\D3D11Swapchain.cpp" />
     <ClCompile Include="src\Core\Graphics\i_renderer.cpp" />
@@ -314,10 +315,15 @@
     <ClCompile Include="src\Core\OS\Window\window_win32.cpp" />
     <ClCompile Include="src\Core\Profiling\profiler.cpp" />
     <ClCompile Include="src\Core\Graphics\D3D11\D3D11Renderer.cpp" />
+    <ClCompile Include="src\Core\SceneManager\scene_manager.cpp" />
     <ClCompile Include="src\Core\Time\clock.cpp" />
     <ClCompile Include="src\Core\Time\master_clock.cpp" />
     <ClCompile Include="src\Core\Time\timers.cpp" />
     <ClCompile Include="src\Core\Time\durations.cpp" />
+    <ClCompile Include="src\GameplayLayer\Components\ctransform.cpp" />
+    <ClCompile Include="src\GameplayLayer\gameobject.cpp" />
+    <ClCompile Include="src\GameplayLayer\Components\i_component.cpp" />
+    <ClCompile Include="src\GameplayLayer\i_scene.cpp" />
     <ClCompile Include="src\locator.cpp" />
     <ClCompile Include="src\Core\MemoryManagement\memory_manager.cpp" />
     <ClCompile Include="src\Core\MemoryManagement\memory_structs.cpp" />
@@ -358,6 +364,7 @@
     <ClInclude Include="src\Core\Graphics\D3D11\D3D11.hpp" />
     <ClInclude Include="src\Core\Graphics\D3D11\D3D11Globals.h" />
     <ClInclude Include="src\Core\Graphics\D3D11\Pipeline\Buffers\D3D11IBuffer.h" />
+    <ClInclude Include="src\Core\Graphics\D3D11\Pipeline\D3D11Pass.h" />
     <ClInclude Include="src\Core\Graphics\D3D11\Pipeline\Shaders\D3D11Shader.h" />
     <ClInclude Include="src\Core\Graphics\D3D11\D3D11Swapchain.h" />
     <ClInclude Include="src\Core\Graphics\D3D11\Pipeline\Buffers\D3D11Buffers.h" />
@@ -381,6 +388,11 @@
     <ClInclude Include="src\Core\OS\Window\keycodes.h" />
     <ClInclude Include="src\Core\Graphics\D3D11\D3D11Renderer.h" />
     <ClInclude Include="src\Core\Graphics\i_renderer.h" />
+    <ClInclude Include="src\Core\SceneManager\scene_manager.h" />
+    <ClInclude Include="src\GameplayLayer\Components\ctransform.h" />
+    <ClInclude Include="src\GameplayLayer\gameobject.h" />
+    <ClInclude Include="src\GameplayLayer\Components\i_component.h" />
+    <ClInclude Include="src\GameplayLayer\i_scene.h" />
     <ClInclude Include="src\Utils\finite_range.hpp" />
     <ClInclude Include="src\Core\OS\Window\window.h" />
     <ClInclude Include="src\Core\Profiling\profiler.h" />

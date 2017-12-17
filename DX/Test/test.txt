@@ -1,0 +1,5 @@
+A
+B
+C
+[General]
+Value=66Z

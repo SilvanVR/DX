@@ -25,6 +25,7 @@ namespace Core {
     namespace Input             { class InputManager; }
     namespace Graphics          { class IRenderer; }
     class IInGameConsole;
+    class SceneManager;
 
 
     //*********************************************************************
@@ -53,6 +54,7 @@ namespace Core {
         Input::InputManager*                m_inputManager  = nullptr;
         IInGameConsole*                     m_inGameConsole = nullptr;
         Graphics::IRenderer*                m_renderer      = nullptr;
+        SceneManager*                       m_sceneManager  = nullptr;
 
         //----------------------------------------------------------------------
         void _InitVirtualFilePaths();

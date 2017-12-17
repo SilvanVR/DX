@@ -13,6 +13,7 @@
 #include "locator.h"
 #include "Pipeline/Shaders/D3D11Shader.h"
 #include "Pipeline/Buffers/D3D11Buffers.h"
+#include "Pipeline/D3D11Pass.h"
 
 namespace Core { namespace Graphics {
 
@@ -62,6 +63,8 @@ namespace Core { namespace Graphics {
     D3D11::IndexBuffer*     pIndexBuffer = nullptr;
     D3D11::ConstantBuffer*  pConstantBuffer = nullptr;
 
+    D3D11::Pass*            pBasicRenderpass = nullptr;
+
     //**********************************************************************
     // INIT STUFF
     //**********************************************************************
@@ -88,6 +91,11 @@ namespace Core { namespace Graphics {
         {
             auto blob = pVertexShader->getShaderBlob();
             HR( g_pDevice->CreateInputLayout(vertexDesc, _countof(vertexDesc), blob->GetBufferPointer(), blob->GetBufferSize(), &pInputLayout) );
+        }
+
+        {
+            // Renderpasses
+            pBasicRenderpass = new D3D11::Pass();
         }
 
         {
@@ -123,6 +131,7 @@ namespace Core { namespace Graphics {
         SAFE_DELETE(pConstantBuffer);
         SAFE_DELETE(pVertexBuffer);
         SAFE_DELETE(pIndexBuffer);
+        SAFE_DELETE(pBasicRenderpass);
         _DeinitD3D11();
     }
 
@@ -137,11 +146,6 @@ namespace Core { namespace Graphics {
         auto depthStencilView = m_pSwapchain->getDepthStencilView();
         g_pImmediateContext->OMSetRenderTargets( 1, &renderTargetView, depthStencilView);
 
-        D3D11_VIEWPORT vp = {};
-        vp.Width    = static_cast<float>( m_window->getSize().x );
-        vp.Height   = static_cast<float>( m_window->getSize().y );
-        vp.MaxDepth = 1.0f;
-
         // Set Pipeline States
         g_pImmediateContext->IASetInputLayout(pInputLayout);
         pVertexBuffer->bind( 0, sizeof(Vertex), 0 );
@@ -155,6 +159,10 @@ namespace Core { namespace Graphics {
         pPixelShader->bind();
 
         g_pImmediateContext->RSSetState(pRSState);
+        D3D11_VIEWPORT vp = {};
+        vp.Width    = static_cast<float>( m_window->getSize().x );
+        vp.Height   = static_cast<float>( m_window->getSize().y );
+        vp.MaxDepth = 1.0f;
         g_pImmediateContext->RSSetViewports( 1, &vp );
 
         // Set constants

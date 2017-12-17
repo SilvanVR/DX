@@ -12,7 +12,8 @@
 **********************************************************************/
 
 #include "Core/core_engine.h"
-
+#include "GameplayLayer/i_scene.h"
+#include "GameplayLayer/gameobject.h"
 
 class IGame : public Core::CoreEngine
 {

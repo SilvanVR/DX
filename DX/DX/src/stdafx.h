@@ -21,6 +21,7 @@
 #include <mutex>
 #include <queue>
 #include <array>
+#include <stack>
 #include <map>
 
 #ifdef _WIN32

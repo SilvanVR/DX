@@ -4,6 +4,10 @@
 
     author: S. Hau
     date: December 3, 2017
+
+    @TODO: 
+      - RELEASE BLOB AFTER CREATED THE SHADER
+        (AND Input-Layout for the vertex-shader)
 **********************************************************************/
 
 #include <d3dcompiler.h>
@@ -37,12 +41,16 @@ namespace Core { namespace Graphics { namespace D3D11 {
 
         if ( FAILED( hr ) )
         {
-            WARN_RENDERING( "Failed to compile Shader '" + m_filePath + "'." );
 
             if (errorBlob)
             {
+                WARN_RENDERING( "Failed to compile Shader '" + m_filePath + "'." );
                 WARN_RENDERING( (const char*)errorBlob->GetBufferPointer() );
                 SAFE_RELEASE( errorBlob );
+            }
+            else
+            {
+                WARN_RENDERING( "Missing shader-file: '" + m_filePath + "'.");
             }
 
             SAFE_RELEASE( m_IShaderBlob );

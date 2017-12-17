@@ -33,6 +33,7 @@
 #include "Core/core_engine.h"
 #include "Core/InGameConsole/i_in_game_console.hpp"
 #include "Core/Graphics/i_renderer.h"
+#include "Core/SceneManager/scene_manager.h"
 
 //----------------------------------------------------------------------
 // Defines
@@ -58,6 +59,8 @@
 
 #define ASYNC_JOB(...)          Locator::getThreadManager().getThreadPool().addJob( __VA_ARGS__ )
 
+#define PROFILER                Locator::getProfiler()
+#define TIME                    Locator::getEngineClock()
 
 //*********************************************************************
 // Retrieve / Change every subsystem via a static method.
@@ -79,6 +82,7 @@ public:
     static Core::Input::InputManager&                 getInputManager()   { return *gInputManager; }
     static Core::IInGameConsole&                      getInGameConsole()  { return *gInGameConsole; }
     static Core::Graphics::IRenderer&                 getRenderer()       { return *gRenderer; }
+    static Core::SceneManager&                        getSceneManager()   { return *gSceneManager; }
 
     //----------------------------------------------------------------------
     // Provide a Sub-System
@@ -94,6 +98,7 @@ public:
     static void provide(Core::Input::InputManager* input)                     { gInputManager = input;  }
     static void provide(Core::IInGameConsole* igc)                            { gInGameConsole = igc; }
     static void provide(Core::Graphics::IRenderer* r)                         { gRenderer = r; }
+    static void provide(Core::SceneManager* s)                                { gSceneManager = s; }
 
 private:
     static Core::CoreEngine*                          gCoreEngine;
@@ -113,6 +118,7 @@ private:
     static Core::Input::InputManager*                 gInputManager;
     static Core::IInGameConsole*                      gInGameConsole;
     static Core::Graphics::IRenderer*                 gRenderer;
+    static Core::SceneManager*                        gSceneManager;
 
     //----------------------------------------------------------------------
     Locator()                                   = delete;
