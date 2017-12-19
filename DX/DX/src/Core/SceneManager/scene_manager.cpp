@@ -18,7 +18,7 @@ namespace Core {
 
     //----------------------------------------------------------------------
     static IScene*  sceneToLoad = nullptr;  // If not null, we have to transition to this scene the next tick
-    static bool     popScene    = false;    // If true, pop current scene when transitioning to a new scene
+    static bool     popScene = false;    // If true, pop current scene when transitioning to a new scene
 
     //----------------------------------------------------------------------
     void SceneManager::init()
@@ -77,7 +77,7 @@ namespace Core {
     {
         ASSERT( sceneToLoad == nullptr && "Only 1 Scene can be loaded in exactly one tick!" );
 
-        ASYNC_JOB([scene, popCurScene] {
+        ASYNC_JOB([scene, popCurScene, this] {
             scene->init();
             popScene    = popCurScene;
             sceneToLoad = scene;

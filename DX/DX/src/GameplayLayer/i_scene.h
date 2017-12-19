@@ -12,14 +12,14 @@
 #include "Core/Time/durations.h"
 
 namespace Core { class SceneManager; }
+class GameState;
+class GameObject;
 
 //**********************************************************************
 // Interface for a new scene.
 //**********************************************************************
 class IScene
 {
-    friend class GameObject;
-
 public:
     IScene(CString name);
     virtual ~IScene();
@@ -47,6 +47,10 @@ public:
     //----------------------------------------------------------------------
     GameObject* findGameObject(CString name);
 
+    //----------------------------------------------------------------------
+    // Called every frame to get the interpolated gamestate
+    //----------------------------------------------------------------------
+    GameState extractGameState(F32 lerp);
 
 private:
     StringID                        m_name;

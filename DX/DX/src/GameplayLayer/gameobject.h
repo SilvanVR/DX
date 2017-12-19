@@ -22,12 +22,10 @@ public:
     ~GameObject();
 
     //----------------------------------------------------------------------
-    const StringID                  getName()       const   { return m_name; }
-    IScene*                         getScene()              { return m_attachedScene; }
-    bool                            isActive()      const   { return m_isActive; }
-    void                            setActive(bool active)  { m_isActive = active;}
-
-    ArrayList<Components::IComponent*> getComponents() const;
+    inline const StringID      getName()       const   { return m_name; }
+    inline IScene*             getScene()              { return m_attachedScene; }
+    inline bool                isActive()      const   { return m_isActive; }
+    inline void                setActive(bool active)  { m_isActive = active;}
 
     // <---------------------- COMPONENT STUFF ---------------------------->
     template<typename T> T*   getComponent();
@@ -44,11 +42,16 @@ private:
     HashMap<Size, Components::IComponent*>  m_components;
 
     //----------------------------------------------------------------------
+    void _PreTick(Core::Time::Seconds delta);
+    void _Tick(Core::Time::Seconds delta);
+    void _LateTick(Core::Time::Seconds delta);
+
+    //----------------------------------------------------------------------
     // Creates the component in memory.
     template<typename T, typename... Args> T* _CreateComponent( Args&&... args );
 
     // Initiates the destruction of the component.
-    template<typename T> void _DestroyComponent( T* comp );
+    template<typename T> void _DestroyComponent( Size hash );
 
     //----------------------------------------------------------------------
     GameObject(const GameObject& other)               = delete;
@@ -91,8 +94,7 @@ bool GameObject::removeComponent()
     if (m_components.count( hash ) == 0)
         return false;
 
-    T* c = dynamic_cast<T*>( m_components[hash] )
-    _DestroyComponent( c );
+    _DestroyComponent( hash );
     return true;
 }
 
@@ -115,7 +117,7 @@ bool GameObject::addComponent( Args&&... args )
     Size hash = TypeHash<T>();
     if (m_components.count(hash) != 0)
     {
-        WARN( "GameObject::addComponent(): Duplicated component type." );
+        WARN( "GameObject::addComponent(): Component already exists. Adding the same component to a single gameobject is not allowed." );
         return false;
     }
 
@@ -141,10 +143,10 @@ T* GameObject::_CreateComponent( Args&&... args )
 
 //----------------------------------------------------------------------
 template<typename T>
-void GameObject::_DestroyComponent( T* comp )
+void GameObject::_DestroyComponent( Size hash )
 {
-    Size hash = TypeHash<T>();
-    T* c = dynamic_cast<T*>( m_components[hash] );
+    T* comp = dynamic_cast<T*>( m_components[hash] );
+    comp->shutdown();
     m_components.erase( hash );
     SAFE_DELETE( comp );
 }

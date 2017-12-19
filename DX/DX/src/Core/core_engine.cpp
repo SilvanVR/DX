@@ -11,6 +11,9 @@
 
 #include "locator.h"
 
+#include "GameplayLayer/i_scene.h"
+#include "GameplayLayer/game_state.h"
+
 namespace Core {
 
     //----------------------------------------------------------------------
@@ -40,7 +43,7 @@ namespace Core {
     void CoreEngine::_RunCoreGameLoop()
     {
         const Time::Seconds TICK_RATE_IN_SECONDS  = (1.0f / GAME_TICK_RATE);
-        const           U8  MAX_TICKS_PER_FRAME   = 5; // Prevents the "spiral of death"
+        const           U8  MAX_TICKS_PER_FRAME   = 5; // Prevents the "spiral of death" if the cpu is too slow
 
         Time::Seconds gameTickAccumulator = 0;
 
@@ -52,7 +55,7 @@ namespace Core {
             {
                 _NotifyOnUpdate( delta );
 
-                // Update game in fixed intervals
+                // Tick game in fixed intervals
                 U8 ticksPerFrame = 0;
                 gameTickAccumulator += delta;
                 while ( (gameTickAccumulator >= TICK_RATE_IN_SECONDS) && (ticksPerFrame++ != MAX_TICKS_PER_FRAME))
@@ -69,12 +72,10 @@ namespace Core {
                 F64 lerp = (F64)(gameTickAccumulator / TICK_RATE_IN_SECONDS);
                 //ASSERT( lerp <= 1.0 );
 
-                // State class which extracts the state? Renderer just render this "state"
-                // GameState gs = prevGameState * (1 - lerp) + gameState * lerp;
-                // m_renderer->render( gs );
+                GameState gs = SCENE.extractGameState( (F32) lerp );
+                Graphics::CommandBuffer cmd;
 
-                // m_renderer->render( lerp );
-                Locator::getRenderer().render();
+                Locator::getRenderer().dispatch(cmd);
             }
 
             m_window.processOSMessages();

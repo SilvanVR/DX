@@ -9,12 +9,13 @@
 
 #include "Core/Time/durations.h"
 
+class GameObject;
+
 namespace Components {
 
     //**********************************************************************
     class IComponent
     {
-        friend class IScene;
         friend class GameObject;
 
     public:
@@ -32,9 +33,11 @@ namespace Components {
         // Will be called before this component ticks for the first time.
         //----------------------------------------------------------------------
         virtual void Init() {}
+
         virtual void PreTick(Core::Time::Seconds delta) {}
         virtual void Tick(Core::Time::Seconds delta) {}
         virtual void LateTick(Core::Time::Seconds delta) {}
+
         virtual void Shutdown() {}
 
         //----------------------------------------------------------------------

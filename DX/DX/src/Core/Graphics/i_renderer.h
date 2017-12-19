@@ -17,6 +17,8 @@ namespace Core { namespace OS { class Window; } }
 
 namespace Core { namespace Graphics {
 
+    class CommandBuffer;
+
     //**********************************************************************
     // Interface-Class for a Renderer-Subsystem
     //**********************************************************************
@@ -27,7 +29,7 @@ namespace Core { namespace Graphics {
         virtual ~IRenderer() {}
 
         //----------------------------------------------------------------------
-        virtual void render() = 0;
+        virtual void dispatch( const CommandBuffer& cmd ) = 0;
 
         //----------------------------------------------------------------------
         virtual void setVSync(bool enabled) = 0;
@@ -40,8 +42,5 @@ namespace Core { namespace Graphics {
         //----------------------------------------------------------------------
         virtual void OnWindowSizeChanged(U16 w, U16 h) = 0;
     };
-
-
-
 
 } } // End namespaces

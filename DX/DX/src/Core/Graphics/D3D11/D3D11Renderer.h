@@ -33,7 +33,7 @@ namespace Core { namespace Graphics {
         //----------------------------------------------------------------------
         // IRenderer Interface
         //----------------------------------------------------------------------
-        void render() override;
+        void dispatch(const CommandBuffer& cmd) override;
         void setVSync(bool enabled) override { m_vsync = enabled; }
         void setClearColor(Color clearColor) { m_clearColor = clearColor; }
         void setMultiSampleCount(U32 numSamples) override;

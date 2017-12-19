@@ -136,7 +136,7 @@ namespace Core { namespace Graphics {
     }
 
     //----------------------------------------------------------------------
-    void D3D11Renderer::render()
+    void D3D11Renderer::dispatch( const CommandBuffer& cmd )
     {
         // Depth Prepass first
         // Render in offscreen framebuffer and blit result to the swapchain

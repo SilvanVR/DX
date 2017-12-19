@@ -25,14 +25,50 @@ GameObject::~GameObject()
 // PUBLIC
 //**********************************************************************
 
-ArrayList<Components::IComponent*> GameObject::getComponents() const
-{ 
-    ArrayList<Components::IComponent*> components;
-    for (auto pair : m_components)
-        components.push_back( pair.second );
-    return components;
-}
 
 //**********************************************************************
 // PRIVATE
 //**********************************************************************
+
+//----------------------------------------------------------------------
+void GameObject::_PreTick( Core::Time::Seconds delta )
+{
+    // Update components from all game-objects
+    for ( auto pair : m_components )
+    {
+        auto comp = pair.second;
+        if ( comp->isActive() )
+        {
+            if ( !comp->m_bInitialized )
+            {
+                comp->Init();
+                comp->m_bInitialized = true;
+            }
+            comp->PreTick( delta );
+        }
+    }
+}
+
+//----------------------------------------------------------------------
+void GameObject::_Tick( Core::Time::Seconds delta )
+{
+    // Update components from all game-objects
+    for (auto pair : m_components)
+    {
+        auto comp = pair.second;
+        if ( comp->isActive() )
+            comp->Tick( delta );
+    }
+}
+
+//----------------------------------------------------------------------
+void GameObject::_LateTick( Core::Time::Seconds delta )
+{
+    // Update components from all game-objects
+    for (auto pair : m_components)
+    {
+        auto comp = pair.second;
+        if ( comp->isActive() )
+            comp->LateTick( delta );
+    }
+}

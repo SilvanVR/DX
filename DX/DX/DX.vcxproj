@@ -295,6 +295,7 @@
     <ClCompile Include="src\Core\Config\configuration_manager.cpp" />
     <ClCompile Include="src\Core\Config\config_file.cpp" />
     <ClCompile Include="src\Core\core_engine.cpp" />
+    <ClCompile Include="src\Core\Graphics\command_buffer.cpp" />
     <ClCompile Include="src\Core\Graphics\D3D11\D3D11Globals.cpp" />
     <ClCompile Include="src\Core\Graphics\D3D11\Pipeline\Buffers\D3D11IBuffer.cpp" />
     <ClCompile Include="src\Core\Graphics\D3D11\Pipeline\Buffers\D3D11Buffers.cpp" />
@@ -324,6 +325,7 @@
     <ClCompile Include="src\GameplayLayer\Components\Rendering\c_model_renderer.cpp" />
     <ClCompile Include="src\GameplayLayer\gameobject.cpp" />
     <ClCompile Include="src\GameplayLayer\Components\i_component.cpp" />
+    <ClCompile Include="src\GameplayLayer\game_state.cpp" />
     <ClCompile Include="src\GameplayLayer\i_scene.cpp" />
     <ClCompile Include="src\locator.cpp" />
     <ClCompile Include="src\Core\MemoryManagement\memory_manager.cpp" />
@@ -362,6 +364,7 @@
     <ClCompile Include="src\Utils\utils.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Core\Graphics\command_buffer.h" />
     <ClInclude Include="src\Core\Graphics\D3D11\D3D11.hpp" />
     <ClInclude Include="src\Core\Graphics\D3D11\D3D11Globals.h" />
     <ClInclude Include="src\Core\Graphics\D3D11\Pipeline\Buffers\D3D11IBuffer.h" />
@@ -373,7 +376,6 @@
     <ClInclude Include="src\Core\InGameConsole\i_in_game_console.hpp" />
     <ClInclude Include="src\Core\Input\e_input_devices.hpp" />
     <ClInclude Include="src\Core\Input\misc\action_mapper.h" />
-    <ClInclude Include="src\commenting_style.hpp" />
     <ClInclude Include="src\Core\Config\configuration_manager.h" />
     <ClInclude Include="src\Core\Config\config_file.h" />
     <ClInclude Include="src\Core\core_engine.h" />
@@ -392,9 +394,9 @@
     <ClInclude Include="src\Core\SceneManager\scene_manager.h" />
     <ClInclude Include="src\GameplayLayer\Components\c_transform.h" />
     <ClInclude Include="src\GameplayLayer\Components\Rendering\c_model_renderer.h" />
-    <ClInclude Include="src\GameplayLayer\Components\Rendering\i_render_component.hpp" />
     <ClInclude Include="src\GameplayLayer\gameobject.h" />
     <ClInclude Include="src\GameplayLayer\Components\i_component.h" />
+    <ClInclude Include="src\GameplayLayer\game_state.h" />
     <ClInclude Include="src\GameplayLayer\i_scene.h" />
     <ClInclude Include="src\Utils\finite_range.hpp" />
     <ClInclude Include="src\Core\OS\Window\window.h" />

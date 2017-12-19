@@ -5,18 +5,20 @@
     author: S. Hau
     date: December 19, 2017
 
-    Every component which emits gpu-commands inherits from this class.
+    Used to render models.
 **********************************************************************/
 
-#include "i_render_component.hpp"
+#include "../i_component.h"
 
 namespace Components {
 
-    class CModelRenderer : public IRenderComponent
+    class CModelRenderer : public IComponent
     {
 
     public:
         CModelRenderer() = default;
+
+        void render();
 
     private:
 

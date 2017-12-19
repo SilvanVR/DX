@@ -12,6 +12,7 @@
 
 #include "gameobject.h"
 #include "Components/c_transform.h"
+#include "game_state.h"
 
 //----------------------------------------------------------------------
 IScene::IScene( CString name ) 
@@ -57,6 +58,22 @@ GameObject* IScene::findGameObject( CString name )
     return nullptr;
 }
 
+//----------------------------------------------------------------------
+GameState IScene::extractGameState( F32 lerp )
+{
+    GameState gs;
+
+    for ( auto go : m_gameObjects )
+    {
+        if ( go->isActive() )
+        {
+            
+        }
+    }
+
+    return gs;
+}
+
 //**********************************************************************
 // PRIVATE
 //**********************************************************************
@@ -68,20 +85,7 @@ void IScene::_PreTick( Core::Time::Seconds delta )
     for ( auto go : m_gameObjects )
     {
         if ( go->isActive() )
-        {
-            for ( auto comp : go->getComponents() )
-            {
-                if (comp->isActive())
-                {
-                    if ( !comp->m_bInitialized )
-                    {
-                        comp->Init();
-                        comp->m_bInitialized = true;
-                    }
-                    comp->PreTick( delta );
-                }
-            }
-        }
+            go->_PreTick( delta );
     }
 }
 
@@ -92,13 +96,7 @@ void IScene::_Tick( Core::Time::Seconds delta )
     for ( auto go : m_gameObjects )
     {
         if ( go->isActive() )
-        {
-            for ( auto comp : go->getComponents() )
-            {
-                if ( comp->isActive() )
-                    comp->Tick( delta );
-            }
-        }
+            go->_Tick( delta );
     }
 }
 
@@ -109,13 +107,7 @@ void IScene::_LateTick( Core::Time::Seconds delta )
     for ( auto go : m_gameObjects )
     {
         if ( go->isActive() )
-        {
-            for ( auto comp : go->getComponents() )
-            {
-                if ( comp->isActive() )
-                    comp->LateTick( delta );
-            }
-        }
+            go->_LateTick( delta );
     }
 }
 

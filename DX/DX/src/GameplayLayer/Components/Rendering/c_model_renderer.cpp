@@ -6,8 +6,17 @@
     date: December 19, 2017
 **********************************************************************/
 
+#include "../../gameobject.h"
+#include "../c_transform.h"
+
 namespace Components {
 
+
+    void CModelRenderer::render()
+    {
+        auto transform = getGameObject()->getComponent<CTransform>();
+
+    }
 
 
 }

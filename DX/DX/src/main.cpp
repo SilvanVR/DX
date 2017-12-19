@@ -108,7 +108,8 @@ public:
         getWindow().setIcon( "/internal/icon.ico" );
         Locator::getLogger().setSaveToDisk( false );
 
-        Locator::getEngineClock().setInterval([] {
+        Locator::getEngineClock().setInterval([=] {
+            terminate();
             U32 fps = PROFILER.getFPS();
             F64 delta = (1000.0 / fps);
             LOG("Time: " + TS( TIME.getTime().value ) + " FPS: " + TS( fps ) + " Delta: " + TS( delta ) + " ms" );
@@ -127,7 +128,7 @@ public:
 
         clock.tick( delta );
         //LOG( TS( clock.getTime().value ) );
-        //auto time = clock.getTime();
+        auto time = clock.getTime();
 
         static bool inState = false;
         if (KEYBOARD.wasKeyPressed(Key::Q)) {
