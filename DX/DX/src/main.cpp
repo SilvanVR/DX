@@ -73,11 +73,12 @@ public:
         LOG("MyScene initialized!", Color::RED);
 
         go = createGameObject("Test");
+        go->addComponent<Components::CModelRenderer>();
 
         GameObject* go2 = findGameObject("Test");
         auto c = go2->getComponent<Components::CTransform>();
-        //bool removed = go2->removeComponent( c );
 
+        //bool removed = go2->removeComponent( c );
         //bool destroyed = go2->removeComponent<CTransform>();
 
         int i = 523;

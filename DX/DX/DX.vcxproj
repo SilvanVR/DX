@@ -320,7 +320,8 @@
     <ClCompile Include="src\Core\Time\master_clock.cpp" />
     <ClCompile Include="src\Core\Time\timers.cpp" />
     <ClCompile Include="src\Core\Time\durations.cpp" />
-    <ClCompile Include="src\GameplayLayer\Components\ctransform.cpp" />
+    <ClCompile Include="src\GameplayLayer\Components\c_transform.cpp" />
+    <ClCompile Include="src\GameplayLayer\Components\Rendering\c_model_renderer.cpp" />
     <ClCompile Include="src\GameplayLayer\gameobject.cpp" />
     <ClCompile Include="src\GameplayLayer\Components\i_component.cpp" />
     <ClCompile Include="src\GameplayLayer\i_scene.cpp" />
@@ -389,7 +390,9 @@
     <ClInclude Include="src\Core\Graphics\D3D11\D3D11Renderer.h" />
     <ClInclude Include="src\Core\Graphics\i_renderer.h" />
     <ClInclude Include="src\Core\SceneManager\scene_manager.h" />
-    <ClInclude Include="src\GameplayLayer\Components\ctransform.h" />
+    <ClInclude Include="src\GameplayLayer\Components\c_transform.h" />
+    <ClInclude Include="src\GameplayLayer\Components\Rendering\c_model_renderer.h" />
+    <ClInclude Include="src\GameplayLayer\Components\Rendering\i_render_component.hpp" />
     <ClInclude Include="src\GameplayLayer\gameobject.h" />
     <ClInclude Include="src\GameplayLayer\Components\i_component.h" />
     <ClInclude Include="src\GameplayLayer\i_scene.h" />

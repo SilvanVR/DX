@@ -27,7 +27,7 @@ public:
     bool                            isActive()      const   { return m_isActive; }
     void                            setActive(bool active)  { m_isActive = active;}
 
-    const ArrayList<Components::IComponent*>& getComponents() const { return m_components; }
+    ArrayList<Components::IComponent*> getComponents() const;
 
     // <---------------------- COMPONENT STUFF ---------------------------->
     template<typename T> T*   getComponent();
@@ -37,10 +37,11 @@ public:
 
 
 private:
-    StringID                            m_name;
-    IScene*                             m_attachedScene;
-    ArrayList<Components::IComponent*>  m_components;
-    bool                                m_isActive = true;
+    StringID                                m_name;
+    IScene*                                 m_attachedScene;
+    bool                                    m_isActive = true;
+
+    HashMap<Size, Components::IComponent*>  m_components;
 
     //----------------------------------------------------------------------
     // Creates the component in memory.
@@ -56,6 +57,13 @@ private:
     GameObject& operator = (GameObject&& other)       = delete;
 };
 
+//----------------------------------------------------------------------
+template<typename T>
+Size TypeHash()
+{
+    return typeid(T).hash_code();
+}
+
 //**********************************************************************
 // TEMPLATE - PUBLIC
 //**********************************************************************
@@ -66,12 +74,11 @@ private:
 template<typename T>
 T* GameObject::getComponent()
 {
-    for (auto component : m_components)
-    {
-        if ( T* c = dynamic_cast<T*>( component ) )
-            return c;
-    }
-    return nullptr;
+    Size hash = TypeHash<T>();
+    if (m_components.count( hash ) == 0)
+        return nullptr;
+
+    return dynamic_cast<T*>( m_components[hash] );
 }
 
 //----------------------------------------------------------------------
@@ -80,15 +87,13 @@ T* GameObject::getComponent()
 template <typename T>
 bool GameObject::removeComponent()
 {
-    for (auto component : m_components)
-    {
-        if ( T* c = dynamic_cast<T*>( component ) )
-        {
-            _DestroyComponent( c );
-            return true;
-        }
-    }
-    return false;
+    Size hash = TypeHash<T>();
+    if (m_components.count( hash ) == 0)
+        return false;
+
+    T* c = dynamic_cast<T*>( m_components[hash] )
+    _DestroyComponent( c );
+    return true;
 }
 
 //----------------------------------------------------------------------
@@ -97,15 +102,7 @@ bool GameObject::removeComponent()
 template <typename T>
 bool GameObject::removeComponent( T* comp )
 {
-    for (auto component : m_components)
-    {
-        if ( comp == component )
-        {
-            _DestroyComponent( comp );
-            return true;
-        }
-    }
-    return false;
+    removeComponent<T>();
 }
 
 //----------------------------------------------------------------------
@@ -115,8 +112,8 @@ bool GameObject::removeComponent( T* comp )
 template<typename T, typename... Args>
 bool GameObject::addComponent( Args&&... args )
 {
-    T* foundComp = getComponent<T>();
-    if (foundComp != nullptr)
+    Size hash = TypeHash<T>();
+    if (m_components.count(hash) != 0)
     {
         WARN( "GameObject::addComponent(): Duplicated component type." );
         return false;
@@ -137,7 +134,8 @@ T* GameObject::_CreateComponent( Args&&... args )
 {
     //@TODO: More sophisticated allocation scheme for components
     T* component = new T( std::forward<Args>( args )... );
-    m_components.push_back( component );
+    Size hash = TypeHash<T>();
+    m_components[hash] = component;
     return component;
 }
 
@@ -145,6 +143,8 @@ T* GameObject::_CreateComponent( Args&&... args )
 template<typename T>
 void GameObject::_DestroyComponent( T* comp )
 {
-    m_components.erase( std::remove( m_components.begin(), m_components.end(), comp ), m_components.end() );
+    Size hash = TypeHash<T>();
+    T* c = dynamic_cast<T*>( m_components[hash] );
+    m_components.erase( hash );
     SAFE_DELETE( comp );
 }

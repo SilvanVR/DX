@@ -11,7 +11,7 @@
 **********************************************************************/
 
 #include "gameobject.h"
-#include "Components/ctransform.h"
+#include "Components/c_transform.h"
 
 //----------------------------------------------------------------------
 IScene::IScene( CString name ) 
@@ -71,8 +71,15 @@ void IScene::_PreTick( Core::Time::Seconds delta )
         {
             for ( auto comp : go->getComponents() )
             {
-                if ( comp->isActive() )
+                if (comp->isActive())
+                {
+                    if ( !comp->m_bInitialized )
+                    {
+                        comp->Init();
+                        comp->m_bInitialized = true;
+                    }
                     comp->PreTick( delta );
+                }
             }
         }
     }
