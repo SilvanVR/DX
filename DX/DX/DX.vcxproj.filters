@@ -428,8 +428,5 @@
     <ClInclude Include="src\GameplayLayer\i_scene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\DataStructures\mirrored_list.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
 </Project>

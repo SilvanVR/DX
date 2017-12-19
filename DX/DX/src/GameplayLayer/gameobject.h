@@ -24,9 +24,10 @@ public:
     //----------------------------------------------------------------------
     const StringID                  getName()       const   { return m_name; }
     IScene*                         getScene()              { return m_attachedScene; }
-    const ArrayList<IComponent*>&   getComponents() const   { return m_components; }
     bool                            isActive()      const   { return m_isActive; }
-    void                            setActive(bool active);
+    void                            setActive(bool active)  { m_isActive = active;}
+
+    const ArrayList<Components::IComponent*>& getComponents() const { return m_components; }
 
     // <---------------------- COMPONENT STUFF ---------------------------->
     template<typename T> T*   getComponent();
@@ -36,10 +37,10 @@ public:
 
 
 private:
-    StringID                m_name;
-    IScene*                 m_attachedScene;
-    ArrayList<IComponent*>  m_components;
-    bool                    m_isActive = true;
+    StringID                            m_name;
+    IScene*                             m_attachedScene;
+    ArrayList<Components::IComponent*>  m_components;
+    bool                                m_isActive = true;
 
     //----------------------------------------------------------------------
     // Creates the component in memory.
@@ -65,7 +66,7 @@ private:
 template<typename T>
 T* GameObject::getComponent()
 {
-    for (IComponent* component : m_components)
+    for (auto component : m_components)
     {
         if ( T* c = dynamic_cast<T*>( component ) )
             return c;
@@ -79,7 +80,7 @@ T* GameObject::getComponent()
 template <typename T>
 bool GameObject::removeComponent()
 {
-    for (IComponent* component : m_components)
+    for (auto component : m_components)
     {
         if ( T* c = dynamic_cast<T*>( component ) )
         {
@@ -96,7 +97,7 @@ bool GameObject::removeComponent()
 template <typename T>
 bool GameObject::removeComponent( T* comp )
 {
-    for (IComponent* component : m_components)
+    for (auto component : m_components)
     {
         if ( comp == component )
         {

@@ -4,6 +4,10 @@
 
     author: S. Hau
     date: December 17, 2017
+
+    The current entity-component system is highly unperformant due to
+    a lot of virtual function calls and checking if an object is active.
+    This will be redone sometime in the future.
 **********************************************************************/
 
 #include "gameobject.h"
@@ -13,15 +17,12 @@
 IScene::IScene( CString name ) 
     : m_name( name ) 
 {
-
 }
 
 //----------------------------------------------------------------------
 IScene::~IScene()
 {
-    for (auto go : m_gameObjects.ActiveObjects())
-        SAFE_DELETE( go );
-    for (auto go : m_gameObjects.NonActiveObjects())
+    for (auto go : m_gameObjects)
         SAFE_DELETE( go );
 }
 
@@ -32,18 +33,25 @@ IScene::~IScene()
 //----------------------------------------------------------------------
 GameObject* IScene::createGameObject( CString name )
 {
-    //@TODO: Use custom allocator
     GameObject* go = new GameObject( this, name );
-    go->addComponent<CTransform>();
-    m_gameObjects.add( go );
+
+    go->addComponent<Components::CTransform>();
+    m_gameObjects.push_back( go );
     return go;
+}
+
+//----------------------------------------------------------------------
+void IScene::destroyGameObject( GameObject* go )
+{
+    m_gameObjects.erase( std::remove( m_gameObjects.begin(), m_gameObjects.end(), go ), m_gameObjects.end() );
+    SAFE_DELETE( go );
 }
 
 //----------------------------------------------------------------------
 GameObject* IScene::findGameObject( CString name )
 {
     StringID nameAsID = SID( name );
-    for ( auto go : m_gameObjects.ActiveObjects() )
+    for ( auto go : m_gameObjects )
         if ( go->getName() == nameAsID )
             return go;
     return nullptr;
@@ -57,7 +65,7 @@ GameObject* IScene::findGameObject( CString name )
 void IScene::_PreTick( Core::Time::Seconds delta )
 {
     // Update components from all game-objects
-    for ( auto go : m_gameObjects.ActiveObjects() )
+    for ( auto go : m_gameObjects )
     {
         if ( go->isActive() )
         {
@@ -74,7 +82,7 @@ void IScene::_PreTick( Core::Time::Seconds delta )
 void IScene::_Tick( Core::Time::Seconds delta )
 {
     // Update components from all game-objects
-    for ( auto go : m_gameObjects.ActiveObjects() )
+    for ( auto go : m_gameObjects )
     {
         if ( go->isActive() )
         {
@@ -91,7 +99,7 @@ void IScene::_Tick( Core::Time::Seconds delta )
 void IScene::_LateTick( Core::Time::Seconds delta )
 {
     // Update components from all game-objects
-    for ( auto go : m_gameObjects.ActiveObjects() )
+    for ( auto go : m_gameObjects )
     {
         if ( go->isActive() )
         {
@@ -104,9 +112,3 @@ void IScene::_LateTick( Core::Time::Seconds delta )
     }
 }
 
-
-//----------------------------------------------------------------------
-void IScene::_SetGameObjectActive( GameObject* go, bool active )
-{
-    m_gameObjects.disable(go);
-}

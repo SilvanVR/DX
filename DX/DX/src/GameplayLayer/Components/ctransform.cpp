@@ -8,9 +8,13 @@
 
 #include "locator.h"
 
-void CTransform::Tick( Core::Time::Seconds delta )
-{
+namespace Components {
 
-    LOG("TICK");
+    void CTransform::Tick( Core::Time::Seconds delta )
+    {
+
+       // LOG("TICK");
+
+    }
 
 }

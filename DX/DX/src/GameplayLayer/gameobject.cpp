@@ -19,19 +19,14 @@ GameObject::GameObject( IScene* scene, CString name )
 //----------------------------------------------------------------------
 GameObject::~GameObject()
 {
-    for (IComponent* component : m_components)
-        delete component;
+    for (auto component : m_components)
+        SAFE_DELETE( component );
 }
 
 //**********************************************************************
 // PUBLIC
 //**********************************************************************
 
-void GameObject::setActive( bool active )
-{
-    m_isActive = active;
-    m_attachedScene->_SetGameObjectActive( this, m_isActive );
-}
 
 
 //**********************************************************************

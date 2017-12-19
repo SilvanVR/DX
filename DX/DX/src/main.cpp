@@ -75,8 +75,7 @@ public:
         go = createGameObject("Test");
 
         GameObject* go2 = findGameObject("Test");
-        CTransform* c = go2->getComponent<CTransform>();
-
+        auto c = go2->getComponent<Components::CTransform>();
         //bool removed = go2->removeComponent( c );
 
         //bool destroyed = go2->removeComponent<CTransform>();
@@ -91,9 +90,6 @@ public:
 
 };
 
-// Current thougts:
-// - GameObject / IComponent data-oriented?
-// Data-Oriented seems okay, but then separate lists for enabled/disabled objects will be a horror
 
 class Game : public IGame
 {

@@ -10,7 +10,6 @@
 **********************************************************************/
 
 #include "Core/Time/durations.h"
-#include "Core/DataStructures/mirrored_list.hpp"
 
 namespace Core { class SceneManager; }
 
@@ -30,7 +29,8 @@ public:
     virtual void shutdown() = 0;
 
     //----------------------------------------------------------------------
-    const StringID getName() const { return m_name; }
+    const StringID  getName()           const { return m_name; }
+    U32             numGameObjects()    const { return static_cast<U32>( m_gameObjects.size() ); }
 
     //----------------------------------------------------------------------
     // Creates a new gameobject, which belongs to this scene.
@@ -38,19 +38,19 @@ public:
     GameObject* createGameObject(CString name = "NO NAME");
 
     //----------------------------------------------------------------------
+    // Destroy the given gameobject
+    //----------------------------------------------------------------------
+    void        destroyGameObject(GameObject* go);
+
+    //----------------------------------------------------------------------
     // Find a gameobject with the given name in this scene.
-    // Only active gameobjects will be found.
     //----------------------------------------------------------------------
     GameObject* findGameObject(CString name);
 
 
 private:
     StringID                        m_name;
-    Core::MirroredList<GameObject*> m_gameObjects;
-
-    //----------------------------------------------------------------------
-    void _SetGameObjectActive(GameObject* go, bool active);
-
+    ArrayList<GameObject*>          m_gameObjects;
 
     //----------------------------------------------------------------------
     friend class Core::SceneManager;

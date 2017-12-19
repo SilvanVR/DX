@@ -9,20 +9,24 @@
 
 #include "i_component.h"
 
-class CTransform : public IComponent
-{
+namespace Components {
 
-public:
-    CTransform() {}
+    class CTransform : public IComponent
+    {
 
-    void Tick(Core::Time::Seconds delta) override;
+    public:
+        CTransform() {}
 
-private:
-    //XMFLOAT3 pos;
+        void Tick(Core::Time::Seconds delta) override;
 
-    //----------------------------------------------------------------------
-    CTransform(const CTransform& other)               = delete;
-    CTransform& operator = (const CTransform& other)  = delete;
-    CTransform(CTransform&& other)                    = delete;
-    CTransform& operator = (CTransform&& other)       = delete;
-};
+    private:
+        //XMFLOAT3 pos;
+
+        //----------------------------------------------------------------------
+        CTransform(const CTransform& other)               = delete;
+        CTransform& operator = (const CTransform& other)  = delete;
+        CTransform(CTransform&& other)                    = delete;
+        CTransform& operator = (CTransform&& other)       = delete;
+    };
+
+}

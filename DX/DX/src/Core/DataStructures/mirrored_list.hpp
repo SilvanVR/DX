@@ -15,6 +15,12 @@
     Requires two functions on the template type:
      1.) bool isActive()
      2.) void setActive(bool)
+
+     NOT USED ANYMORE
+
+    A far better way to achieve this:
+     - Have inactive objects at the end of a SINGLE list and swap
+       data if one become inactive -> Just store the amount of "active" objects
 **********************************************************************/
 
 namespace Core {
