@@ -12,7 +12,6 @@
 
 #include "gameobject.h"
 #include "Components/c_transform.h"
-#include "game_state.h"
 
 //----------------------------------------------------------------------
 IScene::IScene( CString name ) 
@@ -56,22 +55,6 @@ GameObject* IScene::findGameObject( CString name )
         if ( go->getName() == nameAsID )
             return go;
     return nullptr;
-}
-
-//----------------------------------------------------------------------
-GameState IScene::extractGameState( F32 lerp )
-{
-    GameState gs;
-
-    for ( auto go : m_gameObjects )
-    {
-        if ( go->isActive() )
-        {
-            
-        }
-    }
-
-    return gs;
 }
 
 //**********************************************************************

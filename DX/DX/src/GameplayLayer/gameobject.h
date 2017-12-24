@@ -15,9 +15,6 @@
 //**********************************************************************
 class GameObject
 {
-    friend class IScene;
-    GameObject(IScene* scene, CString name);
-
 public:
     ~GameObject();
 
@@ -33,7 +30,6 @@ public:
     template<typename T> bool removeComponent(T* comp);
     template<typename T, typename... Args> bool addComponent(Args&&... args);
 
-
 private:
     StringID                                m_name;
     IScene*                                 m_attachedScene;
@@ -42,9 +38,15 @@ private:
     HashMap<Size, Components::IComponent*>  m_components;
 
     //----------------------------------------------------------------------
+    friend class IScene;
+    GameObject(IScene* scene, CString name);
     void _PreTick(Core::Time::Seconds delta);
     void _Tick(Core::Time::Seconds delta);
     void _LateTick(Core::Time::Seconds delta);
+
+    //----------------------------------------------------------------------
+    friend class Core::GraphicsCommandRecorder;
+    void recordGraphicsCommands(Core::Graphics::CommandBuffer& cmd, F32 lerp);
 
     //----------------------------------------------------------------------
     // Creates the component in memory.

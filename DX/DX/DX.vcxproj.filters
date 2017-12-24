@@ -192,10 +192,10 @@
     <ClCompile Include="src\GameplayLayer\Components\c_transform.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\GameplayLayer\game_state.cpp">
+    <ClCompile Include="src\Core\Graphics\command_buffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Core\Graphics\command_buffer.cpp">
+    <ClCompile Include="src\Core\GraphicsRecorder\graphics_command_recorder.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -437,10 +437,10 @@
     <ClInclude Include="src\GameplayLayer\Components\c_transform.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\GameplayLayer\game_state.h">
+    <ClInclude Include="src\Core\Graphics\command_buffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\Graphics\command_buffer.h">
+    <ClInclude Include="src\Core\GraphicsRecorder\graphics_command_recorder.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

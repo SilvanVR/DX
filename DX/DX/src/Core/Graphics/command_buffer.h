@@ -7,7 +7,7 @@
 
     - Consists of arbitrary GPU commands
     - Can be passed to the renderer, who transform these calls to api
-      dependant calls (and possibly batch stuff etc)
+      dependant calls (and possibly do optimizations e.g. batch stuff)
 **********************************************************************/
 
 namespace Core { namespace Graphics {

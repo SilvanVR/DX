@@ -69,20 +69,20 @@ namespace Core
 
         //----------------------------------------------------------------------
         m_inputManager = initializeSubSystem( new Input::InputManager() );
-        LOG(" > InputManager initialized!", LOGCOLOR );
+        LOG( " > InputManager initialized!", LOGCOLOR );
 
         //----------------------------------------------------------------------
         m_inGameConsole = initializeSubSystem( new InGameConsole() );
-        LOG(" > In-Game Console initialized!", LOGCOLOR );
+        LOG( " > In-Game Console initialized!", LOGCOLOR );
 
         //----------------------------------------------------------------------
         ASSERT( &Locator::getWindow() != nullptr );
         m_renderer = initializeSubSystem( new Graphics::D3D11Renderer( &Locator::getWindow() ) );
-        LOG(" > Renderer initialized!", LOGCOLOR );
+        LOG( " > Renderer initialized!", LOGCOLOR );
 
         //----------------------------------------------------------------------
         m_sceneManager = initializeSubSystem( new SceneManager() );
-        LOG(" > SceneManager initialized!", LOGCOLOR );
+        LOG( " > SceneManager initialized!", LOGCOLOR );
     }
 
     //----------------------------------------------------------------------

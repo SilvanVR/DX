@@ -18,7 +18,8 @@ namespace Components {
     public:
         CModelRenderer() = default;
 
-        void render();
+        void recordGraphicsCommands(Core::Graphics::CommandBuffer& cmd, F32 lerp) override;
+
 
     private:
 

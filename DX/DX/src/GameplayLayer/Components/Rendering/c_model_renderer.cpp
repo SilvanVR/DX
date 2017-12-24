@@ -11,10 +11,11 @@
 
 namespace Components {
 
-
-    void CModelRenderer::render()
+    void CModelRenderer::recordGraphicsCommands( Core::Graphics::CommandBuffer& cmd, F32 lerp )
     {
         auto transform = getGameObject()->getComponent<CTransform>();
+
+
 
     }
 

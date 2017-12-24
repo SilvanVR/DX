@@ -10,6 +10,7 @@
 #include "Core/Time/durations.h"
 
 class GameObject;
+namespace Core { namespace Graphics { class CommandBuffer; } }
 
 namespace Components {
 
@@ -39,6 +40,8 @@ namespace Components {
         virtual void LateTick(Core::Time::Seconds delta) {}
 
         virtual void Shutdown() {}
+
+        virtual void recordGraphicsCommands(Core::Graphics::CommandBuffer& cmd, F32 lerp) {}
 
         //----------------------------------------------------------------------
         // Called immediately after the component was attached to a gameobject.

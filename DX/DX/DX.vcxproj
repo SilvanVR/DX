@@ -295,6 +295,7 @@
     <ClCompile Include="src\Core\Config\configuration_manager.cpp" />
     <ClCompile Include="src\Core\Config\config_file.cpp" />
     <ClCompile Include="src\Core\core_engine.cpp" />
+    <ClCompile Include="src\Core\GraphicsRecorder\graphics_command_recorder.cpp" />
     <ClCompile Include="src\Core\Graphics\command_buffer.cpp" />
     <ClCompile Include="src\Core\Graphics\D3D11\D3D11Globals.cpp" />
     <ClCompile Include="src\Core\Graphics\D3D11\Pipeline\Buffers\D3D11IBuffer.cpp" />
@@ -325,7 +326,6 @@
     <ClCompile Include="src\GameplayLayer\Components\Rendering\c_model_renderer.cpp" />
     <ClCompile Include="src\GameplayLayer\gameobject.cpp" />
     <ClCompile Include="src\GameplayLayer\Components\i_component.cpp" />
-    <ClCompile Include="src\GameplayLayer\game_state.cpp" />
     <ClCompile Include="src\GameplayLayer\i_scene.cpp" />
     <ClCompile Include="src\locator.cpp" />
     <ClCompile Include="src\Core\MemoryManagement\memory_manager.cpp" />
@@ -364,6 +364,7 @@
     <ClCompile Include="src\Utils\utils.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Core\GraphicsRecorder\graphics_command_recorder.h" />
     <ClInclude Include="src\Core\Graphics\command_buffer.h" />
     <ClInclude Include="src\Core\Graphics\D3D11\D3D11.hpp" />
     <ClInclude Include="src\Core\Graphics\D3D11\D3D11Globals.h" />
@@ -396,7 +397,6 @@
     <ClInclude Include="src\GameplayLayer\Components\Rendering\c_model_renderer.h" />
     <ClInclude Include="src\GameplayLayer\gameobject.h" />
     <ClInclude Include="src\GameplayLayer\Components\i_component.h" />
-    <ClInclude Include="src\GameplayLayer\game_state.h" />
     <ClInclude Include="src\GameplayLayer\i_scene.h" />
     <ClInclude Include="src\Utils\finite_range.hpp" />
     <ClInclude Include="src\Core\OS\Window\window.h" />

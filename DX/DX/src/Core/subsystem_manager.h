@@ -27,7 +27,6 @@ namespace Core {
     class IInGameConsole;
     class SceneManager;
 
-
     //*********************************************************************
     // Manages every Sub-System in the engine.
     // Creates, initializes, deinitializes & destroys them.
@@ -46,15 +45,15 @@ namespace Core {
         //----------------------------------------------------------------------
         // Every Sub-System is enumerated here
         //----------------------------------------------------------------------
-        Logging::ILogger*                   m_logger        = nullptr;
-        MemoryManagement::MemoryManager*    m_memoryManager = nullptr;
-        Config::ConfigurationManager*       m_configManager = nullptr;
-        Threading::ThreadManager*           m_threadManager = nullptr;
-        Profiling::Profiler*                m_profiler      = nullptr;
-        Input::InputManager*                m_inputManager  = nullptr;
-        IInGameConsole*                     m_inGameConsole = nullptr;
-        Graphics::IRenderer*                m_renderer      = nullptr;
-        SceneManager*                       m_sceneManager  = nullptr;
+        Logging::ILogger*                   m_logger            = nullptr;
+        MemoryManagement::MemoryManager*    m_memoryManager     = nullptr;
+        Config::ConfigurationManager*       m_configManager     = nullptr;
+        Threading::ThreadManager*           m_threadManager     = nullptr;
+        Profiling::Profiler*                m_profiler          = nullptr;
+        Input::InputManager*                m_inputManager      = nullptr;
+        IInGameConsole*                     m_inGameConsole     = nullptr;
+        Graphics::IRenderer*                m_renderer          = nullptr;
+        SceneManager*                       m_sceneManager      = nullptr;
 
         //----------------------------------------------------------------------
         void _InitVirtualFilePaths();

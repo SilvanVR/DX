@@ -12,7 +12,6 @@
 #include "Core/Time/durations.h"
 
 namespace Core { class SceneManager; }
-class GameState;
 class GameObject;
 
 //**********************************************************************
@@ -29,8 +28,9 @@ public:
     virtual void shutdown() = 0;
 
     //----------------------------------------------------------------------
-    const StringID  getName()           const { return m_name; }
-    U32             numGameObjects()    const { return static_cast<U32>( m_gameObjects.size() ); }
+    const StringID                  getName()           const { return m_name; }
+    U32                             numGameObjects()    const { return static_cast<U32>( m_gameObjects.size() ); }
+    const ArrayList<GameObject*>&   getGameObjects()    const { return m_gameObjects; }
 
     //----------------------------------------------------------------------
     // Creates a new gameobject, which belongs to this scene.
@@ -46,11 +46,6 @@ public:
     // Find a gameobject with the given name in this scene.
     //----------------------------------------------------------------------
     GameObject* findGameObject(CString name);
-
-    //----------------------------------------------------------------------
-    // Called every frame to get the interpolated gamestate
-    //----------------------------------------------------------------------
-    GameState extractGameState(F32 lerp);
 
 private:
     StringID                        m_name;

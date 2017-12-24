@@ -17,7 +17,7 @@ GameObject::GameObject( IScene* scene, CString name )
 //----------------------------------------------------------------------
 GameObject::~GameObject()
 {
-    for (auto pair : m_components)
+    for ( auto& pair : m_components )
         SAFE_DELETE( pair.second );
 }
 
@@ -34,9 +34,9 @@ GameObject::~GameObject()
 void GameObject::_PreTick( Core::Time::Seconds delta )
 {
     // Update components from all game-objects
-    for ( auto pair : m_components )
+    for ( auto& pair : m_components )
     {
-        auto comp = pair.second;
+        auto& comp = pair.second;
         if ( comp->isActive() )
         {
             if ( !comp->m_bInitialized )
@@ -53,9 +53,9 @@ void GameObject::_PreTick( Core::Time::Seconds delta )
 void GameObject::_Tick( Core::Time::Seconds delta )
 {
     // Update components from all game-objects
-    for (auto pair : m_components)
+    for (auto& pair : m_components)
     {
-        auto comp = pair.second;
+        auto& comp = pair.second;
         if ( comp->isActive() )
             comp->Tick( delta );
     }
@@ -65,10 +65,23 @@ void GameObject::_Tick( Core::Time::Seconds delta )
 void GameObject::_LateTick( Core::Time::Seconds delta )
 {
     // Update components from all game-objects
-    for (auto pair : m_components)
+    for (auto& pair : m_components)
     {
-        auto comp = pair.second;
+        auto& comp = pair.second;
         if ( comp->isActive() )
             comp->LateTick( delta );
+    }
+}
+
+
+//----------------------------------------------------------------------
+void GameObject::recordGraphicsCommands( Core::Graphics::CommandBuffer& cmd, F32 lerp )
+{
+    // Update components from all game-objects
+    for ( auto& pair : m_components )
+    {
+        auto& comp = pair.second;
+        if ( comp->isActive() )
+           comp->recordGraphicsCommands( cmd, lerp );
     }
 }

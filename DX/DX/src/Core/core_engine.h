@@ -16,6 +16,7 @@
 #include "subsystem_manager.h"
 #include "Time/master_clock.h"
 #include "OS/Window/window.h"
+#include "GraphicsRecorder/graphics_command_recorder.h"
 
 namespace Core {
 
@@ -65,6 +66,7 @@ namespace Core {
         Time::MasterClock           m_engineClock;
         SubSystemManager            m_subSystemManager;
         OS::Window                  m_window;
+        GraphicsCommandRecorder     m_graphicsCommandRecorder;
         std::vector<ISubSystem*>    m_subscribers;
         bool                        m_isRunning = true;
 

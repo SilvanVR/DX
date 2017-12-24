@@ -11,9 +11,6 @@
 
 #include "locator.h"
 
-#include "GameplayLayer/i_scene.h"
-#include "GameplayLayer/game_state.h"
-
 namespace Core {
 
     //----------------------------------------------------------------------
@@ -31,6 +28,9 @@ namespace Core {
 
         // Initialize all subsystems
         m_subSystemManager.init();
+
+        // Initialize graphics recorder AFTER all subsystems
+        m_graphicsCommandRecorder.init();
 
         // Call virtual init function for game class
         init();
@@ -72,10 +72,8 @@ namespace Core {
                 F64 lerp = (F64)(gameTickAccumulator / TICK_RATE_IN_SECONDS);
                 //ASSERT( lerp <= 1.0 );
 
-                GameState gs = SCENE.extractGameState( (F32) lerp );
-                Graphics::CommandBuffer cmd;
 
-                Locator::getRenderer().dispatch(cmd);
+                m_graphicsCommandRecorder.render( &SCENE, (F32)lerp );
             }
 
             m_window.processOSMessages();
@@ -90,6 +88,9 @@ namespace Core {
     {
         // Deinitialize game class
         shutdown();
+
+        // Deinitialize graphics recorder
+        m_graphicsCommandRecorder.shutdown();
 
         LOG(" ~ Goodbye! ~ ", Color::GREEN);
 
