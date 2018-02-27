@@ -19,8 +19,6 @@ namespace Core { namespace MemoryManagement {
         return mutex;
     }
 
-    AllocationMemoryInfo MemoryTracker::s_memoryInfo;
-
     //----------------------------------------------------------------------
     void* _GlobalNewAndDeleteAllocator::allocate( Size size )
     {
@@ -36,7 +34,7 @@ namespace Core { namespace MemoryManagement {
         mem += sizeof( Size );
 
         std::lock_guard<std::mutex> lock( getMutex() );
-        MemoryTracker::s_memoryInfo.addAllocation( allocationSize );
+        MemoryTracker::getAllocationMemoryInfo().addAllocation( allocationSize );
 
         return mem;
     }
@@ -52,7 +50,7 @@ namespace Core { namespace MemoryManagement {
 
         Size allocatedSize = *(reinterpret_cast<Size*>( mem ));
         std::lock_guard<std::mutex> lock( getMutex() );
-        MemoryTracker::s_memoryInfo.removeAllocation( allocatedSize );
+        MemoryTracker::getAllocationMemoryInfo().removeAllocation( allocatedSize );
 
         std::free( mem );
     }
@@ -89,10 +87,11 @@ namespace Core { namespace MemoryManagement {
     void MemoryTracker::_CheckForMemoryLeak()
     {
 #ifdef _WIN32
-        if (s_memoryInfo.bytesAllocated != 0)
+        auto memInfo = getAllocationMemoryInfo();
+        if (memInfo.bytesAllocated != 0)
         {
-            printf( "Current bytes allocated: %lld \n", s_memoryInfo.bytesAllocated);
-            printf( "Num allocations left: %lld", s_memoryInfo.totalAllocations - s_memoryInfo.totalDeallocations );
+            printf( "Current bytes allocated: %lld \n", memInfo.bytesAllocated);
+            printf( "Num allocations left: %lld", memInfo.totalAllocations - memInfo.totalDeallocations );
             __debugbreak();
         }
 #elif

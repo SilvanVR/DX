@@ -82,9 +82,9 @@ namespace Core { namespace Graphics {
 
         {
             // Shaders
-            pVertexShader = new D3D11::VertexShader( "res/shaders/basicVS.hlsl" );
+            pVertexShader = new D3D11::VertexShader( "../DX/res/shaders/basicVS.hlsl" );
             pVertexShader->compile( "main" );
-            pPixelShader = new D3D11::PixelShader( "res/shaders/basicPS.hlsl" );
+            pPixelShader = new D3D11::PixelShader( "../DX/res/shaders/basicPS.hlsl" );
             pPixelShader->compile("main" );
         }
         {

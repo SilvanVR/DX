@@ -1,7 +1,7 @@
 #include <DX.h>
 
 
-#define USE_CONSOLE 1
+#define DISPLAY_CONSOLE 1
 
 class Game : public IGame
 {
@@ -11,11 +11,11 @@ public:
     void init() override 
     {
         LOG( "Init game..." );
-        Locator::getLogger().setSaveToDisk( false );
+        gLogger.setSaveToDisk( false );
 
         // Want to call a function every x-milliseconds or after x-millis
         Locator::getEngineClock().setInterval([] {
-            LOG( "Time: " + TS( Locator::getEngineClock().getTime().value ) + " FPS: " + TS( Locator::getProfiler().getFPS() ) );
+           LOG( "Time: " + TS( Locator::getEngineClock().getTime().value ) + " FPS: " + TS( Locator::getProfiler().getFPS() ) );
         }, 1000);
 
         getWindow().setCursor( "../dx/res/internal/cursors/Areo Cursor Red.cur" );
@@ -41,7 +41,7 @@ public:
     }
 };
 
-#if USE_CONSOLE
+#if DISPLAY_CONSOLE
 
     int main()
     {

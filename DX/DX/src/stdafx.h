@@ -30,3 +30,4 @@
 #endif
 
 #include "common.hpp"
+#include "logging.h"

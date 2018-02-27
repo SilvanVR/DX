@@ -46,7 +46,10 @@ namespace Core { namespace MemoryManagement {
         // that struct was gathered through global new/delete.
         // => Contains all allocations / deallocations.
         //----------------------------------------------------------------------
-        static const AllocationMemoryInfo& getAllocationMemoryInfo() { return s_memoryInfo; }
+        static AllocationMemoryInfo& getAllocationMemoryInfo() {
+            static AllocationMemoryInfo s_memoryInfo;
+            return s_memoryInfo; 
+        }
 
         //----------------------------------------------------------------------
         // Log the AllocationMemoryInfo
@@ -57,7 +60,6 @@ namespace Core { namespace MemoryManagement {
 #ifndef STATIC_LIB
         static MemoryTracker        s_memoryLeakDetectionInstance;
 #endif
-        static AllocationMemoryInfo s_memoryInfo;
 
         // Check for a memory leak. Halt the program if one detected.
         void _CheckForMemoryLeak();
