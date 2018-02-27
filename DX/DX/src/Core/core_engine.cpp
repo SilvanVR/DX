@@ -72,8 +72,8 @@ namespace Core {
                 F64 lerp = (F64)(gameTickAccumulator / TICK_RATE_IN_SECONDS);
                 //ASSERT( lerp <= 1.0 );
 
-
-                m_graphicsCommandRecorder.render( &SCENE, (F32)lerp );
+                // Records rendering commands for the current scene and dispatches them to the renderer
+                m_graphicsCommandRecorder.render( SCENE, (F32)lerp );
             }
 
             m_window.processOSMessages();

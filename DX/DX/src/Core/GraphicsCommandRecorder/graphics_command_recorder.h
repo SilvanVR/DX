@@ -6,7 +6,7 @@
     date: December 24, 2017
 
     - Responsible for recording all rendering commands from a scene
-      and sending them to the renderer
+      and sending them to the renderer once per frame
 **********************************************************************/
 
 //----------------------------------------------------------------------
@@ -30,7 +30,7 @@ namespace Core {
         //----------------------------------------------------------------------
         void init();
         void shutdown();
-        void render( IScene* scene, F32 lerp );
+        void render( IScene& scene, F32 lerp );
 
     private:
         Graphics::CommandBuffer* m_CommandBuffers[COMMAND_BUFFER_COUNT];

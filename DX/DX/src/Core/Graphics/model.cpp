@@ -1,25 +1,23 @@
-#include "command_buffer.h"
+#include "model.h"
 /**********************************************************************
-    class: CommandBuffer (command_buffer.cpp)
+    class: Model (model.cpp)
 
     author: S. Hau
-    date: December 19, 2017
+    date: December 25, 2017
 **********************************************************************/
 
-#include "Core/OS/Window/window.h"
+#include "locator.h"
 
 namespace Core { namespace Graphics {
 
-
     //----------------------------------------------------------------------
-    void CommandBuffer::reset()
+    Model::Model(const void* pVertices, const void* pIndices)
     {
-
+        //m_id = Locator::getRenderer().createIndexedModel( pVertices, pIndices );
     }
 
-
     //----------------------------------------------------------------------
-    void CommandBuffer::drawMesh()
+    Model::Model( const void* pVertices, const void* pIndices, const VertexLayout& vertexLayout )
     {
 
     }

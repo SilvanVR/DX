@@ -19,11 +19,18 @@ namespace Core { namespace Graphics {
         CommandBuffer() = default;
         ~CommandBuffer() = default;
 
+        //----------------------------------------------------------------------
+        void reset();
 
-        void drawGeo();
+        //----------------------------------------------------------------------
+        void drawMesh();
 
 
     private:
+
+        //----------------------------------------------------------------------
+        friend class D3D11Renderer;
+
 
         //----------------------------------------------------------------------
         CommandBuffer(const CommandBuffer& other)               = delete;

@@ -16,7 +16,7 @@
 #include "subsystem_manager.h"
 #include "Time/master_clock.h"
 #include "OS/Window/window.h"
-#include "GraphicsRecorder/graphics_command_recorder.h"
+#include "GraphicsCommandRecorder/graphics_command_recorder.h"
 
 namespace Core {
 

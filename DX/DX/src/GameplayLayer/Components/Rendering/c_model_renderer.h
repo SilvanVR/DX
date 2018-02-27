@@ -18,10 +18,23 @@ namespace Components {
     public:
         CModelRenderer() = default;
 
-        void recordGraphicsCommands(Core::Graphics::CommandBuffer& cmd, F32 lerp) override;
+        // Model getModel() const { return m_model; }
+        // void setModel(Model model) const { m_model = model;
 
+        // Material getMaterial() const { return m_material; }
+        // void setMesh(Material m) const { m_material = m; }
 
     private:
+        // Model*           m_model;
+        // Material*        m_material;
+
+
+        //----------------------------------------------------------------------
+        // IComponent Interface
+        //----------------------------------------------------------------------
+        void addedToGameObject(GameObject* go) override;
+        void recordGraphicsCommands(Core::Graphics::CommandBuffer& cmd, F32 lerp) override;
+
 
         //----------------------------------------------------------------------
         CModelRenderer(const CModelRenderer& other)               = delete;

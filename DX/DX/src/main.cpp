@@ -12,7 +12,11 @@
 #include <chrono>
 #include <thread>
 
+#include "Core/Graphics/model.h"
+#include "Core/Graphics/vertex_layout.hpp"
+
 using namespace Core;
+using namespace DirectX;
 
 class AutoClock
 {
@@ -61,9 +65,37 @@ public:
 
 };
 
+struct Vertex
+{
+    XMFLOAT3 position;
+    XMFLOAT3 color;
+};
+
+Vertex vertices[] =
+{
+    { XMFLOAT3(-1.0f, -1.0f, -1.0f), XMFLOAT3(0.0f, 0.0f, 0.0f) }, // 0
+    { XMFLOAT3(-1.0f,  1.0f, -1.0f), XMFLOAT3(0.0f, 1.0f, 0.0f) }, // 1
+    { XMFLOAT3(1.0f,  1.0f, -1.0f), XMFLOAT3(1.0f, 1.0f, 0.0f) }, // 2
+    { XMFLOAT3(1.0f, -1.0f, -1.0f), XMFLOAT3(1.0f, 0.0f, 0.0f) }, // 3
+    { XMFLOAT3(-1.0f, -1.0f,  1.0f), XMFLOAT3(0.0f, 0.0f, 1.0f) }, // 4
+    { XMFLOAT3(-1.0f,  1.0f,  1.0f), XMFLOAT3(0.0f, 1.0f, 1.0f) }, // 5
+    { XMFLOAT3(1.0f,  1.0f,  1.0f), XMFLOAT3(1.0f, 1.0f, 1.0f) }, // 6
+    { XMFLOAT3(1.0f, -1.0f,  1.0f), XMFLOAT3(1.0f, 0.0f, 1.0f) }  // 7
+};
+
+UINT indices[36] = {
+    0, 1, 2, 0, 2, 3,
+    4, 6, 5, 4, 7, 6,
+    4, 5, 1, 4, 1, 0,
+    3, 2, 6, 3, 6, 7,
+    1, 5, 6, 1, 6, 2,
+    4, 0, 3, 4, 3, 7
+};
+
 class MyScene : public IScene
 {
     GameObject* go;
+    Graphics::Model* m;
 
 public:
     MyScene() : IScene("MyScene"){}
@@ -74,6 +106,15 @@ public:
 
         go = createGameObject("Test");
         go->addComponent<Components::CModelRenderer>();
+        auto mr = go->getComponent<Components::CModelRenderer>();
+        
+        // Create 3D-Model or load it... How to manage resources?
+        // ModelPtr m = ModelGenerator.createCube(...);
+        // mr->setModel(m);
+
+        // Graphics::VertexLayout layout;
+
+        m = new Graphics::Model(vertices, indices);
 
         GameObject* go2 = findGameObject("Test");
         auto c = go2->getComponent<Components::CTransform>();
@@ -86,6 +127,7 @@ public:
 
     void shutdown() override
     {
+        delete m;
         LOG("MyScene Shutdown!", Color::RED);
     }
 
@@ -109,7 +151,7 @@ public:
         Locator::getLogger().setSaveToDisk( false );
 
         Locator::getEngineClock().setInterval([=] {
-            terminate();
+            //terminate();
             U32 fps = PROFILER.getFPS();
             F64 delta = (1000.0 / fps);
             LOG("Time: " + TS( TIME.getTime().value ) + " FPS: " + TS( fps ) + " Delta: " + TS( delta ) + " ms" );

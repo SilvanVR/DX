@@ -19,6 +19,7 @@
 #include "InGameConsole/in_game_console.h"
 #include "Graphics/D3D11/D3D11Renderer.h"
 #include "SceneManager/scene_manager.h"
+#include "Resources/resource_manager.h"
 
 //----------------------------------------------------------------------
 #define ENABLE_THREADING 1
@@ -83,6 +84,10 @@ namespace Core
         //----------------------------------------------------------------------
         m_sceneManager = initializeSubSystem( new SceneManager() );
         LOG( " > SceneManager initialized!", LOGCOLOR );
+
+        //----------------------------------------------------------------------
+        m_resourceManager = initializeSubSystem( new Resources::ResourceManager() );
+        LOG( " > ResourceManager initialized!", LOGCOLOR );
     }
 
     //----------------------------------------------------------------------
@@ -92,11 +97,15 @@ namespace Core
         LOG( "<<< Shutting down Sub-Systems >>>", LOGCOLOR  );
 
         //----------------------------------------------------------------------
-        LOG(" > Shutdown SceneManager...", LOGCOLOR );
+        LOG( " > Shutdown ResourceManager...", LOGCOLOR );
+        shutdownSubSystem( m_resourceManager );
+
+        //----------------------------------------------------------------------
+        LOG( " > Shutdown SceneManager...", LOGCOLOR );
         shutdownSubSystem( m_sceneManager );
 
         //----------------------------------------------------------------------
-        LOG(" > Shutdown Renderer...", LOGCOLOR );
+        LOG( " > Shutdown Renderer...", LOGCOLOR );
         shutdownSubSystem( m_renderer );
 
         //----------------------------------------------------------------------

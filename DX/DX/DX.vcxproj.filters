@@ -195,7 +195,13 @@
     <ClCompile Include="src\Core\Graphics\command_buffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Core\GraphicsRecorder\graphics_command_recorder.cpp">
+    <ClCompile Include="src\Core\GraphicsCommandRecorder\graphics_command_recorder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Graphics\model.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Resources\resource_manager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -440,7 +446,16 @@
     <ClInclude Include="src\Core\Graphics\command_buffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\GraphicsRecorder\graphics_command_recorder.h">
+    <ClInclude Include="src\Core\GraphicsCommandRecorder\graphics_command_recorder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Graphics\model.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Resources\resource_manager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Graphics\vertex_layout.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

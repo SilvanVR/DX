@@ -10,14 +10,13 @@
        D3D11_CREATE_DEVICE_SINGLETHREADED flag in the device creation.
 **********************************************************************/
 
-#include "locator.h"
 #include "Pipeline/Shaders/D3D11Shader.h"
 #include "Pipeline/Buffers/D3D11Buffers.h"
 #include "Pipeline/D3D11Pass.h"
 
-namespace Core { namespace Graphics {
+using namespace DirectX;
 
-    using namespace DirectX;
+namespace Core { namespace Graphics {
 
     struct Vertex
     {
@@ -172,20 +171,21 @@ namespace Core { namespace Graphics {
         XMVECTOR rotationAxis = XMVectorSet(0, 1, 1, 0);
         XMMATRIX world = XMMatrixRotationAxis(rotationAxis, XMConvertToRadians(angle));
 
-        static F32 xPos = 0.0f;
-        static F32 zPos = 0.0f;
-        zPos += (F32)AXIS_MAPPER.getAxisValue("Vertical") * delta * 0.01f;
-        xPos += (F32)AXIS_MAPPER.getAxisValue("Horizontal") * delta * -0.01f;
-        XMVECTOR eyePosition = XMVectorSet(xPos, 0, -10 + zPos, 1);
-        //XMMATRIX view = XMMatrixLookAtLH(eyePosition, { 0,0,0 }, {0,1,0});
-        XMMATRIX view = XMMatrixLookToLH(eyePosition, {0,0,1}, {0,1,0});
-        XMMATRIX proj = XMMatrixPerspectiveFovLH(XMConvertToRadians(45.0f), vp.Width / vp.Height, 0.1f, 100.0f);
+        {
+            static F32 xPos = 0.0f;
+            static F32 zPos = 0.0f;
+            zPos += (F32)AXIS_MAPPER.getAxisValue("Vertical") * delta * 0.01f;
+            xPos += (F32)AXIS_MAPPER.getAxisValue("Horizontal") * delta * -0.01f;
+            XMVECTOR eyePosition = XMVectorSet(xPos, 0, -10 + zPos, 1);
+            //XMMATRIX view = XMMatrixLookAtLH(eyePosition, { 0,0,0 }, {0,1,0});
+            XMMATRIX view = XMMatrixLookToLH(eyePosition, {0,0,1}, {0,1,0});
+            XMMATRIX proj = XMMatrixPerspectiveFovLH(XMConvertToRadians(45.0f), vp.Width / vp.Height, 0.1f, 100.0f);
 
-        XMMATRIX worldViewProj = world*view*proj;
-        pConstantBuffer->updateSubresource( &worldViewProj );
+            XMMATRIX worldViewProj = world*view*proj;
+            pConstantBuffer->updateSubresource( &worldViewProj );
+        }
 
         g_pImmediateContext->DrawIndexed( _countof(indices), 0, 0 );
-
 
         m_pSwapchain->present( m_vsync );
     }

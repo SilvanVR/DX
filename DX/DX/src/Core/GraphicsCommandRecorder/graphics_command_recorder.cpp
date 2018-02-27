@@ -16,20 +16,21 @@ namespace Core {
     //----------------------------------------------------------------------
     void GraphicsCommandRecorder::init()
     {
-
+        for(I32 i = 0; i < COMMAND_BUFFER_COUNT; i++)
+            m_CommandBuffers[i] = new Graphics::CommandBuffer();
     }
 
     //----------------------------------------------------------------------
     void GraphicsCommandRecorder::shutdown()
     {
-
+        for (I32 i = 0; i < COMMAND_BUFFER_COUNT; i++)
+            SAFE_DELETE( m_CommandBuffers[i] );
     }
 
-
     //----------------------------------------------------------------------
-    void GraphicsCommandRecorder::render( IScene* scene, F32 lerp )
+    void GraphicsCommandRecorder::render( IScene& scene, F32 lerp )
     {
-        auto& gameObjects = scene->getGameObjects();
+        auto& gameObjects = scene.getGameObjects();
         for ( auto go : gameObjects )
         {
             if ( go->isActive() )

@@ -24,6 +24,7 @@ namespace Core {
     namespace Profiling         { class Profiler; }
     namespace Input             { class InputManager; }
     namespace Graphics          { class IRenderer; }
+    namespace Resources         { class ResourceManager; }
     class IInGameConsole;
     class SceneManager;
 
@@ -54,6 +55,7 @@ namespace Core {
         IInGameConsole*                     m_inGameConsole     = nullptr;
         Graphics::IRenderer*                m_renderer          = nullptr;
         SceneManager*                       m_sceneManager      = nullptr;
+        Resources::ResourceManager*         m_resourceManager   = nullptr;
 
         //----------------------------------------------------------------------
         void _InitVirtualFilePaths();

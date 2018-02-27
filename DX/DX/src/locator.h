@@ -34,6 +34,7 @@
 #include "Core/InGameConsole/i_in_game_console.hpp"
 #include "Core/Graphics/i_renderer.h"
 #include "Core/SceneManager/scene_manager.h"
+#include "Core/Resources/resource_manager.h"
 
 //----------------------------------------------------------------------
 // Defines
@@ -84,6 +85,7 @@ public:
     static Core::IInGameConsole&                      getInGameConsole()  { return *gInGameConsole; }
     static Core::Graphics::IRenderer&                 getRenderer()       { return *gRenderer; }
     static Core::SceneManager&                        getSceneManager()   { return *gSceneManager; }
+    static Core::Resources::ResourceManager&          getResourceManager(){ return *gResourceManager; }
 
     //----------------------------------------------------------------------
     // Provide a Sub-System
@@ -100,6 +102,7 @@ public:
     static void provide(Core::IInGameConsole* igc)                            { gInGameConsole = igc; }
     static void provide(Core::Graphics::IRenderer* r)                         { gRenderer = r; }
     static void provide(Core::SceneManager* s)                                { gSceneManager = s; }
+    static void provide(Core::Resources::ResourceManager* r)                  { gResourceManager = r; }
 
 private:
     static Core::CoreEngine*                          gCoreEngine;
@@ -120,6 +123,7 @@ private:
     static Core::IInGameConsole*                      gInGameConsole;
     static Core::Graphics::IRenderer*                 gRenderer;
     static Core::SceneManager*                        gSceneManager;
+    static Core::Resources::ResourceManager*          gResourceManager;
 
     //----------------------------------------------------------------------
     Locator()                                   = delete;
