@@ -10,7 +10,7 @@
         from the underlying OS and makes it suitable for anyone else.
 **********************************************************************/
 
-#include "Core/OS/Window/window.h" /* Point2D, Keycodes */
+#include "OS/Window/window.h" /* Point2D, Keycodes */
 
 namespace Core { namespace Input {
 

@@ -13,8 +13,8 @@
     All loaded scenes will be updated, but only the last one will be rendered.
 **********************************************************************/
 
-#include "Core/i_subsystem.hpp"
-#include "Core/OS/FileSystem/path.h"
+#include "SubSystem/i_subsystem.hpp"
+#include "OS/FileSystem/path.h"
 
 class IScene;
 

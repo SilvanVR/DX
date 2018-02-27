@@ -8,10 +8,7 @@
 **********************************************************************/
 
 //----------------------------------------------------------------------
-Core::CoreEngine*                       Locator::gCoreEngine;
-Core::Logging::NullLogger               Locator::gNullLogger;
-Core::Logging::ILogger*                 Locator::gLogger = &gNullLogger;
-
+Core::CoreEngine*                       Locator::gCoreEngine        = nullptr;
 Core::MemoryManagement::MemoryManager*  Locator::gMemoryManager     = nullptr;
 Core::Config::ConfigurationManager*     Locator::gConfigManager     = nullptr;
 Core::Threading::ThreadManager*         Locator::gThreadManager     = nullptr;

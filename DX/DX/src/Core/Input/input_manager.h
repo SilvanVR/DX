@@ -14,7 +14,7 @@
       - Action Mappings (Names to input events)
 **********************************************************************/
 
-#include "Core/i_subsystem.hpp"
+#include "SubSystem/i_subsystem.hpp"
 #include "listener/input_listener.h"
 #include "devices/keyboard.h"
 #include "devices/mouse.h"

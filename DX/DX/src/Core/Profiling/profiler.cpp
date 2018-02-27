@@ -12,7 +12,8 @@
 **********************************************************************/
 
 #include "locator.h"
-#include "Core/OS/PlatformTimer/platform_timer.h"
+#include "logging.h"
+#include "OS/PlatformTimer/platform_timer.h"
 
 namespace Core { namespace Profiling {
 

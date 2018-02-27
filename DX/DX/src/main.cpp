@@ -1,19 +1,17 @@
-#include "Core/OS/PlatformTimer/platform_timer.h"
-#include "Core/MemoryManagement/Allocators/include.hpp"
+#include "OS/PlatformTimer/platform_timer.h"
+#include "MemoryManagement/Allocators/include.hpp"
 #include "Core/subsystem_manager.h"
 
-#include "Core/OS/FileSystem/file_system.h"
-#include "Core/OS/Threading/thread_pool.h"
-#include "Core/OS/FileSystem/file.h"
+#include "OS/FileSystem/file_system.h"
+#include "OS/Threading/thread_pool.h"
+#include "OS/FileSystem/file.h"
 #include "GameInterface/i_game.hpp"
-#include "Core/Time/clock.h"
-#include "Core/MemoryManagement/Allocators/pool_allocator.hpp"
+#include "Time/clock.h"
 
-#include <chrono>
-#include <thread>
+#include "Graphics/model.h"
+#include "Graphics/vertex_layout.hpp"
 
-#include "Core/Graphics/model.h"
-#include "Core/Graphics/vertex_layout.hpp"
+#include "locator.h"
 
 using namespace Core;
 using namespace DirectX;
@@ -92,6 +90,8 @@ UINT indices[36] = {
     4, 0, 3, 4, 3, 7
 };
 
+// @TODO: ADAPT NAMESPACES IN COMMON
+
 class MyScene : public IScene
 {
     GameObject* go;
@@ -148,7 +148,7 @@ public:
         LOG( "Init game..." );
         getWindow().setCursor( "/cursors/Areo Cursor Red.cur" );
         getWindow().setIcon( "/internal/icon.ico" );
-        Locator::getLogger().setSaveToDisk( false );
+        gLogger.setSaveToDisk( false );
 
         Locator::getEngineClock().setInterval([=] {
             //terminate();

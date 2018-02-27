@@ -9,7 +9,7 @@
 **********************************************************************/
 
 #include "i_in_game_console.hpp"
-#include "Core/DataStructures/byte_array.hpp"
+#include "DataStructures/byte_array.hpp"
 
 namespace Core {
 

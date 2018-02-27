@@ -13,7 +13,7 @@
     object inheriting from one of the listener will be created.
 **********************************************************************/
 
-#include "Core/OS/Window/keycodes.h"
+#include "OS/Window/keycodes.h"
 
 namespace Core { namespace Input {
 

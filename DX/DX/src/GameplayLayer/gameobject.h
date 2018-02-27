@@ -10,7 +10,10 @@
 **********************************************************************/
 
 #include "Components/i_component.h"
-#include "locator.h"
+#include "logging.h"
+
+class IScene;
+namespace Core { class GraphicsCommandRecorder; }
 
 //**********************************************************************
 class GameObject

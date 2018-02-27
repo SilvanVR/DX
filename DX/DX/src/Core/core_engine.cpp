@@ -10,6 +10,7 @@
 **********************************************************************/
 
 #include "locator.h"
+#include "logging.h"
 
 namespace Core {
 

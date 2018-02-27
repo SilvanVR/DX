@@ -7,7 +7,7 @@
 
 **********************************************************************/
 
-#include "Core/Time/durations.h"
+#include "Time/durations.h"
 
 class GameObject;
 namespace Core { namespace Graphics { class CommandBuffer; } }

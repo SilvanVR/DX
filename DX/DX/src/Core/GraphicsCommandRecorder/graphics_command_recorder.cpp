@@ -9,7 +9,7 @@
 #include "locator.h"
 #include "GameplayLayer/i_scene.h"
 #include "GameplayLayer/gameobject.h"
-#include "Core/Graphics/command_buffer.h"
+#include "Graphics/command_buffer.h"
 
 namespace Core {
 

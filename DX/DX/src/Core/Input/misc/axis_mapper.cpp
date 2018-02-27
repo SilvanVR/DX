@@ -6,7 +6,9 @@
     date: November 18, 2017
 **********************************************************************/
 
-#include "locator.h"
+#include "logging.h"
+#include "Core/Input/devices/keyboard.h"
+#include "Core/Input/devices/mouse.h"
 
 namespace Core { namespace Input {
 

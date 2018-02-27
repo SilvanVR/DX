@@ -8,7 +8,7 @@
     Manages initial configuration stuff and files.
 **********************************************************************/
 
-#include "Core/i_subsystem.hpp"
+#include "SubSystem/i_subsystem.hpp"
 #include "config_file.h"
 
 namespace Core { namespace Config {

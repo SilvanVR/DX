@@ -8,8 +8,9 @@
 **********************************************************************/
 
 #include "locator.h"
+#include "logging.h"
 #include "Logging/console_logger.h"
-#include "MemoryManagement/memory_manager.h"
+#include "MemoryManager/memory_manager.h"
 #include "OS/FileSystem/virtual_file_system.h"
 #include "Config/configuration_manager.h"
 #include "Logging/shared_console_logger.hpp"
@@ -45,7 +46,7 @@ namespace Core
         _InitVirtualFilePaths();
 
         //----------------------------------------------------------------------
-        m_logger = initializeSubSystem( new Logging::SharedConsoleLogger() );
+        gLogger.init();
 
         LOG( "<<< Initialize Sub-Systems >>>", LOGCOLOR );
         LOG( " > Logger initialized!", LOGCOLOR );
@@ -136,7 +137,7 @@ namespace Core
 
         //----------------------------------------------------------------------
         LOG( " > Shutdown Logger...", LOGCOLOR );
-        shutdownSubSystem( m_logger );
+        gLogger.shutdown();
 
         //----------------------------------------------------------------------
         _ClearVirtualFilePaths();

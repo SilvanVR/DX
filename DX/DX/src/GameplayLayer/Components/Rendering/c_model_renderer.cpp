@@ -7,7 +7,7 @@
 **********************************************************************/
 
 #include "GameplayLayer/gameobject.h"
-#include "Core/Graphics/command_buffer.h"
+#include "Graphics/command_buffer.h"
 #include "GameplayLayer/Components/c_transform.h"
 
 namespace Components {

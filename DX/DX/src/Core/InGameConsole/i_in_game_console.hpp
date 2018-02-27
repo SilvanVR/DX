@@ -10,9 +10,9 @@
      IGC_REGISTER_COMMAND( std::bind( &Class::Function, pObject ) );
 **********************************************************************/
 
-#include "Core/i_subsystem.hpp"
+#include "SubSystem/i_subsystem.hpp"
 #include "Core/Input/listener/input_listener.h"
-#include "Core/Misc/variant_type.h"
+#include "Misc/variant_type.h"
 
 //----------------------------------------------------------------------
 #define IGC_REGISTER_COMMAND(F)                 Locator::getInGameConsole().registerCommand( #F, F )

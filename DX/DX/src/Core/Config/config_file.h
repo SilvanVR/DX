@@ -22,7 +22,7 @@
     U32 y = configFile["General"]["ResolutionY"];
 **********************************************************************/
 
-#include "Core/Misc/variant_type.h"
+#include "Misc/variant_type.h"
 
 
 namespace Core { namespace Config {

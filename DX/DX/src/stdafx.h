@@ -12,15 +12,12 @@
 **********************************************************************/
 
 #include <unordered_map>
-#include <functional>
-#include <algorithm>
 #include <assert.h>
 #include <cstddef>
 #include <vector>
 #include <memory>
 #include <mutex>
 #include <queue>
-#include <array>
 #include <stack>
 #include <map>
 
@@ -32,9 +29,4 @@
     #include <DirectXMath.h>
 #endif
 
-#include "PrecompiledHeaders/forward_declarations.hpp"
-#include "PrecompiledHeaders/data_types.hpp"
-#include "PrecompiledHeaders/macros.hpp"
-
-#pragma comment( lib, "D3D11" )
-#pragma comment( lib, "d3dcompiler" )
+#include "common.hpp"

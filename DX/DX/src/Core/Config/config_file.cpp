@@ -13,9 +13,9 @@
          3.) Integrate a order for categories
 **********************************************************************/
 
-#include "locator.h"
+#include "logging.h"
 #include "Utils/string_utils.h"
-#include "Core/OS/FileSystem/file.h"
+#include "OS/FileSystem/file.h"
 
 namespace Core { namespace Config {
 

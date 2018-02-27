@@ -15,7 +15,7 @@
     -> If counter reaches zero, delete resource (possibly with a delay e.g. after 5sec unused)
 **********************************************************************/
 
-#include "Core/i_subsystem.hpp"
+#include "SubSystem/i_subsystem.hpp"
 
 namespace Core { namespace Resources {
 

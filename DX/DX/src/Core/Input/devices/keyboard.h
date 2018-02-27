@@ -10,7 +10,7 @@
         from the underlying OS and makes it suitable for anyone else.
 **********************************************************************/
 
-#include "Core/OS/Window/keycodes.h"
+#include "OS/Window/keycodes.h"
 
 //----------------------------------------------------------------------
 namespace Core { namespace OS { class Window; } }

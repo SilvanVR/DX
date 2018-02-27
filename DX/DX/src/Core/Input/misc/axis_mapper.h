@@ -18,7 +18,7 @@
 **********************************************************************/
 
 #include "Core/Input/e_input_devices.hpp"
-#include "Core/OS/Window/keycodes.h"
+#include "OS/Window/keycodes.h"
 
 namespace Core { namespace Input {
 

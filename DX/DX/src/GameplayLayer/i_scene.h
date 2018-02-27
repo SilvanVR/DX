@@ -9,7 +9,7 @@
     - Only one scene can be rendered at once
 **********************************************************************/
 
-#include "Core/Time/durations.h"
+#include "Time/durations.h"
 
 namespace Core { class SceneManager; }
 class GameObject;

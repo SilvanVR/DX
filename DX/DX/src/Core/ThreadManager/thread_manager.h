@@ -10,8 +10,8 @@
 
 **********************************************************************/
 
-#include "Core/OS/Threading/thread_pool.h"
-#include "Core/i_subsystem.hpp"
+#include "OS/Threading/thread_pool.h"
+#include "SubSystem/i_subsystem.hpp"
 
 namespace Core { namespace Threading {
 
