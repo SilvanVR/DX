@@ -62,7 +62,7 @@ GameObject* IScene::findGameObject( CString name )
 //**********************************************************************
 
 //----------------------------------------------------------------------
-void IScene::_PreTick( Core::Time::Seconds delta )
+void IScene::_PreTick( Time::Seconds delta )
 {
     // Update components from all game-objects
     for ( auto go : m_gameObjects )
@@ -73,7 +73,7 @@ void IScene::_PreTick( Core::Time::Seconds delta )
 }
 
 //----------------------------------------------------------------------
-void IScene::_Tick( Core::Time::Seconds delta )
+void IScene::_Tick( Time::Seconds delta )
 {
     // Update components from all game-objects
     for ( auto go : m_gameObjects )
@@ -84,7 +84,7 @@ void IScene::_Tick( Core::Time::Seconds delta )
 }
 
 //----------------------------------------------------------------------
-void IScene::_LateTick( Core::Time::Seconds delta )
+void IScene::_LateTick( Time::Seconds delta )
 {
     // Update components from all game-objects
     for ( auto go : m_gameObjects )

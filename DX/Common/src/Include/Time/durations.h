@@ -8,7 +8,7 @@
     Defines high precision durations using floating point.
 **********************************************************************/
 
-namespace Core { namespace Time {
+namespace Time {
 
     //**********************************************************************
     struct Minutes;
@@ -145,4 +145,4 @@ namespace Core { namespace Time {
     };
 
 
-} } // end namespaces
+} // end namespaces

@@ -35,9 +35,9 @@ namespace Components {
         //----------------------------------------------------------------------
         virtual void Init() {}
 
-        virtual void PreTick(Core::Time::Seconds delta) {}
-        virtual void Tick(Core::Time::Seconds delta) {}
-        virtual void LateTick(Core::Time::Seconds delta) {}
+        virtual void PreTick(Time::Seconds delta) {}
+        virtual void Tick(Time::Seconds delta) {}
+        virtual void LateTick(Time::Seconds delta) {}
 
         virtual void Shutdown() {}
 

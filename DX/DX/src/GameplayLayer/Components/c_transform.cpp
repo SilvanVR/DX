@@ -10,7 +10,7 @@
 
 namespace Components {
 
-    void CTransform::Tick( Core::Time::Seconds delta )
+    void CTransform::Tick( Time::Seconds delta )
     {
 
        // LOG("TICK");

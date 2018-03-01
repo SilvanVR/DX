@@ -31,7 +31,7 @@ public:
     //----------------------------------------------------------------------
     // Tick will be called a fixed amount of times per second. (Default is 60x)
     //----------------------------------------------------------------------
-    virtual void tick(Core::Time::Seconds delta) = 0;
+    virtual void tick(Time::Seconds delta) = 0;
 
     //----------------------------------------------------------------------
     // Called after the main game loop has been terminated.

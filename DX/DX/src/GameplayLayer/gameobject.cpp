@@ -31,7 +31,7 @@ GameObject::~GameObject()
 //**********************************************************************
 
 //----------------------------------------------------------------------
-void GameObject::_PreTick( Core::Time::Seconds delta )
+void GameObject::_PreTick( Time::Seconds delta )
 {
     // Update components from all game-objects
     for ( auto& pair : m_components )
@@ -50,7 +50,7 @@ void GameObject::_PreTick( Core::Time::Seconds delta )
 }
 
 //----------------------------------------------------------------------
-void GameObject::_Tick( Core::Time::Seconds delta )
+void GameObject::_Tick( Time::Seconds delta )
 {
     // Update components from all game-objects
     for (auto& pair : m_components)
@@ -62,7 +62,7 @@ void GameObject::_Tick( Core::Time::Seconds delta )
 }
 
 //----------------------------------------------------------------------
-void GameObject::_LateTick( Core::Time::Seconds delta )
+void GameObject::_LateTick( Time::Seconds delta )
 {
     // Update components from all game-objects
     for (auto& pair : m_components)

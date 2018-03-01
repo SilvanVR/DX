@@ -17,7 +17,7 @@
 #include "durations.h"
 #include "Utils/finite_range.hpp"
 
-namespace Core { namespace Time {
+namespace Time {
 
     //**********************************************************************
     #define INFINITY_DURATION 0
@@ -102,4 +102,4 @@ namespace Core { namespace Time {
     };
 
 
-} } // end namespaces
+} // end namespaces

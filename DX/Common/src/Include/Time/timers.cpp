@@ -7,7 +7,7 @@
 **********************************************************************/
 
 
-namespace Core { namespace Time {
+namespace Time {
 
 
     //---------------------------------------------------------------------------
@@ -31,5 +31,4 @@ namespace Core { namespace Time {
     }
 
 
-
-} } // end namespaces
+} // end namespaces

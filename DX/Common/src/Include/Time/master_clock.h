@@ -26,7 +26,7 @@
 
 #include "timers.h"
 
-namespace Core { namespace Time {
+namespace Time {
 
     //**********************************************************************
     class MasterClock
@@ -102,4 +102,4 @@ namespace Core { namespace Time {
     };
 
 
-} } // end namespaces
+} // end namespaces

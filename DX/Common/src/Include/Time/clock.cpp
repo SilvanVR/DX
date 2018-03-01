@@ -13,7 +13,7 @@
 
 #include "logging.h"
 
-namespace Core { namespace Time {
+namespace Time {
 
     //----------------------------------------------------------------------
     // Check if a given value is between the two boundaries b1 and b2.
@@ -21,7 +21,7 @@ namespace Core { namespace Time {
     //   True if [b1 <= val <= b2] or 
     //     WRAP-CASE (b1 < b2): [val >= b1 || val <= v2]
     //----------------------------------------------------------------------
-    bool isBetweenCircular(Milliseconds b1, Milliseconds val, Milliseconds b2)
+    bool isBetweenCircular( Milliseconds b1, Milliseconds val, Milliseconds b2 )
     {
         if (b1 <= b2)
             return ( ( val >= b1 ) && ( val <= b2 ) );
@@ -114,4 +114,4 @@ namespace Core { namespace Time {
     }
 
 
-} } // end namespaces
+} // end namespaces

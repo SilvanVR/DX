@@ -17,7 +17,7 @@ namespace Components {
     public:
         CTransform() {}
 
-        void Tick(Core::Time::Seconds delta) override;
+        void Tick(Time::Seconds delta) override;
 
     private:
         //XMFLOAT3 pos;

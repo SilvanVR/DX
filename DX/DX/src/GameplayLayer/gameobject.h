@@ -43,9 +43,9 @@ private:
     //----------------------------------------------------------------------
     friend class IScene;
     GameObject(IScene* scene, CString name);
-    void _PreTick(Core::Time::Seconds delta);
-    void _Tick(Core::Time::Seconds delta);
-    void _LateTick(Core::Time::Seconds delta);
+    void _PreTick(Time::Seconds delta);
+    void _Tick(Time::Seconds delta);
+    void _LateTick(Time::Seconds delta);
 
     //----------------------------------------------------------------------
     friend class Core::GraphicsCommandRecorder;

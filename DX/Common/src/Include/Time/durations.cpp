@@ -8,7 +8,7 @@
 **********************************************************************/
 
 
-namespace Core { namespace Time {
+namespace Time {
 
     //----------------------------------------------------------------------
     Minutes::operator Seconds() const
@@ -117,4 +117,4 @@ namespace Core { namespace Time {
     }
 
 
-} } // end namespaces
+} // end namespaces

@@ -12,7 +12,7 @@
 #include "OS/PlatformTimer/platform_timer.h"
 #include "logging.h"
 
-namespace Core { namespace Time {
+namespace Time {
 
     //----------------------------------------------------------------------
     static U64 NextID()
@@ -24,17 +24,17 @@ namespace Core { namespace Time {
 
     //----------------------------------------------------------------------
     MasterClock::MasterClock()
-        : m_startTicks( OS::PlatformTimer::getTicks() )
+        : m_startTicks( Core::OS::PlatformTimer::getTicks() )
     {}
 
     //----------------------------------------------------------------------
     Seconds MasterClock::_Update()
     {
-        m_curTicks = OS::PlatformTimer::getTicks() - m_startTicks;
+        m_curTicks = Core::OS::PlatformTimer::getTicks() - m_startTicks;
         U64 deltaTicks = m_curTicks - m_lastTicks;
         m_lastTicks = m_curTicks;
 
-        m_delta = OS::PlatformTimer::ticksToSeconds( deltaTicks );
+        m_delta = Core::OS::PlatformTimer::ticksToSeconds( deltaTicks );
 
         _UpdateTimer();
 
@@ -44,7 +44,7 @@ namespace Core { namespace Time {
     //----------------------------------------------------------------------
     Seconds MasterClock::getTime() const
     {
-        return OS::PlatformTimer::ticksToSeconds( m_curTicks );
+        return Core::OS::PlatformTimer::ticksToSeconds( m_curTicks );
     }
 
     //----------------------------------------------------------------------
@@ -105,4 +105,4 @@ namespace Core { namespace Time {
         return nextID;
     }
 
-} } // end namespaces
+} // end namespaces

@@ -58,7 +58,7 @@ public:
     static Core::Config::ConfigurationManager&        getConfiguration()  { return *gConfigManager; }
     static Core::Threading::ThreadManager&            getThreadManager()  { return *gThreadManager; }
     static Core::Profiling::Profiler&                 getProfiler()       { return *gProfiler; }
-    static Core::Time::MasterClock&                   getEngineClock()    { return *gEngineClock; }
+    static Time::MasterClock&                         getEngineClock()    { return *gEngineClock; }
     static Core::OS::Window&                          getWindow()         { return *gWindow; }
     static Core::Input::InputManager&                 getInputManager()   { return *gInputManager; }
     static Core::IInGameConsole&                      getInGameConsole()  { return *gInGameConsole; }
@@ -74,7 +74,7 @@ public:
     static void provide(Core::Config::ConfigurationManager* manager)          { gConfigManager = manager; }
     static void provide(Core::Threading::ThreadManager* manager)              { gThreadManager = manager; }
     static void provide(Core::Profiling::Profiler* profiler)                  { gProfiler = profiler; }
-    static void provide(Core::Time::MasterClock* clock)                       { gEngineClock = clock; }
+    static void provide(Time::MasterClock* clock)                             { gEngineClock = clock; }
     static void provide(Core::OS::Window* window)                             { gWindow = window; }
     static void provide(Core::Input::InputManager* input)                     { gInputManager = input;  }
     static void provide(Core::IInGameConsole* igc)                            { gInGameConsole = igc; }
@@ -92,7 +92,7 @@ private:
     static Core::Config::ConfigurationManager*        gConfigManager;
     static Core::Threading::ThreadManager*            gThreadManager;
     static Core::Profiling::Profiler*                 gProfiler;
-    static Core::Time::MasterClock*                   gEngineClock;
+    static Time::MasterClock*                         gEngineClock;
     static Core::OS::Window*                          gWindow;
     static Core::Input::InputManager*                 gInputManager;
     static Core::IInGameConsole*                      gInGameConsole;
