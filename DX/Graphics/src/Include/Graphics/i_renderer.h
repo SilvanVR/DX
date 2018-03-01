@@ -10,7 +10,7 @@
 
 #include "SubSystem/i_subsystem.hpp"
 #include "OS/Window/window.h"
-#include "Misc/color.h"
+#include "Common/color.h"
 
 namespace Core { namespace Graphics {
 

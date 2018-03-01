@@ -12,7 +12,7 @@
 
 #include "SubSystem/i_subsystem.hpp"
 #include "Core/Input/listener/input_listener.h"
-#include "Misc/variant_type.h"
+#include "Common/variant_type.h"
 
 //----------------------------------------------------------------------
 #define IGC_REGISTER_COMMAND(F)                 Locator::getInGameConsole().registerCommand( #F, F )
@@ -54,7 +54,7 @@ namespace Core {
         //  "name": The name of the variable
         //  "variable": The variable itself
         //----------------------------------------------------------------------
-        virtual void setVariable(const char* name, const VariantType& var) = 0;
+        virtual void setVariable(const char* name, const Common::VariantType& var) = 0;
 
         //----------------------------------------------------------------------
         // Return the value of an console variable.
@@ -63,7 +63,7 @@ namespace Core {
         // @Return:
         //  The variable as the type T.
         //----------------------------------------------------------------------
-        virtual VariantType getVariable(const char* name) = 0;
+        virtual Common::VariantType getVariable(const char* name) = 0;
 
         //----------------------------------------------------------------------
         // Print all commands
@@ -73,7 +73,7 @@ namespace Core {
     protected:
         bool m_enabled = false;
         HashMap<StringID, std::function<void()>>    m_commands;
-        HashMap<StringID, VariantType>              m_vars;
+        HashMap<StringID, Common::VariantType>      m_vars;
 
     private:
         //----------------------------------------------------------------------

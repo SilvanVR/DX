@@ -6,7 +6,7 @@
     date: October 21, 2017
 **********************************************************************/
 
-namespace Core { namespace OS {
+namespace OS {
 
     //----------------------------------------------------------------------
     U32 Thread::s_threadCounter = 0;
@@ -52,4 +52,4 @@ namespace Core { namespace OS {
     }
 
 
-} } // end namespaces
+} // end namespaces

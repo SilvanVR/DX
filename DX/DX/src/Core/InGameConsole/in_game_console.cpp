@@ -10,8 +10,8 @@
 **********************************************************************/
 
 #include "locator.h"
-#include "logging.h"
-#include "Utils/string_utils.h"
+#include "Logging/logging.h"
+#include "Common/string_utils.h"
 
 namespace Core { 
 
@@ -169,7 +169,7 @@ namespace Core {
     }
 
     //----------------------------------------------------------------------
-    void InGameConsole::setVariable( const char* name, const VariantType& var )
+    void InGameConsole::setVariable( const char* name, const Common::VariantType& var )
     {
         String lower = StringUtils::toLower( name );
         StringID id = SID( lower.c_str() );
@@ -177,7 +177,7 @@ namespace Core {
     }
 
     //----------------------------------------------------------------------
-    VariantType InGameConsole::getVariable( const char* name )
+    Common::VariantType InGameConsole::getVariable( const char* name )
     {
         String lower = StringUtils::toLower( name );
         StringID sid = SID_NO_ADD( lower.c_str() );
@@ -188,7 +188,7 @@ namespace Core {
         else
         {
             WARN( "InGameConsole::getVariable(): Variable '" + lower + "' does not exist. Use SET_VAR(name,val) before." );
-            return VariantType();
+            return Common::VariantType();
         }
     }
 
@@ -260,11 +260,11 @@ namespace Core {
             LOG( "Setting Var...", Color::RED );
             if (var == "true")
             {
-                m_vars[sid] = VariantType( true );
+                m_vars[sid] = Common::VariantType( true );
             }
             else if (var == "false")
             {
-                m_vars[sid] = VariantType( false );
+                m_vars[sid] = Common::VariantType( false );
             }
             else
             {

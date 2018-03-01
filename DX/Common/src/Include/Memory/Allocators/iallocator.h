@@ -18,7 +18,7 @@
 
 #include "../memory_structs.h"
 
-namespace Core { namespace MemoryManagement {
+namespace Memory {
 
     //*********************************************************************
     // Every allocator inheriting from this class and overriding the two
@@ -68,7 +68,7 @@ namespace Core { namespace MemoryManagement {
 
     public:
         //----------------------------------------------------------------------
-        const AllocationMemoryInfo&  getAllocationMemoryInfo() const { return m_allocationMemoryInfo; }
+        const AllocationInfo&  getAllocationMemoryInfo() const { return m_allocationMemoryInfo; }
         bool hasAllocatedBytes() const { return m_allocationMemoryInfo.bytesAllocated == 0; }
         _IParentAllocator* getParentAllocator() const { return m_parentAllocator; }
 
@@ -86,7 +86,7 @@ namespace Core { namespace MemoryManagement {
         Byte*                   m_data;
 
     private:
-        AllocationMemoryInfo    m_allocationMemoryInfo;
+        AllocationInfo          m_allocationMemoryInfo;
     };
 
     //----------------------------------------------------------------------
@@ -116,4 +116,4 @@ namespace Core { namespace MemoryManagement {
     }
 
 
-} } // end namespaces
+} // end namespaces

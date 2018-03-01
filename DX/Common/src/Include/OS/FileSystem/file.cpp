@@ -19,9 +19,9 @@
 **********************************************************************/
 
 #include "file_system.h"
-#include "logging.h"
+#include "Logging/logging.h"
 
-namespace Core { namespace OS {
+namespace OS {
 
     #define FILE_EXISTS_AND_NOT_EOF() ASSERT( m_exists && !eof() && "File does not exist or read-cursor is at the end!" );
 
@@ -333,4 +333,4 @@ namespace Core { namespace OS {
         //});
     }
 
-} }
+}

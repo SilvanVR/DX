@@ -8,7 +8,7 @@
     See below for a class description.
 **********************************************************************/
 
-namespace Core { namespace OS {
+namespace OS {
 
     //*********************************************************************
     // Maps symbolic directories to real directories. 
@@ -61,4 +61,4 @@ namespace Core { namespace OS {
         VirtualFileSystem& operator = (VirtualFileSystem&& other)       = delete;
     };
 
-} } // end namespaces
+} // end namespaces

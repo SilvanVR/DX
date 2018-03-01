@@ -20,7 +20,13 @@
 #include "keycodes.h"
 #include <functional>
 
-namespace Core { namespace OS {
+#ifdef _WIN32
+    using NativeWindowHandle = HWND;
+#else
+    static_assert( "Window class not supported on this plattform!" );
+#endif
+
+namespace OS {
 
     //----------------------------------------------------------------------
     struct Point2D
@@ -55,9 +61,7 @@ namespace Core { namespace OS {
         U16         getHeight() const { return m_height; }
         Point2D     getSize() const { return Point2D{ (I16)m_width, (I16)m_height }; }
 
-        #ifdef _WIN32
-        HWND        getHWND() const { return m_hwnd; }
-        #endif
+        NativeWindowHandle getHWND() const { return m_hwnd; }
 
         //----------------------------------------------------------------------
         void setTitle(const char* newTitle) const;
@@ -177,15 +181,13 @@ namespace Core { namespace OS {
         bool            m_created           = false;
         bool            m_shouldBeClosed    = false;
 
-        #ifdef _WIN32
-        HWND            m_hwnd;
-        #endif // _WIN32
+        NativeWindowHandle  m_hwnd;
 
 
         //**********************************************************************
         // Small helper class which stores all the different window callbacks.
         // The WindowProc function access those via a static instance of this
-        // object. If a callback is not set, it it simply ignored, when called.
+        // object. If a callback is not set, it is simply ignored when called.
         //**********************************************************************
         class WindowCallbackHelper
         {
@@ -224,4 +226,4 @@ namespace Core { namespace OS {
     };
 
 
-} } // end namespaces
+} // end namespaces

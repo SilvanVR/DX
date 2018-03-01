@@ -20,9 +20,9 @@
 **********************************************************************/
 
 #include "universal_allocator.hpp"
-#include "logging.h"
+#include "Logging/logging.h"
 
-namespace Core { namespace MemoryManagement {
+namespace Memory {
 
     //----------------------------------------------------------------------
     // Defines
@@ -526,4 +526,4 @@ namespace Core { namespace MemoryManagement {
         }
     }
 
-} } // end namespaces
+} // end namespaces

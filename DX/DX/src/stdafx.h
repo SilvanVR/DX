@@ -22,12 +22,7 @@
 #include <map>
 
 #ifdef _WIN32
-    #define NOMINMAX
-    #define WIN32_LEAN_AND_MEAN
-    #include <Windows.h>
-    #undef ERROR
     #include <DirectXMath.h>
 #endif
 
-#include "common.hpp"
-#include "logging.h"
+#include "pch.hpp"

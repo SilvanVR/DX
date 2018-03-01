@@ -22,7 +22,9 @@
     U32 y = configFile["General"]["ResolutionY"];
 **********************************************************************/
 
-#include "Misc/variant_type.h"
+#include "Common/variant_type.h"
+
+namespace OS { class TextFile; }
 
 
 namespace Core { namespace Config {
@@ -40,11 +42,11 @@ namespace Core { namespace Config {
         class Category
         {
         public:
-            VariantType& operator [] (const char* name) { return m_entries[ SID( name ) ]; }
+            Common::VariantType& operator [] (const char* name) { return m_entries[ SID( name ) ]; }
 
         private:
             friend class ConfigFile;
-            HashMap<StringID, VariantType> m_entries;
+            HashMap<StringID, Common::VariantType> m_entries;
         };
 
         //----------------------------------------------------------------------

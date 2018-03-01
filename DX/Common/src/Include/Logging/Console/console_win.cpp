@@ -14,9 +14,10 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#undef ERROR
 #include <cwchar>
 
-namespace Core { namespace Logging {
+namespace Logging {
 
 
     //----------------------------------------------------------------------
@@ -47,7 +48,7 @@ namespace Core { namespace Logging {
     }
 
 
-} } // end namespaces
+} // end namespaces
 
 
 #endif // !_WIN32

@@ -7,10 +7,10 @@
     date: October 20, 2017
 **********************************************************************/
 
-#include "Utils/string_utils.h"
-#include "logging.h"
+#include "string_utils.h"
+#include "Logging/logging.h"
 
-namespace Core {
+namespace Common {
 
     //----------------------------------------------------------------------
     VariantType::VariantType( const String& string ) 
@@ -44,6 +44,5 @@ namespace Core {
         case EVariantType::String:  LOG( get<const char*>() ); break;
         }
     }
-
 
 } // end namespaces

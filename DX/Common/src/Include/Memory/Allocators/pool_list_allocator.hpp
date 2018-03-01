@@ -10,7 +10,7 @@
 
 #include "pool_allocator.hpp"
 
-namespace Core { namespace MemoryManagement {
+namespace Memory {
 
     //**********************************************************************
     // A PoolListAllocator manages several PoolAllocators of different sizes.
@@ -165,4 +165,4 @@ namespace Core { namespace MemoryManagement {
     }
 
 
-} } // end namespaces
+} // end namespaces

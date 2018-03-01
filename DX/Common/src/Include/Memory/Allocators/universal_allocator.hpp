@@ -13,7 +13,7 @@
 
 #include "iallocator.h"
 
-namespace Core { namespace MemoryManagement {
+namespace Memory {
 
     //----------------------------------------------------------------------
     // Defines
@@ -360,4 +360,4 @@ namespace Core { namespace MemoryManagement {
         return amountOfBytes;
     }
 
-} } // end namespaces
+} // end namespaces

@@ -20,7 +20,7 @@
 
 #include "thread.h"
 
-namespace Core { namespace OS {
+namespace OS {
 
     //----------------------------------------------------------------------
     #define MAX_POSSIBLE_THREADS        32
@@ -83,4 +83,4 @@ namespace Core { namespace OS {
     };
 
 
-} } // end namespaces
+} // end namespaces

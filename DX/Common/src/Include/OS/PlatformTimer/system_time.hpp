@@ -21,7 +21,7 @@
 #define MONTH_IN_MILLIS    DAY_IN_MILLIS    * 30i64
 #define YEAR_IN_MILLIS     MONTH_IN_MILLIS  * 12i64
 
-namespace Core { namespace OS {
+namespace OS {
 
     //----------------------------------------------------------------------
     // POD SystemTime
@@ -86,4 +86,4 @@ namespace Core { namespace OS {
         }
     };
 
-} }
+}

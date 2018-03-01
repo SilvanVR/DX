@@ -13,7 +13,7 @@
 #include "OS/Window/keycodes.h"
 
 //----------------------------------------------------------------------
-namespace Core { namespace OS { class Window; } }
+namespace OS { class Window; }
 
 
 namespace Core { namespace Input {

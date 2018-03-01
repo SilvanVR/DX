@@ -9,7 +9,7 @@
 
 #include "jobs/job_queue.h"
 
-namespace Core { namespace OS {
+namespace OS {
 
     //----------------------------------------------------------------------
     U8 ThreadPool::s_hardwareConcurrency = std::thread::hardware_concurrency();
@@ -73,4 +73,4 @@ namespace Core { namespace OS {
     }
 
 
-} } // end namespaces
+} // end namespaces

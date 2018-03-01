@@ -12,7 +12,7 @@
 **********************************************************************/
 #include "iallocator.h"
 
-namespace Core { namespace MemoryManagement {
+namespace Memory {
 
     //----------------------------------------------------------------------
     // Defines
@@ -224,4 +224,4 @@ namespace Core { namespace MemoryManagement {
 
 
 
-} } // end namespaces
+} // end namespaces

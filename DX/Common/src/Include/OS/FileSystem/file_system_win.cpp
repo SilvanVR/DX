@@ -13,7 +13,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 
-namespace Core { namespace OS { 
+namespace OS { 
 
 
     //----------------------------------------------------------------------
@@ -50,7 +50,7 @@ namespace Core { namespace OS {
     }
 
 
-} } // end namespaces
+} // end namespaces
 
 
 #endif

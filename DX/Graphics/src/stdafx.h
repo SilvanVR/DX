@@ -10,16 +10,12 @@
     used to gain a huge performance boost in compilation.
 **********************************************************************/
 
+#include "pch.hpp"
+#include "Common/color.h"
+
 #ifdef _WIN32
-    #define NOMINMAX
-    #define WIN32_LEAN_AND_MEAN
-    #include <Windows.h>
-    #undef ERROR
     #include <DirectXMath.h>
 #endif
-
-#include "common.hpp"
-#include "Misc/color.h"
 
 #pragma comment( lib, "D3D11" )
 #pragma comment( lib, "d3dcompiler" )

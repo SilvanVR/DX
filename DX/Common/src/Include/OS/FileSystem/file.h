@@ -10,7 +10,7 @@
 
 #include "path.h"
 
-namespace Core { namespace OS {
+namespace OS {
 
     //*********************************************************************
     // Different modes used for working with a raw file.
@@ -297,4 +297,4 @@ namespace Core { namespace OS {
         {}
     };
 
-} }
+}

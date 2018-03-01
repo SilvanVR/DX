@@ -12,7 +12,7 @@
 #include "console_logger.h"
 #include <mutex>
 
-namespace Core {  namespace Logging  {
+namespace Logging  {
 
     //**********************************************************************
     // Safe logging for multiple threads.
@@ -64,4 +64,4 @@ namespace Core {  namespace Logging  {
         SharedConsoleLogger& operator = (SharedConsoleLogger&& other)       = delete;
     };
 
- } }
+ }

@@ -13,7 +13,7 @@
 #include "Console/console.h"
 #include "DataStructures/byte_array.hpp"
 
-namespace Core {  namespace Logging  {
+namespace Logging  {
 
     //**********************************************************************
     // Basic logging functionality to the console
@@ -41,9 +41,9 @@ namespace Core {  namespace Logging  {
         virtual void _Error(ELogChannel channel, const char* msg, ELogLevel ELogLevel) override;
 
     private:
-        Console                                 m_console;
-        ByteArray<MSG_BUFFER_CAPACITY_BYTES>    m_messageBuffer;
-        String                                  m_logFilePath;
+        Console                                         m_console;
+        Common::ByteArray<MSG_BUFFER_CAPACITY_BYTES>    m_messageBuffer;
+        String                                          m_logFilePath;
 
         //----------------------------------------------------------------------
         void _LOG( ELogType type, ELogChannel channel, const char* msg, ELogLevel ELogLevel, Color color );
@@ -64,4 +64,4 @@ namespace Core {  namespace Logging  {
         ConsoleLogger& operator = (ConsoleLogger&& other)       = delete;
     };
 
- } }
+ }

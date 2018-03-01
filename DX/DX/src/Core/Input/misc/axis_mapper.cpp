@@ -6,7 +6,7 @@
     date: November 18, 2017
 **********************************************************************/
 
-#include "logging.h"
+#include "Logging/logging.h"
 #include "Core/Input/devices/keyboard.h"
 #include "Core/Input/devices/mouse.h"
 

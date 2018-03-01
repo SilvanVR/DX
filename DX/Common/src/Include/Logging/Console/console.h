@@ -9,9 +9,9 @@
     Platform independant encapsulation of the console window.
 **********************************************************************/
 
-#include "Misc/color.h"
+#include "Common/color.h"
 
-namespace Core { namespace Logging {
+namespace Logging {
 
     class Console
     {
@@ -49,5 +49,4 @@ namespace Core { namespace Logging {
         Console& operator = (Console&& other)       = delete;
     };
 
-
-} } // end namespaces
+} // end namespaces

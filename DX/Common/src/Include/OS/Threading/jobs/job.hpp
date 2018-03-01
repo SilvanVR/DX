@@ -9,7 +9,7 @@
 
 **********************************************************************/
 
-namespace Core { namespace OS {
+namespace OS {
 
     //**********************************************************************
     // Represents a job, which will be executed by a thread.
@@ -53,4 +53,4 @@ namespace Core { namespace OS {
     using JobPtr = std::shared_ptr<Job>;
 
 
-} } // end namespaces
+} // end namespaces

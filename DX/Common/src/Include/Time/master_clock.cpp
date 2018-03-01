@@ -10,7 +10,6 @@
 **********************************************************************/
 
 #include "OS/PlatformTimer/platform_timer.h"
-#include "logging.h"
 
 namespace Time {
 
@@ -24,17 +23,17 @@ namespace Time {
 
     //----------------------------------------------------------------------
     MasterClock::MasterClock()
-        : m_startTicks( Core::OS::PlatformTimer::getTicks() )
+        : m_startTicks( OS::PlatformTimer::getTicks() )
     {}
 
     //----------------------------------------------------------------------
     Seconds MasterClock::_Update()
     {
-        m_curTicks = Core::OS::PlatformTimer::getTicks() - m_startTicks;
+        m_curTicks = OS::PlatformTimer::getTicks() - m_startTicks;
         U64 deltaTicks = m_curTicks - m_lastTicks;
         m_lastTicks = m_curTicks;
 
-        m_delta = Core::OS::PlatformTimer::ticksToSeconds( deltaTicks );
+        m_delta = OS::PlatformTimer::ticksToSeconds( deltaTicks );
 
         _UpdateTimer();
 
@@ -44,7 +43,7 @@ namespace Time {
     //----------------------------------------------------------------------
     Seconds MasterClock::getTime() const
     {
-        return Core::OS::PlatformTimer::ticksToSeconds( m_curTicks );
+        return OS::PlatformTimer::ticksToSeconds( m_curTicks );
     }
 
     //----------------------------------------------------------------------

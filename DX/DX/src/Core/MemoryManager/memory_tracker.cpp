@@ -7,7 +7,7 @@
     date: October 7, 2017
 **********************************************************************/
 
-#include "logging.h"
+#include "Logging/logging.h"
 #include "memory.hpp"
 
 namespace Core { namespace MemoryManagement {
@@ -75,7 +75,7 @@ namespace Core { namespace MemoryManagement {
     {
         // It's important to fetch a local copy of the mem-info, otherwise the 
         // dynamically allocated string stuff will mess up the result
-        AllocationMemoryInfo memInfo = MemoryTracker::getAllocationMemoryInfo();
+        Memory::AllocationInfo memInfo = MemoryTracker::getAllocationMemoryInfo();
         LOG( memInfo.toString() );
     }
 

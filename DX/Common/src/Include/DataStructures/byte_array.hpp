@@ -9,7 +9,7 @@
     See below for a class description.
 **********************************************************************/
 
-namespace Core {
+namespace Common {
 
     //**********************************************************************
     // Constructs an Byte-Array of the given size. The idea is to use it

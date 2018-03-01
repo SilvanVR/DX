@@ -11,7 +11,7 @@
 
 #include "i_logger.hpp"
 
-namespace Core { namespace Logging {
+namespace Logging {
 
 
     class NullLogger : public ILogger
@@ -38,4 +38,4 @@ namespace Core { namespace Logging {
 
 
 
-} } // end namespaces
+} // end namespaces

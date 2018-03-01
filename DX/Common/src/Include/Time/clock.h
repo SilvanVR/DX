@@ -15,7 +15,7 @@
 **********************************************************************/
 
 #include "durations.h"
-#include "Utils/finite_range.hpp"
+#include "Common/finite_range.hpp"
 
 namespace Time {
 
@@ -76,9 +76,9 @@ namespace Time {
         void        tick(Seconds delta);
 
     private:
-        FiniteRange<Milliseconds>   m_curTime;
-        Milliseconds                m_lastTime      = 0;
-        F32                         m_tickModifier  = 1.0f;
+        Common::FiniteRange<Milliseconds>   m_curTime;
+        Milliseconds                        m_lastTime      = 0;
+        F32                                 m_tickModifier  = 1.0f;
 
         struct AttachedCallback
         {

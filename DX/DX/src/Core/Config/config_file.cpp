@@ -13,8 +13,8 @@
          3.) Integrate a order for categories
 **********************************************************************/
 
-#include "logging.h"
-#include "Utils/string_utils.h"
+#include "Logging/logging.h"
+#include "Common/string_utils.h"
 #include "OS/FileSystem/file.h"
 
 namespace Core { namespace Config {
@@ -64,17 +64,17 @@ namespace Core { namespace Config {
                 const char* name = linePair.first.c_str();
                 m_configFile->write( "%s = ", name );
 
-                VariantType& value = linePair.second;
+                Common::VariantType& value = linePair.second;
                 switch ( value.getType() )
                 {
-                case EVariantType::BOOL:    *m_configFile << value.get<bool>(); break;
-                case EVariantType::I32:     *m_configFile << value.get<I32>(); break;
-                case EVariantType::U32:     *m_configFile << value.get<U32>(); break;
-                case EVariantType::I64:     *m_configFile << value.get<I64>(); break;
-                case EVariantType::U64:     *m_configFile << value.get<U64>(); break;
-                case EVariantType::F32:     *m_configFile << value.get<F32>(); break;
-                case EVariantType::F64:     *m_configFile << value.get<F64>(); break;
-                case EVariantType::String:  *m_configFile << value.get<const char*>(); break;
+                case Common::EVariantType::BOOL:    *m_configFile << value.get<bool>(); break;
+                case Common::EVariantType::I32:     *m_configFile << value.get<I32>(); break;
+                case Common::EVariantType::U32:     *m_configFile << value.get<U32>(); break;
+                case Common::EVariantType::I64:     *m_configFile << value.get<I64>(); break;
+                case Common::EVariantType::U64:     *m_configFile << value.get<U64>(); break;
+                case Common::EVariantType::F32:     *m_configFile << value.get<F32>(); break;
+                case Common::EVariantType::F64:     *m_configFile << value.get<F64>(); break;
+                case Common::EVariantType::String:  *m_configFile << value.get<const char*>(); break;
                 }
                 m_configFile->write( "\n" );
             }

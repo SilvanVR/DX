@@ -1,4 +1,4 @@
-#include "logging.h"
+#include "Logging/logging.h"
 /**********************************************************************
     class: None (logger.cpp)
 
@@ -6,4 +6,4 @@
     date: February 27, 2018
 **********************************************************************/
 
-Core::Logging::SharedConsoleLogger gLogger;
+Logging::SharedConsoleLogger gLogger;

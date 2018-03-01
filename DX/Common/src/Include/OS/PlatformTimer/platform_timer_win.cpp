@@ -16,7 +16,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 
-namespace Core { namespace OS {
+namespace OS {
 
     //----------------------------------------------------------------------
     void PlatformTimer::_Init()
@@ -56,6 +56,6 @@ namespace Core { namespace OS {
         return st;
     }
 
-} } // end namespaces
+} // end namespaces
 
 #endif // _WIN32

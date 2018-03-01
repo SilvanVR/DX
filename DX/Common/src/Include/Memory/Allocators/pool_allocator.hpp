@@ -12,9 +12,9 @@
 **********************************************************************/
 
 #include "iallocator.h"
-#include "logging.h"
+#include "Logging/logging.h"
 
-namespace Core { namespace MemoryManagement {
+namespace Memory {
 
     //----------------------------------------------------------------------
     // Defines
@@ -236,4 +236,4 @@ namespace Core { namespace MemoryManagement {
             "(" + TS(actualAlignment) + "), but is (" + TS(misalignment) + "). Performance may be degraded." );
     }
 
-} } // end namespaces
+} // end namespaces

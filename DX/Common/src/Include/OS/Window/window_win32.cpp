@@ -14,9 +14,9 @@
 #define GET_X_LPARAM(lp)    ((int)(short)LOWORD(lp))
 #define GET_Y_LPARAM(lp)    ((int)(short)HIWORD(lp))
 
-#include "logging.h"
+#include "Logging/logging.h"
 
-namespace Core { namespace OS {
+namespace OS {
 
     //----------------------------------------------------------------------
     static      Window*     s_window = nullptr;
@@ -397,7 +397,7 @@ namespace Core { namespace OS {
         return (Key) wParam;
     }
 
-} } // end namespaces
+} // end namespaces
 
 
 #endif

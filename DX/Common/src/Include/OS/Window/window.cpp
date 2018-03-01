@@ -6,8 +6,7 @@
     date: November 3, 2017
 **********************************************************************/
 
-
-namespace Core { namespace OS {
+namespace OS {
 
     //----------------------------------------------------------------------
     Window::WindowCallbackHelper Window::m_callbackHelper;
@@ -79,5 +78,4 @@ namespace Core { namespace OS {
             m_charCallback( c );
     }
 
-
-} } // end namespaces
+} // end namespaces

@@ -28,7 +28,7 @@
 **********************************************************************/
 
 #include "locator.h"
-#include "logging.h"
+#include "Logging/logging.h"
 #include "memory_tracker.h"
 
 #define REPORT_CONTINOUS_ALLOCATIONS 0
@@ -62,7 +62,7 @@ namespace Core { namespace MemoryManagement {
     }
 
     //----------------------------------------------------------------------
-    const AllocationMemoryInfo MemoryManager::getAllocationInfo() const
+    const Memory::AllocationInfo MemoryManager::getAllocationInfo() const
     {
         return MemoryTracker::getAllocationMemoryInfo();
     }
@@ -78,7 +78,7 @@ namespace Core { namespace MemoryManagement {
     //----------------------------------------------------------------------
     void MemoryManager::_BasicLeakDetection()
     {
-        static AllocationMemoryInfo lastAllocInfo;
+        static Memory::AllocationInfo lastAllocInfo;
         auto allocInfo = getAllocationInfo();
 
 #if REPORT_CONTINOUS_ALLOCATIONS
@@ -103,7 +103,7 @@ namespace Core { namespace MemoryManagement {
     }
 
     //----------------------------------------------------------------------
-    void MemoryManager::_ReportPossibleMemoryLeak(const AllocationMemoryInfo& lastAllocationInfo, const AllocationMemoryInfo& allocInfo)
+    void MemoryManager::_ReportPossibleMemoryLeak(const Memory::AllocationInfo& lastAllocationInfo, const Memory::AllocationInfo& allocInfo)
     {
         auto bytesAllocated = allocInfo.bytesAllocated - lastAllocationInfo.bytesAllocated;
         WARN_MEMORY( "<<<< Dynamic Memory Allocation in Game-Loop: Bytes allocated: " + TS( bytesAllocated ) );

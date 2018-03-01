@@ -6,7 +6,7 @@
     date: November 4, 2017
 **********************************************************************/
 
-namespace Core{ namespace OS {
+namespace OS {
 
     //**********************************************************************
     // Class for dealing with raw paths and translating virtual paths
@@ -55,4 +55,4 @@ namespace Core{ namespace OS {
     };
 
 
-} } // end namespaces
+} // end namespaces

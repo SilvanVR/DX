@@ -9,7 +9,7 @@
 
 #include "jobs/job_queue.h"
 
-namespace Core { namespace OS {
+namespace OS {
 
     //**********************************************************************
     // Represents a thread in the system. Run's concurrently to the main
@@ -59,4 +59,4 @@ namespace Core { namespace OS {
     };
 
 
-} } // end namespaces
+} // end namespaces

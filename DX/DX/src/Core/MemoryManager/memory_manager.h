@@ -14,7 +14,7 @@
 **********************************************************************/
 
 #include "SubSystem/i_subsystem.hpp"
-#include "MemoryManagement/memory_structs.h"
+#include "Memory/memory_structs.h"
 
 
 namespace Core { namespace MemoryManagement{
@@ -43,11 +43,11 @@ namespace Core { namespace MemoryManagement{
         // @Return:
         //   Contains all allocations made in this program.
         //----------------------------------------------------------------------
-        const AllocationMemoryInfo getAllocationInfo() const;
+        const Memory::AllocationInfo getAllocationInfo() const;
 
     private:
         //----------------------------------------------------------------------
-        void _ReportPossibleMemoryLeak(const AllocationMemoryInfo& lastAllocationInfo, const AllocationMemoryInfo& allocationInfo);
+        void _ReportPossibleMemoryLeak(const Memory::AllocationInfo& lastAllocationInfo, const Memory::AllocationInfo& allocationInfo);
 
         // List here different strategies for memory leak detection
         void _ContinousAllocationLeakDetection();

@@ -15,10 +15,10 @@
 **********************************************************************/
 
 #include "SubSystem/i_subsystem.hpp"
-#include "Misc/color.h"
-#include "Utils/bit_mask.hpp"
+#include "Common/color.h"
+#include "Common/bit_mask.hpp"
 
-namespace Core { namespace Logging {
+namespace Logging {
 
     //----------------------------------------------------------------------
     #define LOGTYPE_COLOR_DEFAULT       Color(255,255,255)
@@ -58,9 +58,9 @@ namespace Core { namespace Logging {
     //**********************************************************************
     // Interface-Class for a Logging-Subsystem
     //**********************************************************************
-    class ILogger : public ISubSystem
+    class ILogger : public Core::ISubSystem
     {
-        BitMask     m_channelMask       = BitMask( static_cast<U32>( LOG_CHANNEL_ALL ) );
+        Common::BitMask m_channelMask   = Common::BitMask( static_cast<U32>( LOG_CHANNEL_ALL ) );
 
     protected:
         Color       m_defaultColor      = LOGTYPE_COLOR_DEFAULT;
@@ -280,4 +280,4 @@ namespace Core { namespace Logging {
     };
 
 
-} } // end namespaces
+} // end namespaces

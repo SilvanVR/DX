@@ -12,7 +12,7 @@
       - Static libraries will???
 **********************************************************************/
 
-#include "MemoryManagement/memory_structs.h"
+#include "Memory/memory_structs.h"
 
 namespace Core { namespace MemoryManagement {
 
@@ -46,8 +46,8 @@ namespace Core { namespace MemoryManagement {
         // that struct was gathered through global new/delete.
         // => Contains all allocations / deallocations.
         //----------------------------------------------------------------------
-        static AllocationMemoryInfo& getAllocationMemoryInfo() {
-            static AllocationMemoryInfo s_memoryInfo;
+        static Memory::AllocationInfo& getAllocationMemoryInfo() {
+            static Memory::AllocationInfo s_memoryInfo;
             return s_memoryInfo; 
         }
 

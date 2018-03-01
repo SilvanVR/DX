@@ -8,12 +8,12 @@
 
 **********************************************************************/
 
-#include "Utils/utils.h"
+#include "Common/utils.h"
 
-namespace Core { namespace MemoryManagement {
+namespace Memory {
 
     //----------------------------------------------------------------------
-    void AllocationMemoryInfo::addAllocation( Size amtOfBytes )
+    void AllocationInfo::addAllocation( Size amtOfBytes )
     {
         bytesAllocated += amtOfBytes;
         totalBytesAllocated += amtOfBytes;
@@ -21,7 +21,7 @@ namespace Core { namespace MemoryManagement {
     }
 
     //----------------------------------------------------------------------
-    void AllocationMemoryInfo::removeAllocation( Size amtOfBytes )
+    void AllocationInfo::removeAllocation( Size amtOfBytes )
     {
         ASSERT( totalDeallocations != totalAllocations );
         bytesAllocated -= amtOfBytes;
@@ -30,7 +30,7 @@ namespace Core { namespace MemoryManagement {
     }
 
     //----------------------------------------------------------------------
-    String AllocationMemoryInfo::toString() const
+    String AllocationInfo::toString() const
     {
         String result;
         result.reserve( 255 );
@@ -47,9 +47,9 @@ namespace Core { namespace MemoryManagement {
     }
 
     //----------------------------------------------------------------------
-    AllocationMemoryInfo  AllocationMemoryInfo::operator - (const AllocationMemoryInfo& other) const
+    AllocationInfo AllocationInfo::operator - (const AllocationInfo& other) const
     {
-        AllocationMemoryInfo result = {};
+        AllocationInfo result = {};
 
         result.bytesAllocated        = bytesAllocated - other.bytesAllocated;
         result.totalBytesAllocated   = totalBytesAllocated - other.totalBytesAllocated;
@@ -61,9 +61,9 @@ namespace Core { namespace MemoryManagement {
     }
 
     //----------------------------------------------------------------------
-    AllocationMemoryInfo  AllocationMemoryInfo::operator + (const AllocationMemoryInfo& other) const
+    AllocationInfo AllocationInfo::operator + (const AllocationInfo& other) const
     {
-        AllocationMemoryInfo result = {};
+        AllocationInfo result = {};
 
         result.bytesAllocated        = bytesAllocated + other.bytesAllocated;
         result.totalBytesAllocated   = totalBytesAllocated + other.totalBytesAllocated;
@@ -74,4 +74,4 @@ namespace Core { namespace MemoryManagement {
         return result;
     }
 
-} } // end namespaces
+} // end namespaces

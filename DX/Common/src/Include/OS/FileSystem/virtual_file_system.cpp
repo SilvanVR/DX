@@ -10,7 +10,7 @@
          => recursively create directories
 **********************************************************************/
 
-namespace Core { namespace OS {
+namespace OS {
 
     //----------------------------------------------------------------------
     HashMap<String, const char*> VirtualFileSystem::mountPoints;
@@ -56,4 +56,4 @@ namespace Core { namespace OS {
     }
 
 
-} } // end namespaces
+} // end namespaces

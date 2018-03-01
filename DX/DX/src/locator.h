@@ -59,7 +59,7 @@ public:
     static Core::Threading::ThreadManager&            getThreadManager()  { return *gThreadManager; }
     static Core::Profiling::Profiler&                 getProfiler()       { return *gProfiler; }
     static Time::MasterClock&                         getEngineClock()    { return *gEngineClock; }
-    static Core::OS::Window&                          getWindow()         { return *gWindow; }
+    static OS::Window&                                getWindow()         { return *gWindow; }
     static Core::Input::InputManager&                 getInputManager()   { return *gInputManager; }
     static Core::IInGameConsole&                      getInGameConsole()  { return *gInGameConsole; }
     static Core::Graphics::IRenderer&                 getRenderer()       { return *gRenderer; }
@@ -75,7 +75,7 @@ public:
     static void provide(Core::Threading::ThreadManager* manager)              { gThreadManager = manager; }
     static void provide(Core::Profiling::Profiler* profiler)                  { gProfiler = profiler; }
     static void provide(Time::MasterClock* clock)                             { gEngineClock = clock; }
-    static void provide(Core::OS::Window* window)                             { gWindow = window; }
+    static void provide(OS::Window* window)                                   { gWindow = window; }
     static void provide(Core::Input::InputManager* input)                     { gInputManager = input;  }
     static void provide(Core::IInGameConsole* igc)                            { gInGameConsole = igc; }
     static void provide(Core::Graphics::IRenderer* r)                         { gRenderer = r; }
@@ -93,7 +93,7 @@ private:
     static Core::Threading::ThreadManager*            gThreadManager;
     static Core::Profiling::Profiler*                 gProfiler;
     static Time::MasterClock*                         gEngineClock;
-    static Core::OS::Window*                          gWindow;
+    static OS::Window*                                gWindow;
     static Core::Input::InputManager*                 gInputManager;
     static Core::IInGameConsole*                      gInGameConsole;
     static Core::Graphics::IRenderer*                 gRenderer;

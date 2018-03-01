@@ -8,7 +8,7 @@
     Windows dependant implementations.
 **********************************************************************/
 
-namespace Core { namespace OS {
+namespace OS {
 
 
     //----------------------------------------------------------------------
@@ -33,4 +33,4 @@ namespace Core { namespace OS {
 #endif
 
 
-} } // end namespaces
+} // end namespaces

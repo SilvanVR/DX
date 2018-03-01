@@ -14,7 +14,7 @@
       - Move-Semantics
 **********************************************************************/
 
-namespace Core {
+namespace Common {
 
     //**********************************************************************
     // All Datatypes supported by the Variant
@@ -117,4 +117,4 @@ namespace Core {
     };
 
 
-}
+} // end namespaces

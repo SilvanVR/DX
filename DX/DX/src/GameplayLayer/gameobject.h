@@ -10,7 +10,7 @@
 **********************************************************************/
 
 #include "Components/i_component.h"
-#include "logging.h"
+#include "Logging/logging.h"
 
 class IScene;
 namespace Core { class GraphicsCommandRecorder; }

@@ -11,7 +11,7 @@
 
 #include "job.hpp"
 
-namespace Core { namespace OS {
+namespace OS {
 
     //**********************************************************************
     // Contains a queue in which jobs can be put in. When a job is added
@@ -56,4 +56,4 @@ namespace Core { namespace OS {
     };
 
 
-} } // end namespaces
+} // end namespaces

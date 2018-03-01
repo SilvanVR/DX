@@ -12,7 +12,7 @@
 
 #include <iostream>
 
-namespace Core { namespace Logging {
+namespace Logging {
 
     //----------------------------------------------------------------------
     void Console::writeln( const char* msg ) const
@@ -43,4 +43,4 @@ namespace Core { namespace Logging {
 #endif
 
 
-} } // end namespaces
+} // end namespaces

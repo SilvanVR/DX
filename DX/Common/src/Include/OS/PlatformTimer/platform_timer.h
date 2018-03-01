@@ -12,7 +12,7 @@
 
 #include "system_time.hpp"
 
-namespace Core { namespace OS {
+namespace OS {
 
     class PlatformTimer
     {
@@ -70,4 +70,4 @@ namespace Core { namespace OS {
         PlatformTimer& operator= (PlatformTimer&& other)        = delete;
     };
 
-} }
+}

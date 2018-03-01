@@ -9,12 +9,12 @@
     Defines Structs for tracking memory stuff.
 **********************************************************************/
 
-namespace Core { namespace MemoryManagement {
+namespace Memory {
 
     //----------------------------------------------------------------------
     // Stores information about allocations e.g. currentBytesAllocated.
     //----------------------------------------------------------------------
-    struct AllocationMemoryInfo
+    struct AllocationInfo
     {
         U64 bytesAllocated          = 0;
         U64 totalBytesAllocated     = 0;
@@ -28,8 +28,8 @@ namespace Core { namespace MemoryManagement {
 
         String toString() const;
 
-        AllocationMemoryInfo operator - (const AllocationMemoryInfo& other) const;
-        AllocationMemoryInfo operator + (const AllocationMemoryInfo& other) const;
+        AllocationInfo operator - (const AllocationInfo& other) const;
+        AllocationInfo operator + (const AllocationInfo& other) const;
     };
 
-} } // end namespaces
+} // end namespaces

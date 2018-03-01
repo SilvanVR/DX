@@ -14,7 +14,7 @@
 #include "OS/PlatformTimer/platform_timer.h"
 #include "OS/FileSystem/file.h"
 
-namespace Core { namespace Logging {
+namespace Logging {
 
     //----------------------------------------------------------------------
     void ConsoleLogger::init()
@@ -143,4 +143,4 @@ namespace Core { namespace Logging {
         m_messageBuffer.clear();
     }
 
-} }
+}

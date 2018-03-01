@@ -8,7 +8,7 @@
 **********************************************************************/
 
 #include "locator.h"
-#include "logging.h"
+#include "Logging/logging.h"
 #include "Logging/console_logger.h"
 #include "MemoryManager/memory_manager.h"
 #include "OS/FileSystem/virtual_file_system.h"

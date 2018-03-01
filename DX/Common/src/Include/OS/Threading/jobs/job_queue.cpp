@@ -6,7 +6,7 @@
     date: October 22, 2017
 **********************************************************************/
 
-namespace Core { namespace OS {
+namespace OS {
 
         //----------------------------------------------------------------------
         void JobQueue::addJob(JobPtr job)
@@ -50,4 +50,4 @@ namespace Core { namespace OS {
         }
 
 
-} } // end namespaces
+} // end namespaces

@@ -1,5 +1,5 @@
 #include "OS/PlatformTimer/platform_timer.h"
-#include "MemoryManagement/Allocators/include.hpp"
+#include "Memory/Allocators/include.hpp"
 #include "Core/subsystem_manager.h"
 
 #include "OS/FileSystem/file_system.h"
@@ -89,8 +89,6 @@ UINT indices[36] = {
     1, 5, 6, 1, 6, 2,
     4, 0, 3, 4, 3, 7
 };
-
-// @TODO: ADAPT NAMESPACES IN COMMON
 
 class MyScene : public IScene
 {

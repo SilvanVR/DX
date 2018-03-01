@@ -21,9 +21,6 @@
     <ClInclude Include="src\Include\Common\data_types.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Include\Common\forward_declarations.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\Include\Common\macros.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -46,15 +43,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Include\Logging\shared_console_logger.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Include\Misc\Introspection\introspection.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Include\Misc\color.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Include\Misc\variant_type.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Include\OS\FileSystem\file.h">
@@ -108,46 +96,55 @@
     <ClInclude Include="src\Include\Time\timers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Include\Utils\bit_mask.hpp">
+    <ClInclude Include="src\Include\Common\Introspection\introspection.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Include\Utils\finite_range.hpp">
+    <ClInclude Include="src\Include\Common\bit_mask.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Include\Utils\string_utils.h">
+    <ClInclude Include="src\Include\Common\finite_range.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Include\Utils\utils.h">
+    <ClInclude Include="src\Include\Common\string_utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Include\common.hpp">
+    <ClInclude Include="src\Include\Common\variant_type.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Include\MemoryManagement\Allocators\iallocator.h">
+    <ClInclude Include="src\Include\Common\color.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Include\MemoryManagement\Allocators\include.hpp">
+    <ClInclude Include="src\Include\Common\utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Include\MemoryManagement\Allocators\pool_allocator.hpp">
+    <ClInclude Include="src\Include\Memory\Allocators\iallocator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Include\MemoryManagement\Allocators\pool_list_allocator.hpp">
+    <ClInclude Include="src\Include\Memory\Allocators\include.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Include\MemoryManagement\Allocators\stack_allocator.hpp">
+    <ClInclude Include="src\Include\Memory\Allocators\pool_allocator.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Include\MemoryManagement\Allocators\universal_allocator.hpp">
+    <ClInclude Include="src\Include\Memory\Allocators\pool_list_allocator.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Include\MemoryManagement\Allocators\universal_allocator_defragmented.hpp">
+    <ClInclude Include="src\Include\Memory\Allocators\stack_allocator.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Include\MemoryManagement\memory_structs.h">
+    <ClInclude Include="src\Include\Memory\Allocators\universal_allocator.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Include\logging.h">
+    <ClInclude Include="src\Include\Memory\Allocators\universal_allocator_defragmented.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Include\Memory\memory_structs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Include\pch.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Include\Logging\logging.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -165,12 +162,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Include\Logging\console_logger.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Include\Misc\color.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Include\Misc\variant_type.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Include\OS\FileSystem\file.cpp">
@@ -224,19 +215,25 @@
     <ClCompile Include="src\Include\Time\timers.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Include\Utils\string_utils.cpp">
+    <ClCompile Include="src\Include\Common\string_utils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Include\Utils\utils.cpp">
+    <ClCompile Include="src\Include\Common\variant_type.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Include\MemoryManagement\Allocators\iallocator.cpp">
+    <ClCompile Include="src\Include\Common\color.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Include\MemoryManagement\memory_structs.cpp">
+    <ClCompile Include="src\Include\Common\utils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Include\logging.cpp">
+    <ClCompile Include="src\Include\Memory\Allocators\iallocator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Include\Memory\memory_structs.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Include\Logging\logging.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

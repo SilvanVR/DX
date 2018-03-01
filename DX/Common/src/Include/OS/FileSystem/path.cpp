@@ -9,7 +9,7 @@
 #include "virtual_file_system.h"
 #include "file_system.h"
 
-namespace Core{ namespace OS {
+namespace OS {
 
     //----------------------------------------------------------------------
     Path::Path( const char* path, bool resolveVirtualPath )
@@ -36,5 +36,5 @@ namespace Core{ namespace OS {
         return m_path.substr( 0, m_path.find_last_of( "/\\" ) ) + "/";
     }
 
-} } // end namespaces
+} // end namespaces
 

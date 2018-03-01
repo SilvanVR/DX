@@ -12,7 +12,7 @@
     Does not works in conjunction with the virtual file system.
 **********************************************************************/
 
-namespace Core { namespace OS {
+namespace OS {
 
 
     class FileSystem
@@ -43,4 +43,4 @@ namespace Core { namespace OS {
     };
 
 
-} } // end namespaces
+} // end namespaces
