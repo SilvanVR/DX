@@ -20,9 +20,6 @@ namespace Logging {
     public:
         NullLogger() {}
 
-        void init() override {}
-        void shutdown() override {}
-
         virtual void _Log(ELogChannel channel, const char* msg, ELogLevel ELogLevel, Color color) override {}
         virtual void _Log(ELogChannel channel, const char* msg, Color color) override {}
 

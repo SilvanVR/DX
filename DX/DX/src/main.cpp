@@ -146,7 +146,7 @@ public:
         LOG( "Init game..." );
         getWindow().setCursor( "/cursors/Areo Cursor Red.cur" );
         getWindow().setIcon( "/internal/icon.ico" );
-        gLogger.setSaveToDisk( false );
+        gLogger->setSaveToDisk( false );
 
         Locator::getEngineClock().setInterval([=] {
             //terminate();

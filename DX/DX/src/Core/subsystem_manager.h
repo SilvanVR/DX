@@ -55,6 +55,8 @@ namespace Core {
         SceneManager*                       m_sceneManager      = nullptr;
         Resources::ResourceManager*         m_resourceManager   = nullptr;
 
+
+
         //----------------------------------------------------------------------
         void _InitVirtualFilePaths();
         void _ClearVirtualFilePaths();

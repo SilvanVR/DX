@@ -14,7 +14,6 @@
      - Set color for a channel.
 **********************************************************************/
 
-#include "SubSystem/i_subsystem.hpp"
 #include "Common/color.h"
 #include "Common/bit_mask.hpp"
 
@@ -58,7 +57,7 @@ namespace Logging {
     //**********************************************************************
     // Interface-Class for a Logging-Subsystem
     //**********************************************************************
-    class ILogger : public Core::ISubSystem
+    class ILogger
     {
         Common::BitMask m_channelMask   = Common::BitMask( static_cast<U32>( LOG_CHANNEL_ALL ) );
 

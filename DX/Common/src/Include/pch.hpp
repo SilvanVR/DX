@@ -19,7 +19,7 @@
     #undef ERROR
 #endif
 
-#include "common/data_types.hpp"
-#include "common/macros.hpp"
-#include "common/string.h"
+#include "Common/data_types.hpp"
+#include "Common/macros.hpp"
+#include "Common/string.h"
 #include "Logging/logging.h"

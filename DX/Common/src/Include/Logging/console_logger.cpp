@@ -17,7 +17,7 @@
 namespace Logging {
 
     //----------------------------------------------------------------------
-    void ConsoleLogger::init()
+    ConsoleLogger::ConsoleLogger()
     {
 #ifdef _DEBUG
         const char* configuration = "_debug";
@@ -32,7 +32,7 @@ namespace Logging {
     }
 
     //----------------------------------------------------------------------
-    void ConsoleLogger::shutdown()
+    ConsoleLogger::~ConsoleLogger()
     {
         // Write logged stuff to file if desired
         if (m_dumpToDisk)

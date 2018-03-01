@@ -6,4 +6,16 @@
     date: February 27, 2018
 **********************************************************************/
 
-Logging::SharedConsoleLogger gLogger;
+static Logging::NullLogger gNullLogger;
+Logging::ILogger* gLogger = &gNullLogger;
+
+
+namespace Logging {
+
+
+    void ResetToNullLogger()
+    {
+        gLogger = &gNullLogger;
+    }
+
+}

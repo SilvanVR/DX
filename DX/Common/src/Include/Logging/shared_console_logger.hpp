@@ -23,12 +23,6 @@ namespace Logging  {
         SharedConsoleLogger() = default;
 
         //----------------------------------------------------------------------
-        // ISubSystem Interface
-        //----------------------------------------------------------------------
-        void init() override { ConsoleLogger::init(); }
-        void shutdown() override { ConsoleLogger::shutdown(); }
-
-        //----------------------------------------------------------------------
         // ILogger Interface
         //----------------------------------------------------------------------
         void _Log(ELogChannel channel, const char* msg, ELogLevel ELogLevel, Color color) override

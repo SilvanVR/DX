@@ -23,13 +23,8 @@ namespace Logging  {
         static const U32 MSG_BUFFER_CAPACITY_BYTES = 1024;
 
     public:
-        ConsoleLogger() {}
-
-        //----------------------------------------------------------------------
-        // ISubSystem Interface
-        //----------------------------------------------------------------------
-        void init() override;
-        void shutdown() override;
+        ConsoleLogger();
+        virtual ~ConsoleLogger();
 
         //----------------------------------------------------------------------
         // ILogger Interface
