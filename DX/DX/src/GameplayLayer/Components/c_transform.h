@@ -1,6 +1,6 @@
 #pragma once
 /**********************************************************************
-    class: CTransform (ctransform.h)
+    class: Transform (transform.h)
 
     author: S. Hau
     date: December 17, 2017
@@ -11,22 +11,28 @@
 
 namespace Components {
 
-    class CTransform : public IComponent
+    class Transform : public IComponent
     {
 
     public:
-        CTransform() {}
+        Transform() {}
 
         void Tick(Time::Seconds delta) override;
 
+        Math::Vec3 position;
+        Math::Vec3 scale;
+        Math::Quat rotation;
+
+        DirectX::XMMATRIX getTransformationMatrix();
+
     private:
-        //XMFLOAT3 pos;
+        Transform* m_pParent = nullptr;
 
         //----------------------------------------------------------------------
-        CTransform(const CTransform& other)               = delete;
-        CTransform& operator = (const CTransform& other)  = delete;
-        CTransform(CTransform&& other)                    = delete;
-        CTransform& operator = (CTransform&& other)       = delete;
+        Transform(const Transform& other)               = delete;
+        Transform& operator = (const Transform& other)  = delete;
+        Transform(Transform&& other)                    = delete;
+        Transform& operator = (Transform&& other)       = delete;
     };
 
 }

@@ -81,7 +81,7 @@ Vertex vertices[] =
     { XMFLOAT3(1.0f, -1.0f,  1.0f), XMFLOAT3(1.0f, 0.0f, 1.0f) }  // 7
 };
 
-UINT indices[36] = {
+U32 indices[36] = {
     0, 1, 2, 0, 2, 3,
     4, 6, 5, 4, 7, 6,
     4, 5, 1, 4, 1, 0,
@@ -103,22 +103,32 @@ public:
         LOG("MyScene initialized!", Color::RED);
 
         go = createGameObject("Test");
-        go->addComponent<Components::CModelRenderer>();
-        auto mr = go->getComponent<Components::CModelRenderer>();
-        
+        auto mr = go->addComponent<Components::CModelRenderer>();
+        //auto mr = go->getComponent<Components::CModelRenderer>();
+
+        auto transform = go->getComponent<Components::Transform>();
+        transform->position = Math::Vec3(0,0,0);
+        transform->scale = Math::Vec3(0,0,0);
+        transform->rotation = Math::Quat::IDENTITY;
+
+        Math::Vec3 pos1(1,1,1);
+        transform->position += pos1;
+
+ 
         // Create 3D-Model or load it... How to manage resources?
         // ModelPtr m = ModelGenerator.createCube(...);
         // mr->setModel(m);
+        
 
         // Graphics::VertexLayout layout;
 
         m = new Graphics::Model(vertices, indices);
 
         GameObject* go2 = findGameObject("Test");
-        auto c = go2->getComponent<Components::CTransform>();
+        auto c = go2->getComponent<Components::Transform>();
 
         //bool removed = go2->removeComponent( c );
-        //bool destroyed = go2->removeComponent<CTransform>();
+        //bool destroyed = go2->removeComponent<Transform>();
 
         int i = 523;
     }

@@ -1,0 +1,37 @@
+
+
+1.) Render arbitrary geometry
+    > Setup the right pipeline (Different pipeline states)
+    > Create/Upload a model to the GPU
+        > Set Vertices / Indices from a model
+    > Shaders
+        > Hot-Reloading of shaders
+    > Materials
+		> Associated with a shader and uniform params cached on the cpu
+	    > Push to GPU before rendering
+	> Command Buffer
+		> Stores Rendering Commands e.g.
+			> DrawMesh(mesh, material, matrix)
+	> Camera
+		> View / Proj Matrix
+		> As in unity, command buffer attached to different camera events?
+		> Viewfrustum Culling
+
+1.5) Debug Drawing
+	> Render Lines / Boxes in wireframe
+
+2.) Audio
+
+3.) Physics
+	> Box
+	> RayCasting
+	> Triangle/Ray Intersection
+
+4.) (GUI Rendering)
+	> Font
+	> Images
+
+<<<< Minecraft >>>>
+	> World Generation
+	> Physics 
+		> Most likely just box collision, depends on how chunks are generated/stores

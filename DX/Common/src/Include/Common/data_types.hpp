@@ -36,6 +36,8 @@ using CallbackID = U64;
 
 using Size = std::size_t;
 
+using Hash = Size;
+
 template <typename T, typename T2>
 using HashMap = std::map<T, T2>;
 

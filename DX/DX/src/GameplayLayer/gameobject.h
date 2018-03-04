@@ -31,14 +31,14 @@ public:
     template<typename T> T*   getComponent();
     template<typename T> bool removeComponent();
     template<typename T> bool removeComponent(T* comp);
-    template<typename T, typename... Args> bool addComponent(Args&&... args);
+    template<typename T, typename... Args> T* addComponent(Args&&... args);
 
 private:
     StringID                                m_name;
     IScene*                                 m_attachedScene;
     bool                                    m_isActive = true;
 
-    HashMap<Size, Components::IComponent*>  m_components;
+    HashMap<Hash, Components::IComponent*>  m_components;
 
     //----------------------------------------------------------------------
     friend class IScene;
@@ -67,7 +67,7 @@ private:
 
 //----------------------------------------------------------------------
 template<typename T>
-Size TypeHash()
+Hash TypeHash()
 {
     return typeid(T).hash_code();
 }
@@ -113,22 +113,22 @@ bool GameObject::removeComponent( T* comp )
 }
 
 //----------------------------------------------------------------------
-// Add a new component with type T to this gameobject. False if not
-// successful, e.g. the component-type was already present.
+// Add a new component with type T to this gameobject. Returns the newly
+// added component. Nullptr if component type was already present.
 //----------------------------------------------------------------------
 template<typename T, typename... Args>
-bool GameObject::addComponent( Args&&... args )
+T* GameObject::addComponent( Args&&... args )
 {
     Size hash = TypeHash<T>();
-    if (m_components.count(hash) != 0)
+    if (m_components.count( hash ) != 0)
     {
         WARN( "GameObject::addComponent(): Component already exists. Adding the same component to a single gameobject is not allowed." );
-        return false;
+        return nullptr;
     }
 
     T* component = _CreateComponent<T>( args... );
     component->_SetGameObject( this );
-    return true;
+    return component;
 }
 
 //**********************************************************************

@@ -147,6 +147,9 @@
     <ClInclude Include="src\Include\Logging\logging.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Include\Math\dxmath_wrapper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\stdafx.cpp">
@@ -234,6 +237,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Include\Logging\logging.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Include\Math\dxmath_wrapper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

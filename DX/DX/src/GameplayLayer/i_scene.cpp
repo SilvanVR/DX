@@ -35,7 +35,7 @@ GameObject* IScene::createGameObject( CString name )
 {
     GameObject* go = new GameObject( this, name );
 
-    go->addComponent<Components::CTransform>();
+    go->addComponent<Components::Transform>();
     m_gameObjects.push_back( go );
     return go;
 }

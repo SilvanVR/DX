@@ -17,6 +17,10 @@ namespace Core {
     //----------------------------------------------------------------------
     void CoreEngine::start( const char* title, U32 width, U32 height )
     {
+        // Check for Math-Library support
+        if ( not DirectX::XMVerifyCPUSupport() )
+            ERROR( "DirectX-Math not supported on this system, but is required!" );
+
         // Set core engine instance in the locator class
         Locator::setCoreEngine( this );
 

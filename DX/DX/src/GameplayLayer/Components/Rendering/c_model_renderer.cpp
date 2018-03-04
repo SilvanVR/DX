@@ -15,7 +15,7 @@ namespace Components {
     //----------------------------------------------------------------------
     void CModelRenderer::addedToGameObject( GameObject* go )
     {
-        auto transform = getGameObject()->getComponent<CTransform>();
+        auto transform = getGameObject()->getComponent<Transform>();
         if ( transform == nullptr )
             WARN( "CModelRenderer-Component requires a transform for a game-object, but the attached game-object has none!" );
     }
@@ -23,7 +23,7 @@ namespace Components {
     //----------------------------------------------------------------------
     void CModelRenderer::recordGraphicsCommands( Core::Graphics::CommandBuffer& cmd, F32 lerp )
     {
-        auto transform = getGameObject()->getComponent<CTransform>();
+        auto transform = getGameObject()->getComponent<Transform>();
         ASSERT( transform != nullptr );
 
         // Need:

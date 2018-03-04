@@ -146,6 +146,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\Include\Math\dxmath_wrapper.h" />
     <ClInclude Include="src\Include\pch.hpp" />
     <ClInclude Include="src\Include\Common\data_types.hpp" />
     <ClInclude Include="src\Include\Common\macros.hpp" />
@@ -197,6 +198,7 @@
     <ClCompile Include="src\Include\Logging\Console\console.cpp" />
     <ClCompile Include="src\Include\Logging\Console\console_win.cpp" />
     <ClCompile Include="src\Include\Logging\console_logger.cpp" />
+    <ClCompile Include="src\Include\Math\dxmath_wrapper.cpp" />
     <ClCompile Include="src\Include\Memory\Allocators\iallocator.cpp" />
     <ClCompile Include="src\Include\Memory\memory_structs.cpp" />
     <ClCompile Include="src\Include\Common\color.cpp" />

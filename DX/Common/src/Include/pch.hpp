@@ -23,3 +23,4 @@
 #include "Common/macros.hpp"
 #include "Common/string.h"
 #include "Logging/logging.h"
+#include "Math/dxmath_wrapper.h"
