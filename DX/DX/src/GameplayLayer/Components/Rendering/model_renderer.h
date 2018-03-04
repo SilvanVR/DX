@@ -12,9 +12,9 @@
 
 namespace Components {
 
+    //**********************************************************************
     class ModelRenderer : public IComponent
     {
-
     public:
         ModelRenderer() = default;
 

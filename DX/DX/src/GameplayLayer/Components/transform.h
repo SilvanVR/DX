@@ -11,9 +11,9 @@
 
 namespace Components {
 
+    //**********************************************************************
     class Transform : public IComponent
     {
-
     public:
         Transform() {}
 

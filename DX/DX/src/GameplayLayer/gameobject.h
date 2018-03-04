@@ -113,8 +113,8 @@ bool GameObject::removeComponent( T* comp )
 }
 
 //----------------------------------------------------------------------
-// Add a new component with type T to this gameobject. Returns the newly
-// added component. Nullptr if component type was already present.
+// Add a new component with type T to this gameobject. Returns the newly added component.
+// Issues a warning and returns nullptr if component type was already present.
 //----------------------------------------------------------------------
 template<typename T, typename... Args>
 T* GameObject::addComponent( Args&&... args )

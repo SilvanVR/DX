@@ -95,6 +95,8 @@ class MyScene : public IScene
     GameObject* go;
     Graphics::Model* m;
 
+    GameObject* cameraGO;
+
 public:
     MyScene() : IScene("MyScene"){}
 
@@ -102,30 +104,30 @@ public:
     {
         LOG("MyScene initialized!", Color::RED);
 
+        cameraGO = createGameObject("Camera");
+        auto cam = cameraGO->addComponent<Components::Camera>();
+
         go = createGameObject("Test");
         auto mr = go->addComponent<Components::ModelRenderer>();
         //auto mr = go->getComponent<Components::ModelRenderer>();
 
         auto transform = go->getComponent<Components::Transform>();
         transform->position = Math::Vec3(0,0,0);
-        transform->scale = Math::Vec3(0,0,0);
+        transform->scale = Math::Vec3(1,1,1);
         transform->rotation = Math::Quat::IDENTITY;
-       
-        Math::Vec3 pos1(1,1,1);
-        transform->position += pos1;
 
- 
+        transform->position += Math::Vec3(1, 1, 1);
+
         // Create 3D-Model or load it... How to manage resources?
         // ModelPtr m = ModelGenerator.createCube(...);
         // mr->setModel(m);
-        
 
         // Graphics::VertexLayout layout;
-
         m = new Graphics::Model(vertices, indices);
 
         GameObject* go2 = findGameObject("Test");
-        auto c = go2->getComponent<Components::Transform>();
+        if(go2 != nullptr)
+            LOG("Found GameObject!", Color::GREEN);
 
         //bool removed = go2->removeComponent( c );
         //bool destroyed = go2->removeComponent<Transform>();

@@ -93,6 +93,9 @@
     <ClCompile Include="src\GameplayLayer\Components\Rendering\model_renderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\GameplayLayer\Components\Rendering\camera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\stdafx.h">
@@ -183,6 +186,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\GameplayLayer\Components\Rendering\model_renderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GameplayLayer\Components\Rendering\camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
