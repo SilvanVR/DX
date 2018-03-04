@@ -10,6 +10,7 @@
 #include "GameplayLayer/i_scene.h"
 #include "GameplayLayer/gameobject.h"
 #include "Graphics/command_buffer.h"
+#include "GameplayLayer/Components/Rendering/camera.h"
 
 namespace Core {
 
@@ -30,16 +31,46 @@ namespace Core {
     //----------------------------------------------------------------------
     void GraphicsCommandRecorder::render( IScene& scene, F32 lerp )
     {
-        auto& gameObjects = scene.getGameObjects();
-        for ( auto go : gameObjects )
+        auto& graphicsEngine = Locator::getRenderer();
+
+        // Fetch all renderer components e.g. model-renderer
+        //CRenderer renderer = scene.getRenderer();
+
+        auto& cmd = m_CommandBuffers[0];
+
+        auto& cameras = Components::Camera::GetAll();
+        for ( auto& cam : cameras )
         {
-            if ( go->isActive() )
-            {
-                go->recordGraphicsCommands( *m_CommandBuffers[0], lerp );
-            }
+            // @TODO: Where store command buffer per camera?
+
+            cam->recordGraphicsCommands( *cmd, lerp );
+
+            // Add optionally attached command buffer aswell
+            //foreach commandBuffer in camera->commandBuffers
+                //graphicsEngine->dispatch(commandBuffer)
+
+            // Do viewfrustum culling with every renderer component and THIS CAMERA
+            //foreach renderer in renderer
+                //bool isVisible = renderer->Cull(camera);
+                //bool layerMatch = camera->layerMask & renderer->getLayerMask();
+                //if (isVisible && layerMatch)
+                    //renderer->recordCommands(cmd); // cmd contains commands to render this specific renderer e.g. model
+
+            // Execute render commands
+            //graphicsEngine.dispatch(cmd);
         }
 
-        Locator::getRenderer().dispatch( *m_CommandBuffers[0] );
+
+        //auto& gameObjects = scene.getGameObjects();
+        //for ( auto go : gameObjects )
+        //{
+        //    if ( go->isActive() )
+        //    {
+        //        go->recordGraphicsCommands( *m_CommandBuffers[0], lerp );
+        //    }
+        //}
+
+        graphicsEngine.dispatch( *m_CommandBuffers[0] );
     }
 
 }

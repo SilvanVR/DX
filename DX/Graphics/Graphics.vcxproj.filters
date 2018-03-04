@@ -89,5 +89,8 @@
     <ClInclude Include="src\Include\Graphics\vertex_layout.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Include\Graphics\render_texture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

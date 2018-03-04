@@ -10,6 +10,8 @@
       dependant calls (and possibly do optimizations e.g. batch stuff)
 **********************************************************************/
 
+namespace Graphics { class RenderTexture; }
+
 namespace Graphics {
 
     //**********************************************************************
@@ -24,7 +26,9 @@ namespace Graphics {
 
         //----------------------------------------------------------------------
         void drawMesh();
-
+        void setRenderTarget(Graphics::RenderTexture* renderTarget, const Color& clearColor);
+        void setCameraPerspective(const DirectX::XMMATRIX& view, F32 fov, F32 zNear, F32 zFar);
+        void setCameraOrtho(const DirectX::XMMATRIX& view, F32 left, F32 right, F32 bottom, F32 top, F32 zNear, F32 zFar);
 
     private:
 

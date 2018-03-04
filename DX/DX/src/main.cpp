@@ -116,14 +116,12 @@ public:
         transform->scale = Math::Vec3(1,1,1);
         transform->rotation = Math::Quat::IDENTITY;
 
-        transform->position += Math::Vec3(1, 1, 1);
+        // Graphics::VertexLayout layout;
+        m = new Graphics::Model(vertices, indices);
 
         // Create 3D-Model or load it... How to manage resources?
         // ModelPtr m = ModelGenerator.createCube(...);
         // mr->setModel(m);
-
-        // Graphics::VertexLayout layout;
-        m = new Graphics::Model(vertices, indices);
 
         GameObject* go2 = findGameObject("Test");
         if(go2 != nullptr)

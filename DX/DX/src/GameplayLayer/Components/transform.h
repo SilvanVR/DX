@@ -32,6 +32,7 @@ namespace Components {
         //----------------------------------------------------------------------
         void addChild(const Transform& t);
 
+        //----------------------------------------------------------------------
         DirectX::XMMATRIX getTransformationMatrix();
 
     private:

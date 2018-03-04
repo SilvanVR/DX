@@ -60,7 +60,8 @@ namespace Graphics {
 
     D3D11::VertexBuffer*    pVertexBuffer = nullptr;
     D3D11::IndexBuffer*     pIndexBuffer = nullptr;
-    D3D11::ConstantBuffer*  pConstantBuffer = nullptr;
+    D3D11::ConstantBuffer*  pConstantBufferObject = nullptr;
+    D3D11::ConstantBuffer*  pConstantBufferCamera = nullptr;
 
     D3D11::Pass*            pBasicRenderpass = nullptr;
 
@@ -77,7 +78,8 @@ namespace Graphics {
             // Buffers
             pVertexBuffer = new D3D11::VertexBuffer( sizeof(Vertex) * _countof(vertices), vertices );
             pIndexBuffer = new D3D11::IndexBuffer( sizeof(UINT) * _countof(indices), indices );
-            pConstantBuffer = new D3D11::ConstantBuffer( sizeof(XMMATRIX) );
+            pConstantBufferCamera = new D3D11::ConstantBuffer( sizeof(XMMATRIX) );
+            pConstantBufferObject = new D3D11::ConstantBuffer(sizeof(XMMATRIX));
         }
 
         {
@@ -127,7 +129,8 @@ namespace Graphics {
         SAFE_RELEASE(pDepthStencilState);
         SAFE_RELEASE(pInputLayout);
         SAFE_RELEASE(pRSState);
-        SAFE_DELETE(pConstantBuffer);
+        SAFE_DELETE(pConstantBufferCamera);
+        SAFE_DELETE(pConstantBufferObject);
         SAFE_DELETE(pVertexBuffer);
         SAFE_DELETE(pIndexBuffer);
         SAFE_DELETE(pBasicRenderpass);
@@ -151,7 +154,9 @@ namespace Graphics {
         pIndexBuffer->bind( DXGI_FORMAT_R32_UINT, 0 );
         g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-        pConstantBuffer->bind(0);
+        pConstantBufferCamera->bind(0);
+        pConstantBufferObject->bind(1);
+
         pVertexShader->bind();
 
         g_pImmediateContext->OMSetDepthStencilState(pDepthStencilState, 0);
@@ -182,8 +187,9 @@ namespace Graphics {
             XMMATRIX view = XMMatrixLookToLH(eyePosition, {0,0,1}, {0,1,0});
             XMMATRIX proj = XMMatrixPerspectiveFovLH(XMConvertToRadians(45.0f), vp.Width / vp.Height, 0.1f, 100.0f);
 
-            XMMATRIX worldViewProj = world*view*proj;
-            pConstantBuffer->updateSubresource( &worldViewProj );
+            XMMATRIX viewProj = view*proj;
+            pConstantBufferCamera->updateSubresource( &viewProj);
+            pConstantBufferObject->updateSubresource( &world );
         }
 
         g_pImmediateContext->DrawIndexed( _countof(indices), 0, 0 );
