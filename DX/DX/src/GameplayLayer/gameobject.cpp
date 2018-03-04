@@ -75,7 +75,7 @@ void GameObject::_LateTick( Time::Seconds delta )
 
 
 //----------------------------------------------------------------------
-void GameObject::recordGraphicsCommands( Core::Graphics::CommandBuffer& cmd, F32 lerp )
+void GameObject::recordGraphicsCommands( Graphics::CommandBuffer& cmd, F32 lerp )
 {
     // Update components from all game-objects
     for ( auto& pair : m_components )

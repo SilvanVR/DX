@@ -12,14 +12,14 @@
 #include "OS/Window/window.h"
 #include "Common/color.h"
 
-namespace Core { namespace Graphics {
+namespace Graphics {
 
     class CommandBuffer;
 
     //**********************************************************************
     // Interface-Class for a Renderer-Subsystem
     //**********************************************************************
-    class IRenderer : public ISubSystem
+    class IRenderer : public Core::ISubSystem
     {
     public:
         IRenderer(OS::Window* window);
@@ -40,4 +40,4 @@ namespace Core { namespace Graphics {
         virtual void OnWindowSizeChanged(U16 w, U16 h) = 0;
     };
 
-} } // End namespaces
+} // End namespaces

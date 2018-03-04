@@ -12,7 +12,7 @@
 #include "D3D11.hpp"
 #include "D3D11Swapchain.h"
 
-namespace Core { namespace Graphics {
+namespace Graphics {
 
     //**********************************************************************
     // D3D11 Renderer Subsystem.
@@ -63,4 +63,4 @@ namespace Core { namespace Graphics {
 
 
 
-} } // End namespaces
+} // End namespaces

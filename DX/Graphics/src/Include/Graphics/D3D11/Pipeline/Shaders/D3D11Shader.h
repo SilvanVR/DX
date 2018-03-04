@@ -8,7 +8,7 @@
 
 #include "../../D3D11.hpp"
 
-namespace Core { namespace Graphics { namespace D3D11 {
+namespace Graphics { namespace D3D11 {
 
     //**********************************************************************
     class IShader
@@ -162,4 +162,4 @@ namespace Core { namespace Graphics { namespace D3D11 {
     //    return "";
     //}
 
-} } } // End namespaces
+} } // End namespaces

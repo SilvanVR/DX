@@ -62,7 +62,7 @@ public:
     static OS::Window&                                getWindow()         { return *gWindow; }
     static Core::Input::InputManager&                 getInputManager()   { return *gInputManager; }
     static Core::IInGameConsole&                      getInGameConsole()  { return *gInGameConsole; }
-    static Core::Graphics::IRenderer&                 getRenderer()       { return *gRenderer; }
+    static Graphics::IRenderer&                       getRenderer()       { return *gRenderer; }
     static Core::SceneManager&                        getSceneManager()   { return *gSceneManager; }
     static Core::Resources::ResourceManager&          getResourceManager(){ return *gResourceManager; }
 
@@ -78,7 +78,7 @@ public:
     static void provide(OS::Window* window)                                   { gWindow = window; }
     static void provide(Core::Input::InputManager* input)                     { gInputManager = input;  }
     static void provide(Core::IInGameConsole* igc)                            { gInGameConsole = igc; }
-    static void provide(Core::Graphics::IRenderer* r)                         { gRenderer = r; }
+    static void provide(Graphics::IRenderer* r)                               { gRenderer = r; }
     static void provide(Core::SceneManager* s)                                { gSceneManager = s; }
     static void provide(Core::Resources::ResourceManager* r)                  { gResourceManager = r; }
 
@@ -96,7 +96,7 @@ private:
     static OS::Window*                                gWindow;
     static Core::Input::InputManager*                 gInputManager;
     static Core::IInGameConsole*                      gInGameConsole;
-    static Core::Graphics::IRenderer*                 gRenderer;
+    static Graphics::IRenderer*                       gRenderer;
     static Core::SceneManager*                        gSceneManager;
     static Core::Resources::ResourceManager*          gResourceManager;
 

@@ -12,7 +12,7 @@
 
 #include <d3dcompiler.h>
 
-namespace Core { namespace Graphics { namespace D3D11 {
+namespace Graphics { namespace D3D11 {
 
 
     //----------------------------------------------------------------------
@@ -136,4 +136,4 @@ namespace Core { namespace Graphics { namespace D3D11 {
         return true;
     }
 
-} } } // End namespaces
+} } // End namespaces

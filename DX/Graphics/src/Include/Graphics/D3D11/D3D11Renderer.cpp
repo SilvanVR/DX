@@ -16,7 +16,7 @@
 
 using namespace DirectX;
 
-namespace Core { namespace Graphics {
+namespace Graphics {
 
     struct Vertex
     {
@@ -282,4 +282,4 @@ namespace Core { namespace Graphics {
         SAFE_RELEASE( pDebugDevice );
     }
 
-} } // End namespaces
+} // End namespaces

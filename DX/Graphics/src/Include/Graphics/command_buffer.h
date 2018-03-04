@@ -10,7 +10,7 @@
       dependant calls (and possibly do optimizations e.g. batch stuff)
 **********************************************************************/
 
-namespace Core { namespace Graphics {
+namespace Graphics {
 
     //**********************************************************************
     class CommandBuffer
@@ -39,4 +39,4 @@ namespace Core { namespace Graphics {
         CommandBuffer& operator = (CommandBuffer&& other)       = delete;
     };
 
-} } // End namespaces
+} // End namespaces

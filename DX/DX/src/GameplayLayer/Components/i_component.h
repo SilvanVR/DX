@@ -10,7 +10,7 @@
 #include "Time/durations.h"
 
 class GameObject;
-namespace Core { namespace Graphics { class CommandBuffer; } }
+namespace Graphics { class CommandBuffer; }
 
 namespace Components {
 
@@ -42,7 +42,7 @@ namespace Components {
 
         virtual void Shutdown() {}
 
-        virtual void recordGraphicsCommands(Core::Graphics::CommandBuffer& cmd, F32 lerp) {}
+        virtual void recordGraphicsCommands(Graphics::CommandBuffer& cmd, F32 lerp) {}
 
         //----------------------------------------------------------------------
         // Called immediately after the component was attached to a gameobject.

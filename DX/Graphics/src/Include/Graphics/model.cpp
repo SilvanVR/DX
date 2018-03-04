@@ -8,7 +8,7 @@
 
 //#include "locator.h"
 
-namespace Core { namespace Graphics {
+namespace Graphics {
 
     //----------------------------------------------------------------------
     Model::Model(const void* pVertices, const void* pIndices)
@@ -22,4 +22,4 @@ namespace Core { namespace Graphics {
 
     }
 
-} } // End namespaces
+} // End namespaces

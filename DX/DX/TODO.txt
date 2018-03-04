@@ -35,3 +35,25 @@
 	> World Generation
 	> Physics 
 		> Most likely just box collision, depends on how chunks are generated/stores
+
+
+----------------------------------------------------------------------------------------
+foreach camera in scene
+	// Command Buffers are attached to camera (Always one attached?)
+	CommandBuffer cmd;
+
+	// Fetch all renderer components e.g. model-renderer
+	CRenderer renderer = scene.getRenderer();
+
+	// Do viewfrustum culling with every renderer component and THIS CAMERA
+	foreach renderer in renderer
+		bool isVisible = renderer->Cull(camera);
+		if (isVisible)
+			renderer->recordCommands(cmd); // cmd contains commands to render this specific renderer e.g. model
+
+
+	target = camera->getRenderTexture()
+	if (target == nullptr)
+		// render to screen
+	else
+		// render to texture

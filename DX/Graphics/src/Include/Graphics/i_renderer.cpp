@@ -9,7 +9,7 @@
 
 
 
-namespace Core { namespace Graphics {
+namespace Graphics {
 
 
     //----------------------------------------------------------------------
@@ -22,5 +22,4 @@ namespace Core { namespace Graphics {
 
 
 
-
-} } // End namespaces
+} // End namespaces

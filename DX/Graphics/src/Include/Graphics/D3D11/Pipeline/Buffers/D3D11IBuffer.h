@@ -8,7 +8,7 @@
 
 #include "../../D3D11.hpp"
 
-namespace Core { namespace Graphics { namespace D3D11 {
+namespace Graphics { namespace D3D11 {
 
     //**********************************************************************
     class IBuffer
@@ -37,4 +37,4 @@ namespace Core { namespace Graphics { namespace D3D11 {
     };
 
 
-} } } // End namespaces
+} } // End namespaces

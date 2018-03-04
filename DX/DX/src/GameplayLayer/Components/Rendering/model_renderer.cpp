@@ -21,7 +21,7 @@ namespace Components {
     }
 
     //----------------------------------------------------------------------
-    void ModelRenderer::recordGraphicsCommands( Core::Graphics::CommandBuffer& cmd, F32 lerp )
+    void ModelRenderer::recordGraphicsCommands( Graphics::CommandBuffer& cmd, F32 lerp )
     {
         auto transform = getGameObject()->getComponent<Transform>();
         ASSERT( transform != nullptr );

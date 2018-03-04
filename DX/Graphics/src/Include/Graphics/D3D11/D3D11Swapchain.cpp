@@ -6,7 +6,7 @@
     date: December 2, 2017
 **********************************************************************/
 
-namespace Core { namespace Graphics { namespace D3D11 {
+namespace Graphics { namespace D3D11 {
 
     //----------------------------------------------------------------------
     #define BACKBUFFER_FORMAT       DXGI_FORMAT_R8G8B8A8_UNORM
@@ -147,4 +147,4 @@ namespace Core { namespace Graphics { namespace D3D11 {
         return true;
     }
 
-} } } // End namespaces
+} } // End namespaces

@@ -33,7 +33,7 @@ namespace Components {
         // IComponent Interface
         //----------------------------------------------------------------------
         void addedToGameObject(GameObject* go) override;
-        void recordGraphicsCommands(Core::Graphics::CommandBuffer& cmd, F32 lerp) override;
+        void recordGraphicsCommands(Graphics::CommandBuffer& cmd, F32 lerp) override;
 
 
         //----------------------------------------------------------------------

@@ -6,7 +6,7 @@
     date: December 6, 2017
 **********************************************************************/
 
-namespace Core { namespace Graphics { namespace D3D11 {
+namespace Graphics { namespace D3D11 {
 
     //----------------------------------------------------------------------
     VertexBuffer::VertexBuffer( U32 size, const void* pData )
@@ -52,4 +52,4 @@ namespace Core { namespace Graphics { namespace D3D11 {
         g_pImmediateContext->UpdateSubresource( m_pBuffer, 0, NULL, pData, 0, 0 );
     }
 
-} } } // End namespaces
+} } // End namespaces

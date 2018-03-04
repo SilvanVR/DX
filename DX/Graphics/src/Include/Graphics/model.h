@@ -15,7 +15,7 @@
     - (Index-Data)
 **********************************************************************/
 
-namespace Core { namespace Graphics {
+namespace Graphics {
 
     class VertexLayout;
 
@@ -39,4 +39,4 @@ namespace Core { namespace Graphics {
         Model& operator = (Model&& other)       = delete;
     };
 
-} } // End namespaces
+} // End namespaces

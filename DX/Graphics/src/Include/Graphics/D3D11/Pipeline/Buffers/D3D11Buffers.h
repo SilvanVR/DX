@@ -8,7 +8,7 @@
 
 #include "D3D11IBuffer.h"
 
-namespace Core { namespace Graphics { namespace D3D11 {
+namespace Graphics { namespace D3D11 {
 
     //**********************************************************************
     class VertexBuffer : public IBuffer
@@ -72,4 +72,4 @@ namespace Core { namespace Graphics { namespace D3D11 {
         ConstantBuffer& operator = (ConstantBuffer&& other)       = delete;
     };
 
-} } } // End namespaces
+} } // End namespaces

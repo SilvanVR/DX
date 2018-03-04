@@ -49,7 +49,7 @@ private:
 
     //----------------------------------------------------------------------
     friend class Core::GraphicsCommandRecorder;
-    void recordGraphicsCommands(Core::Graphics::CommandBuffer& cmd, F32 lerp);
+    void recordGraphicsCommands(Graphics::CommandBuffer& cmd, F32 lerp);
 
     //----------------------------------------------------------------------
     // Creates the component in memory.

@@ -6,11 +6,11 @@
     date: December 6, 2017
 **********************************************************************/
 
-namespace Core { namespace Graphics { namespace D3D11 {
+namespace Graphics { namespace D3D11 {
 
 
     //----------------------------------------------------------------------
 
 
 
-} } } // End namespaces
+} } // End namespaces

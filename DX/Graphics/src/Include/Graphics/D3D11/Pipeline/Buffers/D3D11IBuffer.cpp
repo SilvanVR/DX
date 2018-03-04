@@ -6,7 +6,7 @@
     date: December 6, 2017
 **********************************************************************/
 
-namespace Core { namespace Graphics { namespace D3D11 {
+namespace Graphics { namespace D3D11 {
 
     //----------------------------------------------------------------------
     IBuffer::IBuffer( UINT bindFlags, D3D11_USAGE usage, U32 size, const void* pData ) : m_size( size )
@@ -34,4 +34,4 @@ namespace Core { namespace Graphics { namespace D3D11 {
         SAFE_RELEASE( m_pBuffer );
     }
 
-} } } // End namespaces
+} } // End namespaces

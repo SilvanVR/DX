@@ -12,6 +12,8 @@
 
 #include "Time/durations.h"
 
+namespace Graphics { class IRenderer; }
+
 namespace Core {
 
     //----------------------------------------------------------------------
@@ -22,7 +24,6 @@ namespace Core {
     namespace Threading         { class ThreadManager; }
     namespace Profiling         { class Profiler; }
     namespace Input             { class InputManager; }
-    namespace Graphics          { class IRenderer; }
     namespace Resources         { class ResourceManager; }
     class IInGameConsole;
     class SceneManager;
