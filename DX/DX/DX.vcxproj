@@ -308,8 +308,8 @@
     <ClCompile Include="src\Core\Profiling\profiler.cpp" />
     <ClCompile Include="src\Core\Resources\resource_manager.cpp" />
     <ClCompile Include="src\Core\SceneManager\scene_manager.cpp" />
-    <ClCompile Include="src\GameplayLayer\Components\c_transform.cpp" />
-    <ClCompile Include="src\GameplayLayer\Components\Rendering\c_model_renderer.cpp" />
+    <ClCompile Include="src\GameplayLayer\Components\transform.cpp" />
+    <ClCompile Include="src\GameplayLayer\Components\Rendering\model_renderer.cpp" />
     <ClCompile Include="src\GameplayLayer\gameobject.cpp" />
     <ClCompile Include="src\GameplayLayer\Components\i_component.cpp" />
     <ClCompile Include="src\GameplayLayer\i_scene.cpp" />
@@ -347,8 +347,8 @@
     <ClInclude Include="src\Core\MemoryManager\memory_tracker.h" />
     <ClInclude Include="src\Core\Resources\resource_manager.h" />
     <ClInclude Include="src\Core\SceneManager\scene_manager.h" />
-    <ClInclude Include="src\GameplayLayer\Components\c_transform.h" />
-    <ClInclude Include="src\GameplayLayer\Components\Rendering\c_model_renderer.h" />
+    <ClInclude Include="src\GameplayLayer\Components\transform.h" />
+    <ClInclude Include="src\GameplayLayer\Components\Rendering\model_renderer.h" />
     <ClInclude Include="src\GameplayLayer\gameobject.h" />
     <ClInclude Include="src\GameplayLayer\Components\i_component.h" />
     <ClInclude Include="src\GameplayLayer\i_scene.h" />

@@ -1,6 +1,6 @@
-#include "c_model_renderer.h"
+#include "model_renderer.h"
 /**********************************************************************
-    class: CModelRenderer (CModelRenderer.cpp)
+    class: ModelRenderer (model_renderer.cpp)
 
     author: S. Hau
     date: December 19, 2017
@@ -8,20 +8,20 @@
 
 #include "GameplayLayer/gameobject.h"
 #include "Graphics/command_buffer.h"
-#include "GameplayLayer/Components/c_transform.h"
+#include "GameplayLayer/Components/transform.h"
 
 namespace Components {
 
     //----------------------------------------------------------------------
-    void CModelRenderer::addedToGameObject( GameObject* go )
+    void ModelRenderer::addedToGameObject( GameObject* go )
     {
         auto transform = getGameObject()->getComponent<Transform>();
         if ( transform == nullptr )
-            WARN( "CModelRenderer-Component requires a transform for a game-object, but the attached game-object has none!" );
+            WARN( "ModelRenderer-Component requires a transform for a game-object, but the attached game-object has none!" );
     }
 
     //----------------------------------------------------------------------
-    void CModelRenderer::recordGraphicsCommands( Core::Graphics::CommandBuffer& cmd, F32 lerp )
+    void ModelRenderer::recordGraphicsCommands( Core::Graphics::CommandBuffer& cmd, F32 lerp )
     {
         auto transform = getGameObject()->getComponent<Transform>();
         ASSERT( transform != nullptr );

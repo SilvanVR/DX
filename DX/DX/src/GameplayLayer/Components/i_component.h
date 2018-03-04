@@ -21,6 +21,7 @@ namespace Components {
 
     public:
         IComponent() {}
+        virtual ~IComponent() {}
 
         //----------------------------------------------------------------------
         GameObject*         getGameObject()         { return m_pGameObject; }

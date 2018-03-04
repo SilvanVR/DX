@@ -103,14 +103,14 @@ public:
         LOG("MyScene initialized!", Color::RED);
 
         go = createGameObject("Test");
-        auto mr = go->addComponent<Components::CModelRenderer>();
-        //auto mr = go->getComponent<Components::CModelRenderer>();
+        auto mr = go->addComponent<Components::ModelRenderer>();
+        //auto mr = go->getComponent<Components::ModelRenderer>();
 
         auto transform = go->getComponent<Components::Transform>();
         transform->position = Math::Vec3(0,0,0);
         transform->scale = Math::Vec3(0,0,0);
         transform->rotation = Math::Quat::IDENTITY;
-
+       
         Math::Vec3 pos1(1,1,1);
         transform->position += pos1;
 

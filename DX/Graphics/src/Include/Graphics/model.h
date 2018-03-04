@@ -8,7 +8,7 @@
     - Represents a 3D model used for rendering
 
     A Model consists of one or more meshes which can be rendered with
-    different materials set up in the CModelRenderer-Component
+    different materials set up in the ModelRenderer-Component
 
     What data do i need?
     - Vertex-Data + Vertex-Layout

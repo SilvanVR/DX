@@ -11,7 +11,7 @@
 **********************************************************************/
 
 #include "gameobject.h"
-#include "Components/c_transform.h"
+#include "Components/transform.h"
 
 //----------------------------------------------------------------------
 IScene::IScene( CString name ) 

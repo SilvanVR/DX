@@ -1,6 +1,6 @@
-#include "c_transform.h"
+#include "transform.h"
 /**********************************************************************
-    class: Transform (Transform.cpp)
+    class: Transform (transform.cpp)
 
     author: S. Hau
     date: December 17, 2017
@@ -10,6 +10,7 @@
 
 namespace Components {
 
+    //----------------------------------------------------------------------
     void Transform::Tick( Time::Seconds delta )
     {
 
@@ -17,7 +18,7 @@ namespace Components {
 
     }
 
-
+    //----------------------------------------------------------------------
     DirectX::XMMATRIX Transform::getTransformationMatrix()
     {
         DirectX::XMVECTOR s = DirectX::XMLoadFloat3( &scale );
@@ -26,5 +27,18 @@ namespace Components {
 
         return DirectX::XMMatrixAffineTransformation( s, DirectX::XMQuaternionIdentity(), r, p );
     }
+
+    //----------------------------------------------------------------------
+    void Transform::setParent(const Transform& t)
+    {
+        ASSERT(false);
+    }
+
+    //----------------------------------------------------------------------
+    void Transform::addChild(const Transform& t)
+    {
+        ASSERT(false);
+    }
+
 
 }

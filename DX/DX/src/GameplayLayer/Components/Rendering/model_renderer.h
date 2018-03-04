@@ -1,6 +1,6 @@
 #pragma once
 /**********************************************************************
-    class: CModelRenderer (CModelRenderer.h)
+    class: ModelRenderer (model_renderer.h)
 
     author: S. Hau
     date: December 19, 2017
@@ -12,11 +12,11 @@
 
 namespace Components {
 
-    class CModelRenderer : public IComponent
+    class ModelRenderer : public IComponent
     {
 
     public:
-        CModelRenderer() = default;
+        ModelRenderer() = default;
 
         // Model getModel() const { return m_model; }
         // void setModel(Model model) const { m_model = model;
@@ -37,10 +37,10 @@ namespace Components {
 
 
         //----------------------------------------------------------------------
-        CModelRenderer(const CModelRenderer& other)               = delete;
-        CModelRenderer& operator = (const CModelRenderer& other)  = delete;
-        CModelRenderer(CModelRenderer&& other)                    = delete;
-        CModelRenderer& operator = (CModelRenderer&& other)       = delete;
+        ModelRenderer(const ModelRenderer& other)               = delete;
+        ModelRenderer& operator = (const ModelRenderer& other)  = delete;
+        ModelRenderer(ModelRenderer&& other)                    = delete;
+        ModelRenderer& operator = (ModelRenderer&& other)       = delete;
     };
 
 }

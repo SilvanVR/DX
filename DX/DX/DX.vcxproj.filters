@@ -75,12 +75,6 @@
     <ClCompile Include="src\GameplayLayer\i_scene.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\GameplayLayer\Components\Rendering\c_model_renderer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\GameplayLayer\Components\c_transform.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\Core\Resources\resource_manager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -91,6 +85,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\MemoryManager\memory_tracker.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GameplayLayer\Components\transform.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GameplayLayer\Components\Rendering\model_renderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -164,12 +164,6 @@
     <ClInclude Include="src\GameplayLayer\i_scene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\GameplayLayer\Components\Rendering\c_model_renderer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\GameplayLayer\Components\c_transform.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\Core\Resources\resource_manager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -183,6 +177,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\MemoryManager\memory.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GameplayLayer\Components\transform.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GameplayLayer\Components\Rendering\model_renderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
