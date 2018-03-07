@@ -75,6 +75,8 @@ void IScene::_PreTick( Time::Seconds delta )
 //----------------------------------------------------------------------
 void IScene::_Tick( Time::Seconds delta )
 {
+    tick( delta );
+
     // Update components from all game-objects
     for ( auto go : m_gameObjects )
     {

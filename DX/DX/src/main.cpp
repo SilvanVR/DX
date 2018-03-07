@@ -12,6 +12,7 @@
 #include "Graphics/vertex_layout.hpp"
 
 #include "locator.h"
+#include "GameplayLayer/Components/fps_camera.h"
 
 using namespace Core;
 using namespace DirectX;
@@ -90,28 +91,13 @@ U32 indices[36] = {
     4, 0, 3, 4, 3, 7
 };
 
-class FPSCamera : public Components::IComponent
-{
-    float m_speed = 1.0f;
-public:
-    FPSCamera(float speed) : m_speed(speed) {}
-
-    void Tick(Time::Seconds delta) override
-    {
-        Components::Transform* transform = getGameObject()->getComponent<Components::Transform>();
-
-        transform->position.x += (F32)AXIS_MAPPER.getAxisValue("Horizontal") * (F32)delta.value * m_speed;
-        transform->position.z -= (F32)AXIS_MAPPER.getAxisValue("Vertical") * (F32)delta.value * m_speed;
-    }
-
-};
-
 class MyScene : public IScene
 {
     GameObject* go;
     Graphics::Model* m;
 
     GameObject* cameraGO;
+    Components::Camera* cam;
 
 public:
     MyScene() : IScene("MyScene"){}
@@ -121,9 +107,9 @@ public:
         LOG("MyScene initialized!", Color::RED);
 
         cameraGO = createGameObject("Camera");
-        auto cam = cameraGO->addComponent<Components::Camera>();
-        cameraGO->getComponent<Components::Transform>()->position = Math::Vec3(0,0,10);
-        cameraGO->addComponent<FPSCamera>(10);
+        cam = cameraGO->addComponent<Components::Camera>();
+        cameraGO->getComponent<Components::Transform>()->position = Math::Vec3(0,0,-10);
+        cameraGO->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 10.0f, 0.3f);
 
         go = createGameObject("Test");
         auto mr = go->addComponent<Components::ModelRenderer>();
@@ -149,6 +135,19 @@ public:
         //bool destroyed = go2->removeComponent<Transform>();
 
         int i = 523;
+    }
+
+    F32 speed = 50.0f;
+    void tick( Time::Seconds delta ) override
+    {
+        if (KEYBOARD.isKeyDown(Key::Add))
+        {
+            cam->setFOV(cam->getFOV()+ speed * (F32)delta.value);
+        }
+        if (KEYBOARD.isKeyDown(Key::Subtract))
+        {
+            cam->setFOV(cam->getFOV()- speed * (F32)delta.value);
+        }
     }
 
     void shutdown() override

@@ -55,8 +55,8 @@ namespace Components {
         DirectX::XMVECTOR r = DirectX::XMLoadFloat4( &transform->rotation );
         DirectX::XMVECTOR p = DirectX::XMLoadFloat3( &transform->position );
 
-        auto view = DirectX::XMMatrixAffineTransformation( s, DirectX::XMQuaternionIdentity(), r, p );
-       // auto view2 = DirectX::XMMatrixTranspose( transformation );
+        auto transformation = DirectX::XMMatrixAffineTransformation( s, DirectX::XMQuaternionIdentity(), r, p );
+        auto view = DirectX::XMMatrixInverse( nullptr, transformation );
 
         switch ( m_cameraMode )
         {

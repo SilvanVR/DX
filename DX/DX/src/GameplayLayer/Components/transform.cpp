@@ -9,11 +9,10 @@
 namespace Components {
 
     //----------------------------------------------------------------------
-    void Transform::Tick( Time::Seconds delta )
+    void Transform::lookAt( const Math::Vec3& target )
     {
-
-       // LOG("TICK");
-
+        Math::Vec3 forward = (target - position).normalized();
+        rotation = Math::Quat::LookRotation(forward, Math::Vec3::UP);
     }
 
     //----------------------------------------------------------------------

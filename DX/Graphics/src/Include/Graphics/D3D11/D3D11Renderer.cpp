@@ -174,7 +174,7 @@ namespace Graphics {
         static float angle = 0.0f;
         //F32 delta = (F32)Locator::getProfiler().getUpdateDelta().value;
         F32 delta = 0.16f;
-        angle += delta * 0.01f;
+        //angle += delta * 0.01f;
         XMVECTOR rotationAxis = XMVectorSet(0, 1, 1, 0);
         XMMATRIX world = XMMatrixRotationAxis(rotationAxis, XMConvertToRadians(angle));
 

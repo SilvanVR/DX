@@ -19,19 +19,29 @@ namespace Math {
     class Vector3F : public DirectX::XMFLOAT3
     {
     public:
-        Vector3F(float value = 0);
-        Vector3F(float x, float y, float z);
+        Vector3F(F32 value = 0);
+        Vector3F(F32 x, F32 y, F32 z);
 
         Vector3F    operator +      (const Vector3F& v) const { return Vector3F( x + v.x, y + v.y, z + v.z ); }
         Vector3F    operator -      (const Vector3F& v) const { return Vector3F( x - v.x, y - v.y, z - v.z ); }
+        Vector3F    operator *      (F32 s)             const { return Vector3F( x * s, y * s, z * s ); }
+        Vector3F    operator /      (F32 s)             const { return Vector3F(x / s, y / s, z / s); }
         Vector3F&   operator +=     (const Vector3F& v) { x += v.x, y += v.y; z += v.z; return *this; }
         Vector3F&   operator -=     (const Vector3F& v) { x -= v.x, y -= v.y; z -= v.z; return *this; }
+        Vector3F&   operator *=     (F32 s)             { x *= s; y *= s; z *= s; return *this; }
+        Vector3F&   operator /=     (F32 s)             { x /= s; y /= s; z /= s; return *this; }
+
+        F32         magnitude() const;
+        Vector3F    normalized() const;
+        Vector3F    cross(const Vector3F& v) const;
+
+        String toString() const { return "(" + TS(x) + "," + TS(y) + "," + TS(z) + ")"; }
 
         // Static members
         static const Vector3F UP;            //same as ( 0, 1, 0 )
         static const Vector3F DOWN;          //same as ( 0,-1, 0 )
-        static const Vector3F LEFT;          //same as ( 1, 0, 0 )
-        static const Vector3F RIGHT;         //same as (-1, 0, 0 )
+        static const Vector3F LEFT;          //same as (-1, 0, 0 )
+        static const Vector3F RIGHT;         //same as ( 1, 0, 0 )
         static const Vector3F FORWARD;       //same as ( 0, 0, 1 )
         static const Vector3F BACK;          //same as ( 0, 0,-1 )
         static const Vector3F ONE;           //same as ( 1, 1, 1 )
@@ -42,25 +52,38 @@ namespace Math {
     class Vector4F : public DirectX::XMFLOAT4
     {
     public:
-        Vector4F(float value = 0);
-        Vector4F(float x, float y, float z, float w);
+        Vector4F(F32 value = 0);
+        Vector4F(F32 x, F32 y, F32 z, F32 w);
 
         Vector4F    operator +      (const Vector4F& v) const { return Vector4F( x + v.x, y + v.y, z + v.z, w + v.w ); }
         Vector4F    operator -      (const Vector4F& v) const { return Vector4F( x - v.x, y - v.y, z - v.z, w - v.w ); }
         Vector4F&   operator +=     (const Vector4F& v) { x += v.x, y += v.y; z += v.z; w += v.w; return *this; }
         Vector4F&   operator -=     (const Vector4F& v) { x -= v.x, y -= v.y; z -= v.z; w -= v.w; return *this; }
+
+        String toString() const { return "(" + TS(x) + "," + TS(y) + "," + TS(z) + "," +TS(w) + ")"; }
     };
 
     //**********************************************************************
     class Quaternion : public DirectX::XMFLOAT4
     {
     public:
-        Quaternion(float x = 0, float y = 0, float z = 0, float w = 1);
+        Quaternion(F32 x = 0, F32 y = 0, F32 z = 0, F32 w = 1);
+        Quaternion(const Vector3F& axis, F32 angleInDegrees);
 
-        Quaternion    operator +      (const Quaternion& v) const { return Quaternion(x + v.x, y + v.y, z + v.z, w + v.w); }
-        Quaternion    operator -      (const Quaternion& v) const { return Quaternion(x - v.x, y - v.y, z - v.z, w - v.w); }
-        Quaternion&   operator +=     (const Quaternion& v) { x += v.x, y += v.y; z += v.z; w += v.w; return *this; }
-        Quaternion&   operator -=     (const Quaternion& v) { x -= v.x, y -= v.y; z -= v.z; w -= v.w; return *this; }
+        Quaternion  operator *  (const Quaternion& q)    const;
+        Vector3F    operator *  (const Vector3F& v)      const;
+        Quaternion& operator *= (const Quaternion& q);
+
+        Vector3F getForward()   const { return *this * Vector3F::FORWARD; }
+        Vector3F getBack()      const { return *this * Vector3F::BACK; }
+        Vector3F getLeft()      const { return *this * Vector3F::LEFT; }
+        Vector3F getRight()     const { return *this * Vector3F::RIGHT; }
+        Vector3F getUp()        const { return *this * Vector3F::UP; }
+        Vector3F getDown()      const { return *this * Vector3F::DOWN; }
+
+        static Quaternion LookRotation(const Vector3F& forward, const Vector3F& up);
+
+        String toString() const { return "(" + TS(x) + "," + TS(y) + "," + TS(z) + "," + TS(w) + ")"; }
 
         // Static members
         static const Quaternion IDENTITY;

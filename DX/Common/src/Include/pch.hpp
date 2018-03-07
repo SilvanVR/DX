@@ -24,3 +24,4 @@
 #include "Common/string.h"
 #include "Logging/logging.h"
 #include "Math/dxmath_wrapper.h"
+#include "Math/math_utils.h"

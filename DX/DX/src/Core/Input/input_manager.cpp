@@ -27,6 +27,7 @@ namespace Core { namespace Input {
         // Register some default axes
         m_axisMapper->registerAxis( "Vertical", Key::W, Key::S, 5.0f );
         m_axisMapper->registerAxis( "Horizontal", Key::A, Key::D, 5.0f );
+        m_axisMapper->registerAxis( "Up", Key::Space, Key::Shift, 5.0f);
     }
 
     //----------------------------------------------------------------------

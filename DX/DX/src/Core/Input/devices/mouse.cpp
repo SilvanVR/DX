@@ -167,6 +167,7 @@ namespace Core { namespace Input {
         {
             centerCursor();
             // m_cursorLastTick is always fixed (center of screen)
+            m_cursorLastTick = m_window->getCursorPosition();
         }
         else
         {
