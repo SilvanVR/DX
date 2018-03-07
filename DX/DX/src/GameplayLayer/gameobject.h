@@ -9,7 +9,6 @@
      - allow copying of gameobjects
 **********************************************************************/
 
-#include "Components/component_manager.hpp"
 #include "Components/i_component.h"
 #include "Logging/logging.h"
 
@@ -135,7 +134,7 @@ T* GameObject::addComponent( Args&&... args )
 template<typename T, typename... Args>
 T* GameObject::_CreateComponent( Args&&... args )
 {
-    T* component = Components::ComponentManager::Create<T>( std::forward<Args>( args )... );
+    T* component = m_attachedScene->getComponentManager().Create<T>( std::forward<Args>( args )... );
     Size hash = TypeHash<T>();
     m_components[hash] = component;
     return component;
@@ -147,6 +146,7 @@ void GameObject::_DestroyComponent( Size hash )
 {
     T* comp = dynamic_cast<T*>( m_components[hash] );
     comp->shutdown();
+    m_attachedScene->getComponentManager().Destroy<T>( comp );
     m_components.erase( hash );
     SAFE_DELETE( comp );
 }

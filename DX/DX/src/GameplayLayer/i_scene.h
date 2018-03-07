@@ -10,6 +10,7 @@
 **********************************************************************/
 
 #include "Time/durations.h"
+#include "Components/component_manager.h"
 
 namespace Core { class SceneManager; }
 class GameObject;
@@ -48,9 +49,13 @@ public:
     //----------------------------------------------------------------------
     GameObject* findGameObject(CString name);
 
+    //----------------------------------------------------------------------
+    Components::ComponentManager& getComponentManager(){ return m_componentManager; }
+
 private:
     StringID                        m_name;
     ArrayList<GameObject*>          m_gameObjects;
+    Components::ComponentManager    m_componentManager;
 
     //----------------------------------------------------------------------
     friend class Core::SceneManager;

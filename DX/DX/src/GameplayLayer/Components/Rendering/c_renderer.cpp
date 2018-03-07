@@ -8,19 +8,15 @@
 
 namespace Components {
 
-    //----------------------------------------------------------------------
-    ArrayList<CRenderer*> CRenderer::s_renderer;
 
     //----------------------------------------------------------------------
     CRenderer::CRenderer()
     {
-        s_renderer.push_back( this );
     }
 
     //----------------------------------------------------------------------
     CRenderer::~CRenderer()
     {
-        s_renderer.erase( std::remove( s_renderer.begin(), s_renderer.end(), this ) );
     }
 
 }

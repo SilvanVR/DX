@@ -34,13 +34,14 @@ namespace Core {
     {
         auto& graphicsEngine = Locator::getRenderer();
 
-        // Fetch all renderer components e.g. model-renderer
-        auto& renderers = Components::CRenderer::GetAll();
-
         auto& cmd = m_CommandBuffers[0];
         cmd->reset();
 
-        auto& cameras = Components::Camera::GetAll();
+        // Fetch all renderer components e.g. model-renderer
+        auto& renderers = scene.getComponentManager().getRenderer();
+
+        // Create rendering commands for each camera and submit them to the graphics-engine
+        auto& cameras = scene.getComponentManager().getCameras();
         for (auto& cam : cameras)
         {
             // @TODO: Where store command buffer per camera?
@@ -50,7 +51,7 @@ namespace Core {
             //foreach commandBuffer in camera->commandBuffers
                 //graphicsEngine->dispatch(commandBuffer)
 
-            // Do viewfrustum culling with every renderer component and THIS CAMERA
+            // Do viewfrustum culling with every renderer component
             for (auto& renderer : renderers)
             {
                 if ( !renderer->isActive() )
@@ -64,15 +65,6 @@ namespace Core {
             // Execute rendering commands
             graphicsEngine.dispatch( *m_CommandBuffers[0] );
         }
-
-        //auto& gameObjects = scene.getGameObjects();
-        //for ( auto go : gameObjects )
-        //{
-        //    if ( go->isActive() )
-        //    {
-        //        go->recordGraphicsCommands( *m_CommandBuffers[0], lerp );
-        //    }
-        //}
     }
 
 }

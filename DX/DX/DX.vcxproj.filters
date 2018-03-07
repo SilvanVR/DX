@@ -200,10 +200,10 @@
     <ClInclude Include="src\GameplayLayer\Components\Rendering\c_renderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\GameplayLayer\Components\component_manager.hpp">
+    <ClInclude Include="src\GameplayLayer\Components\fps_camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\GameplayLayer\Components\fps_camera.h">
+    <ClInclude Include="src\GameplayLayer\Components\component_manager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -15,14 +15,9 @@ namespace Components {
     //**********************************************************************
     class CRenderer : public IComponent
     {
-        static ArrayList<CRenderer*> s_renderer;
-
     public:
         CRenderer();
         virtual ~CRenderer();
-
-        //----------------------------------------------------------------------
-        static const ArrayList<CRenderer*>& GetAll() { return s_renderer; }
 
     private:
         //----------------------------------------------------------------------

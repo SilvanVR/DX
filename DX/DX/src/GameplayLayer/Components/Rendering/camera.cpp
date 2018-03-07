@@ -13,9 +13,6 @@
 namespace Components {
 
     //----------------------------------------------------------------------
-    ArrayList<Camera*> Camera::s_cameras;
-
-    //----------------------------------------------------------------------
     Camera::Camera( F32 fovAngleYInDegree, F32 zNear, F32 zFar )
     {
         m_cameraMode = EMode::PERSPECTIVE;
@@ -32,15 +29,6 @@ namespace Components {
     //----------------------------------------------------------------------
     Camera::~Camera()
     {
-        s_cameras.erase( std::remove( s_cameras.begin(), s_cameras.end(), this ) );
-    }
-
-    //----------------------------------------------------------------------
-    void Camera::addedToGameObject( GameObject* go )
-    {
-        // Do it here otherwise the core gameloop will throw errors, because it try 
-        // to render with this camera, but the gameobject var is not set yet
-        s_cameras.push_back( this );
     }
 
     //----------------------------------------------------------------------

@@ -17,8 +17,6 @@ namespace Components {
     //**********************************************************************
     class Camera : public IComponent
     {
-        static ArrayList<Camera*> s_cameras;
-
     public:
         //----------------------------------------------------------------------
         enum EMode
@@ -66,7 +64,6 @@ namespace Components {
         void recordGraphicsCommands(Graphics::CommandBuffer& cmd, F32 lerp) override;
 
         //----------------------------------------------------------------------
-        static const ArrayList<Camera*>& GetAll(){ return s_cameras; }
         // const DirectX::XMMATRIX& getProjectionMatrix() const { return m_projection; }
 
     private:
@@ -94,11 +91,6 @@ namespace Components {
 
         // Which layer this camera renders
         //Common::BitMask               m_layerMask; 
-
-        //----------------------------------------------------------------------
-        // IComponent Interface
-        //----------------------------------------------------------------------
-        void addedToGameObject(GameObject* go) override;
 
         //----------------------------------------------------------------------
         Camera(const Camera& other)               = delete;
