@@ -14,6 +14,7 @@
 #include "Pipeline/Buffers/D3D11Buffers.h"
 #include "Pipeline/D3D11Pass.h"
 #include "../command_buffer.h"
+#include "../render_texture.h"
 
 using namespace DirectX;
 
@@ -138,22 +139,59 @@ namespace Graphics {
         _DeinitD3D11();
     }
 
+    static RenderTexture* s_currentRenderTarget = nullptr;
+
     //----------------------------------------------------------------------
     void D3D11Renderer::dispatch( const CommandBuffer& cmd )
     {
         // Depth Prepass first
         // Render in offscreen framebuffer and blit result to the swapchain
-        m_pSwapchain->clear( m_clearColor, 1.0f, 0 );
 
-        auto renderTargetView = m_pSwapchain->getRenderTargetView();
-        auto depthStencilView = m_pSwapchain->getDepthStencilView();
-        g_pImmediateContext->OMSetRenderTargets( 1, &renderTargetView, depthStencilView);
+        for ( auto& command : cmd.getGPUCommands() )
+        {
+            switch ( command->getType() )
+            {
+                case GPUCommand::SET_RENDER_TARGET:
+                {
+                    GPUC_SetRenderTarget& c = *dynamic_cast<GPUC_SetRenderTarget*>( command.get() );
+                    _SetRenderTarget( c.renderTarget );
+                    break;
+                }
+                case GPUCommand::CLEAR_RENDER_TARGET:
+                {
+                    GPUC_ClearRenderTarget& c = *dynamic_cast<GPUC_ClearRenderTarget*>( command.get() );
+                    _ClearRenderTarget( c.clearColor );
+                    break;
+                }
+                case GPUCommand::SET_VIEWPORT:
+                {
+                    GPUC_SetViewport& c = *dynamic_cast<GPUC_SetViewport*>( command.get() );
+                    _SetViewport( c.viewport );
+                    break;
+                }
+                case GPUCommand::SET_CAMERA_PERSPECTIVE:
+                {
+                    GPUC_SetCameraPerspective& c = *dynamic_cast<GPUC_SetCameraPerspective*>( command.get() );
+                    _SetCameraPerspective( c.view, c.fov, c.zNear, c.zFar );
+                    break;
+                }
+                case GPUCommand::SET_CAMERA_ORTHO:
+                {
+                    GPUC_SetCameraOrtho& c = *dynamic_cast<GPUC_SetCameraOrtho*>( command.get() );
+                    _SetCameraOrtho( c.view, c.left, c.right, c.bottom, c.top, c.zNear, c.zFar );
+                    break;
+                }
+                default:
+                    WARN_RENDERING( "Unknown GPU Command in given command buffer!" );
+            }
+        }
 
         // Set Pipeline States
         g_pImmediateContext->IASetInputLayout(pInputLayout);
+        g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
         pVertexBuffer->bind( 0, sizeof(Vertex), 0 );
         pIndexBuffer->bind( DXGI_FORMAT_R32_UINT, 0 );
-        g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
         pConstantBufferCamera->bind(0);
         pConstantBufferObject->bind(1);
@@ -164,11 +202,7 @@ namespace Graphics {
         pPixelShader->bind();
 
         g_pImmediateContext->RSSetState(pRSState);
-        D3D11_VIEWPORT vp = {};
-        vp.Width    = static_cast<float>( m_window->getSize().x );
-        vp.Height   = static_cast<float>( m_window->getSize().y );
-        vp.MaxDepth = 1.0f;
-        g_pImmediateContext->RSSetViewports( 1, &vp );
+
 
         // Set constants
         static float angle = 0.0f;
@@ -178,36 +212,7 @@ namespace Graphics {
         XMMATRIX world = XMMatrixRotationAxis(rotationAxis, XMConvertToRadians(angle));
         pConstantBufferObject->updateSubresource( &world );
 
-        for ( auto& command : cmd.getGPUCommands() )
-        {
-            switch ( command->getType() )
-            {
-                case GPUCommand::SET_CAMERA_PERSPECTIVE:
-                {
-                    GPUC_SetCameraPerspective& c = *dynamic_cast<GPUC_SetCameraPerspective*>( command.get() );
-
-                    XMMATRIX proj = XMMatrixPerspectiveFovLH( XMConvertToRadians( c.fov ), vp.Width / vp.Height, c.zNear, c.zFar );
-                    XMMATRIX viewProj = c.view * proj;
-
-                    pConstantBufferCamera->updateSubresource( &viewProj );
-                    break;
-                }
-                case GPUCommand::SET_CAMERA_ORTHO:
-                {
-                    GPUC_SetCameraOrtho& c = *dynamic_cast<GPUC_SetCameraOrtho*>( command.get() );
-
-                    XMMATRIX proj =  XMMatrixOrthographicOffCenterLH( c.left, c.right, c.bottom, c.top, c.zNear, c.zFar );
-                    XMMATRIX viewProj = c.view * proj;
-
-                    pConstantBufferCamera->updateSubresource( &viewProj );
-                    break;
-                }
-            }
-        }
-
         g_pImmediateContext->DrawIndexed( _countof(indices), 0, 0 );
-
-        m_pSwapchain->present( m_vsync );
     }
 
     //----------------------------------------------------------------------
@@ -222,6 +227,12 @@ namespace Graphics {
     //**********************************************************************
     // PUBLIC
     //**********************************************************************
+
+    //----------------------------------------------------------------------
+    void D3D11Renderer::present()
+    {
+        m_pSwapchain->present( m_vsync );
+    }
 
     //----------------------------------------------------------------------
     void D3D11Renderer::setMultiSampleCount( U32 numSamples )
@@ -299,6 +310,72 @@ namespace Graphics {
         HR( g_pDevice->QueryInterface( __uuidof( ID3D11Debug ), reinterpret_cast<void**>( &pDebugDevice ) ) );
         HR( pDebugDevice->ReportLiveDeviceObjects( D3D11_RLDO_DETAIL ) );
         SAFE_RELEASE( pDebugDevice );
+    }
+
+    //----------------------------------------------------------------------
+    void D3D11Renderer::_SetRenderTarget( RenderTexture* renderTarget )
+    {
+        s_currentRenderTarget = renderTarget;
+
+        if (s_currentRenderTarget == nullptr)
+        {
+            auto renderTargetView = m_pSwapchain->getRenderTargetView();
+            auto depthStencilView = m_pSwapchain->getDepthStencilView();
+            g_pImmediateContext->OMSetRenderTargets( 1, &renderTargetView, depthStencilView );
+        }
+        else
+        {
+            // @TODO: Set rendertexture as target
+        }
+    }
+
+    //----------------------------------------------------------------------
+    void D3D11Renderer::_ClearRenderTarget( const Color& clearColor )
+    {
+        if (s_currentRenderTarget == nullptr)
+        {
+            m_pSwapchain->clear( clearColor, 1.0f, 0 );
+        }
+        else
+        {
+            // @TODO: Clear rendertexture
+        }
+    }
+
+    //----------------------------------------------------------------------
+    void D3D11Renderer::_SetCameraPerspective( const DirectX::XMMATRIX& view, F32 fov, F32 zNear, F32 zFar )
+    {
+        U32 numViewports = 1;
+        D3D11_VIEWPORT viewport;
+        g_pImmediateContext->RSGetViewports( &numViewports, &viewport);
+
+        //F32 ar = s_currentRenderTarget == nullptr ? m_window->getAspectRatio() : s_currentRenderTarget->getAspectRatio();
+        F32 ar = viewport.Width / viewport.Height;
+        XMMATRIX proj = XMMatrixPerspectiveFovLH( XMConvertToRadians( fov ), ar, zNear, zFar );
+        XMMATRIX viewProj = view * proj;
+
+        pConstantBufferCamera->updateSubresource( &viewProj );
+    }
+
+    //----------------------------------------------------------------------
+    void D3D11Renderer::_SetCameraOrtho( const DirectX::XMMATRIX& view, F32 left, F32 right, F32 bottom, F32 top, F32 zNear, F32 zFar )
+    {
+        XMMATRIX proj = XMMatrixOrthographicOffCenterLH( left, right, bottom, top, zNear, zFar );
+        XMMATRIX viewProj = view * proj;
+
+        pConstantBufferCamera->updateSubresource( &viewProj );
+    }
+
+    //----------------------------------------------------------------------
+    void D3D11Renderer::_SetViewport( const ViewportRect& viewport )
+    {
+        D3D11_VIEWPORT vp = {};
+        vp.TopLeftX = viewport.topLeftX;
+        vp.TopLeftY = viewport.topLeftY;
+        vp.Width    = viewport.width;
+        vp.Height   = viewport.height;
+        vp.MaxDepth = 1.0f;
+        g_pImmediateContext->RSSetViewports( 1, &vp );
     }
 
 } // End namespaces

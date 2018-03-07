@@ -12,6 +12,7 @@
 #include "locator.h"
 #include "Logging/logging.h"
 #include "Common/string_utils.h"
+#include "GameplayLayer/i_scene.h"
 
 namespace Core { 
 
@@ -66,9 +67,10 @@ namespace Core {
     }
 
     //----------------------------------------------------------------------
-    void Red() { Locator::getRenderer().setClearColor( Color::RED ); }
-    void Green() { Locator::getRenderer().setClearColor(Color::GREEN); }
-    void Blue() { Locator::getRenderer().setClearColor(Color::BLUE); }
+    void Red()      { SCENE.getMainCamera()->setClearColor( Color::RED ); }
+    void Green()    { SCENE.getMainCamera()->setClearColor( Color::GREEN ); }
+    void Blue()     { SCENE.getMainCamera()->setClearColor( Color::BLUE ); }
+    void Black()    { SCENE.getMainCamera()->setClearColor(Color::BLACK); }
 
     //----------------------------------------------------------------------
     void Help()
@@ -91,6 +93,7 @@ namespace Core {
         IGC_REGISTER_COMMAND( Red );
         IGC_REGISTER_COMMAND( Green );
         IGC_REGISTER_COMMAND( Blue );
+        IGC_REGISTER_COMMAND( Black );
         IGC_REGISTER_COMMAND_WITH_NAME( "mem", MemoryStats );
         IGC_REGISTER_COMMAND_WITH_NAME( "fs", ToggleFullscreen );
         IGC_REGISTER_COMMAND_WITH_NAME( "fps", FirstPersonMode );

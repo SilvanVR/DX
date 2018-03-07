@@ -14,7 +14,6 @@ namespace Graphics {
         m_gpuCommands.reserve( COMMAND_BUFFER_INITIAL_CAPACITY );
     }
 
-
     //----------------------------------------------------------------------
     void CommandBuffer::reset()
     {
@@ -28,8 +27,15 @@ namespace Graphics {
     }
 
     //----------------------------------------------------------------------
-    void CommandBuffer::setRenderTarget( Graphics::RenderTexture* renderTarget, const Color& clearColor )
+    void CommandBuffer::setRenderTarget( Graphics::RenderTexture* renderTarget )
     {
+        m_gpuCommands.push_back( std::make_unique<GPUC_SetRenderTarget>( renderTarget ) );
+    }
+
+    //----------------------------------------------------------------------
+    void CommandBuffer::clearRenderTarget( const Color& clearColor )
+    {
+        m_gpuCommands.push_back( std::make_unique<GPUC_ClearRenderTarget>( clearColor ) );
     }
 
     //----------------------------------------------------------------------
@@ -42,6 +48,12 @@ namespace Graphics {
     void CommandBuffer::setCameraOrtho( const DirectX::XMMATRIX& view, F32 left, F32 right, F32 bottom, F32 top, F32 zNear, F32 zFar )
     {
         m_gpuCommands.push_back( std::make_unique<GPUC_SetCameraOrtho>( view, left, right, bottom, top, zNear, zFar ) );
+    }
+
+    //----------------------------------------------------------------------
+    void CommandBuffer::setViewport(const Graphics::ViewportRect& viewport)
+    {
+        m_gpuCommands.push_back( std::make_unique<GPUC_SetViewport>( viewport ) );
     }
 
 } // End namespaces

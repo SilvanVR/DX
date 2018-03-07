@@ -10,7 +10,7 @@
 **********************************************************************/
 
 //----------------------------------------------------------------------
-#define COMMAND_BUFFER_COUNT 2
+#define COMMAND_BUFFER_COUNT 3
 
 //----------------------------------------------------------------------
 class IScene;
@@ -30,7 +30,7 @@ namespace Core {
         //----------------------------------------------------------------------
         void init();
         void shutdown();
-        void render( IScene& scene, F32 lerp );
+        void dispatch( IScene& scene, F32 lerp );
 
     private:
         Graphics::CommandBuffer* m_CommandBuffers[COMMAND_BUFFER_COUNT];

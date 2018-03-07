@@ -57,6 +57,17 @@ GameObject* IScene::findGameObject( CString name )
     return nullptr;
 }
 
+Components::Camera* IScene::getMainCamera()
+{
+    for ( auto& cam : m_componentManager.getCameras() )
+    {
+        if( cam->getRenderTarget() == nullptr )
+            return cam;
+    }
+
+    return nullptr;
+}
+
 //**********************************************************************
 // PRIVATE
 //**********************************************************************

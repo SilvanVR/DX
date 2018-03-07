@@ -9,6 +9,8 @@
 #include "GameplayLayer/Components/transform.h"
 #include "GameplayLayer/gameobject.h"
 #include "Graphics/command_buffer.h"
+#include "Graphics/render_texture.h"
+#include "locator.h"
 
 namespace Components {
 
@@ -34,9 +36,36 @@ namespace Components {
     //----------------------------------------------------------------------
     void Camera::recordGraphicsCommands( Graphics::CommandBuffer& cmd, F32 lerp )
     {
-        // Set camera parameters
-        cmd.setRenderTarget( getRenderTarget(), getClearColor() );
+        // Set render target
+        cmd.setRenderTarget( getRenderTarget() );
 
+        // Clear render target if desired
+        switch (m_clearMode)
+        {
+        case EClearMode::NONE: break;
+        case EClearMode::COLOR: cmd.clearRenderTarget( getClearColor() ); break;
+        default: WARN( "Unknown Clear-Mode in camera!" );
+        }
+
+        // Set viewport (Translate to pixel coordinates)
+        Graphics::ViewportRect screenRect;
+        if ( isRenderingToScreen() )
+        {
+            screenRect.topLeftX = m_viewport.topLeftX * Locator::getWindow().getWidth();
+            screenRect.topLeftY = m_viewport.topLeftY * Locator::getWindow().getHeight();
+            screenRect.width    = m_viewport.width    * Locator::getWindow().getWidth();
+            screenRect.height   = m_viewport.height   * Locator::getWindow().getHeight();
+        }
+        else
+        {
+            screenRect.topLeftX = m_viewport.topLeftX * m_renderTarget->getWidth();
+            screenRect.topLeftY = m_viewport.topLeftY * m_renderTarget->getHeight();
+            screenRect.width    = m_viewport.width    * m_renderTarget->getWidth();
+            screenRect.height   = m_viewport.height   * m_renderTarget->getHeight();
+        }
+        cmd.setViewport( screenRect );
+
+        // Set view / projection params
         Transform* transform = getGameObject()->getComponent<Components::Transform>();
 
         DirectX::XMVECTOR s = DirectX::XMVectorSet( 1, 1, 1, 1 ); // Scale doesn't matter
@@ -48,15 +77,16 @@ namespace Components {
 
         switch ( m_cameraMode )
         {
-        case Components::Camera::PERSPECTIVE:
+        case Camera::PERSPECTIVE:
             cmd.setCameraPerspective( view, getFOV(), getZNear(), getZFar() );
             break;
-        case Components::Camera::ORTHOGRAPHIC:
+        case Camera::ORTHOGRAPHIC:
             cmd.setCameraOrtho( view, getLeft(), getRight(), getBottom(), getTop(), getZNear(), getZFar() );
             break;
         default:
             WARN_RENDERING( "UNKNOWN CAMERA MODE" );
         }
+
     }
 
     //**********************************************************************
@@ -66,7 +96,7 @@ namespace Components {
     //----------------------------------------------------------------------
     void Camera::setOrthoParams( F32 left, F32 right, F32 bottom, F32 top, F32 zNear, F32 zFar )
     {
-        m_left = left; m_right = right; m_bottom = bottom; m_top = top; m_zNear = zNear; m_zFar = zFar;
+        m_ortho.left = left; m_ortho.right = right; m_ortho.bottom = bottom; m_ortho.top = top; m_zNear = zNear; m_zFar = zFar;
     }
 
     //----------------------------------------------------------------------
@@ -75,13 +105,11 @@ namespace Components {
         m_fov = fovAngleYInDegree; m_zNear = zNear; m_zFar = zFar;
     }
 
-    ////----------------------------------------------------------------------
-    //F32 Camera::getAspecRatio() const
-    //{
-    //    // if (m_renderTexture == nullptr)
-    //    OS::Window& window = Locator::getWindow();
-    //    return window.getWidth() / (F32) window.getHeight();
-    //}
+    //----------------------------------------------------------------------
+    F32 Camera::getAspectRatio() const
+    {
+        return isRenderingToScreen() ? Locator::getWindow().getAspectRatio() : m_renderTarget->getAspectRatio();
+    }
 
     //**********************************************************************
     // PRIVATE

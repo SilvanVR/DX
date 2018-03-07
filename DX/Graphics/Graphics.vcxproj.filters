@@ -95,5 +95,8 @@
     <ClInclude Include="src\Include\Graphics\gpu_commands.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Include\Graphics\structs.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -30,12 +30,11 @@ namespace Core {
     }
 
     //----------------------------------------------------------------------
-    void GraphicsCommandRecorder::render( IScene& scene, F32 lerp )
+    void GraphicsCommandRecorder::dispatch( IScene& scene, F32 lerp )
     {
         auto& graphicsEngine = Locator::getRenderer();
 
-        auto& cmd = m_CommandBuffers[0];
-        cmd->reset();
+        int cmdIndex = 0;
 
         // Fetch all renderer components e.g. model-renderer
         auto& renderers = scene.getComponentManager().getRenderer();
@@ -44,6 +43,9 @@ namespace Core {
         auto& cameras = scene.getComponentManager().getCameras();
         for (auto& cam : cameras)
         {
+            auto& cmd = m_CommandBuffers[cmdIndex++];
+            cmd->reset();
+
             // @TODO: Where store command buffer per camera?
             cam->recordGraphicsCommands( *cmd, lerp );
 
@@ -63,8 +65,9 @@ namespace Core {
             }
 
             // Execute rendering commands
-            graphicsEngine.dispatch( *m_CommandBuffers[0] );
+            graphicsEngine.dispatch( *cmd);
         }
+
     }
 
 }

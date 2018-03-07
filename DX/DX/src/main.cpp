@@ -94,9 +94,11 @@ U32 indices[36] = {
 class MyScene : public IScene
 {
     GameObject* go;
+    GameObject* go2;
+
+    Components::Camera* cam;
 
     Graphics::Model* m;
-    Components::Camera* cam;
 
 public:
     MyScene() : IScene("MyScene"){}
@@ -109,6 +111,23 @@ public:
         cam = go->addComponent<Components::Camera>();
         go->getComponent<Components::Transform>()->position = Math::Vec3(0,0,-10);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 10.0f, 0.3f);
+
+        //auto& viewport = cam->getViewport();
+        //viewport.width  = 0.5f;
+        //viewport.height = 0.5f;
+
+        {
+            //go2 = createGameObject("Camera2");
+            //auto cam2 = go2->addComponent<Components::Camera>();
+            //go2->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -5);
+            //cam2->setClearMode(Components::Camera::EClearMode::NONE);
+
+            //auto& viewport2 = cam2->getViewport();
+            //viewport2.topLeftX = 0.5f;
+            //viewport2.topLeftY = 0;
+            //viewport2.width = 0.5f;
+            //viewport2.height = 0.5f;
+        }
 
         go = createGameObject("Test");
         auto mr = go->addComponent<Components::ModelRenderer>();

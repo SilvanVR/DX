@@ -10,7 +10,7 @@
 
 #include "SubSystem/i_subsystem.hpp"
 #include "OS/Window/window.h"
-#include "Common/color.h"
+#include "structs.hpp"
 
 namespace Graphics {
 
@@ -26,15 +26,21 @@ namespace Graphics {
         virtual ~IRenderer() {}
 
         //----------------------------------------------------------------------
+        // Dispatches the given command buffer for execution on the gpu.
+        //----------------------------------------------------------------------
         virtual void dispatch( const CommandBuffer& cmd ) = 0;
+
+        //----------------------------------------------------------------------
+        // Presents the latest backbuffer to the screen.
+        //----------------------------------------------------------------------
+        virtual void present() = 0;
 
         //----------------------------------------------------------------------
         virtual void setVSync(bool enabled) = 0;
         virtual void setMultiSampleCount(U32 numSamples) = 0;
-        virtual void setClearColor(Color clearColor) = 0;
 
     protected:
-        OS::Window* m_window    = nullptr;
+        OS::Window* m_window = nullptr;
 
         //----------------------------------------------------------------------
         virtual void OnWindowSizeChanged(U16 w, U16 h) = 0;

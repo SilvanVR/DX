@@ -50,6 +50,11 @@ public:
     GameObject* findGameObject(CString name);
 
     //----------------------------------------------------------------------
+    // Returns the first camera component which renders to the screen.
+    //----------------------------------------------------------------------
+    Components::Camera* getMainCamera();
+
+    //----------------------------------------------------------------------
     Components::ComponentManager& getComponentManager(){ return m_componentManager; }
 
 private:

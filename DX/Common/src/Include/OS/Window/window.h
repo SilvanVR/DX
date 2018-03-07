@@ -60,6 +60,7 @@ namespace OS {
         U16         getWidth() const { return m_width; }
         U16         getHeight() const { return m_height; }
         Point2D     getSize() const { return Point2D{ (I16)m_width, (I16)m_height }; }
+        F32         getAspectRatio() const { return (F32)m_width / m_height; }
 
         NativeWindowHandle getHWND() const { return m_hwnd; }
 

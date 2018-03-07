@@ -173,6 +173,7 @@
     <ClInclude Include="src\Include\Graphics\i_renderer.h" />
     <ClInclude Include="src\Include\Graphics\model.h" />
     <ClInclude Include="src\Include\Graphics\render_texture.h" />
+    <ClInclude Include="src\Include\Graphics\structs.hpp" />
     <ClInclude Include="src\Include\Graphics\vertex_layout.hpp" />
     <ClInclude Include="src\stdafx.h" />
   </ItemGroup>

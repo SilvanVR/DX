@@ -14,6 +14,8 @@
 
 namespace Graphics {
 
+    class RenderTexture;
+
     //**********************************************************************
     // D3D11 Renderer Subsystem.
     //**********************************************************************
@@ -30,14 +32,20 @@ namespace Graphics {
         void init() override;
         void shutdown() override;
         void dispatch(const CommandBuffer& cmd) override;
+        void present() override;
         void setVSync(bool enabled) override { m_vsync = enabled; }
-        void setClearColor(Color clearColor) { m_clearColor = clearColor; }
         void setMultiSampleCount(U32 numSamples) override;
 
     private:
         D3D11::Swapchain*   m_pSwapchain    = nullptr;
-        Color               m_clearColor    = Color::BLACK;
         bool                m_vsync         = false;
+
+        //----------------------------------------------------------------------
+        inline void _SetRenderTarget(RenderTexture* renderTarget);
+        inline void _ClearRenderTarget(const Color& clearColor);
+        inline void _SetCameraPerspective(const DirectX::XMMATRIX& view, F32 fov, F32 zNear, F32 zFar);
+        inline void _SetCameraOrtho(const DirectX::XMMATRIX& view, F32 left, F32 right, F32 bottom, F32 top, F32 zNear, F32 zFar);
+        inline void _SetViewport(const ViewportRect& viewport);
 
         //----------------------------------------------------------------------
         void _InitD3D11();

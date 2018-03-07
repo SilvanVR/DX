@@ -55,7 +55,7 @@ namespace Core {
         while ( m_isRunning && not m_window.shouldBeClosed() )
         {
             Time::Seconds delta = m_engineClock._Update();
-            //if (delta > 0.5f) delta = 0.5f;
+            if (delta > 0.5f) delta = 0.5f;
 
             {
                 _NotifyOnUpdate( delta );
@@ -78,7 +78,10 @@ namespace Core {
                 //ASSERT( lerp <= 1.0 );
 
                 // Records rendering commands for the current scene and dispatches them to the renderer
-                m_graphicsCommandRecorder.render( SCENE, (F32)lerp );
+                m_graphicsCommandRecorder.dispatch( SCENE, (F32)lerp );
+
+                // Present backbuffer to screen
+                Locator::getRenderer().present();
             }
 
             m_window.processOSMessages();

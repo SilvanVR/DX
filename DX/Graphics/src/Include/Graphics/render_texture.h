@@ -13,7 +13,11 @@ namespace Graphics
 
     class RenderTexture
     {
+    public:
 
+        F32 getAspectRatio() const { return 1.0f; }
+        F32 getWidth() const { return 1.0f; }
+        F32 getHeight() const { return 1.0f; }
     };
 
 
