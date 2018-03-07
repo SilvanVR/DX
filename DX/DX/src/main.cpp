@@ -94,9 +94,8 @@ U32 indices[36] = {
 class MyScene : public IScene
 {
     GameObject* go;
-    Graphics::Model* m;
 
-    GameObject* cameraGO;
+    Graphics::Model* m;
     Components::Camera* cam;
 
 public:
@@ -106,10 +105,10 @@ public:
     {
         LOG("MyScene initialized!", Color::RED);
 
-        cameraGO = createGameObject("Camera");
-        cam = cameraGO->addComponent<Components::Camera>();
-        cameraGO->getComponent<Components::Transform>()->position = Math::Vec3(0,0,-10);
-        cameraGO->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 10.0f, 0.3f);
+        go = createGameObject("Camera");
+        cam = go->addComponent<Components::Camera>();
+        go->getComponent<Components::Transform>()->position = Math::Vec3(0,0,-1);
+        go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 10.0f, 0.3f);
 
         go = createGameObject("Test");
         auto mr = go->addComponent<Components::ModelRenderer>();

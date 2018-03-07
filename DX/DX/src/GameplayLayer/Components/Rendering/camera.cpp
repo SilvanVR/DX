@@ -51,7 +51,7 @@ namespace Components {
 
         Transform* transform = getGameObject()->getComponent<Components::Transform>();
 
-        DirectX::XMVECTOR s = DirectX::XMVectorSet( 1, 1, 1, 1 );
+        DirectX::XMVECTOR s = DirectX::XMVectorSet( 1, 1, 1, 1 ); // Scale doesn't matter
         DirectX::XMVECTOR r = DirectX::XMLoadFloat4( &transform->rotation );
         DirectX::XMVECTOR p = DirectX::XMLoadFloat3( &transform->position );
 

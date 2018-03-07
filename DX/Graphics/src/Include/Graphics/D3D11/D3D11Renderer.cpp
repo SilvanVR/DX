@@ -172,11 +172,11 @@ namespace Graphics {
 
         // Set constants
         static float angle = 0.0f;
-        //F32 delta = (F32)Locator::getProfiler().getUpdateDelta().value;
         F32 delta = 0.16f;
-        //angle += delta * 0.01f;
+        angle += delta * 0.01f;
         XMVECTOR rotationAxis = XMVectorSet(0, 1, 1, 0);
         XMMATRIX world = XMMatrixRotationAxis(rotationAxis, XMConvertToRadians(angle));
+        pConstantBufferObject->updateSubresource( &world );
 
         for ( auto& command : cmd.getGPUCommands() )
         {
@@ -184,26 +184,25 @@ namespace Graphics {
             {
                 case GPUCommand::SET_CAMERA_PERSPECTIVE:
                 {
-                    GPUC_SetCameraPerspective c = *dynamic_cast<GPUC_SetCameraPerspective*>( command.get() );
+                    GPUC_SetCameraPerspective& c = *dynamic_cast<GPUC_SetCameraPerspective*>( command.get() );
 
                     XMMATRIX proj = XMMatrixPerspectiveFovLH( XMConvertToRadians( c.fov ), vp.Width / vp.Height, c.zNear, c.zFar );
                     XMMATRIX viewProj = c.view * proj;
 
-                    pConstantBufferCamera->updateSubresource(&viewProj);
+                    pConstantBufferCamera->updateSubresource( &viewProj );
+                    break;
+                }
+                case GPUCommand::SET_CAMERA_ORTHO:
+                {
+                    GPUC_SetCameraOrtho& c = *dynamic_cast<GPUC_SetCameraOrtho*>( command.get() );
+
+                    XMMATRIX proj =  XMMatrixOrthographicOffCenterLH( c.left, c.right, c.bottom, c.top, c.zNear, c.zFar );
+                    XMMATRIX viewProj = c.view * proj;
+
+                    pConstantBufferCamera->updateSubresource( &viewProj );
                     break;
                 }
             }
-        }
-
-        {
-            //XMVECTOR eyePosition = XMVectorSet(xPos, 0, -10 + zPos, 1);
-            ////XMMATRIX view = XMMatrixLookAtLH(eyePosition, { 0,0,0 }, {0,1,0});
-            //XMMATRIX view = XMMatrixLookToLH(eyePosition, {0,0,1}, {0,1,0});
-            //XMMATRIX proj = XMMatrixPerspectiveFovLH(XMConvertToRadians(45.0f), vp.Width / vp.Height, 0.1f, 100.0f);
-
-            //XMMATRIX viewProj = view*proj;
-            //pConstantBufferCamera->updateSubresource( &viewProj);
-            pConstantBufferObject->updateSubresource( &world );
         }
 
         g_pImmediateContext->DrawIndexed( _countof(indices), 0, 0 );

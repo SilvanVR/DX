@@ -55,7 +55,7 @@ namespace Graphics {
     public:
         GPUC_SetCameraOrtho( const DirectX::XMMATRIX& _view, F32 _left, F32 _right, F32 _bottom, F32 _top, F32 _zNear, F32 _zFar )
             : GPUCommandBase( GPUCommand::SET_CAMERA_ORTHO ), 
-            left( _left ), right( _right ), bottom( _bottom ), top( _top ), zNear( _zNear ), zFar( _zFar ) {}
+            view( _view ), left( _left ), right( _right ), bottom( _bottom ), top( _top ), zNear( _zNear ), zFar( _zFar ) {}
 
         DirectX::XMMATRIX view;
         F32 left;
