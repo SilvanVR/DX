@@ -10,6 +10,7 @@
     used to gain a huge performance boost in compilation.
 **********************************************************************/
 
+#include <memory>
 #include "pch.hpp"
 #include "Common/color.h"
 

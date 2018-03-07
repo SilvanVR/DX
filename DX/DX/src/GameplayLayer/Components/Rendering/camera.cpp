@@ -20,7 +20,6 @@ namespace Components {
     {
         m_cameraMode = EMode::PERSPECTIVE;
         setPerspectiveParams( fovAngleYInDegree, zNear, zFar );
-        s_cameras.push_back( this );
     }
 
     //----------------------------------------------------------------------
@@ -28,13 +27,20 @@ namespace Components {
     {
         m_cameraMode = EMode::ORTHOGRAPHIC;
         setOrthoParams( left, right, bottom, top, zNear, zFar );
-        s_cameras.push_back( this );
     }
 
     //----------------------------------------------------------------------
     Camera::~Camera()
     {
-        std::remove( s_cameras.begin(), s_cameras.end(), this );
+        s_cameras.erase( std::remove( s_cameras.begin(), s_cameras.end(), this ) );
+    }
+
+    //----------------------------------------------------------------------
+    void Camera::addedToGameObject( GameObject* go )
+    {
+        // Do it here otherwise the core gameloop will throw errors, because it try 
+        // to render with this camera, but the gameobject var is not set yet
+        s_cameras.push_back( this );
     }
 
     //----------------------------------------------------------------------
@@ -43,9 +49,14 @@ namespace Components {
         // Set camera parameters
         cmd.setRenderTarget( getRenderTarget(), getClearColor() );
 
-        auto transform = getGameObject()->getComponent<Components::Transform>();
-        auto& transformation = transform->getTransformationMatrix();
-        auto view = DirectX::XMMatrixTranspose( transformation );
+        Transform* transform = getGameObject()->getComponent<Components::Transform>();
+
+        DirectX::XMVECTOR s = DirectX::XMVectorSet( 1, 1, 1, 1 );
+        DirectX::XMVECTOR r = DirectX::XMLoadFloat4( &transform->rotation );
+        DirectX::XMVECTOR p = DirectX::XMLoadFloat3( &transform->position );
+
+        auto view = DirectX::XMMatrixAffineTransformation( s, DirectX::XMQuaternionIdentity(), r, p );
+       // auto view2 = DirectX::XMMatrixTranspose( transformation );
 
         switch ( m_cameraMode )
         {

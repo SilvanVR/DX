@@ -90,6 +90,22 @@ U32 indices[36] = {
     4, 0, 3, 4, 3, 7
 };
 
+class FPSCamera : public Components::IComponent
+{
+    float m_speed = 1.0f;
+public:
+    FPSCamera(float speed) : m_speed(speed) {}
+
+    void Tick(Time::Seconds delta) override
+    {
+        Components::Transform* transform = getGameObject()->getComponent<Components::Transform>();
+
+        transform->position.x += (F32)AXIS_MAPPER.getAxisValue("Horizontal") * (F32)delta.value * m_speed;
+        transform->position.z -= (F32)AXIS_MAPPER.getAxisValue("Vertical") * (F32)delta.value * m_speed;
+    }
+
+};
+
 class MyScene : public IScene
 {
     GameObject* go;
@@ -106,6 +122,8 @@ public:
 
         cameraGO = createGameObject("Camera");
         auto cam = cameraGO->addComponent<Components::Camera>();
+        cameraGO->getComponent<Components::Transform>()->position = Math::Vec3(0,0,10);
+        cameraGO->addComponent<FPSCamera>(10);
 
         go = createGameObject("Test");
         auto mr = go->addComponent<Components::ModelRenderer>();
@@ -204,15 +222,22 @@ public:
         if (KEYBOARD.wasKeyPressed(Key::Two))
             Locator::getSceneManager().LoadSceneAsync(new MyScene2);
 
-        if (KEYBOARD.wasKeyPressed(Key::One))
-            Locator::getRenderer().setMultiSampleCount(1);
-        if (KEYBOARD.wasKeyPressed(Key::Four))
-            Locator::getRenderer().setMultiSampleCount(4);
-        if (KEYBOARD.wasKeyPressed(Key::Eight))
-            Locator::getRenderer().setMultiSampleCount(8);
+        if (KEYBOARD.wasKeyPressed(Key::M))
+            _ChangeMultiSampling();
 
         if( KEYBOARD.isKeyDown( Key::Escape ) )
             terminate();
+    }
+
+    //----------------------------------------------------------------------
+    void _ChangeMultiSampling()
+    {
+        static int index = 0;
+        int mscounts[]{ 1,4,8 };
+        int newmscount = mscounts[index];
+        index = (index + 1) % (sizeof(mscounts) / sizeof(int));
+        Locator::getRenderer().setMultiSampleCount(newmscount);
+        LOG("New Multisample-Count: " + TS(newmscount), Color::GREEN);
     }
 
     //----------------------------------------------------------------------

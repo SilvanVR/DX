@@ -14,7 +14,6 @@ namespace Graphics { class RenderTexture; }
 
 namespace Components {
 
-
     //**********************************************************************
     class Camera : public IComponent
     {
@@ -31,11 +30,6 @@ namespace Components {
         Camera(F32 fovAngleYInDegree = 45.0f, F32 zNear = 0.1f, F32 zFar = 1000.0f);
         Camera(F32 left, F32 right, F32 bottom, F32 top, F32 zNear, F32 zFar);
         ~Camera();
-
-        //----------------------------------------------------------------------
-        // IComponent Interface
-        //----------------------------------------------------------------------
-        void recordGraphicsCommands(Graphics::CommandBuffer& cmd, F32 lerp) override;
 
         //----------------------------------------------------------------------
         void setCameraMode          (Camera::EMode mode)        { m_cameraMode = mode; }
@@ -67,6 +61,11 @@ namespace Components {
         Graphics::RenderTexture* getRenderTarget(){ return m_renderTarget; }
 
         //----------------------------------------------------------------------
+        // IComponent Interface
+        //----------------------------------------------------------------------
+        void recordGraphicsCommands(Graphics::CommandBuffer& cmd, F32 lerp) override;
+
+        //----------------------------------------------------------------------
         static const ArrayList<Camera*>& GetAll(){ return s_cameras; }
         // const DirectX::XMMATRIX& getProjectionMatrix() const { return m_projection; }
 
@@ -96,10 +95,10 @@ namespace Components {
         // Which layer this camera renders
         //Common::BitMask               m_layerMask; 
 
-
         //----------------------------------------------------------------------
-        //void
-
+        // IComponent Interface
+        //----------------------------------------------------------------------
+        void addedToGameObject(GameObject* go) override;
 
         //----------------------------------------------------------------------
         Camera(const Camera& other)               = delete;

@@ -11,6 +11,7 @@
 #include "GameplayLayer/gameobject.h"
 #include "Graphics/command_buffer.h"
 #include "GameplayLayer/Components/Rendering/camera.h"
+#include "GameplayLayer/Components/Rendering/c_renderer.h"
 
 namespace Core {
 
@@ -34,15 +35,15 @@ namespace Core {
         auto& graphicsEngine = Locator::getRenderer();
 
         // Fetch all renderer components e.g. model-renderer
-        //CRenderer renderer = scene.getRenderer();
+        auto& renderers = Components::CRenderer::GetAll();
 
         auto& cmd = m_CommandBuffers[0];
+        cmd->reset();
 
         auto& cameras = Components::Camera::GetAll();
-        for ( auto& cam : cameras )
+        for (auto& cam : cameras)
         {
             // @TODO: Where store command buffer per camera?
-
             cam->recordGraphicsCommands( *cmd, lerp );
 
             // Add optionally attached command buffer aswell
@@ -50,16 +51,19 @@ namespace Core {
                 //graphicsEngine->dispatch(commandBuffer)
 
             // Do viewfrustum culling with every renderer component and THIS CAMERA
-            //foreach renderer in renderer
+            for (auto& renderer : renderers)
+            {
+                if ( !renderer->isActive() )
+                    continue;
                 //bool isVisible = renderer->Cull(camera);
                 //bool layerMatch = camera->layerMask & renderer->getLayerMask();
                 //if (isVisible && layerMatch)
-                    //renderer->recordCommands(cmd); // cmd contains commands to render this specific renderer e.g. model
+                     renderer->recordGraphicsCommands( *cmd, lerp );
+            }
 
-            // Execute render commands
-            //graphicsEngine.dispatch(cmd);
+            // Execute rendering commands
+            graphicsEngine.dispatch( *m_CommandBuffers[0] );
         }
-
 
         //auto& gameObjects = scene.getGameObjects();
         //for ( auto go : gameObjects )
@@ -69,8 +73,6 @@ namespace Core {
         //        go->recordGraphicsCommands( *m_CommandBuffers[0], lerp );
         //    }
         //}
-
-        graphicsEngine.dispatch( *m_CommandBuffers[0] );
     }
 
 }

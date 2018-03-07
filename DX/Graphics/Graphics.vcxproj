@@ -169,6 +169,7 @@
     <ClInclude Include="src\Include\Graphics\D3D11\Pipeline\Buffers\D3D11IBuffer.h" />
     <ClInclude Include="src\Include\Graphics\D3D11\Pipeline\D3D11Pass.h" />
     <ClInclude Include="src\Include\Graphics\D3D11\Pipeline\Shaders\D3D11Shader.h" />
+    <ClInclude Include="src\Include\Graphics\gpu_commands.hpp" />
     <ClInclude Include="src\Include\Graphics\i_renderer.h" />
     <ClInclude Include="src\Include\Graphics\model.h" />
     <ClInclude Include="src\Include\Graphics\render_texture.h" />

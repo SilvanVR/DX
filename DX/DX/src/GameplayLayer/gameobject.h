@@ -9,11 +9,11 @@
      - allow copying of gameobjects
 **********************************************************************/
 
+#include "Components/component_manager.hpp"
 #include "Components/i_component.h"
 #include "Logging/logging.h"
 
 class IScene;
-namespace Core { class GraphicsCommandRecorder; }
 
 //**********************************************************************
 class GameObject
@@ -46,10 +46,6 @@ private:
     void _PreTick(Time::Seconds delta);
     void _Tick(Time::Seconds delta);
     void _LateTick(Time::Seconds delta);
-
-    //----------------------------------------------------------------------
-    friend class Core::GraphicsCommandRecorder;
-    void recordGraphicsCommands(Graphics::CommandBuffer& cmd, F32 lerp);
 
     //----------------------------------------------------------------------
     // Creates the component in memory.
@@ -139,8 +135,7 @@ T* GameObject::addComponent( Args&&... args )
 template<typename T, typename... Args>
 T* GameObject::_CreateComponent( Args&&... args )
 {
-    //@TODO: More sophisticated allocation scheme for components
-    T* component = new T( std::forward<Args>( args )... );
+    T* component = Components::ComponentManager::Create<T>( std::forward<Args>( args )... );
     Size hash = TypeHash<T>();
     m_components[hash] = component;
     return component;

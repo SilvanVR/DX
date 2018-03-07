@@ -30,6 +30,8 @@ namespace Components {
         bool                isActive()      const   { return m_isActive; }
         void                setActive(bool active)  { m_isActive = active; }
 
+        virtual void recordGraphicsCommands(Graphics::CommandBuffer& cmd, F32 lerp) {}
+
     protected:
         //----------------------------------------------------------------------
         // Will be called before this component ticks for the first time.
@@ -41,8 +43,6 @@ namespace Components {
         virtual void LateTick(Time::Seconds delta) {}
 
         virtual void Shutdown() {}
-
-        virtual void recordGraphicsCommands(Graphics::CommandBuffer& cmd, F32 lerp) {}
 
         //----------------------------------------------------------------------
         // Called immediately after the component was attached to a gameobject.

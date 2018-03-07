@@ -72,16 +72,3 @@ void GameObject::_LateTick( Time::Seconds delta )
             comp->LateTick( delta );
     }
 }
-
-
-//----------------------------------------------------------------------
-void GameObject::recordGraphicsCommands( Graphics::CommandBuffer& cmd, F32 lerp )
-{
-    // Update components from all game-objects
-    for ( auto& pair : m_components )
-    {
-        auto& comp = pair.second;
-        if ( comp->isActive() )
-           comp->recordGraphicsCommands( cmd, lerp );
-    }
-}

@@ -13,6 +13,7 @@
 #include "Pipeline/Shaders/D3D11Shader.h"
 #include "Pipeline/Buffers/D3D11Buffers.h"
 #include "Pipeline/D3D11Pass.h"
+#include "../command_buffer.h"
 
 using namespace DirectX;
 
@@ -177,18 +178,31 @@ namespace Graphics {
         XMVECTOR rotationAxis = XMVectorSet(0, 1, 1, 0);
         XMMATRIX world = XMMatrixRotationAxis(rotationAxis, XMConvertToRadians(angle));
 
+        for ( auto& command : cmd.getGPUCommands() )
         {
-            static F32 xPos = 0.0f;
-            static F32 zPos = 0.0f;
-            //zPos += (F32)AXIS_MAPPER.getAxisValue("Vertical") * delta * 0.01f;
-            //xPos += (F32)AXIS_MAPPER.getAxisValue("Horizontal") * delta * -0.01f;
-            XMVECTOR eyePosition = XMVectorSet(xPos, 0, -10 + zPos, 1);
-            //XMMATRIX view = XMMatrixLookAtLH(eyePosition, { 0,0,0 }, {0,1,0});
-            XMMATRIX view = XMMatrixLookToLH(eyePosition, {0,0,1}, {0,1,0});
-            XMMATRIX proj = XMMatrixPerspectiveFovLH(XMConvertToRadians(45.0f), vp.Width / vp.Height, 0.1f, 100.0f);
+            switch ( command->getType() )
+            {
+                case GPUCommand::SET_CAMERA_PERSPECTIVE:
+                {
+                    GPUC_SetCameraPerspective c = *dynamic_cast<GPUC_SetCameraPerspective*>( command.get() );
 
-            XMMATRIX viewProj = view*proj;
-            pConstantBufferCamera->updateSubresource( &viewProj);
+                    XMMATRIX proj = XMMatrixPerspectiveFovLH( XMConvertToRadians( c.fov ), vp.Width / vp.Height, c.zNear, c.zFar );
+                    XMMATRIX viewProj = c.view * proj;
+
+                    pConstantBufferCamera->updateSubresource(&viewProj);
+                    break;
+                }
+            }
+        }
+
+        {
+            //XMVECTOR eyePosition = XMVectorSet(xPos, 0, -10 + zPos, 1);
+            ////XMMATRIX view = XMMatrixLookAtLH(eyePosition, { 0,0,0 }, {0,1,0});
+            //XMMATRIX view = XMMatrixLookToLH(eyePosition, {0,0,1}, {0,1,0});
+            //XMMATRIX proj = XMMatrixPerspectiveFovLH(XMConvertToRadians(45.0f), vp.Width / vp.Height, 0.1f, 100.0f);
+
+            //XMMATRIX viewProj = view*proj;
+            //pConstantBufferCamera->updateSubresource( &viewProj);
             pConstantBufferObject->updateSubresource( &world );
         }
 

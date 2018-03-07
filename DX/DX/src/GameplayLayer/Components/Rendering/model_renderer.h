@@ -8,12 +8,12 @@
     Used to render models.
 **********************************************************************/
 
-#include "../i_component.h"
+#include "c_renderer.h"
 
 namespace Components {
 
     //**********************************************************************
-    class ModelRenderer : public IComponent
+    class ModelRenderer : public CRenderer
     {
     public:
         ModelRenderer() = default;
