@@ -203,13 +203,10 @@ namespace Graphics {
 
         g_pImmediateContext->RSSetState(pRSState);
 
-
         // Set constants
         static float angle = 0.0f;
-        F32 delta = 0.16f;
-        angle += delta * 0.01f;
-        XMVECTOR rotationAxis = XMVectorSet(0, 1, 1, 0);
-        XMMATRIX world = XMMatrixRotationAxis(rotationAxis, XMConvertToRadians(angle));
+        angle += 0.0016f;
+        XMMATRIX world = XMMatrixRotationAxis({0,1,1,0}, XMConvertToRadians(angle));
         pConstantBufferObject->updateSubresource( &world );
 
         g_pImmediateContext->DrawIndexed( _countof(indices), 0, 0 );
@@ -312,6 +309,10 @@ namespace Graphics {
         SAFE_RELEASE( pDebugDevice );
     }
 
+    //**********************************************************************
+    // PRIVATE - COMMANDS
+    //**********************************************************************
+
     //----------------------------------------------------------------------
     void D3D11Renderer::_SetRenderTarget( RenderTexture* renderTarget )
     {
@@ -349,7 +350,6 @@ namespace Graphics {
         D3D11_VIEWPORT viewport;
         g_pImmediateContext->RSGetViewports( &numViewports, &viewport);
 
-        //F32 ar = s_currentRenderTarget == nullptr ? m_window->getAspectRatio() : s_currentRenderTarget->getAspectRatio();
         F32 ar = viewport.Width / viewport.Height;
         XMMATRIX proj = XMMatrixPerspectiveFovLH( XMConvertToRadians( fov ), ar, zNear, zFar );
         XMMATRIX viewProj = view * proj;

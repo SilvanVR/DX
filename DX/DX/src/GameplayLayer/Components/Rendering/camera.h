@@ -90,28 +90,28 @@ namespace Components {
         // const DirectX::XMMATRIX& getProjectionMatrix() const { return m_projection; }
 
     private:
-        EMode                           m_cameraMode;
-        //DirectX::XMMATRIX               m_projection;
+        EMode           m_cameraMode;
+        //DirectX::XMMATRIX     m_projection;
 
         // Z Clipping Plane
-        F32 m_zNear       = 0.1f;
-        F32 m_zFar        = 1000.0f;
+        F32             m_zNear     = 0.1f;
+        F32             m_zFar      = 1000.0f;
 
         // Perspective Params
-        F32 m_fov         = 45.0f;
+        F32             m_fov       = 45.0f;
 
         // Ortographics Params
         struct {
-            F32 left        = -1.0f;
-            F32 right       = 1.0f;
-            F32 bottom      = -1.0f;
-            F32 top         = 1.0f;
+            F32 left                = -1.0f;
+            F32 right               = 1.0f;
+            F32 bottom              = -1.0f;
+            F32 top                 = 1.0f;
         } m_ortho;
 
         // Viewport Rect in normalized coordinates [0-1]
         Graphics::ViewportRect m_viewport;
 
-        // Clear color for this camera
+        // Clear Mode + Clear Color for this camera
         EClearMode  m_clearMode     = EClearMode::COLOR;
         Color       m_clearColor    = Color::BLACK;
 

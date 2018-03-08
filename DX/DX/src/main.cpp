@@ -47,6 +47,8 @@ public:
 
 class MyScene2 : public IScene
 {
+    GameObject* go;
+    Components::Camera* cam;
 public:
     MyScene2() : IScene("MyScene2") {}
 
@@ -54,6 +56,13 @@ public:
     {
         using namespace std::chrono_literals;
         std::this_thread::sleep_for(1s);
+        go = createGameObject("Camera");
+        cam = go->addComponent<Components::Camera>();
+        go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -10);
+        go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 10.0f, 0.3f);
+        cam->setCameraMode(Components::Camera::ORTHOGRAPHIC);
+        F32 size = 5.0f;
+        cam->setOrthoParams(-size, size, -size, size, 0.1f, 100.0f);
         LOG("MyScene2 initialized!", Color::RED);
     }
 

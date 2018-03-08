@@ -51,17 +51,18 @@ void IScene::destroyGameObject( GameObject* go )
 GameObject* IScene::findGameObject( CString name )
 {
     StringID nameAsID = SID( name );
-    for ( auto go : m_gameObjects )
+    for ( auto& go : m_gameObjects )
         if ( go->getName() == nameAsID )
             return go;
     return nullptr;
 }
 
+//----------------------------------------------------------------------
 Components::Camera* IScene::getMainCamera()
 {
     for ( auto& cam : m_componentManager.getCameras() )
     {
-        if( cam->getRenderTarget() == nullptr )
+        if( cam->isRenderingToScreen() )
             return cam;
     }
 

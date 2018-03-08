@@ -15,10 +15,8 @@
     - Fetch memory from a preallocated pool for components
 **********************************************************************/
 
-#include "i_component.h"
-#include "Rendering/model_renderer.h"
+#include "Rendering/c_renderer.h"
 #include "Rendering/camera.h"
-#include "Logging/logging.h"
 
 namespace Components {
 

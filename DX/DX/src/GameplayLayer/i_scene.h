@@ -37,25 +37,25 @@ public:
     //----------------------------------------------------------------------
     // Creates a new gameobject, which belongs to this scene.
     //----------------------------------------------------------------------
-    GameObject* createGameObject(CString name = "NO NAME");
+    GameObject*                     createGameObject(CString name = "NO NAME");
 
     //----------------------------------------------------------------------
     // Destroy the given gameobject
     //----------------------------------------------------------------------
-    void        destroyGameObject(GameObject* go);
+    void                            destroyGameObject(GameObject* go);
 
     //----------------------------------------------------------------------
     // Find a gameobject with the given name in this scene.
     //----------------------------------------------------------------------
-    GameObject* findGameObject(CString name);
+    GameObject*                     findGameObject(CString name);
 
     //----------------------------------------------------------------------
     // Returns the first camera component which renders to the screen.
     //----------------------------------------------------------------------
-    Components::Camera* getMainCamera();
+    Components::Camera*             getMainCamera();
 
     //----------------------------------------------------------------------
-    Components::ComponentManager& getComponentManager(){ return m_componentManager; }
+    Components::ComponentManager&   getComponentManager(){ return m_componentManager; }
 
 private:
     StringID                        m_name;
