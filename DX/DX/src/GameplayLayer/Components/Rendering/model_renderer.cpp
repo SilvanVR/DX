@@ -30,7 +30,8 @@ namespace Components {
         // 1. MeshID
         // 2. MaterialID
         // 3. Interpolated World Matrix
-        cmd.drawMesh();
+        auto modelMatrix = transform->getTransformationMatrix();
+        cmd.drawMesh( modelMatrix );
     }
 
 

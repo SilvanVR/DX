@@ -44,8 +44,10 @@ namespace Graphics {
     //**********************************************************************
     struct GPUC_DrawMesh : public GPUCommandBase
     {
-        GPUC_DrawMesh()
-            : GPUCommandBase( GPUCommand::DRAW_MESH ) {}
+        GPUC_DrawMesh( const DirectX::XMMATRIX& modelMatrix )
+            : GPUCommandBase( GPUCommand::DRAW_MESH ), modelMatrix( modelMatrix ) {}
+
+        DirectX::XMMATRIX modelMatrix;
     };
 
     //**********************************************************************

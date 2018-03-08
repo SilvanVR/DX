@@ -17,9 +17,9 @@ namespace Components {
     public:
         Transform() {}
 
-        Math::Vec3 position;
-        Math::Vec3 scale;
-        Math::Quat rotation;
+        Math::Vec3 position = Math::Vec3( 0.0f, 0.0f, 0.0f );
+        Math::Vec3 scale    = Math::Vec3( 1.0f, 1.0f, 1.0f );
+        Math::Quat rotation = Math::Quat( 0.0f, 0.0f, 0.0f, 1.0f );
 
         //----------------------------------------------------------------------
         void lookAt(const Math::Vec3& target);

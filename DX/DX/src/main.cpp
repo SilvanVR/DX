@@ -48,7 +48,10 @@ public:
 class MyScene2 : public IScene
 {
     GameObject* go;
+    GameObject* go2;
+
     Components::Camera* cam;
+
 public:
     MyScene2() : IScene("MyScene2") {}
 
@@ -63,6 +66,34 @@ public:
         cam->setCameraMode(Components::Camera::ORTHOGRAPHIC);
         F32 size = 5.0f;
         cam->setOrthoParams(-size, size, -size, size, 0.1f, 100.0f);
+
+        go2 = createGameObject("Box");
+        go2->addComponent<Components::ModelRenderer>();
+
+        //auto& viewport = cam->getViewport();
+        //viewport.width  = 0.5f;
+        //viewport.height = 0.5f;
+
+        {
+            //go2 = createGameObject("Camera2");
+            //auto cam2 = go2->addComponent<Components::Camera>();
+            //go2->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -5);
+            //cam2->setClearMode(Components::Camera::EClearMode::NONE);
+
+            //auto& viewport2 = cam2->getViewport();
+            //viewport2.topLeftX = 0.5f;
+            //viewport2.topLeftY = 0;
+            //viewport2.width = 0.5f;
+            //viewport2.height = 0.5f;
+        }
+
+        GameObject* go2 = findGameObject("Test");
+        if (go2 != nullptr)
+            LOG("Found GameObject!", Color::GREEN);
+
+        //bool removed = go2->removeComponent( c );
+        //bool destroyed = go2->removeComponent<Transform>();
+
         LOG("MyScene2 initialized!", Color::RED);
     }
 
@@ -70,7 +101,6 @@ public:
     {
         LOG("MyScene2 Shutdown!", Color::RED);
     }
-
 };
 
 struct Vertex
@@ -100,11 +130,26 @@ U32 indices[36] = {
     4, 0, 3, 4, 3, 7
 };
 
+class ConstantRotation : public Components::IComponent
+{
+    Math::Vec3 m_speeds = Math::Vec3(0.0f);
+    Math::Vec3 m_curDegrees = Math::Vec3(0.0f);
+public:
+    // Attached gameobject rotates "{degree,degree,degree}" per second around the respective axis.
+    ConstantRotation(F32 pitchSpeed, F32 yawSpeed, F32 rollSpeed) 
+        : m_speeds(Math::Vec3{ pitchSpeed, yawSpeed, rollSpeed }) {}
+
+    void Tick( Time::Seconds delta ) override
+    {
+        auto t = getGameObject()->getComponent<Components::Transform>();
+        t->rotation = Math::Quat::FromEulerAngles( m_curDegrees );
+        m_curDegrees += m_speeds * (F32)delta.value;
+    }
+};
+
 class MyScene : public IScene
 {
     GameObject* go;
-    GameObject* go2;
-
     Components::Camera* cam;
 
     Graphics::Model* m;
@@ -114,66 +159,57 @@ public:
 
     void init() override
     {
-        LOG("MyScene initialized!", Color::RED);
-
         go = createGameObject("Camera");
         cam = go->addComponent<Components::Camera>();
         go->getComponent<Components::Transform>()->position = Math::Vec3(0,0,-10);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 10.0f, 0.3f);
 
-        //auto& viewport = cam->getViewport();
-        //viewport.width  = 0.5f;
-        //viewport.height = 0.5f;
+        GameObject* goModel = createGameObject("Test");
+        auto mr = goModel->addComponent<Components::ModelRenderer>();
+        goModel->addComponent<ConstantRotation>(0.0f, 20.0f, 20.0f);
+
+        //auto transform = go->getComponent<Components::Transform>();
+        //transform->position = Math::Vec3(0,0,0);
+        //transform->scale = Math::Vec3(1,1,1);
+        //transform->rotation = Math::Quat::IDENTITY;
 
         {
-            //go2 = createGameObject("Camera2");
-            //auto cam2 = go2->addComponent<Components::Camera>();
-            //go2->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -5);
-            //cam2->setClearMode(Components::Camera::EClearMode::NONE);
+     /*       GameObject* goModel2 = createGameObject("Test");
+            goModel2->addComponent<Components::ModelRenderer>();
+            goModel2->getComponent<Components::Transform>()->position = {5,0,0};
+            goModel2->addComponent<ConstantRotation>(20.0f, 20.0f, 0.0f);
 
-            //auto& viewport2 = cam2->getViewport();
-            //viewport2.topLeftX = 0.5f;
-            //viewport2.topLeftY = 0;
-            //viewport2.width = 0.5f;
-            //viewport2.height = 0.5f;
+            GameObject* goModel3 = createGameObject("Test");
+            goModel3->addComponent<Components::ModelRenderer>();
+            goModel3->getComponent<Components::Transform>()->position = { -5,0,0 };
+            goModel3->addComponent<ConstantRotation>(0.0f, 20.0f, 0.0f);*/
         }
-
-        go = createGameObject("Test");
-        auto mr = go->addComponent<Components::ModelRenderer>();
-        //auto mr = go->getComponent<Components::ModelRenderer>();
-
-        auto transform = go->getComponent<Components::Transform>();
-        transform->position = Math::Vec3(0,0,0);
-        transform->scale = Math::Vec3(1,1,1);
-        transform->rotation = Math::Quat::IDENTITY;
 
         // Graphics::VertexLayout layout;
         m = new Graphics::Model(vertices, indices);
 
         // Create 3D-Model or load it... How to manage resources?
+        // ModelPtr m = Assets::loadMesh("/models/test.obj");
         // ModelPtr m = ModelGenerator.createCube(...);
+
         // mr->setModel(m);
 
-        GameObject* go2 = findGameObject("Test");
-        if(go2 != nullptr)
-            LOG("Found GameObject!", Color::GREEN);
-
-        //bool removed = go2->removeComponent( c );
-        //bool destroyed = go2->removeComponent<Transform>();
-
-        int i = 523;
+        LOG("MyScene initialized!", Color::RED);
     }
 
-    F32 speed = 50.0f;
-    void tick( Time::Seconds delta ) override
+    void tick( Time::Seconds d ) override
     {
+        static F32 speed = 50.0f;
+        F32 delta = (F32)d.value;
         if (KEYBOARD.isKeyDown(Key::Add))
         {
-            cam->setFOV(cam->getFOV()+ speed * (F32)delta.value);
+            //cam->setFOV(cam->getFOV() + speed * (F32)delta.value);
+            go->getComponent<Components::Transform>()->scale.y += speed * delta;
         }
         if (KEYBOARD.isKeyDown(Key::Subtract))
         {
-            cam->setFOV(cam->getFOV()- speed * (F32)delta.value);
+            //cam->setFOV(cam->getFOV() - speed * delta);
+            go->getComponent<Components::Transform>()->scale.y -= speed * delta;
         }
     }
 

@@ -30,7 +30,7 @@ namespace Graphics {
 
         // <------------------------ GPU COMMANDS ----------------------------->
         const ArrayList<std::unique_ptr<GPUCommandBase>>& getGPUCommands() const { return m_gpuCommands; }
-        void drawMesh();
+        void drawMesh(const DirectX::XMMATRIX& model);
         void setRenderTarget(Graphics::RenderTexture* renderTarget);
         void clearRenderTarget(const Color& clearColor);
         void setCameraPerspective(const DirectX::XMMATRIX& view, F32 fov, F32 zNear, F32 zFar);

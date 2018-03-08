@@ -82,6 +82,8 @@ namespace Math {
         Vector3F getDown()      const { return *this * Vector3F::DOWN; }
 
         static Quaternion LookRotation(const Vector3F& forward, const Vector3F& up);
+        static Quaternion FromEulerAngles(F32 pitchDegrees, F32 yawDegrees, F32 rollDegrees);
+        static Quaternion FromEulerAngles(const Vector3F& eulerAnglesInDegrees);
 
         String toString() const { return "(" + TS(x) + "," + TS(y) + "," + TS(z) + "," + TS(w) + ")"; }
 

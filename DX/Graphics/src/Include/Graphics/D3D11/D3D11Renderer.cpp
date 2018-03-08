@@ -80,6 +80,7 @@ namespace Graphics {
             // Buffers
             pVertexBuffer = new D3D11::VertexBuffer( sizeof(Vertex) * _countof(vertices), vertices );
             pIndexBuffer = new D3D11::IndexBuffer( sizeof(UINT) * _countof(indices), indices );
+
             pConstantBufferCamera = new D3D11::ConstantBuffer( sizeof(XMMATRIX) );
             pConstantBufferObject = new D3D11::ConstantBuffer(sizeof(XMMATRIX));
         }
@@ -147,6 +148,23 @@ namespace Graphics {
         // Depth Prepass first
         // Render in offscreen framebuffer and blit result to the swapchain
 
+        // Set Pipeline States
+        g_pImmediateContext->IASetInputLayout(pInputLayout);
+        g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+        pVertexBuffer->bind( 0, sizeof(Vertex), 0 );
+        pIndexBuffer->bind( DXGI_FORMAT_R32_UINT, 0 );
+
+        pConstantBufferCamera->bind(0);
+        pConstantBufferObject->bind(1);
+
+        pVertexShader->bind();
+
+        g_pImmediateContext->OMSetDepthStencilState(pDepthStencilState, 0);
+        pPixelShader->bind();
+
+        g_pImmediateContext->RSSetState(pRSState);
+
         for ( auto& command : cmd.getGPUCommands() )
         {
             switch ( command->getType() )
@@ -181,35 +199,16 @@ namespace Graphics {
                     _SetCameraOrtho( c.view, c.left, c.right, c.bottom, c.top, c.zNear, c.zFar );
                     break;
                 }
+                case GPUCommand::DRAW_MESH:
+                {
+                    GPUC_DrawMesh& c = *dynamic_cast<GPUC_DrawMesh*>( command.get() );
+                    _DrawMesh( c.modelMatrix );
+                    break;
+                }
                 default:
                     WARN_RENDERING( "Unknown GPU Command in given command buffer!" );
             }
         }
-
-        // Set Pipeline States
-        g_pImmediateContext->IASetInputLayout(pInputLayout);
-        g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-        pVertexBuffer->bind( 0, sizeof(Vertex), 0 );
-        pIndexBuffer->bind( DXGI_FORMAT_R32_UINT, 0 );
-
-        pConstantBufferCamera->bind(0);
-        pConstantBufferObject->bind(1);
-
-        pVertexShader->bind();
-
-        g_pImmediateContext->OMSetDepthStencilState(pDepthStencilState, 0);
-        pPixelShader->bind();
-
-        g_pImmediateContext->RSSetState(pRSState);
-
-        // Set constants
-        static float angle = 0.0f;
-        angle += 0.0016f;
-        XMMATRIX world = XMMatrixRotationAxis({0,1,1,0}, XMConvertToRadians(angle));
-        pConstantBufferObject->updateSubresource( &world );
-
-        g_pImmediateContext->DrawIndexed( _countof(indices), 0, 0 );
     }
 
     //----------------------------------------------------------------------
@@ -376,6 +375,16 @@ namespace Graphics {
         vp.Height   = viewport.height;
         vp.MaxDepth = 1.0f;
         g_pImmediateContext->RSSetViewports( 1, &vp );
+    }
+
+    //----------------------------------------------------------------------
+    void D3D11Renderer::_DrawMesh( const DirectX::XMMATRIX& model )
+    {
+        // Update constant per object buffer
+        pConstantBufferObject->updateSubresource( &model );
+
+        // Submit draw call
+        g_pImmediateContext->DrawIndexed( _countof(indices), 0, 0 );
     }
 
 } // End namespaces

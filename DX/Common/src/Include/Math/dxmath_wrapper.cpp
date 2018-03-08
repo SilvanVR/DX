@@ -10,6 +10,8 @@
 
 #ifdef _WIN32
 
+using namespace DirectX;
+
 namespace Math {
 
     //**********************************************************************
@@ -27,13 +29,13 @@ namespace Math {
 
     //----------------------------------------------------------------------
     Vector3F::Vector3F( F32 value )
-        : DirectX::XMFLOAT3( value, value, value )
+        : XMFLOAT3( value, value, value )
     {
     }
 
     //----------------------------------------------------------------------
     Vector3F::Vector3F( F32 x, F32 y, F32 z )
-        : DirectX::XMFLOAT3( x, y, z )
+        : XMFLOAT3( x, y, z )
     {
     }
 
@@ -64,13 +66,13 @@ namespace Math {
 
     //----------------------------------------------------------------------
     Vector4F::Vector4F( F32 value )
-        : DirectX::XMFLOAT4( value, value, value, value )
+        : XMFLOAT4( value, value, value, value )
     {
     }
 
     //----------------------------------------------------------------------
     Vector4F::Vector4F( F32 x, F32 y, F32 z, F32 w )
-        : DirectX::XMFLOAT4( x, y, z, w )
+        : XMFLOAT4( x, y, z, w )
     {
     }
 
@@ -82,16 +84,16 @@ namespace Math {
 
     //----------------------------------------------------------------------
     Quaternion::Quaternion( F32 x, F32 y, F32 z, F32 w )
-        : DirectX::XMFLOAT4( x, y, z, w )
+        : XMFLOAT4( x, y, z, w )
     {
     }
 
     //----------------------------------------------------------------------
     Quaternion::Quaternion( const Vector3F& axis, F32 angleInDegrees )
     {
-        DirectX::XMVECTOR ax = DirectX::XMLoadFloat3( &axis );
-        DirectX::XMVECTOR result = DirectX::XMQuaternionRotationAxis( ax, DirectX::XMConvertToRadians( angleInDegrees ) );
-        DirectX::XMStoreFloat4( this, result );
+        XMVECTOR ax = XMLoadFloat3( &axis );
+        XMVECTOR result = XMQuaternionRotationAxis( ax, XMConvertToRadians( angleInDegrees ) );
+        XMStoreFloat4( this, result );
     }
 
     //----------------------------------------------------------------------
@@ -106,12 +108,12 @@ namespace Math {
     //----------------------------------------------------------------------
     Vector3F Quaternion::operator * ( const Vector3F& v ) const
     {
-        DirectX::XMVECTOR thisQuaternion = DirectX::XMLoadFloat4( this );
-        DirectX::XMVECTOR otherVector = DirectX::XMLoadFloat3( &v );
-        DirectX::XMVECTOR result = DirectX::XMVector3Rotate( otherVector, thisQuaternion );
+        XMVECTOR thisQuaternion = XMLoadFloat4( this );
+        XMVECTOR otherVector = XMLoadFloat3( &v );
+        XMVECTOR result = XMVector3Rotate( otherVector, thisQuaternion );
 
         Vector3F resultVector;
-        DirectX::XMStoreFloat3( &resultVector, result );
+        XMStoreFloat3( &resultVector, result );
 
         return resultVector;
     }
@@ -119,11 +121,11 @@ namespace Math {
     //----------------------------------------------------------------------
     Quaternion& Quaternion::operator *= (const Quaternion& q)
     {
-        DirectX::XMVECTOR thisQuaternion = DirectX::XMLoadFloat4( this );
-        DirectX::XMVECTOR otherQuaternion = DirectX::XMLoadFloat4( &q );
-        DirectX::XMVECTOR result = DirectX::XMQuaternionMultiply( thisQuaternion, otherQuaternion );
+        XMVECTOR thisQuaternion = XMLoadFloat4( this );
+        XMVECTOR otherQuaternion = XMLoadFloat4( &q );
+        XMVECTOR result = XMQuaternionMultiply( thisQuaternion, otherQuaternion );
 
-        DirectX::XMStoreFloat4( this, result );
+        XMStoreFloat4( this, result );
 
         return *this;
     }
@@ -185,6 +187,23 @@ namespace Math {
         quaternion.w = (m01 - m10) * num2;
 
         return quaternion;
+    }
+
+    //----------------------------------------------------------------------
+    Quaternion Quaternion::FromEulerAngles( F32 pitch, F32 yaw, F32 roll )
+    {
+        Quaternion quaternion;
+        auto result = XMQuaternionRotationRollPitchYaw( XMConvertToRadians( pitch ), 
+                                                        XMConvertToRadians( yaw ), 
+                                                        XMConvertToRadians( roll ) );
+        XMStoreFloat4( &quaternion, result );
+        return quaternion;
+    }
+
+    //----------------------------------------------------------------------
+    Quaternion Quaternion::FromEulerAngles( const Vector3F& eulerAngles )
+    {
+        return FromEulerAngles( eulerAngles.x, eulerAngles.y, eulerAngles.z );
     }
 
 }
