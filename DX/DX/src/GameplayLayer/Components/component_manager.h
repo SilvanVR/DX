@@ -15,7 +15,7 @@
     - Fetch memory from a preallocated pool for components
 **********************************************************************/
 
-#include "Rendering/c_renderer.h"
+#include "Rendering/i_render_component.hpp"
 #include "Rendering/camera.h"
 
 namespace Components {
@@ -28,8 +28,8 @@ namespace Components {
         ~ComponentManager() = default;
 
         // <---------------------- COMPONENT STUFF ---------------------------->
-        const ArrayList<Camera*>&       getCameras()    const { return m_pCameras; }
-        const ArrayList<CRenderer*>&    getRenderer()   const { return m_pRenderer; }
+        const ArrayList<Camera*>&           getCameras()    const { return m_pCameras; }
+        const ArrayList<IRenderComponent*>& getRenderer()   const { return m_pRenderer; }
 
         //----------------------------------------------------------------------
         // Creates a new component of type T
@@ -48,8 +48,8 @@ namespace Components {
         }
 
     private:
-        ArrayList<Camera*>      m_pCameras;
-        ArrayList<CRenderer*>   m_pRenderer;
+        ArrayList<Camera*>              m_pCameras;
+        ArrayList<IRenderComponent*>    m_pRenderer;
 
         //----------------------------------------------------------------------
         template <typename T, typename... Args> T*   _Create( Args&&... args );
@@ -81,7 +81,7 @@ namespace Components {
             m_pCameras.push_back( component );
         }
 
-        if constexpr( std::is_base_of<CRenderer, T>::value )
+        if constexpr( std::is_base_of<IRenderComponent, T>::value )
         {
             m_pRenderer.push_back( component );
         }
@@ -98,7 +98,7 @@ namespace Components {
             m_pCameras.erase( std::remove( m_pCameras.begin(), m_pCameras.end(), component ) );
         }
 
-        if constexpr( std::is_base_of<CRenderer, T>::value )
+        if constexpr( std::is_base_of<IRenderComponent, T>::value )
         {
             m_pRenderer.erase( std::remove( m_pRenderer.begin(), m_pRenderer.end(), component ) );
         }

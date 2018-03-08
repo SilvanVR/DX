@@ -27,10 +27,13 @@ namespace Components {
         GameObject*         getGameObject()         { return m_pGameObject; }
         const GameObject*   getGameObject() const   { return m_pGameObject; }
 
-        bool                isActive()      const   { return m_isActive; }
         void                setActive(bool active)  { m_isActive = active; }
 
-        virtual void recordGraphicsCommands(Graphics::CommandBuffer& cmd, F32 lerp) {}
+        //----------------------------------------------------------------------
+        // @Return:
+        // Whether this component is active. (P.S. if the attached gameobject is not active this returns also false!)
+        //----------------------------------------------------------------------
+        bool                isActive()      const;
 
     protected:
         //----------------------------------------------------------------------

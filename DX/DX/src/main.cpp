@@ -168,13 +168,8 @@ public:
         auto mr = goModel->addComponent<Components::ModelRenderer>();
         goModel->addComponent<ConstantRotation>(0.0f, 20.0f, 20.0f);
 
-        //auto transform = go->getComponent<Components::Transform>();
-        //transform->position = Math::Vec3(0,0,0);
-        //transform->scale = Math::Vec3(1,1,1);
-        //transform->rotation = Math::Quat::IDENTITY;
-
         {
-     /*       GameObject* goModel2 = createGameObject("Test");
+            GameObject* goModel2 = createGameObject("Test");
             goModel2->addComponent<Components::ModelRenderer>();
             goModel2->getComponent<Components::Transform>()->position = {5,0,0};
             goModel2->addComponent<ConstantRotation>(20.0f, 20.0f, 0.0f);
@@ -182,7 +177,7 @@ public:
             GameObject* goModel3 = createGameObject("Test");
             goModel3->addComponent<Components::ModelRenderer>();
             goModel3->getComponent<Components::Transform>()->position = { -5,0,0 };
-            goModel3->addComponent<ConstantRotation>(0.0f, 20.0f, 0.0f);*/
+            goModel3->addComponent<ConstantRotation>(0.0f, 20.0f, 0.0f);
         }
 
         // Graphics::VertexLayout layout;

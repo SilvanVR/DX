@@ -11,6 +11,7 @@
 #include "Graphics/structs.hpp"
 
 namespace Graphics { class RenderTexture; }
+namespace Core { class GraphicsCommandRecorder; }
 
 namespace Components {
 
@@ -82,11 +83,6 @@ namespace Components {
         void setRenderTarget(Graphics::RenderTexture* renderTarget) { m_renderTarget = renderTarget; }
 
         //----------------------------------------------------------------------
-        // IComponent Interface
-        //----------------------------------------------------------------------
-        void recordGraphicsCommands(Graphics::CommandBuffer& cmd, F32 lerp) override;
-
-        //----------------------------------------------------------------------
         // const DirectX::XMMATRIX& getProjectionMatrix() const { return m_projection; }
 
     private:
@@ -120,6 +116,10 @@ namespace Components {
 
         // Which layer this camera renders
         //Common::BitMask               m_layerMask; 
+
+        //----------------------------------------------------------------------
+        friend class Core::GraphicsCommandRecorder;
+        void recordGraphicsCommands(Graphics::CommandBuffer& cmd, F32 lerp);
 
         //----------------------------------------------------------------------
         Camera(const Camera& other)               = delete;

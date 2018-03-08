@@ -24,7 +24,7 @@ public:
     inline const StringID      getName()       const   { return m_name; }
     inline IScene*             getScene()              { return m_attachedScene; }
     inline bool                isActive()      const   { return m_isActive; }
-    inline void                setActive(bool active)  { m_isActive = active;}
+    inline void                setActive(bool active)  { m_isActive = active; }
 
     // <---------------------- COMPONENT STUFF ---------------------------->
     template<typename T> T*   getComponent();

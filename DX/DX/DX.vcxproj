@@ -318,7 +318,6 @@
     <ClCompile Include="src\Core\SceneManager\scene_manager.cpp" />
     <ClCompile Include="src\GameplayLayer\Components\fps_camera.cpp" />
     <ClCompile Include="src\GameplayLayer\Components\Rendering\camera.cpp" />
-    <ClCompile Include="src\GameplayLayer\Components\Rendering\c_renderer.cpp" />
     <ClCompile Include="src\GameplayLayer\Components\transform.cpp" />
     <ClCompile Include="src\GameplayLayer\Components\Rendering\model_renderer.cpp" />
     <ClCompile Include="src\GameplayLayer\gameobject.cpp" />
@@ -361,7 +360,7 @@
     <ClInclude Include="src\GameplayLayer\Components\component_manager.h" />
     <ClInclude Include="src\GameplayLayer\Components\fps_camera.h" />
     <ClInclude Include="src\GameplayLayer\Components\Rendering\camera.h" />
-    <ClInclude Include="src\GameplayLayer\Components\Rendering\c_renderer.h" />
+    <ClInclude Include="src\GameplayLayer\Components\Rendering\i_render_component.hpp" />
     <ClInclude Include="src\GameplayLayer\Components\transform.h" />
     <ClInclude Include="src\GameplayLayer\Components\Rendering\model_renderer.h" />
     <ClInclude Include="src\GameplayLayer\gameobject.h" />

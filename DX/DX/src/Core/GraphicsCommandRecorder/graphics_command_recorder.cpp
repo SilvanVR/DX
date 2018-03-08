@@ -11,7 +11,7 @@
 #include "GameplayLayer/gameobject.h"
 #include "Graphics/command_buffer.h"
 #include "GameplayLayer/Components/Rendering/camera.h"
-#include "GameplayLayer/Components/Rendering/c_renderer.h"
+#include "GameplayLayer/Components/Rendering/i_render_component.hpp"
 
 namespace Core {
 
@@ -65,7 +65,7 @@ namespace Core {
             }
 
             // Execute rendering commands
-            graphicsEngine.dispatch( *cmd);
+            graphicsEngine.dispatch( *cmd );
         }
 
     }
