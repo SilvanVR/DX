@@ -125,9 +125,6 @@
     <ClInclude Include="src\DX.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\GameInterface\i_game.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\locator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -204,6 +201,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\GameplayLayer\Components\component_manager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\i_game.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

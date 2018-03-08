@@ -36,30 +36,9 @@
 	> Physics 
 		> Most likely just box collision, depends on how chunks are generated/stores
 
-
 ----------------------------------------------------------------------------------------
-// Fetch all renderer components e.g. model-renderer
-CRenderer renderer = scene.getRenderer();
-
-foreach camera in scene
-	// Command Buffers are attached to camera (Always one attached?)
-	CommandBuffer cmd;
-
-	// Command for setting necessary camera parameters
-	cmd.setTargetTexture(camera->targetTexture);
-	cmd.setCameraPerspective(camera->view, camera->fov, camera->zNear, camera->zFar, camera->clearColor);
-	// cmd.setCameraOrtho(...);
-
-	// Add optionally attached command buffer aswell
-	foreach commandBuffer in camera->commandBuffers
-		graphicsEngine->dispatch(commandBuffer)
-
-	// Do viewfrustum culling with every renderer component and THIS CAMERA
-	foreach renderer in renderer
-		bool isVisible = renderer->Cull(camera);
-		bool layerMatch = camera->layerMask & renderer->getLayerMask();
-		if (isVisible && layerMatch)
-			renderer->recordCommands(cmd); // cmd contains commands to render this specific renderer e.g. model
-
-	// Execute render commands
-	graphicsEngine->dispatch(cmd);
+- Create a model on the gpu
+  > set vertices / indices -> will be uploaded to gpu when suitable
+	> Index- + Vertex- Buffer
+	> Reference this "Model" via the command buffer
+  > set vertex-layout

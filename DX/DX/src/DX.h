@@ -11,4 +11,4 @@
 
 #include "stdafx.h"
 #include "locator.h"
-#include "GameInterface/i_game.hpp"
+#include "i_game.hpp"

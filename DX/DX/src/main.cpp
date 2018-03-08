@@ -5,7 +5,7 @@
 #include "OS/FileSystem/file_system.h"
 #include "OS/Threading/thread_pool.h"
 #include "OS/FileSystem/file.h"
-#include "GameInterface/i_game.hpp"
+#include "i_game.hpp"
 #include "Time/clock.h"
 
 #include "Graphics/model.h"

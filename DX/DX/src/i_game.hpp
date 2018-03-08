@@ -17,6 +17,7 @@
 #include "GameplayLayer/Components/transform.h"
 #include "GameplayLayer/Components/Rendering/model_renderer.h"
 #include "GameplayLayer/Components/Rendering/camera.h"
+#include "GameplayLayer/Components/fps_camera.h"
 
 class IGame : public Core::CoreEngine
 {

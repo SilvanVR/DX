@@ -16,8 +16,6 @@ namespace Core { namespace Resources {
     void ResourceManager::init()
     {
         Locator::getCoreEngine().subscribe( this );
-
-
     }
 
     //----------------------------------------------------------------------

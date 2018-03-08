@@ -372,7 +372,7 @@
     <ClInclude Include="src\Core\subsystem_manager.h" />
     <ClInclude Include="src\Core\ThreadManager\thread_manager.h" />
     <ClInclude Include="src\DX.h" />
-    <ClInclude Include="src\GameInterface\i_game.hpp" />
+    <ClInclude Include="src\i_game.hpp" />
     <ClInclude Include="src\stdafx.h" />
   </ItemGroup>
   <ItemGroup>
