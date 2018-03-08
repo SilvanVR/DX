@@ -8,7 +8,7 @@
 #include "i_game.hpp"
 #include "Time/clock.h"
 
-#include "Graphics/model.h"
+#include "Assets/model.h"
 #include "Graphics/vertex_layout.hpp"
 
 #include "locator.h"
@@ -121,13 +121,25 @@ Vertex vertices[] =
     { XMFLOAT3(1.0f, -1.0f,  1.0f), XMFLOAT3(1.0f, 0.0f, 1.0f) }  // 7
 };
 
-U32 indices[36] = {
+U32 indices[] = {
     0, 1, 2, 0, 2, 3,
     4, 6, 5, 4, 7, 6,
     4, 5, 1, 4, 1, 0,
     3, 2, 6, 3, 6, 7,
     1, 5, 6, 1, 6, 2,
     4, 0, 3, 4, 3, 7
+};
+
+Vertex v2[] =
+{
+    { XMFLOAT3(-1.0f, -1.0f, 0.0f), XMFLOAT3(0.0f, 0.0f, 0.0f) }, // 0
+    { XMFLOAT3(-1.0f,  1.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f) }, // 1
+    { XMFLOAT3( 1.0f,  1.0f, 0.0f), XMFLOAT3(1.0f, 1.0f, 0.0f) }, // 2
+    { XMFLOAT3( 1.0f, -1.0f, 0.0f), XMFLOAT3(1.0f, 0.0f, 0.0f) }, // 3
+};
+
+U32 i2[] = {
+    0, 1, 2, 0, 2, 3,
 };
 
 class ConstantRotation : public Components::IComponent
@@ -152,7 +164,9 @@ class MyScene : public IScene
     GameObject* go;
     Components::Camera* cam;
 
-    Graphics::Model* m;
+    Assets::Model* m;
+    Assets::Model* m2;
+    GameObject* goModel;
 
 public:
     MyScene() : IScene("MyScene"){}
@@ -164,30 +178,31 @@ public:
         go->getComponent<Components::Transform>()->position = Math::Vec3(0,0,-10);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 10.0f, 0.3f);
 
-        GameObject* goModel = createGameObject("Test");
-        auto mr = goModel->addComponent<Components::ModelRenderer>();
-        goModel->addComponent<ConstantRotation>(0.0f, 20.0f, 20.0f);
-
-        {
-            GameObject* goModel2 = createGameObject("Test");
-            goModel2->addComponent<Components::ModelRenderer>();
-            goModel2->getComponent<Components::Transform>()->position = {5,0,0};
-            goModel2->addComponent<ConstantRotation>(20.0f, 20.0f, 0.0f);
-
-            GameObject* goModel3 = createGameObject("Test");
-            goModel3->addComponent<Components::ModelRenderer>();
-            goModel3->getComponent<Components::Transform>()->position = { -5,0,0 };
-            goModel3->addComponent<ConstantRotation>(0.0f, 20.0f, 0.0f);
-        }
-
         // Graphics::VertexLayout layout;
-        m = new Graphics::Model(vertices, indices);
-
+        m = new Assets::Model(vertices, sizeof(Vertex) * _countof(vertices), indices, sizeof(U32) * _countof(indices), _countof(indices));
+        m2 = new Assets::Model(v2, sizeof(Vertex) * _countof(v2), i2, sizeof(U32) * _countof(i2), _countof(i2));
         // Create 3D-Model or load it... How to manage resources?
         // ModelPtr m = Assets::loadMesh("/models/test.obj");
         // ModelPtr m = ModelGenerator.createCube(...);
 
-        // mr->setModel(m);
+        goModel = createGameObject("Test");
+        goModel->addComponent<ConstantRotation>(0.0f, 20.0f, 20.0f);
+        auto mr = goModel->addComponent<Components::ModelRenderer>();
+        mr->setModel(m);
+
+        {
+            GameObject* goModel2 = createGameObject("Test");
+            goModel2->getComponent<Components::Transform>()->position = {5,0,0};
+            goModel2->addComponent<ConstantRotation>(20.0f, 20.0f, 0.0f);
+            mr = goModel2->addComponent<Components::ModelRenderer>();
+            mr->setModel(m);
+
+            GameObject* goModel3 = createGameObject("Test");
+            goModel3->getComponent<Components::Transform>()->position = { -5,0,0 };
+            goModel3->addComponent<ConstantRotation>(0.0f, 0.0f, 20.0f);
+            mr = goModel3->addComponent<Components::ModelRenderer>();
+            mr->setModel(m2);
+        }
 
         LOG("MyScene initialized!", Color::RED);
     }
@@ -199,18 +214,19 @@ public:
         if (KEYBOARD.isKeyDown(Key::Add))
         {
             //cam->setFOV(cam->getFOV() + speed * (F32)delta.value);
-            go->getComponent<Components::Transform>()->scale.y += speed * delta;
+            goModel->getComponent<Components::Transform>()->scale.y += speed * delta;
         }
         if (KEYBOARD.isKeyDown(Key::Subtract))
         {
             //cam->setFOV(cam->getFOV() - speed * delta);
-            go->getComponent<Components::Transform>()->scale.y -= speed * delta;
+            goModel->getComponent<Components::Transform>()->scale.y -= speed * delta;
         }
     }
 
     void shutdown() override
     {
         delete m;
+        delete m2;
         LOG("MyScene Shutdown!", Color::RED);
     }
 

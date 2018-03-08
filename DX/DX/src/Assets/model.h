@@ -5,32 +5,30 @@
     author: S. Hau
     date: December 25, 2017
 
-    - Represents a 3D model used for rendering
-
+    Represents a 3D model used for rendering.
     A Model consists of one or more meshes which can be rendered with
-    different materials set up in the ModelRenderer-Component
-
-    What data do i need?
-    - Vertex-Data + Vertex-Layout
-    - (Index-Data)
+    different materials set up in the ModelRenderer-Component.
 **********************************************************************/
 
-namespace Graphics {
+#include "Graphics/i_mesh.hpp"
 
-    class VertexLayout;
+namespace Assets {
+
+    //class VertexLayout;
 
     //**********************************************************************
     class Model
     {
     public:
-        Model(const void* pVertices, const void* pIndices);
-        Model(const void* pVertices, const void* pIndices, const VertexLayout& vertexLayout);
-        ~Model() = default;
+        Model(const void* pVertices, U32 size, const void* pIndices, U32 size2, U32 numIndices);
+        //Model(const void* pVertices, const void* pIndices, const VertexLayout& vertexLayout);
+        ~Model();
 
-        U64 getID() const { return m_id; }
+        const ArrayList<Graphics::Mesh*>&   getMeshes() const { return m_meshes; }
+        F32                                 numMeshes() const { return static_cast<F32>( m_meshes.size() ); }
 
     private:
-        U64 m_id = 0; // Link to the representation on the GPU
+        ArrayList<Graphics::Mesh*> m_meshes;
 
         //----------------------------------------------------------------------
         Model(const Model& other)               = delete;

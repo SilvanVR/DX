@@ -4,10 +4,6 @@
 
     author: S. Hau
     date: November 28, 2017
-
-    @Consideration:
-     - If implementing multithreading remember to remove the
-       D3D11_CREATE_DEVICE_SINGLETHREADED flag in the device creation.
 **********************************************************************/
 
 #include "Pipeline/Shaders/D3D11Shader.h"
@@ -15,37 +11,11 @@
 #include "Pipeline/D3D11Pass.h"
 #include "../command_buffer.h"
 #include "../render_texture.h"
+#include "Resources/D3D11Mesh.h"
 
 using namespace DirectX;
 
 namespace Graphics {
-
-    struct Vertex
-    {
-        XMFLOAT3 position;
-        XMFLOAT3 color;
-    };
-
-    Vertex vertices[] =
-    {
-        { XMFLOAT3(-1.0f, -1.0f, -1.0f), XMFLOAT3(0.0f, 0.0f, 0.0f) }, // 0
-        { XMFLOAT3(-1.0f,  1.0f, -1.0f), XMFLOAT3(0.0f, 1.0f, 0.0f) }, // 1
-        { XMFLOAT3(1.0f,  1.0f, -1.0f), XMFLOAT3(1.0f, 1.0f, 0.0f) }, // 2
-        { XMFLOAT3(1.0f, -1.0f, -1.0f), XMFLOAT3(1.0f, 0.0f, 0.0f) }, // 3
-        { XMFLOAT3(-1.0f, -1.0f,  1.0f), XMFLOAT3(0.0f, 0.0f, 1.0f) }, // 4
-        { XMFLOAT3(-1.0f,  1.0f,  1.0f), XMFLOAT3(0.0f, 1.0f, 1.0f) }, // 5
-        { XMFLOAT3(1.0f,  1.0f,  1.0f), XMFLOAT3(1.0f, 1.0f, 1.0f) }, // 6
-        { XMFLOAT3(1.0f, -1.0f,  1.0f), XMFLOAT3(1.0f, 0.0f, 1.0f) }  // 7
-    };
-
-    UINT indices[36] = {
-        0, 1, 2, 0, 2, 3,
-        4, 6, 5, 4, 7, 6,
-        4, 5, 1, 4, 1, 0,
-        3, 2, 6, 3, 6, 7,
-        1, 5, 6, 1, 6, 2,
-        4, 0, 3, 4, 3, 7
-    };
 
     D3D11_INPUT_ELEMENT_DESC vertexDesc[] =
     {
@@ -59,9 +29,6 @@ namespace Graphics {
 
     D3D11::VertexShader*    pVertexShader = nullptr;
     D3D11::PixelShader*     pPixelShader = nullptr;
-
-    D3D11::VertexBuffer*    pVertexBuffer = nullptr;
-    D3D11::IndexBuffer*     pIndexBuffer = nullptr;
     D3D11::ConstantBuffer*  pConstantBufferObject = nullptr;
     D3D11::ConstantBuffer*  pConstantBufferCamera = nullptr;
 
@@ -78,9 +45,6 @@ namespace Graphics {
 
         {
             // Buffers
-            pVertexBuffer = new D3D11::VertexBuffer( sizeof(Vertex) * _countof(vertices), vertices );
-            pIndexBuffer = new D3D11::IndexBuffer( sizeof(UINT) * _countof(indices), indices );
-
             pConstantBufferCamera = new D3D11::ConstantBuffer( sizeof(XMMATRIX) );
             pConstantBufferObject = new D3D11::ConstantBuffer(sizeof(XMMATRIX));
         }
@@ -134,8 +98,6 @@ namespace Graphics {
         SAFE_RELEASE(pRSState);
         SAFE_DELETE(pConstantBufferCamera);
         SAFE_DELETE(pConstantBufferObject);
-        SAFE_DELETE(pVertexBuffer);
-        SAFE_DELETE(pIndexBuffer);
         SAFE_DELETE(pBasicRenderpass);
         _DeinitD3D11();
     }
@@ -151,9 +113,6 @@ namespace Graphics {
         // Set Pipeline States
         g_pImmediateContext->IASetInputLayout(pInputLayout);
         g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-        pVertexBuffer->bind( 0, sizeof(Vertex), 0 );
-        pIndexBuffer->bind( DXGI_FORMAT_R32_UINT, 0 );
 
         pConstantBufferCamera->bind(0);
         pConstantBufferObject->bind(1);
@@ -202,7 +161,11 @@ namespace Graphics {
                 case GPUCommand::DRAW_MESH:
                 {
                     GPUC_DrawMesh& c = *dynamic_cast<GPUC_DrawMesh*>( command.get() );
-                    _DrawMesh( c.modelMatrix );
+                    switch (c.mesh->getMeshType())
+                    {
+                    case EMeshType::MESH:       _DrawMesh( c.modelMatrix, c.mesh ); break;
+                    case EMeshType::INDEXED:    _DrawIndexedMesh( c.modelMatrix, dynamic_cast<IndexedMesh*>( c.mesh ) ); break;
+                    }
                     break;
                 }
                 default:
@@ -239,6 +202,18 @@ namespace Graphics {
         // Recreate Swapchain
         SAFE_DELETE( m_pSwapchain );
         _CreateSwapchain( numSamples );
+    }
+
+    //----------------------------------------------------------------------
+    Mesh* D3D11Renderer::createMesh( const void* pVertices, U32 sizeInBytes )
+    {
+        return new D3D11::D3D11Mesh( pVertices, sizeInBytes );
+    }
+
+    //----------------------------------------------------------------------
+    Mesh* D3D11Renderer::createIndexedMesh( const void* pVertices, U32 sizeInBytes, const void* pIndices, U32 sizeInBytes2, U32 numIndices )
+    {
+        return new D3D11::D3D11IndexedMesh( pVertices, sizeInBytes, pIndices, sizeInBytes2, numIndices );
     }
 
     //**********************************************************************
@@ -278,7 +253,7 @@ namespace Graphics {
             D3D_FEATURE_LEVEL_9_1,
         };
 
-        UINT createDeviceFlags = D3D11_CREATE_DEVICE_SINGLETHREADED;
+        UINT createDeviceFlags = 0;
     #ifdef _DEBUG
         createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
     #endif
@@ -378,13 +353,29 @@ namespace Graphics {
     }
 
     //----------------------------------------------------------------------
-    void D3D11Renderer::_DrawMesh( const DirectX::XMMATRIX& model )
+    void D3D11Renderer::_DrawMesh( const DirectX::XMMATRIX& modelMatrix, Mesh* mesh )
     {
+        // Bind vertex buffer
+        mesh->bind();
+
         // Update constant per object buffer
-        pConstantBufferObject->updateSubresource( &model );
+        pConstantBufferObject->updateSubresource( &modelMatrix );
 
         // Submit draw call
-        g_pImmediateContext->DrawIndexed( _countof(indices), 0, 0 );
+        //g_pImmediateContext->Draw( mesh->numVertices(), mesh->getVertexStartIndex() );
+    }
+
+    //----------------------------------------------------------------------
+    void D3D11Renderer::_DrawIndexedMesh(const DirectX::XMMATRIX& modelMatrix, IndexedMesh* mesh )
+    {
+        // Bind vertex buffer
+        mesh->bind();
+
+        // Update constant per object buffer
+        pConstantBufferObject->updateSubresource( &modelMatrix );
+
+        // Submit draw call
+        g_pImmediateContext->DrawIndexed( mesh->numIndices(), 0, 0);
     }
 
 } // End namespaces

@@ -10,6 +10,7 @@
 **********************************************************************/
 
 #include "structs.hpp"
+#include "i_mesh.hpp"
 
 namespace Graphics {
 
@@ -44,10 +45,11 @@ namespace Graphics {
     //**********************************************************************
     struct GPUC_DrawMesh : public GPUCommandBase
     {
-        GPUC_DrawMesh( const DirectX::XMMATRIX& modelMatrix )
-            : GPUCommandBase( GPUCommand::DRAW_MESH ), modelMatrix( modelMatrix ) {}
+        GPUC_DrawMesh( const DirectX::XMMATRIX& modelMatrix, Mesh* mesh )
+            : GPUCommandBase( GPUCommand::DRAW_MESH ), modelMatrix( modelMatrix ), mesh( mesh ) {}
 
-        DirectX::XMMATRIX modelMatrix;
+        DirectX::XMMATRIX   modelMatrix;
+        Mesh*               mesh;
     };
 
     //**********************************************************************

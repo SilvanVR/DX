@@ -45,7 +45,7 @@
     <ClCompile Include="src\Include\Graphics\i_renderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Include\Graphics\model.cpp">
+    <ClCompile Include="src\Include\Graphics\D3D11\Resources\D3D11Mesh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -83,9 +83,6 @@
     <ClInclude Include="src\Include\Graphics\i_renderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Include\Graphics\model.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\Include\Graphics\vertex_layout.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -96,6 +93,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Include\Graphics\structs.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Include\Graphics\i_mesh.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Include\Graphics\D3D11\Resources\D3D11Mesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

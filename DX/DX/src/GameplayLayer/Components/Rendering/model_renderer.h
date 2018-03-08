@@ -9,6 +9,7 @@
 **********************************************************************/
 
 #include "i_render_component.hpp"
+#include "Assets/model.h"
 
 namespace Components {
 
@@ -18,14 +19,14 @@ namespace Components {
     public:
         ModelRenderer() = default;
 
-        // Model getModel() const { return m_model; }
-        // void setModel(Model model) const { m_model = model;
+        Assets::Model*  getModel()                      const   { return m_model; }
+        void            setModel(Assets::Model* model)          { m_model = model; }
 
         // Material getMaterial() const { return m_material; }
         // void setMesh(Material m) const { m_material = m; }
 
     private:
-        // Model*           m_model;
+        Assets::Model*      m_model;
         // Material*        m_material;
 
 

@@ -23,15 +23,22 @@ namespace Components {
     //----------------------------------------------------------------------
     void ModelRenderer::recordGraphicsCommands( Graphics::CommandBuffer& cmd, F32 lerp )
     {
+        if (m_model == nullptr)
+            return;
+
         auto transform = getGameObject()->getComponent<Transform>();
         ASSERT( transform != nullptr );
 
-        // Need:
-        // 1. MeshID
-        // 2. MaterialID
-        // 3. Interpolated World Matrix
-        auto modelMatrix = transform->getTransformationMatrix();
-        cmd.drawMesh( modelMatrix );
+        // Foreach submesh within that model record a draw command
+        for ( auto& mesh : m_model->getMeshes() )
+        {
+            // 1. MeshID
+            // 2. MaterialID
+            // 3. Interpolated World Matrix
+            auto modelMatrix = transform->getTransformationMatrix();
+            cmd.drawMesh( modelMatrix, mesh );
+        }
+
     }
 
 

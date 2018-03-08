@@ -99,6 +99,9 @@
     <ClCompile Include="src\GameplayLayer\Components\fps_camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Assets\model.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\stdafx.h">
@@ -201,6 +204,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\GameplayLayer\Components\Rendering\i_render_component.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Assets\model.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
