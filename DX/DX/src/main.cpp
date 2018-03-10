@@ -173,6 +173,7 @@ ArrayList<U32> indices2 = {
     0, 1, 2, 0, 2, 3
 };
 
+
 class ConstantRotation : public Components::IComponent
 {
     Math::Vec3 m_speeds = Math::Vec3(0.0f);
@@ -190,13 +191,48 @@ public:
     }
 };
 
+class WorldGeneration : public Components::IComponent
+{
+    Graphics::Mesh* mesh;
+    Components::MeshRenderer* mr;
+
+public:
+    void AddedToGameObject(GameObject* go) override
+    {
+        mesh = RESOURCES.createMesh();
+        mesh->setVertices(positions2);
+        mesh->setTriangles(indices2);
+        mesh->setColors(colors2);
+
+        mr = go->addComponent<Components::MeshRenderer>();
+        mr->setMesh(mesh);
+    }
+
+    void Tick(Time::Seconds delta)
+    {
+
+        auto newVertices = mesh->getVertices();
+        int i = 0;
+        while (i < newVertices.size())
+        {
+            F32 newZ = newVertices[i].z = (F32)sin(TIME.getTime().value);
+            newVertices[i].z = i % 2 == 0 ? newZ : -newZ;
+            i++;
+        }
+
+        auto newColors = mesh->getColors();
+        for(auto& color : newColors)
+            color.setRed( (sin(TIME.getTime().value) + 1) / 2 * 255 );
+
+        mesh->clear();
+        mesh->setVertices( newVertices );
+        mesh->setTriangles(indices2);
+        mesh->setColors(newColors);
+    }
+};
+
 class MyScene : public IScene
 {
-    GameObject* go;
-    Components::Camera* cam;
-
-    Graphics::Mesh* m;
-    Graphics::Mesh* m2;
     GameObject* goModel;
 
 public:
@@ -204,29 +240,32 @@ public:
 
     void init() override
     {
-        go = createGameObject("Camera");
-        cam = go->addComponent<Components::Camera>();
+        auto go = createGameObject("Camera");
+        auto cam = go->addComponent<Components::Camera>();
         go->getComponent<Components::Transform>()->position = Math::Vec3(0,0,-10);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 10.0f, 0.3f);
 
-        m = RESOURCES.createMesh();
+        auto worldGO = createGameObject("World");
+        worldGO->getComponent<Components::Transform>()->position = Math::Vec3(0, 3, 0);
+        worldGO->addComponent<WorldGeneration>();
+
+        auto m = RESOURCES.createMesh();
         m->setVertices(positions);
         m->setTriangles(indices);
         m->setColors(colors);
 
-        m2 = RESOURCES.createMesh();
+        auto m2 = RESOURCES.createMesh();
         m2->setVertices(positions2);
         m2->setTriangles(indices2);
         m2->setColors(colors2);
 
         // Create 3D-Model or load it... How to manage resources?
-        // ModelPtr m = Assets::loadMesh("/models/test.obj");
-        // ModelPtr m = ModelGenerator.createCube(...);
+        // Mesh* m = Assets::loadMesh("/models/test.obj");
+        // Mesh* m = MeshGenerator::createCube(...);
 
         goModel = createGameObject("Test");
         goModel->addComponent<ConstantRotation>(0.0f, 20.0f, 20.0f);
-        auto mr = goModel->addComponent<Components::MeshRenderer>();
-        mr->setMesh(m);
+        auto mr = goModel->addComponent<Components::MeshRenderer>(m);
 
         //auto cam2GO = createGameObject("Camera2");
         //cam2GO->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, 10);
@@ -240,14 +279,12 @@ public:
             GameObject* goModel2 = createGameObject("Test");
             goModel2->getComponent<Components::Transform>()->position = {5,0,0};
             goModel2->addComponent<ConstantRotation>(20.0f, 20.0f, 0.0f);
-            mr = goModel2->addComponent<Components::MeshRenderer>();
-            mr->setMesh(m);
+            mr = goModel2->addComponent<Components::MeshRenderer>(m);
 
             GameObject* goModel3 = createGameObject("Test");
             goModel3->getComponent<Components::Transform>()->position = { -5,0,0 };
             goModel3->addComponent<ConstantRotation>(0.0f, 0.0f, 20.0f);
-            mr = goModel3->addComponent<Components::MeshRenderer>();
-            mr->setMesh(m2);
+            mr = goModel3->addComponent<Components::MeshRenderer>(m2);
         }
 
         LOG("MyScene initialized!", Color::RED);

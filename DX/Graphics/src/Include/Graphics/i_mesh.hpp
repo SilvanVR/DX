@@ -5,8 +5,10 @@
     author: S. Hau
     date: March 8, 2018
 
-    Interface for a IMesh class. A IMesh represents one mesh, which
-    can consists of several submeshes.
+    Interface for a Mesh class. It represents one mesh, which
+    consists of geometry data like positions, normals, colors. The
+    actual pipeline from a material will then fetch this data and
+    render this mesh.
 **********************************************************************/
 
 #include "enums.hpp"
@@ -63,7 +65,7 @@ namespace Graphics {
         ArrayList<U32>          m_indices;
         ArrayList<Color>        m_vertexColors;
         U16                     m_subMeshCount  = 1;
-        IndexFormat             m_indexFormat = IndexFormat::U16;
+        IndexFormat             m_indexFormat   = IndexFormat::U16;
 
     private:
         //----------------------------------------------------------------------

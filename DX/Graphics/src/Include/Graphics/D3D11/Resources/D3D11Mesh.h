@@ -20,8 +20,8 @@ namespace Graphics { namespace D3D11 {
     class D3D11Mesh : public Mesh
     {
     public:
-        D3D11Mesh();
-        virtual ~D3D11Mesh();
+        D3D11Mesh() = default;
+        ~D3D11Mesh();
 
         //----------------------------------------------------------------------
         // IMesh Interface
@@ -35,6 +35,8 @@ namespace Graphics { namespace D3D11 {
     private:
         VertexBuffer*   pVertexBuffer   = nullptr;
         VertexBuffer*   pColorBuffer    = nullptr;
+
+        // @TODO: Array of index buffer for meshes with submeshes
         IndexBuffer*    pIndexBuffer    = nullptr;
 
         //----------------------------------------------------------------------

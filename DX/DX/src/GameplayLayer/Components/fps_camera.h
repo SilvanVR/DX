@@ -51,7 +51,7 @@ namespace Components {
         ECameraMode             m_cameraMode            = ECameraMode::FPS;
 
         //----------------------------------------------------------------------
-        void addedToGameObject(GameObject* go) override;
+        void AddedToGameObject(GameObject* go) override;
         void Tick(Time::Seconds delta) override;
 
         //----------------------------------------------------------------------

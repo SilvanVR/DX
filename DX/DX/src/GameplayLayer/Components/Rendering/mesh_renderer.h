@@ -18,6 +18,7 @@ namespace Components {
     {
     public:
         MeshRenderer() = default;
+        MeshRenderer(Graphics::Mesh* mesh) : m_mesh( mesh ) {}
 
         Graphics::Mesh* getMesh()                      const   { return m_mesh; }
         void            setMesh(Graphics::Mesh* mesh)          { m_mesh = mesh; }
@@ -33,7 +34,7 @@ namespace Components {
         //----------------------------------------------------------------------
         // IComponent Interface
         //----------------------------------------------------------------------
-        void addedToGameObject(GameObject* go) override;
+        void AddedToGameObject(GameObject* go) override;
         void recordGraphicsCommands(Graphics::CommandBuffer& cmd, F32 lerp) override;
 
 

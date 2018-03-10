@@ -50,7 +50,7 @@ namespace Components {
         //----------------------------------------------------------------------
         // Called immediately after the component was attached to a gameobject.
         //----------------------------------------------------------------------
-        virtual void addedToGameObject(GameObject* go) {}
+        virtual void AddedToGameObject(GameObject* go) {}
 
     private:
         GameObject* m_pGameObject   = nullptr;
@@ -58,7 +58,7 @@ namespace Components {
         bool        m_isActive      = true;
 
         //----------------------------------------------------------------------
-        void _SetGameObject(GameObject* go) { m_pGameObject = go; addedToGameObject( m_pGameObject ); }
+        void _SetGameObject(GameObject* go) { m_pGameObject = go; AddedToGameObject( m_pGameObject ); }
 
         //----------------------------------------------------------------------
         IComponent(const IComponent& other)               = delete;

@@ -17,6 +17,7 @@ using namespace DirectX;
 
 namespace Graphics {
 
+    // @TODO: Query from shader interface
     D3D11_INPUT_ELEMENT_DESC vertexDesc[] =
     {
         { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
@@ -352,6 +353,7 @@ namespace Graphics {
         pConstantBufferObject->updateSubresource( &modelMatrix );
 
         // Submit draw call
+        // @TODO: Foreach submesh draw indexed -> Better would be to sort them before
         g_pImmediateContext->DrawIndexed( mesh->numIndices(), 0, 0 );
     }
 

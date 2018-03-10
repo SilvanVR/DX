@@ -12,27 +12,15 @@
 namespace Graphics { namespace D3D11 {
 
     //----------------------------------------------------------------------
-    D3D11Mesh::D3D11Mesh()
-    {
-        //pVertexBuffer = new D3D11::VertexBuffer( sizeInBytes, pVertices );
-        //pIndexBuffer = new D3D11::IndexBuffer( sizeInBytes2, pIndices );
-    }
-
-    //----------------------------------------------------------------------
     D3D11Mesh::~D3D11Mesh()
     {
-        if (pVertexBuffer)
-            SAFE_DELETE( pVertexBuffer );
-        if (pIndexBuffer)
-            SAFE_DELETE( pIndexBuffer );
-        if (pColorBuffer)
-            SAFE_DELETE( pColorBuffer );
+        clear();
     }
 
     //----------------------------------------------------------------------
     void D3D11Mesh::bind()
     {
-        // @TODO: Build vertexlayout automatically based on present arrays
+        // @TODO: Move bind into actual renderpass, where geometry is drawn with a specific input layout
         pVertexBuffer->bind( 0, sizeof(Math::Vec3), 0 );
         if (pColorBuffer != nullptr)
             pColorBuffer->bind( 1, sizeof(F32) * 4, 0 );
@@ -56,7 +44,15 @@ namespace Graphics { namespace D3D11 {
     //----------------------------------------------------------------------
     void D3D11Mesh::clear()
     {
-
+        if (pVertexBuffer)
+            SAFE_DELETE(pVertexBuffer);
+        if (pIndexBuffer)
+            SAFE_DELETE(pIndexBuffer);
+        if (pColorBuffer)
+            SAFE_DELETE(pColorBuffer);
+        m_vertices.clear();
+        m_indices.clear();
+        m_vertexColors.clear();
     }
 
     //----------------------------------------------------------------------

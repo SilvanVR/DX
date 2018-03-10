@@ -13,7 +13,7 @@
 namespace Components {
 
     //----------------------------------------------------------------------
-    void FPSCamera::addedToGameObject( GameObject* go )
+    void FPSCamera::AddedToGameObject( GameObject* go )
     {
         m_pTransform = go->getComponent<Components::Transform>();
     }

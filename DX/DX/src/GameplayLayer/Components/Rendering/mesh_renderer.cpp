@@ -13,9 +13,9 @@
 namespace Components {
 
     //----------------------------------------------------------------------
-    void MeshRenderer::addedToGameObject( GameObject* go )
+    void MeshRenderer::AddedToGameObject( GameObject* go )
     {
-        auto transform = getGameObject()->getComponent<Transform>();
+        auto transform = go->getComponent<Transform>();
         if ( transform == nullptr )
             WARN( "MeshRenderer-Component requires a transform for a game-object, but the attached game-object has none!" );
     }
