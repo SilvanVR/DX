@@ -15,7 +15,7 @@
 #include "GameplayLayer/i_scene.h"
 #include "GameplayLayer/gameobject.h"
 #include "GameplayLayer/Components/transform.h"
-#include "GameplayLayer/Components/Rendering/model_renderer.h"
+#include "GameplayLayer/Components/Rendering/mesh_renderer.h"
 #include "GameplayLayer/Components/Rendering/camera.h"
 #include "GameplayLayer/Components/fps_camera.h"
 

@@ -8,7 +8,6 @@
     Manages all resources in the game:
     - Stores them
     - Deletes them
-    @TODO
 
     Ideas:
     Resource-Table in the background with a counter
@@ -16,6 +15,7 @@
 **********************************************************************/
 
 #include "SubSystem/i_subsystem.hpp"
+#include "Graphics/i_mesh.hpp"
 
 namespace Core { namespace Resources {
 
@@ -27,6 +27,14 @@ namespace Core { namespace Resources {
         ~ResourceManager() = default;
 
         //----------------------------------------------------------------------
+        // Creates a new mesh for use by the graphics engine.
+        //----------------------------------------------------------------------
+        Graphics::Mesh* createMesh();
+
+        //----------------------------------------------------------------------
+        void UnloadUnusedResources();
+
+        //----------------------------------------------------------------------
         // ISubSystem Interface
         //----------------------------------------------------------------------
         void init() override;
@@ -34,6 +42,7 @@ namespace Core { namespace Resources {
         void shutdown() override;
 
     private:
+        ArrayList<Graphics::Mesh*> m_meshes;
 
         //----------------------------------------------------------------------
         ResourceManager(const ResourceManager& other)               = delete;

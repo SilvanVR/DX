@@ -15,8 +15,7 @@
 namespace Graphics {
 
     class CommandBuffer;
-    class Mesh;
-    class IndexedMesh;
+    class IMesh;
 
     //**********************************************************************
     // Interface-Class for a Renderer-Subsystem
@@ -42,8 +41,7 @@ namespace Graphics {
         virtual void setMultiSampleCount(U32 numSamples) = 0;
 
         //----------------------------------------------------------------------
-        virtual Mesh* createMesh(const void* pVertices, U32 sizeInBytes) = 0;
-        virtual Mesh* createIndexedMesh(const void* pVertices, U32 sizeInBytes, const void* pIndices, U32 sizeInBytes2, U32 numIndices) = 0;
+        virtual IMesh* createMesh() = 0;
 
     protected:
         OS::Window* m_window = nullptr;

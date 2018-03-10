@@ -166,6 +166,7 @@
     <ClInclude Include="src\Include\Graphics\D3D11\D3D11Renderer.h" />
     <ClInclude Include="src\Include\Graphics\D3D11\D3D11Swapchain.h" />
     <ClInclude Include="src\Include\Graphics\D3D11\Resources\D3D11Mesh.h" />
+    <ClInclude Include="src\Include\Graphics\enums.hpp" />
     <ClInclude Include="src\Include\Graphics\i_mesh.hpp" />
     <ClInclude Include="src\Include\Graphics\D3D11\Pipeline\Buffers\D3D11Buffers.h" />
     <ClInclude Include="src\Include\Graphics\D3D11\Pipeline\Buffers\D3D11IBuffer.h" />

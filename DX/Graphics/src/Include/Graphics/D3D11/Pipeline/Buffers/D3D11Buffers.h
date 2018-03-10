@@ -14,7 +14,7 @@ namespace Graphics { namespace D3D11 {
     class VertexBuffer : public IBuffer
     {
     public:
-        VertexBuffer( U32 size, const void* pData );
+        VertexBuffer( const void* pData, U32 size );
         ~VertexBuffer() {};
 
         //----------------------------------------------------------------------
@@ -34,7 +34,7 @@ namespace Graphics { namespace D3D11 {
     class IndexBuffer : public IBuffer
     {
     public:
-        IndexBuffer( U32 size, const void* pData );
+        IndexBuffer( const void* pData, U32 size );
         ~IndexBuffer() {};
 
         //----------------------------------------------------------------------

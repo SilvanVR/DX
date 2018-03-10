@@ -101,5 +101,8 @@
     <ClInclude Include="src\Include\Graphics\D3D11\Resources\D3D11Mesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Include\Graphics\enums.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

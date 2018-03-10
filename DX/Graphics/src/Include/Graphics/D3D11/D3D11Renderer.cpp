@@ -20,7 +20,7 @@ namespace Graphics {
     D3D11_INPUT_ELEMENT_DESC vertexDesc[] =
     {
         { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-        { "COLOR", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+        { "COLOR",    0, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 }
     };
 
     ID3D11InputLayout*          pInputLayout;
@@ -161,11 +161,7 @@ namespace Graphics {
                 case GPUCommand::DRAW_MESH:
                 {
                     GPUC_DrawMesh& c = *dynamic_cast<GPUC_DrawMesh*>( command.get() );
-                    switch (c.mesh->getMeshType())
-                    {
-                    case EMeshType::MESH:       _DrawMesh( c.modelMatrix, c.mesh ); break;
-                    case EMeshType::INDEXED:    _DrawIndexedMesh( c.modelMatrix, dynamic_cast<IndexedMesh*>( c.mesh ) ); break;
-                    }
+                    _DrawMesh( c.modelMatrix, c.mesh );
                     break;
                 }
                 default:
@@ -205,15 +201,9 @@ namespace Graphics {
     }
 
     //----------------------------------------------------------------------
-    Mesh* D3D11Renderer::createMesh( const void* pVertices, U32 sizeInBytes )
+    Mesh* D3D11Renderer::createMesh()
     {
-        return new D3D11::D3D11Mesh( pVertices, sizeInBytes );
-    }
-
-    //----------------------------------------------------------------------
-    Mesh* D3D11Renderer::createIndexedMesh( const void* pVertices, U32 sizeInBytes, const void* pIndices, U32 sizeInBytes2, U32 numIndices )
-    {
-        return new D3D11::D3D11IndexedMesh( pVertices, sizeInBytes, pIndices, sizeInBytes2, numIndices );
+        return new D3D11::D3D11Mesh();
     }
 
     //**********************************************************************
@@ -353,7 +343,7 @@ namespace Graphics {
     }
 
     //----------------------------------------------------------------------
-    void D3D11Renderer::_DrawMesh( const DirectX::XMMATRIX& modelMatrix, Mesh* mesh )
+    void D3D11Renderer::_DrawMesh( const DirectX::XMMATRIX& modelMatrix, IMesh* mesh )
     {
         // Bind vertex buffer
         mesh->bind();
@@ -362,20 +352,7 @@ namespace Graphics {
         pConstantBufferObject->updateSubresource( &modelMatrix );
 
         // Submit draw call
-        //g_pImmediateContext->Draw( mesh->numVertices(), mesh->getVertexStartIndex() );
-    }
-
-    //----------------------------------------------------------------------
-    void D3D11Renderer::_DrawIndexedMesh(const DirectX::XMMATRIX& modelMatrix, IndexedMesh* mesh )
-    {
-        // Bind vertex buffer
-        mesh->bind();
-
-        // Update constant per object buffer
-        pConstantBufferObject->updateSubresource( &modelMatrix );
-
-        // Submit draw call
-        g_pImmediateContext->DrawIndexed( mesh->numIndices(), 0, 0);
+        g_pImmediateContext->DrawIndexed( mesh->numIndices(), 0, 0 );
     }
 
 } // End namespaces

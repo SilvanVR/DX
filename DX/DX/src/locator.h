@@ -43,6 +43,7 @@
 #define PROFILER                Locator::getProfiler()
 #define TIME                    Locator::getEngineClock()
 #define SCENE                   Locator::getSceneManager().getCurrentScene()
+#define RESOURCES               Locator::getResourceManager()
 
 //*********************************************************************
 // Retrieve / Change every subsystem via a static method.

@@ -1,6 +1,6 @@
-#include "model_renderer.h"
+#include "mesh_renderer.h"
 /**********************************************************************
-    class: ModelRenderer (model_renderer.cpp)
+    class: MeshRenderer (mesh_renderer.cpp)
 
     author: S. Hau
     date: December 19, 2017
@@ -13,32 +13,27 @@
 namespace Components {
 
     //----------------------------------------------------------------------
-    void ModelRenderer::addedToGameObject( GameObject* go )
+    void MeshRenderer::addedToGameObject( GameObject* go )
     {
         auto transform = getGameObject()->getComponent<Transform>();
         if ( transform == nullptr )
-            WARN( "ModelRenderer-Component requires a transform for a game-object, but the attached game-object has none!" );
+            WARN( "MeshRenderer-Component requires a transform for a game-object, but the attached game-object has none!" );
     }
 
     //----------------------------------------------------------------------
-    void ModelRenderer::recordGraphicsCommands( Graphics::CommandBuffer& cmd, F32 lerp )
+    void MeshRenderer::recordGraphicsCommands( Graphics::CommandBuffer& cmd, F32 lerp )
     {
-        if (m_model == nullptr)
+        if (m_mesh == nullptr)
             return;
 
         auto transform = getGameObject()->getComponent<Transform>();
         ASSERT( transform != nullptr );
 
-        // Foreach submesh within that model record a draw command
-        for ( auto& mesh : m_model->getMeshes() )
-        {
-            // 1. MeshID
-            // 2. MaterialID
-            // 3. Interpolated World Matrix
-            auto modelMatrix = transform->getTransformationMatrix();
-            cmd.drawMesh( modelMatrix, mesh );
-        }
-
+        // 1. MeshID
+        // 2. MaterialID
+        // 3. Interpolated World Matrix
+        auto modelMatrix = transform->getTransformationMatrix();
+        cmd.drawMesh( modelMatrix, m_mesh );
     }
 
 

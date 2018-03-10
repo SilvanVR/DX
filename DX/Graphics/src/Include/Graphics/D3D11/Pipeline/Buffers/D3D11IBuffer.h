@@ -23,6 +23,9 @@ namespace Graphics { namespace D3D11 {
         //----------------------------------------------------------------------
         U32 getSize() const { return m_size; }
 
+        //----------------------------------------------------------------------
+        ID3D11Buffer* getBuffer() const { return m_pBuffer; }
+
     protected:
         ID3D11Buffer*   m_pBuffer = nullptr;
 

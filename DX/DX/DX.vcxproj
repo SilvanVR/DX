@@ -300,7 +300,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\Assets\model.cpp" />
     <ClCompile Include="src\Core\Config\configuration_manager.cpp" />
     <ClCompile Include="src\Core\Config\config_file.cpp" />
     <ClCompile Include="src\Core\core_engine.cpp" />
@@ -320,7 +319,7 @@
     <ClCompile Include="src\GameplayLayer\Components\fps_camera.cpp" />
     <ClCompile Include="src\GameplayLayer\Components\Rendering\camera.cpp" />
     <ClCompile Include="src\GameplayLayer\Components\transform.cpp" />
-    <ClCompile Include="src\GameplayLayer\Components\Rendering\model_renderer.cpp" />
+    <ClCompile Include="src\GameplayLayer\Components\Rendering\mesh_renderer.cpp" />
     <ClCompile Include="src\GameplayLayer\gameobject.cpp" />
     <ClCompile Include="src\GameplayLayer\Components\i_component.cpp" />
     <ClCompile Include="src\GameplayLayer\i_scene.cpp" />
@@ -340,7 +339,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\Assets\model.h" />
     <ClInclude Include="src\Core\GraphicsCommandRecorder\graphics_command_recorder.h" />
     <ClInclude Include="src\Core\InGameConsole\in_game_console.h" />
     <ClInclude Include="src\Core\InGameConsole\i_in_game_console.hpp" />
@@ -364,7 +362,7 @@
     <ClInclude Include="src\GameplayLayer\Components\Rendering\camera.h" />
     <ClInclude Include="src\GameplayLayer\Components\Rendering\i_render_component.hpp" />
     <ClInclude Include="src\GameplayLayer\Components\transform.h" />
-    <ClInclude Include="src\GameplayLayer\Components\Rendering\model_renderer.h" />
+    <ClInclude Include="src\GameplayLayer\Components\Rendering\mesh_renderer.h" />
     <ClInclude Include="src\GameplayLayer\gameobject.h" />
     <ClInclude Include="src\GameplayLayer\Components\i_component.h" />
     <ClInclude Include="src\GameplayLayer\i_scene.h" />

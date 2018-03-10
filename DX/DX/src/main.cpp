@@ -12,6 +12,7 @@
 #include "Graphics/vertex_layout.hpp"
 
 #include "locator.h"
+#include "Common/color.h"
 #include "GameplayLayer/Components/fps_camera.h"
 
 using namespace Core;
@@ -68,7 +69,7 @@ public:
         cam->setOrthoParams(-size, size, -size, size, 0.1f, 100.0f);
 
         go2 = createGameObject("Box");
-        go2->addComponent<Components::ModelRenderer>();
+        go2->addComponent<Components::MeshRenderer>();
 
         //auto& viewport = cam->getViewport();
         //viewport.width  = 0.5f;
@@ -103,25 +104,48 @@ public:
     }
 };
 
-struct Vertex
+//Vertex vertices[] =
+//{
+//    { XMFLOAT3(-1.0f, -1.0f, -1.0f), XMFLOAT3(0.0f, 0.0f, 0.0f) }, // 0
+//    { XMFLOAT3(-1.0f,  1.0f, -1.0f), XMFLOAT3(0.0f, 1.0f, 0.0f) }, // 1
+//    { XMFLOAT3(1.0f,  1.0f, -1.0f),  XMFLOAT3(1.0f, 1.0f, 0.0f) }, // 2
+//    { XMFLOAT3(1.0f, -1.0f, -1.0f),  XMFLOAT3(1.0f, 0.0f, 0.0f) }, // 3
+//    { XMFLOAT3(-1.0f, -1.0f,  1.0f), XMFLOAT3(0.0f, 0.0f, 1.0f) }, // 4
+//    { XMFLOAT3(-1.0f,  1.0f,  1.0f), XMFLOAT3(0.0f, 1.0f, 1.0f) }, // 5
+//    { XMFLOAT3(1.0f,  1.0f,  1.0f),  XMFLOAT3(1.0f, 1.0f, 1.0f) }, // 6
+//    { XMFLOAT3(1.0f, -1.0f,  1.0f),  XMFLOAT3(1.0f, 0.0f, 1.0f) }  // 7
+//};
+//U16 indices[] = {
+//    0, 1, 2, 0, 2, 3,
+//    4, 6, 5, 4, 7, 6,
+//    4, 5, 1, 4, 1, 0,
+//    3, 2, 6, 3, 6, 7,
+//    1, 5, 6, 1, 6, 2,
+//    4, 0, 3, 4, 3, 7
+//};
+ArrayList<Color> colors =
 {
-    XMFLOAT3 position;
-    XMFLOAT3 color;
+    Color(0, 0, 0),
+    Color(0, 255, 0),
+    Color(255, 255, 0),
+    Color(255, 0, 0),
+    Color(0, 0, 255),
+    Color(0, 255, 255),
+    Color(255, 255, 255),
+    Color(255, 0, 255)
 };
-
-Vertex vertices[] =
+ArrayList<Math::Vec3> positions = 
 {
-    { XMFLOAT3(-1.0f, -1.0f, -1.0f), XMFLOAT3(0.0f, 0.0f, 0.0f) }, // 0
-    { XMFLOAT3(-1.0f,  1.0f, -1.0f), XMFLOAT3(0.0f, 1.0f, 0.0f) }, // 1
-    { XMFLOAT3(1.0f,  1.0f, -1.0f), XMFLOAT3(1.0f, 1.0f, 0.0f) }, // 2
-    { XMFLOAT3(1.0f, -1.0f, -1.0f), XMFLOAT3(1.0f, 0.0f, 0.0f) }, // 3
-    { XMFLOAT3(-1.0f, -1.0f,  1.0f), XMFLOAT3(0.0f, 0.0f, 1.0f) }, // 4
-    { XMFLOAT3(-1.0f,  1.0f,  1.0f), XMFLOAT3(0.0f, 1.0f, 1.0f) }, // 5
-    { XMFLOAT3(1.0f,  1.0f,  1.0f), XMFLOAT3(1.0f, 1.0f, 1.0f) }, // 6
-    { XMFLOAT3(1.0f, -1.0f,  1.0f), XMFLOAT3(1.0f, 0.0f, 1.0f) }  // 7
+    Math::Vec3(-1.0f, -1.0f, -1.0f),
+    Math::Vec3(-1.0f,  1.0f, -1.0f),
+    Math::Vec3(1.0f,  1.0f, -1.0f), 
+    Math::Vec3(1.0f, -1.0f, -1.0f), 
+    Math::Vec3(-1.0f, -1.0f,  1.0f),
+    Math::Vec3(-1.0f,  1.0f,  1.0f),
+    Math::Vec3(1.0f,  1.0f,  1.0f), 
+    Math::Vec3(1.0f, -1.0f,  1.0f)
 };
-
-U32 indices[] = {
+ArrayList<U32> indices = {
     0, 1, 2, 0, 2, 3,
     4, 6, 5, 4, 7, 6,
     4, 5, 1, 4, 1, 0,
@@ -130,16 +154,23 @@ U32 indices[] = {
     4, 0, 3, 4, 3, 7
 };
 
-Vertex v2[] =
+ArrayList<Math::Vec3> positions2 =
 {
-    { XMFLOAT3(-1.0f, -1.0f, 0.0f), XMFLOAT3(0.0f, 0.0f, 0.0f) }, // 0
-    { XMFLOAT3(-1.0f,  1.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f) }, // 1
-    { XMFLOAT3( 1.0f,  1.0f, 0.0f), XMFLOAT3(1.0f, 1.0f, 0.0f) }, // 2
-    { XMFLOAT3( 1.0f, -1.0f, 0.0f), XMFLOAT3(1.0f, 0.0f, 0.0f) }, // 3
+    Math::Vec3(-1.0f, -1.0f, 0.0f),
+    Math::Vec3(-1.0f,  1.0f, 0.0f),
+    Math::Vec3( 1.0f,  1.0f, 0.0f),
+    Math::Vec3( 1.0f, -1.0f, 0.0f) 
+};
+ArrayList<Color> colors2 =
+{
+    Color(0, 0, 0),
+    Color(0, 255, 0),
+    Color(255, 255, 0),
+    Color(255, 0, 0),
 };
 
-U32 i2[] = {
-    0, 1, 2, 0, 2, 3,
+ArrayList<U32> indices2 = {
+    0, 1, 2, 0, 2, 3
 };
 
 class ConstantRotation : public Components::IComponent
@@ -164,8 +195,8 @@ class MyScene : public IScene
     GameObject* go;
     Components::Camera* cam;
 
-    Assets::Model* m;
-    Assets::Model* m2;
+    Graphics::Mesh* m;
+    Graphics::Mesh* m2;
     GameObject* goModel;
 
 public:
@@ -178,30 +209,45 @@ public:
         go->getComponent<Components::Transform>()->position = Math::Vec3(0,0,-10);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 10.0f, 0.3f);
 
-        // Graphics::VertexLayout layout;
-        m = new Assets::Model(vertices, sizeof(Vertex) * _countof(vertices), indices, sizeof(U32) * _countof(indices), _countof(indices));
-        m2 = new Assets::Model(v2, sizeof(Vertex) * _countof(v2), i2, sizeof(U32) * _countof(i2), _countof(i2));
+        m = RESOURCES.createMesh();
+        m->setVertices(positions);
+        m->setTriangles(indices);
+        m->setColors(colors);
+
+        m2 = RESOURCES.createMesh();
+        m2->setVertices(positions2);
+        m2->setTriangles(indices2);
+        m2->setColors(colors2);
+
         // Create 3D-Model or load it... How to manage resources?
         // ModelPtr m = Assets::loadMesh("/models/test.obj");
         // ModelPtr m = ModelGenerator.createCube(...);
 
         goModel = createGameObject("Test");
         goModel->addComponent<ConstantRotation>(0.0f, 20.0f, 20.0f);
-        auto mr = goModel->addComponent<Components::ModelRenderer>();
-        mr->setModel(m);
+        auto mr = goModel->addComponent<Components::MeshRenderer>();
+        mr->setMesh(m);
+
+        //auto cam2GO = createGameObject("Camera2");
+        //cam2GO->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, 10);
+        //cam2GO->getComponent<Components::Transform>()->lookAt(Math::Vec3(0));
+        //auto cam2 = cam2GO->addComponent<Components::Camera>();
+        //cam2->setClearMode(Components::Camera::EClearMode::NONE);
+        //cam2->getViewport().topLeftX = 0.5f;
+        //cam2->getViewport().width = 0.5f;
 
         {
             GameObject* goModel2 = createGameObject("Test");
             goModel2->getComponent<Components::Transform>()->position = {5,0,0};
             goModel2->addComponent<ConstantRotation>(20.0f, 20.0f, 0.0f);
-            mr = goModel2->addComponent<Components::ModelRenderer>();
-            mr->setModel(m);
+            mr = goModel2->addComponent<Components::MeshRenderer>();
+            mr->setMesh(m);
 
             GameObject* goModel3 = createGameObject("Test");
             goModel3->getComponent<Components::Transform>()->position = { -5,0,0 };
             goModel3->addComponent<ConstantRotation>(0.0f, 0.0f, 20.0f);
-            mr = goModel3->addComponent<Components::ModelRenderer>();
-            mr->setModel(m2);
+            mr = goModel3->addComponent<Components::MeshRenderer>();
+            mr->setMesh(m2);
         }
 
         LOG("MyScene initialized!", Color::RED);
@@ -225,8 +271,6 @@ public:
 
     void shutdown() override
     {
-        delete m;
-        delete m2;
         LOG("MyScene Shutdown!", Color::RED);
     }
 

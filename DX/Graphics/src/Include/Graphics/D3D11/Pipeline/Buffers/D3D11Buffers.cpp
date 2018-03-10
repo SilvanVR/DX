@@ -9,7 +9,7 @@
 namespace Graphics { namespace D3D11 {
 
     //----------------------------------------------------------------------
-    VertexBuffer::VertexBuffer( U32 size, const void* pData )
+    VertexBuffer::VertexBuffer( const void* pData, U32 size )
         : IBuffer( D3D11_BIND_VERTEX_BUFFER, D3D11_USAGE_IMMUTABLE, size, pData )
     {
     }
@@ -22,7 +22,7 @@ namespace Graphics { namespace D3D11 {
 
     //**********************************************************************
     //----------------------------------------------------------------------
-    IndexBuffer::IndexBuffer( U32 size, const void* pData )
+    IndexBuffer::IndexBuffer( const void* pData, U32 size )
         : IBuffer( D3D11_BIND_INDEX_BUFFER, D3D11_USAGE_IMMUTABLE, size, pData )
     {
     }

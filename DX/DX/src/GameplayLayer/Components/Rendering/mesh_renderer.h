@@ -1,6 +1,6 @@
 #pragma once
 /**********************************************************************
-    class: ModelRenderer (model_renderer.h)
+    class: MeshRenderer (mesh_renderer.h)
 
     author: S. Hau
     date: December 19, 2017
@@ -9,24 +9,24 @@
 **********************************************************************/
 
 #include "i_render_component.hpp"
-#include "Assets/model.h"
+#include "Graphics/i_mesh.hpp"
 
 namespace Components {
 
     //**********************************************************************
-    class ModelRenderer : public IRenderComponent
+    class MeshRenderer : public IRenderComponent
     {
     public:
-        ModelRenderer() = default;
+        MeshRenderer() = default;
 
-        Assets::Model*  getModel()                      const   { return m_model; }
-        void            setModel(Assets::Model* model)          { m_model = model; }
+        Graphics::Mesh* getMesh()                      const   { return m_mesh; }
+        void            setMesh(Graphics::Mesh* mesh)          { m_mesh = mesh; }
 
         // Material getMaterial() const { return m_material; }
-        // void setMesh(Material m) const { m_material = m; }
+        // void setMaterial(Material m) const { m_material = m; }
 
     private:
-        Assets::Model*      m_model;
+        Graphics::Mesh*     m_mesh;
         // Material*        m_material;
 
 
@@ -38,10 +38,10 @@ namespace Components {
 
 
         //----------------------------------------------------------------------
-        ModelRenderer(const ModelRenderer& other)               = delete;
-        ModelRenderer& operator = (const ModelRenderer& other)  = delete;
-        ModelRenderer(ModelRenderer&& other)                    = delete;
-        ModelRenderer& operator = (ModelRenderer&& other)       = delete;
+        MeshRenderer(const MeshRenderer& other)               = delete;
+        MeshRenderer& operator = (const MeshRenderer& other)  = delete;
+        MeshRenderer(MeshRenderer&& other)                    = delete;
+        MeshRenderer& operator = (MeshRenderer&& other)       = delete;
     };
 
 }

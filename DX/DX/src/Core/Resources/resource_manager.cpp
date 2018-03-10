@@ -21,13 +21,25 @@ namespace Core { namespace Resources {
     //----------------------------------------------------------------------
     void ResourceManager::shutdown()
     {
-
+        for (auto& mesh : m_meshes)
+            SAFE_DELETE( mesh );
+        m_meshes.clear();
     }
 
     //----------------------------------------------------------------------
     void ResourceManager::OnTick( Time::Seconds delta )
     {
 
+    }
+
+    //**********************************************************************
+    // PUBLIC
+    //**********************************************************************
+    Graphics::Mesh* ResourceManager::createMesh()
+    {
+        auto mesh = Locator::getRenderer().createMesh();
+        m_meshes.push_back( mesh );
+        return mesh;
     }
 
 

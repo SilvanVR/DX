@@ -20,14 +20,22 @@ namespace Graphics { namespace D3D11 {
     class D3D11Mesh : public Mesh
     {
     public:
-        D3D11Mesh( const void* pVertices, U32 sizeInBytes );
+        D3D11Mesh();
         virtual ~D3D11Mesh();
 
         //----------------------------------------------------------------------
+        // IMesh Interface
+        //----------------------------------------------------------------------
+        void clear() override;
         void bind() override;
+        void setVertices(const ArrayList<Math::Vec3>& vertices) override;
+        void setTriangles(const ArrayList<U32>& indices) override;
+        void setColors(const ArrayList<Color>& colors) override;
 
     private:
-        VertexBuffer* pVertexBuffer = nullptr;
+        VertexBuffer*   pVertexBuffer   = nullptr;
+        VertexBuffer*   pColorBuffer    = nullptr;
+        IndexBuffer*    pIndexBuffer    = nullptr;
 
         //----------------------------------------------------------------------
         D3D11Mesh(const D3D11Mesh& other)               = delete;
@@ -36,25 +44,5 @@ namespace Graphics { namespace D3D11 {
         D3D11Mesh& operator = (D3D11Mesh&& other)       = delete;
     };
 
-    //**********************************************************************
-    class D3D11IndexedMesh : public IndexedMesh
-    {
-    public:
-        D3D11IndexedMesh(const void* pVertices, U32 sizeInBytes, const void* pIndices, U32 sizeInBytes2, U32 numIndices);
-        ~D3D11IndexedMesh();
-
-        //----------------------------------------------------------------------
-        void bind() override;
-
-    private:
-        VertexBuffer*   pVertexBuffer = nullptr;
-        IndexBuffer*    pIndexBuffer  = nullptr;
-
-        //----------------------------------------------------------------------
-        D3D11IndexedMesh(const D3D11IndexedMesh& other)               = delete;
-        D3D11IndexedMesh& operator = (const D3D11IndexedMesh& other)  = delete;
-        D3D11IndexedMesh(D3D11IndexedMesh&& other)                    = delete;
-        D3D11IndexedMesh& operator = (D3D11IndexedMesh&& other)       = delete;
-    };
 
 } } // End namespaces
