@@ -80,7 +80,7 @@ namespace Graphics { namespace D3D11 {
     }
 
     //----------------------------------------------------------------------
-    void D3D11Mesh::setTriangles( const ArrayList<U32>& indices, U32 subMeshIndex, U32 baseVertex )
+    void D3D11Mesh::setIndices( const ArrayList<U32>& indices, U32 subMeshIndex, U32 baseVertex )
     {
 #if _DEBUG
         if ( !m_subMeshes.empty() )

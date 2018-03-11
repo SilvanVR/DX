@@ -99,6 +99,9 @@
     <ClCompile Include="src\GameplayLayer\Components\Rendering\mesh_renderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Assets\MeshGenerator\mesh_generator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\stdafx.h">
@@ -201,6 +204,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\GameplayLayer\Components\Rendering\mesh_renderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Assets\MeshGenerator\mesh_generator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

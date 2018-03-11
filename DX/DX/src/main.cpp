@@ -8,15 +8,13 @@
 #include "i_game.hpp"
 #include "Time/clock.h"
 
-#include "Assets/model.h"
-#include "Graphics/vertex_layout.hpp"
-
 #include "locator.h"
 #include "Common/color.h"
 #include "GameplayLayer/Components/fps_camera.h"
 
+#include "Assets/MeshGenerator/mesh_generator.h"
+
 using namespace Core;
-using namespace DirectX;
 
 class AutoClock
 {
@@ -104,26 +102,7 @@ public:
     }
 };
 
-//Vertex vertices[] =
-//{
-//    { XMFLOAT3(-1.0f, -1.0f, -1.0f), XMFLOAT3(0.0f, 0.0f, 0.0f) }, // 0
-//    { XMFLOAT3(-1.0f,  1.0f, -1.0f), XMFLOAT3(0.0f, 1.0f, 0.0f) }, // 1
-//    { XMFLOAT3(1.0f,  1.0f, -1.0f),  XMFLOAT3(1.0f, 1.0f, 0.0f) }, // 2
-//    { XMFLOAT3(1.0f, -1.0f, -1.0f),  XMFLOAT3(1.0f, 0.0f, 0.0f) }, // 3
-//    { XMFLOAT3(-1.0f, -1.0f,  1.0f), XMFLOAT3(0.0f, 0.0f, 1.0f) }, // 4
-//    { XMFLOAT3(-1.0f,  1.0f,  1.0f), XMFLOAT3(0.0f, 1.0f, 1.0f) }, // 5
-//    { XMFLOAT3(1.0f,  1.0f,  1.0f),  XMFLOAT3(1.0f, 1.0f, 1.0f) }, // 6
-//    { XMFLOAT3(1.0f, -1.0f,  1.0f),  XMFLOAT3(1.0f, 0.0f, 1.0f) }  // 7
-//};
-//U16 indices[] = {
-//    0, 1, 2, 0, 2, 3,
-//    4, 6, 5, 4, 7, 6,
-//    4, 5, 1, 4, 1, 0,
-//    3, 2, 6, 3, 6, 7,
-//    1, 5, 6, 1, 6, 2,
-//    4, 0, 3, 4, 3, 7
-//};
-ArrayList<Color> colors =
+ArrayList<Color> cubeColors =
 {
     Color(0, 0, 0),
     Color(0, 255, 0),
@@ -134,55 +113,13 @@ ArrayList<Color> colors =
     Color(255, 255, 255),
     Color(255, 0, 255)
 };
-ArrayList<Math::Vec3> positions = 
-{
-    Math::Vec3(-1.0f, -1.0f, -1.0f),
-    Math::Vec3(-1.0f,  1.0f, -1.0f),
-    Math::Vec3(1.0f,  1.0f, -1.0f), 
-    Math::Vec3(1.0f, -1.0f, -1.0f), 
-    Math::Vec3(-1.0f, -1.0f,  1.0f),
-    Math::Vec3(-1.0f,  1.0f,  1.0f),
-    Math::Vec3(1.0f,  1.0f,  1.0f), 
-    Math::Vec3(1.0f, -1.0f,  1.0f)
-};
-ArrayList<U32> indices = {
-    0, 1, 2, 0, 2, 3,
-    4, 6, 5, 4, 7, 6,
-    4, 5, 1, 4, 1, 0,
-    3, 2, 6, 3, 6, 7,
-    1, 5, 6, 1, 6, 2,
-    4, 0, 3, 4, 3, 7
-};
 
-ArrayList<Math::Vec3> positions2 =
-{
-    Math::Vec3(-1.0f, -1.0f, 0.0f),
-    Math::Vec3(-1.0f,  1.0f, 0.0f),
-    Math::Vec3( 1.0f,  1.0f, 0.0f),
-    Math::Vec3( 1.0f, -1.0f, 0.0f),
-     Math::Vec3(-1.0f,  2.0f, 0.0f),
-     Math::Vec3(-1.0f,  4.0f, 0.0f),
-     Math::Vec3( 1.0f,  4.0f, 0.0f),
-     Math::Vec3( 1.0f,  2.0f, 0.0f),
-};
-ArrayList<Color> colors2 =
+ArrayList<Color> planeColors =
 {
     Color(0, 0, 0),
     Color(0, 255, 0),
     Color(255, 255, 0),
-    Color(255, 0, 0),
-    Color(255, 255, 255),
-    Color(0, 255, 0),
-    Color(255, 255, 0),
-    Color(255, 0, 0),
-};
-
-ArrayList<U32> indices2 = {
-    0, 1, 2, 0, 2, 3
-};
-
-ArrayList<U32> indices3 = {
-    4, 5, 6, 4, 6, 7
+    Color(255, 0, 0)
 };
 
 class ConstantRotation : public Components::IComponent
@@ -210,10 +147,8 @@ class WorldGeneration : public Components::IComponent
 public:
     void AddedToGameObject(GameObject* go) override
     {
-        mesh = RESOURCES.createMesh();
-        mesh->setVertices(positions2);
-        mesh->setTriangles(indices2);
-        mesh->setColors(colors2);
+        mesh = Assets::MeshGenerator::CreatePlane();
+        mesh->setColors(planeColors);
 
         mr = go->addComponent<Components::MeshRenderer>();
         mr->setMesh(mesh);
@@ -222,6 +157,8 @@ public:
     void Tick(Time::Seconds delta)
     {
         auto newVertices = mesh->getVertices();
+        auto indices = mesh->getIndices();
+
         int i = 0;
         while (i < newVertices.size())
         {
@@ -236,8 +173,8 @@ public:
 
         mesh->clear();
         mesh->setVertices( newVertices );
-        mesh->setTriangles(indices2);
-        mesh->setColors(newColors);
+        mesh->setIndices( indices );
+        mesh->setColors( newColors );
     }
 };
 
@@ -259,25 +196,18 @@ public:
         worldGO->getComponent<Components::Transform>()->position = Math::Vec3(0, 3, 0);
         worldGO->addComponent<WorldGeneration>();
 
-        auto m = RESOURCES.createMesh();
-        m->setVertices(positions);
-        m->setTriangles(indices);
-        m->setColors(colors);
+        auto box = Assets::MeshGenerator::CreateCube(1.0f, Color::RED);
+        box->setColors(cubeColors);
 
-        auto m2 = RESOURCES.createMesh();
-        m2->setVertices(positions2);
-        m2->setTriangles(indices2);
-        m2->setTriangles(indices3, 1);
-        m2->setColors(colors2);
-
+        auto m2 = Assets::MeshGenerator::CreateUVSphere(10,10); 
+        //m2->setColors(planeColors);
 
         // Create 3D-Model or load it... How to manage resources?
         // Mesh* m = Assets::loadMesh("/models/test.obj");
-        // Mesh* m = MeshGenerator::createCube(...);
 
         goModel = createGameObject("Test");
         goModel->addComponent<ConstantRotation>(0.0f, 20.0f, 20.0f);
-        auto mr = goModel->addComponent<Components::MeshRenderer>(m);
+        auto mr = goModel->addComponent<Components::MeshRenderer>(box);
 
         //auto cam2GO = createGameObject("Camera2");
         //cam2GO->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, 10);
@@ -291,7 +221,7 @@ public:
             GameObject* goModel2 = createGameObject("Test");
             goModel2->getComponent<Components::Transform>()->position = {5,0,0};
             goModel2->addComponent<ConstantRotation>(20.0f, 20.0f, 0.0f);
-            mr = goModel2->addComponent<Components::MeshRenderer>(m);
+            mr = goModel2->addComponent<Components::MeshRenderer>(box);
 
             GameObject* goModel3 = createGameObject("Test");
             goModel3->getComponent<Components::Transform>()->position = { -5,0,0 };

@@ -44,7 +44,7 @@ namespace Graphics {
         //----------------------------------------------------------------------
         // Set the index-buffer for this mesh.
         //----------------------------------------------------------------------
-        virtual void setTriangles(const ArrayList<U32>& indices, U32 subMesh = 0, U32 baseVertex = 0) = 0;
+        virtual void setIndices(const ArrayList<U32>& indices, U32 subMesh = 0, U32 baseVertex = 0) = 0;
 
         //----------------------------------------------------------------------
         // Set the color-buffer for this mesh.
@@ -57,7 +57,7 @@ namespace Graphics {
         U32                             getVertexCount()    const { return static_cast<U32>( m_vertices.size() ); }
         U16                             getSubMeshCount()   const { return static_cast<U32>( m_subMeshes.size() ); }
 
-        const ArrayList<U32>&           getIndices(U32 subMesh)     const { return m_subMeshes[subMesh].indices; }
+        const ArrayList<U32>&           getIndices(U32 subMesh = 0) const { return m_subMeshes[subMesh].indices; }
         U32                             getIndexCount(U32 subMesh)  const { return static_cast<U32>( getIndices( subMesh ).size() ); }
         IndexFormat                     getIndexFormat(U32 subMesh) const { return m_subMeshes[subMesh].indexFormat; }
         U32                             getBaseVertex(U32 subMesh)  const { return m_subMeshes[subMesh].baseVertex; }
