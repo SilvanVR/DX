@@ -8,9 +8,13 @@
 
 namespace Graphics { namespace D3D11 {
 
+    //**********************************************************************
+    // VertexBuffer
+    //**********************************************************************
+
     //----------------------------------------------------------------------
-    VertexBuffer::VertexBuffer( const void* pData, U32 size )
-        : IBuffer( D3D11_BIND_VERTEX_BUFFER, D3D11_USAGE_IMMUTABLE, size, pData )
+    VertexBuffer::VertexBuffer( const void* pData, U32 size, BufferUsage usage )
+        : IBuffer( D3D11_BIND_VERTEX_BUFFER, usage, size, pData )
     {
     }
 
@@ -21,9 +25,12 @@ namespace Graphics { namespace D3D11 {
     }
 
     //**********************************************************************
+    // IndexBuffer
+    //**********************************************************************
+
     //----------------------------------------------------------------------
-    IndexBuffer::IndexBuffer( const void* pData, U32 size )
-        : IBuffer( D3D11_BIND_INDEX_BUFFER, D3D11_USAGE_IMMUTABLE, size, pData )
+    IndexBuffer::IndexBuffer( const void* pData, U32 size, BufferUsage usage )
+        : IBuffer( D3D11_BIND_INDEX_BUFFER, usage, size, pData )
     {
     }
 
@@ -34,9 +41,12 @@ namespace Graphics { namespace D3D11 {
     }
 
     //**********************************************************************
+    // ConstantBuffer
+    //**********************************************************************
+
     //----------------------------------------------------------------------
-    ConstantBuffer::ConstantBuffer( U32 size )
-        : IBuffer( D3D11_BIND_CONSTANT_BUFFER, D3D11_USAGE_DEFAULT, size )
+    ConstantBuffer::ConstantBuffer( U32 size, BufferUsage usage )
+        : IBuffer( D3D11_BIND_CONSTANT_BUFFER, usage, size )
     {
     }
 
@@ -44,12 +54,6 @@ namespace Graphics { namespace D3D11 {
     void ConstantBuffer::bind( U32 slot )
     {
         g_pImmediateContext->VSSetConstantBuffers( slot, 1, &m_pBuffer );
-    }
-
-    //----------------------------------------------------------------------
-    void ConstantBuffer::updateSubresource( const void* pData )
-    {
-        g_pImmediateContext->UpdateSubresource( m_pBuffer, 0, NULL, pData, 0, 0 );
     }
 
 } } // End namespaces

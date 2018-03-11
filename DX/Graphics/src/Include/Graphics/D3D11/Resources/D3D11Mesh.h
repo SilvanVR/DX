@@ -10,7 +10,6 @@
 
 #include "../../i_mesh.hpp"
 
-
 namespace Graphics { namespace D3D11 {
 
     class VertexBuffer;
@@ -38,6 +37,11 @@ namespace Graphics { namespace D3D11 {
 
         // Array of index buffer. One indexbuffer for each submesh.
         ArrayList<IndexBuffer*> m_pIndexBuffers;
+
+        //----------------------------------------------------------------------
+        // IMesh Interface
+        //----------------------------------------------------------------------
+        void recreateBuffers();
 
         //----------------------------------------------------------------------
         D3D11Mesh(const D3D11Mesh& other)               = delete;

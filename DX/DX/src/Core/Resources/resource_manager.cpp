@@ -35,6 +35,8 @@ namespace Core { namespace Resources {
     //**********************************************************************
     // PUBLIC
     //**********************************************************************
+
+    //----------------------------------------------------------------------
     Graphics::Mesh* ResourceManager::createMesh()
     {
         auto mesh = Locator::getRenderer().createMesh();
@@ -42,6 +44,13 @@ namespace Core { namespace Resources {
         return mesh;
     }
 
-
+    //----------------------------------------------------------------------
+    Graphics::Mesh* ResourceManager::createMesh( const ArrayList<Math::Vec3>& vertices, const ArrayList<U32>& indices )
+    {
+        auto mesh = createMesh();
+        mesh->setVertices( vertices );
+        mesh->setIndices( indices );
+        return mesh;
+    }
 
 } } // end namespaces

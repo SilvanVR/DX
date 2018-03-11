@@ -24,13 +24,23 @@ namespace Assets {
         static Graphics::Mesh* CreateCube(F32 size, Color color);
 
         //----------------------------------------------------------------------
-        // Generates a new plane mesh in the X/Y Plane.
+        // Generates a new plane mesh in the X/Y Plane with 4 vertices.
         // @Params:
         // "size": The size of the plane.
         // "color" [opt]: The vertex-color for each vertex.
         //----------------------------------------------------------------------
         static Graphics::Mesh* CreatePlane(F32 size = 1.0f);
         static Graphics::Mesh* CreatePlane(F32 size, Color color);
+
+        //----------------------------------------------------------------------
+        // Generates a new plane mesh in the X/Y Plane with width * height vertices.
+        // @Params:
+        // "width": Amount of vertices in the x-plane.
+        // "height": Amount of vertices in the y-plane.
+        // "color" [opt]: The vertex-color for each vertex.
+        //----------------------------------------------------------------------
+        static Graphics::Mesh* CreatePlane(U32 width, U32 height);
+        static Graphics::Mesh* CreatePlane(U32 width, U32 height, Color color);
 
         //----------------------------------------------------------------------
         // Generates a new sphere mesh.

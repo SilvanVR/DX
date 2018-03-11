@@ -36,11 +36,7 @@ namespace Assets {
             4, 0, 3, 4, 3, 7
         };
 
-        auto mesh = RESOURCES.createMesh();
-        mesh->setVertices( vertices );
-        mesh->setIndices( indices );
-
-        return mesh;
+        return RESOURCES.createMesh( vertices, indices );
     }
 
     //----------------------------------------------------------------------
@@ -68,17 +64,52 @@ namespace Assets {
             0, 1, 2, 0, 2, 3
         };
 
-        auto mesh = RESOURCES.createMesh();
-        mesh->setVertices( vertices );
-        mesh->setIndices( indices );
-
-        return mesh;
+        return RESOURCES.createMesh( vertices, indices );
     }
 
     //----------------------------------------------------------------------
     Graphics::Mesh* MeshGenerator::CreatePlane( F32 size, Color color )
     {
         auto mesh = CreatePlane( size );
+
+        ArrayList<Color> colors( mesh->getVertexCount(), color );
+        mesh->setColors( colors );
+
+        return mesh;
+    }
+
+    //----------------------------------------------------------------------
+    Graphics::Mesh* MeshGenerator::CreatePlane( U32 width, U32 height )
+    {
+        ArrayList<Math::Vec3>   vertices;
+        ArrayList<U32>          indices;
+
+        for (U32 x = 0; x < width; x++)
+        {
+            for (U32 y = 0; y < height; y++)
+            {
+                vertices.emplace_back( (F32)x, (F32)y, 0.0f );
+
+                if (x == 0 || y == 0)
+                    continue;
+
+                //Adds the index of the three vertices in order to make up each of the two tris
+                indices.emplace_back( width * x + y );             //Top right
+                indices.emplace_back( width * x + y - 1 );         //Bottom right
+                indices.emplace_back( width * (x - 1) + y - 1 );   //Bottom left - First triangle
+                indices.emplace_back( width * (x - 1) + y - 1 );   //Bottom left 
+                indices.emplace_back( width * (x - 1) + y );       //Top left
+                indices.emplace_back( width * x + y );             //Top right - Second triangle
+            }
+        }
+
+        return RESOURCES.createMesh( vertices, indices );
+    }
+
+    //----------------------------------------------------------------------
+    Graphics::Mesh* MeshGenerator::CreatePlane( U32 width, U32 height, Color color )
+    {
+        auto mesh = CreatePlane( width, height );
 
         ArrayList<Color> colors( mesh->getVertexCount(), color );
         mesh->setColors( colors );

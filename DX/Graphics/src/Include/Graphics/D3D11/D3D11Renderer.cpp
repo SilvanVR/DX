@@ -46,8 +46,8 @@ namespace Graphics {
 
         {
             // Buffers
-            pConstantBufferCamera = new D3D11::ConstantBuffer( sizeof(XMMATRIX) );
-            pConstantBufferObject = new D3D11::ConstantBuffer(sizeof(XMMATRIX));
+            pConstantBufferCamera = new D3D11::ConstantBuffer( sizeof(XMMATRIX), BufferUsage::FREQUENTLY );
+            pConstantBufferObject = new D3D11::ConstantBuffer( sizeof(XMMATRIX), BufferUsage::FREQUENTLY );
         }
 
         {
@@ -319,7 +319,7 @@ namespace Graphics {
         XMMATRIX proj = XMMatrixPerspectiveFovLH( XMConvertToRadians( fov ), ar, zNear, zFar );
         XMMATRIX viewProj = view * proj;
 
-        pConstantBufferCamera->updateSubresource( &viewProj );
+        pConstantBufferCamera->update( &viewProj, sizeof( XMMATRIX ) );
     }
 
     //----------------------------------------------------------------------
@@ -328,7 +328,7 @@ namespace Graphics {
         XMMATRIX proj = XMMatrixOrthographicOffCenterLH( left, right, bottom, top, zNear, zFar );
         XMMATRIX viewProj = view * proj;
 
-        pConstantBufferCamera->updateSubresource( &viewProj );
+        pConstantBufferCamera->update( &viewProj, sizeof( XMMATRIX ) );
     }
 
     //----------------------------------------------------------------------
@@ -350,7 +350,7 @@ namespace Graphics {
         mesh->bind( subMeshIndex );
 
         // Update constant per object buffer
-        pConstantBufferObject->updateSubresource( &modelMatrix );
+        pConstantBufferObject->update( &modelMatrix, sizeof( DirectX::XMMATRIX ) );
 
         // Submit draw call
         g_pImmediateContext->DrawIndexed( mesh->getIndexCount( subMeshIndex ), 0, mesh->getBaseVertex( subMeshIndex ) );

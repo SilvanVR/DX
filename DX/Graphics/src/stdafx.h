@@ -13,6 +13,7 @@
 #include <memory>
 #include "pch.hpp"
 #include "Common/color.h"
+#include "Include/Graphics/enums.hpp"
 
 #ifdef _WIN32
     #include <DirectXMath.h>

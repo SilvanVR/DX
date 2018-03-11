@@ -1,4 +1,4 @@
-
+﻿
 
 1.) Render arbitrary geometry
     > Setup the right pipeline (Different pipeline states)
@@ -37,8 +37,12 @@
 		> Most likely just box collision, depends on how chunks are generated/stores
 
 ----------------------------------------------------------------------------------------
-- Create a model on the gpu
-  > set vertices / indices -> will be uploaded to gpu when suitable
-	> Index- + Vertex- Buffer
-	> Reference this "Model" via the command buffer
-  > set vertex-layout
+1. Map(MAP_WRITE_DISCARD) a big constant buffer
+2. For all remaining draw calls– initially this is all of the draw calls
+	a. Append per draw call constants to the mapped memory
+	b. If constant buffer is full exit loop.
+3. Unmap() the big constant buffer
+4. For all draw calls that step 2 has generated constant data for
+   a. set the right part of the big buffer as a constant buffer XXSetConstantBuffers1()
+   b. Perform draw call
+5. If all draw calls have not been processed restart at 1.

@@ -23,14 +23,14 @@ namespace Graphics {
         virtual ~IMesh() {}
 
         //----------------------------------------------------------------------
-        // Destroy the vertex- and indices buffers. This should be called before
+        // Destroys all buffers on the gpu. This should be called before
         // calling setVertices() when you want to dynamically generate a mesh
         // every frame with different amounts of vertices.
         //----------------------------------------------------------------------
         virtual void clear() = 0;
 
         //----------------------------------------------------------------------
-        // Binds this IMesh to the pipeline. Subsequent drawcalls render this IMesh.
+        // Binds this mesh to the pipeline. Subsequent drawcalls render this mesh.
         //----------------------------------------------------------------------
         virtual void bind(U32 subMesh = 0) = 0;
 
@@ -42,7 +42,7 @@ namespace Graphics {
         virtual void setVertices(const ArrayList<Math::Vec3>& vertices) = 0;
 
         //----------------------------------------------------------------------
-        // Set the index-buffer for this mesh.
+        // Set the index-buffer for this mesh. Note that this is a slow operation.
         //----------------------------------------------------------------------
         virtual void setIndices(const ArrayList<U32>& indices, U32 subMesh = 0, U32 baseVertex = 0) = 0;
 
@@ -50,6 +50,17 @@ namespace Graphics {
         // Set the color-buffer for this mesh.
         //----------------------------------------------------------------------
         virtual void setColors(const ArrayList<Color>& colors) = 0;
+
+        //----------------------------------------------------------------------
+        // @Return: Buffer usage, which determines if it can be updated or not.
+        //----------------------------------------------------------------------
+        BufferUsage getBufferUsage()    const { return m_bufferUsage; }
+
+        //----------------------------------------------------------------------
+        // Change the buffer usage for this mesh. All existing buffers gets 
+        // recreated, keep that in mind!
+        //----------------------------------------------------------------------
+        void        setBufferUsage(BufferUsage usage) { m_bufferUsage = usage; recreateBuffers(); }
 
         //----------------------------------------------------------------------
         const ArrayList<Math::Vec3>&    getVertices()       const { return m_vertices; }
@@ -63,6 +74,8 @@ namespace Graphics {
         U32                             getBaseVertex(U32 subMesh)  const { return m_subMeshes[subMesh].baseVertex; }
         bool                            hasSubMesh(U32 subMesh)     const { return subMesh < getSubMeshCount(); }
 
+        bool                            isImmutable() const { return m_bufferUsage == BufferUsage::IMMUTABLE; }
+
     protected:
         ArrayList<Math::Vec3>   m_vertices;
         ArrayList<Color>        m_vertexColors;
@@ -75,6 +88,12 @@ namespace Graphics {
         };
         ArrayList<SubMesh>      m_subMeshes;
 
+        BufferUsage             m_bufferUsage = BufferUsage::IMMUTABLE;
+
+        //----------------------------------------------------------------------
+        // Recreate all existing buffers. Called when the buffer-usage changes.
+        //----------------------------------------------------------------------
+        virtual void recreateBuffers() = 0;
 
         //----------------------------------------------------------------------
         // Add a new submesh to the list of submeshes. The appropriate index-

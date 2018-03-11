@@ -19,4 +19,12 @@ namespace Graphics {
         U32
     };
 
+    // Determines buffer types / update mechanism
+    enum class BufferUsage
+    {
+        IMMUTABLE,      // Can't be updated once created.
+        LONG_LIVED,     // Expected to be updated occasionally.
+        FREQUENTLY      // Expected to be updated every frame.
+    };
+
 }

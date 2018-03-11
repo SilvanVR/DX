@@ -14,13 +14,11 @@ namespace Graphics { namespace D3D11 {
     class VertexBuffer : public IBuffer
     {
     public:
-        VertexBuffer( const void* pData, U32 size );
+        VertexBuffer( const void* pData, U32 size, BufferUsage usage );
         ~VertexBuffer() {};
 
         //----------------------------------------------------------------------
         void bind(U32 slot, U32 stride, U32 offset);
-
-    protected:
 
     private:
         //----------------------------------------------------------------------
@@ -34,13 +32,11 @@ namespace Graphics { namespace D3D11 {
     class IndexBuffer : public IBuffer
     {
     public:
-        IndexBuffer( const void* pData, U32 size );
+        IndexBuffer( const void* pData, U32 size, BufferUsage usage );
         ~IndexBuffer() {};
 
         //----------------------------------------------------------------------
         void bind(DXGI_FORMAT format, U32 offset);
-
-    protected:
 
     private:
         //----------------------------------------------------------------------
@@ -54,15 +50,11 @@ namespace Graphics { namespace D3D11 {
     class ConstantBuffer : public IBuffer
     {
     public:
-        ConstantBuffer(U32 size);
+        ConstantBuffer(U32 size, BufferUsage usage);
         ~ConstantBuffer() {};
 
         //----------------------------------------------------------------------
         void bind(U32 slot);
-
-        void updateSubresource( const void* pData );
-
-    protected:
 
     private:
         //----------------------------------------------------------------------

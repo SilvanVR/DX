@@ -94,7 +94,7 @@ bool GameObject::removeComponent()
     if (m_components.count( hash ) == 0)
         return false;
 
-    _DestroyComponent( hash );
+    _DestroyComponent<T>( hash );
     return true;
 }
 
@@ -145,7 +145,7 @@ template<typename T>
 void GameObject::_DestroyComponent( Size hash )
 {
     T* comp = dynamic_cast<T*>( m_components[hash] );
-    comp->shutdown();
+    comp->Shutdown();
     m_attachedScene->getComponentManager().Destroy<T>( comp );
     m_components.erase( hash );
     SAFE_DELETE( comp );

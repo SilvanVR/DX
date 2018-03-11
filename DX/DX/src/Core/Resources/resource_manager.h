@@ -30,6 +30,7 @@ namespace Core { namespace Resources {
         // Creates a new mesh for use by the graphics engine.
         //----------------------------------------------------------------------
         Graphics::Mesh* createMesh();
+        Graphics::Mesh* createMesh(const ArrayList<Math::Vec3>& vertices, const ArrayList<U32>& indices);
 
         //----------------------------------------------------------------------
         void UnloadUnusedResources();

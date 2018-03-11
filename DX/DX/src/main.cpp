@@ -67,34 +67,39 @@ public:
         F32 size = 5.0f;
         cam->setOrthoParams(-size, size, -size, size, 0.1f, 100.0f);
 
-        go2 = createGameObject("Box");
-        go2->addComponent<Components::MeshRenderer>();
+        auto sphere = Assets::MeshGenerator::CreateUVSphere(30,30);
+        ArrayList<Color> sphereColors;
+        for (U32 i = 0; i < sphere->getVertexCount(); i++)
+            sphereColors.push_back(Math::Random::Color());
+        sphere->setColors(sphereColors);
 
-        //auto& viewport = cam->getViewport();
-        //viewport.width  = 0.5f;
-        //viewport.height = 0.5f;
+        go2 = createGameObject("Mesh");
+        go2->addComponent<Components::MeshRenderer>(sphere);
+
+        auto& viewport = cam->getViewport();
+        viewport.width  = 0.5f;
 
         {
-            //go2 = createGameObject("Camera2");
-            //auto cam2 = go2->addComponent<Components::Camera>();
-            //go2->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -5);
-            //cam2->setClearMode(Components::Camera::EClearMode::NONE);
+            auto go3 = createGameObject("Camera2");
+            auto cam2 = go3->addComponent<Components::Camera>();
+            go3->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -5);
+            cam2->setClearMode(Components::Camera::EClearMode::NONE);
 
-            //auto& viewport2 = cam2->getViewport();
-            //viewport2.topLeftX = 0.5f;
-            //viewport2.topLeftY = 0;
-            //viewport2.width = 0.5f;
-            //viewport2.height = 0.5f;
+            auto& viewport2 = cam2->getViewport();
+            viewport2.topLeftX = 0.5f;
+            viewport2.width = 0.5f;
         }
 
-        GameObject* go2 = findGameObject("Test");
-        if (go2 != nullptr)
-            LOG("Found GameObject!", Color::GREEN);
-
         //bool removed = go2->removeComponent( c );
-        //bool destroyed = go2->removeComponent<Transform>();
+        //bool destroyed = go2->removeComponent<Components::Transform>();
 
         LOG("MyScene2 initialized!", Color::RED);
+    }
+
+    void tick(Time::Seconds delta)
+    {
+        if(KEYBOARD.wasKeyPressed(Key::T))
+            go2->removeComponent<Components::MeshRenderer>();
     }
 
     void shutdown() override
@@ -142,14 +147,15 @@ public:
 
 class WorldGeneration : public Components::IComponent
 {
-    Graphics::Mesh* mesh;
-    Components::MeshRenderer* mr;
+    Graphics::Mesh*             mesh;
+    Components::MeshRenderer*   mr;
 
 public:
     void AddedToGameObject(GameObject* go) override
     {
         mesh = Assets::MeshGenerator::CreatePlane();
         mesh->setColors(planeColors);
+        mesh->setBufferUsage(Graphics::BufferUsage::FREQUENTLY);
 
         mr = go->addComponent<Components::MeshRenderer>();
         mr->setMesh(mesh);
@@ -172,12 +178,65 @@ public:
         for(auto& color : newColors)
             color.setRed( (Byte) ( (sin(TIME.getTime().value) + 1) / 2 * 255 ) );
 
-        mesh->clear();
         mesh->setVertices( newVertices );
-        mesh->setIndices( indices );
         mesh->setColors( newColors );
     }
 };
+
+class WaveGeneration : public Components::IComponent
+{
+    Graphics::Mesh*             mesh;
+    Components::MeshRenderer*   mr;
+
+    const U32 width  = 20;
+    const U32 height = 20;
+
+public:
+    void AddedToGameObject(GameObject* go) override
+    {
+        generateMesh();
+        auto transform = go->getComponent<Components::Transform>();
+        transform->rotation = Math::Quat(Math::Vec3::RIGHT, 90);
+        transform->position = Math::Vec3(-(width/2.0f), -2.0f, -(height/2.0f));
+
+        mr = go->addComponent<Components::MeshRenderer>();
+        mr->setMesh(mesh);
+    }
+
+    void Tick(Time::Seconds delta)
+    {
+        auto newVertices = mesh->getVertices();
+        auto indices = mesh->getIndices();
+
+        int i = 0;
+        while (i < newVertices.size())
+        {
+            F32 newY = (F32)sin(TIME.getTime().value);
+            newVertices[i].z = (i % 2 == 0 ? newY : -newY);
+            i++;
+        }
+
+        auto newColors = mesh->getColors();
+        for (auto& color : newColors)
+            color.setBlue((Byte)((sin(TIME.getTime().value) + 1) / 2 * 255));
+
+        mesh->setVertices(newVertices);
+        mesh->setColors(newColors);
+    }
+
+private:
+    void generateMesh()
+    {
+        mesh = Assets::MeshGenerator::CreatePlane(width, height);
+        mesh->setBufferUsage(Graphics::BufferUsage::FREQUENTLY);
+
+        ArrayList<Color> m_colors;
+        for (U32 i = 0; i < mesh->getVertexCount(); i++)
+            m_colors.push_back( Math::Random::Color() );
+        mesh->setColors( m_colors );
+    }
+};
+
 
 class MyScene : public IScene
 {
@@ -197,7 +256,10 @@ public:
         worldGO->getComponent<Components::Transform>()->position = Math::Vec3(0, 3, 0);
         worldGO->addComponent<WorldGeneration>();
 
-        auto box = Assets::MeshGenerator::CreateCube(1.0f, Color::RED);
+        //auto wavesGO = createGameObject("Waves");
+        //wavesGO->addComponent<WaveGeneration>();
+
+        auto box = Assets::MeshGenerator::CreateCube(1.0f);
         box->setColors(cubeColors);
 
         auto plane = Assets::MeshGenerator::CreatePlane();

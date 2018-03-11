@@ -9,12 +9,27 @@
 namespace Graphics { namespace D3D11 {
 
     //----------------------------------------------------------------------
-    IBuffer::IBuffer( UINT bindFlags, D3D11_USAGE usage, U32 size, const void* pData ) : m_size( size )
+    IBuffer::IBuffer( UINT bindFlags, BufferUsage usage, U32 size, const void* pData ) 
+        : m_usage( usage ), m_size( size )
     {
         D3D11_BUFFER_DESC bd = {};
-        bd.Usage        = usage;
         bd.ByteWidth    = size;
         bd.BindFlags    = bindFlags;
+
+        D3D11_USAGE d3d11Usage;
+        switch (m_usage)
+        {
+        case BufferUsage::IMMUTABLE:    d3d11Usage = D3D11_USAGE_IMMUTABLE; break;
+        case BufferUsage::LONG_LIVED:   d3d11Usage = D3D11_USAGE_DEFAULT;   break;
+        case BufferUsage::FREQUENTLY:
+        {
+            d3d11Usage = D3D11_USAGE_DYNAMIC;
+            bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+            break;
+        }
+        default: ERROR_RENDERING( "IBuffer(): Unknown usage format during buffer creation." );
+        }
+        bd.Usage = d3d11Usage;
 
         if (pData != nullptr)
         {
@@ -33,5 +48,35 @@ namespace Graphics { namespace D3D11 {
     {
         SAFE_RELEASE( m_pBuffer );
     }
+
+    //**********************************************************************
+    // PUBLIC
+    //**********************************************************************
+
+    //----------------------------------------------------------------------
+    void IBuffer::update( const void* pData, Size sizeInBytes )
+    {
+        ASSERT( not isImmutable() );
+
+        switch (m_usage)
+        {
+        case BufferUsage::LONG_LIVED:
+        {
+            g_pImmediateContext->UpdateSubresource( m_pBuffer, 0, NULL, pData, 0, 0 );
+            break;
+        }
+        case BufferUsage::FREQUENTLY:
+        {
+            D3D11_MAPPED_SUBRESOURCE mappedResource = {};
+            g_pImmediateContext->Map( m_pBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource );
+            memcpy( mappedResource.pData, pData, sizeInBytes );
+            g_pImmediateContext->Unmap( m_pBuffer, 0 );
+            break;
+        }
+        default:
+            ASSERT(false);
+        }
+    }
+
 
 } } // End namespaces

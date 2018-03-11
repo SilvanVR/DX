@@ -21,10 +21,5 @@ namespace Graphics {
         F32 height      = 1.0f;
     };
 
-    struct Vertex
-    {
-        DirectX::XMFLOAT3 position;
-        DirectX::XMFLOAT3 color;
-    };
 
 }
