@@ -206,6 +206,21 @@ namespace Math {
         return FromEulerAngles( eulerAngles.x, eulerAngles.y, eulerAngles.z );
     }
 
+    //----------------------------------------------------------------------
+    F32 Quaternion::magnitude() const
+    {
+        return sqrt( x * x + y * y + z * z + w * w );
+    }
+
+    //----------------------------------------------------------------------
+    Quaternion Quaternion::normalized() const
+    {
+        F32 length = this->magnitude();
+        if ( length == 0.0f )
+            return Quaternion(0);
+        return Quaternion( x / length, y / length, z / length, w / length );
+    }
+
 }
 
 

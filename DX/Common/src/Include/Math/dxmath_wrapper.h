@@ -74,6 +74,9 @@ namespace Math {
         Vector3F    operator *  (const Vector3F& v)      const;
         Quaternion& operator *= (const Quaternion& q);
 
+        F32         magnitude() const;
+        Quaternion  normalized() const;
+
         Vector3F getForward()   const { return *this * Vector3F::FORWARD; }
         Vector3F getBack()      const { return *this * Vector3F::BACK; }
         Vector3F getLeft()      const { return *this * Vector3F::LEFT; }

@@ -13,6 +13,7 @@
 #include "GameplayLayer/Components/fps_camera.h"
 
 #include "Assets/MeshGenerator/mesh_generator.h"
+#include "Math/random.h"
 
 using namespace Core;
 
@@ -199,7 +200,11 @@ public:
         auto box = Assets::MeshGenerator::CreateCube(1.0f, Color::RED);
         box->setColors(cubeColors);
 
-        auto m2 = Assets::MeshGenerator::CreateUVSphere(10,10); 
+        auto m2 = Assets::MeshGenerator::CreateUVSphere(10,10);
+        ArrayList<Color> sphereColors;
+        for(U32 i = 0; i < m2->getVertexCount(); i++)
+            sphereColors.push_back(Math::Random::Color());
+        m2->setColors(sphereColors);
         //m2->setColors(planeColors);
 
         // Create 3D-Model or load it... How to manage resources?
