@@ -117,10 +117,10 @@ ArrayList<Color> cubeColors =
 
 ArrayList<Color> planeColors =
 {
-    Color(0, 0, 0),
+    Color(0, 0, 255),
     Color(0, 255, 0),
-    Color(255, 255, 0),
-    Color(255, 0, 0)
+    Color(255, 0, 0),
+    Color(255, 255, 0)
 };
 
 class ConstantRotation : public Components::IComponent
@@ -200,38 +200,39 @@ public:
         auto box = Assets::MeshGenerator::CreateCube(1.0f, Color::RED);
         box->setColors(cubeColors);
 
-        auto m2 = Assets::MeshGenerator::CreateUVSphere(10,10);
+        auto plane = Assets::MeshGenerator::CreatePlane();
+        plane->setColors(planeColors);
+
+        auto sphere = Assets::MeshGenerator::CreateUVSphere(10,10);
         ArrayList<Color> sphereColors;
-        for(U32 i = 0; i < m2->getVertexCount(); i++)
+        for(U32 i = 0; i < sphere->getVertexCount(); i++)
             sphereColors.push_back(Math::Random::Color());
-        m2->setColors(sphereColors);
-        //m2->setColors(planeColors);
-
-        // Create 3D-Model or load it... How to manage resources?
-        // Mesh* m = Assets::loadMesh("/models/test.obj");
-
-        goModel = createGameObject("Test");
-        goModel->addComponent<ConstantRotation>(0.0f, 20.0f, 20.0f);
-        auto mr = goModel->addComponent<Components::MeshRenderer>(box);
-
-        //auto cam2GO = createGameObject("Camera2");
-        //cam2GO->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, 10);
-        //cam2GO->getComponent<Components::Transform>()->lookAt(Math::Vec3(0));
-        //auto cam2 = cam2GO->addComponent<Components::Camera>();
-        //cam2->setClearMode(Components::Camera::EClearMode::NONE);
-        //cam2->getViewport().topLeftX = 0.5f;
-        //cam2->getViewport().width = 0.5f;
+        sphere->setColors(sphereColors);
 
         {
+            goModel = createGameObject("Test");
+            goModel->addComponent<ConstantRotation>(0.0f, 20.0f, 20.0f);
+            auto mr = goModel->addComponent<Components::MeshRenderer>(box);
+
             GameObject* goModel2 = createGameObject("Test");
             goModel2->getComponent<Components::Transform>()->position = {5,0,0};
             goModel2->addComponent<ConstantRotation>(20.0f, 20.0f, 0.0f);
-            mr = goModel2->addComponent<Components::MeshRenderer>(box);
+            mr = goModel2->addComponent<Components::MeshRenderer>(sphere);
 
             GameObject* goModel3 = createGameObject("Test");
             goModel3->getComponent<Components::Transform>()->position = { -5,0,0 };
             goModel3->addComponent<ConstantRotation>(0.0f, 0.0f, 20.0f);
-            mr = goModel3->addComponent<Components::MeshRenderer>(m2);
+            mr = goModel3->addComponent<Components::MeshRenderer>(plane);
+        }
+
+        {
+            //auto cam2GO = createGameObject("Camera2");
+            //cam2GO->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, 10);
+            //cam2GO->getComponent<Components::Transform>()->lookAt(Math::Vec3(0));
+            //auto cam2 = cam2GO->addComponent<Components::Camera>();
+            //cam2->setClearMode(Components::Camera::EClearMode::NONE);
+            //cam2->getViewport().topLeftX = 0.5f;
+            //cam2->getViewport().width = 0.5f;
         }
 
         LOG("MyScene initialized!", Color::RED);

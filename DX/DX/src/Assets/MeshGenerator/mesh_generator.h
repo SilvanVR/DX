@@ -17,8 +17,8 @@ namespace Assets {
         //----------------------------------------------------------------------
         // Generates a new cube mesh.
         // @Params:
-        //       "size": The size/radi of the cube.
-        // [opt] "color": The vertex-color for each vertex.
+        // "size": The size/radi of the cube.
+        // "color" [opt]: The vertex-color for each vertex.
         //----------------------------------------------------------------------
         static Graphics::Mesh* CreateCube(F32 size = 1.0f);
         static Graphics::Mesh* CreateCube(F32 size, Color color);
@@ -26,8 +26,8 @@ namespace Assets {
         //----------------------------------------------------------------------
         // Generates a new plane mesh in the X/Y Plane.
         // @Params:
-        //       "size": The size of the plane.
-        // [opt] "color": The vertex-color for each vertex.
+        // "size": The size of the plane.
+        // "color" [opt]: The vertex-color for each vertex.
         //----------------------------------------------------------------------
         static Graphics::Mesh* CreatePlane(F32 size = 1.0f);
         static Graphics::Mesh* CreatePlane(F32 size, Color color);
@@ -35,8 +35,8 @@ namespace Assets {
         //----------------------------------------------------------------------
         // Generates a new sphere mesh.
         // @Params:
-        //       "size": The size of the plane.
-        // [opt] "color": The vertex-color for each vertex.
+        // "size": The size of the plane.
+        // "color" [opt]: The vertex-color for each vertex.
         //----------------------------------------------------------------------
         static Graphics::Mesh* CreateUVSphere(U32 meridians, U32 parallels);
         static Graphics::Mesh* CreateUVSphere(U32 meridians, U32 parallels, Color color);
