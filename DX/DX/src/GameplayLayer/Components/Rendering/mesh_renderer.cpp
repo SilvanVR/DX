@@ -33,7 +33,12 @@ namespace Components {
         // 2. MaterialID
         // 3. Interpolated World Matrix
         auto modelMatrix = transform->getTransformationMatrix();
-        cmd.drawMesh( modelMatrix, m_mesh );
+
+        for (I32 i = 0; i < m_mesh->getSubMeshCount(); i++)
+        {
+            // auto mat = getMaterial(i);
+            cmd.drawMesh( modelMatrix, m_mesh, i );
+        }
     }
 
 

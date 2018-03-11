@@ -32,7 +32,7 @@ namespace Graphics {
         //----------------------------------------------------------------------
         // Binds this IMesh to the pipeline. Subsequent drawcalls render this IMesh.
         //----------------------------------------------------------------------
-        virtual void bind() = 0;
+        virtual void bind(U32 subMesh = 0) = 0;
 
         //----------------------------------------------------------------------
         // Sets the vertices for this mesh. If a vertex buffer was not created,
@@ -44,7 +44,7 @@ namespace Graphics {
         //----------------------------------------------------------------------
         // Set the index-buffer for this mesh.
         //----------------------------------------------------------------------
-        virtual void setTriangles(const ArrayList<U32>& indices) = 0;
+        virtual void setTriangles(const ArrayList<U32>& indices, U32 subMesh = 0, U32 baseVertex = 0) = 0;
 
         //----------------------------------------------------------------------
         // Set the color-buffer for this mesh.
@@ -53,19 +53,47 @@ namespace Graphics {
 
         //----------------------------------------------------------------------
         const ArrayList<Math::Vec3>&    getVertices()       const { return m_vertices; }
-        const ArrayList<U32>&           getIndices()        const { return m_indices; }
         const ArrayList<Color>&         getColors()         const { return m_vertexColors; }
-        U32                             numIndices()        const { return static_cast<U32>( m_indices.size() ); }
-        U32                             numVertices()       const { return static_cast<U32>( m_vertices.size() ); }
-        U16                             numSubMeshes()      const { return m_subMeshCount; }
-        IndexFormat                     getIndexFormat()    const { return m_indexFormat; }
+        U32                             getVertexCount()    const { return static_cast<U32>( m_vertices.size() ); }
+        U16                             getSubMeshCount()   const { return static_cast<U32>( m_subMeshes.size() ); }
+
+        const ArrayList<U32>&           getIndices(U32 subMesh)     const { return m_subMeshes[subMesh].indices; }
+        U32                             getIndexCount(U32 subMesh)  const { return static_cast<U32>( getIndices( subMesh ).size() ); }
+        IndexFormat                     getIndexFormat(U32 subMesh) const { return m_subMeshes[subMesh].indexFormat; }
+        U32                             getBaseVertex(U32 subMesh)  const { return m_subMeshes[subMesh].baseVertex; }
+        bool                            hasSubMesh(U32 subMesh)     const { return subMesh < getSubMeshCount(); }
 
     protected:
         ArrayList<Math::Vec3>   m_vertices;
-        ArrayList<U32>          m_indices;
         ArrayList<Color>        m_vertexColors;
-        U16                     m_subMeshCount  = 1;
-        IndexFormat             m_indexFormat   = IndexFormat::U16;
+
+        struct SubMesh
+        {
+            U32                 baseVertex = 0;
+            ArrayList<U32>      indices;
+            IndexFormat         indexFormat   = IndexFormat::U16;
+        };
+        ArrayList<SubMesh>      m_subMeshes;
+
+
+        //----------------------------------------------------------------------
+        // Add a new submesh to the list of submeshes. The appropriate index-
+        // format is automatically determined, based on the number of indices.
+        // @Return:
+        // The newly created submesh struct.
+        //----------------------------------------------------------------------
+        SubMesh& AddSubMesh( const ArrayList<U32>& indices, U32 baseVertex )
+        {
+            SubMesh sm;
+            sm.indices      = indices;
+            sm.baseVertex   = baseVertex;
+
+            if ( indices.size() > 65535 )
+                sm.indexFormat = IndexFormat::U32;
+
+            m_subMeshes.push_back( std::move( sm ) );
+            return m_subMeshes.back();
+        }
 
     private:
         //----------------------------------------------------------------------

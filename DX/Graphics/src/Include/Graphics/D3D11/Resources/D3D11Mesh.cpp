@@ -18,23 +18,26 @@ namespace Graphics { namespace D3D11 {
     }
 
     //----------------------------------------------------------------------
-    void D3D11Mesh::bind()
+    void D3D11Mesh::bind( U32 subMeshIndex )
     {
         // @TODO: Move bind into actual renderpass, where geometry is drawn with a specific input layout
-        pVertexBuffer->bind( 0, sizeof(Math::Vec3), 0 );
-        if (pColorBuffer != nullptr)
-            pColorBuffer->bind( 1, sizeof(F32) * 4, 0 );
+        m_pVertexBuffer->bind( 0, sizeof( Math::Vec3 ), 0 );
+        if (m_pColorBuffer != nullptr)
+            m_pColorBuffer->bind( 1, sizeof( F32 ) * 4, 0 );
 
         //U32 strides[] = { sizeof(Math::Vec3), sizeof(F32) * 4 };
         //U32 offsets[] = { 0,0 };
-        //ID3D11Buffer* pBuffers[] = { pVertexBuffer->getBuffer(), pColorBuffer->getBuffer() };
+        //ID3D11Buffer* pBuffers[] = { m_pVertexBuffer->getBuffer(), m_pColorBuffer->getBuffer() };
         //g_pImmediateContext->IASetVertexBuffers(0, 2, pBuffers, strides, offsets);
 
-        switch (m_indexFormat)
+        DXGI_FORMAT dxIndexFormat;
+        switch ( m_subMeshes[subMeshIndex].indexFormat )
         {
-        case IndexFormat::U16:  pIndexBuffer->bind( DXGI_FORMAT_R16_UINT, 0 );  break;
-        case IndexFormat::U32:  pIndexBuffer->bind( DXGI_FORMAT_R32_UINT, 0 );  break;
+        case IndexFormat::U16: dxIndexFormat = DXGI_FORMAT_R16_UINT; break;
+        case IndexFormat::U32: dxIndexFormat = DXGI_FORMAT_R32_UINT; break;
         }
+
+        m_pIndexBuffers[subMeshIndex]->bind( dxIndexFormat, 0 ); 
     }
 
     //**********************************************************************
@@ -44,29 +47,31 @@ namespace Graphics { namespace D3D11 {
     //----------------------------------------------------------------------
     void D3D11Mesh::clear()
     {
-        if (pVertexBuffer)
-            SAFE_DELETE(pVertexBuffer);
-        if (pIndexBuffer)
-            SAFE_DELETE(pIndexBuffer);
-        if (pColorBuffer)
-            SAFE_DELETE(pColorBuffer);
+        if (m_pVertexBuffer)
+            SAFE_DELETE( m_pVertexBuffer );
+        if (m_pColorBuffer)
+            SAFE_DELETE( m_pColorBuffer );
+        for (auto& indexBuffer : m_pIndexBuffers)
+            SAFE_DELETE( indexBuffer );
+
         m_vertices.clear();
-        m_indices.clear();
         m_vertexColors.clear();
+        m_pIndexBuffers.clear();
+        m_subMeshes.clear();
     }
 
     //----------------------------------------------------------------------
     void D3D11Mesh::setVertices( const ArrayList<Math::Vec3>& vertices )
     {
-        if (pVertexBuffer != nullptr)
+        if (m_pVertexBuffer != nullptr)
             ASSERT( (m_vertices.size() == vertices.size() &&
                     "IMesh::setVertices(): The amount of vertices given must be the number of vertices already present! "
                     "Otherwise call clear() before, so the gpu buffer will be recreated.") );
 
         m_vertices = vertices;
-        if (pVertexBuffer == nullptr)
+        if (m_pVertexBuffer == nullptr)
         {
-            pVertexBuffer = new VertexBuffer( m_vertices.data(), numVertices() * sizeof( Math::Vec3 ) );
+            m_pVertexBuffer = new VertexBuffer( m_vertices.data(), getVertexCount() * sizeof( Math::Vec3 ) );
         }
         else
         {
@@ -75,38 +80,54 @@ namespace Graphics { namespace D3D11 {
     }
 
     //----------------------------------------------------------------------
-    void D3D11Mesh::setTriangles( const ArrayList<U32>& indices )
+    void D3D11Mesh::setTriangles( const ArrayList<U32>& indices, U32 subMeshIndex, U32 baseVertex )
     {
-        if (pIndexBuffer != nullptr)
-            ASSERT( m_indices.size() == m_indices.size() &&
-                    "IMesh::setTriangles(): The amount of indices given must be the number of indices already present! "
-                    "Otherwise call clear() before, so the gpu buffer will be recreated." );
-
-        m_indices = indices;
-        if (pIndexBuffer == nullptr)
+#if _DEBUG
+        if ( !m_subMeshes.empty() )
         {
-            if (numIndices() > 65535)
-                m_indexFormat = IndexFormat::U32;
+            if ( subMeshIndex < m_pIndexBuffers.size() )
+            {
+                ASSERT( m_subMeshes[subMeshIndex].indices.size() == indices.size() &&
+                        "IMesh::setTriangles(): The amount of indices given must be the number of indices already present for the given submesh! "
+                        "Otherwise call clear() before, so the gpu buffer will be recreated." );
+            }
+            else // Check if subMeshIndex is valid
+            {
+                String errorMessage = "The submesh index is invalid. It must be in in ascending order."
+                                      " The next index would be: " + TS( m_pIndexBuffers.size() );
+                ASSERT( subMeshIndex == m_pIndexBuffers.size() && "Invalid submesh index." );
+            }
+        }
+#endif
 
-            switch (m_indexFormat)
+        if ( not hasSubMesh( subMeshIndex ) )
+        {
+            auto& sm = AddSubMesh( indices, baseVertex );
+
+            switch ( sm.indexFormat )
             {
                 case IndexFormat::U16:
                 {
                     ArrayList<U16> indicesU16;
-                    for ( auto& index : m_indices )
+                    for ( auto& index : sm.indices )
                         indicesU16.push_back( index );
-                    pIndexBuffer = new D3D11::IndexBuffer( indicesU16.data(), numIndices() * sizeof( U16 ) );
+                    auto pIndexBuffer = new D3D11::IndexBuffer( indicesU16.data(), getIndexCount( subMeshIndex ) * sizeof( U16 ) );
+                    m_pIndexBuffers.push_back( pIndexBuffer );
                     break;
                 }
                 case IndexFormat::U32:
                 {
-                    pIndexBuffer = new D3D11::IndexBuffer( m_indices.data(), numIndices() * sizeof( U32 ) );
+                    auto pIndexBuffer = new D3D11::IndexBuffer( sm.indices.data(), getIndexCount( subMeshIndex ) * sizeof( U32 ) );
+                    m_pIndexBuffers.push_back( pIndexBuffer );
                     break;
                 }
             }
         }
         else
         {
+            auto& sm = m_subMeshes[subMeshIndex];
+            sm.indices = indices;
+            sm.baseVertex = baseVertex;
             // Update index-buffer
         }
     }
@@ -114,13 +135,13 @@ namespace Graphics { namespace D3D11 {
     //----------------------------------------------------------------------
     void D3D11Mesh::setColors( const ArrayList<Color>& colors )
     {
-        if (pColorBuffer != nullptr)
+        if (m_pColorBuffer != nullptr)
             ASSERT( m_vertexColors.size() == colors.size() &&
                 "IMesh::setColors(): The amount of colors given must be the number of colors already present! "
                 "Otherwise call clear() before, so the gpu buffer will be recreated.");
 
         m_vertexColors = colors;
-        if (pColorBuffer == nullptr)
+        if (m_pColorBuffer == nullptr)
         {
             ArrayList<F32> colorsNormalized;
             for (auto& color : colors)
@@ -131,7 +152,7 @@ namespace Graphics { namespace D3D11 {
                 colorsNormalized.push_back( normalized[2] );
                 colorsNormalized.push_back( normalized[3] );
             }
-            pColorBuffer = new VertexBuffer( colorsNormalized.data(), static_cast<U32>( colorsNormalized.size() ) * sizeof( F32 ) );
+            m_pColorBuffer = new VertexBuffer( colorsNormalized.data(), static_cast<U32>( colorsNormalized.size() ) * sizeof( F32 ) );
         }
         else
         {

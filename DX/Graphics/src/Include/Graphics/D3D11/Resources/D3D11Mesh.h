@@ -27,17 +27,17 @@ namespace Graphics { namespace D3D11 {
         // IMesh Interface
         //----------------------------------------------------------------------
         void clear() override;
-        void bind() override;
+        void bind(U32 subMesh = 0) override;
         void setVertices(const ArrayList<Math::Vec3>& vertices) override;
-        void setTriangles(const ArrayList<U32>& indices) override;
+        void setTriangles(const ArrayList<U32>& indices, U32 subMesh = 0, U32 baseVertex = 0) override;
         void setColors(const ArrayList<Color>& colors) override;
 
     private:
-        VertexBuffer*   pVertexBuffer   = nullptr;
-        VertexBuffer*   pColorBuffer    = nullptr;
+        VertexBuffer*   m_pVertexBuffer   = nullptr;
+        VertexBuffer*   m_pColorBuffer    = nullptr;
 
-        // @TODO: Array of index buffer for meshes with submeshes
-        IndexBuffer*    pIndexBuffer    = nullptr;
+        // Array of index buffer. One indexbuffer for each submesh.
+        ArrayList<IndexBuffer*> m_pIndexBuffers;
 
         //----------------------------------------------------------------------
         D3D11Mesh(const D3D11Mesh& other)               = delete;

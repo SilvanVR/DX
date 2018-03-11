@@ -159,11 +159,19 @@ ArrayList<Math::Vec3> positions2 =
     Math::Vec3(-1.0f, -1.0f, 0.0f),
     Math::Vec3(-1.0f,  1.0f, 0.0f),
     Math::Vec3( 1.0f,  1.0f, 0.0f),
-    Math::Vec3( 1.0f, -1.0f, 0.0f) 
+    Math::Vec3( 1.0f, -1.0f, 0.0f),
+     Math::Vec3(-1.0f,  2.0f, 0.0f),
+     Math::Vec3(-1.0f,  4.0f, 0.0f),
+     Math::Vec3( 1.0f,  4.0f, 0.0f),
+     Math::Vec3( 1.0f,  2.0f, 0.0f),
 };
 ArrayList<Color> colors2 =
 {
     Color(0, 0, 0),
+    Color(0, 255, 0),
+    Color(255, 255, 0),
+    Color(255, 0, 0),
+    Color(255, 255, 255),
     Color(0, 255, 0),
     Color(255, 255, 0),
     Color(255, 0, 0),
@@ -173,6 +181,9 @@ ArrayList<U32> indices2 = {
     0, 1, 2, 0, 2, 3
 };
 
+ArrayList<U32> indices3 = {
+    4, 5, 6, 4, 6, 7
+};
 
 class ConstantRotation : public Components::IComponent
 {
@@ -210,7 +221,6 @@ public:
 
     void Tick(Time::Seconds delta)
     {
-
         auto newVertices = mesh->getVertices();
         int i = 0;
         while (i < newVertices.size())
@@ -222,7 +232,7 @@ public:
 
         auto newColors = mesh->getColors();
         for(auto& color : newColors)
-            color.setRed( (sin(TIME.getTime().value) + 1) / 2 * 255 );
+            color.setRed( (Byte) ( (sin(TIME.getTime().value) + 1) / 2 * 255 ) );
 
         mesh->clear();
         mesh->setVertices( newVertices );
@@ -257,7 +267,9 @@ public:
         auto m2 = RESOURCES.createMesh();
         m2->setVertices(positions2);
         m2->setTriangles(indices2);
+        m2->setTriangles(indices3, 1);
         m2->setColors(colors2);
+
 
         // Create 3D-Model or load it... How to manage resources?
         // Mesh* m = Assets::loadMesh("/models/test.obj");

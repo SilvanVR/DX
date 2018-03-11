@@ -45,11 +45,12 @@ namespace Graphics {
     //**********************************************************************
     struct GPUC_DrawMesh : public GPUCommandBase
     {
-        GPUC_DrawMesh( const DirectX::XMMATRIX& modelMatrix, Mesh* mesh )
-            : GPUCommandBase( GPUCommand::DRAW_MESH ), modelMatrix( modelMatrix ), mesh( mesh ) {}
+        GPUC_DrawMesh( const DirectX::XMMATRIX& modelMatrix, Mesh* mesh, I32 subMeshIndex )
+            : GPUCommandBase( GPUCommand::DRAW_MESH ), modelMatrix( modelMatrix ), mesh( mesh ), subMeshIndex( subMeshIndex ) {}
 
         DirectX::XMMATRIX   modelMatrix;
         Mesh*               mesh;
+        I32                 subMeshIndex;
     };
 
     //**********************************************************************

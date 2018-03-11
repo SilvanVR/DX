@@ -162,7 +162,7 @@ namespace Graphics {
                 case GPUCommand::DRAW_MESH:
                 {
                     GPUC_DrawMesh& c = *dynamic_cast<GPUC_DrawMesh*>( command.get() );
-                    _DrawMesh( c.modelMatrix, c.mesh );
+                    _DrawMesh( c.modelMatrix, c.mesh, c.subMeshIndex );
                     break;
                 }
                 default:
@@ -344,17 +344,16 @@ namespace Graphics {
     }
 
     //----------------------------------------------------------------------
-    void D3D11Renderer::_DrawMesh( const DirectX::XMMATRIX& modelMatrix, IMesh* mesh )
+    void D3D11Renderer::_DrawMesh( const DirectX::XMMATRIX& modelMatrix, IMesh* mesh, I32 subMeshIndex )
     {
         // Bind vertex buffer
-        mesh->bind();
+        mesh->bind( subMeshIndex );
 
         // Update constant per object buffer
         pConstantBufferObject->updateSubresource( &modelMatrix );
 
         // Submit draw call
-        // @TODO: Foreach submesh draw indexed -> Better would be to sort them before
-        g_pImmediateContext->DrawIndexed( mesh->numIndices(), 0, 0 );
+        g_pImmediateContext->DrawIndexed( mesh->getIndexCount( subMeshIndex ), 0, mesh->getBaseVertex( subMeshIndex ) );
     }
 
 } // End namespaces
