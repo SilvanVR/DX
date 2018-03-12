@@ -6,35 +6,23 @@
     date: November 28, 2017
 **********************************************************************/
 
-#include "Pipeline/Shaders/D3D11Shader.h"
+#include "Pipeline/Shaders/D3D11Shaders.h"
 #include "Pipeline/Buffers/D3D11Buffers.h"
-#include "Pipeline/D3D11Pass.h"
 #include "../command_buffer.h"
 #include "../render_texture.h"
 #include "Resources/D3D11Mesh.h"
 #include "Resources/D3D11Material.h"
+#include "Resources/D3D11Shader.h"
 
 using namespace DirectX;
 
 namespace Graphics {
 
-    // @TODO: Query from shader interface
-    D3D11_INPUT_ELEMENT_DESC vertexDesc[] =
-    {
-        { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-        { "COLOR",    0, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 }
-    };
-
-    ID3D11InputLayout*          pInputLayout;
     ID3D11DepthStencilState*    pDepthStencilState;
     ID3D11RasterizerState*      pRSState;
 
-    D3D11::VertexShader*    pVertexShader = nullptr;
-    D3D11::PixelShader*     pPixelShader = nullptr;
     D3D11::ConstantBuffer*  pConstantBufferObject = nullptr;
     D3D11::ConstantBuffer*  pConstantBufferCamera = nullptr;
-
-    D3D11::Pass*            pBasicRenderpass = nullptr;
 
     //**********************************************************************
     // INIT STUFF
@@ -52,23 +40,6 @@ namespace Graphics {
         }
 
         {
-            // Shaders
-            pVertexShader = new D3D11::VertexShader( "../DX/res/shaders/basicVS.hlsl" );
-            pVertexShader->compile( "main" );
-            pPixelShader = new D3D11::PixelShader( "../DX/res/shaders/basicPS.hlsl" );
-            pPixelShader->compile("main" );
-        }
-        {
-            auto blob = pVertexShader->getShaderBlob();
-            HR( g_pDevice->CreateInputLayout(vertexDesc, _countof(vertexDesc), blob->GetBufferPointer(), blob->GetBufferSize(), &pInputLayout) );
-        }
-
-        {
-            // Renderpasses
-            pBasicRenderpass = new D3D11::Pass();
-        }
-
-        {
             D3D11_DEPTH_STENCIL_DESC depthStencilStateDesc = {};
 
             depthStencilStateDesc.DepthEnable = TRUE;
@@ -81,7 +52,7 @@ namespace Graphics {
 
         {
             D3D11_RASTERIZER_DESC rsDesc = {};
-            rsDesc.FillMode = D3D11_FILL_SOLID;
+            rsDesc.FillMode = D3D11_FILL_WIREFRAME;
             rsDesc.CullMode = D3D11_CULL_BACK;
             rsDesc.FrontCounterClockwise = false;
             rsDesc.DepthClipEnable = true;
@@ -93,14 +64,10 @@ namespace Graphics {
     //----------------------------------------------------------------------
     void D3D11Renderer::shutdown()
     {
-        SAFE_DELETE(pVertexShader);
-        SAFE_DELETE(pPixelShader);
         SAFE_RELEASE(pDepthStencilState);
-        SAFE_RELEASE(pInputLayout);
         SAFE_RELEASE(pRSState);
         SAFE_DELETE(pConstantBufferCamera);
         SAFE_DELETE(pConstantBufferObject);
-        SAFE_DELETE(pBasicRenderpass);
         _DeinitD3D11();
     }
 
@@ -113,18 +80,16 @@ namespace Graphics {
         // Render in offscreen framebuffer and blit result to the swapchain
 
         // Set Pipeline States
-        g_pImmediateContext->IASetInputLayout(pInputLayout);
         g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
         pConstantBufferCamera->bind(0);
         pConstantBufferObject->bind(1);
 
-        pVertexShader->bind();
-
         g_pImmediateContext->OMSetDepthStencilState(pDepthStencilState, 0);
-        pPixelShader->bind();
-
         g_pImmediateContext->RSSetState(pRSState);
+
+        // Just sort drawcalls quickly by material
+        HashMap<Material*, ArrayList<GPUC_DrawMesh>> sortedMaterials;
 
         for ( auto& command : cmd.getGPUCommands() )
         {
@@ -163,13 +128,24 @@ namespace Graphics {
                 case GPUCommand::DRAW_MESH:
                 {
                     GPUC_DrawMesh& c = *dynamic_cast<GPUC_DrawMesh*>( command.get() );
-                    _DrawMesh( c.modelMatrix, c.mesh, c.subMeshIndex );
+                    sortedMaterials[c.material].push_back( c );
                     break;
                 }
                 default:
                     WARN_RENDERING( "Unknown GPU Command in given command buffer!" );
             }
         }
+
+        // Now render by shader
+        for (auto& pair : sortedMaterials)
+        {
+            auto shader = pair.first->getShader();
+            shader->bind();
+
+            for (auto& drawCall : pair.second)
+                _DrawMesh( drawCall.mesh, drawCall.modelMatrix, drawCall.subMeshIndex );
+        }
+
     }
 
     //----------------------------------------------------------------------
@@ -205,13 +181,19 @@ namespace Graphics {
     //----------------------------------------------------------------------
     Mesh* D3D11Renderer::createMesh()
     {
-        return new D3D11::D3D11Mesh();
+        return new D3D11::Mesh();
     }
 
     //----------------------------------------------------------------------
     IMaterial* D3D11Renderer::createMaterial()
     {
-        return new D3D11::D3D11Material();
+        return new D3D11::Material();
+    }
+
+    //----------------------------------------------------------------------
+    IShader* D3D11Renderer::createShader()
+    {
+        return new D3D11::Shader();
     }
 
     //**********************************************************************
@@ -351,12 +333,12 @@ namespace Graphics {
     }
 
     //----------------------------------------------------------------------
-    void D3D11Renderer::_DrawMesh( const DirectX::XMMATRIX& modelMatrix, IMesh* mesh, I32 subMeshIndex )
+    void D3D11Renderer::_DrawMesh( IMesh* mesh, const DirectX::XMMATRIX& modelMatrix, I32 subMeshIndex )
     {
         // Bind vertex buffer
         mesh->bind( subMeshIndex );
 
-        // Update constant per object buffer
+        // Update per object buffer
         pConstantBufferObject->update( &modelMatrix, sizeof( DirectX::XMMATRIX ) );
 
         // Submit draw call

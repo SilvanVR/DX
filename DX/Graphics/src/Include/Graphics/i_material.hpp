@@ -10,7 +10,7 @@
     contains the necessary data for this shader.
 **********************************************************************/
 
-#include "enums.hpp"
+#include "i_shader.hpp"
 
 namespace Graphics {
 
@@ -22,9 +22,12 @@ namespace Graphics {
         virtual ~IMaterial() {}
 
         //----------------------------------------------------------------------
+        void        setShader(IShader* shader) { m_shader = shader; }
+
+        IShader*    getShader() const { return m_shader; }
 
     protected:
-
+        IShader* m_shader;
 
     private:
         //----------------------------------------------------------------------

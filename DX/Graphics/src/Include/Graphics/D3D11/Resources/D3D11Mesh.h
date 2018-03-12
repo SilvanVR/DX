@@ -1,6 +1,6 @@
 #pragma once
 /**********************************************************************
-    class: D3D11Mesh (D3D11Mesh.h)
+    class: Mesh (D3D11Mesh.h)
 
     author: S. Hau
     date: March 8, 2018
@@ -16,11 +16,11 @@ namespace Graphics { namespace D3D11 {
     class IndexBuffer;
 
     //**********************************************************************
-    class D3D11Mesh : public Mesh
+    class Mesh : public IMesh
     {
     public:
-        D3D11Mesh() = default;
-        ~D3D11Mesh();
+        Mesh() = default;
+        ~Mesh();
 
         //----------------------------------------------------------------------
         // IMesh Interface
@@ -44,10 +44,10 @@ namespace Graphics { namespace D3D11 {
         void recreateBuffers();
 
         //----------------------------------------------------------------------
-        D3D11Mesh(const D3D11Mesh& other)               = delete;
-        D3D11Mesh& operator = (const D3D11Mesh& other)  = delete;
-        D3D11Mesh(D3D11Mesh&& other)                    = delete;
-        D3D11Mesh& operator = (D3D11Mesh&& other)       = delete;
+        Mesh(const Mesh& other)               = delete;
+        Mesh& operator = (const Mesh& other)  = delete;
+        Mesh(Mesh&& other)                    = delete;
+        Mesh& operator = (Mesh&& other)       = delete;
     };
 
 

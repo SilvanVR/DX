@@ -21,3 +21,4 @@
 
 #pragma comment( lib, "D3D11" )
 #pragma comment( lib, "d3dcompiler" )
+#pragma comment( lib, "dxguid" )

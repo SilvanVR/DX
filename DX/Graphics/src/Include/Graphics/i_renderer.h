@@ -16,6 +16,7 @@ namespace Graphics {
 
     class CommandBuffer;
     class IMaterial;
+    class IShader;
     class IMesh;
 
     //**********************************************************************
@@ -44,6 +45,7 @@ namespace Graphics {
         //----------------------------------------------------------------------
         virtual IMesh*      createMesh() = 0;
         virtual IMaterial*  createMaterial() = 0;
+        virtual IShader*    createShader() = 0;
 
     protected:
         OS::Window* m_window = nullptr;

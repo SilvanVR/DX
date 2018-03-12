@@ -11,11 +11,14 @@
 #include "locator.h"
 
 namespace Core { namespace Resources {
-
+    
     //----------------------------------------------------------------------
     void ResourceManager::init()
     {
         Locator::getCoreEngine().subscribe( this );
+
+        m_defaultShader   = createShader( "../DX/res/shaders/basicVS.hlsl", "../DX/res/shaders/basicPS.hlsl" );
+        m_defaultMaterial = createMaterial();
     }
 
     //----------------------------------------------------------------------
@@ -23,10 +26,10 @@ namespace Core { namespace Resources {
     {
         for (auto& mesh : m_meshes)
             SAFE_DELETE( mesh );
-        m_meshes.clear();
         for (auto& material : m_materials)
             SAFE_DELETE( material );
-        m_materials.clear();
+        for (auto& shader : m_shaders)
+            SAFE_DELETE( shader );
     }
 
     //----------------------------------------------------------------------
@@ -62,10 +65,22 @@ namespace Core { namespace Resources {
         auto mat = Locator::getRenderer().createMaterial();
         m_materials.push_back( mat );
 
-        // @TODO: Set default shader
-        // mat->setShader();
+        // Set default shader
+        mat->setShader( m_defaultShader );
 
         return mat;
+    }
+
+    //----------------------------------------------------------------------
+    Graphics::Shader* ResourceManager::createShader( CString vertPath, CString fragPath )
+    {
+        auto shader = Locator::getRenderer().createShader();
+        m_shaders.push_back( shader );
+
+        shader->setShaderPaths( vertPath, fragPath );
+        shader->compile( "main" );
+
+        return shader;
     }
 
 

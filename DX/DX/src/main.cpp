@@ -45,69 +45,6 @@ public:
     }
 };
 
-class MyScene2 : public IScene
-{
-    GameObject* go;
-    GameObject* go2;
-
-    Components::Camera* cam;
-
-public:
-    MyScene2() : IScene("MyScene2") {}
-
-    void init() override
-    {
-        using namespace std::chrono_literals;
-        std::this_thread::sleep_for(1s);
-        go = createGameObject("Camera");
-        cam = go->addComponent<Components::Camera>();
-        go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -10);
-        go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 10.0f, 0.3f);
-        cam->setCameraMode(Components::Camera::ORTHOGRAPHIC);
-        F32 size = 5.0f;
-        cam->setOrthoParams(-size, size, -size, size, 0.1f, 100.0f);
-
-        auto sphere = Assets::MeshGenerator::CreateUVSphere(30,30);
-        ArrayList<Color> sphereColors;
-        for (U32 i = 0; i < sphere->getVertexCount(); i++)
-            sphereColors.push_back(Math::Random::Color());
-        sphere->setColors(sphereColors);
-
-        go2 = createGameObject("Mesh");
-        go2->addComponent<Components::MeshRenderer>(sphere);
-
-        auto& viewport = cam->getViewport();
-        viewport.width  = 0.5f;
-
-        {
-            auto go3 = createGameObject("Camera2");
-            auto cam2 = go3->addComponent<Components::Camera>();
-            go3->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -5);
-            cam2->setClearMode(Components::Camera::EClearMode::NONE);
-
-            auto& viewport2 = cam2->getViewport();
-            viewport2.topLeftX = 0.5f;
-            viewport2.width = 0.5f;
-        }
-
-        //bool removed = go2->removeComponent( c );
-        //bool destroyed = go2->removeComponent<Components::Transform>();
-
-        LOG("MyScene2 initialized!", Color::RED);
-    }
-
-    void tick(Time::Seconds delta)
-    {
-        if(KEYBOARD.wasKeyPressed(Key::T))
-            go2->removeComponent<Components::MeshRenderer>();
-    }
-
-    void shutdown() override
-    {
-        LOG("MyScene2 Shutdown!", Color::RED);
-    }
-};
-
 ArrayList<Color> cubeColors =
 {
     Color(0, 0, 0),
@@ -237,6 +174,70 @@ private:
     }
 };
 
+class MyScene2 : public IScene
+{
+    GameObject* go;
+    GameObject* go2;
+
+    Components::Camera* cam;
+
+public:
+    MyScene2() : IScene("MyScene2") {}
+
+    void init() override
+    {
+        using namespace std::chrono_literals;
+        std::this_thread::sleep_for(1s);
+        go = createGameObject("Camera");
+        cam = go->addComponent<Components::Camera>();
+        go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -10);
+        go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 10.0f, 0.3f);
+        cam->setCameraMode(Components::Camera::ORTHOGRAPHIC);
+        F32 size = 5.0f;
+        cam->setOrthoParams(-size, size, -size, size, 0.1f, 100.0f);
+
+        auto sphere = Assets::MeshGenerator::CreateUVSphere(30,30);
+        ArrayList<Color> sphereColors;
+        for (U32 i = 0; i < sphere->getVertexCount(); i++)
+            sphereColors.push_back(Math::Random::Color());
+        sphere->setColors(sphereColors);
+
+        go2 = createGameObject("Mesh");
+        go2->addComponent<Components::MeshRenderer>(sphere);
+        go2->addComponent<ConstantRotation>(0.0f, 20.0f, 0.0f);
+
+        auto& viewport = cam->getViewport();
+        viewport.width  = 0.5f;
+
+        {
+            auto go3 = createGameObject("Camera2");
+            auto cam2 = go3->addComponent<Components::Camera>();
+            go3->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -5);
+            cam2->setClearMode(Components::Camera::EClearMode::NONE);
+
+            auto& viewport2 = cam2->getViewport();
+            viewport2.topLeftX = 0.5f;
+            viewport2.width = 0.5f;
+        }
+
+        //bool removed = go2->removeComponent( c );
+        //bool destroyed = go2->removeComponent<Components::Transform>();
+
+        LOG("MyScene2 initialized!", Color::RED);
+    }
+
+    void tick(Time::Seconds delta)
+    {
+        if(KEYBOARD.wasKeyPressed(Key::T))
+            go2->removeComponent<Components::MeshRenderer>();
+    }
+
+    void shutdown() override
+    {
+        LOG("MyScene2 Shutdown!", Color::RED);
+    }
+};
+
 class MyScene : public IScene
 {
     GameObject* goModel;
@@ -322,7 +323,6 @@ public:
 
 };
 
-
 class MaterialTestScene : public IScene
 {
     GameObject* goModel;
@@ -341,14 +341,17 @@ public:
         auto cube = Assets::MeshGenerator::CreateCube(1.0f);
         cube->setColors(cubeColors);
 
+        // SHADER
+        auto shader = RESOURCES.createShader( "../DX/res/shaders/basicVS.hlsl", "../DX/res/shaders/basicPS.hlsl" );
+
         // MATERIAL
         auto material = RESOURCES.createMaterial();
+        material->setShader( shader );
 
         // GAMEOBJECT
         goModel = createGameObject("Test");
         goModel->addComponent<ConstantRotation>(0.0f, 20.0f, 20.0f);
         auto mr = goModel->addComponent<Components::MeshRenderer>(cube, material);
-
 
         LOG("MaterialTestScene initialized!", Color::RED);
     }
@@ -394,9 +397,9 @@ public:
         static U64 ticks = 0;
         ticks++;
 
-        clock.tick( delta );
+        //clock.tick( delta );
         //LOG( TS( clock.getTime().value ) );
-        auto time = clock.getTime();
+        //auto time = clock.getTime();
 
         static bool inState = false;
         if (KEYBOARD.wasKeyPressed(Key::Q)) {

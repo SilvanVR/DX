@@ -1,6 +1,6 @@
 #pragma once
 /**********************************************************************
-    class: IShader + VertexShader etc. (D3D11IShader.h)
+    class: ShaderBase + VertexShader etc. (D3D11ShaderBase.h)
 
     author: S. Hau
     date: December 3, 2017
@@ -11,21 +11,21 @@
 namespace Graphics { namespace D3D11 {
 
     //**********************************************************************
-    class IShader
+    class ShaderBase
     {
     public:
-        IShader(CString path);
-        virtual ~IShader() = 0;
+        ShaderBase(CString path);
+        virtual ~ShaderBase() = 0;
 
         //----------------------------------------------------------------------
         const String&   getFilePath() const { return m_filePath; }
-        ID3DBlob*       getShaderBlob() { return m_IShaderBlob; }
+        ID3DBlob*       getShaderBlob() { return m_ShaderBaseBlob; }
 
         virtual void bind() = 0;
         virtual bool compile(CString entryPoint) = 0;
 
     protected:
-        ID3DBlob*   m_IShaderBlob = nullptr;
+        ID3DBlob*   m_ShaderBaseBlob = nullptr;
         String      m_filePath;
 
         //----------------------------------------------------------------------
@@ -33,14 +33,14 @@ namespace Graphics { namespace D3D11 {
 
     private:
         //----------------------------------------------------------------------
-        IShader(const IShader& other)               = delete;
-        IShader& operator = (const IShader& other)  = delete;
-        IShader(IShader&& other)                    = delete;
-        IShader& operator = (IShader&& other)       = delete;
+        ShaderBase(const ShaderBase& other)               = delete;
+        ShaderBase& operator = (const ShaderBase& other)  = delete;
+        ShaderBase(ShaderBase&& other)                    = delete;
+        ShaderBase& operator = (ShaderBase&& other)       = delete;
     };
 
     //**********************************************************************
-    class VertexShader : public IShader
+    class VertexShader : public ShaderBase
     {
     public:
         VertexShader(CString path);
@@ -51,6 +51,9 @@ namespace Graphics { namespace D3D11 {
 
     private:
         ID3D11VertexShader* m_pVertexShader = nullptr;
+        ID3D11InputLayout*  m_pInputLayout  = nullptr;
+
+        void _CreateInputLayoutDesc(ID3DBlob* pShaderBlob);
 
         //----------------------------------------------------------------------
         VertexShader(const VertexShader& other)               = delete;
@@ -60,7 +63,7 @@ namespace Graphics { namespace D3D11 {
     };
 
     //**********************************************************************
-    class PixelShader : public IShader
+    class PixelShader : public ShaderBase
     {
     public:
         PixelShader(CString path);
@@ -80,8 +83,8 @@ namespace Graphics { namespace D3D11 {
     };
 
 
-    //// Get the latest profile for the specified IShader type.
-    //template< class IShaderClass >
+    //// Get the latest profile for the specified ShaderBase type.
+    //template< class ShaderBaseClass >
     //String GetLatestProfile();
 
     //template<>

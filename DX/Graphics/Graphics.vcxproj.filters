@@ -24,12 +24,6 @@
     <ClCompile Include="src\Include\Graphics\D3D11\Pipeline\Buffers\D3D11IBuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Include\Graphics\D3D11\Pipeline\Shaders\D3D11Shader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Include\Graphics\D3D11\Pipeline\D3D11Pass.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\Include\Graphics\D3D11\D3D11Globals.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -51,6 +45,12 @@
     <ClCompile Include="src\Include\Graphics\D3D11\Resources\D3D11Material.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Include\Graphics\D3D11\Pipeline\Shaders\D3D11Shaders.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Include\Graphics\D3D11\Resources\D3D11Shader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\stdafx.h">
@@ -60,12 +60,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Include\Graphics\D3D11\Pipeline\Buffers\D3D11IBuffer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Include\Graphics\D3D11\Pipeline\Shaders\D3D11Shader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Include\Graphics\D3D11\Pipeline\D3D11Pass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Include\Graphics\D3D11\D3D11.hpp">
@@ -111,6 +105,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Include\Graphics\i_material.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Include\Graphics\i_shader.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Include\Graphics\D3D11\Resources\D3D11Shader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Include\Graphics\D3D11\Pipeline\Shaders\D3D11Shaders.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -7,8 +7,7 @@
 
     Include for D3D11 and some common stuff to D3D11 applications. 
     The reason not to include D3D11 in the PCH is, that it increases 
-    build time about ~0.5 - 1sec and i don't want to have all the 
-    D3D11 stuff in the global namespace.
+    build time about ~0.5 - 1sec.
 **********************************************************************/
 
 #include <d3d11_4.h>

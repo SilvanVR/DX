@@ -27,4 +27,13 @@ namespace Graphics {
         FREQUENTLY      // Expected to be updated every frame.
     };
 
+    // Topology for a submesh
+    enum class MeshTopology
+    {
+        TrianglesMesh,
+        Quads,
+        Lines,
+        LineStrip,
+        Points
+    };
 }

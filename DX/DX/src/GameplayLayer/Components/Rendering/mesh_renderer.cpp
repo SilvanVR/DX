@@ -9,6 +9,7 @@
 #include "GameplayLayer/gameobject.h"
 #include "Graphics/command_buffer.h"
 #include "GameplayLayer/Components/transform.h"
+#include "locator.h"
 
 namespace Components {
 
@@ -29,14 +30,14 @@ namespace Components {
         m_mesh = mesh; 
         m_materials.resize( m_mesh->getSubMeshCount() );
         for ( auto& mat : m_materials )
-            mat = nullptr; // @TODO: Apply default material
+            mat = RESOURCES.getDefaultMaterial();
     }
 
     //----------------------------------------------------------------------
     void MeshRenderer::setMaterial( Graphics::Material* m, U32 index ) 
     { 
         ASSERT( index < m_materials.size() && "MeshRenderer::setMaterial(): INVALID INDEX." );
-        m_materials[index] = m; 
+        m_materials[index] = (m == nullptr ? RESOURCES.getDefaultMaterial() : m);
     }
 
     //**********************************************************************
@@ -63,7 +64,10 @@ namespace Components {
         // Draw submesh with appropriate material
         auto modelMatrix = transform->getTransformationMatrix();
         for (I32 i = 0; i < m_mesh->getSubMeshCount(); i++)
+        {
+            ASSERT( m_materials[i] != nullptr );
             cmd.drawMesh( m_mesh, m_materials[i], modelMatrix, i );
+        }
     }
 
 

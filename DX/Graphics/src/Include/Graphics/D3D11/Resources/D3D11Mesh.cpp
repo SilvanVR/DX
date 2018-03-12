@@ -1,6 +1,6 @@
 #include "D3D11Mesh.h"
 /**********************************************************************
-    class: D3D11Mesh (D3D11Mesh.cpp)
+    class: Mesh (D3D11Mesh.cpp)
 
     author: S. Hau
     date: March 8, 2018
@@ -12,13 +12,13 @@
 namespace Graphics { namespace D3D11 {
 
     //----------------------------------------------------------------------
-    D3D11Mesh::~D3D11Mesh()
+    Mesh::~Mesh()
     {
         clear();
     }
 
     //----------------------------------------------------------------------
-    void D3D11Mesh::bind( U32 subMeshIndex )
+    void Mesh::bind( U32 subMeshIndex )
     {
         // @TODO: Move bind into actual renderpass, where geometry is drawn with a specific input layout
         m_pVertexBuffer->bind( 0, sizeof( Math::Vec3 ), 0 );
@@ -45,7 +45,7 @@ namespace Graphics { namespace D3D11 {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    void D3D11Mesh::clear()
+    void Mesh::clear()
     {
         if (m_pVertexBuffer)
             SAFE_DELETE( m_pVertexBuffer );
@@ -61,7 +61,7 @@ namespace Graphics { namespace D3D11 {
     }
 
     //----------------------------------------------------------------------
-    void D3D11Mesh::setVertices( const ArrayList<Math::Vec3>& vertices )
+    void Mesh::setVertices( const ArrayList<Math::Vec3>& vertices )
     {
         if (m_pVertexBuffer != nullptr)
             ASSERT( (m_vertices.size() == vertices.size() &&
@@ -83,7 +83,7 @@ namespace Graphics { namespace D3D11 {
     }
 
     //----------------------------------------------------------------------
-    void D3D11Mesh::setIndices( const ArrayList<U32>& indices, U32 subMeshIndex, U32 baseVertex )
+    void Mesh::setIndices( const ArrayList<U32>& indices, U32 subMeshIndex, U32 baseVertex )
     {
 #if _DEBUG
         if ( !m_subMeshes.empty() )
@@ -146,7 +146,7 @@ namespace Graphics { namespace D3D11 {
     }
 
     //----------------------------------------------------------------------
-    void D3D11Mesh::setColors( const ArrayList<Color>& colors )
+    void Mesh::setColors( const ArrayList<Color>& colors )
     {
         if (m_pColorBuffer != nullptr)
             ASSERT( m_vertexColors.size() == colors.size() &&
@@ -190,7 +190,7 @@ namespace Graphics { namespace D3D11 {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    void D3D11Mesh::recreateBuffers()
+    void Mesh::recreateBuffers()
     {
         // Recreate vertex buffer
         if (m_pVertexBuffer)

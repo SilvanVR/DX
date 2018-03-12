@@ -17,6 +17,7 @@
 #include "SubSystem/i_subsystem.hpp"
 #include "Graphics/i_mesh.hpp"
 #include "Graphics/i_material.hpp"
+#include "Graphics/i_shader.hpp"
 
 namespace Core { namespace Resources {
 
@@ -26,6 +27,13 @@ namespace Core { namespace Resources {
     public:
         ResourceManager() = default;
         ~ResourceManager() = default;
+
+        //----------------------------------------------------------------------
+        // ISubSystem Interface
+        //----------------------------------------------------------------------
+        void init() override;
+        void OnTick(Time::Seconds delta) override;
+        void shutdown() override;
 
         //----------------------------------------------------------------------
         // Creates a new mesh for use by the graphics engine.
@@ -39,18 +47,28 @@ namespace Core { namespace Resources {
         Graphics::Material* createMaterial();
 
         //----------------------------------------------------------------------
+        // Creates a new shader for use by the graphics engine.
+        //----------------------------------------------------------------------
+        Graphics::Shader* createShader(CString vertPath, CString fragPath);
+
+        //----------------------------------------------------------------------
         void UnloadUnusedResources();
 
         //----------------------------------------------------------------------
-        // ISubSystem Interface
-        //----------------------------------------------------------------------
-        void init() override;
-        void OnTick(Time::Seconds delta) override;
-        void shutdown() override;
+        U32 getMeshCount()      const { return static_cast<U32>( m_meshes.size() ); }
+        U32 getShaderCount()    const { return static_cast<U32>( m_shaders.size() ); }
+        U32 getMaterialCount()  const { return static_cast<U32>( m_materials.size() ); }
+
+        Graphics::Material*   getDefaultMaterial()    const { return m_defaultMaterial; }
+        Graphics::Shader*     getDefaultShader()      const { return m_defaultShader; }
 
     private:
         ArrayList<Graphics::Mesh*>      m_meshes;
+        ArrayList<Graphics::Shader*>    m_shaders;
         ArrayList<Graphics::Material*>  m_materials;
+
+        Graphics::Shader*   m_defaultShader;
+        Graphics::Material* m_defaultMaterial;
 
         //----------------------------------------------------------------------
         ResourceManager(const ResourceManager& other)               = delete;
