@@ -30,6 +30,12 @@ namespace OS {
     {
         static_assert( false, "Not implemented for this OS. Either implement it or uncomment this line." );
     }
+
+    //----------------------------------------------------------------------
+    OS::SystemTime getLastWrittenFileTime(const char* physicalPath)
+    {
+        static_assert(false, "Not implemented for this OS. Either implement it or uncomment this line.");
+    }
 #endif
 
 

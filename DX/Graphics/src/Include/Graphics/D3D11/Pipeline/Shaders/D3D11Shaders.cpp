@@ -11,6 +11,7 @@
 **********************************************************************/
 
 #include <d3dcompiler.h>
+#include "OS/FileSystem/file_system.h"
 
 namespace Graphics { namespace D3D11 {
 
@@ -58,9 +59,16 @@ namespace Graphics { namespace D3D11 {
             return false;
         }
 
+        m_fileTimeAtCompilation = OS::FileSystem::getLastWrittenFileTime( m_filePath.c_str() );
+
         return true;
     }
 
+    //----------------------------------------------------------------------
+    bool ShaderBase::isUpToDate()
+    {
+        return m_fileTimeAtCompilation == OS::FileSystem::getLastWrittenFileTime( m_filePath.c_str() );
+    }
 
     //**********************************************************************
     // VERTEX ShaderBase
@@ -97,13 +105,13 @@ namespace Graphics { namespace D3D11 {
         SAFE_RELEASE( m_pVertexShader );
 
         HR( g_pDevice->CreateVertexShader( m_ShaderBaseBlob->GetBufferPointer(), m_ShaderBaseBlob->GetBufferSize(), nullptr, &m_pVertexShader ) );
-        _CreateInputLayoutDesc( m_ShaderBaseBlob );
+        _CreateInputLayout( m_ShaderBaseBlob );
 
         return true;
     }
 
     //----------------------------------------------------------------------
-    void VertexShader::_CreateInputLayoutDesc( ID3DBlob* pShaderBlob )
+    void VertexShader::_CreateInputLayout( ID3DBlob* pShaderBlob )
     {
         // Reflect shader info
         ID3D11ShaderReflection* pVertexShaderReflection = NULL;

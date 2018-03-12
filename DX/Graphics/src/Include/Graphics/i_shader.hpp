@@ -11,6 +11,8 @@
 
 namespace Graphics {
 
+    class IMesh;
+
     //**********************************************************************
     class IShader
     {
@@ -19,12 +21,31 @@ namespace Graphics {
         virtual ~IShader() {}
 
         //----------------------------------------------------------------------
+        // @Params:
+        // "vertPath": Path to the vertex shader file.
+        // "fragPath": Path to the fragment shader file.
+        //----------------------------------------------------------------------
         virtual void setShaderPaths( CString vertPath, CString fragPath ) = 0;
-        virtual void compile( CString entryPoint ) = 0;
+
+        //----------------------------------------------------------------------
+        // Try to compile this shader.
+        // @Params:
+        // "entryPoint": Entry point of the shader.
+        // @Return:
+        // True, if compilation was successful, otherwise false and prints a message.
+        //----------------------------------------------------------------------
+        virtual bool compile( CString entryPoint ) = 0;
+
+        //----------------------------------------------------------------------
+        // @Return:
+        // True, if all shader files are up-to-date (weren't modified).
+        //----------------------------------------------------------------------
+        virtual bool isUpToDate() = 0;
+
+        //----------------------------------------------------------------------
+        // @TODO make somehow private
         virtual void bind() = 0;
-
-    protected:
-
+        virtual void drawMesh(IMesh* mesh, U32 subMeshIndex) = 0;
 
     private:
         //----------------------------------------------------------------------

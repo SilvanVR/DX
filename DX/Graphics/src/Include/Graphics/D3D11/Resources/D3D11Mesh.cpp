@@ -8,6 +8,7 @@
 
 #include "../Pipeline/Buffers/D3D11Buffers.h"
 #include "../../structs.hpp"
+#include "D3D11Shader.h"
 
 namespace Graphics { namespace D3D11 {
 
@@ -18,7 +19,7 @@ namespace Graphics { namespace D3D11 {
     }
 
     //----------------------------------------------------------------------
-    void Mesh::bind( U32 subMeshIndex )
+    void Mesh::bind( IShader* shader, U32 subMeshIndex )
     {
         // @TODO: Move bind into actual renderpass, where geometry is drawn with a specific input layout
         m_pVertexBuffer->bind( 0, sizeof( Math::Vec3 ), 0 );

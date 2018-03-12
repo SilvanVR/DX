@@ -135,16 +135,25 @@ namespace Graphics {
             }
         }
 
+
         // Now render by material
         for (auto& pair : sortedMaterials)
         {
             auto shader = pair.first->getShader();
             shader->bind();
 
-            for ( auto& index : pair.second )
+            for (auto& index : pair.second)
             {
                 GPUC_DrawMesh& c = *dynamic_cast<GPUC_DrawMesh*>( commands[index].get() );
-                _DrawMesh( c.mesh, c.modelMatrix, c.subMeshIndex );
+
+                // Update per object buffer
+                pConstantBufferObject->update( &c.modelMatrix, sizeof( DirectX::XMMATRIX ) );
+
+                // Bind buffers
+                auto mesh = dynamic_cast<D3D11::Mesh*>( c.mesh );
+                mesh->bind( shader, c.subMeshIndex );
+
+                shader->drawMesh( mesh, c.subMeshIndex );
             }
         }
 
@@ -334,17 +343,5 @@ namespace Graphics {
         g_pImmediateContext->RSSetViewports( 1, &vp );
     }
 
-    //----------------------------------------------------------------------
-    void D3D11Renderer::_DrawMesh( IMesh* mesh, const DirectX::XMMATRIX& modelMatrix, I32 subMeshIndex )
-    {
-        // Bind vertex buffer
-        mesh->bind( subMeshIndex );
-
-        // Update per object buffer
-        pConstantBufferObject->update( &modelMatrix, sizeof( DirectX::XMMATRIX ) );
-
-        // Submit draw call
-        g_pImmediateContext->DrawIndexed( mesh->getIndexCount( subMeshIndex ), 0, mesh->getBaseVertex( subMeshIndex ) );
-    }
 
 } // End namespaces

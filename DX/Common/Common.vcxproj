@@ -175,7 +175,7 @@
     <ClInclude Include="src\Include\OS\FileSystem\path.h" />
     <ClInclude Include="src\Include\OS\FileSystem\virtual_file_system.h" />
     <ClInclude Include="src\Include\OS\PlatformTimer\platform_timer.h" />
-    <ClInclude Include="src\Include\OS\PlatformTimer\system_time.hpp" />
+    <ClInclude Include="src\Include\OS\system_time.hpp" />
     <ClInclude Include="src\Include\OS\Threading\jobs\job.hpp" />
     <ClInclude Include="src\Include\OS\Threading\jobs\job_queue.h" />
     <ClInclude Include="src\Include\OS\Threading\thread.h" />

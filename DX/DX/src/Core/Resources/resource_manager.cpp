@@ -19,6 +19,14 @@ namespace Core { namespace Resources {
 
         m_defaultShader   = createShader( "../DX/res/shaders/basicVS.hlsl", "../DX/res/shaders/basicPS.hlsl" );
         m_defaultMaterial = createMaterial();
+
+        Locator::getEngineClock().setInterval([this]{
+            for (auto& shader : m_shaders)
+            {
+                if ( not shader->isUpToDate() )
+                    shader->compile( "main" );
+            }
+        }, 500);
     }
 
     //----------------------------------------------------------------------
@@ -78,7 +86,11 @@ namespace Core { namespace Resources {
         m_shaders.push_back( shader );
 
         shader->setShaderPaths( vertPath, fragPath );
-        shader->compile( "main" );
+
+        if ( not shader->compile("main") )
+        {
+            return m_defaultShader;
+        }
 
         return shader;
     }

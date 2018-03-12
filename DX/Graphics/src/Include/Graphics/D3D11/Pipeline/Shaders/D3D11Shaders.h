@@ -7,6 +7,7 @@
 **********************************************************************/
 
 #include "../../D3D11.hpp"
+#include "OS/system_time.hpp"
 
 namespace Graphics { namespace D3D11 {
 
@@ -24,9 +25,12 @@ namespace Graphics { namespace D3D11 {
         virtual void bind() = 0;
         virtual bool compile(CString entryPoint) = 0;
 
+        bool isUpToDate();
+
     protected:
-        ID3DBlob*   m_ShaderBaseBlob = nullptr;
-        String      m_filePath;
+        ID3DBlob*       m_ShaderBaseBlob = nullptr;
+        String          m_filePath;
+        OS::SystemTime  m_fileTimeAtCompilation;
 
         //----------------------------------------------------------------------
         bool _Compile( CString entryPoint, CString profile );
@@ -53,7 +57,7 @@ namespace Graphics { namespace D3D11 {
         ID3D11VertexShader* m_pVertexShader = nullptr;
         ID3D11InputLayout*  m_pInputLayout  = nullptr;
 
-        void _CreateInputLayoutDesc(ID3DBlob* pShaderBlob);
+        void _CreateInputLayout(ID3DBlob* pShaderBlob);
 
         //----------------------------------------------------------------------
         VertexShader(const VertexShader& other)               = delete;

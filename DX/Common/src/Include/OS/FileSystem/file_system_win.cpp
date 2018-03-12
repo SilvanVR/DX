@@ -50,6 +50,41 @@ namespace OS {
     }
 
 
+    //----------------------------------------------------------------------
+    OS::SystemTime FileSystem::getLastWrittenFileTime( const char* physicalPath )
+    {
+        HANDLE hFile;
+        FILETIME ftLastWriteTime;
+        SYSTEMTIME stUTC, stLocal;
+        hFile = CreateFile( physicalPath, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL );
+
+        if (hFile == INVALID_HANDLE_VALUE)
+        {
+            LOG( "FileSystem-Windows: Could not open file '" + String( physicalPath ) + "'" );
+        }
+
+        if (not GetFileTime( hFile, NULL, NULL, &ftLastWriteTime ))
+        {
+            LOG( "FileSystem-Windows: Could not get the filetime of file '" + String( physicalPath ) + "'" );
+        }
+
+        CloseHandle( hFile );
+
+        FileTimeToSystemTime( &ftLastWriteTime, &stUTC );
+        SystemTimeToTzSpecificLocalTime( NULL, &stUTC, &stLocal );
+
+        SystemTime sysTime = {};
+        sysTime.year         = stLocal.wYear;
+        sysTime.month        = stLocal.wMonth;
+        sysTime.day          = stLocal.wDay;
+        sysTime.hour         = stLocal.wHour;
+        sysTime.minute       = stLocal.wMinute;
+        sysTime.second       = stLocal.wSecond;
+        sysTime.milliseconds = stLocal.wMilliseconds;
+
+        return sysTime;
+    }
+
 } // end namespaces
 
 

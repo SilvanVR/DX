@@ -24,17 +24,21 @@ namespace Graphics { namespace D3D11 {
 
         //----------------------------------------------------------------------
         void setShaderPaths(CString vertPath, CString fragPath) override;
-        void compile(CString entryPoint) override;
+        bool compile(CString entryPoint) override;
+        bool isUpToDate() override;
+
+        //----------------------------------------------------------------------
         void bind() override;
+        void drawMesh(IMesh* mesh, U32 subMeshIndex) override;
+
 
     private:
         VertexShader*       pVertexShader   = nullptr;
         PixelShader*        pPixelShader    = nullptr;
 
-
-
         //ID3D11DepthStencilState*    pDepthStencilState;
         //ID3D11RasterizerState*      pRSState;
+
 
         //----------------------------------------------------------------------
         Shader(const Shader& other)               = delete;

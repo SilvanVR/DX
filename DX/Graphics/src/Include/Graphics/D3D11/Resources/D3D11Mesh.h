@@ -26,7 +26,6 @@ namespace Graphics { namespace D3D11 {
         // IMesh Interface
         //----------------------------------------------------------------------
         void clear() override;
-        void bind(U32 subMesh = 0) override;
         void setVertices(const ArrayList<Math::Vec3>& vertices) override;
         void setIndices(const ArrayList<U32>& indices, U32 subMesh = 0, 
                         MeshTopology topology = MeshTopology::Triangles, U32 baseVertex = 0) override;
@@ -42,6 +41,8 @@ namespace Graphics { namespace D3D11 {
         //----------------------------------------------------------------------
         // IMesh Interface
         //----------------------------------------------------------------------
+        friend class D3D11Renderer;
+        void bind(IShader* shader, U32 subMesh = 0) override;
         void recreateBuffers();
 
         //----------------------------------------------------------------------

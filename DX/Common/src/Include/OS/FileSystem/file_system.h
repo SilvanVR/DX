@@ -12,6 +12,8 @@
     Does not works in conjunction with the virtual file system.
 **********************************************************************/
 
+#include "../system_time.hpp"
+
 namespace OS {
 
 
@@ -40,6 +42,12 @@ namespace OS {
         //  "outputFolder": Folder on disk where to create the new directory in.
         //----------------------------------------------------------------------
         static void createDirectory(const char* outputFolder);
+
+        //----------------------------------------------------------------------
+        // @Return:
+        // The System-Time when the given file was last modified.
+        //----------------------------------------------------------------------
+        static OS::SystemTime getLastWrittenFileTime(const char* physicalPath);
     };
 
 

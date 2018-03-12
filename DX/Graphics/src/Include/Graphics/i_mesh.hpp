@@ -15,6 +15,8 @@
 
 namespace Graphics {
 
+    class IShader;
+
     //**********************************************************************
     class IMesh
     {
@@ -28,11 +30,6 @@ namespace Graphics {
         // every frame with different amounts of vertices.
         //----------------------------------------------------------------------
         virtual void clear() = 0;
-
-        //----------------------------------------------------------------------
-        // Binds this mesh to the pipeline. Subsequent drawcalls render this mesh.
-        //----------------------------------------------------------------------
-        virtual void bind(U32 subMesh = 0) = 0;
 
         //----------------------------------------------------------------------
         // Sets the vertices for this mesh. If a vertex buffer was not created,
@@ -73,6 +70,7 @@ namespace Graphics {
         const ArrayList<Color>&         getColors()         const { return m_vertexColors; }
         U32                             getVertexCount()    const { return static_cast<U32>( m_vertices.size() ); }
         U16                             getSubMeshCount()   const { return static_cast<U32>( m_subMeshes.size() ); }
+        bool                            isImmutable()       const { return m_bufferUsage == BufferUsage::IMMUTABLE; }
 
         const ArrayList<U32>&           getIndices(U32 subMesh = 0)  const { return m_subMeshes[subMesh].indices; }
         U32                             getIndexCount(U32 subMesh)   const { return static_cast<U32>( getIndices( subMesh ).size() ); }
@@ -81,11 +79,10 @@ namespace Graphics {
         bool                            hasSubMesh(U32 subMesh)      const { return subMesh < getSubMeshCount(); }
         MeshTopology                    getMeshTopology(U32 subMesh) const { return m_subMeshes[subMesh].topology; }
 
-        bool                            isImmutable() const { return m_bufferUsage == BufferUsage::IMMUTABLE; }
-
     protected:
         ArrayList<Math::Vec3>   m_vertices;
         ArrayList<Color>        m_vertexColors;
+        BufferUsage             m_bufferUsage = BufferUsage::IMMUTABLE;
 
         struct SubMesh
         {
@@ -95,8 +92,6 @@ namespace Graphics {
             ArrayList<U32>      indices;
         };
         ArrayList<SubMesh>      m_subMeshes;
-
-        BufferUsage             m_bufferUsage = BufferUsage::IMMUTABLE;
 
         //----------------------------------------------------------------------
         // Recreate all existing buffers. Called when the buffer-usage changes.
@@ -124,6 +119,11 @@ namespace Graphics {
         }
 
     private:
+        //----------------------------------------------------------------------
+        // Binds this mesh to the pipeline. Subsequent drawcalls render this mesh.
+        //----------------------------------------------------------------------
+        virtual void bind(IShader* shader, U32 subMesh = 0) = 0;
+
         //----------------------------------------------------------------------
         IMesh(const IMesh& other)               = delete;
         IMesh& operator = (const IMesh& other)  = delete;

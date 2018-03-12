@@ -60,9 +60,6 @@
     <ClInclude Include="src\Include\OS\PlatformTimer\platform_timer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Include\OS\PlatformTimer\system_time.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\Include\OS\Threading\jobs\job.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -154,6 +151,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Include\Math\random.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Include\OS\system_time.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -347,16 +347,20 @@ public:
         line->setIndices( {0,1, 1,2, 2,3, 3,0}, 0, Graphics::MeshTopology::Lines);
 
         // SHADER
-        auto shader = RESOURCES.createShader( "../DX/res/shaders/basicVS.hlsl", "../DX/res/shaders/basicPS.hlsl" );
+        auto shader = RESOURCES.createShader( "../DX/res/shaders/testVS.hlsl", "../DX/res/shaders/testPS.hlsl" );
 
         // MATERIAL
         auto material = RESOURCES.createMaterial();
-        material->setShader( shader );
+        material->setShader(shader);
 
         // GAMEOBJECT
         goModel = createGameObject("Test");
         //goModel->addComponent<ConstantRotation>(0.0f, 20.0f, 20.0f);
-        auto mr = goModel->addComponent<Components::MeshRenderer>(line, material);
+        auto mr = goModel->addComponent<Components::MeshRenderer>(cube, material);
+
+        auto go2 = createGameObject("Test2");
+        go2->addComponent<Components::MeshRenderer>(cube);
+        go2->getComponent<Components::Transform>()->position = Math::Vec3(3, 0, 0);
 
         LOG("MaterialTestScene initialized!", Color::RED);
     }

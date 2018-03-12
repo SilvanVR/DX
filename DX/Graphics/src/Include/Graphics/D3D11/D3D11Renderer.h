@@ -50,7 +50,6 @@ namespace Graphics {
         inline void _SetCameraPerspective(const DirectX::XMMATRIX& view, F32 fov, F32 zNear, F32 zFar);
         inline void _SetCameraOrtho(const DirectX::XMMATRIX& view, F32 left, F32 right, F32 bottom, F32 top, F32 zNear, F32 zFar);
         inline void _SetViewport(const ViewportRect& viewport);
-        inline void _DrawMesh(IMesh* mesh, const DirectX::XMMATRIX& model, I32 subMeshIndex);
 
         //----------------------------------------------------------------------
         void _InitD3D11();
