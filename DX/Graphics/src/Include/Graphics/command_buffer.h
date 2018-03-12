@@ -41,10 +41,6 @@ namespace Graphics {
         ArrayList<std::unique_ptr<GPUCommandBase>> m_gpuCommands;
 
         //----------------------------------------------------------------------
-        friend class D3D11Renderer;
-
-
-        //----------------------------------------------------------------------
         CommandBuffer(const CommandBuffer& other)               = delete;
         CommandBuffer& operator = (const CommandBuffer& other)  = delete;
         CommandBuffer(CommandBuffer&& other)                    = delete;

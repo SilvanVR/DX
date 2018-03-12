@@ -9,6 +9,7 @@
 #include "../i_component.h"
 #include "Common/bit_mask.hpp"
 #include "Graphics/structs.hpp"
+#include "Graphics/command_buffer.h"
 
 namespace Graphics { class RenderTexture; }
 namespace Core { class GraphicsCommandRecorder; }
@@ -115,11 +116,15 @@ namespace Components {
         Graphics::RenderTexture* m_renderTarget = nullptr;
 
         // Which layer this camera renders
-        //Common::BitMask               m_layerMask; 
+        //Common::BitMask               m_layerMask;
+
+        // Contains commands to render one frame into the rendertarget
+        Graphics::CommandBuffer m_commandBuffer;
 
         //----------------------------------------------------------------------
         friend class Core::GraphicsCommandRecorder;
         void recordGraphicsCommands(Graphics::CommandBuffer& cmd, F32 lerp);
+        Graphics::CommandBuffer& getCommandBuffer() { return m_commandBuffer; }
 
         //----------------------------------------------------------------------
         Camera(const Camera& other)               = delete;

@@ -18,15 +18,11 @@ namespace Core {
     //----------------------------------------------------------------------
     void GraphicsCommandRecorder::init()
     {
-        for(I32 i = 0; i < COMMAND_BUFFER_COUNT; i++)
-            m_CommandBuffers[i] = new Graphics::CommandBuffer();
     }
 
     //----------------------------------------------------------------------
     void GraphicsCommandRecorder::shutdown()
     {
-        for (I32 i = 0; i < COMMAND_BUFFER_COUNT; i++)
-            SAFE_DELETE( m_CommandBuffers[i] );
     }
 
     //----------------------------------------------------------------------
@@ -34,20 +30,19 @@ namespace Core {
     {
         auto& graphicsEngine = Locator::getRenderer();
 
-        int cmdIndex = 0;
-
         // Fetch all renderer components e.g. model-renderer
         auto& renderers = scene.getComponentManager().getRenderer();
 
         // Create rendering commands for each camera and submit them to the graphics-engine
         auto& cameras = scene.getComponentManager().getCameras();
+
         for (auto& cam : cameras)
         {
-            auto& cmd = m_CommandBuffers[cmdIndex++];
-            cmd->reset();
+            auto& cmd = cam->getCommandBuffer();
+            cmd.reset();
 
-            // @TODO: Where store command buffer per camera?
-            cam->recordGraphicsCommands( *cmd, lerp );
+            // Record where to render, view- & projection, viewport
+            cam->recordGraphicsCommands( cmd, lerp );
 
             // Add optionally attached command buffer aswell
             //foreach commandBuffer in camera->commandBuffers
@@ -61,13 +56,12 @@ namespace Core {
                 //bool isVisible = renderer->Cull(camera);
                 //bool layerMatch = camera->layerMask & renderer->getLayerMask();
                 //if (isVisible && layerMatch)
-                     renderer->recordGraphicsCommands( *cmd, lerp );
+                     renderer->recordGraphicsCommands( cmd, lerp );
             }
 
             // Execute rendering commands
-            graphicsEngine.dispatch( *cmd );
+            graphicsEngine.dispatch( cmd );
         }
-
     }
 
 }

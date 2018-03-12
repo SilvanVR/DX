@@ -10,12 +10,7 @@
 **********************************************************************/
 
 //----------------------------------------------------------------------
-#define COMMAND_BUFFER_COUNT 3
-
-//----------------------------------------------------------------------
 class IScene;
-
-//----------------------------------------------------------------------
 namespace Graphics { class CommandBuffer; }
 
 namespace Core {
@@ -33,7 +28,6 @@ namespace Core {
         void dispatch( IScene& scene, F32 lerp );
 
     private:
-        Graphics::CommandBuffer* m_CommandBuffers[COMMAND_BUFFER_COUNT];
 
         //----------------------------------------------------------------------
         GraphicsCommandRecorder(const GraphicsCommandRecorder& other)               = delete;

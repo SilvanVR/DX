@@ -188,8 +188,8 @@ class WaveGeneration : public Components::IComponent
     Graphics::Mesh*             mesh;
     Components::MeshRenderer*   mr;
 
-    const U32 width  = 200;
-    const U32 height = 200;
+    const U32 width  = 20;
+    const U32 height = 20;
 
 public:
     void AddedToGameObject(GameObject* go) override
@@ -256,11 +256,11 @@ public:
         worldGO->getComponent<Components::Transform>()->position = Math::Vec3(0, 3, 0);
         worldGO->addComponent<WorldGeneration>();
 
-        auto wavesGO = createGameObject("Waves");
-        wavesGO->addComponent<WaveGeneration>();
+        //auto wavesGO = createGameObject("Waves");
+        //wavesGO->addComponent<WaveGeneration>();
 
-        auto box = Assets::MeshGenerator::CreateCube(1.0f);
-        box->setColors(cubeColors);
+        auto cube = Assets::MeshGenerator::CreateCube(1.0f);
+        cube->setColors(cubeColors);
 
         auto plane = Assets::MeshGenerator::CreatePlane();
         plane->setColors(planeColors);
@@ -274,7 +274,7 @@ public:
         {
             goModel = createGameObject("Test");
             goModel->addComponent<ConstantRotation>(0.0f, 20.0f, 20.0f);
-            auto mr = goModel->addComponent<Components::MeshRenderer>(box);
+            auto mr = goModel->addComponent<Components::MeshRenderer>(cube);
 
             GameObject* goModel2 = createGameObject("Test");
             goModel2->getComponent<Components::Transform>()->position = {5,0,0};
