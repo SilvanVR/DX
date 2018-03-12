@@ -84,6 +84,9 @@ namespace Assets {
         ArrayList<Math::Vec3>   vertices;
         ArrayList<U32>          indices;
 
+        vertices.reserve( width * height );
+        indices.reserve( width * height * 6 - (width + height - 1) );
+
         for (U32 x = 0; x < width; x++)
         {
             for (U32 y = 0; y < height; y++)
