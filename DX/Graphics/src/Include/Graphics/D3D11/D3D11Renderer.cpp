@@ -52,8 +52,8 @@ namespace Graphics {
 
         {
             D3D11_RASTERIZER_DESC rsDesc = {};
-            rsDesc.FillMode = D3D11_FILL_WIREFRAME;
-            rsDesc.CullMode = D3D11_CULL_BACK;
+            rsDesc.FillMode = D3D11_FILL_SOLID;
+            rsDesc.CullMode = D3D11_CULL_NONE;
             rsDesc.FrontCounterClockwise = false;
             rsDesc.DepthClipEnable = true;
             rsDesc.MultisampleEnable = true;
@@ -80,8 +80,6 @@ namespace Graphics {
         // Render in offscreen framebuffer and blit result to the swapchain
 
         // Set Pipeline States
-        g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
         pConstantBufferCamera->bind(0);
         pConstantBufferObject->bind(1);
 
@@ -89,46 +87,47 @@ namespace Graphics {
         g_pImmediateContext->RSSetState(pRSState);
 
         // Just sort drawcalls quickly by material
-        HashMap<Material*, ArrayList<GPUC_DrawMesh>> sortedMaterials;
+        HashMap<Material*, ArrayList<U32>> sortedMaterials;
 
-        for ( auto& command : cmd.getGPUCommands() )
+        auto& commands = cmd.getGPUCommands();
+        for ( U32 i = 0; i < commands.size(); i++ )
         {
-            switch ( command->getType() )
+            switch ( commands[i]->getType() )
             {
                 case GPUCommand::SET_RENDER_TARGET:
                 {
-                    GPUC_SetRenderTarget& c = *dynamic_cast<GPUC_SetRenderTarget*>( command.get() );
+                    GPUC_SetRenderTarget& c = *dynamic_cast<GPUC_SetRenderTarget*>( commands[i].get() );
                     _SetRenderTarget( c.renderTarget );
                     break;
                 }
                 case GPUCommand::CLEAR_RENDER_TARGET:
                 {
-                    GPUC_ClearRenderTarget& c = *dynamic_cast<GPUC_ClearRenderTarget*>( command.get() );
+                    GPUC_ClearRenderTarget& c = *dynamic_cast<GPUC_ClearRenderTarget*>( commands[i].get() );
                     _ClearRenderTarget( c.clearColor );
                     break;
                 }
                 case GPUCommand::SET_VIEWPORT:
                 {
-                    GPUC_SetViewport& c = *dynamic_cast<GPUC_SetViewport*>( command.get() );
+                    GPUC_SetViewport& c = *dynamic_cast<GPUC_SetViewport*>( commands[i].get() );
                     _SetViewport( c.viewport );
                     break;
                 }
                 case GPUCommand::SET_CAMERA_PERSPECTIVE:
                 {
-                    GPUC_SetCameraPerspective& c = *dynamic_cast<GPUC_SetCameraPerspective*>( command.get() );
+                    GPUC_SetCameraPerspective& c = *dynamic_cast<GPUC_SetCameraPerspective*>( commands[i].get() );
                     _SetCameraPerspective( c.view, c.fov, c.zNear, c.zFar );
                     break;
                 }
                 case GPUCommand::SET_CAMERA_ORTHO:
                 {
-                    GPUC_SetCameraOrtho& c = *dynamic_cast<GPUC_SetCameraOrtho*>( command.get() );
+                    GPUC_SetCameraOrtho& c = *dynamic_cast<GPUC_SetCameraOrtho*>( commands[i].get() );
                     _SetCameraOrtho( c.view, c.left, c.right, c.bottom, c.top, c.zNear, c.zFar );
                     break;
                 }
                 case GPUCommand::DRAW_MESH:
                 {
-                    GPUC_DrawMesh& c = *dynamic_cast<GPUC_DrawMesh*>( command.get() );
-                    sortedMaterials[c.material].push_back( c );
+                    GPUC_DrawMesh& c = *dynamic_cast<GPUC_DrawMesh*>(commands[i].get());
+                    sortedMaterials[c.material].push_back( i );
                     break;
                 }
                 default:
@@ -136,14 +135,17 @@ namespace Graphics {
             }
         }
 
-        // Now render by shader
+        // Now render by material
         for (auto& pair : sortedMaterials)
         {
             auto shader = pair.first->getShader();
             shader->bind();
 
-            for (auto& drawCall : pair.second)
-                _DrawMesh( drawCall.mesh, drawCall.modelMatrix, drawCall.subMeshIndex );
+            for ( auto& index : pair.second )
+            {
+                GPUC_DrawMesh& c = *dynamic_cast<GPUC_DrawMesh*>( commands[index].get() );
+                _DrawMesh( c.mesh, c.modelMatrix, c.subMeshIndex );
+            }
         }
 
     }

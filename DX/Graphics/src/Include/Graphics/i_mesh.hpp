@@ -43,8 +43,14 @@ namespace Graphics {
 
         //----------------------------------------------------------------------
         // Set the index-buffer for this mesh. Note that this is a slow operation.
+        // @Params:
+        // "indices": Indices describing this submesh.
+        // "subMesh": SubMesh index. Submesh must exist or index is the correct next one.
+        // "topology": MeshTopology used for rendering.
+        // "baseVertex": Vertex-Offset added to vertex-buffer.
         //----------------------------------------------------------------------
-        virtual void setIndices(const ArrayList<U32>& indices, U32 subMesh = 0, U32 baseVertex = 0) = 0;
+        virtual void setIndices(const ArrayList<U32>& indices, U32 subMesh = 0, 
+                                MeshTopology topology = MeshTopology::Triangles, U32 baseVertex = 0) = 0;
 
         //----------------------------------------------------------------------
         // Set the color-buffer for this mesh.
@@ -68,11 +74,12 @@ namespace Graphics {
         U32                             getVertexCount()    const { return static_cast<U32>( m_vertices.size() ); }
         U16                             getSubMeshCount()   const { return static_cast<U32>( m_subMeshes.size() ); }
 
-        const ArrayList<U32>&           getIndices(U32 subMesh = 0) const { return m_subMeshes[subMesh].indices; }
-        U32                             getIndexCount(U32 subMesh)  const { return static_cast<U32>( getIndices( subMesh ).size() ); }
-        IndexFormat                     getIndexFormat(U32 subMesh) const { return m_subMeshes[subMesh].indexFormat; }
-        U32                             getBaseVertex(U32 subMesh)  const { return m_subMeshes[subMesh].baseVertex; }
-        bool                            hasSubMesh(U32 subMesh)     const { return subMesh < getSubMeshCount(); }
+        const ArrayList<U32>&           getIndices(U32 subMesh = 0)  const { return m_subMeshes[subMesh].indices; }
+        U32                             getIndexCount(U32 subMesh)   const { return static_cast<U32>( getIndices( subMesh ).size() ); }
+        IndexFormat                     getIndexFormat(U32 subMesh)  const { return m_subMeshes[subMesh].indexFormat; }
+        U32                             getBaseVertex(U32 subMesh)   const { return m_subMeshes[subMesh].baseVertex; }
+        bool                            hasSubMesh(U32 subMesh)      const { return subMesh < getSubMeshCount(); }
+        MeshTopology                    getMeshTopology(U32 subMesh) const { return m_subMeshes[subMesh].topology; }
 
         bool                            isImmutable() const { return m_bufferUsage == BufferUsage::IMMUTABLE; }
 
@@ -82,9 +89,10 @@ namespace Graphics {
 
         struct SubMesh
         {
-            U32                 baseVertex = 0;
+            U32                 baseVertex  = 0;
+            IndexFormat         indexFormat = IndexFormat::U16;
+            MeshTopology        topology    = MeshTopology::Triangles;
             ArrayList<U32>      indices;
-            IndexFormat         indexFormat   = IndexFormat::U16;
         };
         ArrayList<SubMesh>      m_subMeshes;
 
@@ -101,11 +109,12 @@ namespace Graphics {
         // @Return:
         // The newly created submesh struct.
         //----------------------------------------------------------------------
-        SubMesh& AddSubMesh( const ArrayList<U32>& indices, U32 baseVertex )
+        SubMesh& AddSubMesh( const ArrayList<U32>& indices, MeshTopology topology, U32 baseVertex )
         {
             SubMesh sm;
             sm.indices      = indices;
             sm.baseVertex   = baseVertex;
+            sm.topology     = topology;
 
             if ( indices.size() > 65535 )
                 sm.indexFormat = IndexFormat::U32;

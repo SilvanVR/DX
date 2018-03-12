@@ -28,7 +28,8 @@ namespace Graphics { namespace D3D11 {
         void clear() override;
         void bind(U32 subMesh = 0) override;
         void setVertices(const ArrayList<Math::Vec3>& vertices) override;
-        void setIndices(const ArrayList<U32>& indices, U32 subMesh = 0, U32 baseVertex = 0) override;
+        void setIndices(const ArrayList<U32>& indices, U32 subMesh = 0, 
+                        MeshTopology topology = MeshTopology::Triangles, U32 baseVertex = 0) override;
         void setColors(const ArrayList<Color>& colors) override;
 
     private:

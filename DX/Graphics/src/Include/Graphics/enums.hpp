@@ -30,7 +30,7 @@ namespace Graphics {
     // Topology for a submesh
     enum class MeshTopology
     {
-        TrianglesMesh,
+        Triangles,
         Quads,
         Lines,
         LineStrip,

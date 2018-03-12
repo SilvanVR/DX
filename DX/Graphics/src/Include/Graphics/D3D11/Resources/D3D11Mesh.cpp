@@ -30,6 +30,17 @@ namespace Graphics { namespace D3D11 {
         //ID3D11Buffer* pBuffers[] = { m_pVertexBuffer->getBuffer(), m_pColorBuffer->getBuffer() };
         //g_pImmediateContext->IASetVertexBuffers(0, 2, pBuffers, strides, offsets);
 
+        D3D_PRIMITIVE_TOPOLOGY dxTopology;
+        switch (m_subMeshes[subMeshIndex].topology)
+        {
+        case MeshTopology::Lines: dxTopology = D3D11_PRIMITIVE_TOPOLOGY_LINELIST; break;
+        case MeshTopology::LineStrip: dxTopology = D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP; break;
+        case MeshTopology::Points: dxTopology = D3D11_PRIMITIVE_TOPOLOGY_POINTLIST; break;
+        case MeshTopology::Quads: ASSERT(false && "checkThis"); dxTopology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP; break;
+        case MeshTopology::Triangles: dxTopology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST; break;
+        }
+        g_pImmediateContext->IASetPrimitiveTopology( dxTopology );
+
         DXGI_FORMAT dxIndexFormat;
         switch ( m_subMeshes[subMeshIndex].indexFormat )
         {
@@ -63,11 +74,12 @@ namespace Graphics { namespace D3D11 {
     //----------------------------------------------------------------------
     void Mesh::setVertices( const ArrayList<Math::Vec3>& vertices )
     {
+#if _DEBUG
         if (m_pVertexBuffer != nullptr)
             ASSERT( (m_vertices.size() == vertices.size() &&
                     "IMesh::setVertices(): The amount of vertices given must be the number of vertices already present! "
                     "Otherwise call clear() before, so the gpu buffer will be recreated.") );
-
+#endif
         m_vertices = vertices;
         if (m_pVertexBuffer == nullptr)
         {
@@ -83,7 +95,7 @@ namespace Graphics { namespace D3D11 {
     }
 
     //----------------------------------------------------------------------
-    void Mesh::setIndices( const ArrayList<U32>& indices, U32 subMeshIndex, U32 baseVertex )
+    void Mesh::setIndices( const ArrayList<U32>& indices, U32 subMeshIndex, MeshTopology topology, U32 baseVertex )
     {
 #if _DEBUG
         if ( !m_subMeshes.empty() )
@@ -102,10 +114,9 @@ namespace Graphics { namespace D3D11 {
             }
         }
 #endif
-
         if ( not hasSubMesh( subMeshIndex ) )
         {
-            auto& sm = AddSubMesh( indices, baseVertex );
+            auto& sm = AddSubMesh( indices, topology, baseVertex );
 
             switch ( sm.indexFormat )
             {
@@ -214,7 +225,7 @@ namespace Graphics { namespace D3D11 {
         auto subMeshes = m_subMeshes;
         m_subMeshes.clear();
         for (U32 i = 0; i < subMeshes.size(); i++)
-            setIndices( subMeshes[i].indices, i, subMeshes[i].baseVertex );
+            setIndices( subMeshes[i].indices, i, subMeshes[i].topology, subMeshes[i].baseVertex );
     }
 
 
