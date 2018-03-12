@@ -15,6 +15,7 @@
 namespace Graphics {
 
     class CommandBuffer;
+    class IMaterial;
     class IMesh;
 
     //**********************************************************************
@@ -41,7 +42,8 @@ namespace Graphics {
         virtual void setMultiSampleCount(U32 numSamples) = 0;
 
         //----------------------------------------------------------------------
-        virtual IMesh* createMesh() = 0;
+        virtual IMesh*      createMesh() = 0;
+        virtual IMaterial*  createMaterial() = 0;
 
     protected:
         OS::Window* m_window = nullptr;

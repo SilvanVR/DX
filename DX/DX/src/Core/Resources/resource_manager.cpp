@@ -24,6 +24,9 @@ namespace Core { namespace Resources {
         for (auto& mesh : m_meshes)
             SAFE_DELETE( mesh );
         m_meshes.clear();
+        for (auto& material : m_materials)
+            SAFE_DELETE( material );
+        m_materials.clear();
     }
 
     //----------------------------------------------------------------------
@@ -52,5 +55,18 @@ namespace Core { namespace Resources {
         mesh->setIndices( indices );
         return mesh;
     }
+
+    //----------------------------------------------------------------------
+    Graphics::Material* ResourceManager::createMaterial()
+    {
+        auto mat = Locator::getRenderer().createMaterial();
+        m_materials.push_back( mat );
+
+        // @TODO: Set default shader
+        // mat->setShader();
+
+        return mat;
+    }
+
 
 } } // end namespaces

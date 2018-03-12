@@ -183,7 +183,7 @@ public:
     }
 };
 
-class WaveGeneration : public Components::IComponent
+class VertexGeneration : public Components::IComponent
 {
     Graphics::Mesh*             mesh;
     Components::MeshRenderer*   mr;
@@ -237,7 +237,6 @@ private:
     }
 };
 
-
 class MyScene : public IScene
 {
     GameObject* goModel;
@@ -257,7 +256,7 @@ public:
         worldGO->addComponent<WorldGeneration>();
 
         //auto wavesGO = createGameObject("Waves");
-        //wavesGO->addComponent<WaveGeneration>();
+        //wavesGO->addComponent<VertexGeneration>();
 
         auto cube = Assets::MeshGenerator::CreateCube(1.0f);
         cube->setColors(cubeColors);
@@ -324,6 +323,43 @@ public:
 };
 
 
+class MaterialTestScene : public IScene
+{
+    GameObject* goModel;
+
+public:
+    MaterialTestScene() : IScene("MaterialTestScene") {}
+
+    void init() override
+    {
+        auto go = createGameObject("Camera");
+        auto cam = go->addComponent<Components::Camera>();
+        go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -10);
+        go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 10.0f, 0.3f);
+
+        // MESH
+        auto cube = Assets::MeshGenerator::CreateCube(1.0f);
+        cube->setColors(cubeColors);
+
+        // MATERIAL
+        auto material = RESOURCES.createMaterial();
+
+        // GAMEOBJECT
+        goModel = createGameObject("Test");
+        goModel->addComponent<ConstantRotation>(0.0f, 20.0f, 20.0f);
+        auto mr = goModel->addComponent<Components::MeshRenderer>(cube, material);
+
+
+        LOG("MaterialTestScene initialized!", Color::RED);
+    }
+
+    void shutdown() override
+    {
+        LOG("MaterialTestScene Shutdown!", Color::RED);
+    }
+
+};
+
 class Game : public IGame
 {
     const F64 duration = 1000;
@@ -348,7 +384,7 @@ public:
             //LOG("Num Scenes: " + TS(Locator::getSceneManager().numScenes()));
         }, 1000);
 
-        Locator::getSceneManager().LoadSceneAsync(new MyScene);
+        Locator::getSceneManager().LoadSceneAsync(new MaterialTestScene);
     }
 
     //----------------------------------------------------------------------
@@ -385,6 +421,8 @@ public:
             Locator::getSceneManager().LoadSceneAsync(new MyScene);
         if (KEYBOARD.wasKeyPressed(Key::Two))
             Locator::getSceneManager().LoadSceneAsync(new MyScene2);
+        if (KEYBOARD.wasKeyPressed(Key::Three))
+            Locator::getSceneManager().LoadSceneAsync(new MaterialTestScene);
 
         if (KEYBOARD.wasKeyPressed(Key::M))
             _ChangeMultiSampling();

@@ -16,6 +16,7 @@
 
 #include "SubSystem/i_subsystem.hpp"
 #include "Graphics/i_mesh.hpp"
+#include "Graphics/i_material.hpp"
 
 namespace Core { namespace Resources {
 
@@ -33,6 +34,11 @@ namespace Core { namespace Resources {
         Graphics::Mesh* createMesh(const ArrayList<Math::Vec3>& vertices, const ArrayList<U32>& indices);
 
         //----------------------------------------------------------------------
+        // Creates a new material for use by the graphics engine.
+        //----------------------------------------------------------------------
+        Graphics::Material* createMaterial();
+
+        //----------------------------------------------------------------------
         void UnloadUnusedResources();
 
         //----------------------------------------------------------------------
@@ -43,7 +49,8 @@ namespace Core { namespace Resources {
         void shutdown() override;
 
     private:
-        ArrayList<Graphics::Mesh*> m_meshes;
+        ArrayList<Graphics::Mesh*>      m_meshes;
+        ArrayList<Graphics::Material*>  m_materials;
 
         //----------------------------------------------------------------------
         ResourceManager(const ResourceManager& other)               = delete;

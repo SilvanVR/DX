@@ -22,9 +22,9 @@ namespace Graphics {
     }
 
     //----------------------------------------------------------------------
-    void CommandBuffer::drawMesh( const DirectX::XMMATRIX& model, Graphics::Mesh* mesh, I32 subMeshIndex )
+    void CommandBuffer::drawMesh( Mesh* mesh, Material* material, const DirectX::XMMATRIX& modelMatrix, I32 subMeshIndex )
     {
-        m_gpuCommands.push_back( std::make_unique<GPUC_DrawMesh>( model, mesh, subMeshIndex ) );
+        m_gpuCommands.push_back( std::make_unique<GPUC_DrawMesh>( mesh, material, modelMatrix, subMeshIndex ) );
     }
 
     //----------------------------------------------------------------------

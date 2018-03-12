@@ -12,6 +12,7 @@
 #include "../command_buffer.h"
 #include "../render_texture.h"
 #include "Resources/D3D11Mesh.h"
+#include "Resources/D3D11Material.h"
 
 using namespace DirectX;
 
@@ -205,6 +206,12 @@ namespace Graphics {
     Mesh* D3D11Renderer::createMesh()
     {
         return new D3D11::D3D11Mesh();
+    }
+
+    //----------------------------------------------------------------------
+    IMaterial* D3D11Renderer::createMaterial()
+    {
+        return new D3D11::D3D11Material();
     }
 
     //**********************************************************************

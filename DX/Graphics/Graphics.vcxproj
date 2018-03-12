@@ -150,6 +150,7 @@
     <ClCompile Include="src\Include\Graphics\D3D11\Pipeline\Buffers\D3D11IBuffer.cpp" />
     <ClCompile Include="src\Include\Graphics\D3D11\Pipeline\D3D11Pass.cpp" />
     <ClCompile Include="src\Include\Graphics\D3D11\Pipeline\Shaders\D3D11Shader.cpp" />
+    <ClCompile Include="src\Include\Graphics\D3D11\Resources\D3D11Material.cpp" />
     <ClCompile Include="src\Include\Graphics\D3D11\Resources\D3D11Mesh.cpp" />
     <ClCompile Include="src\Include\Graphics\i_renderer.cpp" />
     <ClCompile Include="src\stdafx.cpp">
@@ -165,8 +166,10 @@
     <ClInclude Include="src\Include\Graphics\D3D11\D3D11Globals.h" />
     <ClInclude Include="src\Include\Graphics\D3D11\D3D11Renderer.h" />
     <ClInclude Include="src\Include\Graphics\D3D11\D3D11Swapchain.h" />
+    <ClInclude Include="src\Include\Graphics\D3D11\Resources\D3D11Material.h" />
     <ClInclude Include="src\Include\Graphics\D3D11\Resources\D3D11Mesh.h" />
     <ClInclude Include="src\Include\Graphics\enums.hpp" />
+    <ClInclude Include="src\Include\Graphics\i_material.hpp" />
     <ClInclude Include="src\Include\Graphics\i_mesh.hpp" />
     <ClInclude Include="src\Include\Graphics\D3D11\Pipeline\Buffers\D3D11Buffers.h" />
     <ClInclude Include="src\Include\Graphics\D3D11\Pipeline\Buffers\D3D11IBuffer.h" />

@@ -36,7 +36,8 @@ namespace Graphics {
         void setVSync(bool enabled) override { m_vsync = enabled; }
         void setMultiSampleCount(U32 numSamples) override;
 
-        IMesh* createMesh() override;
+        IMesh*      createMesh() override;
+        IMaterial*  createMaterial() override;
 
     private:
         D3D11::Swapchain*   m_pSwapchain    = nullptr;

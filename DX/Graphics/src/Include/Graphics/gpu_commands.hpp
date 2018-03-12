@@ -11,6 +11,7 @@
 
 #include "structs.hpp"
 #include "i_mesh.hpp"
+#include "i_material.hpp"
 
 namespace Graphics {
 
@@ -45,11 +46,13 @@ namespace Graphics {
     //**********************************************************************
     struct GPUC_DrawMesh : public GPUCommandBase
     {
-        GPUC_DrawMesh( const DirectX::XMMATRIX& modelMatrix, Mesh* mesh, I32 subMeshIndex )
-            : GPUCommandBase( GPUCommand::DRAW_MESH ), modelMatrix( modelMatrix ), mesh( mesh ), subMeshIndex( subMeshIndex ) {}
+        GPUC_DrawMesh( Mesh* mesh, Material* material, const DirectX::XMMATRIX& modelMatrix, I32 subMeshIndex )
+            : GPUCommandBase( GPUCommand::DRAW_MESH ),
+            material( material ), mesh( mesh ), modelMatrix( modelMatrix ), subMeshIndex( subMeshIndex ) {}
 
         DirectX::XMMATRIX   modelMatrix;
         Mesh*               mesh;
+        Material*           material;
         I32                 subMeshIndex;
     };
 
