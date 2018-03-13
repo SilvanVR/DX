@@ -9,6 +9,8 @@
     @TODO
 **********************************************************************/
 
+#include "OS/FileSystem/path.h"
+
 namespace Graphics {
 
     class IMesh;
@@ -22,25 +24,31 @@ namespace Graphics {
 
         //----------------------------------------------------------------------
         // @Params:
-        // "vertPath": Path to the vertex shader file.
-        // "fragPath": Path to the fragment shader file.
+        //  "vertPath": Path to the vertex shader file.
+        //  "fragPath": Path to the fragment shader file.
         //----------------------------------------------------------------------
-        virtual void setShaderPaths( CString vertPath, CString fragPath ) = 0;
+        virtual void setShaderPaths( const OS::Path& vertPath, const OS::Path& fragPath ) = 0;
 
         //----------------------------------------------------------------------
         // Try to compile this shader.
         // @Params:
         // "entryPoint": Entry point of the shader.
         // @Return:
-        // True, if compilation was successful, otherwise false and prints a message.
+        //  True, if compilation was successful, otherwise false and prints what went wrong.
         //----------------------------------------------------------------------
         virtual bool compile( CString entryPoint ) = 0;
 
         //----------------------------------------------------------------------
         // @Return:
-        // True, if all shader files are up-to-date (weren't modified).
+        //  True, if all shader files are up-to-date (weren't modified).
         //----------------------------------------------------------------------
         virtual bool isUpToDate() = 0;
+
+        //----------------------------------------------------------------------
+        // @Return:
+        //  All shaderpaths used by this shader class.
+        //----------------------------------------------------------------------
+        virtual ArrayList<OS::Path> getShaderPaths() const = 0;
 
         //----------------------------------------------------------------------
         // @TODO make somehow private

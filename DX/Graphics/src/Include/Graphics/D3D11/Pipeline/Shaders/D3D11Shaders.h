@@ -7,7 +7,7 @@
 **********************************************************************/
 
 #include "../../D3D11.hpp"
-#include "OS/system_time.hpp"
+#include "OS/FileSystem/path.h"
 
 namespace Graphics { namespace D3D11 {
 
@@ -15,11 +15,11 @@ namespace Graphics { namespace D3D11 {
     class ShaderBase
     {
     public:
-        ShaderBase(CString path);
+        ShaderBase( const OS::Path& path );
         virtual ~ShaderBase() = 0;
 
         //----------------------------------------------------------------------
-        const String&   getFilePath() const { return m_filePath; }
+        const OS::Path& getFilePath() const { return m_filePath; }
         ID3DBlob*       getShaderBlob() { return m_ShaderBaseBlob; }
 
         virtual void bind() = 0;
@@ -29,7 +29,7 @@ namespace Graphics { namespace D3D11 {
 
     protected:
         ID3DBlob*       m_ShaderBaseBlob = nullptr;
-        String          m_filePath;
+        OS::Path        m_filePath;
         OS::SystemTime  m_fileTimeAtCompilation;
 
         //----------------------------------------------------------------------

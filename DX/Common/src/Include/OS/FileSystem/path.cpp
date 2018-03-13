@@ -36,5 +36,12 @@ namespace OS {
         return m_path.substr( 0, m_path.find_last_of( "/\\" ) ) + "/";
     }
 
+    //----------------------------------------------------------------------
+    OS::SystemTime Path::getLastWrittenFileTime() const
+    {
+        ASSERT( exists() );
+        return FileSystem::getLastWrittenFileTime( m_path.c_str() );
+    }
+
 } // end namespaces
 

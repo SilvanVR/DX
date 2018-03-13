@@ -11,13 +11,12 @@
 **********************************************************************/
 
 #include <d3dcompiler.h>
-#include "OS/FileSystem/file_system.h"
 
 namespace Graphics { namespace D3D11 {
 
 
     //----------------------------------------------------------------------
-    ShaderBase::ShaderBase( CString path )
+    ShaderBase::ShaderBase( const OS::Path& path )
         : m_filePath( path )
     {
     }
@@ -37,21 +36,23 @@ namespace Graphics { namespace D3D11 {
     #endif
 
         ID3DBlob* errorBlob = nullptr;
-        HRESULT hr = D3DCompileFromFile( ConvertToWString( m_filePath ).c_str(), NULL, D3D_COMPILE_STANDARD_FILE_INCLUDE,
+        HRESULT hr = D3DCompileFromFile( ConvertToWString( m_filePath.toString() ).c_str(), NULL, D3D_COMPILE_STANDARD_FILE_INCLUDE,
                                          entryPoint, profile, flags, 0, &m_ShaderBaseBlob, &errorBlob );
+
+        m_fileTimeAtCompilation = m_filePath.getLastWrittenFileTime();
 
         if ( FAILED( hr ) )
         {
 
             if (errorBlob)
             {
-                WARN_RENDERING( "Failed to compile Shader '" + m_filePath + "'." );
+                WARN_RENDERING( "Failed to compile Shader '" + m_filePath.toString() + "'." );
                 WARN_RENDERING( (const char*)errorBlob->GetBufferPointer() );
                 SAFE_RELEASE( errorBlob );
             }
             else
             {
-                WARN_RENDERING( "Missing shader-file: '" + m_filePath + "'.");
+                WARN_RENDERING( "Missing shader-file: '" + m_filePath.toString() + "'.");
             }
 
             SAFE_RELEASE( m_ShaderBaseBlob );
@@ -59,15 +60,13 @@ namespace Graphics { namespace D3D11 {
             return false;
         }
 
-        m_fileTimeAtCompilation = OS::FileSystem::getLastWrittenFileTime( m_filePath.c_str() );
-
         return true;
     }
 
     //----------------------------------------------------------------------
     bool ShaderBase::isUpToDate()
     {
-        return m_fileTimeAtCompilation == OS::FileSystem::getLastWrittenFileTime( m_filePath.c_str() );
+        return m_fileTimeAtCompilation == m_filePath.getLastWrittenFileTime();
     }
 
     //**********************************************************************

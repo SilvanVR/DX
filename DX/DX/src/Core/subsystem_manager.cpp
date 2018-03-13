@@ -146,13 +146,13 @@ namespace Core
     //----------------------------------------------------------------------
     void SubSystemManager::_InitVirtualFilePaths()
     {
-        OS::VirtualFileSystem::mount( "config",   "res" );
-        OS::VirtualFileSystem::mount( "logs",     "res/logs" );
-        OS::VirtualFileSystem::mount( "textures", "res/textures" );
-        OS::VirtualFileSystem::mount( "shaders",  "res/shaders" );
-        OS::VirtualFileSystem::mount( "models",   "res/models" );
-        OS::VirtualFileSystem::mount( "internal", "res/internal" );
-        OS::VirtualFileSystem::mount( "cursors",  "res/internal/cursors" );
+        OS::VirtualFileSystem::mount( "config",   "../DX/res" );
+        OS::VirtualFileSystem::mount( "logs",     "../DX/res/logs" );
+        OS::VirtualFileSystem::mount( "textures", "../DX/res/textures" );
+        OS::VirtualFileSystem::mount( "shaders",  "../DX/res/shaders" );
+        OS::VirtualFileSystem::mount( "models",   "../DX/res/models" );
+        OS::VirtualFileSystem::mount( "internal", "../DX/res/internal" );
+        OS::VirtualFileSystem::mount( "cursors",  "../DX/res/internal/cursors" );
     }
 
     //----------------------------------------------------------------------

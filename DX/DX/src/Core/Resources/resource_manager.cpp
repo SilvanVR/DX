@@ -11,20 +11,27 @@
 #include "locator.h"
 
 namespace Core { namespace Resources {
-    
+
     //----------------------------------------------------------------------
     void ResourceManager::init()
     {
         Locator::getCoreEngine().subscribe( this );
 
-        m_defaultShader   = createShader( "../DX/res/shaders/basicVS.hlsl", "../DX/res/shaders/basicPS.hlsl" );
+        m_defaultShader   = createShader( "/shaders/basicVS.hlsl", "/shaders/basicPS.hlsl" );
         m_defaultMaterial = createMaterial();
 
         Locator::getEngineClock().setInterval([this]{
             for (auto& shader : m_shaders)
             {
                 if ( not shader->isUpToDate() )
-                    shader->compile( "main" );
+                {
+                    if ( shader->compile("main") )
+                    {
+                        LOG( "ResourceManager: Successfully recompiled shader:", Color::YELLOW );
+                        for ( auto& shaderPath : shader->getShaderPaths() )
+                            LOG( shaderPath.toString(), Color::YELLOW );
+                    }
+                }
             }
         }, 500);
     }

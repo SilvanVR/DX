@@ -366,7 +366,7 @@ public:
         line->setIndices( {0,1, 1,2, 2,3, 3,0}, 0, Graphics::MeshTopology::Lines);
 
         // SHADER
-        auto shader = RESOURCES.createShader( "../DX/res/shaders/testVS.hlsl", "../DX/res/shaders/testPS.hlsl" );
+        auto shader = RESOURCES.createShader( "/shaders/testVS.hlsl", "/shaders/testPS.hlsl" );
 
         // MATERIAL
         auto material = RESOURCES.createMaterial();

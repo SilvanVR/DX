@@ -49,7 +49,7 @@ namespace Graphics { namespace D3D11 {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    void Shader::setShaderPaths( CString vertPath, CString fragPath )
+    void Shader::setShaderPaths( const OS::Path& vertPath, const OS::Path& fragPath )
     {
         pVertexShader = new D3D11::VertexShader( vertPath );
         pPixelShader  = new D3D11::PixelShader( fragPath );
@@ -80,6 +80,14 @@ namespace Graphics { namespace D3D11 {
                 return false;
 
         return true;
+    }
+
+    ArrayList<OS::Path> Shader::getShaderPaths() const
+    {
+        ArrayList<OS::Path> shaderPaths;
+        if (pVertexShader) shaderPaths.emplace_back( pVertexShader->getFilePath() );
+        if (pPixelShader)  shaderPaths.emplace_back( pPixelShader->getFilePath() );
+        return shaderPaths;
     }
 
     //**********************************************************************

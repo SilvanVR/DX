@@ -6,6 +6,8 @@
     date: November 4, 2017
 **********************************************************************/
 
+#include "../system_time.hpp"
+
 namespace OS {
 
     //**********************************************************************
@@ -49,6 +51,12 @@ namespace OS {
         //  Example: "dir/test.png" => "dir/"
         //----------------------------------------------------------------------
         String getDirectoryPath() const;
+
+        //----------------------------------------------------------------------
+        // @Return:
+        //  The system-time when the file was last modified.
+        //----------------------------------------------------------------------
+        OS::SystemTime getLastWrittenFileTime() const;
 
     private:
         String m_path;
