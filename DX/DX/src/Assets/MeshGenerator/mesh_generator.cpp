@@ -201,4 +201,56 @@ namespace Assets {
         return mesh;
     }
 
+    //----------------------------------------------------------------------
+    Graphics::Mesh* MeshGenerator::CreateGrid( U32 size )
+    {
+        ArrayList<Math::Vec3>   vertices;
+        ArrayList<U32>          indices;
+        ArrayList<Color>        colors;
+
+        // Generate grid on XZ plane
+        F32 half = size / 2.0f;
+        for (U32 i = 0; i <= size; i++)
+        {
+            // Horizontal Line
+            vertices.emplace_back( i - half, 0.0f,  half );
+            vertices.emplace_back( i - half, 0.0f, -half );
+
+            indices.emplace_back( i * 4 );
+            indices.emplace_back( i * 4 + 1 );
+
+            // Vertical Line
+            vertices.emplace_back( half,  0.0f, i - half );
+            vertices.emplace_back(-half,  0.0f, i - half );
+
+            indices.emplace_back( i * 4 + 2 );
+            indices.emplace_back( i * 4 + 3 );
+  
+            if ( (i - half) == 0 ) // Center lines
+            {
+                colors.insert( colors.end(), 2, Color::RED );
+                colors.insert( colors.end(), 2, Color::BLUE );
+            }
+            else
+            {
+                colors.insert( colors.end(), 4, Color::GREY );
+            }
+        }
+
+        // Generate Y-Line
+        vertices.emplace_back( 0.0f, -half, 0.0f );
+        vertices.emplace_back( 0.0f,  half, 0.0f );
+        indices.emplace_back( static_cast<U32>( vertices.size() ) - 2);
+        indices.emplace_back( static_cast<U32>( vertices.size() ) - 1);
+        colors.push_back( Color::GREEN );
+        colors.push_back( Color::GREEN );
+
+        auto mesh = RESOURCES.createMesh();
+        mesh->setVertices( vertices );
+        mesh->setIndices( indices, 0, Graphics::MeshTopology::Lines );
+        mesh->setColors( colors );
+
+        return mesh;
+    }
+
 }  // end namespaces

@@ -51,6 +51,13 @@ namespace Assets {
         static Graphics::Mesh* CreateUVSphere(U32 meridians, U32 parallels);
         static Graphics::Mesh* CreateUVSphere(U32 meridians, U32 parallels, Color color);
 
+        //----------------------------------------------------------------------
+        // Generates a new grid mesh in the XZ plane.
+        // @Params:
+        // "size": The size of the grid. Generates size + size lines.
+        //----------------------------------------------------------------------
+        static Graphics::Mesh* CreateGrid(U32 size);
+
     private:
         //----------------------------------------------------------------------
         MeshGenerator()                                         = delete;

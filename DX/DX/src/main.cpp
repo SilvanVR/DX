@@ -174,6 +174,22 @@ private:
     }
 };
 
+class GridGeneration : public Components::IComponent
+{
+    U32 m_size;
+
+public:
+    GridGeneration(U32 size) : m_size(size) {}
+
+    void AddedToGameObject(GameObject* go) override
+    {
+        auto mesh = Assets::MeshGenerator::CreateGrid(m_size);
+        go->addComponent<Components::MeshRenderer>(mesh);
+    }
+
+private:
+};
+
 class MyScene2 : public IScene
 {
     GameObject* go;
@@ -336,6 +352,9 @@ public:
         auto cam = go->addComponent<Components::Camera>();
         go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -10);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 10.0f, 0.3f);
+
+        auto grid = createGameObject("Grid");
+        grid->addComponent<GridGeneration>(20);
 
         // MESH
         auto cube = Assets::MeshGenerator::CreateCube(1.0f);
