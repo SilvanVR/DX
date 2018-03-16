@@ -228,8 +228,8 @@ namespace Assets {
   
             if ( (i - half) == 0 ) // Center lines
             {
-                colors.insert( colors.end(), 2, Color::RED );
                 colors.insert( colors.end(), 2, Color::BLUE );
+                colors.insert( colors.end(), 2, Color::RED );
             }
             else
             {

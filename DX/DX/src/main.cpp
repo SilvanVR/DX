@@ -375,7 +375,7 @@ public:
 
         // SHADER
         auto shader = RESOURCES.createShader( "/shaders/testVS.hlsl", "/shaders/testPS.hlsl" );
-        //shader->setRasterizationState({Graphics::FillMode::WIREFRAME});
+        shader->setRasterizationState({Graphics::FillMode::WIREFRAME});
         shader->setDepthStencilState({false});
 
         Graphics::BlendState blendState;
