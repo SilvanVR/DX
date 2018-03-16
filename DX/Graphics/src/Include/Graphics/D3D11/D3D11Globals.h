@@ -9,6 +9,7 @@
 **********************************************************************/
 
 #include "D3D11.hpp"
+#include "../enums.hpp"
 
 ID3D11Device*           g_pDevice           = nullptr;
 ID3D11DeviceContext*    g_pImmediateContext = nullptr;

@@ -32,7 +32,8 @@ namespace Graphics { namespace D3D11 {
         ArrayList<OS::Path> getShaderPaths() const override;
 
         void setRasterizationState(const RasterizationState& rzState) override;
-
+        void setDepthStencilState(const DepthStencilState& dsState) override;
+        void setBlendState(const BlendState& bState) override;
 
     private:
         VertexShader*       m_pVertexShader   = nullptr;
@@ -40,6 +41,7 @@ namespace Graphics { namespace D3D11 {
 
         ID3D11DepthStencilState*    m_pDepthStencilState;
         ID3D11RasterizerState*      m_pRSState;
+        ID3D11BlendState*           m_pBlendState;
 
         //----------------------------------------------------------------------
         // IShader Interface

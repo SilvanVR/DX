@@ -30,6 +30,7 @@ namespace Graphics {
         // @Params:
         //  "vertPath": Path to the vertex shader file.
         //  "fragPath": Path to the fragment shader file.
+        // This sets only the paths. To compile and use this shader you must call compile().
         //----------------------------------------------------------------------
         virtual void setShaderPaths( const OS::Path& vertPath, const OS::Path& fragPath ) = 0;
 
@@ -61,9 +62,11 @@ namespace Graphics {
         virtual ArrayList<OS::Path> getShaderPaths() const = 0;
 
         //----------------------------------------------------------------------
-        // Change the rasterization state from this shader.
+        // Change pipeline states for rendering this shader
         //----------------------------------------------------------------------
         virtual void setRasterizationState(const RasterizationState& rzState ) = 0;
+        virtual void setDepthStencilState(const DepthStencilState& dsState ) = 0;
+        virtual void setBlendState(const BlendState& bState ) = 0;
 
     private:
         //----------------------------------------------------------------------

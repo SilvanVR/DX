@@ -8,6 +8,7 @@
 
 #include "../Pipeline/Shaders/D3D11Shaders.h"
 #include "../Resources/D3D11Mesh.h"
+#include "../D3D11Utility.hpp"
 
 namespace Graphics { namespace D3D11 {
 
@@ -27,6 +28,7 @@ namespace Graphics { namespace D3D11 {
 
         SAFE_RELEASE( m_pDepthStencilState );
         SAFE_RELEASE( m_pRSState );
+        SAFE_RELEASE( m_pBlendState );
     }
 
     //----------------------------------------------------------------------
@@ -36,7 +38,14 @@ namespace Graphics { namespace D3D11 {
         m_pPixelShader->bind();
 
         g_pImmediateContext->OMSetDepthStencilState( m_pDepthStencilState, 0 );
-        g_pImmediateContext->RSSetState(m_pRSState );
+        g_pImmediateContext->RSSetState( m_pRSState );
+
+        if (m_pBlendState)
+        {
+            float blends[4] = {1.0f, 1.0f, 1.0f, 1.0f};
+            g_pImmediateContext->OMSetBlendState( m_pBlendState, blends, 0xffffffff);
+            //        g_pImmediateContext->OMSetBlendState( m_pBlendState ? m_pBlendState : NULL, blends, 0xffffffff );
+        }
     }
 
     //----------------------------------------------------------------------
@@ -127,17 +136,7 @@ namespace Graphics { namespace D3D11 {
     //----------------------------------------------------------------------
     void Shader::_CreatePipeline()
     {
-        {
-            D3D11_DEPTH_STENCIL_DESC depthStencilStateDesc = {};
-
-            depthStencilStateDesc.DepthEnable = TRUE;
-            depthStencilStateDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-            depthStencilStateDesc.DepthFunc = D3D11_COMPARISON_LESS;
-            depthStencilStateDesc.StencilEnable = FALSE;
-
-            HR( g_pDevice->CreateDepthStencilState( &depthStencilStateDesc, &m_pDepthStencilState) );
-        }
-
+        setDepthStencilState({});
         setRasterizationState({});
     }
 
@@ -147,22 +146,57 @@ namespace Graphics { namespace D3D11 {
         SAFE_RELEASE( m_pRSState );
 
         D3D11_RASTERIZER_DESC rsDesc = {};
-        switch (rzState.FillMode)
+        switch (rzState.fillMode)
         {
         case FillMode::SOLID:       rsDesc.FillMode = D3D11_FILL_SOLID;     break;
         case FillMode::WIREFRAME:   rsDesc.FillMode = D3D11_FILL_WIREFRAME; break;
         }
-        switch (rzState.CullMode)
+        switch (rzState.cullMode)
         {
         case CullMode::BACK:        rsDesc.CullMode = D3D11_CULL_BACK;      break;
         case CullMode::FRONT:       rsDesc.CullMode = D3D11_CULL_FRONT;     break;
-        case CullMode::NONE:        rsDesc.CullMode = D3D11_CULL_NONE;  break;
+        case CullMode::NONE:        rsDesc.CullMode = D3D11_CULL_NONE;      break;
         }
 
-        rsDesc.FrontCounterClockwise = rzState.FrontCounterClockwise;
+        rsDesc.FrontCounterClockwise = rzState.frontCounterClockwise;
         rsDesc.DepthClipEnable   = true;
         rsDesc.MultisampleEnable = true;
         HR( g_pDevice->CreateRasterizerState( &rsDesc, &m_pRSState ) );
+    }
+
+    //----------------------------------------------------------------------
+    void Shader::setDepthStencilState( const DepthStencilState& dsState )
+    {
+        D3D11_DEPTH_STENCIL_DESC depthStencilStateDesc = {};
+
+        depthStencilStateDesc.DepthEnable       = dsState.depthEnable;
+        depthStencilStateDesc.DepthWriteMask    = D3D11_DEPTH_WRITE_MASK_ALL;
+        depthStencilStateDesc.DepthFunc         = Utility::TranslateComparisonFunc( dsState.depthFunc );
+
+        HR( g_pDevice->CreateDepthStencilState( &depthStencilStateDesc, &m_pDepthStencilState) );
+    }
+
+    //----------------------------------------------------------------------
+    void Shader::setBlendState( const BlendState& bState )
+    {
+        D3D11_BLEND_DESC blendDesc = {};
+        blendDesc.AlphaToCoverageEnable  = bState.alphaToCoverage;
+        blendDesc.IndependentBlendEnable = bState.independentBlending;
+
+        for ( I32 i = 0; i < (bState.independentBlending ? 8 : 1); i++ )
+        {
+            auto& bs = bState.blendStates[i];
+            blendDesc.RenderTarget[i].BlendEnable           = bs.blendEnable;
+            blendDesc.RenderTarget[i].SrcBlend              = Utility::TranslateBlend( bs.srcBlend );
+            blendDesc.RenderTarget[i].DestBlend             = Utility::TranslateBlend( bs.destBlend );
+            blendDesc.RenderTarget[i].BlendOp               = Utility::TranslateBlendOP( bs.blendOp );
+            blendDesc.RenderTarget[i].SrcBlendAlpha         = Utility::TranslateBlend( bs.srcBlendAlpha );
+            blendDesc.RenderTarget[i].DestBlendAlpha        = Utility::TranslateBlend( bs.destBlendAlpha );
+            blendDesc.RenderTarget[i].BlendOpAlpha          = Utility::TranslateBlendOP( bs.blendOpAlpha );
+            blendDesc.RenderTarget[i].RenderTargetWriteMask = bs.writeMask;
+        }
+
+        HR( g_pDevice->CreateBlendState( &blendDesc, &m_pBlendState ) );
     }
 
 } } // End namespaces

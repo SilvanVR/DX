@@ -116,5 +116,8 @@
     <ClInclude Include="src\Include\Graphics\D3D11\Pipeline\Shaders\D3D11Shaders.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Include\Graphics\D3D11\D3D11Utility.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

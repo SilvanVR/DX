@@ -375,7 +375,18 @@ public:
 
         // SHADER
         auto shader = RESOURCES.createShader( "/shaders/testVS.hlsl", "/shaders/testPS.hlsl" );
-        shader->setRasterizationState({Graphics::FillMode::WIREFRAME});
+        //shader->setRasterizationState({Graphics::FillMode::WIREFRAME});
+        shader->setDepthStencilState({false});
+
+        Graphics::BlendState blendState;
+        blendState.blendStates[0].blendEnable = true;
+        blendState.blendStates[0].srcBlend = Graphics::Blend::SRC_ALPHA;
+        blendState.blendStates[0].destBlend = Graphics::Blend::INV_SRC_ALPHA;
+        blendState.blendStates[0].blendOp = Graphics::BlendOP::ADD;
+        blendState.blendStates[0].srcBlendAlpha = Graphics::Blend::ONE;
+        blendState.blendStates[0].destBlendAlpha = Graphics::Blend::ZERO;
+        blendState.blendStates[0].blendOpAlpha = Graphics::BlendOP::ADD;
+        shader->setBlendState(blendState);
 
         // MATERIAL
         auto material = RESOURCES.createMaterial();
