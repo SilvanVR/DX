@@ -36,4 +36,19 @@ namespace Graphics {
         LineStrip,
         Points
     };
+
+    // Rasterization fill mode
+    enum class FillMode
+    {
+        SOLID,
+        WIREFRAME
+    };
+
+    // Rasterization cull mode
+    enum class CullMode
+    {
+        NONE,
+        FRONT,
+        BACK
+    };
 }

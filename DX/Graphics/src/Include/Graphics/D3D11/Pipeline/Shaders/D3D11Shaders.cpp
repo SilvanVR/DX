@@ -30,6 +30,8 @@ namespace Graphics { namespace D3D11 {
     //----------------------------------------------------------------------
     bool ShaderBase::_Compile( CString entryPoint, CString profile )
     {
+        m_entryPoint = entryPoint;
+
         UINT flags = D3DCOMPILE_ENABLE_STRICTNESS | D3DCOMPILE_WARNINGS_ARE_ERRORS;
     #ifdef _DEBUG
         flags |= (D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION);

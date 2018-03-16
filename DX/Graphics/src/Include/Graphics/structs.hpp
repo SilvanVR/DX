@@ -9,6 +9,7 @@
     application.
 **********************************************************************/
 
+#include "enums.hpp"
 
 namespace Graphics {
 
@@ -19,6 +20,13 @@ namespace Graphics {
         F32 topLeftY    = 0.0f;
         F32 width       = 1.0f;
         F32 height      = 1.0f;
+    };
+
+    struct RasterizationState
+    {
+        FillMode    FillMode = FillMode::SOLID;
+        CullMode    CullMode = CullMode::BACK;
+        bool        FrontCounterClockwise = false;
     };
 
 

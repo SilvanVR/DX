@@ -25,10 +25,12 @@ namespace Core { namespace Resources {
             {
                 if ( not shader->isUpToDate() )
                 {
-                    if ( shader->compile("main") )
+                    auto shaderPaths = shader->recompile();
+
+                    if ( not shaderPaths.empty() )
                     {
                         LOG( "ResourceManager: Successfully recompiled shader:", Color::YELLOW );
-                        for ( auto& shaderPath : shader->getShaderPaths() )
+                        for ( auto& shaderPath : shaderPaths )
                             LOG( shaderPath.toString(), Color::YELLOW );
                     }
                 }

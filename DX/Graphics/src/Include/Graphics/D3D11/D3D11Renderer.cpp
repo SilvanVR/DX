@@ -6,20 +6,16 @@
     date: November 28, 2017
 **********************************************************************/
 
-#include "Pipeline/Shaders/D3D11Shaders.h"
-#include "Pipeline/Buffers/D3D11Buffers.h"
 #include "../command_buffer.h"
 #include "../render_texture.h"
 #include "Resources/D3D11Mesh.h"
 #include "Resources/D3D11Material.h"
 #include "Resources/D3D11Shader.h"
+#include "Pipeline/Buffers/D3D11Buffers.h"
 
 using namespace DirectX;
 
 namespace Graphics {
-
-    ID3D11DepthStencilState*    pDepthStencilState;
-    ID3D11RasterizerState*      pRSState;
 
     D3D11::ConstantBuffer*  pConstantBufferObject = nullptr;
     D3D11::ConstantBuffer*  pConstantBufferCamera = nullptr;
@@ -38,34 +34,11 @@ namespace Graphics {
             pConstantBufferCamera = new D3D11::ConstantBuffer( sizeof(XMMATRIX), BufferUsage::FREQUENTLY );
             pConstantBufferObject = new D3D11::ConstantBuffer( sizeof(XMMATRIX), BufferUsage::FREQUENTLY );
         }
-
-        {
-            D3D11_DEPTH_STENCIL_DESC depthStencilStateDesc = {};
-
-            depthStencilStateDesc.DepthEnable = TRUE;
-            depthStencilStateDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-            depthStencilStateDesc.DepthFunc = D3D11_COMPARISON_LESS;
-            depthStencilStateDesc.StencilEnable = FALSE;
-
-            HR( g_pDevice->CreateDepthStencilState(&depthStencilStateDesc, &pDepthStencilState) );
-        }
-
-        {
-            D3D11_RASTERIZER_DESC rsDesc = {};
-            rsDesc.FillMode = D3D11_FILL_SOLID;
-            rsDesc.CullMode = D3D11_CULL_NONE;
-            rsDesc.FrontCounterClockwise = false;
-            rsDesc.DepthClipEnable = true;
-            rsDesc.MultisampleEnable = true;
-            HR(g_pDevice->CreateRasterizerState(&rsDesc, &pRSState));
-        }
     }
 
     //----------------------------------------------------------------------
     void D3D11Renderer::shutdown()
     {
-        SAFE_RELEASE(pDepthStencilState);
-        SAFE_RELEASE(pRSState);
         SAFE_DELETE(pConstantBufferCamera);
         SAFE_DELETE(pConstantBufferObject);
         _DeinitD3D11();
@@ -82,9 +55,6 @@ namespace Graphics {
         // Set Pipeline States
         pConstantBufferCamera->bind(0);
         pConstantBufferObject->bind(1);
-
-        g_pImmediateContext->OMSetDepthStencilState(pDepthStencilState, 0);
-        g_pImmediateContext->RSSetState(pRSState);
 
         // Just sort drawcalls quickly by material
         HashMap<Material*, ArrayList<U32>> sortedMaterials;
@@ -126,7 +96,7 @@ namespace Graphics {
                 }
                 case GPUCommand::DRAW_MESH:
                 {
-                    GPUC_DrawMesh& c = *dynamic_cast<GPUC_DrawMesh*>(commands[i].get());
+                    GPUC_DrawMesh& c = *dynamic_cast<GPUC_DrawMesh*>( commands[i].get() );
                     sortedMaterials[c.material].push_back( i );
                     break;
                 }
@@ -134,7 +104,6 @@ namespace Graphics {
                     WARN_RENDERING( "Unknown GPU Command in given command buffer!" );
             }
         }
-
 
         // Now render by material
         for (auto& pair : sortedMaterials)

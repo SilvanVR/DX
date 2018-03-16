@@ -39,6 +39,7 @@ namespace Core {
         for (auto& cam : cameras)
         {
             auto& cmd = cam->getCommandBuffer();
+
             cmd.reset();
 
             // Record where to render, view- & projection, viewport
@@ -51,7 +52,7 @@ namespace Core {
             // Do viewfrustum culling with every renderer component
             for (auto& renderer : renderers)
             {
-                if ( !renderer->isActive() )
+                if ( not renderer->isActive() )
                     continue;
                 //bool isVisible = renderer->Cull(camera);
                 //bool layerMatch = camera->layerMask & renderer->getLayerMask();

@@ -65,6 +65,10 @@ ArrayList<Color> planeColors =
     Color(255, 255, 0)
 };
 
+//----------------------------------------------------------------------
+// COMPONENTS
+//----------------------------------------------------------------------
+
 class ConstantRotation : public Components::IComponent
 {
     Math::Vec3 m_speeds = Math::Vec3(0.0f);
@@ -189,6 +193,10 @@ public:
 
 private:
 };
+
+//----------------------------------------------------------------------
+// SCENES
+//----------------------------------------------------------------------
 
 class MyScene2 : public IScene
 {
@@ -367,6 +375,7 @@ public:
 
         // SHADER
         auto shader = RESOURCES.createShader( "/shaders/testVS.hlsl", "/shaders/testPS.hlsl" );
+        shader->setRasterizationState({Graphics::FillMode::WIREFRAME});
 
         // MATERIAL
         auto material = RESOURCES.createMaterial();
@@ -390,6 +399,46 @@ public:
     }
 
 };
+
+class ManyObjectsScene : public IScene
+{
+    U32 m_numObjects;
+
+public:
+    ManyObjectsScene(U32 numObjects) : IScene("MaterialTestScene"), m_numObjects(numObjects) {}
+
+    void init() override
+    {
+        auto go = createGameObject("Camera");
+        auto cam = go->addComponent<Components::Camera>();
+        go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -10);
+        go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 10.0f, 0.3f);
+        
+        // MESH
+        auto cube = Assets::MeshGenerator::CreateCube(1.0f);
+        cube->setColors(cubeColors);
+
+        U32 sq = (U32)sqrt(m_numObjects);
+
+        // GAMEOBJECTs
+        for (U32 i = 0; i < sq; i++)
+        {
+            for (U32 j = 0; j < sq; j++)
+            {
+                auto go = createGameObject("Test");
+                go->addComponent<Components::MeshRenderer>(cube);
+                go->getComponent<Components::Transform>()->position = Math::Vec3(i * 3.0f, 0, j * 3.0f);
+            }
+        }
+        LOG("ManyObjectsScene initialized!", Color::RED);
+    }
+
+    void shutdown() override { LOG("ManyObjectsScene Shutdown!", Color::RED); }
+};
+
+//----------------------------------------------------------------------
+// GAME
+//----------------------------------------------------------------------
 
 class Game : public IGame
 {
@@ -415,7 +464,7 @@ public:
             //LOG("Num Scenes: " + TS(Locator::getSceneManager().numScenes()));
         }, 1000);
 
-        Locator::getSceneManager().LoadSceneAsync(new MaterialTestScene);
+        Locator::getSceneManager().LoadSceneAsync(new MaterialTestScene());
     }
 
     //----------------------------------------------------------------------

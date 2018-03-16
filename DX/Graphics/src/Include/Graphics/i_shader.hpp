@@ -6,10 +6,12 @@
     date: March 12, 2018
 
     Interface for a Shader class. A shader can be applied to a material.
-    @TODO
+    A shader represents a full pipeline from vertex-shader up to the
+    fragment-shader, with all the state settings required to render it.
 **********************************************************************/
 
 #include "OS/FileSystem/path.h"
+#include "structs.hpp"
 
 namespace Graphics {
 
@@ -18,6 +20,8 @@ namespace Graphics {
     //**********************************************************************
     class IShader
     {
+        friend class D3D11Renderer; // Access to bind() & drawMesh()
+
     public:
         IShader() = default;
         virtual ~IShader() {}
@@ -39,6 +43,12 @@ namespace Graphics {
         virtual bool compile( CString entryPoint ) = 0;
 
         //----------------------------------------------------------------------
+        // Recompile all shaders which are not up to date.
+        // @Return:
+        //  List of shader paths, which were recompiled.
+        virtual ArrayList<OS::Path> recompile() = 0;
+
+        //----------------------------------------------------------------------
         // @Return:
         //  True, if all shader files are up-to-date (weren't modified).
         //----------------------------------------------------------------------
@@ -51,11 +61,15 @@ namespace Graphics {
         virtual ArrayList<OS::Path> getShaderPaths() const = 0;
 
         //----------------------------------------------------------------------
-        // @TODO make somehow private
+        // Change the rasterization state from this shader.
+        //----------------------------------------------------------------------
+        virtual void setRasterizationState(const RasterizationState& rzState ) = 0;
+
+    private:
+        //----------------------------------------------------------------------
         virtual void bind() = 0;
         virtual void drawMesh(IMesh* mesh, U32 subMeshIndex) = 0;
 
-    private:
         //----------------------------------------------------------------------
         IShader(const IShader& other)               = delete;
         IShader& operator = (const IShader& other)  = delete;

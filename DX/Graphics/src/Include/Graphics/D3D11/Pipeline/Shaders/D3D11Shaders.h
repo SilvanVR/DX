@@ -21,6 +21,7 @@ namespace Graphics { namespace D3D11 {
         //----------------------------------------------------------------------
         const OS::Path& getFilePath() const { return m_filePath; }
         ID3DBlob*       getShaderBlob() { return m_ShaderBaseBlob; }
+        CString         getEntryPoint() const { return m_entryPoint.c_str(); }
 
         virtual void bind() = 0;
         virtual bool compile(CString entryPoint) = 0;
@@ -29,6 +30,7 @@ namespace Graphics { namespace D3D11 {
 
     protected:
         ID3DBlob*       m_ShaderBaseBlob = nullptr;
+        String          m_entryPoint = "main";
         OS::Path        m_filePath;
         OS::SystemTime  m_fileTimeAtCompilation;
 
