@@ -68,6 +68,8 @@ namespace Core { namespace Resources {
         ArrayList<Graphics::Material*>  m_materials;
 
         Graphics::Shader*   m_defaultShader;
+        Graphics::Shader*   m_wireframeShader;
+
         Graphics::Material* m_defaultMaterial;
 
         //----------------------------------------------------------------------

@@ -17,9 +17,15 @@ namespace Core { namespace Resources {
     {
         Locator::getCoreEngine().subscribe( this );
 
-        m_defaultShader   = createShader( "/shaders/basicVS.hlsl", "/shaders/basicPS.hlsl" );
+        m_defaultShader   = createShader( "/shaders/colorVS.hlsl", "/shaders/colorPS.hlsl" );
         m_defaultMaterial = createMaterial();
 
+        m_wireframeShader = createShader( "/shaders/colorVS.hlsl", "/shaders/colorPS.hlsl" );
+        m_wireframeShader->setRasterizationState({ Graphics::FillMode::WIREFRAME });
+
+        Locator::getRenderer().addGlobalShader( "Wireframe", m_wireframeShader );
+
+        // HOT-RELOADING CALLBACK
         Locator::getEngineClock().setInterval([this]{
             for (auto& shader : m_shaders)
             {

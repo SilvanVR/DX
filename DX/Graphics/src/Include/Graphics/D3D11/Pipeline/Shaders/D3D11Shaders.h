@@ -1,6 +1,6 @@
 #pragma once
 /**********************************************************************
-    class: ShaderBase + VertexShader etc. (D3D11ShaderBase.h)
+    class: ShaderBase + VertexShader etc. (D3D11Shaders.h)
 
     author: S. Hau
     date: December 3, 2017
@@ -20,7 +20,7 @@ namespace Graphics { namespace D3D11 {
 
         //----------------------------------------------------------------------
         const OS::Path& getFilePath() const { return m_filePath; }
-        ID3DBlob*       getShaderBlob() { return m_ShaderBaseBlob; }
+        ID3DBlob*       getShaderBlob() { return m_shaderBaseBlob; }
         CString         getEntryPoint() const { return m_entryPoint.c_str(); }
 
         virtual void bind() = 0;
@@ -29,7 +29,7 @@ namespace Graphics { namespace D3D11 {
         bool isUpToDate();
 
     protected:
-        ID3DBlob*       m_ShaderBaseBlob = nullptr;
+        ID3DBlob*       m_shaderBaseBlob = nullptr;
         String          m_entryPoint = "main";
         OS::Path        m_filePath;
         OS::SystemTime  m_fileTimeAtCompilation;

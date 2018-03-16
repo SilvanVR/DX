@@ -34,13 +34,14 @@ namespace Graphics {
             pConstantBufferCamera = new D3D11::ConstantBuffer( sizeof(XMMATRIX), BufferUsage::FREQUENTLY );
             pConstantBufferObject = new D3D11::ConstantBuffer( sizeof(XMMATRIX), BufferUsage::FREQUENTLY );
         }
+
     }
 
     //----------------------------------------------------------------------
     void D3D11Renderer::shutdown()
     {
-        SAFE_DELETE(pConstantBufferCamera);
-        SAFE_DELETE(pConstantBufferObject);
+        SAFE_DELETE( pConstantBufferCamera );
+        SAFE_DELETE( pConstantBufferObject );
         _DeinitD3D11();
     }
 
@@ -108,7 +109,7 @@ namespace Graphics {
         // Now render by material
         for (auto& pair : sortedMaterials)
         {
-            auto shader = pair.first->getShader();
+            auto shader = m_activeGlobalShader ? m_activeGlobalShader : pair.first->getShader();
             shader->bind();
 
             for (auto& index : pair.second)
@@ -125,7 +126,6 @@ namespace Graphics {
                 shader->drawMesh( mesh, c.subMeshIndex );
             }
         }
-
     }
 
     //----------------------------------------------------------------------

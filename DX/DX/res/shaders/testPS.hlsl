@@ -6,5 +6,5 @@ struct FragmentIn
 
 float4 main(FragmentIn fin) : SV_Target
 {
-    return float4(1, 1, 0, 1);
+    return float4(1, 0, 0, 0.5);
 }

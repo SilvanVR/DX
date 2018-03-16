@@ -39,16 +39,39 @@ namespace Graphics {
         virtual void present() = 0;
 
         //----------------------------------------------------------------------
-        virtual void setVSync(bool enabled) = 0;
+        // Set the multisample count from the screens backbuffers
+        //----------------------------------------------------------------------
         virtual void setMultiSampleCount(U32 numSamples) = 0;
+
+        //----------------------------------------------------------------------
+        virtual void setVSync(bool enabled) = 0;
 
         //----------------------------------------------------------------------
         virtual IMesh*      createMesh() = 0;
         virtual IMaterial*  createMaterial() = 0;
         virtual IShader*    createShader() = 0;
 
+        //----------------------------------------------------------------------
+        // Add a global shader to this renderer. A global shader allows to render
+        // the whole scene with just one shader-setup.
+        // @Params:
+        //  "name": The name of this shader to identify it.
+        //  "shader": The actual shader.
+        //----------------------------------------------------------------------
+        void addGlobalShader(CString name, IShader* shader);
+
+        //----------------------------------------------------------------------
+        // Set a global shader with the given name as active. If a global shader
+        // is set, every geometry will be rendered with this shader.
+        //----------------------------------------------------------------------
+        void setGlobalShaderActive(CString name = "NONE");
+
     protected:
         OS::Window* m_window = nullptr;
+
+        //----------------------------------------------------------------------
+        HashMap<StringID, IShader*> m_globalShaders;
+        IShader*                    m_activeGlobalShader = nullptr; // If this is not null the scene should be rendered just with this shader
 
         //----------------------------------------------------------------------
         virtual void OnWindowSizeChanged(U16 w, U16 h) = 0;

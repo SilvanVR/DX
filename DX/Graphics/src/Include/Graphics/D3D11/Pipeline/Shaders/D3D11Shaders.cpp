@@ -1,13 +1,9 @@
 #include "D3D11Shaders.h"
 /**********************************************************************
-    class: ShaderBase + VertexShader etc. (D3D11ShaderBase.cpp)
+    class: ShaderBase + VertexShader etc. (D3D11Shaders.cpp)
 
     author: S. Hau
     date: December 3, 2017
-
-    @TODO: 
-      - RELEASE BLOB AFTER CREATED THE SHADER
-        (AND Input-Layout for the vertex-shader)
 **********************************************************************/
 
 #include <d3dcompiler.h>
@@ -24,7 +20,7 @@ namespace Graphics { namespace D3D11 {
     //----------------------------------------------------------------------
     ShaderBase::~ShaderBase()
     {
-        SAFE_RELEASE( m_ShaderBaseBlob );
+        SAFE_RELEASE( m_shaderBaseBlob );
     }
 
     //----------------------------------------------------------------------
@@ -39,7 +35,7 @@ namespace Graphics { namespace D3D11 {
 
         ID3DBlob* errorBlob = nullptr;
         HRESULT hr = D3DCompileFromFile( ConvertToWString( m_filePath.toString() ).c_str(), NULL, D3D_COMPILE_STANDARD_FILE_INCLUDE,
-                                         entryPoint, profile, flags, 0, &m_ShaderBaseBlob, &errorBlob );
+                                         entryPoint, profile, flags, 0, &m_shaderBaseBlob, &errorBlob );
 
         m_fileTimeAtCompilation = m_filePath.getLastWrittenFileTime();
 
@@ -57,7 +53,7 @@ namespace Graphics { namespace D3D11 {
                 WARN_RENDERING( "Missing shader-file: '" + m_filePath.toString() + "'.");
             }
 
-            SAFE_RELEASE( m_ShaderBaseBlob );
+            SAFE_RELEASE( m_shaderBaseBlob );
 
             return false;
         }
@@ -103,10 +99,14 @@ namespace Graphics { namespace D3D11 {
         if (not compiled)
             return false;
 
+        // Clean-Up old vertex-shader
         SAFE_RELEASE( m_pVertexShader );
 
-        HR( g_pDevice->CreateVertexShader( m_ShaderBaseBlob->GetBufferPointer(), m_ShaderBaseBlob->GetBufferSize(), nullptr, &m_pVertexShader ) );
-        _CreateInputLayout( m_ShaderBaseBlob );
+        HR( g_pDevice->CreateVertexShader( m_shaderBaseBlob->GetBufferPointer(), m_shaderBaseBlob->GetBufferSize(), nullptr, &m_pVertexShader ) );
+        _CreateInputLayout( m_shaderBaseBlob );
+
+        // Shader blob no longer needed
+        SAFE_RELEASE( m_shaderBaseBlob );
 
         return true;
     }
@@ -119,7 +119,7 @@ namespace Graphics { namespace D3D11 {
         if ( FAILED( D3DReflect( pShaderBlob->GetBufferPointer(), pShaderBlob->GetBufferSize(), 
                                  IID_ID3D11ShaderReflection, (void**)&pVertexShaderReflection) ) )
         {
-            ERROR_RENDERING( "Shader reflection on a vertex-shader failed. Investigate this!" );
+            ERROR_RENDERING( "VertexShader::_CreateInputLayout(): Shader reflection failed. Investigate this!" );
             return;
         }
 
@@ -212,7 +212,10 @@ namespace Graphics { namespace D3D11 {
 
         SAFE_RELEASE( m_pPixelShader );
 
-        HR( g_pDevice->CreatePixelShader( m_ShaderBaseBlob->GetBufferPointer(), m_ShaderBaseBlob->GetBufferSize(), nullptr, &m_pPixelShader ) );
+        HR( g_pDevice->CreatePixelShader( m_shaderBaseBlob->GetBufferPointer(), m_shaderBaseBlob->GetBufferSize(), nullptr, &m_pPixelShader ) );
+
+        // Shader blob no longer needed
+        SAFE_RELEASE( m_shaderBaseBlob );
 
         return true;
     }
