@@ -383,8 +383,8 @@ public:
         blendState.blendStates[0].srcBlend = Graphics::Blend::SRC_ALPHA;
         blendState.blendStates[0].destBlend = Graphics::Blend::INV_SRC_ALPHA;
         blendState.blendStates[0].blendOp = Graphics::BlendOP::ADD;
-        blendState.blendStates[0].srcBlendAlpha = Graphics::Blend::ONE;
-        blendState.blendStates[0].destBlendAlpha = Graphics::Blend::ZERO;
+        blendState.blendStates[0].srcBlendAlpha = Graphics::Blend::SRC_ALPHA;
+        blendState.blendStates[0].destBlendAlpha = Graphics::Blend::INV_SRC_ALPHA;
         blendState.blendStates[0].blendOpAlpha = Graphics::BlendOP::ADD;
         shader->setBlendState(blendState);
 

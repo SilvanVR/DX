@@ -39,6 +39,8 @@ namespace Graphics { namespace D3D11 {
         VertexShader*       m_pVertexShader   = nullptr;
         PixelShader*        m_pPixelShader    = nullptr;
 
+
+
         ID3D11DepthStencilState*    m_pDepthStencilState;
         ID3D11RasterizerState*      m_pRSState;
         ID3D11BlendState*           m_pBlendState;

@@ -39,9 +39,7 @@ namespace Graphics { namespace D3D11 {
 
         g_pImmediateContext->OMSetDepthStencilState( m_pDepthStencilState, 0 );
         g_pImmediateContext->RSSetState( m_pRSState );
-
-        float blends[4] = {1.0f, 1.0f, 1.0f, 1.0f};
-        g_pImmediateContext->OMSetBlendState( m_pBlendState ? m_pBlendState : NULL, blends, 0xffffffff );
+        g_pImmediateContext->OMSetBlendState( m_pBlendState ? m_pBlendState : NULL, m_blendFactors.data(), 0xffffffff );
     }
 
     //----------------------------------------------------------------------

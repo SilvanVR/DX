@@ -68,6 +68,21 @@ namespace Graphics {
         virtual void setDepthStencilState(const DepthStencilState& dsState ) = 0;
         virtual void setBlendState(const BlendState& bState ) = 0;
 
+        //----------------------------------------------------------------------
+        // @Return:
+        //  Manual Blend-Factors. Only used when manual blending is enabled.
+        //----------------------------------------------------------------------
+        std::array<F32, 4>  getBlendFactors() const { return m_blendFactors; }
+
+        //----------------------------------------------------------------------
+        // Set manually the blend factors. Only used when manual blending is enabled.
+        //----------------------------------------------------------------------
+        void setBlendFactors(std::array<F32, 4> newBlendFactors) { m_blendFactors = newBlendFactors; }
+
+    protected:
+        // These are only used when configured correctly
+        std::array<F32, 4> m_blendFactors = { 1.0f, 1.0f, 1.0f, 1.0f };
+
     private:
         //----------------------------------------------------------------------
         virtual void bind() = 0;
