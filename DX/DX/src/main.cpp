@@ -466,7 +466,7 @@ public:
             //LOG("Num Scenes: " + TS(Locator::getSceneManager().numScenes()));
         }, 1000);
 
-        Locator::getSceneManager().LoadSceneAsync(new MaterialTestScene());
+       Locator::getSceneManager().LoadSceneAsync(new MaterialTestScene());
     }
 
     //----------------------------------------------------------------------

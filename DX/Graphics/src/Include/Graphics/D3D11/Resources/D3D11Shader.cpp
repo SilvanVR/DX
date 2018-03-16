@@ -161,6 +161,8 @@ namespace Graphics { namespace D3D11 {
     //----------------------------------------------------------------------
     void Shader::setDepthStencilState( const DepthStencilState& dsState )
     {
+        SAFE_RELEASE( m_pDepthStencilState );
+
         D3D11_DEPTH_STENCIL_DESC depthStencilStateDesc = {};
 
         depthStencilStateDesc.DepthEnable       = dsState.depthEnable;
@@ -173,6 +175,8 @@ namespace Graphics { namespace D3D11 {
     //----------------------------------------------------------------------
     void Shader::setBlendState( const BlendState& bState )
     {
+        SAFE_RELEASE( m_pBlendState );
+
         D3D11_BLEND_DESC blendDesc = {};
         blendDesc.AlphaToCoverageEnable  = bState.alphaToCoverage;
         blendDesc.IndependentBlendEnable = bState.independentBlending;
