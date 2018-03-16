@@ -368,11 +368,6 @@ public:
         auto cube = Assets::MeshGenerator::CreateCube(1.0f);
         cube->setColors(cubeColors);
 
-        auto line = RESOURCES.createMesh();
-        line->setVertices( { Math::Vec3(-1,-1,0),Math::Vec3(1,-1,0), Math::Vec3(1,1,0), Math::Vec3(-1,1,0) });
-        line->setColors({Color::RED, Color::GREEN, Color::BLUE, Color::ORANGE});
-        line->setIndices( {0,1, 1,2, 2,3, 3,0}, 0, Graphics::MeshTopology::Lines);
-
         // SHADER
         auto shader = RESOURCES.createShader( "/shaders/testVS.hlsl", "/shaders/testPS.hlsl" );
         //shader->setRasterizationState({Graphics::FillMode::WIREFRAME});

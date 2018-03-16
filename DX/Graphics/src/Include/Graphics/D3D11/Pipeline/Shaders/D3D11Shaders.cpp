@@ -169,7 +169,7 @@ namespace Graphics { namespace D3D11 {
                 else if (paramDesc.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32) elementDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
             }
 
-            inputLayoutDesc.push_back(elementDesc);
+            inputLayoutDesc.push_back( elementDesc );
         }
 
         // Try to create Input Layout
