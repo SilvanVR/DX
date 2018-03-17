@@ -95,7 +95,7 @@ namespace Graphics { namespace D3D11 {
     //----------------------------------------------------------------------
     bool VertexShader::compile( CString entryPoint )
     {
-        bool compiled = _Compile( entryPoint, "vs_5_0" );
+        bool compiled = _Compile( entryPoint, GetLatestProfile<ID3D11VertexShader>().c_str() );
         if (not compiled)
             return false;
 
@@ -206,7 +206,7 @@ namespace Graphics { namespace D3D11 {
     //----------------------------------------------------------------------
     bool PixelShader::compile( CString entryPoint )
     {
-        bool compiled = _Compile( entryPoint, "ps_5_0" );
+        bool compiled = _Compile( entryPoint, GetLatestProfile<ID3D11PixelShader>().c_str() );
         if (not compiled)
             return false;
 

@@ -89,86 +89,56 @@ namespace Graphics { namespace D3D11 {
     };
 
 
-    //// Get the latest profile for the specified ShaderBase type.
-    //template< class ShaderBaseClass >
-    //String GetLatestProfile();
+    // Get the latest profile for the specified ShaderBase type.
+    template< class ShaderBaseClass >
+    String GetLatestProfile();
 
-    //template<>
-    //String GetLatestProfile<ID3D11VertexShader>()
-    //{
-    //    // Query the current feature level:
-    //    D3D_FEATURE_LEVEL featureLevel = g_pDevice->GetFeatureLevel();
+    //----------------------------------------------------------------------
+    template<> inline
+    String GetLatestProfile<ID3D11VertexShader>()
+    {
+        // Query the current feature level:
+        D3D_FEATURE_LEVEL featureLevel = g_pDevice->GetFeatureLevel();
+        switch (featureLevel)
+        {
+        case D3D_FEATURE_LEVEL_11_1:
+        case D3D_FEATURE_LEVEL_11_0:
+            return "vs_5_0";
+        case D3D_FEATURE_LEVEL_10_1:
+            return "vs_4_1";
+        case D3D_FEATURE_LEVEL_10_0:
+            return "vs_4_0";
+        case D3D_FEATURE_LEVEL_9_3:
+            return "vs_4_0_level_9_3";
+        case D3D_FEATURE_LEVEL_9_2:
+        case D3D_FEATURE_LEVEL_9_1:
+            return "vs_4_0_level_9_1";
+        }
+        return "";
+    }
 
-    //    switch (featureLevel)
-    //    {
-    //    case D3D_FEATURE_LEVEL_11_1:
-    //    case D3D_FEATURE_LEVEL_11_0:
-    //    {
-    //        return "vs_5_0";
-    //    }
-    //    break;
-    //    case D3D_FEATURE_LEVEL_10_1:
-    //    {
-    //        return "vs_4_1";
-    //    }
-    //    break;
-    //    case D3D_FEATURE_LEVEL_10_0:
-    //    {
-    //        return "vs_4_0";
-    //    }
-    //    break;
-    //    case D3D_FEATURE_LEVEL_9_3:
-    //    {
-    //        return "vs_4_0_level_9_3";
-    //    }
-    //    break;
-    //    case D3D_FEATURE_LEVEL_9_2:
-    //    case D3D_FEATURE_LEVEL_9_1:
-    //    {
-    //        return "vs_4_0_level_9_1";
-    //    }
-    //    break;
-    //    }
-
-    //    return "";
-    //}
-
-    //template<>
-    //String GetLatestProfile<ID3D11PixelShader>()
-    //{
-    //    // Query the current feature level:
-    //    D3D_FEATURE_LEVEL featureLevel = g_pDevice->GetFeatureLevel();
-    //    switch (featureLevel)
-    //    {
-    //    case D3D_FEATURE_LEVEL_11_1:
-    //    case D3D_FEATURE_LEVEL_11_0:
-    //    {
-    //        return "ps_5_0";
-    //    }
-    //    break;
-    //    case D3D_FEATURE_LEVEL_10_1:
-    //    {
-    //        return "ps_4_1";
-    //    }
-    //    break;
-    //    case D3D_FEATURE_LEVEL_10_0:
-    //    {
-    //        return "ps_4_0";
-    //    }
-    //    break;
-    //    case D3D_FEATURE_LEVEL_9_3:
-    //    {
-    //        return "ps_4_0_level_9_3";
-    //    }
-    //    break;
-    //    case D3D_FEATURE_LEVEL_9_2:
-    //    case D3D_FEATURE_LEVEL_9_1:
-    //    {
-    //        return "ps_4_0_level_9_1";
-    //    }
-    //    break;
-    //    }
-    //    return "";
-    //}
+    //----------------------------------------------------------------------
+    template<> inline
+    String GetLatestProfile<ID3D11PixelShader>()
+    {
+        // Query the current feature level:
+        D3D_FEATURE_LEVEL featureLevel = g_pDevice->GetFeatureLevel();
+        switch (featureLevel)
+        {
+        case D3D_FEATURE_LEVEL_11_1:
+        case D3D_FEATURE_LEVEL_11_0:
+            return "ps_5_0";
+        case D3D_FEATURE_LEVEL_10_1:
+            return "ps_4_1";
+        case D3D_FEATURE_LEVEL_10_0:
+            return "ps_4_0";
+        case D3D_FEATURE_LEVEL_9_3:
+            return "ps_4_0_level_9_3";
+        case D3D_FEATURE_LEVEL_9_2:
+        case D3D_FEATURE_LEVEL_9_1:
+            return "ps_4_0_level_9_1";
+        }
+        return "";
+    }
 
 } } // End namespaces
