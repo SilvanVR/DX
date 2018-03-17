@@ -121,9 +121,10 @@ namespace Graphics {
 
                 // Bind buffers
                 auto mesh = dynamic_cast<D3D11::Mesh*>( c.mesh );
-                mesh->bind( shader, c.subMeshIndex );
+                mesh->bind( shader->getVertexLayout(), c.subMeshIndex );
 
-                shader->drawMesh( mesh, c.subMeshIndex );
+                // Submit draw call
+                g_pImmediateContext->DrawIndexed( mesh->getIndexCount( c.subMeshIndex ), 0, mesh->getBaseVertex( c.subMeshIndex ) );
             }
         }
     }

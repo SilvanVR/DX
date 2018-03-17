@@ -30,6 +30,7 @@ namespace Graphics { namespace D3D11 {
         ArrayList<OS::Path> recompile();
         bool isUpToDate() override;
         ArrayList<OS::Path> getShaderPaths() const override;
+        const VertexLayout& getVertexLayout() const override;
 
         void setRasterizationState(const RasterizationState& rzState) override;
         void setDepthStencilState(const DepthStencilState& dsState) override;
@@ -39,8 +40,6 @@ namespace Graphics { namespace D3D11 {
         VertexShader*       m_pVertexShader   = nullptr;
         PixelShader*        m_pPixelShader    = nullptr;
 
-
-
         ID3D11DepthStencilState*    m_pDepthStencilState;
         ID3D11RasterizerState*      m_pRSState;
         ID3D11BlendState*           m_pBlendState;
@@ -49,7 +48,6 @@ namespace Graphics { namespace D3D11 {
         // IShader Interface
         //----------------------------------------------------------------------
         void bind() override;
-        void drawMesh(IMesh* mesh, U32 subMeshIndex) override;
 
         //----------------------------------------------------------------------
         void _CreatePipeline();

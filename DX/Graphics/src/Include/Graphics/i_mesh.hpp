@@ -12,6 +12,7 @@
 **********************************************************************/
 
 #include "enums.hpp"
+#include "vertex_layout.hpp"
 
 namespace Graphics {
 
@@ -122,7 +123,7 @@ namespace Graphics {
         //----------------------------------------------------------------------
         // Binds this mesh to the pipeline. Subsequent drawcalls render this mesh.
         //----------------------------------------------------------------------
-        virtual void bind(IShader* shader, U32 subMesh = 0) = 0;
+        virtual void bind(const VertexLayout& vertLayout, U32 subMesh = 0) = 0;
 
         //----------------------------------------------------------------------
         IMesh(const IMesh& other)               = delete;

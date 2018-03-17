@@ -19,37 +19,11 @@ namespace Graphics { namespace D3D11 {
     }
 
     //----------------------------------------------------------------------
-    void Mesh::bind( IShader* shader, U32 subMeshIndex )
+    void Mesh::bind( const VertexLayout& vertLayout, U32 subMeshIndex )
     {
-        // @TODO: Move bind into actual renderpass, where geometry is drawn with a specific input layout
-        m_pVertexBuffer->bind( 0, sizeof( Math::Vec3 ), 0 );
-        if (m_pColorBuffer != nullptr)
-            m_pColorBuffer->bind( 1, sizeof( F32 ) * 4, 0 );
-
-        //U32 strides[] = { sizeof(Math::Vec3), sizeof(F32) * 4 };
-        //U32 offsets[] = { 0,0 };
-        //ID3D11Buffer* pBuffers[] = { m_pVertexBuffer->getBuffer(), m_pColorBuffer->getBuffer() };
-        //g_pImmediateContext->IASetVertexBuffers(0, 2, pBuffers, strides, offsets);
-
-        D3D_PRIMITIVE_TOPOLOGY dxTopology;
-        switch (m_subMeshes[subMeshIndex].topology)
-        {
-        case MeshTopology::Lines: dxTopology = D3D11_PRIMITIVE_TOPOLOGY_LINELIST; break;
-        case MeshTopology::LineStrip: dxTopology = D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP; break;
-        case MeshTopology::Points: dxTopology = D3D11_PRIMITIVE_TOPOLOGY_POINTLIST; break;
-        case MeshTopology::Quads: ASSERT(false && "checkThis"); dxTopology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP; break;
-        case MeshTopology::Triangles: dxTopology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST; break;
-        }
-        g_pImmediateContext->IASetPrimitiveTopology( dxTopology );
-
-        DXGI_FORMAT dxIndexFormat;
-        switch ( m_subMeshes[subMeshIndex].indexFormat )
-        {
-        case IndexFormat::U16: dxIndexFormat = DXGI_FORMAT_R16_UINT; break;
-        case IndexFormat::U32: dxIndexFormat = DXGI_FORMAT_R32_UINT; break;
-        }
-
-        m_pIndexBuffers[subMeshIndex]->bind( dxIndexFormat, 0 ); 
+        _SetTopology( subMeshIndex );
+        _BindVertexBuffer( vertLayout, subMeshIndex ); 
+        _BindIndexBuffer( subMeshIndex );
     }
 
     //**********************************************************************
@@ -227,6 +201,66 @@ namespace Graphics { namespace D3D11 {
         m_subMeshes.clear();
         for (U32 i = 0; i < subMeshes.size(); i++)
             setIndices( subMeshes[i].indices, i, subMeshes[i].topology, subMeshes[i].baseVertex );
+    }
+
+    //----------------------------------------------------------------------
+    void Mesh::_SetTopology( U32 subMeshIndex )
+    {
+        D3D_PRIMITIVE_TOPOLOGY dxTopology;
+        switch (m_subMeshes[subMeshIndex].topology)
+        {
+        case MeshTopology::Lines:       dxTopology = D3D11_PRIMITIVE_TOPOLOGY_LINELIST; break;
+        case MeshTopology::LineStrip:   dxTopology = D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP; break;
+        case MeshTopology::Points:      dxTopology = D3D11_PRIMITIVE_TOPOLOGY_POINTLIST; break;
+        case MeshTopology::Quads: ASSERT(false && "checkThis"); dxTopology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP; break;
+        case MeshTopology::Triangles:   dxTopology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST; break;
+        }
+        g_pImmediateContext->IASetPrimitiveTopology( dxTopology );
+    }
+
+    //----------------------------------------------------------------------
+    void Mesh::_BindVertexBuffer( const VertexLayout& vertLayout, U32 subMesh )
+    {
+        auto& vertexDescription = vertLayout.getLayoutDescription();
+
+        ArrayList<ID3D11Buffer*> pBuffers;
+        ArrayList<U32>           strides;
+        ArrayList<U32>           offsets;
+        for ( auto& binding : vertexDescription )
+        {
+            switch (binding.type)
+            {
+            case InputLayoutType::POSITION:
+            {
+                pBuffers.emplace_back( m_pVertexBuffer->getBuffer() );
+                strides.emplace_back( static_cast<U32>( sizeof( Math::Vec3 ) ) );
+                offsets.emplace_back( 0 );
+                break;
+            }
+            case InputLayoutType::COLOR:
+            {
+                pBuffers.emplace_back( m_pColorBuffer->getBuffer() );
+                strides.emplace_back( static_cast<U32>( sizeof( F32 ) * 4 ) );
+                offsets.emplace_back( 0 );
+                break;
+            }
+            default:
+                ASSERT( false && "implement!" );
+            }
+        }
+
+        // Bind vertex buffers
+        g_pImmediateContext->IASetVertexBuffers( 0, static_cast<U32>( pBuffers.size() ), pBuffers.data(), strides.data(), offsets.data() );
+    }
+
+    //----------------------------------------------------------------------
+    void Mesh::_BindIndexBuffer( U32 subMeshIndex )
+    {
+        switch (m_subMeshes[subMeshIndex].indexFormat)
+        {
+        case IndexFormat::U16: m_pIndexBuffers[subMeshIndex]->bind( DXGI_FORMAT_R16_UINT, 0 ); break;
+        case IndexFormat::U32: m_pIndexBuffers[subMeshIndex]->bind( DXGI_FORMAT_R32_UINT, 0 ); break;
+        }
     }
 
 

@@ -7,6 +7,7 @@
 **********************************************************************/
 
 #include "../../D3D11.hpp"
+#include "enums.hpp"
 
 namespace Graphics { namespace D3D11 {
 

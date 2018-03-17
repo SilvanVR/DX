@@ -102,6 +102,7 @@ namespace Graphics { namespace D3D11 {
         // Clean-Up old vertex-shader
         SAFE_RELEASE( m_pVertexShader );
 
+        // Create Vertex-Shader and input layout
         HR( g_pDevice->CreateVertexShader( m_shaderBaseBlob->GetBufferPointer(), m_shaderBaseBlob->GetBufferSize(), nullptr, &m_pVertexShader ) );
         _CreateInputLayout( m_shaderBaseBlob );
 
@@ -114,6 +115,10 @@ namespace Graphics { namespace D3D11 {
     //----------------------------------------------------------------------
     void VertexShader::_CreateInputLayout( ID3DBlob* pShaderBlob )
     {
+        // Clean up old data
+        SAFE_RELEASE( m_pInputLayout );
+        m_vertexLayout.clear();
+
         // Reflect shader info
         ID3D11ShaderReflection* pVertexShaderReflection = NULL;
         if ( FAILED( D3DReflect( pShaderBlob->GetBufferPointer(), pShaderBlob->GetBufferSize(), 
@@ -128,7 +133,7 @@ namespace Graphics { namespace D3D11 {
         pVertexShaderReflection->GetDesc( &shaderDesc );
 
         // Read input layout description from shader info
-        std::vector<D3D11_INPUT_ELEMENT_DESC> inputLayoutDesc;
+        ArrayList<D3D11_INPUT_ELEMENT_DESC> inputLayoutDesc;
         for (U32 i = 0; i< shaderDesc.InputParameters; i++)
         {
             D3D11_SIGNATURE_PARAMETER_DESC paramDesc;
@@ -142,6 +147,8 @@ namespace Graphics { namespace D3D11 {
             elementDesc.AlignedByteOffset       = (i == 0 ? 0 : D3D11_APPEND_ALIGNED_ELEMENT);
             elementDesc.InputSlotClass          = D3D11_INPUT_PER_VERTEX_DATA;
             elementDesc.InstanceDataStepRate    = 0;
+
+            _AddToVertexLayout( paramDesc.SemanticName );
 
             // determine DXGI format
             if (paramDesc.Mask == 1)
@@ -172,12 +179,33 @@ namespace Graphics { namespace D3D11 {
             inputLayoutDesc.push_back( elementDesc );
         }
 
-        // Try to create Input Layout
+        // Vertex layout should never be empty
+        ASSERT( not m_vertexLayout.isEmpty() );
+
+        // Create Input Layout
         HR( g_pDevice->CreateInputLayout( inputLayoutDesc.data(), (U32)inputLayoutDesc.size(), 
                                           pShaderBlob->GetBufferPointer(), pShaderBlob->GetBufferSize(), &m_pInputLayout) );
 
         // Free allocation shader reflection memory
         SAFE_RELEASE( pVertexShaderReflection );
+    }
+
+    //----------------------------------------------------------------------
+    void VertexShader::_AddToVertexLayout( String semanticName )
+    {
+        bool nameExists = false;
+        if (semanticName == "POSITION")
+        {
+            m_vertexLayout.add( { InputLayoutType::POSITION } );
+            nameExists = true;
+        }
+        else if (semanticName == "COLOR")
+        {
+            m_vertexLayout.add( { InputLayoutType::COLOR } );
+            nameExists = true;
+        }
+        if (not nameExists)
+            WARN_RENDERING( "Semantic name '" + semanticName + "' for shader '" + getFilePath().toString() + "' does not exist.");
     }
 
     //**********************************************************************

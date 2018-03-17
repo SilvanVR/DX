@@ -8,6 +8,7 @@
 
 #include "../../D3D11.hpp"
 #include "OS/FileSystem/path.h"
+#include "vertex_layout.hpp"
 
 namespace Graphics { namespace D3D11 {
 
@@ -55,11 +56,18 @@ namespace Graphics { namespace D3D11 {
         void bind() override;
         bool compile(CString entryPoint) override;
 
+        const VertexLayout& getVertexLayout() const { return m_vertexLayout; }
+
     private:
         ID3D11VertexShader* m_pVertexShader = nullptr;
         ID3D11InputLayout*  m_pInputLayout  = nullptr;
 
+        VertexLayout        m_vertexLayout;
+
+        //----------------------------------------------------------------------
         void _CreateInputLayout(ID3DBlob* pShaderBlob);
+        void _AddToVertexLayout(String semanticName);
+
 
         //----------------------------------------------------------------------
         VertexShader(const VertexShader& other)               = delete;

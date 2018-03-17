@@ -103,9 +103,7 @@ namespace Core { namespace Resources {
         shader->setShaderPaths( vertPath, fragPath );
 
         if ( not shader->compile("main") )
-        {
             return m_defaultShader;
-        }
 
         return shader;
     }

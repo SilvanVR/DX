@@ -42,8 +42,13 @@ namespace Graphics { namespace D3D11 {
         // IMesh Interface
         //----------------------------------------------------------------------
         friend class D3D11Renderer;
-        void bind(IShader* shader, U32 subMesh = 0) override;
+        void bind(const VertexLayout& vertLayout, U32 subMesh = 0) override;
         void recreateBuffers();
+
+        //----------------------------------------------------------------------
+        inline void _SetTopology(U32 subMesh);
+        inline void _BindVertexBuffer(const VertexLayout& vertLayout, U32 subMesh);
+        inline void _BindIndexBuffer(U32 subMesh);
 
         //----------------------------------------------------------------------
         Mesh(const Mesh& other)               = delete;

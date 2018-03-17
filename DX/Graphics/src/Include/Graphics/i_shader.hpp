@@ -12,6 +12,7 @@
 
 #include "OS/FileSystem/path.h"
 #include "structs.hpp"
+#include "vertex_layout.hpp"
 
 namespace Graphics {
 
@@ -69,6 +70,11 @@ namespace Graphics {
         virtual void setBlendState(const BlendState& bState ) = 0;
 
         //----------------------------------------------------------------------
+        // Return the vertex layout from the attached vertex-shader.
+        //----------------------------------------------------------------------
+        virtual const VertexLayout& getVertexLayout() const = 0;
+
+        //----------------------------------------------------------------------
         // @Return:
         //  Manual Blend-Factors. Only used when manual blending is enabled.
         //----------------------------------------------------------------------
@@ -104,7 +110,6 @@ namespace Graphics {
     private:
         //----------------------------------------------------------------------
         virtual void bind() = 0;
-        virtual void drawMesh(IMesh* mesh, U32 subMeshIndex) = 0;
 
         //----------------------------------------------------------------------
         IShader(const IShader& other)               = delete;

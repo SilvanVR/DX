@@ -42,23 +42,6 @@ namespace Graphics { namespace D3D11 {
         g_pImmediateContext->OMSetBlendState( m_pBlendState ? m_pBlendState : NULL, m_blendFactors.data(), 0xffffffff );
     }
 
-    //----------------------------------------------------------------------
-    void Shader::drawMesh( IMesh* mesh, U32 subMeshIndex )
-    {
-        // Bind buffers
-        //m_pVertexBuffer->bind(0, sizeof(Math::Vec3), 0);
-        //if (m_pColorBuffer != nullptr)
-        //    m_pColorBuffer->bind(1, sizeof(F32) * 4, 0);
-
-        //U32 strides[] = { sizeof(Math::Vec3), sizeof(F32) * 4 };
-        //U32 offsets[] = { 0,0 };
-        //ID3D11Buffer* pBuffers[] = { m_pVertexBuffer->getBuffer(), m_pColorBuffer->getBuffer() };
-        //g_pImmediateContext->IASetVertexBuffers(0, 2, pBuffers, strides, offsets);
-
-        // Submit draw call
-        g_pImmediateContext->DrawIndexed( mesh->getIndexCount( subMeshIndex ), 0, mesh->getBaseVertex( subMeshIndex ) );
-    }
-
     //**********************************************************************
     // PUBLIC
     //**********************************************************************
@@ -121,6 +104,12 @@ namespace Graphics { namespace D3D11 {
         if (m_pVertexShader) shaderPaths.emplace_back( m_pVertexShader->getFilePath() );
         if (m_pPixelShader)  shaderPaths.emplace_back( m_pPixelShader->getFilePath() );
         return shaderPaths;
+    }
+
+    //----------------------------------------------------------------------
+    const VertexLayout& Shader::getVertexLayout() const 
+    { 
+        return m_pVertexShader->getVertexLayout(); 
     }
 
     //**********************************************************************
