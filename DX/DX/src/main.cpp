@@ -350,6 +350,7 @@ public:
 class MaterialTestScene : public IScene
 {
     GameObject* goModel;
+    Graphics::Material* material;
 
 public:
     MaterialTestScene() : IScene("MaterialTestScene") {}
@@ -375,8 +376,9 @@ public:
         shader->enableAlphaBlending(true);
 
         // MATERIAL
-        auto material = RESOURCES.createMaterial();
+        material = RESOURCES.createMaterial();
         material->setShader(shader);
+        material->setFloat("val", 0.5f);
 
         // GAMEOBJECT
         goModel = createGameObject("Test");
@@ -388,6 +390,12 @@ public:
         go2->getComponent<Components::Transform>()->position = Math::Vec3(3, 0, 0);
 
         LOG("MaterialTestScene initialized!", Color::RED);
+    }
+
+    void tick(Time::Seconds d) override
+    {
+        F64 s = (sin( TIME.getTime().value ) + 1) / 2;
+        material->setVec4( "mColor", Math::Vec4((F32)s, 0.0f, 0.0f, 1.0f) );
     }
 
     void shutdown() override

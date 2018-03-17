@@ -58,4 +58,17 @@ namespace Graphics {
         RenderTargetBlendState  blendStates[8];                 // Blend states for each render target
     };
 
+    struct ShaderBufferMemberInfo
+    {
+    };
+
+    // Contains information about an buffer in a shader
+    struct ShaderBufferInfo
+    {
+        ShaderType              shaderType;
+        U32                     slot;
+        Size                    sizeInBytes;
+        HashMap<StringID, Size> offsetMap;
+    };
+
 }

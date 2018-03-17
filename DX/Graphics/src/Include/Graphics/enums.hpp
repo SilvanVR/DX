@@ -12,6 +12,14 @@
 
 namespace Graphics {
 
+    enum class ShaderType
+    {
+        Vertex,
+        Fragment,
+        Geometry,
+        Tessellation
+    };
+
     // Available index-formats for an index buffer
     enum class IndexFormat
     {

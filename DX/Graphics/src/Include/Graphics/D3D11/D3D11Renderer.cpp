@@ -53,7 +53,8 @@ namespace Graphics {
         // Depth Prepass first
         // Render in offscreen framebuffer and blit result to the swapchain
 
-        // Set Pipeline States
+        // Bind Global Constant buffers
+        // @TODO: There should be several constant buffers. Bind them depending on shader-buffers
         pConstantBufferCamera->bind(0);
         pConstantBufferObject->bind(1);
 
@@ -109,8 +110,19 @@ namespace Graphics {
         // Now render by material
         for (auto& pair : sortedMaterials)
         {
-            auto shader = m_activeGlobalShader ? m_activeGlobalShader : pair.first->getShader();
-            shader->bind();
+            // @TODO: Global-Material instead of shader
+            IShader* shader = nullptr;
+            if (m_activeGlobalShader)
+            {
+                shader = m_activeGlobalShader;
+                shader->bind();
+            }
+            else {
+                shader = pair.first->getShader();
+                shader->bind();
+                pair.first->bind();
+            }
+
 
             for (auto& index : pair.second)
             {

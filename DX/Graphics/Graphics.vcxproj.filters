@@ -45,10 +45,16 @@
     <ClCompile Include="src\Include\Graphics\D3D11\Resources\D3D11Material.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Include\Graphics\D3D11\Pipeline\Shaders\D3D11Shaders.cpp">
+    <ClCompile Include="src\Include\Graphics\D3D11\Resources\D3D11Shader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Include\Graphics\D3D11\Resources\D3D11Shader.cpp">
+    <ClCompile Include="src\Include\Graphics\D3D11\Pipeline\Shaders\D3D11VertexShader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Include\Graphics\D3D11\Pipeline\Shaders\D3D11PixelShader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Include\Graphics\D3D11\Pipeline\Shaders\D3D11ShaderBase.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -113,10 +119,16 @@
     <ClInclude Include="src\Include\Graphics\D3D11\Resources\D3D11Shader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Include\Graphics\D3D11\Pipeline\Shaders\D3D11Shaders.h">
+    <ClInclude Include="src\Include\Graphics\D3D11\D3D11Utility.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Include\Graphics\D3D11\D3D11Utility.hpp">
+    <ClInclude Include="src\Include\Graphics\D3D11\Pipeline\Shaders\D3D11VertexShader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Include\Graphics\D3D11\Pipeline\Shaders\D3D11PixelShader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Include\Graphics\D3D11\Pipeline\Shaders\D3D11ShaderBase.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

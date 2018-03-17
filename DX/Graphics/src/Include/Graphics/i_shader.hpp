@@ -103,9 +103,16 @@ namespace Graphics {
             setBlendState( blendState );
         }
 
+        //----------------------------------------------------------------------
+        const ShaderBufferInfo& getMaterialBufferInfo()
+        {
+        }
+
     protected:
         // These are only used when configured correctly
         std::array<F32, 4> m_blendFactors = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+        ShaderBufferInfo m_materialBufferInfo;
 
     private:
         //----------------------------------------------------------------------

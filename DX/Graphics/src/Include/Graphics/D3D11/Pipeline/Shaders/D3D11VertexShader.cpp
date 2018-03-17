@@ -1,75 +1,14 @@
-#include "D3D11Shaders.h"
+#include "D3D11VertexShader.h"
 /**********************************************************************
-    class: ShaderBase + VertexShader etc. (D3D11Shaders.cpp)
+    class: VertexShader (D3D11VertexShader.cpp)
 
     author: S. Hau
-    date: December 3, 2017
+    date: March 17, 2018
 **********************************************************************/
 
-#include <d3dcompiler.h>
+
 
 namespace Graphics { namespace D3D11 {
-
-
-    //----------------------------------------------------------------------
-    ShaderBase::ShaderBase( const OS::Path& path )
-        : m_filePath( path )
-    {
-    }
-
-    //----------------------------------------------------------------------
-    ShaderBase::~ShaderBase()
-    {
-        SAFE_RELEASE( m_shaderBaseBlob );
-    }
-
-    //----------------------------------------------------------------------
-    bool ShaderBase::_Compile( CString entryPoint, CString profile )
-    {
-        m_entryPoint = entryPoint;
-
-        UINT flags = D3DCOMPILE_ENABLE_STRICTNESS | D3DCOMPILE_WARNINGS_ARE_ERRORS;
-    #ifdef _DEBUG
-        flags |= (D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION);
-    #endif
-
-        ID3DBlob* errorBlob = nullptr;
-        HRESULT hr = D3DCompileFromFile( ConvertToWString( m_filePath.toString() ).c_str(), NULL, D3D_COMPILE_STANDARD_FILE_INCLUDE,
-                                         entryPoint, profile, flags, 0, &m_shaderBaseBlob, &errorBlob );
-
-        m_fileTimeAtCompilation = m_filePath.getLastWrittenFileTime();
-
-        if ( FAILED( hr ) )
-        {
-
-            if (errorBlob)
-            {
-                WARN_RENDERING( "Failed to compile Shader '" + m_filePath.toString() + "'." );
-                WARN_RENDERING( (const char*)errorBlob->GetBufferPointer() );
-                SAFE_RELEASE( errorBlob );
-            }
-            else
-            {
-                WARN_RENDERING( "Missing shader-file: '" + m_filePath.toString() + "'.");
-            }
-
-            SAFE_RELEASE( m_shaderBaseBlob );
-
-            return false;
-        }
-
-        return true;
-    }
-
-    //----------------------------------------------------------------------
-    bool ShaderBase::isUpToDate()
-    {
-        return m_fileTimeAtCompilation == m_filePath.getLastWrittenFileTime();
-    }
-
-    //**********************************************************************
-    // VERTEX ShaderBase
-    //**********************************************************************
 
     //----------------------------------------------------------------------
     VertexShader::VertexShader( CString path )
@@ -95,7 +34,7 @@ namespace Graphics { namespace D3D11 {
     //----------------------------------------------------------------------
     bool VertexShader::compile( CString entryPoint )
     {
-        bool compiled = _Compile( entryPoint, GetLatestProfile<ID3D11VertexShader>().c_str() );
+        bool compiled = _Compile<ID3D11VertexShader>( entryPoint );
         if (not compiled)
             return false;
 
@@ -103,41 +42,49 @@ namespace Graphics { namespace D3D11 {
         SAFE_RELEASE( m_pVertexShader );
 
         // Create Vertex-Shader and input layout
-        HR( g_pDevice->CreateVertexShader( m_shaderBaseBlob->GetBufferPointer(), m_shaderBaseBlob->GetBufferSize(), nullptr, &m_pVertexShader ) );
-        _CreateInputLayout( m_shaderBaseBlob );
+        HR( g_pDevice->CreateVertexShader( m_shaderBlob->GetBufferPointer(), m_shaderBlob->GetBufferSize(), nullptr, &m_pVertexShader ) );
+
+        // Shader Reflection
+        _PerformShaderReflection( m_shaderBlob );
 
         // Shader blob no longer needed
-        SAFE_RELEASE( m_shaderBaseBlob );
+        SAFE_RELEASE( m_shaderBlob );
 
         return true;
     }
 
     //----------------------------------------------------------------------
-    void VertexShader::_CreateInputLayout( ID3DBlob* pShaderBlob )
+    void VertexShader::_PerformShaderReflection( ID3DBlob* pShaderBlob )
+    {
+        // Reflect shader info
+        ID3D11ShaderReflection* pShaderReflection = NULL;
+        HR( D3DReflect( pShaderBlob->GetBufferPointer(), pShaderBlob->GetBufferSize(), 
+                        IID_ID3D11ShaderReflection, (void**)&pShaderReflection) );
+
+        // Get shader info
+        D3D11_SHADER_DESC shaderDesc;
+        HR( pShaderReflection->GetDesc( &shaderDesc ) );
+
+        _CreateInputLayout( pShaderReflection, shaderDesc );
+        _CreateBufferLayout( pShaderReflection, shaderDesc );
+
+        // Free allocation shader reflection memory
+        SAFE_RELEASE( pShaderReflection );
+    }
+
+    //----------------------------------------------------------------------
+    void VertexShader::_CreateInputLayout( ID3D11ShaderReflection* pShaderReflection, const D3D11_SHADER_DESC& shaderDesc )
     {
         // Clean up old data
         SAFE_RELEASE( m_pInputLayout );
         m_vertexLayout.clear();
-
-        // Reflect shader info
-        ID3D11ShaderReflection* pVertexShaderReflection = NULL;
-        if ( FAILED( D3DReflect( pShaderBlob->GetBufferPointer(), pShaderBlob->GetBufferSize(), 
-                                 IID_ID3D11ShaderReflection, (void**)&pVertexShaderReflection) ) )
-        {
-            ERROR_RENDERING( "VertexShader::_CreateInputLayout(): Shader reflection failed. Investigate this!" );
-            return;
-        }
-
-        // Get shader info
-        D3D11_SHADER_DESC shaderDesc;
-        pVertexShaderReflection->GetDesc( &shaderDesc );
 
         // Read input layout description from shader info
         ArrayList<D3D11_INPUT_ELEMENT_DESC> inputLayoutDesc;
         for (U32 i = 0; i< shaderDesc.InputParameters; i++)
         {
             D3D11_SIGNATURE_PARAMETER_DESC paramDesc;
-            pVertexShaderReflection->GetInputParameterDesc( i, &paramDesc );
+            HR( pShaderReflection->GetInputParameterDesc( i, &paramDesc ) );
 
             // Fill out input element desc
             D3D11_INPUT_ELEMENT_DESC elementDesc;
@@ -184,10 +131,7 @@ namespace Graphics { namespace D3D11 {
 
         // Create Input Layout
         HR( g_pDevice->CreateInputLayout( inputLayoutDesc.data(), (U32)inputLayoutDesc.size(), 
-                                          pShaderBlob->GetBufferPointer(), pShaderBlob->GetBufferSize(), &m_pInputLayout) );
-
-        // Free allocation shader reflection memory
-        SAFE_RELEASE( pVertexShaderReflection );
+                                          m_shaderBlob->GetBufferPointer(), m_shaderBlob->GetBufferSize(), &m_pInputLayout) );
     }
 
     //----------------------------------------------------------------------
@@ -205,47 +149,34 @@ namespace Graphics { namespace D3D11 {
             nameExists = true;
         }
         if (not nameExists)
-            WARN_RENDERING( "Semantic name '" + semanticName + "' for shader '" + getFilePath().toString() + "' does not exist.");
-    }
-
-    //**********************************************************************
-    // PIXEL ShaderBase
-    //**********************************************************************
-
-    //----------------------------------------------------------------------
-    PixelShader::PixelShader( CString path )
-        : ShaderBase( path )
-    {
-    }
-    
-    //----------------------------------------------------------------------
-    PixelShader::~PixelShader()
-    {
-        SAFE_RELEASE( m_pPixelShader );
+            WARN_RENDERING( "D3D11VertexShader: Semantic name '" + semanticName + "' for shader '" + getFilePath().toString() + "' does not exist.");
     }
 
     //----------------------------------------------------------------------
-    void PixelShader::bind()
+    void VertexShader::_CreateBufferLayout( ID3D11ShaderReflection* pShaderReflection, const D3D11_SHADER_DESC& shaderDesc )
     {
-        ASSERT( m_pPixelShader != nullptr );
-        g_pImmediateContext->PSSetShader( m_pPixelShader, NULL, 0 );
-    }
+        // Reflect constant buffers
+        for (U32 i = 0; i < shaderDesc.ConstantBuffers; i++)
+        {
+            auto buffer = pShaderReflection->GetConstantBufferByIndex( i );
 
-    //----------------------------------------------------------------------
-    bool PixelShader::compile( CString entryPoint )
-    {
-        bool compiled = _Compile( entryPoint, GetLatestProfile<ID3D11PixelShader>().c_str() );
-        if (not compiled)
-            return false;
+            D3D11_SHADER_BUFFER_DESC bufferDesc;
+            HR( buffer->GetDesc( &bufferDesc ) );
 
-        SAFE_RELEASE( m_pPixelShader );
+            for (U32 j = 0; j < bufferDesc.Variables; j++)
+            {
+                auto var = buffer->GetVariableByIndex(j);
 
-        HR( g_pDevice->CreatePixelShader( m_shaderBaseBlob->GetBufferPointer(), m_shaderBaseBlob->GetBufferSize(), nullptr, &m_pPixelShader ) );
+                D3D11_SHADER_VARIABLE_DESC varDesc;
+                HR( var->GetDesc( &varDesc ) );
 
-        // Shader blob no longer needed
-        SAFE_RELEASE( m_shaderBaseBlob );
+                auto type = var->GetType();
 
-        return true;
+                D3D11_SHADER_TYPE_DESC typeDesc;
+                HR( type->GetDesc( &typeDesc ) );
+            }
+        }
+
     }
 
 } } // End namespaces

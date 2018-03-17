@@ -6,7 +6,8 @@
     date: March 12, 2018
 **********************************************************************/
 
-#include "../Pipeline/Shaders/D3D11Shaders.h"
+#include "../Pipeline/Shaders/D3D11VertexShader.h"
+#include "../Pipeline/Shaders/D3D11PixelShader.h"
 #include "../Resources/D3D11Mesh.h"
 #include "../D3D11Utility.hpp"
 

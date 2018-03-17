@@ -1,14 +1,14 @@
 #pragma once
 /**********************************************************************
-    class: ShaderBase + VertexShader etc. (D3D11Shaders.h)
+    class: ShaderBase (D3D11ShaderBase.h)
 
     author: S. Hau
-    date: December 3, 2017
+    date: March 17, 2018
 **********************************************************************/
 
 #include "../../D3D11.hpp"
 #include "OS/FileSystem/path.h"
-#include "vertex_layout.hpp"
+#include <d3dcompiler.h>
 
 namespace Graphics { namespace D3D11 {
 
@@ -16,29 +16,41 @@ namespace Graphics { namespace D3D11 {
     class ShaderBase
     {
     public:
-        ShaderBase( const OS::Path& path );
-        virtual ~ShaderBase() = 0;
+        ShaderBase(const OS::Path& path) : m_filePath( path ) {}
+        virtual ~ShaderBase() { SAFE_RELEASE( m_shaderBlob ); };
 
         //----------------------------------------------------------------------
-        const OS::Path& getFilePath() const { return m_filePath; }
-        ID3DBlob*       getShaderBlob() { return m_shaderBaseBlob; }
+        const OS::Path& getFilePath()   const { return m_filePath; }
         CString         getEntryPoint() const { return m_entryPoint.c_str(); }
+        bool            isUpToDate()    const { return m_fileTimeAtCompilation == m_filePath.getLastWrittenFileTime(); }
+        ID3DBlob*       getShaderBlob() { return m_shaderBlob; }
 
+        //----------------------------------------------------------------------
         virtual void bind() = 0;
         virtual bool compile(CString entryPoint) = 0;
 
-        bool isUpToDate();
 
     protected:
-        ID3DBlob*       m_shaderBaseBlob = nullptr;
+        ID3DBlob*       m_shaderBlob = nullptr;
         String          m_entryPoint = "main";
         OS::Path        m_filePath;
         OS::SystemTime  m_fileTimeAtCompilation;
 
         //----------------------------------------------------------------------
-        bool _Compile( CString entryPoint, CString profile );
+        template <typename T>
+        bool _Compile( CString entryPoint ) 
+        {
+            m_entryPoint = entryPoint;
+            m_fileTimeAtCompilation = m_filePath.getLastWrittenFileTime();
+
+            return _Compile( GetLatestProfile<T>().c_str() );
+        }
 
     private:
+
+        //----------------------------------------------------------------------
+        bool _Compile(CString profile);
+
         //----------------------------------------------------------------------
         ShaderBase(const ShaderBase& other)               = delete;
         ShaderBase& operator = (const ShaderBase& other)  = delete;
@@ -46,59 +58,9 @@ namespace Graphics { namespace D3D11 {
         ShaderBase& operator = (ShaderBase&& other)       = delete;
     };
 
-    //**********************************************************************
-    class VertexShader : public ShaderBase
-    {
-    public:
-        VertexShader(CString path);
-        ~VertexShader();
-
-        void bind() override;
-        bool compile(CString entryPoint) override;
-
-        const VertexLayout& getVertexLayout() const { return m_vertexLayout; }
-
-    private:
-        ID3D11VertexShader* m_pVertexShader = nullptr;
-        ID3D11InputLayout*  m_pInputLayout  = nullptr;
-
-        VertexLayout        m_vertexLayout;
-
-        //----------------------------------------------------------------------
-        void _CreateInputLayout(ID3DBlob* pShaderBlob);
-        void _AddToVertexLayout(String semanticName);
-
-
-        //----------------------------------------------------------------------
-        VertexShader(const VertexShader& other)               = delete;
-        VertexShader& operator = (const VertexShader& other)  = delete;
-        VertexShader(VertexShader&& other)                    = delete;
-        VertexShader& operator = (VertexShader&& other)       = delete;
-    };
-
-    //**********************************************************************
-    class PixelShader : public ShaderBase
-    {
-    public:
-        PixelShader(CString path);
-        ~PixelShader();
-
-        void bind() override;
-        bool compile(CString entryPoint) override;
-
-    private:
-        ID3D11PixelShader* m_pPixelShader = nullptr;
-
-        //----------------------------------------------------------------------
-        PixelShader(const PixelShader& other)               = delete;
-        PixelShader& operator = (const PixelShader& other)  = delete;
-        PixelShader(PixelShader&& other)                    = delete;
-        PixelShader& operator = (PixelShader&& other)       = delete;
-    };
-
-
-    // Get the latest profile for the specified ShaderBase type.
-    template< class ShaderBaseClass >
+    
+    // Get the latest profile for the specified Shader type.
+    template<class ShaderCompilerClass>
     String GetLatestProfile();
 
     //----------------------------------------------------------------------
