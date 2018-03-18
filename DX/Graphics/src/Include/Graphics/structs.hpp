@@ -58,8 +58,11 @@ namespace Graphics {
         RenderTargetBlendState  blendStates[8];                 // Blend states for each render target
     };
 
+    // Contains infos about one specific member in a shader buffer
     struct ShaderBufferMemberInfo
     {
+        String  name;
+        U32     offset;
     };
 
     // Contains information about an buffer in a shader

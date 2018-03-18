@@ -16,12 +16,10 @@
 
 namespace Graphics {
 
-    class IMesh;
-
     //**********************************************************************
     class IShader
     {
-        friend class D3D11Renderer; // Access to bind() & drawMesh()
+        friend class D3D11Renderer; // Access to bind()
 
     public:
         IShader() = default;
@@ -33,7 +31,7 @@ namespace Graphics {
         //  "fragPath": Path to the fragment shader file.
         // This sets only the paths. To compile and use this shader you must call compile().
         //----------------------------------------------------------------------
-        virtual void setShaderPaths( const OS::Path& vertPath, const OS::Path& fragPath ) = 0;
+        virtual void setShaderPaths(const OS::Path& vertPath, const OS::Path& fragPath) = 0;
 
         //----------------------------------------------------------------------
         // Try to compile this shader.
@@ -42,7 +40,7 @@ namespace Graphics {
         // @Return:
         //  True, if compilation was successful, otherwise false and prints what went wrong.
         //----------------------------------------------------------------------
-        virtual bool compile( CString entryPoint ) = 0;
+        virtual bool compile(CString entryPoint) = 0;
 
         //----------------------------------------------------------------------
         // Recompile all shaders which are not up to date.
@@ -78,7 +76,7 @@ namespace Graphics {
         // @Return:
         //  Manual Blend-Factors. Only used when manual blending is enabled.
         //----------------------------------------------------------------------
-        std::array<F32, 4>  getBlendFactors() const { return m_blendFactors; }
+        std::array<F32, 4> getBlendFactors() const { return m_blendFactors; }
 
         //----------------------------------------------------------------------
         // Set manually the blend factors. Only used when manual blending is enabled.
@@ -96,23 +94,27 @@ namespace Graphics {
             blendState.blendStates[0].srcBlend       = Graphics::Blend::SRC_ALPHA;
             blendState.blendStates[0].destBlend      = Graphics::Blend::INV_SRC_ALPHA;
             blendState.blendStates[0].blendOp        = Graphics::BlendOP::ADD;
-            blendState.blendStates[0].srcBlendAlpha  = Graphics::Blend::SRC_ALPHA;
-            blendState.blendStates[0].destBlendAlpha = Graphics::Blend::INV_SRC_ALPHA;
+            blendState.blendStates[0].srcBlendAlpha  = Graphics::Blend::ONE;
+            blendState.blendStates[0].destBlendAlpha = Graphics::Blend::ZERO;
             blendState.blendStates[0].blendOpAlpha   = Graphics::BlendOP::ADD;
 
             setBlendState( blendState );
         }
 
         //----------------------------------------------------------------------
-        const ShaderBufferInfo& getMaterialBufferInfo()
+        const ArrayList<ShaderBufferInfo>& getMaterialBufferInfo() const { return m_materialBufferInfos; }
+
+        const ShaderBufferMemberInfo& getMemberInfo(CString name)
         {
+            return m_memberInfo;
         }
 
     protected:
         // These are only used when configured correctly
         std::array<F32, 4> m_blendFactors = { 1.0f, 1.0f, 1.0f, 1.0f };
 
-        ShaderBufferInfo m_materialBufferInfo;
+        ArrayList<ShaderBufferInfo> m_materialBufferInfos;
+        ShaderBufferMemberInfo m_memberInfo;
 
     private:
         //----------------------------------------------------------------------

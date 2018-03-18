@@ -15,32 +15,6 @@
 namespace Graphics {
 
     //**********************************************************************
-    class MaterialData
-    {
-    public:
-
-        template <typename T>
-        void push(U32 offset, T& pData)
-        {
-            ASSERT( (offset + sizeof(T)) < m_materialData.size() );
-            memcpy( &m_materialData[offset], (void*)&pData, sizeof(T) );
-            m_upToDate = false;
-        }
-
-        bool isUpToDate() const { return m_upToDate; }
-
-        const Byte* data() const { return m_materialData.data(); }
-        U32         size() const { return static_cast<U32>( m_materialData.size() ); }
-        void        resize(U32 size) { m_materialData.resize( size ); }
-
-        void setIsUpToDate(){ m_upToDate = true; }
-
-    private:
-        ArrayList<Byte> m_materialData;
-        bool            m_upToDate = false;
-    };
-    
-    //**********************************************************************
     class IMaterial
     {
     public:
@@ -58,6 +32,8 @@ namespace Graphics {
         {
             //@Get offset from shader for this name
             //@TODO: Updating depending on shader, e.g. can be vertex or fragment
+            auto& binding = m_shader->getMemberInfo( name );
+
             U32 offset = 16;
             m_materialDataVS.push( offset, val );
         }
@@ -71,10 +47,42 @@ namespace Graphics {
         }
 
     protected:
-        IShader*            m_shader = nullptr;
+        IShader* m_shader = nullptr;
 
-        // Contains the material data in a contiguous block of memory
+        //**********************************************************************
+        class MaterialData
+        {
+        public:
+            //----------------------------------------------------------------------
+            //@Params:
+            // "offset": Offset in bytes to put the data into.
+            // "pData": Pointer to the actual data to copy from.
+            //----------------------------------------------------------------------
+            template <typename T>
+            void push( U32 offset, T& pData )
+            {
+                ASSERT( (offset + sizeof(T)) < m_materialData.size() );
+                memcpy( &m_materialData[offset], (void*)&pData, sizeof(T) );
+                m_upToDate = false;
+            }
+
+            //----------------------------------------------------------------------
+            const Byte* data()          const { return m_materialData.data(); }
+            U32         size()          const { return static_cast<U32>( m_materialData.size() ); }
+            bool        isUpToDate()    const { return m_upToDate; }
+
+            //----------------------------------------------------------------------
+            void        resize(U32 size)    { m_materialData.resize( size ); }
+            void        setIsUpToDate()     { m_upToDate = true; }
+
+        private:
+            ArrayList<Byte> m_materialData;
+            bool            m_upToDate = true;
+        };
+
+        // Contains the material data in a contiguous block of memory. Will be empty if not used for a shader.
         MaterialData        m_materialDataVS;
+        MaterialData        m_materialDataPS;
 
         //----------------------------------------------------------------------
         friend class D3D11Renderer;

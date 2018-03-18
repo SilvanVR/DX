@@ -54,7 +54,8 @@ namespace Graphics { namespace D3D11 {
         ~ConstantBuffer() {};
 
         //----------------------------------------------------------------------
-        void bind(U32 slot);
+        void bindToVertexShader(U32 slot);
+        void bindToPixelShader(U32 slot);
 
     private:
         //----------------------------------------------------------------------

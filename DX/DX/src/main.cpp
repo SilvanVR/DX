@@ -194,11 +194,39 @@ public:
 private:
 };
 
+class AutoOrbiting : public Components::IComponent
+{
+    F32 m_speed;
+    F32 m_curDegrees;
+    Math::Vec3 m_center;
+
+public:
+    // Attached gameobject rotates "yawSpeed" (in degrees) per second around the center.
+    AutoOrbiting(F32 yawSpeed, Math::Vec3 center = Math::Vec3())
+        : m_speed( yawSpeed ), m_center(center) {}
+
+    void Tick(Time::Seconds delta) override
+    {
+        auto t = getGameObject()->getComponent<Components::Transform>();
+
+        Math::Vec3 vecXZ = t->position;
+        vecXZ.y = 0.0f;
+        F32 length = vecXZ.magnitude();
+
+        t->position.x = m_center.x + length * cos( Math::deg2Rad(m_curDegrees) );
+        t->position.z = m_center.z + length * sin( Math::deg2Rad(m_curDegrees) );
+
+        t->lookAt(m_center);
+
+        m_curDegrees += m_speed * (F32)delta.value;
+    }
+};
+
 //----------------------------------------------------------------------
 // SCENES
 //----------------------------------------------------------------------
 
-class MyScene2 : public IScene
+class SceneCameras : public IScene
 {
     GameObject* go;
     GameObject* go2;
@@ -206,7 +234,7 @@ class MyScene2 : public IScene
     Components::Camera* cam;
 
 public:
-    MyScene2() : IScene("MyScene2") {}
+    SceneCameras() : IScene("SceneCameras") {}
 
     void init() override
     {
@@ -232,8 +260,10 @@ public:
 
         auto& viewport = cam->getViewport();
         viewport.width  = 0.5f;
+        viewport.height = 0.5f;
 
         {
+            // CAMERA 2
             auto go3 = createGameObject("Camera2");
             auto cam2 = go3->addComponent<Components::Camera>();
             go3->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -5);
@@ -242,12 +272,38 @@ public:
             auto& viewport2 = cam2->getViewport();
             viewport2.topLeftX = 0.5f;
             viewport2.width = 0.5f;
+            viewport2.height = 0.5f;
+
+            // CAMERA 3
+            auto go4 = createGameObject("Camera3");
+            auto cam3 = go4->addComponent<Components::Camera>();
+            go4->getComponent<Components::Transform>()->position = Math::Vec3(0, 5, 5);
+            go4->getComponent<Components::Transform>()->lookAt(Math::Vec3(0));
+            cam3->setClearMode(Components::Camera::EClearMode::NONE);
+
+            auto& viewport3 = cam3->getViewport();
+            viewport3.topLeftY = 0.5f;
+            viewport3.width = 0.5f;
+            viewport3.height = 0.5f;
+
+            // CAMERA 4
+            auto go5 = createGameObject("Camera4");
+            auto cam4 = go5->addComponent<Components::Camera>();
+            go5->getComponent<Components::Transform>()->position = Math::Vec3(0, -5, -5);
+            go5->getComponent<Components::Transform>()->lookAt(Math::Vec3(0));
+            cam4->setClearMode(Components::Camera::EClearMode::NONE);
+
+            auto& viewport4 = cam4->getViewport();
+            viewport4.topLeftY = 0.5f;
+            viewport4.topLeftX = 0.5f;
+            viewport4.width = 0.5f;
+            viewport4.height = 0.5f;
         }
 
         //bool removed = go2->removeComponent( c );
         //bool destroyed = go2->removeComponent<Components::Transform>();
 
-        LOG("MyScene2 initialized!", Color::RED);
+        LOG("SceneCameras initialized!", Color::RED);
     }
 
     void tick(Time::Seconds delta)
@@ -258,7 +314,7 @@ public:
 
     void shutdown() override
     {
-        LOG("MyScene2 Shutdown!", Color::RED);
+        LOG("SceneCameras Shutdown!", Color::RED);
     }
 };
 
@@ -273,15 +329,16 @@ public:
     {
         auto go = createGameObject("Camera");
         auto cam = go->addComponent<Components::Camera>();
-        go->getComponent<Components::Transform>()->position = Math::Vec3(0,0,-10);
+        go->getComponent<Components::Transform>()->position = Math::Vec3(0,10,-25);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 10.0f, 0.3f);
+        go->addComponent<AutoOrbiting>(15);
 
         auto worldGO = createGameObject("World");
         worldGO->getComponent<Components::Transform>()->position = Math::Vec3(0, 3, 0);
         worldGO->addComponent<WorldGeneration>();
 
-        //auto wavesGO = createGameObject("Waves");
-        //wavesGO->addComponent<VertexGeneration>();
+        auto wavesGO = createGameObject("Waves");
+        wavesGO->addComponent<VertexGeneration>();
 
         auto cube = Assets::MeshGenerator::CreateCube(1.0f);
         cube->setColors(cubeColors);
@@ -359,8 +416,9 @@ public:
     {
         auto go = createGameObject("Camera");
         auto cam = go->addComponent<Components::Camera>();
-        go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -10);
+        go->getComponent<Components::Transform>()->position = Math::Vec3(0, 5, -10);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 10.0f, 0.3f);
+        go->addComponent<AutoOrbiting>(10.0f);
 
         auto grid = createGameObject("Grid");
         grid->addComponent<GridGeneration>(20);
@@ -425,16 +483,23 @@ public:
 
         U32 sq = (U32)sqrt(m_numObjects);
 
-        // GAMEOBJECTs
-        for (U32 i = 0; i < sq; i++)
+        for (U32 i = 0; i < m_numObjects; i++)
         {
-            for (U32 j = 0; j < sq; j++)
-            {
-                auto go = createGameObject("Test");
-                go->addComponent<Components::MeshRenderer>(cube);
-                go->getComponent<Components::Transform>()->position = Math::Vec3(i * 3.0f, 0, j * 3.0f);
-            }
+            auto go = createGameObject("Test");
+            go->addComponent<Components::MeshRenderer>(cube);
+            go->getComponent<Components::Transform>()->position = Math::Random::Vec3(-1,1).normalized() * sqrtf(m_numObjects);
         }
+
+        // GAMEOBJECTs
+        //for (U32 i = 0; i < sq; i++)
+        //{
+        //    for (U32 j = 0; j < sq; j++)
+        //    {
+        //        auto go = createGameObject("Test");
+        //        go->addComponent<Components::MeshRenderer>(cube);
+        //        go->getComponent<Components::Transform>()->position = Math::Vec3(i * 3.0f, 0, j * 3.0f);
+        //    }
+        //}
         LOG("ManyObjectsScene initialized!", Color::RED);
     }
 
@@ -505,9 +570,11 @@ public:
         if (KEYBOARD.wasKeyPressed(Key::One))
             Locator::getSceneManager().LoadSceneAsync(new MyScene);
         if (KEYBOARD.wasKeyPressed(Key::Two))
-            Locator::getSceneManager().LoadSceneAsync(new MyScene2);
+            Locator::getSceneManager().LoadSceneAsync(new SceneCameras);
         if (KEYBOARD.wasKeyPressed(Key::Three))
             Locator::getSceneManager().LoadSceneAsync(new MaterialTestScene);
+        if (KEYBOARD.wasKeyPressed(Key::Four))
+            Locator::getSceneManager().LoadSceneAsync(new ManyObjectsScene(100));
 
         if (KEYBOARD.wasKeyPressed(Key::F1))
             Locator::getRenderer().setGlobalShaderActive("NONE");

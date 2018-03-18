@@ -9,24 +9,38 @@
 namespace Graphics { namespace D3D11 {
 
     //----------------------------------------------------------------------
-    Material::~Material()
-    {
-        if (m_pConstantBuffer)
-            SAFE_DELETE( m_pConstantBuffer );
-    }
-
-    //----------------------------------------------------------------------
     void Material::bind()
     {
+        // Update vertex-buffer
         if ( not m_materialDataVS.isUpToDate() )
         {
-            m_pConstantBuffer->update( m_materialDataVS.data(), m_materialDataVS.size() );
+            m_pConstantBufferVS->update( m_materialDataVS.data(), m_materialDataVS.size() );
             m_materialDataVS.setIsUpToDate();
         }
 
+        // Update fragment-buffer
+        if ( not m_materialDataPS.isUpToDate() )
+        {
+            m_pConstantBufferPS->update( m_materialDataPS.data(), m_materialDataPS.size() );
+            m_materialDataPS.setIsUpToDate();
+        }
+
+        auto& bufferInfo = m_shader->getMaterialBufferInfo();
+
         // @TODO: Get binding slot from shader
-        if (m_pConstantBuffer)
-            m_pConstantBuffer->bind(2);
+        if (m_pConstantBufferVS)
+            m_pConstantBufferVS->bindToVertexShader(2);
+
+        // @TODO: binding slot from shader
+        if (m_pConstantBufferPS)
+            m_pConstantBufferPS->bindToPixelShader(0);
+    }
+
+    //----------------------------------------------------------------------
+    void Material::_ChangedShader()
+    {
+        _DestroyConstantBuffers();
+        _CreateConstantBuffers();
     }
 
     //**********************************************************************
@@ -39,21 +53,27 @@ namespace Graphics { namespace D3D11 {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    void Material::_ChangedShader()
+    void Material::_UpdateConstantBuffer()
     {
-        if (m_pConstantBuffer)
-            SAFE_DELETE( m_pConstantBuffer );
+    }
 
+    //----------------------------------------------------------------------
+    void Material::_DestroyConstantBuffers()
+    {
+        if (m_pConstantBufferVS)
+            SAFE_DELETE( m_pConstantBufferVS );
+        if (m_pConstantBufferPS)
+            SAFE_DELETE( m_pConstantBufferPS );
+    }
+
+    //----------------------------------------------------------------------
+    void Material::_CreateConstantBuffers()
+    {
         // @TODO Get Size from Shader
         U32 size = 32;
 
         m_materialDataVS.resize( size );
-        m_pConstantBuffer = new D3D11::ConstantBuffer( size, BufferUsage::LONG_LIVED );
-    }
-
-    //----------------------------------------------------------------------
-    void Material::_UpdateConstantBuffer()
-    {
+        m_pConstantBufferVS = new D3D11::ConstantBuffer( size, BufferUsage::LONG_LIVED );
     }
 
 } } // End namespaces

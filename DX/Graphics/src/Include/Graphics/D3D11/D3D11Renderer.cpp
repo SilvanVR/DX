@@ -55,8 +55,8 @@ namespace Graphics {
 
         // Bind Global Constant buffers
         // @TODO: There should be several constant buffers. Bind them depending on shader-buffers
-        pConstantBufferCamera->bind(0);
-        pConstantBufferObject->bind(1);
+        pConstantBufferCamera->bindToVertexShader(0);
+        pConstantBufferObject->bindToVertexShader(1);
 
         // Just sort drawcalls quickly by material
         HashMap<Material*, ArrayList<U32>> sortedMaterials;

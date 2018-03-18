@@ -16,14 +16,15 @@ namespace Graphics { namespace D3D11 {
     {
     public:
         Material() = default;
-        ~Material();
+        ~Material() { _DestroyConstantBuffers(); }
 
         //----------------------------------------------------------------------
         // IMaterial Interface
         //----------------------------------------------------------------------
 
     private:
-        D3D11::ConstantBuffer* m_pConstantBuffer;
+        D3D11::ConstantBuffer* m_pConstantBufferVS;
+        D3D11::ConstantBuffer* m_pConstantBufferPS;
 
         //----------------------------------------------------------------------
         // IMaterial Interface
@@ -32,6 +33,8 @@ namespace Graphics { namespace D3D11 {
         void _ChangedShader() override;
 
         //----------------------------------------------------------------------
+        void _DestroyConstantBuffers();
+        void _CreateConstantBuffers();
         void _UpdateConstantBuffer();
 
         //----------------------------------------------------------------------
