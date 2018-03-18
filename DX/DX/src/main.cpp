@@ -331,7 +331,7 @@ public:
         auto cam = go->addComponent<Components::Camera>();
         go->getComponent<Components::Transform>()->position = Math::Vec3(0,10,-25);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 10.0f, 0.3f);
-        go->addComponent<AutoOrbiting>(15);
+        go->addComponent<AutoOrbiting>(15.0f);
 
         auto worldGO = createGameObject("World");
         worldGO->getComponent<Components::Transform>()->position = Math::Vec3(0, 3, 0);
@@ -476,7 +476,7 @@ public:
         auto cam = go->addComponent<Components::Camera>();
         go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -10);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 10.0f, 0.3f);
-        
+
         // MESH
         auto cube = Assets::MeshGenerator::CreateCube(1.0f);
         cube->setColors(cubeColors);
@@ -487,7 +487,7 @@ public:
         {
             auto go = createGameObject("Test");
             go->addComponent<Components::MeshRenderer>(cube);
-            go->getComponent<Components::Transform>()->position = Math::Random::Vec3(-1,1).normalized() * sqrtf(m_numObjects);
+            go->getComponent<Components::Transform>()->position = Math::Random::Vec3(-1,1).normalized() * sqrtf((F32)m_numObjects);
         }
 
         // GAMEOBJECTs
