@@ -47,6 +47,25 @@ namespace Graphics { namespace D3D11 {
     // PUBLIC
     //**********************************************************************
 
+    //----------------------------------------------------------------------
+    void Material::setFloat( CString name, F32 val )
+    {
+        //@Get offset from shader for this name
+        //@TODO: Updating depending on shader, e.g. can be vertex or fragment
+        auto& binding = m_shader->getMemberInfo( name );
+
+        U32 offset = 16;
+        m_materialDataVS.push( offset, val );
+    }
+
+    //----------------------------------------------------------------------
+    void Material::setVec4( CString name, const Math::Vec4& vec )
+    {
+        //@Get offset from shader for this name
+        U32 offset = 0;
+        m_materialDataVS.push( offset, vec );
+    }
+
 
     //**********************************************************************
     // PRIVATE

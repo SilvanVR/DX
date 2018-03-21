@@ -68,37 +68,37 @@ namespace Graphics {
             {
                 case GPUCommand::SET_RENDER_TARGET:
                 {
-                    GPUC_SetRenderTarget& c = *dynamic_cast<GPUC_SetRenderTarget*>( commands[i].get() );
+                    GPUC_SetRenderTarget& c = *reinterpret_cast<GPUC_SetRenderTarget*>( commands[i].get() );
                     _SetRenderTarget( c.renderTarget );
                     break;
                 }
                 case GPUCommand::CLEAR_RENDER_TARGET:
                 {
-                    GPUC_ClearRenderTarget& c = *dynamic_cast<GPUC_ClearRenderTarget*>( commands[i].get() );
+                    GPUC_ClearRenderTarget& c = *reinterpret_cast<GPUC_ClearRenderTarget*>( commands[i].get() );
                     _ClearRenderTarget( c.clearColor );
                     break;
                 }
                 case GPUCommand::SET_VIEWPORT:
                 {
-                    GPUC_SetViewport& c = *dynamic_cast<GPUC_SetViewport*>( commands[i].get() );
+                    GPUC_SetViewport& c = *reinterpret_cast<GPUC_SetViewport*>( commands[i].get() );
                     _SetViewport( c.viewport );
                     break;
                 }
                 case GPUCommand::SET_CAMERA_PERSPECTIVE:
                 {
-                    GPUC_SetCameraPerspective& c = *dynamic_cast<GPUC_SetCameraPerspective*>( commands[i].get() );
+                    GPUC_SetCameraPerspective& c = *reinterpret_cast<GPUC_SetCameraPerspective*>( commands[i].get() );
                     _SetCameraPerspective( c.view, c.fov, c.zNear, c.zFar );
                     break;
                 }
                 case GPUCommand::SET_CAMERA_ORTHO:
                 {
-                    GPUC_SetCameraOrtho& c = *dynamic_cast<GPUC_SetCameraOrtho*>( commands[i].get() );
+                    GPUC_SetCameraOrtho& c = *reinterpret_cast<GPUC_SetCameraOrtho*>( commands[i].get() );
                     _SetCameraOrtho( c.view, c.left, c.right, c.bottom, c.top, c.zNear, c.zFar );
                     break;
                 }
                 case GPUCommand::DRAW_MESH:
                 {
-                    GPUC_DrawMesh& c = *dynamic_cast<GPUC_DrawMesh*>( commands[i].get() );
+                    GPUC_DrawMesh& c = *reinterpret_cast<GPUC_DrawMesh*>( commands[i].get() );
                     sortedMaterials[c.material].push_back( i );
                     break;
                 }
@@ -126,13 +126,13 @@ namespace Graphics {
 
             for (auto& index : pair.second)
             {
-                GPUC_DrawMesh& c = *dynamic_cast<GPUC_DrawMesh*>( commands[index].get() );
+                GPUC_DrawMesh& c = *reinterpret_cast<GPUC_DrawMesh*>( commands[index].get() );
 
                 // Update per object buffer
                 pConstantBufferObject->update( &c.modelMatrix, sizeof( DirectX::XMMATRIX ) );
 
                 // Bind buffers
-                auto mesh = dynamic_cast<D3D11::Mesh*>( c.mesh );
+                auto mesh = reinterpret_cast<D3D11::Mesh*>( c.mesh );
                 mesh->bind( shader->getVertexLayout(), c.subMeshIndex );
 
                 // Submit draw call

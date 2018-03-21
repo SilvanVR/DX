@@ -51,6 +51,9 @@ namespace Core {
         void _ExecuteCommand(const char* command);
         void _ExecuteSetVarCommand(const String& name, const String& var);
 
+        void _OpenConsole();
+        void _CloseConsole();
+
         //----------------------------------------------------------------------
         InGameConsole(const InGameConsole& other)               = delete;
         InGameConsole& operator = (const InGameConsole& other)  = delete;

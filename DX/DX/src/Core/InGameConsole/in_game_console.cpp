@@ -123,9 +123,9 @@ namespace Core {
         {
             m_enabled = !m_enabled;
             if (m_enabled)
-                LOG( " >>> Opening Console...", CONSOLE_INFO_COLOR );
+                _OpenConsole();
             else
-                LOG( " >>> Closing Console...", CONSOLE_INFO_COLOR );
+                _CloseConsole();
         }
     }
 
@@ -198,6 +198,18 @@ namespace Core {
     //*********************************************************************
     // PRIVATE
     //*********************************************************************
+
+    //----------------------------------------------------------------------
+    void InGameConsole::_OpenConsole()
+    {
+        LOG( " >>> Opening Console...", CONSOLE_INFO_COLOR );
+    }
+
+    //----------------------------------------------------------------------
+    void InGameConsole::_CloseConsole()
+    {
+        LOG( " >>> Closing Console...", CONSOLE_INFO_COLOR );
+    }
 
     // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     // HIGHLY EXPERIMENTAL. THIS CODE IS NOT VERY CLEAN!!!!!!!!!!!!!!

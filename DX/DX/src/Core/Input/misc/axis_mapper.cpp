@@ -17,7 +17,7 @@ namespace Core { namespace Input {
     #define AXIS_MAX    1.0
 
     //----------------------------------------------------------------------
-    F64 AxisMapper::getAxisValue(const char* name) const
+    F64 AxisMapper::getAxisValue( const char* name ) const
     {
         StringID axis = SID( name );
         if ( m_axisMap.count( axis ) == 0 )

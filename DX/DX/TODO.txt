@@ -6,9 +6,6 @@
         > Set Vertices / Indices from a model
     > Shaders
         > Hot-Reloading of shaders
-    > Materials
-		> Associated with a shader and uniform params cached on the cpu
-	    > Push to GPU before rendering
 	> Command Buffer
 		> Stores Rendering Commands e.g.
 			> DrawMesh(mesh, material, matrix)
@@ -16,6 +13,10 @@
 		> View / Proj Matrix
 		> As in unity, command buffer attached to different camera events?
 		> Viewfrustum Culling
+
+	> Materials
+		> Associated with a shader and uniform params cached on the cpu
+	    > Push to GPU before rendering
 
 1.5) Debug Drawing
 	> Render Lines / Boxes in wireframe

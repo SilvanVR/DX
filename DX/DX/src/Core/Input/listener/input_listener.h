@@ -18,7 +18,7 @@
 namespace Core { namespace Input {
 
     //**********************************************************************
-    class IKeyListener 
+    class IKeyListener
     {
     public:
         IKeyListener();
@@ -32,7 +32,7 @@ namespace Core { namespace Input {
     };
 
     //**********************************************************************
-    class IMouseListener 
+    class IMouseListener
     {
     public:
         IMouseListener();

@@ -447,6 +447,8 @@ public:
         go2->addComponent<Components::MeshRenderer>(cube);
         go2->getComponent<Components::Transform>()->position = Math::Vec3(3, 0, 0);
 
+        IGC_SET_VAR("alpha", 1.0f);
+
         LOG("MaterialTestScene initialized!", Color::RED);
     }
 
@@ -454,6 +456,7 @@ public:
     {
         F64 s = (sin( TIME.getTime().value ) + 1) / 2;
         material->setVec4( "mColor", Math::Vec4((F32)s, 0.0f, 0.0f, 1.0f) );
+        material->setFloat("val", 0.5f);
     }
 
     void shutdown() override

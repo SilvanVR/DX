@@ -84,7 +84,7 @@ namespace Core { namespace Input {
                 break;
             case KeyAction::UP:
                 m_keyReleased[ keyIndex ] = true;
-                _NotifyKeyReleased( key, mod);
+                _NotifyKeyReleased( key, mod );
                 break;
             }
         }
@@ -125,14 +125,14 @@ namespace Core { namespace Input {
         void Keyboard::_NotifyKeyPressed( Key key, KeyMod mod ) const
         {
             for (auto& listener : m_keyListener)
-                listener->OnKeyPressed( key, mod);
+                listener->OnKeyPressed( key, mod );
         }
 
         //----------------------------------------------------------------------
         void Keyboard::_NotifyKeyReleased( Key key, KeyMod mod ) const
         {
             for (auto& listener : m_keyListener)
-                listener->OnKeyReleased( key, mod);
+                listener->OnKeyReleased( key, mod );
         }
 
         //----------------------------------------------------------------------
