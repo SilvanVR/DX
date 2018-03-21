@@ -580,9 +580,9 @@ public:
             Locator::getSceneManager().LoadSceneAsync(new ManyObjectsScene(100));
 
         if (KEYBOARD.wasKeyPressed(Key::F1))
-            Locator::getRenderer().setGlobalShaderActive("NONE");
+            Locator::getRenderer().setGlobalMaterialActive("NONE");
         if (KEYBOARD.wasKeyPressed(Key::F2))
-            Locator::getRenderer().setGlobalShaderActive("Wireframe");
+            Locator::getRenderer().setGlobalMaterialActive("Wireframe");
 
         if (KEYBOARD.wasKeyPressed(Key::M))
             _ChangeMultiSampling();

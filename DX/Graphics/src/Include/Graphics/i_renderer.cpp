@@ -18,7 +18,7 @@ namespace Graphics {
     { 
         ASSERT( window != nullptr );
         m_window->setCallbackSizeChanged( BIND_THIS_FUNC_2_ARGS( &IRenderer::OnWindowSizeChanged ) );
-        addGlobalShader( "NONE", nullptr );
+        addGlobalMaterial( "NONE", nullptr );
     }
 
     //----------------------------------------------------------------------
@@ -26,22 +26,22 @@ namespace Graphics {
     //----------------------------------------------------------------------
 
     //----------------------------------------------------------------------
-    void IRenderer::addGlobalShader( CString name, IShader* shader ) 
+    void IRenderer::addGlobalMaterial( CString name, IMaterial* material )
     { 
-        m_globalShaders[SID( name )] = shader;
+        m_globalMaterials[SID( name )] = material;
     }
 
     //----------------------------------------------------------------------
-    void IRenderer::setGlobalShaderActive( CString name ) 
+    void IRenderer::setGlobalMaterialActive( CString name ) 
     { 
         StringID id = SID( name );
-        if ( m_globalShaders.count(id) == 0 )
+        if ( m_globalMaterials.count( id ) == 0 )
         {
             WARN_RENDERING( "setGlobalShader(): Global Shader with name '" + String( name ) + "' does not exist." );
             return;
         }
 
-        m_activeGlobalShader = m_globalShaders[id]; 
+        m_activeGlobalMaterial = m_globalMaterials[id];
     }
 
 

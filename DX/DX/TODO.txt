@@ -17,6 +17,7 @@
 	> Materials
 		> Associated with a shader and uniform params cached on the cpu
 	    > Push to GPU before rendering
+		> Store in file (+ hot reloading)
 
 1.5) Debug Drawing
 	> Render Lines / Boxes in wireframe

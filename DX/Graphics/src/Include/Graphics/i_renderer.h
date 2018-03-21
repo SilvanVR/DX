@@ -53,25 +53,27 @@ namespace Graphics {
 
         //----------------------------------------------------------------------
         // Add a global shader to this renderer. A global shader allows to render
-        // the whole scene with just one shader-setup.
+        // the whole scene with just one shader-setup. To use it call setGlobalMaterialActive(name)
         // @Params:
         //  "name": The name of this shader to identify it.
-        //  "shader": The actual shader.
+        //  "material": The actual material.
         //----------------------------------------------------------------------
-        void addGlobalShader(CString name, IShader* shader);
+        void addGlobalMaterial(CString name, IMaterial* material);
 
         //----------------------------------------------------------------------
         // Set a global shader with the given name as active. If a global shader
         // is set, every geometry will be rendered with this shader.
+        // @Params:
+        //  "name": Name of the global shader. If "NONE", it resets to nullptr.
         //----------------------------------------------------------------------
-        void setGlobalShaderActive(CString name = "NONE");
+        void setGlobalMaterialActive(CString name = "NONE");
 
     protected:
         OS::Window* m_window = nullptr;
 
         //----------------------------------------------------------------------
-        HashMap<StringID, IShader*> m_globalShaders;
-        IShader*                    m_activeGlobalShader = nullptr; // If this is not null the scene should be rendered just with this shader
+        HashMap<StringID, IMaterial*> m_globalMaterials;
+        IMaterial*                    m_activeGlobalMaterial = nullptr; // If this is not null the scene should be rendered just with this material
 
         //----------------------------------------------------------------------
         virtual void OnWindowSizeChanged(U16 w, U16 h) = 0;

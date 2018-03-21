@@ -30,18 +30,26 @@ namespace Graphics {
         //----------------------------------------------------------------------
         // Set material parameters.
         //----------------------------------------------------------------------
-        virtual void setFloat(CString name, F32 val) = 0;
-        virtual void setVec4(CString name, const Math::Vec4& vec) = 0;
+        void setFloat(CString name, F32 val)                { m_floatMap[ SID( name ) ] = val; _SetFloat( name, val ); }
+        void setVec4(CString name, const Math::Vec4& vec)   { m_vec4Map[ SID( name ) ] = vec; _SetVec4( name, vec ); }
 
     protected:
-        IShader* m_shader = nullptr;
+        IShader*    m_shader = nullptr;
 
+        // Data maps
+        HashMap<StringID, F32>          m_floatMap;
+        HashMap<StringID, Math::Vec4>   m_vec4Map;
+
+        // Each API should decide themselves how to efficiently update their data
+        virtual void _SetFloat(CString name, F32 val) = 0;
+        virtual void _SetVec4(CString name, const Math::Vec4& vec) = 0;
+
+    private:
         //----------------------------------------------------------------------
         friend class D3D11Renderer;
         virtual void bind() = 0;
         virtual void _ChangedShader() = 0;
 
-    private:
         //----------------------------------------------------------------------
         IMaterial(const IMaterial& other)               = delete;
         IMaterial& operator = (const IMaterial& other)  = delete;

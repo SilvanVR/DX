@@ -43,8 +43,10 @@ namespace Core { namespace Resources {
 
         //----------------------------------------------------------------------
         // Creates a new material for use by the graphics engine.
+        // @Params:
+        //  "shader": Shader to use for this material. If null default shader will be applied.
         //----------------------------------------------------------------------
-        Graphics::Material* createMaterial();
+        Graphics::Material* createMaterial(Graphics::Shader* shader = nullptr);
 
         //----------------------------------------------------------------------
         // Creates a new shader for use by the graphics engine.
@@ -71,6 +73,7 @@ namespace Core { namespace Resources {
         Graphics::Shader*   m_wireframeShader;
 
         Graphics::Material* m_defaultMaterial;
+        Graphics::Material* m_wireframeMaterial;
 
         //----------------------------------------------------------------------
         ResourceManager(const ResourceManager& other)               = delete;

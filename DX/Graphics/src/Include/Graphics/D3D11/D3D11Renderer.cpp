@@ -112,10 +112,11 @@ namespace Graphics {
         {
             // @TODO: Global-Material instead of shader
             IShader* shader = nullptr;
-            if (m_activeGlobalShader)
+            if (m_activeGlobalMaterial)
             {
-                shader = m_activeGlobalShader;
+                shader = m_activeGlobalMaterial->getShader();
                 shader->bind();
+                m_activeGlobalMaterial->bind();
             }
             else {
                 shader = pair.first->getShader();

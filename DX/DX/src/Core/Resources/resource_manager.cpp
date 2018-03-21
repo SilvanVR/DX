@@ -22,8 +22,9 @@ namespace Core { namespace Resources {
 
         m_wireframeShader = createShader( "/shaders/colorVS.hlsl", "/shaders/colorPS.hlsl" );
         m_wireframeShader->setRasterizationState({ Graphics::FillMode::WIREFRAME });
+        m_wireframeMaterial = createMaterial( m_wireframeShader );
 
-        Locator::getRenderer().addGlobalShader( "Wireframe", m_wireframeShader );
+        Locator::getRenderer().addGlobalMaterial( "Wireframe", m_wireframeMaterial );
 
         // HOT-RELOADING CALLBACK
         Locator::getEngineClock().setInterval([this]{
@@ -83,13 +84,13 @@ namespace Core { namespace Resources {
     }
 
     //----------------------------------------------------------------------
-    Graphics::Material* ResourceManager::createMaterial()
+    Graphics::Material* ResourceManager::createMaterial( Graphics::Shader* shader )
     {
         auto mat = Locator::getRenderer().createMaterial();
         m_materials.push_back( mat );
 
         // Set default shader
-        mat->setShader( m_defaultShader );
+        mat->setShader( shader ? shader : m_defaultShader );
 
         return mat;
     }

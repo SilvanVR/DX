@@ -51,15 +51,16 @@ namespace Graphics { namespace D3D11 {
     }
 
     //----------------------------------------------------------------------
-    void ConstantBuffer::bindToVertexShader( U32 slot )
+    void ConstantBuffer::bindToVertexShader( U32 slot ) const
     {
         g_pImmediateContext->VSSetConstantBuffers( slot, 1, &m_pBuffer );
     }
 
     //----------------------------------------------------------------------
-    void ConstantBuffer::bindToPixelShader( U32 slot )
+    void ConstantBuffer::bindToPixelShader( U32 slot ) const
     {
         g_pImmediateContext->PSSetConstantBuffers( slot, 1, &m_pBuffer );
     }
+
 
 } } // End namespaces
