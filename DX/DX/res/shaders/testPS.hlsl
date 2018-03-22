@@ -1,4 +1,10 @@
 
+cbuffer cbPerMaterial
+{
+	float pixelVal;
+	float4 pixelColor;
+};
+
 struct FragmentIn
 {
     float4 PosH : SV_POSITION;
@@ -7,7 +13,9 @@ struct FragmentIn
 
 float4 main(FragmentIn fin) : SV_Target
 {
-   //greturn float4(1, 0, 0, 0.5);
-   //return fin.Color;
-   return fin.Color;
+	float test = pixelVal;
+	//return float4(fin.Color.r,1,0,1);
+    //return float4(1, 1, 1, 1.0) * pixelVal;
+    //return float4(pixelVal, 1, 1, 1) ;
+    return float4(pixelVal, 1-pixelColor.g, 0, 1.0);
 }

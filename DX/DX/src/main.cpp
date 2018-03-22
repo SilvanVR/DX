@@ -429,6 +429,7 @@ public:
 
         // SHADER
         auto shader = RESOURCES.createShader( "/shaders/testVS.hlsl", "/shaders/testPS.hlsl" );
+        shader->setName("TestShader");
         //shader->setRasterizationState({Graphics::FillMode::WIREFRAME});
         shader->setDepthStencilState({false});
         shader->enableAlphaBlending(true);
@@ -436,7 +437,10 @@ public:
         // MATERIAL
         material = RESOURCES.createMaterial();
         material->setShader(shader);
-        material->setFloat("val", 0.5f);
+        material->setFloat( SID("val"), 0.5f);
+        material->setFloat(SID("pixelVal"), 1.0f);
+
+        material->setFloat(SID("ThisDoesNotExist"), 1.0f);
 
         // GAMEOBJECT
         goModel = createGameObject("Test");
@@ -447,16 +451,15 @@ public:
         go2->addComponent<Components::MeshRenderer>(cube);
         go2->getComponent<Components::Transform>()->position = Math::Vec3(3, 0, 0);
 
-        IGC_SET_VAR("alpha", 1.0f);
-
         LOG("MaterialTestScene initialized!", Color::RED);
     }
 
     void tick(Time::Seconds d) override
     {
         F64 s = (sin( TIME.getTime().value ) + 1) / 2;
-        material->setVec4( "mColor", Math::Vec4((F32)s, 0.0f, 0.0f, 1.0f) );
-        material->setFloat("val", 0.5f);
+        material->setVec4(SID("mColor"), Math::Vec4((F32)s, 0.0f, 0.0f, 1.0f) );
+        material->setFloat(SID("pixelVal"), (F32)s);
+        material->setVec4(SID("pixelColor"), Math::Vec4(0.0f, (F32)s, 0.0f, 1.0f));
     }
 
     void shutdown() override

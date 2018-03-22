@@ -10,10 +10,6 @@
 
 namespace Graphics { namespace D3D11 {
 
-    //**********************************************************************
-    // PIXEL ShaderBase
-    //**********************************************************************
-
     //----------------------------------------------------------------------
     PixelShader::PixelShader( CString path )
         : ShaderBase( path )
@@ -25,6 +21,10 @@ namespace Graphics { namespace D3D11 {
     {
         SAFE_RELEASE( m_pPixelShader );
     }
+
+    //**********************************************************************
+    // Public
+    //**********************************************************************
 
     //----------------------------------------------------------------------
     void PixelShader::bind()
@@ -42,10 +42,11 @@ namespace Graphics { namespace D3D11 {
 
         SAFE_RELEASE( m_pPixelShader );
 
-        HR( g_pDevice->CreatePixelShader( m_shaderBlob->GetBufferPointer(), m_shaderBlob->GetBufferSize(), nullptr, &m_pPixelShader ) );
+        HR( g_pDevice->CreatePixelShader( m_pShaderBlob->GetBufferPointer(), m_pShaderBlob->GetBufferSize(), nullptr, &m_pPixelShader ) );
 
-        // Shader blob no longer needed
-        SAFE_RELEASE( m_shaderBlob );
+        // Shader blob + reflection data no longer needed
+        SAFE_RELEASE( m_pShaderBlob );
+        SAFE_RELEASE( m_pShaderReflection );
 
         return true;
     }

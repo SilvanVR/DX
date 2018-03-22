@@ -59,10 +59,10 @@ namespace Graphics { namespace D3D11 {
     {
         bool success = true;
         if (m_pVertexShader)
-            if (not m_pVertexShader->compile( entryPoint ))
+            if ( not m_pVertexShader->compile( entryPoint ) )
                 success = false;
         if (m_pPixelShader)
-            if (not m_pPixelShader->compile( entryPoint ))
+            if ( not m_pPixelShader->compile( entryPoint ) )
                 success = false;
 
         return success;

@@ -17,6 +17,9 @@ namespace Graphics { namespace D3D11 {
         PixelShader(CString path);
         ~PixelShader();
 
+        //----------------------------------------------------------------------
+        // ShaderBase Interface
+        //----------------------------------------------------------------------
         void bind() override;
         bool compile(CString entryPoint) override;
 

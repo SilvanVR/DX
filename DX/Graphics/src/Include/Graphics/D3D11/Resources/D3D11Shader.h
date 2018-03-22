@@ -36,6 +36,10 @@ namespace Graphics { namespace D3D11 {
         void setDepthStencilState(const DepthStencilState& dsState) override;
         void setBlendState(const BlendState& bState) override;
 
+        //----------------------------------------------------------------------
+        const VertexShader* getVertexShader() const { return m_pVertexShader; }
+        const PixelShader*  getPixelShader() const { return m_pPixelShader; }
+
     private:
         VertexShader*       m_pVertexShader   = nullptr;
         PixelShader*        m_pPixelShader    = nullptr;

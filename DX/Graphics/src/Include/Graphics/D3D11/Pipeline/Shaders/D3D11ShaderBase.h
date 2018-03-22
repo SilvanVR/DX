@@ -12,29 +12,68 @@
 
 namespace Graphics { namespace D3D11 {
 
+    // Contains infos about one specific member in a shader buffer
+    struct ConstantBufferMemberInfo
+    {
+        StringID    name;
+        U32         offset = 0;
+        Size        size = 0;
+    };
+
+    // Contains information about an buffer in a shader
+    struct ConstantBufferInfo
+    {
+        StringID                            name;
+        U32                                 slot = 0;
+        Size                                sizeInBytes = 0;
+        ArrayList<ConstantBufferMemberInfo> members;
+    };
+
     //**********************************************************************
     class ShaderBase
     {
     public:
         ShaderBase(const OS::Path& path) : m_filePath( path ) {}
-        virtual ~ShaderBase() { SAFE_RELEASE( m_shaderBlob ); };
-
-        //----------------------------------------------------------------------
-        const OS::Path& getFilePath()   const { return m_filePath; }
-        CString         getEntryPoint() const { return m_entryPoint.c_str(); }
-        bool            isUpToDate()    const { return m_fileTimeAtCompilation == m_filePath.getLastWrittenFileTime(); }
-        ID3DBlob*       getShaderBlob() { return m_shaderBlob; }
+        virtual ~ShaderBase() { SAFE_RELEASE( m_pShaderBlob ); SAFE_RELEASE( m_pShaderReflection ); }
 
         //----------------------------------------------------------------------
         virtual void bind() = 0;
         virtual bool compile(CString entryPoint) = 0;
 
+        //----------------------------------------------------------------------
+        const OS::Path& getFilePath()   const { return m_filePath; }
+        CString         getEntryPoint() const { return m_entryPoint.c_str(); }
+        bool            isUpToDate()    const { return m_fileTimeAtCompilation == m_filePath.getLastWrittenFileTime(); }
+        ID3DBlob*       getShaderBlob() { return m_pShaderBlob; }
+
+        //----------------------------------------------------------------------
+        // @Return:
+        //  List of information about every constant buffer found via reflection.
+        //----------------------------------------------------------------------
+        const ArrayList<ConstantBufferInfo>&    getConstantBufferInformation()  const { return m_constantBufferInformation; }
+
+        //----------------------------------------------------------------------
+        // @Return:
+        //  Constant buffer info about first constant buffer with name "material" in it.
+        // Note: Use "hasMaterialBuffer()" before calling this function to ensure 
+        // that this shader has an material constant buffer!
+        //----------------------------------------------------------------------
+        const ConstantBufferInfo&               getMaterialBufferInformation()  const;
+
+        //----------------------------------------------------------------------
+        // @Return:
+        //  True, when a material constant buffer exists in this shader.
+        //  (A buffer with name 'material' in it)
+        //----------------------------------------------------------------------
+        bool hasMaterialBuffer() const;
 
     protected:
-        ID3DBlob*       m_shaderBlob = nullptr;
-        String          m_entryPoint = "main";
-        OS::Path        m_filePath;
-        OS::SystemTime  m_fileTimeAtCompilation;
+        ID3DBlob* m_pShaderBlob = nullptr;
+        ID3D11ShaderReflection*         m_pShaderReflection     = nullptr;
+        String                          m_entryPoint            = "main";
+        OS::Path                        m_filePath;
+        OS::SystemTime                  m_fileTimeAtCompilation;
+        ArrayList<ConstantBufferInfo>   m_constantBufferInformation;
 
         //----------------------------------------------------------------------
         template <typename T>
@@ -46,10 +85,13 @@ namespace Graphics { namespace D3D11 {
             return _Compile( GetLatestProfile<T>().c_str() );
         }
 
+
     private:
 
         //----------------------------------------------------------------------
         bool _Compile(CString profile);
+        void _ShaderReflection(ID3DBlob* pShaderBlob);
+        void _ReflectConstantBuffers();
 
         //----------------------------------------------------------------------
         ShaderBase(const ShaderBase& other)               = delete;

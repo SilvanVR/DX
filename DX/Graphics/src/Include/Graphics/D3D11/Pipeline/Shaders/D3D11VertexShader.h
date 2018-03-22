@@ -18,9 +18,13 @@ namespace Graphics { namespace D3D11 {
         VertexShader(CString path);
         ~VertexShader();
 
+        //----------------------------------------------------------------------
+        // ShaderBase Interface
+        //----------------------------------------------------------------------
         void bind() override;
         bool compile(CString entryPoint) override;
 
+        //----------------------------------------------------------------------
         const VertexLayout& getVertexLayout() const { return m_vertexLayout; }
 
     private:
@@ -30,9 +34,7 @@ namespace Graphics { namespace D3D11 {
         VertexLayout        m_vertexLayout;
 
         //----------------------------------------------------------------------
-        void _PerformShaderReflection( ID3DBlob* pShaderBlob );
-        void _CreateInputLayout(ID3D11ShaderReflection* shaderReflection, const D3D11_SHADER_DESC& shaderDesc);
-        void _CreateBufferLayout(ID3D11ShaderReflection* shaderReflection, const D3D11_SHADER_DESC& shaderDesc);
+        void _CreateInputLayout(ID3DBlob* pShaderBlob);
         void _AddToVertexLayout(String semanticName);
 
 

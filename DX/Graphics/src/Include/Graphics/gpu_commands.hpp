@@ -11,7 +11,7 @@
 
 #include "structs.hpp"
 #include "i_mesh.hpp"
-#include "i_material.hpp"
+#include "i_material.h"
 
 namespace Graphics {
 

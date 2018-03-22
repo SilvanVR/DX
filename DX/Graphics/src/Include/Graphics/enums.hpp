@@ -14,6 +14,7 @@ namespace Graphics {
 
     enum class ShaderType
     {
+        Unknown,
         Vertex,
         Fragment,
         Geometry,

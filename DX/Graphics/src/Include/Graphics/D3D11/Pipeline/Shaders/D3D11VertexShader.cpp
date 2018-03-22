@@ -6,8 +6,6 @@
     date: March 17, 2018
 **********************************************************************/
 
-
-
 namespace Graphics { namespace D3D11 {
 
     //----------------------------------------------------------------------
@@ -22,6 +20,10 @@ namespace Graphics { namespace D3D11 {
         SAFE_RELEASE( m_pVertexShader );
         SAFE_RELEASE( m_pInputLayout );
     }
+
+    //**********************************************************************
+    // PUBLIC
+    //**********************************************************************
 
     //----------------------------------------------------------------------
     void VertexShader::bind() 
@@ -42,49 +44,39 @@ namespace Graphics { namespace D3D11 {
         SAFE_RELEASE( m_pVertexShader );
 
         // Create Vertex-Shader and input layout
-        HR( g_pDevice->CreateVertexShader( m_shaderBlob->GetBufferPointer(), m_shaderBlob->GetBufferSize(), nullptr, &m_pVertexShader ) );
+        HR( g_pDevice->CreateVertexShader( m_pShaderBlob->GetBufferPointer(), m_pShaderBlob->GetBufferSize(), nullptr, &m_pVertexShader ) );
 
-        // Shader Reflection
-        _PerformShaderReflection( m_shaderBlob );
+        // Create input layout
+        _CreateInputLayout( m_pShaderBlob );
 
-        // Shader blob no longer needed
-        SAFE_RELEASE( m_shaderBlob );
+        // Shader blob and reflection data no longer needed
+        SAFE_RELEASE( m_pShaderBlob );
+        SAFE_RELEASE( m_pShaderReflection );
 
         return true;
     }
 
-    //----------------------------------------------------------------------
-    void VertexShader::_PerformShaderReflection( ID3DBlob* pShaderBlob )
-    {
-        // Reflect shader info
-        ID3D11ShaderReflection* pShaderReflection = NULL;
-        HR( D3DReflect( pShaderBlob->GetBufferPointer(), pShaderBlob->GetBufferSize(), 
-                        IID_ID3D11ShaderReflection, (void**)&pShaderReflection) );
-
-        // Get shader info
-        D3D11_SHADER_DESC shaderDesc;
-        HR( pShaderReflection->GetDesc( &shaderDesc ) );
-
-        _CreateInputLayout( pShaderReflection, shaderDesc );
-        _CreateBufferLayout( pShaderReflection, shaderDesc );
-
-        // Free allocation shader reflection memory
-        SAFE_RELEASE( pShaderReflection );
-    }
+    //**********************************************************************
+    // PRIVATE
+    //**********************************************************************
 
     //----------------------------------------------------------------------
-    void VertexShader::_CreateInputLayout( ID3D11ShaderReflection* pShaderReflection, const D3D11_SHADER_DESC& shaderDesc )
+    void VertexShader::_CreateInputLayout( ID3DBlob* pShaderBlob )
     {
         // Clean up old data
         SAFE_RELEASE( m_pInputLayout );
         m_vertexLayout.clear();
+
+        // Get shader info
+        D3D11_SHADER_DESC shaderDesc;
+        HR( m_pShaderReflection->GetDesc( &shaderDesc ) );
 
         // Read input layout description from shader info
         ArrayList<D3D11_INPUT_ELEMENT_DESC> inputLayoutDesc;
         for (U32 i = 0; i< shaderDesc.InputParameters; i++)
         {
             D3D11_SIGNATURE_PARAMETER_DESC paramDesc;
-            HR( pShaderReflection->GetInputParameterDesc( i, &paramDesc ) );
+            HR( m_pShaderReflection->GetInputParameterDesc( i, &paramDesc ) );
 
             // Fill out input element desc
             D3D11_INPUT_ELEMENT_DESC elementDesc;
@@ -131,7 +123,7 @@ namespace Graphics { namespace D3D11 {
 
         // Create Input Layout
         HR( g_pDevice->CreateInputLayout( inputLayoutDesc.data(), (U32)inputLayoutDesc.size(), 
-                                          m_shaderBlob->GetBufferPointer(), m_shaderBlob->GetBufferSize(), &m_pInputLayout) );
+                                          m_pShaderBlob->GetBufferPointer(), m_pShaderBlob->GetBufferSize(), &m_pInputLayout) );
     }
 
     //----------------------------------------------------------------------
@@ -152,31 +144,5 @@ namespace Graphics { namespace D3D11 {
             WARN_RENDERING( "D3D11VertexShader: Semantic name '" + semanticName + "' for shader '" + getFilePath().toString() + "' does not exist.");
     }
 
-    //----------------------------------------------------------------------
-    void VertexShader::_CreateBufferLayout( ID3D11ShaderReflection* pShaderReflection, const D3D11_SHADER_DESC& shaderDesc )
-    {
-        // Reflect constant buffers
-        for (U32 i = 0; i < shaderDesc.ConstantBuffers; i++)
-        {
-            auto buffer = pShaderReflection->GetConstantBufferByIndex( i );
-
-            D3D11_SHADER_BUFFER_DESC bufferDesc;
-            HR( buffer->GetDesc( &bufferDesc ) );
-
-            for (U32 j = 0; j < bufferDesc.Variables; j++)
-            {
-                auto var = buffer->GetVariableByIndex(j);
-
-                D3D11_SHADER_VARIABLE_DESC varDesc;
-                HR( var->GetDesc( &varDesc ) );
-
-                auto type = var->GetType();
-
-                D3D11_SHADER_TYPE_DESC typeDesc;
-                HR( type->GetDesc( &typeDesc ) );
-            }
-        }
-
-    }
 
 } } // End namespaces

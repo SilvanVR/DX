@@ -6,11 +6,14 @@
     date: March 12, 2018
 **********************************************************************/
 
-#include "../../i_material.hpp"
+#include "../../i_material.h"
 #include "../Pipeline/Buffers/D3D11Buffers.h"
 
 namespace Graphics { namespace D3D11 {
 
+    //**********************************************************************
+    // Stores material data in an contiguous block of memory on the cpu.
+    // If it gets updated, the data will be flushed to the gpu on the next bind().
     //**********************************************************************
     class MaterialData
     {
@@ -18,41 +21,36 @@ namespace Graphics { namespace D3D11 {
         ~MaterialData() { SAFE_DELETE( m_pConstantBuffer ); }
 
         //----------------------------------------------------------------------
+        bool    isUpToDate()    const { return m_gpuUpToDate; }
+        bool    hasBuffer()     const { return m_pConstantBuffer != nullptr; }
+
+        //----------------------------------------------------------------------
         //@Params:
         // "offset": Offset in bytes to put the data into.
         // "pData": Pointer to the actual data to copy from.
         //----------------------------------------------------------------------
-        template <typename T>
-        void push(U32 offset, T* pData)
-        {
-            ASSERT( ( offset + sizeof(T) ) < m_materialData.size() );
-            memcpy( &m_materialData[offset], (void*)pData, sizeof(T) );
-            m_gpuUpToDate = false;
-        }
+        void push(U32 offset, const void* pData, Size sizeInBytes);
 
         //----------------------------------------------------------------------
-        bool                    isUpToDate() const { return m_gpuUpToDate; }
-        const ConstantBuffer*   getBuffer() const { return m_pConstantBuffer; }
+        // Resize the buffer on cpu & gpu.
+        // @Params:
+        // "size": New size in bytes of the buffers.
+        // "bindSlot": Bind-Slot for the constant buffer.
+        //----------------------------------------------------------------------
+        void resize(U32 size, U32 bindSlot);
 
         //----------------------------------------------------------------------
-        void resize(U32 size) 
-        { 
-            SAFE_DELETE( m_pConstantBuffer );
-            m_materialData.resize( size ); 
-            m_pConstantBuffer = new D3D11::ConstantBuffer( size, BufferUsage::LONG_LIVED );
-        }
-
+        // Bind the constant buffer to the device context. Might update it before.
+        // @Params:
+        // "shaderType": The shader to bind the constant buffer.
         //----------------------------------------------------------------------
-        void pushToGPU()
-        {
-            m_pConstantBuffer->update( m_materialData.data(), m_materialData.size() );
-            m_gpuUpToDate = true;
-        }
+        void bind(ShaderType shaderType);
 
     private:
         ArrayList<Byte>         m_materialData;
-        bool                    m_gpuUpToDate = true;
-        D3D11::ConstantBuffer*  m_pConstantBuffer = nullptr;
+        D3D11::ConstantBuffer*  m_pConstantBuffer   = nullptr;
+        U32                     m_bindSlot          = 0;
+        bool                    m_gpuUpToDate       = true;
     };
 
     //**********************************************************************
@@ -65,8 +63,8 @@ namespace Graphics { namespace D3D11 {
         //----------------------------------------------------------------------
         // IMaterial Interface
         //----------------------------------------------------------------------
-        void _SetFloat(CString name, F32 val) override;
-        void _SetVec4(CString name, const Math::Vec4& vec) override;
+        bool _SetFloat(StringID name, F32 val)              override { return _UpdateConstantBuffer( name, &val, sizeof( val ) ); }
+        bool _SetVec4(StringID name, const Math::Vec4& vec) override { return _UpdateConstantBuffer( name, &vec, sizeof( vec ) ); }
 
     private:
         // Contains the material data in a contiguous block of memory. Will be empty if not used for a shader.
@@ -81,7 +79,8 @@ namespace Graphics { namespace D3D11 {
 
         //----------------------------------------------------------------------
         void _CreateConstantBuffers();
-        void _UpdateConstantBuffer();
+
+        bool _UpdateConstantBuffer(StringID name, const void* pData, Size sizeInBytes);
 
         //----------------------------------------------------------------------
         Material(const Material& other)               = delete;

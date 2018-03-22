@@ -19,6 +19,7 @@ namespace Graphics {
 
     D3D11::ConstantBuffer*  pConstantBufferObject = nullptr;
     D3D11::ConstantBuffer*  pConstantBufferCamera = nullptr;
+    //@ADD: Per frame cb
 
     //**********************************************************************
     // INIT STUFF
@@ -110,7 +111,6 @@ namespace Graphics {
         // Now render by material
         for (auto& pair : sortedMaterials)
         {
-            // @TODO: Global-Material instead of shader
             IShader* shader = nullptr;
             if (m_activeGlobalMaterial)
             {

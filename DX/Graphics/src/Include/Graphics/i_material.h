@@ -1,6 +1,6 @@
 #pragma once
 /**********************************************************************
-    class: IMaterial (i_material.hpp)
+    class: IMaterial (i_material.h)
 
     author: S. Hau
     date: March 12, 2018
@@ -27,22 +27,29 @@ namespace Graphics {
         //----------------------------------------------------------------------
         IShader*    getShader() const { return m_shader; }
 
+        //**********************************************************************
+        // MATERIAL PARAMETERS
+        //**********************************************************************
         //----------------------------------------------------------------------
-        // Set material parameters.
+        F32         getFloat(StringID name) const;
+        Math::Vec4  getVec4(StringID name) const;
+
         //----------------------------------------------------------------------
-        void setFloat(CString name, F32 val)                { m_floatMap[ SID( name ) ] = val; _SetFloat( name, val ); }
-        void setVec4(CString name, const Math::Vec4& vec)   { m_vec4Map[ SID( name ) ] = vec; _SetVec4( name, vec ); }
+        void setFloat(StringID name, F32 val);
+        void setVec4(StringID name, const Math::Vec4& vec);
 
     protected:
-        IShader*    m_shader = nullptr;
+        IShader* m_shader = nullptr;
 
         // Data maps
         HashMap<StringID, F32>          m_floatMap;
         HashMap<StringID, Math::Vec4>   m_vec4Map;
 
         // Each API should decide themselves how to efficiently update their data
-        virtual void _SetFloat(CString name, F32 val) = 0;
-        virtual void _SetVec4(CString name, const Math::Vec4& vec) = 0;
+        // @Return:
+        //  True, if the uniform exists.
+        virtual bool _SetFloat(StringID name, F32 val) = 0;
+        virtual bool _SetVec4(StringID name, const Math::Vec4& vec) = 0;
 
     private:
         //----------------------------------------------------------------------
@@ -60,5 +67,3 @@ namespace Graphics {
     using Material = IMaterial;
 
 } // End namespaces
-
-//**********************************************************************

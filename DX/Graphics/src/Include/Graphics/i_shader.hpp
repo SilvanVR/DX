@@ -19,11 +19,13 @@ namespace Graphics {
     //**********************************************************************
     class IShader
     {
-        friend class D3D11Renderer; // Access to bind()
-
     public:
         IShader() = default;
         virtual ~IShader() {}
+
+        //----------------------------------------------------------------------
+        const String& getName() const { return m_name; }
+        void setName(const String& name) { m_name = name; }
 
         //----------------------------------------------------------------------
         // @Params:
@@ -101,23 +103,14 @@ namespace Graphics {
             setBlendState( blendState );
         }
 
-        //----------------------------------------------------------------------
-        const ArrayList<ShaderBufferInfo>& getMaterialBufferInfo() const { return m_materialBufferInfos; }
-
-        const ShaderBufferMemberInfo& getMemberInfo(CString name)
-        {
-            return m_memberInfo;
-        }
-
     protected:
         // These are only used when configured correctly
         std::array<F32, 4> m_blendFactors = { 1.0f, 1.0f, 1.0f, 1.0f };
-
-        ArrayList<ShaderBufferInfo> m_materialBufferInfos;
-        ShaderBufferMemberInfo m_memberInfo;
+        String             m_name = "NO NAME";
 
     private:
         //----------------------------------------------------------------------
+        friend class D3D11Renderer;
         virtual void bind() = 0;
 
         //----------------------------------------------------------------------

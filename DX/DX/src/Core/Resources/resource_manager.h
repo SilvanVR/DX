@@ -16,7 +16,7 @@
 
 #include "SubSystem/i_subsystem.hpp"
 #include "Graphics/i_mesh.hpp"
-#include "Graphics/i_material.hpp"
+#include "Graphics/i_material.h"
 #include "Graphics/i_shader.hpp"
 
 namespace Core { namespace Resources {
