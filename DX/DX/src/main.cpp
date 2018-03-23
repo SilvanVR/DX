@@ -459,7 +459,9 @@ public:
         F64 s = (sin( TIME.getTime().value ) + 1) / 2;
         material->setVec4(SID("mColor"), Math::Vec4((F32)s, 0.0f, 0.0f, 1.0f) );
         material->setFloat(SID("pixelVal"), (F32)s);
-        material->setVec4(SID("pixelColor"), Math::Vec4(0.0f, (F32)s, 0.0f, 1.0f));
+        material->setColor(SID("pixelColor"), Color(0, (Byte)(s*255), 0) );
+
+        //material->setInt(SID("test"), IGC_GET_VAR("test"));
     }
 
     void shutdown() override
@@ -540,7 +542,9 @@ public:
             //LOG("Num Scenes: " + TS(Locator::getSceneManager().numScenes()));
         }, 1000);
 
-       Locator::getSceneManager().LoadSceneAsync(new MaterialTestScene());
+        IGC_SET_VAR("test", 1.0f);
+
+        Locator::getSceneManager().LoadSceneAsync(new MaterialTestScene());
     }
 
     //----------------------------------------------------------------------
@@ -565,9 +569,9 @@ public:
         {
             auto g = SCENE.findGameObject("Test");
             static bool enabled = true;
-            enabled = !enabled;
+            /*enabled = !enabled;
             g->setActive(enabled);
-            LOG(TS(enabled), Color::BLUE);
+            LOG(TS(enabled), Color::BLUE);*/
         }
 
         if (KEYBOARD.wasKeyPressed(Key::R))

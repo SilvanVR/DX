@@ -1,8 +1,8 @@
 
 cbuffer cbPerMaterial
 {
-	float pixelVal;
 	float4 pixelColor;
+	float pixelVal;
 };
 
 struct FragmentIn

@@ -8,6 +8,7 @@
     @Considerations:
      - Mark material as dynamic or figure it out automatically, 
        so the buffer usage can be changed to FREQUENTLY
+     - Cache (NAME, [ShaderType, offset]). Needs testing if its worth
 **********************************************************************/
 
 #include "D3D11Shader.h"
