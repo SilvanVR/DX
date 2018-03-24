@@ -60,6 +60,9 @@
     <ClCompile Include="src\Include\Graphics\i_material.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Include\Graphics\D3D11\Resources\D3D11Texture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\stdafx.h">
@@ -135,6 +138,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Include\Graphics\i_texture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Include\Graphics\D3D11\Resources\D3D11Texture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Include\Graphics\i_sampler.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

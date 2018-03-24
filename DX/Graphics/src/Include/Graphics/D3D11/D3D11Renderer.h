@@ -39,6 +39,7 @@ namespace Graphics {
         IMesh*      createMesh() override;
         IMaterial*  createMaterial() override;
         IShader*    createShader() override;
+        ITexture*   createTexture() override;
 
     private:
         D3D11::Swapchain*   m_pSwapchain    = nullptr;

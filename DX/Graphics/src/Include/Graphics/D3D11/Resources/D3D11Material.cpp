@@ -109,8 +109,9 @@ namespace Graphics { namespace D3D11 {
     //----------------------------------------------------------------------
     bool Material::_UpdateConstantBuffer( StringID name, const void* pData, Size sizeInBytes )
     {
-        auto d3d11Shader = reinterpret_cast<Shader*>(m_shader);
-
+        auto d3d11Shader = reinterpret_cast<Shader*>( m_shader );
+        
+        // Check if uniform is in vertex-shader
         auto vertexShader = d3d11Shader->getVertexShader();
         if ( vertexShader->hasMaterialBuffer() )
         {
@@ -125,6 +126,7 @@ namespace Graphics { namespace D3D11 {
             }
         }
 
+        // Check if uniform is in pixel-shader
         auto pixelShader = d3d11Shader->getPixelShader();
         if ( pixelShader->hasMaterialBuffer() )
         {

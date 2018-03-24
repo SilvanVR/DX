@@ -18,6 +18,7 @@
 #include "Graphics/i_mesh.hpp"
 #include "Graphics/i_material.h"
 #include "Graphics/i_shader.hpp"
+#include "Graphics/i_texture.h"
 
 namespace Core { namespace Resources {
 
@@ -39,13 +40,13 @@ namespace Core { namespace Resources {
         void shutdown() override;
 
         //----------------------------------------------------------------------
-        // Creates a new mesh for use by the graphics engine.
+        // Creates a new mesh resource
         //----------------------------------------------------------------------
         Graphics::Mesh* createMesh();
         Graphics::Mesh* createMesh(const ArrayList<Math::Vec3>& vertices, const ArrayList<U32>& indices);
 
         //----------------------------------------------------------------------
-        // Creates a new material for use by the graphics engine.
+        // Creates a new material resource
         // @Params:
         //  "shader": Shader to use for this material. If null default shader will be applied.
         //----------------------------------------------------------------------
@@ -57,12 +58,21 @@ namespace Core { namespace Resources {
         Graphics::Shader* createShader(CString name, const OS::Path& vertPath, const OS::Path& fragPath);
 
         //----------------------------------------------------------------------
+        // Creates a new texture resource
+        // @Params:
+        //  "width": Width of the texture in pixels
+        //  "height": Height of the texture in pixels
+        //----------------------------------------------------------------------
+        Graphics::Texture* createTexture(U32 width, U32 height);
+
+        //----------------------------------------------------------------------
         void UnloadUnusedResources();
 
         //----------------------------------------------------------------------
         U32 getMeshCount()      const { return static_cast<U32>( m_meshes.size() ); }
         U32 getShaderCount()    const { return static_cast<U32>( m_shaders.size() ); }
         U32 getMaterialCount()  const { return static_cast<U32>( m_materials.size() ); }
+        U32 getTextureCount()   const { return static_cast<U32>( m_textures.size() ); }
 
         Graphics::Material*   getDefaultMaterial()    const { return m_defaultMaterial; }
         Graphics::Shader*     getDefaultShader()      const { return m_defaultShader; }
@@ -71,6 +81,7 @@ namespace Core { namespace Resources {
         ArrayList<Graphics::Mesh*>      m_meshes;
         ArrayList<Graphics::Shader*>    m_shaders;
         ArrayList<Graphics::Material*>  m_materials;
+        ArrayList<Graphics::Texture*>   m_textures;
 
         Graphics::Shader*   m_defaultShader;
         Graphics::Shader*   m_wireframeShader;

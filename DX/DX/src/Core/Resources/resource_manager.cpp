@@ -48,6 +48,8 @@ namespace Core { namespace Resources {
             SAFE_DELETE( material );
         for (auto& shader : m_shaders)
             SAFE_DELETE( shader );
+        for (auto& texture : m_textures)
+            SAFE_DELETE( texture );
     }
 
     //----------------------------------------------------------------------
@@ -103,6 +105,22 @@ namespace Core { namespace Resources {
 
         return shader;
     }
+
+    //----------------------------------------------------------------------
+    Graphics::Texture* ResourceManager::createTexture( U32 width, U32 height )
+    {
+        auto texture = Locator::getRenderer().createTexture();
+        texture->setSize( width, height );
+        texture->init();
+
+        m_textures.push_back( texture );
+
+        return texture;
+    }
+
+    //**********************************************************************
+    // PRIVATE
+    //**********************************************************************
 
     //----------------------------------------------------------------------
     void ResourceManager::_CreateDefaultAssets()

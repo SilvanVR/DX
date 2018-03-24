@@ -433,6 +433,9 @@ public:
         shader->setDepthStencilState({false});
         shader->enableAlphaBlending(true);
 
+        // TEXTURES
+        auto tex = RESOURCES.createTexture(8, 8);
+
         // MATERIAL
         material = RESOURCES.createMaterial();
         material->setShader(shader);

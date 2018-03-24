@@ -12,6 +12,7 @@
 #include "Resources/D3D11Material.h"
 #include "Resources/D3D11Shader.h"
 #include "Pipeline/Buffers/D3D11Buffers.h"
+#include "Resources/D3D11Texture.h"
 
 using namespace DirectX;
 
@@ -188,6 +189,12 @@ namespace Graphics {
     IShader* D3D11Renderer::createShader()
     {
         return new D3D11::Shader();
+    }
+
+    //----------------------------------------------------------------------
+    ITexture* D3D11Renderer::createTexture()
+    {
+        return new D3D11::Texture();
     }
 
     //**********************************************************************

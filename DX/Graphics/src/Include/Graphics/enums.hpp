@@ -105,4 +105,5 @@ namespace Graphics {
        MIN,
        MAX
     };
+
 }
