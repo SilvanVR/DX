@@ -10,6 +10,9 @@
 
 namespace Graphics { namespace D3D11 {
 
+    //----------------------------------------------------------------------
+    static CString MATERIAL_NAME = "material";
+
     //**********************************************************************
     // PUBLIC
     //**********************************************************************
@@ -22,7 +25,7 @@ namespace Graphics { namespace D3D11 {
         for ( auto& cb : m_constantBufferInformation )
         {
             String lower = StringUtils::toLower( cb.name.toString() );
-            if ( lower.find("material") != String::npos )
+            if ( lower.find( MATERIAL_NAME ) != String::npos )
                 return cb;
         }
 
@@ -35,7 +38,7 @@ namespace Graphics { namespace D3D11 {
         for ( auto& cb : m_constantBufferInformation )
         {
             String lower = StringUtils::toLower( cb.name.toString() );
-            if ( lower.find("material") != String::npos )
+            if ( lower.find( MATERIAL_NAME ) != String::npos )
                 return true;
         }
         return false;
@@ -50,25 +53,46 @@ namespace Graphics { namespace D3D11 {
         return m_fileTimeAtCompilation == m_filePath.getLastWrittenFileTime(); 
     }
 
+    //----------------------------------------------------------------------
+    bool ShaderBase::recompile()
+    {
+        // Recompilation only possible on shaders which were compiled by path
+        if ( not m_filePath.toString().empty() )
+            if ( compileFromFile( m_filePath, m_entryPoint.c_str() ) )
+                return true;
+            else
+                return false;
+        else
+            WARN_RENDERING( "Shader::recompile(): Recompilation not possible because no filepath exists in this class! "
+                            "Maybe the shader was compiled directly from source?");
+        return false;
+    }
+
     //**********************************************************************
     // PRIVATE
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    bool ShaderBase::_Compile( const String& source, CString profile )
+    UINT GetCompileFlags()
     {
         UINT flags = D3DCOMPILE_ENABLE_STRICTNESS | D3DCOMPILE_WARNINGS_ARE_ERRORS;
-    #ifdef _DEBUG
-        flags |= (D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION);
-    #endif
+        #ifdef _DEBUG
+            flags |= (D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION);
+        #endif
+        return flags;
+    }
 
+    //----------------------------------------------------------------------
+    bool ShaderBase::_CompileFromSource( const String& source, CString profile )
+    {
+        SAFE_RELEASE( m_pShaderBlob );
         ID3DBlob* errorBlob = nullptr;
         HRESULT hr = D3DCompile( source.c_str(), source.size(), NULL, NULL, NULL, 
-                                 m_entryPoint.c_str(), profile, flags, 0, &m_pShaderBlob, &errorBlob );
+                                 m_entryPoint.c_str(), profile, GetCompileFlags(), 0, &m_pShaderBlob, &errorBlob );
 
         if ( FAILED( hr ) )
         {
-            WARN_RENDERING( "Failed to compile Shader '" + source + "'." );
+            WARN_RENDERING( "Failed to compile shader from source '" + source + "'." );
             if (errorBlob)
             {
                 WARN_RENDERING( (const char*)errorBlob->GetBufferPointer() );
@@ -85,28 +109,27 @@ namespace Graphics { namespace D3D11 {
     }
 
     //----------------------------------------------------------------------
-    bool ShaderBase::_Compile( CString profile )
+    bool ShaderBase::_CompileFromFile( const OS::Path& path, CString profile )
     {
-        UINT flags = D3DCOMPILE_ENABLE_STRICTNESS | D3DCOMPILE_WARNINGS_ARE_ERRORS;
-    #ifdef _DEBUG
-        flags |= (D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION);
-    #endif
+        if ( not path.exists() )
+        {
+             WARN_RENDERING( "Missing shader-file: '" + path.toString() + "'.");
+             return false;
+        }
+
+        SAFE_RELEASE( m_pShaderBlob );
 
         ID3DBlob* errorBlob = nullptr;
-        HRESULT hr = D3DCompileFromFile( ConvertToWString( m_filePath.toString() ).c_str(), NULL, D3D_COMPILE_STANDARD_FILE_INCLUDE,
-                                         m_entryPoint.c_str(), profile, flags, 0, &m_pShaderBlob, &errorBlob );
+        HRESULT hr = D3DCompileFromFile( ConvertToWString( path.toString() ).c_str(), NULL, D3D_COMPILE_STANDARD_FILE_INCLUDE,
+                                         m_entryPoint.c_str(), profile, GetCompileFlags(), 0, &m_pShaderBlob, &errorBlob );
 
         if ( FAILED( hr ) )
         {
+            WARN_RENDERING( "Failed to compile shader '" + path.toString() + "'." );
             if (errorBlob)
             {
-                WARN_RENDERING( "Failed to compile Shader '" + m_filePath.toString() + "'." );
                 WARN_RENDERING( (const char*)errorBlob->GetBufferPointer() );
                 SAFE_RELEASE( errorBlob );
-            }
-            else
-            {
-                WARN_RENDERING( "Missing shader-file: '" + m_filePath.toString() + "'.");
             }
 
             SAFE_RELEASE( m_pShaderBlob );
@@ -122,6 +145,7 @@ namespace Graphics { namespace D3D11 {
     void ShaderBase::_ShaderReflection( ID3DBlob* pShaderBlob )
     {
         // Perform reflection
+        SAFE_RELEASE( m_pShaderReflection );
         HR( D3DReflect( pShaderBlob->GetBufferPointer(), pShaderBlob->GetBufferSize(),
                         IID_ID3D11ShaderReflection, (void**)&m_pShaderReflection) );
 
@@ -131,7 +155,7 @@ namespace Graphics { namespace D3D11 {
     //----------------------------------------------------------------------
     void ShaderBase::_ReflectConstantBuffers()
     {
-        // Make sure old buffer information is cleaned up
+        // Make sure old buffer information is no longer valid
         m_constantBufferInformation.clear();
 
         D3D11_SHADER_DESC shaderDesc;

@@ -15,7 +15,7 @@ namespace Graphics { namespace D3D11 {
     }
 
     //**********************************************************************
-    // Public
+    // PUBLIC
     //**********************************************************************
 
     //----------------------------------------------------------------------
@@ -26,52 +26,42 @@ namespace Graphics { namespace D3D11 {
     }
 
     //----------------------------------------------------------------------
-    bool PixelShader::compile( const OS::Path& path, CString entryPoint )
+    bool PixelShader::compileFromFile( const OS::Path& path, CString entryPoint )
     {
-        bool compiled = _Compile<ID3D11PixelShader>( path, entryPoint );
+        bool compiled = _CompileFromFile<ID3D11PixelShader>( path, entryPoint );
         if (not compiled)
             return false;
 
-        SAFE_RELEASE( m_pPixelShader );
-
-        HR( g_pDevice->CreatePixelShader( m_pShaderBlob->GetBufferPointer(), m_pShaderBlob->GetBufferSize(), nullptr, &m_pPixelShader ) );
-
-        // Shader blob + reflection data no longer needed
-        SAFE_RELEASE( m_pShaderBlob );
-        SAFE_RELEASE( m_pShaderReflection );
+        _CreateD3D11PixelShader();
 
         return true;
     }
 
     //----------------------------------------------------------------------
-    bool PixelShader::compile( const String& source, CString entryPoint )
+    bool PixelShader::compileFromSource( const String& source, CString entryPoint )
     {
-        bool compiled = _Compile<ID3D11PixelShader>( source, entryPoint );
+        bool compiled = _CompileFromSource<ID3D11PixelShader>( source, entryPoint );
         if (not compiled)
             return false;
 
-        SAFE_RELEASE( m_pPixelShader );
+        _CreateD3D11PixelShader();
 
+        return true;
+    }
+
+    //**********************************************************************
+    // PRIVATE
+    //**********************************************************************
+
+    //----------------------------------------------------------------------
+    void PixelShader::_CreateD3D11PixelShader()
+    {
+        SAFE_RELEASE( m_pPixelShader );
         HR( g_pDevice->CreatePixelShader( m_pShaderBlob->GetBufferPointer(), m_pShaderBlob->GetBufferSize(), nullptr, &m_pPixelShader ) );
 
         // Shader blob + reflection data no longer needed
         SAFE_RELEASE( m_pShaderBlob );
         SAFE_RELEASE( m_pShaderReflection );
-
-        return true;
-    }
-
-
-    //----------------------------------------------------------------------
-    bool PixelShader::recompile()
-    {
-        // Recompilation only possible on shader which were compiled by path
-        if ( not m_filePath.toString().empty() )
-            return compile( m_filePath, m_entryPoint.c_str() );
-        else
-            WARN_RENDERING( "PixelShader::recompile(): Recompilation not possible because no filepath exists in this class!" );
-
-        return false;
     }
 
 } } // End namespaces

@@ -38,19 +38,19 @@ namespace Graphics { namespace D3D11 {
 
         //----------------------------------------------------------------------
         virtual void bind() = 0;
-        virtual bool compile(const OS::Path& path, CString entryPoint) = 0;
-        virtual bool compile(const String& shaderSource, CString entryPoint) = 0;
-        virtual bool recompile() = 0;
+        virtual bool compileFromFile(const OS::Path& path, CString entryPoint) = 0;
+        virtual bool compileFromSource(const String& shaderSource, CString entryPoint) = 0;
 
         //----------------------------------------------------------------------
         const OS::Path& getFilePath()   const { return m_filePath; }
         CString         getEntryPoint() const { return m_entryPoint.c_str(); }
-        ID3DBlob*       getShaderBlob() { return m_pShaderBlob; }
+        ID3DBlob*       getShaderBlob()       { return m_pShaderBlob; }
+        bool            recompile();
 
         //----------------------------------------------------------------------
         // @Return:
         //  Whether the shader (if compiled from file) is up to date on disc.
-        //  This returns always true if this shader was compiled from source.
+        //  This returns always true if the shader was compiled from source.
         //----------------------------------------------------------------------
         bool isUpToDate() const;
 
@@ -85,29 +85,28 @@ namespace Graphics { namespace D3D11 {
 
         //----------------------------------------------------------------------
         template <typename T>
-        bool _Compile( const OS::Path& path, CString entryPoint )
+        bool _CompileFromFile( const OS::Path& path, CString entryPoint )
         {
             m_filePath = path;
             m_entryPoint = entryPoint;
             m_fileTimeAtCompilation = m_filePath.getLastWrittenFileTime();
 
-            return _Compile( GetLatestProfile<T>().c_str() );
+            return _CompileFromFile( m_filePath, GetLatestProfile<T>().c_str() );
         }
 
         //----------------------------------------------------------------------
         template <typename T>
-        bool _Compile( const String& source, CString entryPoint )
+        bool _CompileFromSource( const String& source, CString entryPoint )
         {
             m_entryPoint = entryPoint;
-            return _Compile( source, GetLatestProfile<T>().c_str() );
+            return _CompileFromSource( source, GetLatestProfile<T>().c_str() );
         }
 
 
     private:
-
         //----------------------------------------------------------------------
-        bool _Compile(CString profile);
-        bool _Compile(const String& source, CString profile);
+        bool _CompileFromFile(const OS::Path& path, CString profile);
+        bool _CompileFromSource(const String& source, CString profile);
 
         void _ShaderReflection(ID3DBlob* pShaderBlob);
         void _ReflectConstantBuffers();

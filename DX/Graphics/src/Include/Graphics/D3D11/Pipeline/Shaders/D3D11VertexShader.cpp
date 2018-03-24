@@ -28,66 +28,46 @@ namespace Graphics { namespace D3D11 {
     }
 
     //----------------------------------------------------------------------
-    bool VertexShader::compile( const OS::Path& path, CString entryPoint )
+    bool VertexShader::compileFromFile( const OS::Path& path, CString entryPoint )
     {
-        bool compiled = _Compile<ID3D11VertexShader>( path, entryPoint );
+        bool compiled = _CompileFromFile<ID3D11VertexShader>( path, entryPoint );
         if (not compiled)
             return false;
 
-        // Clean-Up old vertex-shader
-        SAFE_RELEASE( m_pVertexShader );
-
-        // Create Vertex-Shader and input layout
-        HR( g_pDevice->CreateVertexShader( m_pShaderBlob->GetBufferPointer(), m_pShaderBlob->GetBufferSize(), nullptr, &m_pVertexShader ) );
-
-        // Create input layout
-        _CreateInputLayout( m_pShaderBlob );
-
-        // Shader blob and reflection data no longer needed
-        SAFE_RELEASE( m_pShaderBlob );
-        SAFE_RELEASE( m_pShaderReflection );
+        _CreateD3D11VertexShader();
 
         return true;
     }
 
     //----------------------------------------------------------------------
-    bool VertexShader::compile( const String& shaderSource, CString entryPoint )
+    bool VertexShader::compileFromSource( const String& shaderSource, CString entryPoint )
     {
-        bool compiled = _Compile<ID3D11VertexShader>( shaderSource, entryPoint );
+        bool compiled = _CompileFromSource<ID3D11VertexShader>( shaderSource, entryPoint );
         if (not compiled)
             return false;
 
-        // Clean-Up old vertex-shader
-        SAFE_RELEASE( m_pVertexShader );
-
-        // Create Vertex-Shader and input layout
-        HR( g_pDevice->CreateVertexShader( m_pShaderBlob->GetBufferPointer(), m_pShaderBlob->GetBufferSize(), nullptr, &m_pVertexShader ) );
-
-        // Create input layout
-        _CreateInputLayout( m_pShaderBlob );
-
-        // Shader blob and reflection data no longer needed
-        SAFE_RELEASE( m_pShaderBlob );
-        SAFE_RELEASE( m_pShaderReflection );
+        _CreateD3D11VertexShader();
 
         return true;
-    }
-
-    //----------------------------------------------------------------------
-    bool VertexShader::recompile()
-    {
-        // Recompilation only possible on shader which were compiled by path
-        if ( not m_filePath.toString().empty() )
-            compile( m_filePath, m_entryPoint.c_str() );
-        else
-            WARN_RENDERING( "VertexShader::recompile(): Recompilation not possible because no filepath exists in this class!" );
-
-        return false;
     }
 
     //**********************************************************************
     // PRIVATE
     //**********************************************************************
+
+    //----------------------------------------------------------------------
+    void VertexShader::_CreateD3D11VertexShader()
+    {
+        // Clean-Up old vertex-shader and create a new one
+        SAFE_RELEASE( m_pVertexShader );
+        HR( g_pDevice->CreateVertexShader( m_pShaderBlob->GetBufferPointer(), m_pShaderBlob->GetBufferSize(), nullptr, &m_pVertexShader ) );
+
+        _CreateInputLayout( m_pShaderBlob );
+
+        // Shader blob and reflection data no longer needed
+        SAFE_RELEASE( m_pShaderBlob );
+        SAFE_RELEASE( m_pShaderReflection );
+    }
 
     //----------------------------------------------------------------------
     void VertexShader::_CreateInputLayout( ID3DBlob* pShaderBlob )

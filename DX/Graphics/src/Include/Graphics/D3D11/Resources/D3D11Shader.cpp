@@ -43,30 +43,30 @@ namespace Graphics { namespace D3D11 {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    bool Shader::compile( const OS::Path& vertPath, const OS::Path& fragPath, CString entryPoint )
+    bool Shader::compileFromFile( const OS::Path& vertPath, const OS::Path& fragPath, CString entryPoint )
     {
         m_pVertexShader.reset( new D3D11::VertexShader() );
         m_pPixelShader.reset( new D3D11::PixelShader() );
 
         bool success = true;
-        if ( not m_pVertexShader->compile( vertPath, entryPoint ) )
+        if ( not m_pVertexShader->compileFromFile( vertPath, entryPoint ) )
             success = false;
-        if ( not m_pPixelShader->compile( fragPath, entryPoint ) )
+        if ( not m_pPixelShader->compileFromFile( fragPath, entryPoint ) )
             success = false;
 
         return success;
     }
 
     //----------------------------------------------------------------------
-    bool Shader::compile( const String& vertSrc, const String& fragSrc, CString entryPoint )
+    bool Shader::compileFromSource( const String& vertSrc, const String& fragSrc, CString entryPoint )
     {
         m_pVertexShader.reset( new D3D11::VertexShader() );
         m_pPixelShader.reset( new D3D11::PixelShader() );
 
         bool success = true;
-        if ( not m_pVertexShader->compile( vertSrc, entryPoint ) )
+        if ( not m_pVertexShader->compileFromSource( vertSrc, entryPoint ) )
             success = false;
-        if ( not m_pPixelShader->compile( fragSrc, entryPoint ) )
+        if ( not m_pPixelShader->compileFromSource( fragSrc, entryPoint ) )
             success = false;
 
         return success;

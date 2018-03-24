@@ -36,7 +36,7 @@ namespace Graphics {
         // @Return:
         //  True, if compilation was successful, otherwise false and prints what went wrong.
         //----------------------------------------------------------------------
-        virtual bool compile(const OS::Path& vertPath, const OS::Path& fragPath, CString entryPoint) = 0;
+        virtual bool compileFromFile(const OS::Path& vertPath, const OS::Path& fragPath, CString entryPoint) = 0;
 
         //----------------------------------------------------------------------
         // Try to compile this shader.
@@ -47,7 +47,7 @@ namespace Graphics {
         // @Return:
         //  True, if compilation was successful, otherwise false and prints what went wrong.
         //----------------------------------------------------------------------
-        virtual bool compile( const String& vertSrc, const String& fragSrc, CString entryPoint ) = 0;
+        virtual bool compileFromSource(const String& vertSrc, const String& fragSrc, CString entryPoint) = 0;
 
         //----------------------------------------------------------------------
         // Recompile all shaders which are not up to date.
@@ -57,7 +57,7 @@ namespace Graphics {
 
         //----------------------------------------------------------------------
         // @Return:
-        //  True, if all shader files are up-to-date (weren't modified).
+        //  True, if all shader files are up-to-date (weren't modified since they were compiled).
         //----------------------------------------------------------------------
         virtual bool isUpToDate() = 0;
 

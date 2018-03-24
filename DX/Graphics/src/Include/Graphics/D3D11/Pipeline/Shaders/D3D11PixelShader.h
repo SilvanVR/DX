@@ -21,12 +21,13 @@ namespace Graphics { namespace D3D11 {
         // ShaderBase Interface
         //----------------------------------------------------------------------
         void bind() override;
-        bool compile(const OS::Path& path, CString entryPoint) override;
-        bool compile(const String& shaderSource, CString entryPoint) override;
-        bool recompile() override;
+        bool compileFromFile(const OS::Path& path, CString entryPoint) override;
+        bool compileFromSource(const String& shaderSource, CString entryPoint) override;
 
     private:
         ID3D11PixelShader* m_pPixelShader = nullptr;
+
+        void _CreateD3D11PixelShader();
 
         //----------------------------------------------------------------------
         PixelShader(const PixelShader& other)               = delete;

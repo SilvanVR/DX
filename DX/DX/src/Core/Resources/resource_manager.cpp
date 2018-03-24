@@ -96,7 +96,7 @@ namespace Core { namespace Resources {
         auto shader = Locator::getRenderer().createShader();
         shader->setName( name );
 
-        if ( not shader->compile( vertPath, fragPath, "main" ) )
+        if ( not shader->compileFromFile( vertPath, fragPath, "main" ) )
             return m_defaultShader;
 
         m_shaders.push_back( shader );
@@ -113,7 +113,7 @@ namespace Core { namespace Resources {
             m_defaultShader = Locator::getRenderer().createShader();
             m_defaultShader->setName( SHADER_DEFAULT_NAME );
 
-            if ( not m_defaultShader->compile( DEFAULT_VERTEX_SHADER_SOURCE, DEFAULT_FRAGMENT_SOURCE, "main" ) )
+            if ( not m_defaultShader->compileFromSource( DEFAULT_VERTEX_SHADER_SOURCE, DEFAULT_FRAGMENT_SOURCE, "main" ) )
                 ERROR( "Default shader source didn't compile. This is mandatory!" );
 
             m_shaders.push_back( m_defaultShader );
@@ -122,7 +122,7 @@ namespace Core { namespace Resources {
             m_wireframeShader = Locator::getRenderer().createShader();
             m_wireframeShader->setName( SHADER_WIREFRAME_NAME );
             m_wireframeShader->setRasterizationState( { Graphics::FillMode::WIREFRAME } );
-            m_wireframeShader->compile( DEFAULT_VERTEX_SHADER_SOURCE, DEFAULT_FRAGMENT_SOURCE, "main" );
+            m_wireframeShader->compileFromSource( DEFAULT_VERTEX_SHADER_SOURCE, DEFAULT_FRAGMENT_SOURCE, "main" );
 
             m_shaders.push_back( m_wireframeShader );
         }

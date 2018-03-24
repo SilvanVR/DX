@@ -25,8 +25,8 @@ namespace Graphics { namespace D3D11 {
         //----------------------------------------------------------------------
         // IShader Interface
         //----------------------------------------------------------------------
-        bool                compile(const OS::Path& vertPath, const OS::Path& fragPath, CString entryPoint) override;
-        bool                compile(const String& vertSrc, const String& fragSrc, CString entryPoint) override;
+        bool                compileFromFile(const OS::Path& vertPath, const OS::Path& fragPath, CString entryPoint) override;
+        bool                compileFromSource(const String& vertSrc, const String& fragSrc, CString entryPoint) override;
         ArrayList<OS::Path> recompile();
         bool                isUpToDate() override;
         ArrayList<OS::Path> getShaderPaths() const override;

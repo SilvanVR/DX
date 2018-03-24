@@ -17,5 +17,5 @@ float4 main(FragmentIn fin) : SV_Target
 	//return float4(fin.Color.r,1,0,1);
     //return float4(1, 1, 1, 1.0) * pixelVal;
     //return float4(pixelVal, 1, 1, 1) ;
-    return float4(pixelVal, 1-pixelColor.g, 0, 1.0);
+    return float4(pixelVal, 1-pixelColor.g, fin.Color.r, 1.0);
 }

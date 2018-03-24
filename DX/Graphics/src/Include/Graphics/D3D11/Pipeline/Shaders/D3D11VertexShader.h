@@ -22,9 +22,8 @@ namespace Graphics { namespace D3D11 {
         // ShaderBase Interface
         //----------------------------------------------------------------------
         void bind() override;
-        bool compile(const OS::Path& path, CString entryPoint) override;
-        bool compile(const String& shaderSource, CString entryPoint) override;
-        bool recompile() override;
+        bool compileFromFile(const OS::Path& path, CString entryPoint) override;
+        bool compileFromSource(const String& shaderSource, CString entryPoint) override;
 
         //----------------------------------------------------------------------
         const VertexLayout& getVertexLayout() const { return m_vertexLayout; }
@@ -38,7 +37,7 @@ namespace Graphics { namespace D3D11 {
         //----------------------------------------------------------------------
         void _CreateInputLayout(ID3DBlob* pShaderBlob);
         void _AddToVertexLayout(const String& semanticName);
-
+        void _CreateD3D11VertexShader();
 
         //----------------------------------------------------------------------
         VertexShader(const VertexShader& other)               = delete;
