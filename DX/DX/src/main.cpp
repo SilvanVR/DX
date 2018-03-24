@@ -455,11 +455,12 @@ public:
 
     void tick(Time::Seconds d) override
     {
-        F64 s = (sin( TIME.getTime().value ) + 1) / 2;
-        material->setVec4(SID("mColor"), Math::Vec4((F32)s, 0.0f, 0.0f, 1.0f) );
-        material->setFloat(SID("pixelVal"), (F32)s);
-        //material->setColor(SID("pixelColor"), Color(0, (Byte)(s*255), 0) );
+        F32 s = (sinf( (F32)TIME.getTime().value ) + 1.0f) / 2.0f;
+        material->setVec4(SID("mColor"), Math::Vec4(s, 0.0f, 0.0f, 1.0f) );
+        material->setFloat(SID("pixelVal"), s);
 
+        Byte b = static_cast<Byte>( 255.0f * s );
+        material->setColor(SID("pixelColor"), Color(b, b, b) );
         //material->setInt(SID("test"), IGC_GET_VAR("test"));
     }
 

@@ -8,16 +8,20 @@
     Texture on the gpu, which can be set as the rendertarget for a camera.
 **********************************************************************/
 
+#include "i_texture.h"
+
 namespace Graphics
 {
 
-    class RenderTexture
+    class RenderTexture : public ITexture
     {
-    public:
 
-        F32 getAspectRatio() const { return 1.0f; }
-        F32 getWidth() const { return 1.0f; }
-        F32 getHeight() const { return 1.0f; }
+    private:
+        //----------------------------------------------------------------------
+        RenderTexture(const RenderTexture& other)               = delete;
+        RenderTexture& operator = (const RenderTexture& other)  = delete;
+        RenderTexture(RenderTexture&& other)                    = delete;
+        RenderTexture& operator = (RenderTexture&& other)       = delete;
     };
 
 
