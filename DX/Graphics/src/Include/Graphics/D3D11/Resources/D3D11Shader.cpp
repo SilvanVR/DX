@@ -22,11 +22,6 @@ namespace Graphics { namespace D3D11 {
     //----------------------------------------------------------------------
     Shader::~Shader()
     {
-        if (m_pVertexShader)
-            SAFE_DELETE( m_pVertexShader );
-        if (m_pPixelShader)
-            SAFE_DELETE( m_pPixelShader );
-
         SAFE_RELEASE( m_pDepthStencilState );
         SAFE_RELEASE( m_pRSState );
         SAFE_RELEASE( m_pBlendState );
@@ -48,22 +43,31 @@ namespace Graphics { namespace D3D11 {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    void Shader::setShaderPaths( const OS::Path& vertPath, const OS::Path& fragPath )
+    bool Shader::compile( const OS::Path& vertPath, const OS::Path& fragPath, CString entryPoint )
     {
-        m_pVertexShader = new D3D11::VertexShader( vertPath );
-        m_pPixelShader  = new D3D11::PixelShader( fragPath );
+        m_pVertexShader.reset( new D3D11::VertexShader() );
+        m_pPixelShader.reset( new D3D11::PixelShader() );
+
+        bool success = true;
+        if ( not m_pVertexShader->compile( vertPath, entryPoint ) )
+            success = false;
+        if ( not m_pPixelShader->compile( fragPath, entryPoint ) )
+            success = false;
+
+        return success;
     }
 
     //----------------------------------------------------------------------
-    bool Shader::compile( CString entryPoint )
+    bool Shader::compile( const String& vertSrc, const String& fragSrc, CString entryPoint )
     {
+        m_pVertexShader.reset( new D3D11::VertexShader() );
+        m_pPixelShader.reset( new D3D11::PixelShader() );
+
         bool success = true;
-        if (m_pVertexShader)
-            if ( not m_pVertexShader->compile( entryPoint ) )
-                success = false;
-        if (m_pPixelShader)
-            if ( not m_pPixelShader->compile( entryPoint ) )
-                success = false;
+        if ( not m_pVertexShader->compile( vertSrc, entryPoint ) )
+            success = false;
+        if ( not m_pPixelShader->compile( fragSrc, entryPoint ) )
+            success = false;
 
         return success;
     }
@@ -75,11 +79,11 @@ namespace Graphics { namespace D3D11 {
 
         if (m_pVertexShader)
             if ( not m_pVertexShader->isUpToDate() )
-                if ( m_pVertexShader->compile( m_pVertexShader->getEntryPoint() ) )
+                if ( m_pVertexShader->recompile() )
                     shaderPaths.emplace_back( m_pVertexShader->getFilePath() );
         if (m_pPixelShader)
             if ( not m_pPixelShader->isUpToDate() )
-                if ( m_pPixelShader->compile( m_pPixelShader->getEntryPoint() ) )
+                if ( m_pPixelShader->recompile() )
                     shaderPaths.emplace_back( m_pPixelShader->getFilePath() );
 
         return shaderPaths;

@@ -25,10 +25,10 @@ namespace Graphics { namespace D3D11 {
         //----------------------------------------------------------------------
         // IShader Interface
         //----------------------------------------------------------------------
-        void setShaderPaths(const OS::Path& vertPath, const OS::Path& fragPath) override;
-        bool compile(CString entryPoint) override;
+        bool                compile(const OS::Path& vertPath, const OS::Path& fragPath, CString entryPoint) override;
+        bool                compile(const String& vertSrc, const String& fragSrc, CString entryPoint) override;
         ArrayList<OS::Path> recompile();
-        bool isUpToDate() override;
+        bool                isUpToDate() override;
         ArrayList<OS::Path> getShaderPaths() const override;
         const VertexLayout& getVertexLayout() const override;
 
@@ -37,16 +37,16 @@ namespace Graphics { namespace D3D11 {
         void setBlendState(const BlendState& bState) override;
 
         //----------------------------------------------------------------------
-        const VertexShader* getVertexShader() const { return m_pVertexShader; }
-        const PixelShader*  getPixelShader() const { return m_pPixelShader; }
+        const VertexShader* getVertexShader() const { return m_pVertexShader.get(); }
+        const PixelShader*  getPixelShader() const { return m_pPixelShader.get(); }
 
     private:
-        VertexShader*       m_pVertexShader   = nullptr;
-        PixelShader*        m_pPixelShader    = nullptr;
+        std::unique_ptr<VertexShader>   m_pVertexShader = nullptr;
+        std::unique_ptr<PixelShader>    m_pPixelShader  = nullptr;
 
-        ID3D11DepthStencilState*    m_pDepthStencilState;
-        ID3D11RasterizerState*      m_pRSState;
-        ID3D11BlendState*           m_pBlendState;
+        ID3D11DepthStencilState*        m_pDepthStencilState;
+        ID3D11RasterizerState*          m_pRSState;
+        ID3D11BlendState*               m_pBlendState;
 
         //----------------------------------------------------------------------
         // IShader Interface

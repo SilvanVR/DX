@@ -92,9 +92,6 @@
     <ClInclude Include="src\Include\Graphics\vertex_layout.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Include\Graphics\render_texture.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\Include\Graphics\gpu_commands.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -132,6 +129,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Include\Graphics\i_material.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Include\Graphics\i_render_texture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

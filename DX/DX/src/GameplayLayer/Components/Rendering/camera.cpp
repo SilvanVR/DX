@@ -9,7 +9,7 @@
 #include "GameplayLayer/Components/transform.h"
 #include "GameplayLayer/gameobject.h"
 #include "Graphics/command_buffer.h"
-#include "Graphics/render_texture.h"
+#include "Graphics/i_render_texture.h"
 #include "locator.h"
 
 namespace Components {

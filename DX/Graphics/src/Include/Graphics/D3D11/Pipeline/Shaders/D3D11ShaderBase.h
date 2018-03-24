@@ -33,18 +33,26 @@ namespace Graphics { namespace D3D11 {
     class ShaderBase
     {
     public:
-        ShaderBase(const OS::Path& path) : m_filePath( path ) {}
+        ShaderBase() = default;
         virtual ~ShaderBase() { SAFE_RELEASE( m_pShaderBlob ); SAFE_RELEASE( m_pShaderReflection ); }
 
         //----------------------------------------------------------------------
         virtual void bind() = 0;
-        virtual bool compile(CString entryPoint) = 0;
+        virtual bool compile(const OS::Path& path, CString entryPoint) = 0;
+        virtual bool compile(const String& shaderSource, CString entryPoint) = 0;
+        virtual bool recompile() = 0;
 
         //----------------------------------------------------------------------
         const OS::Path& getFilePath()   const { return m_filePath; }
         CString         getEntryPoint() const { return m_entryPoint.c_str(); }
-        bool            isUpToDate()    const { return m_fileTimeAtCompilation == m_filePath.getLastWrittenFileTime(); }
         ID3DBlob*       getShaderBlob() { return m_pShaderBlob; }
+
+        //----------------------------------------------------------------------
+        // @Return:
+        //  Whether the shader (if compiled from file) is up to date on disc.
+        //  This returns always true if this shader was compiled from source.
+        //----------------------------------------------------------------------
+        bool isUpToDate() const;
 
         //----------------------------------------------------------------------
         // @Return:
@@ -68,7 +76,7 @@ namespace Graphics { namespace D3D11 {
         bool hasMaterialBuffer() const;
 
     protected:
-        ID3DBlob* m_pShaderBlob = nullptr;
+        ID3DBlob*                       m_pShaderBlob           = nullptr;
         ID3D11ShaderReflection*         m_pShaderReflection     = nullptr;
         String                          m_entryPoint            = "main";
         OS::Path                        m_filePath;
@@ -77,12 +85,21 @@ namespace Graphics { namespace D3D11 {
 
         //----------------------------------------------------------------------
         template <typename T>
-        bool _Compile( CString entryPoint ) 
+        bool _Compile( const OS::Path& path, CString entryPoint )
         {
+            m_filePath = path;
             m_entryPoint = entryPoint;
             m_fileTimeAtCompilation = m_filePath.getLastWrittenFileTime();
 
             return _Compile( GetLatestProfile<T>().c_str() );
+        }
+
+        //----------------------------------------------------------------------
+        template <typename T>
+        bool _Compile( const String& source, CString entryPoint )
+        {
+            m_entryPoint = entryPoint;
+            return _Compile( source, GetLatestProfile<T>().c_str() );
         }
 
 
@@ -90,6 +107,8 @@ namespace Graphics { namespace D3D11 {
 
         //----------------------------------------------------------------------
         bool _Compile(CString profile);
+        bool _Compile(const String& source, CString profile);
+
         void _ShaderReflection(ID3DBlob* pShaderBlob);
         void _ReflectConstantBuffers();
 

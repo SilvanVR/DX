@@ -14,14 +14,16 @@ namespace Graphics { namespace D3D11 {
     class PixelShader : public ShaderBase
     {
     public:
-        PixelShader(CString path);
+        PixelShader() = default;
         ~PixelShader();
 
         //----------------------------------------------------------------------
         // ShaderBase Interface
         //----------------------------------------------------------------------
         void bind() override;
-        bool compile(CString entryPoint) override;
+        bool compile(const OS::Path& path, CString entryPoint) override;
+        bool compile(const String& shaderSource, CString entryPoint) override;
+        bool recompile() override;
 
     private:
         ID3D11PixelShader* m_pPixelShader = nullptr;

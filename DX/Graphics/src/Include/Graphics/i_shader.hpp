@@ -28,21 +28,26 @@ namespace Graphics {
         void setName(const String& name) { m_name = name; }
 
         //----------------------------------------------------------------------
+        // Try to compile this shader.
         // @Params:
         //  "vertPath": Path to the vertex shader file.
         //  "fragPath": Path to the fragment shader file.
-        // This sets only the paths. To compile and use this shader you must call compile().
+        //  "entryPoint": Entry point of the shader.
+        // @Return:
+        //  True, if compilation was successful, otherwise false and prints what went wrong.
         //----------------------------------------------------------------------
-        virtual void setShaderPaths(const OS::Path& vertPath, const OS::Path& fragPath) = 0;
+        virtual bool compile(const OS::Path& vertPath, const OS::Path& fragPath, CString entryPoint) = 0;
 
         //----------------------------------------------------------------------
         // Try to compile this shader.
         // @Params:
-        // "entryPoint": Entry point of the shader.
+        //  "vertSrc": Source of the vertex shader in ASCII.
+        //  "fragSrc": Source of the fragment shader in ASCII.
+        //  "entryPoint": Entry point of the shader.
         // @Return:
         //  True, if compilation was successful, otherwise false and prints what went wrong.
         //----------------------------------------------------------------------
-        virtual bool compile(CString entryPoint) = 0;
+        virtual bool compile( const String& vertSrc, const String& fragSrc, CString entryPoint ) = 0;
 
         //----------------------------------------------------------------------
         // Recompile all shaders which are not up to date.

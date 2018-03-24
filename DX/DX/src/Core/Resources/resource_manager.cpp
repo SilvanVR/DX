@@ -9,6 +9,7 @@
 **********************************************************************/
 
 #include "locator.h"
+#include "default_shader.hpp"
 
 namespace Core { namespace Resources {
 
@@ -17,16 +18,7 @@ namespace Core { namespace Resources {
     {
         Locator::getCoreEngine().subscribe( this );
 
-        m_defaultShader   = createShader( "/shaders/colorVS.hlsl", "/shaders/colorPS.hlsl" );
-        m_defaultShader->setName( "DefaultShader" );
-        m_defaultMaterial = createMaterial();
-
-        m_wireframeShader = createShader( "/shaders/colorVS.hlsl", "/shaders/colorPS.hlsl" );
-        m_wireframeShader->setName( "WireframeShader" );
-        m_wireframeShader->setRasterizationState({ Graphics::FillMode::WIREFRAME });
-        m_wireframeMaterial = createMaterial( m_wireframeShader );
-
-        Locator::getRenderer().addGlobalMaterial( "Wireframe", m_wireframeMaterial );
+        _CreateDefaultAssets();
 
         // HOT-RELOADING CALLBACK
         Locator::getEngineClock().setInterval([this]{
@@ -61,7 +53,7 @@ namespace Core { namespace Resources {
     //----------------------------------------------------------------------
     void ResourceManager::OnTick( Time::Seconds delta )
     {
-
+        
     }
 
     //**********************************************************************
@@ -72,7 +64,9 @@ namespace Core { namespace Resources {
     Graphics::Mesh* ResourceManager::createMesh()
     {
         auto mesh = Locator::getRenderer().createMesh();
+
         m_meshes.push_back( mesh );
+
         return mesh;
     }
 
@@ -89,27 +83,57 @@ namespace Core { namespace Resources {
     Graphics::Material* ResourceManager::createMaterial( Graphics::Shader* shader )
     {
         auto mat = Locator::getRenderer().createMaterial();
-        m_materials.push_back( mat );
-
-        // Set default shader
         mat->setShader( shader ? shader : m_defaultShader );
+
+        m_materials.push_back( mat );
 
         return mat;
     }
 
     //----------------------------------------------------------------------
-    Graphics::Shader* ResourceManager::createShader( CString vertPath, CString fragPath )
+    Graphics::Shader* ResourceManager::createShader( CString name, const OS::Path& vertPath, const OS::Path& fragPath )
     {
         auto shader = Locator::getRenderer().createShader();
-        m_shaders.push_back( shader );
+        shader->setName( name );
 
-        shader->setShaderPaths( vertPath, fragPath );
-
-        if ( not shader->compile("main") )
+        if ( not shader->compile( vertPath, fragPath, "main" ) )
             return m_defaultShader;
+
+        m_shaders.push_back( shader );
 
         return shader;
     }
 
+    //----------------------------------------------------------------------
+    void ResourceManager::_CreateDefaultAssets()
+    {
+        // SHADERS
+        {
+            // Default shader
+            m_defaultShader = Locator::getRenderer().createShader();
+            m_defaultShader->setName( SHADER_DEFAULT_NAME );
+
+            if ( not m_defaultShader->compile( DEFAULT_VERTEX_SHADER_SOURCE, DEFAULT_FRAGMENT_SOURCE, "main" ) )
+                ERROR( "Default shader source didn't compile. This is mandatory!" );
+
+            m_shaders.push_back( m_defaultShader );
+
+            // Default wireframe shader
+            m_wireframeShader = Locator::getRenderer().createShader();
+            m_wireframeShader->setName( SHADER_WIREFRAME_NAME );
+            m_wireframeShader->setRasterizationState( { Graphics::FillMode::WIREFRAME } );
+            m_wireframeShader->compile( DEFAULT_VERTEX_SHADER_SOURCE, DEFAULT_FRAGMENT_SOURCE, "main" );
+
+            m_shaders.push_back( m_wireframeShader );
+        }
+
+        // MATERIALS
+        {
+            m_defaultMaterial   = createMaterial( m_defaultShader );
+            m_wireframeMaterial = createMaterial( m_wireframeShader );
+
+            Locator::getRenderer().addGlobalMaterial( "Wireframe", m_wireframeMaterial );
+        }
+    }
 
 } } // end namespaces

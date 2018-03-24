@@ -17,12 +17,14 @@ namespace OS {
     class Path
     {
     public:
+        Path() = default;
+
         //----------------------------------------------------------------------
         // @Params:
         //  "path": The physical (or virtual) path on disk
         //  "resolveVirtualPath": Resolve the path into a physical path
         //----------------------------------------------------------------------
-        Path(const char* path = "", bool resolveVirtualPath = true);
+        Path(const char* path, bool resolveVirtualPath = true);
         ~Path() = default;
 
         //----------------------------------------------------------------------
@@ -30,8 +32,9 @@ namespace OS {
         explicit operator   String      () const { return toString(); }
 
         //----------------------------------------------------------------------
-        const char* c_str()     const { return m_path.c_str(); }
-        String      toString()  const { return m_path; }
+        const char*     c_str()     const { return m_path.c_str(); }
+        const String&   toString()  const { return m_path; }
+        bool            empty()     const { return m_path.empty(); }
 
         //----------------------------------------------------------------------
         // @Return: 

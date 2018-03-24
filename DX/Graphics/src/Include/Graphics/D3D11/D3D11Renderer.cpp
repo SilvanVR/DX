@@ -7,7 +7,7 @@
 **********************************************************************/
 
 #include "../command_buffer.h"
-#include "../render_texture.h"
+#include "../i_render_texture.h"
 #include "Resources/D3D11Mesh.h"
 #include "Resources/D3D11Material.h"
 #include "Resources/D3D11Shader.h"

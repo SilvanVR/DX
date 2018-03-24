@@ -21,6 +21,9 @@
 
 namespace Core { namespace Resources {
 
+    const static CString SHADER_DEFAULT_NAME    = "DEFAULT";
+    const static CString SHADER_WIREFRAME_NAME  = "WIREFRAME";
+
     //*********************************************************************
     class ResourceManager : public ISubSystem
     {
@@ -51,7 +54,7 @@ namespace Core { namespace Resources {
         //----------------------------------------------------------------------
         // Creates a new shader for use by the graphics engine.
         //----------------------------------------------------------------------
-        Graphics::Shader* createShader(CString vertPath, CString fragPath);
+        Graphics::Shader* createShader(CString name, const OS::Path& vertPath, const OS::Path& fragPath);
 
         //----------------------------------------------------------------------
         void UnloadUnusedResources();
@@ -74,6 +77,9 @@ namespace Core { namespace Resources {
 
         Graphics::Material* m_defaultMaterial;
         Graphics::Material* m_wireframeMaterial;
+
+        //----------------------------------------------------------------------
+        void _CreateDefaultAssets();
 
         //----------------------------------------------------------------------
         ResourceManager(const ResourceManager& other)               = delete;

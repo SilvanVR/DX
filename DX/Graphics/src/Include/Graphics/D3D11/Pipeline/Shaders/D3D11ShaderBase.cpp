@@ -41,9 +41,48 @@ namespace Graphics { namespace D3D11 {
         return false;
     }
 
+    //----------------------------------------------------------------------
+    bool ShaderBase::isUpToDate() const 
+    { 
+        if ( m_filePath.empty() ) // Compiled shaders from source are always up to date
+            return true;
+
+        return m_fileTimeAtCompilation == m_filePath.getLastWrittenFileTime(); 
+    }
+
     //**********************************************************************
     // PRIVATE
     //**********************************************************************
+
+    //----------------------------------------------------------------------
+    bool ShaderBase::_Compile( const String& source, CString profile )
+    {
+        UINT flags = D3DCOMPILE_ENABLE_STRICTNESS | D3DCOMPILE_WARNINGS_ARE_ERRORS;
+    #ifdef _DEBUG
+        flags |= (D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION);
+    #endif
+
+        ID3DBlob* errorBlob = nullptr;
+        HRESULT hr = D3DCompile( source.c_str(), source.size(), NULL, NULL, NULL, 
+                                 m_entryPoint.c_str(), profile, flags, 0, &m_pShaderBlob, &errorBlob );
+
+        if ( FAILED( hr ) )
+        {
+            WARN_RENDERING( "Failed to compile Shader '" + source + "'." );
+            if (errorBlob)
+            {
+                WARN_RENDERING( (const char*)errorBlob->GetBufferPointer() );
+                SAFE_RELEASE( errorBlob );
+            }
+
+            SAFE_RELEASE( m_pShaderBlob );
+
+            return false;
+        }
+
+        _ShaderReflection( m_pShaderBlob );
+        return true;
+    }
 
     //----------------------------------------------------------------------
     bool ShaderBase::_Compile( CString profile )

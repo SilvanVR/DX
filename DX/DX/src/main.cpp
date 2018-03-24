@@ -428,8 +428,7 @@ public:
         cube->setColors(cubeColors);
 
         // SHADER
-        auto shader = RESOURCES.createShader( "/shaders/testVS.hlsl", "/shaders/testPS.hlsl" );
-        shader->setName("TestShader");
+        auto shader = RESOURCES.createShader( "TestShader", "/shaders/testVS.hlsl", "/shaders/testPS.hlsl" );
         //shader->setRasterizationState({Graphics::FillMode::WIREFRAME});
         shader->setDepthStencilState({false});
         shader->enableAlphaBlending(true);
@@ -459,7 +458,7 @@ public:
         F64 s = (sin( TIME.getTime().value ) + 1) / 2;
         material->setVec4(SID("mColor"), Math::Vec4((F32)s, 0.0f, 0.0f, 1.0f) );
         material->setFloat(SID("pixelVal"), (F32)s);
-        material->setColor(SID("pixelColor"), Color(0, (Byte)(s*255), 0) );
+        //material->setColor(SID("pixelColor"), Color(0, (Byte)(s*255), 0) );
 
         //material->setInt(SID("test"), IGC_GET_VAR("test"));
     }

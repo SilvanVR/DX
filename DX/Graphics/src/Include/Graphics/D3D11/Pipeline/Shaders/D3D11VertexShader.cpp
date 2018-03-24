@@ -9,12 +9,6 @@
 namespace Graphics { namespace D3D11 {
 
     //----------------------------------------------------------------------
-    VertexShader::VertexShader( CString path )
-        : ShaderBase( path )
-    {
-    }
-
-    //----------------------------------------------------------------------
     VertexShader::~VertexShader()
     {
         SAFE_RELEASE( m_pVertexShader );
@@ -34,9 +28,9 @@ namespace Graphics { namespace D3D11 {
     }
 
     //----------------------------------------------------------------------
-    bool VertexShader::compile( CString entryPoint )
+    bool VertexShader::compile( const OS::Path& path, CString entryPoint )
     {
-        bool compiled = _Compile<ID3D11VertexShader>( entryPoint );
+        bool compiled = _Compile<ID3D11VertexShader>( path, entryPoint );
         if (not compiled)
             return false;
 
@@ -54,6 +48,41 @@ namespace Graphics { namespace D3D11 {
         SAFE_RELEASE( m_pShaderReflection );
 
         return true;
+    }
+
+    //----------------------------------------------------------------------
+    bool VertexShader::compile( const String& shaderSource, CString entryPoint )
+    {
+        bool compiled = _Compile<ID3D11VertexShader>( shaderSource, entryPoint );
+        if (not compiled)
+            return false;
+
+        // Clean-Up old vertex-shader
+        SAFE_RELEASE( m_pVertexShader );
+
+        // Create Vertex-Shader and input layout
+        HR( g_pDevice->CreateVertexShader( m_pShaderBlob->GetBufferPointer(), m_pShaderBlob->GetBufferSize(), nullptr, &m_pVertexShader ) );
+
+        // Create input layout
+        _CreateInputLayout( m_pShaderBlob );
+
+        // Shader blob and reflection data no longer needed
+        SAFE_RELEASE( m_pShaderBlob );
+        SAFE_RELEASE( m_pShaderReflection );
+
+        return true;
+    }
+
+    //----------------------------------------------------------------------
+    bool VertexShader::recompile()
+    {
+        // Recompilation only possible on shader which were compiled by path
+        if ( not m_filePath.toString().empty() )
+            compile( m_filePath, m_entryPoint.c_str() );
+        else
+            WARN_RENDERING( "VertexShader::recompile(): Recompilation not possible because no filepath exists in this class!" );
+
+        return false;
     }
 
     //**********************************************************************
@@ -127,7 +156,7 @@ namespace Graphics { namespace D3D11 {
     }
 
     //----------------------------------------------------------------------
-    void VertexShader::_AddToVertexLayout( String semanticName )
+    void VertexShader::_AddToVertexLayout( const String& semanticName )
     {
         bool nameExists = false;
         if (semanticName == "POSITION")

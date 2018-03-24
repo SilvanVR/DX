@@ -15,14 +15,16 @@ namespace Graphics { namespace D3D11 {
     class VertexShader : public ShaderBase
     {
     public:
-        VertexShader(CString path);
+        VertexShader() = default;
         ~VertexShader();
 
         //----------------------------------------------------------------------
         // ShaderBase Interface
         //----------------------------------------------------------------------
         void bind() override;
-        bool compile(CString entryPoint) override;
+        bool compile(const OS::Path& path, CString entryPoint) override;
+        bool compile(const String& shaderSource, CString entryPoint) override;
+        bool recompile() override;
 
         //----------------------------------------------------------------------
         const VertexLayout& getVertexLayout() const { return m_vertexLayout; }
@@ -35,7 +37,7 @@ namespace Graphics { namespace D3D11 {
 
         //----------------------------------------------------------------------
         void _CreateInputLayout(ID3DBlob* pShaderBlob);
-        void _AddToVertexLayout(String semanticName);
+        void _AddToVertexLayout(const String& semanticName);
 
 
         //----------------------------------------------------------------------
