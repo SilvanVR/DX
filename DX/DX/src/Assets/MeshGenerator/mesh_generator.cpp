@@ -35,19 +35,8 @@ namespace Assets {
             1, 5, 6, 1, 6, 2,
             4, 0, 3, 4, 3, 7
         };
-        ArrayList<Math::Vec2> uvs =
-        {
-            Math::Vec2(0.0f, 1.0f),
-            Math::Vec2(0.0f,  0.0f),
-            Math::Vec2(1.0f,  0.0f ),
-            Math::Vec2(1.0f, 1.0f ),
-            Math::Vec2(0.0f, 1.0f),
-            Math::Vec2(0.0f,  0.0f),
-            Math::Vec2(1.0f,  0.0f),
-            Math::Vec2(1.0f, 1.0f)
-        };
 
-        return RESOURCES.createMesh( vertices, indices, uvs );
+        return RESOURCES.createMesh( vertices, indices );
     }
 
     //----------------------------------------------------------------------
@@ -59,6 +48,91 @@ namespace Assets {
         mesh->setColors( colors );
 
         return mesh;
+    }
+
+    //----------------------------------------------------------------------
+    Graphics::Mesh* MeshGenerator::CreateCubeUV( F32 size )
+    {
+        ArrayList<Math::Vec3> vertices =
+        {
+            // Front Face
+            Math::Vec3(-size, -size, -size),
+            Math::Vec3(-size,  size, -size),
+            Math::Vec3( size,  size, -size),
+            Math::Vec3( size, -size, -size),
+
+            // Back Face
+            Math::Vec3(-size, -size, size),
+            Math::Vec3(-size,  size, size),
+            Math::Vec3( size,  size, size),
+            Math::Vec3( size, -size, size),
+
+            // Right Face
+            Math::Vec3(size, -size, -size),
+            Math::Vec3(size,  size, -size),
+            Math::Vec3(size,  size, size),
+            Math::Vec3(size, -size, size),
+
+            // Left Face
+            Math::Vec3(-size, -size, -size),
+            Math::Vec3(-size,  size, -size),
+            Math::Vec3(-size,  size,  size),
+            Math::Vec3(-size, -size,  size),
+
+            // Top Face
+            Math::Vec3(-size,  size, -size),
+            Math::Vec3(-size,  size,  size),
+            Math::Vec3( size,  size,  size),
+            Math::Vec3( size,  size, -size),
+
+            // Bottom Face
+            Math::Vec3(-size, -size, -size),
+            Math::Vec3(-size, -size,  size),
+            Math::Vec3( size, -size,  size),
+            Math::Vec3( size, -size, -size),
+        };
+        ArrayList<U32> indices = {
+            0, 1, 2, 0, 2, 3,
+            4, 6, 5, 4, 7, 6,
+            8, 9, 10, 8, 10, 11,
+            12, 14, 13, 12, 15, 14,
+            16, 17, 18, 16, 18, 19,
+            20, 22, 21, 20, 23, 22
+        };
+        ArrayList<Math::Vec2> uvs =
+        {
+            Math::Vec2(0.0f, 1.0f),
+            Math::Vec2(0.0f, 0.0f),
+            Math::Vec2(1.0f, 0.0f),
+            Math::Vec2(1.0f, 1.0f),
+
+            Math::Vec2(1.0f, 1.0f),
+            Math::Vec2(1.0f, 0.0f),
+            Math::Vec2(0.0f, 0.0f),
+            Math::Vec2(0.0f, 1.0f),
+
+            Math::Vec2(0.0f, 1.0f),
+            Math::Vec2(0.0f, 0.0f),
+            Math::Vec2(1.0f, 0.0f),
+            Math::Vec2(1.0f, 1.0f),
+
+            Math::Vec2(1.0f, 1.0f),
+            Math::Vec2(1.0f, 0.0f),
+            Math::Vec2(0.0f, 0.0f),
+            Math::Vec2(0.0f, 1.0f),
+
+            Math::Vec2(0.0f, 1.0f),
+            Math::Vec2(0.0f, 0.0f),
+            Math::Vec2(1.0f, 0.0f),
+            Math::Vec2(1.0f, 1.0f),
+
+            Math::Vec2(1.0f, 1.0f),
+            Math::Vec2(1.0f, 0.0f),
+            Math::Vec2(0.0f, 0.0f),
+            Math::Vec2(0.0f, 1.0f)
+        };
+
+        return RESOURCES.createMesh( vertices, indices, uvs );
     }
 
     //----------------------------------------------------------------------

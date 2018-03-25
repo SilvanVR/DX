@@ -24,6 +24,13 @@ namespace Assets {
         static Graphics::Mesh* CreateCube(F32 size, Color color);
 
         //----------------------------------------------------------------------
+        // Generates a new cube mesh with uv coordinates (no colors!).
+        // @Params:
+        // "size": The size/radi of the cube.
+        //----------------------------------------------------------------------
+        static Graphics::Mesh* CreateCubeUV(F32 size = 1.0f);
+
+        //----------------------------------------------------------------------
         // Generates a new plane mesh in the X/Y Plane with 4 vertices.
         // @Params:
         // "size": The size of the plane.

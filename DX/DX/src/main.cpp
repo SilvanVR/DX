@@ -424,8 +424,8 @@ public:
         grid->addComponent<GridGeneration>(20);
 
         // MESH
-        auto cube = Assets::MeshGenerator::CreateCube(1.0f);
-        cube->setColors(cubeColors);
+        auto cube = Assets::MeshGenerator::CreateCubeUV();
+        //cube->setColors(cubeColors);
 
         auto plane = Assets::MeshGenerator::CreatePlane();
         plane->setColors(planeColors);

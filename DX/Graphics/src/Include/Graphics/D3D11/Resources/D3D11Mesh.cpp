@@ -269,6 +269,7 @@ namespace Graphics { namespace D3D11 {
             }
             case InputLayoutType::COLOR:
             {
+                ASSERT( m_pColorBuffer && "Shader requires a color-buffer, but mesh has none!" );
                 pBuffers.emplace_back( m_pColorBuffer->getBuffer() );
                 strides.emplace_back( static_cast<U32>( sizeof( F32 ) * 4 ) );
                 offsets.emplace_back( 0 );
@@ -276,6 +277,7 @@ namespace Graphics { namespace D3D11 {
             }
             case InputLayoutType::TEXCOORD0:
             {
+                ASSERT( m_pUVBuffer && "Shader requires a uv-buffer, but mesh has none!" );
                 pBuffers.emplace_back( m_pUVBuffer->getBuffer() );
                 strides.emplace_back( static_cast<U32>( sizeof( Math::Vec2 ) ) );
                 offsets.emplace_back( 0 );
