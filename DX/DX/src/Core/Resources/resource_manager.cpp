@@ -108,10 +108,10 @@ namespace Core { namespace Resources {
         auto shader = Locator::getRenderer().createShader();
         shader->setName( name );
 
+        m_shaders.push_back( shader );
+
         if ( not shader->compileFromFile( vertPath, fragPath, "main" ) )
             return m_defaultShader;
-
-        m_shaders.push_back( shader );
 
         return shader;
     }
