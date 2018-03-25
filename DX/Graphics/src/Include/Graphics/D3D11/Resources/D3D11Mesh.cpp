@@ -33,15 +33,15 @@ namespace Graphics { namespace D3D11 {
     //----------------------------------------------------------------------
     void Mesh::clear()
     {
-        if (m_pVertexBuffer)
-            SAFE_DELETE( m_pVertexBuffer );
-        if (m_pColorBuffer)
-            SAFE_DELETE( m_pColorBuffer );
+        SAFE_DELETE( m_pVertexBuffer );
+        SAFE_DELETE( m_pColorBuffer );
+        SAFE_DELETE( m_pUVBuffer );
         for (auto& indexBuffer : m_pIndexBuffers)
             SAFE_DELETE( indexBuffer );
 
         m_vertices.clear();
         m_vertexColors.clear();
+        m_uvs0.clear();
         m_pIndexBuffers.clear();
         m_subMeshes.clear();
     }
@@ -171,12 +171,35 @@ namespace Graphics { namespace D3D11 {
         }
     }
 
+    //----------------------------------------------------------------------
+    void Mesh::setUVs( const ArrayList<Math::Vec2>& uvs )
+    {
+#if _DEBUG
+        if (m_pUVBuffer != nullptr)
+            ASSERT( (m_uvs0.size() == m_uvs0.size() &&
+                "IMesh::setUVs(): The amount of uvs given must be the number of uvs already present! "
+                "Otherwise call clear() before, so the gpu buffer will be recreated.") );
+#endif
+        m_uvs0 = uvs;
+        if (m_pUVBuffer == nullptr)
+        {
+            m_pUVBuffer = new VertexBuffer( m_uvs0.data(), getVertexCount() * sizeof( Math::Vec2 ), m_bufferUsage );
+        }
+        else
+        {
+            ASSERT( not isImmutable() && "Mesh is immutable! It can't be updated. "
+                "Either change the buffer usage via setBufferUsage() or call clear() to reset the whole mesh." );
+
+            m_pUVBuffer->update( m_uvs0.data(), m_uvs0.size() * sizeof( Math::Vec2 ) );
+        }
+    }
+
     //**********************************************************************
     // PRIVATE
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    void Mesh::recreateBuffers()
+    void Mesh::_RecreateBuffers()
     {
         // Recreate vertex buffer
         if (m_pVertexBuffer)
@@ -190,6 +213,13 @@ namespace Graphics { namespace D3D11 {
         {
             SAFE_DELETE( m_pColorBuffer );
             setColors( m_vertexColors );
+        }
+
+        // Recreate uv buffer
+        if (m_pColorBuffer)
+        {
+            SAFE_DELETE( m_pUVBuffer );
+            setUVs( m_uvs0 );
         }
 
         // Recreate index buffers
@@ -241,6 +271,13 @@ namespace Graphics { namespace D3D11 {
             {
                 pBuffers.emplace_back( m_pColorBuffer->getBuffer() );
                 strides.emplace_back( static_cast<U32>( sizeof( F32 ) * 4 ) );
+                offsets.emplace_back( 0 );
+                break;
+            }
+            case InputLayoutType::TEXCOORD0:
+            {
+                pBuffers.emplace_back( m_pUVBuffer->getBuffer() );
+                strides.emplace_back( static_cast<U32>( sizeof( Math::Vec2 ) ) );
                 offsets.emplace_back( 0 );
                 break;
             }

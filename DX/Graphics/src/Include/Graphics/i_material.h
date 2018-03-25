@@ -11,6 +11,7 @@
 **********************************************************************/
 
 #include "i_shader.hpp"
+#include "i_texture.h"
 
 namespace Graphics {
 
@@ -31,11 +32,12 @@ namespace Graphics {
         // MATERIAL PARAMETERS
         //**********************************************************************
         //----------------------------------------------------------------------
-        I32                 getInt(StringID name)    const;
-        F32                 getFloat(StringID name)  const;
-        Math::Vec4          getVec4(StringID name)   const;
-        DirectX::XMMATRIX   getMatrix(StringID name) const;
-        Color               getColor(StringID name)  const;
+        I32                 getInt(StringID name)       const;
+        F32                 getFloat(StringID name)     const;
+        Math::Vec4          getVec4(StringID name)      const;
+        DirectX::XMMATRIX   getMatrix(StringID name)    const;
+        Color               getColor(StringID name)     const;
+        Texture*            getTexture(StringID name)   const;
 
         //----------------------------------------------------------------------
         void setInt(StringID name, I32 val);
@@ -43,6 +45,7 @@ namespace Graphics {
         void setVec4(StringID name, const Math::Vec4& vec);
         void setMatrix(StringID name, const DirectX::XMMATRIX& matrix);
         void setColor(StringID name, Color color);
+        void setTexture(StringID name, Texture* tex);
 
     protected:
         IShader* m_shader = nullptr;
@@ -52,6 +55,7 @@ namespace Graphics {
         HashMap<StringID, F32>                  m_floatMap;
         HashMap<StringID, Math::Vec4>           m_vec4Map;
         HashMap<StringID, DirectX::XMMATRIX>    m_matrixMap;
+        HashMap<StringID, Texture*>             m_textureMap;
 
         // Each API should decide themselves how to efficiently update their data
         // @Return:
@@ -60,6 +64,7 @@ namespace Graphics {
         virtual bool _SetFloat(StringID name, F32 val) = 0;
         virtual bool _SetVec4(StringID name, const Math::Vec4& vec) = 0;
         virtual bool _SetMatrix(StringID name, const DirectX::XMMATRIX& matrix) = 0;
+        virtual bool _SetTexture(StringID name, Texture* texture) = 0;
 
     private:
         //----------------------------------------------------------------------

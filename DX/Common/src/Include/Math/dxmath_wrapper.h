@@ -16,6 +16,36 @@
 namespace Math {
 
     //**********************************************************************
+    class Vector2F : public DirectX::XMFLOAT2
+    {
+    public:
+        Vector2F(F32 value = 0);
+        Vector2F(F32 x, F32 y);
+
+        Vector2F    operator +      (const Vector2F& v) const { return Vector2F( x + v.x, y + v.y ); }
+        Vector2F    operator -      (const Vector2F& v) const { return Vector2F( x - v.x, y - v.y ); }
+        Vector2F    operator *      (F32 s)             const { return Vector2F( x * s, y * s ); }
+        Vector2F    operator /      (F32 s)             const { return Vector2F( x / s, y / s); }
+        Vector2F&   operator +=     (const Vector2F& v) { x += v.x, y += v.y; return *this; }
+        Vector2F&   operator -=     (const Vector2F& v) { x -= v.x, y -= v.y; return *this; }
+        Vector2F&   operator *=     (F32 s)             { x *= s; y *= s; return *this; }
+        Vector2F&   operator /=     (F32 s)             { x /= s; y /= s; return *this; }
+
+        F32         magnitude() const;
+        Vector2F    normalized() const;
+
+        String toString() const { return "(" + TS(x) + "," + TS(y) +  ")"; }
+
+        // Static members
+        static const Vector2F UP;            //same as ( 0, 1,)
+        static const Vector2F DOWN;          //same as ( 0,-1,)
+        static const Vector2F LEFT;          //same as (-1, 0,)
+        static const Vector2F RIGHT;         //same as ( 1, 0,)
+        static const Vector2F ONE;           //same as ( 1, 1,)
+        static const Vector2F ZERO;          //same as ( 0, 0,)
+    };
+
+    //**********************************************************************
     class Vector3F : public DirectX::XMFLOAT3
     {
     public:
@@ -95,6 +125,7 @@ namespace Math {
     };
 
     //----------------------------------------------------------------------
+    using Vec2 = Vector2F;
     using Vec3 = Vector3F;
     using Vec4 = Vector4F;
     using Quat = Quaternion;

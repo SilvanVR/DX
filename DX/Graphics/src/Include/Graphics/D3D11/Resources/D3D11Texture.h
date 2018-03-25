@@ -24,7 +24,7 @@ namespace Graphics { namespace D3D11 {
         void init() override;
         void apply() override;
 
-        void bind();
+        void bind(U32 slot);
 
     private:
         ID3D11Texture2D*            m_pTexture       = nullptr;

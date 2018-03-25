@@ -146,5 +146,8 @@
     <ClInclude Include="src\Include\Graphics\i_sampler.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Include\Graphics\D3D11\D3D11Defines.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

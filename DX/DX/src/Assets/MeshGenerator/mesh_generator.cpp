@@ -35,8 +35,19 @@ namespace Assets {
             1, 5, 6, 1, 6, 2,
             4, 0, 3, 4, 3, 7
         };
+        ArrayList<Math::Vec2> uvs =
+        {
+            Math::Vec2(0.0f, 1.0f),
+            Math::Vec2(0.0f,  0.0f),
+            Math::Vec2(1.0f,  0.0f ),
+            Math::Vec2(1.0f, 1.0f ),
+            Math::Vec2(0.0f, 1.0f),
+            Math::Vec2(0.0f,  0.0f),
+            Math::Vec2(1.0f,  0.0f),
+            Math::Vec2(1.0f, 1.0f)
+        };
 
-        return RESOURCES.createMesh( vertices, indices );
+        return RESOURCES.createMesh( vertices, indices, uvs );
     }
 
     //----------------------------------------------------------------------
@@ -63,8 +74,15 @@ namespace Assets {
         ArrayList<U32> indices = {
             0, 1, 2, 0, 2, 3
         };
+        ArrayList<Math::Vec2> uvs =
+        {
+            Math::Vec2(0.0f, 1.0f),
+            Math::Vec2(0.0f, 0.0f),
+            Math::Vec2(1.0f, 0.0f),
+            Math::Vec2(1.0f, 1.0f)
+        };
 
-        return RESOURCES.createMesh( vertices, indices );
+        return RESOURCES.createMesh( vertices, indices, uvs );
     }
 
     //----------------------------------------------------------------------

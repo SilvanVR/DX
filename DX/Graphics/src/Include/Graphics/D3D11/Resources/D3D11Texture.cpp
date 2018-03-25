@@ -16,16 +16,21 @@ namespace Graphics { namespace D3D11 {
         SAFE_RELEASE( m_pTextureView );
     }
 
+    //**********************************************************************
+    // PUBLIC
+    //**********************************************************************
+
     //----------------------------------------------------------------------
-    void Texture::bind()
+    void Texture::bind( U32 slot )
     {
-        g_pImmediateContext->PSSetSamplers( 0, 1, &m_pSampleState );
-        g_pImmediateContext->PSSetShaderResources( 0, 1, &m_pTextureView );
+        g_pImmediateContext->PSSetSamplers( slot, 1, &m_pSampleState );
+        g_pImmediateContext->PSSetShaderResources( slot, 1, &m_pTextureView );
     }
 
     //----------------------------------------------------------------------
     void Texture::init()
     {
+        ASSERT( m_width != 0 && m_height != 0 );
         _CreateTexture();
         _CreateSampler();
     }
@@ -35,6 +40,10 @@ namespace Graphics { namespace D3D11 {
     {
         _PushToGPU();
     }
+
+    //**********************************************************************
+    // PRIVATE
+    //**********************************************************************
 
     //----------------------------------------------------------------------
     void Texture::_CreateTexture()
@@ -68,9 +77,6 @@ namespace Graphics { namespace D3D11 {
 
         // Create the shader resource view for the texture
         HR( g_pDevice->CreateShaderResourceView( m_pTexture, &srvDesc, &m_pTextureView ) );
-
-        // Generate mipmaps for this texture.
-        g_pImmediateContext->GenerateMips( m_pTextureView );
     }
 
     //----------------------------------------------------------------------
@@ -78,7 +84,8 @@ namespace Graphics { namespace D3D11 {
     {
         // Create a texture sampler state description.
         D3D11_SAMPLER_DESC samplerDesc;
-        samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+        //samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+        samplerDesc.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_MIP_POINT;
         samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
         samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
         samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
@@ -99,10 +106,16 @@ namespace Graphics { namespace D3D11 {
     //----------------------------------------------------------------------
     void Texture::_PushToGPU()
     {
+        ASSERT( m_pixels != nullptr );
+
         // Copy the data into the texture
-        //unsigned int rowPitch;
-        //rowPitch = (width * 4) * sizeof(unsigned char);
-        //HR( g_pImmediateContext->UpdateSubresource( m_pTexture, 0, NULL, m_targaData, rowPitch, 0 ) );
+        unsigned int rowPitch = (getWidth() * 4) * sizeof(unsigned char);
+        g_pImmediateContext->UpdateSubresource( m_pTexture, 0, NULL, m_pixels, rowPitch, 0 );
+
+        // Generate mipmaps for this texture.
+        g_pImmediateContext->GenerateMips( m_pTextureView );
+
+        SAFE_DELETE( m_pixels );
     }
 
 } } // End namespaces

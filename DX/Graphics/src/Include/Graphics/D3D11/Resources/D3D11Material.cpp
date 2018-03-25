@@ -67,6 +67,9 @@ namespace Graphics { namespace D3D11 {
             m_materialDataVS.bind( ShaderType::Vertex );
         if ( m_materialDataPS.hasBuffer() )
             m_materialDataPS.bind( ShaderType::Fragment );
+
+        for(auto& texInfo : m_textureCache)
+            texInfo.texture->bind( texInfo.bindSlot );
     }
 
     //----------------------------------------------------------------------
@@ -79,6 +82,22 @@ namespace Graphics { namespace D3D11 {
     // PUBLIC
     //**********************************************************************
 
+    //----------------------------------------------------------------------
+    bool Material::_SetTexture( StringID name, Graphics::Texture* texture )
+    {
+        D3D11::Texture* d3d11Texture = dynamic_cast<D3D11::Texture*>( texture );
+
+        // Does the texture exist in this shader?
+
+
+        TextureCache texCache;
+        texCache.bindSlot = 0;
+        texCache.texture = d3d11Texture;
+
+        m_textureCache.emplace_back( texCache );
+
+        return true;
+    }
 
     //**********************************************************************
     // PRIVATE

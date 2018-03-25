@@ -8,6 +8,7 @@
 
 #include "../../i_material.h"
 #include "../Pipeline/Buffers/D3D11Buffers.h"
+#include "D3D11Texture.h"
 
 namespace Graphics { namespace D3D11 {
 
@@ -67,11 +68,20 @@ namespace Graphics { namespace D3D11 {
         bool _SetFloat(StringID name, F32 val)                          override { return _UpdateConstantBuffer( name, &val, sizeof( val ) ); }
         bool _SetVec4(StringID name, const Math::Vec4& vec)             override { return _UpdateConstantBuffer( name, &vec, sizeof( vec ) ); }
         bool _SetMatrix(StringID name, const DirectX::XMMATRIX& matrix) override { return _UpdateConstantBuffer( name, &matrix, sizeof( matrix ) ); }
+        bool _SetTexture(StringID name, Graphics::Texture* texture) override;
 
     private:
         // Contains the material data in a contiguous block of memory. Will be empty if not used for a shader.
         MaterialData m_materialDataVS;
         MaterialData m_materialDataPS;
+
+        struct TextureCache
+        {
+            U32 bindSlot;
+            D3D11::Texture* texture;
+        };
+
+        ArrayList<TextureCache> m_textureCache;
 
         //----------------------------------------------------------------------
         // IMaterial Interface

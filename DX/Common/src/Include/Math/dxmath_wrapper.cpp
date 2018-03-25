@@ -15,6 +15,42 @@ using namespace DirectX;
 namespace Math {
 
     //**********************************************************************
+    // Vector2F
+    //**********************************************************************
+
+    const Vector2F Vector2F::UP     ( 0,  1 );
+    const Vector2F Vector2F::DOWN   ( 0, -1 );
+    const Vector2F Vector2F::LEFT   (-1,  0 );
+    const Vector2F Vector2F::RIGHT  ( 1,  0 );
+    const Vector2F Vector2F::ONE    ( 1,  1 );
+    const Vector2F Vector2F::ZERO   ( 0,  0 );
+
+    //----------------------------------------------------------------------
+    Vector2F::Vector2F( F32 value )
+        : XMFLOAT2( value, value )
+    {}
+
+    //----------------------------------------------------------------------
+    Vector2F::Vector2F( F32 x, F32 y )
+        : XMFLOAT2( x, y )
+    {}
+
+    //----------------------------------------------------------------------
+    F32 Vector2F::magnitude() const
+    {
+        return sqrt( x * x + y * y );
+    }
+
+    //----------------------------------------------------------------------
+    Vector2F Vector2F::normalized() const
+    {
+        F32 length = this->magnitude();
+        if ( length == 0.0f )
+            return Vector2F(0);
+        return *this / magnitude();
+    }
+
+    //**********************************************************************
     // Vector3F
     //**********************************************************************
 
@@ -30,14 +66,12 @@ namespace Math {
     //----------------------------------------------------------------------
     Vector3F::Vector3F( F32 value )
         : XMFLOAT3( value, value, value )
-    {
-    }
+    {}
 
     //----------------------------------------------------------------------
     Vector3F::Vector3F( F32 x, F32 y, F32 z )
         : XMFLOAT3( x, y, z )
-    {
-    }
+    {}
 
     //----------------------------------------------------------------------
     F32 Vector3F::magnitude() const

@@ -416,9 +416,9 @@ public:
     {
         auto go = createGameObject("Camera");
         auto cam = go->addComponent<Components::Camera>();
-        go->getComponent<Components::Transform>()->position = Math::Vec3(0, 5, -10);
+        go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -10);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 10.0f, 0.3f);
-        go->addComponent<AutoOrbiting>(10.0f);
+        //go->addComponent<AutoOrbiting>(10.0f);
 
         auto grid = createGameObject("Grid");
         grid->addComponent<GridGeneration>(20);
@@ -427,30 +427,33 @@ public:
         auto cube = Assets::MeshGenerator::CreateCube(1.0f);
         cube->setColors(cubeColors);
 
+        auto plane = Assets::MeshGenerator::CreatePlane();
+        plane->setColors(planeColors);
+
         // SHADER
-        auto shader = RESOURCES.createShader( "TestShader", "/shaders/testVS.hlsl", "/shaders/testPS.hlsl" );
-        //shader->setRasterizationState({Graphics::FillMode::WIREFRAME});
-        shader->setDepthStencilState({false});
-        shader->enableAlphaBlending(true);
+        auto texShader = RESOURCES.createShader( "TexShader", "/shaders/texVS.hlsl", "/shaders/texPS.hlsl");
 
         // TEXTURES
-        auto tex = RESOURCES.createTexture(8, 8);
+        auto tex = RESOURCES.createTexture(4, 4);
+        for (U32 x = 0; x < tex->getWidth(); x++)
+            for (U32 y = 0; y < tex->getHeight(); y++)
+                tex->setPixel( x, y, Math::Random::Color() );
+        tex->apply();
 
         // MATERIAL
         material = RESOURCES.createMaterial();
-        material->setShader(shader);
-        material->setFloat( SID("val"), 0.5f);
-        material->setFloat(SID("pixelVal"), 1.0f);
-
-        material->setFloat(SID("ThisDoesNotExist"), 1.0f);
+        material->setShader(texShader);
+        //material->setFloat(SID("pixelVal"), 1.0f);
+        material->setTexture( SID("shaderTexture"), tex);
+        material->setColor( SID("tintColor"), Color::WHITE );
 
         // GAMEOBJECT
         goModel = createGameObject("Test");
         //goModel->addComponent<ConstantRotation>(0.0f, 20.0f, 20.0f);
-        auto mr = goModel->addComponent<Components::MeshRenderer>(cube, material);
+        auto mr = goModel->addComponent<Components::MeshRenderer>(plane, material);
 
         auto go2 = createGameObject("Test2");
-        go2->addComponent<Components::MeshRenderer>(cube);
+        go2->addComponent<Components::MeshRenderer>(cube, material);
         go2->getComponent<Components::Transform>()->position = Math::Vec3(3, 0, 0);
 
         LOG("MaterialTestScene initialized!", Color::RED);
@@ -458,13 +461,11 @@ public:
 
     void tick(Time::Seconds d) override
     {
-        F32 s = (sinf( (F32)TIME.getTime().value ) + 1.0f) / 2.0f;
-        material->setVec4(SID("mColor"), Math::Vec4(s, 0.0f, 0.0f, 1.0f) );
-        material->setFloat(SID("pixelVal"), s);
+        //F32 s = (sinf( (F32)TIME.getTime().value ) + 1.0f) / 2.0f;
+        //material->setFloat(SID("pixelVal"), s);
 
-        Byte b = static_cast<Byte>( 255.0f * s );
-        material->setColor(SID("pixelColor"), Color(b, b, b) );
-        //material->setInt(SID("test"), IGC_GET_VAR("test"));
+        //Byte b = static_cast<Byte>( 255.0f * s );
+        //material->setColor(SID("pixelColor"), Color(b, b, b) );
     }
 
     void shutdown() override

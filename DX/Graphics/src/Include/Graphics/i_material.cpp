@@ -8,6 +8,10 @@
 
 namespace Graphics {
     
+    //**********************************************************************
+    // MATERIAL PARAMETERS - GET
+    //**********************************************************************
+
     //----------------------------------------------------------------------
     I32 IMaterial::getInt( StringID name ) const 
     { 
@@ -61,8 +65,18 @@ namespace Graphics {
         return Color::BLACK;
     }
 
+    //----------------------------------------------------------------------
+    Texture* IMaterial::getTexture( StringID name ) const
+    {
+        if ( m_textureMap.count( name ) > 0 )
+            return m_textureMap.at( name );
+
+        WARN_RENDERING( "Material::getTexture(): Name '" + name.toString() + "' does not exist in shader '" + m_shader->getName() + "'" );
+        return nullptr;
+    }
+
     //**********************************************************************
-    // MATERIAL PARAMETERS
+    // MATERIAL PARAMETERS - SET
     //**********************************************************************
     
     //----------------------------------------------------------------------
@@ -110,6 +124,15 @@ namespace Graphics {
             m_vec4Map[ name ] = colorAsVec;
         else
             WARN_RENDERING( "Material::setColor(): Name '" + name.toString() + "' does not exist in shader '" + m_shader->getName() + "'" );
+    }
+
+    //----------------------------------------------------------------------
+    void IMaterial::setTexture( StringID name, Texture* texture )
+    { 
+        if ( _SetTexture( name, texture ) )
+            m_textureMap[ name ] = texture;
+        else
+            WARN_RENDERING( "Material::setTexture(): Name '" + name.toString() + "' does not exist in shader '" + m_shader->getName() + "'" );
     }
 
 } // End namespaces

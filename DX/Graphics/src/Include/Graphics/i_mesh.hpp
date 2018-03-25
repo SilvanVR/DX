@@ -56,6 +56,11 @@ namespace Graphics {
         virtual void setColors(const ArrayList<Color>& colors) = 0;
 
         //----------------------------------------------------------------------
+        // Set the uv-buffer for this mesh.
+        //----------------------------------------------------------------------
+        virtual void setUVs(const ArrayList<Math::Vec2>& uvs) = 0;
+
+        //----------------------------------------------------------------------
         // @Return: Buffer usage, which determines if it can be updated or not.
         //----------------------------------------------------------------------
         BufferUsage getBufferUsage()    const { return m_bufferUsage; }
@@ -64,11 +69,12 @@ namespace Graphics {
         // Change the buffer usage for this mesh. All existing buffers gets 
         // recreated, keep that in mind!
         //----------------------------------------------------------------------
-        void        setBufferUsage(BufferUsage usage) { m_bufferUsage = usage; recreateBuffers(); }
+        void        setBufferUsage(BufferUsage usage) { m_bufferUsage = usage; _RecreateBuffers(); }
 
         //----------------------------------------------------------------------
         const ArrayList<Math::Vec3>&    getVertices()       const { return m_vertices; }
         const ArrayList<Color>&         getColors()         const { return m_vertexColors; }
+        const ArrayList<Math::Vec2>&    getUVs0()           const { return m_uvs0; }
         U32                             getVertexCount()    const { return static_cast<U32>( m_vertices.size() ); }
         U16                             getSubMeshCount()   const { return static_cast<U32>( m_subMeshes.size() ); }
         bool                            isImmutable()       const { return m_bufferUsage == BufferUsage::IMMUTABLE; }
@@ -83,6 +89,7 @@ namespace Graphics {
     protected:
         ArrayList<Math::Vec3>   m_vertices;
         ArrayList<Color>        m_vertexColors;
+        ArrayList<Math::Vec2>   m_uvs0;
         BufferUsage             m_bufferUsage = BufferUsage::IMMUTABLE;
 
         struct SubMesh
@@ -97,7 +104,7 @@ namespace Graphics {
         //----------------------------------------------------------------------
         // Recreate all existing buffers. Called when the buffer-usage changes.
         //----------------------------------------------------------------------
-        virtual void recreateBuffers() = 0;
+        virtual void _RecreateBuffers() = 0;
 
         //----------------------------------------------------------------------
         // Add a new submesh to the list of submeshes. The appropriate index-

@@ -36,7 +36,7 @@ namespace Graphics { namespace D3D11 {
 
         //----------------------------------------------------------------------
         void _CreateInputLayout(ID3DBlob* pShaderBlob);
-        void _AddToVertexLayout(const String& semanticName);
+        void _AddToVertexLayout(const String& semanticName, U32 semanticIndex);
         void _CreateD3D11VertexShader();
 
         //----------------------------------------------------------------------

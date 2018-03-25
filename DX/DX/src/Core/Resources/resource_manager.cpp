@@ -82,6 +82,16 @@ namespace Core { namespace Resources {
     }
 
     //----------------------------------------------------------------------
+    Graphics::Mesh* ResourceManager::createMesh( const ArrayList<Math::Vec3>& vertices, const ArrayList<U32>& indices, const ArrayList<Math::Vec2>& uvs )
+    {
+        auto mesh = createMesh();
+        mesh->setVertices( vertices );
+        mesh->setIndices( indices );
+        mesh->setUVs( uvs );
+        return mesh;
+    }
+
+    //----------------------------------------------------------------------
     Graphics::Material* ResourceManager::createMaterial( Graphics::Shader* shader )
     {
         auto mat = Locator::getRenderer().createMaterial();

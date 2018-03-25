@@ -44,6 +44,7 @@ namespace Core { namespace Resources {
         //----------------------------------------------------------------------
         Graphics::Mesh* createMesh();
         Graphics::Mesh* createMesh(const ArrayList<Math::Vec3>& vertices, const ArrayList<U32>& indices);
+        Graphics::Mesh* createMesh(const ArrayList<Math::Vec3>& vertices, const ArrayList<U32>& indices, const ArrayList<Math::Vec2>& uvs);
 
         //----------------------------------------------------------------------
         // Creates a new material resource

@@ -169,6 +169,7 @@
   <ItemGroup>
     <ClInclude Include="src\Include\Graphics\command_buffer.h" />
     <ClInclude Include="src\Include\Graphics\D3D11\D3D11.hpp" />
+    <ClInclude Include="src\Include\Graphics\D3D11\D3D11Defines.hpp" />
     <ClInclude Include="src\Include\Graphics\D3D11\D3D11Globals.h" />
     <ClInclude Include="src\Include\Graphics\D3D11\D3D11Renderer.h" />
     <ClInclude Include="src\Include\Graphics\D3D11\D3D11Swapchain.h" />

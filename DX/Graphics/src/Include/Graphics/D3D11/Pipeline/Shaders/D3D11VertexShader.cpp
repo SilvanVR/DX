@@ -6,6 +6,8 @@
     date: March 17, 2018
 **********************************************************************/
 
+#include "../../D3D11Defines.hpp"
+
 namespace Graphics { namespace D3D11 {
 
     //----------------------------------------------------------------------
@@ -96,7 +98,7 @@ namespace Graphics { namespace D3D11 {
             elementDesc.InputSlotClass          = D3D11_INPUT_PER_VERTEX_DATA;
             elementDesc.InstanceDataStepRate    = 0;
 
-            _AddToVertexLayout( paramDesc.SemanticName );
+            _AddToVertexLayout( paramDesc.SemanticName, paramDesc.SemanticIndex );
 
             // determine DXGI format
             if (paramDesc.Mask == 1)
@@ -136,18 +138,30 @@ namespace Graphics { namespace D3D11 {
     }
 
     //----------------------------------------------------------------------
-    void VertexShader::_AddToVertexLayout( const String& semanticName )
+    void VertexShader::_AddToVertexLayout( const String& semanticName, U32 semanticIndex )
     {
         bool nameExists = false;
-        if (semanticName == "POSITION")
+        if (semanticName == SEMANTIC_POSITION)
         {
             m_vertexLayout.add( { InputLayoutType::POSITION } );
             nameExists = true;
         }
-        else if (semanticName == "COLOR")
+        else if (semanticName == SEMANTIC_COLOR)
         {
             m_vertexLayout.add( { InputLayoutType::COLOR } );
             nameExists = true;
+        }
+        else if (semanticName == SEMANTIC_TEXCOORD)
+        {
+            nameExists = true;
+            switch (semanticIndex)
+            {
+            case 0: m_vertexLayout.add( { InputLayoutType::TEXCOORD0 } ); break;
+            case 1: m_vertexLayout.add( { InputLayoutType::TEXCOORD1 } ); break;
+            case 2: m_vertexLayout.add( { InputLayoutType::TEXCOORD2 } ); break;
+            case 3: m_vertexLayout.add( { InputLayoutType::TEXCOORD3 } ); break;
+            default: nameExists = false;
+            }            
         }
         if (not nameExists)
             WARN_RENDERING( "D3D11VertexShader: Semantic name '" + semanticName + "' for shader '" + getFilePath().toString() + "' does not exist.");
