@@ -14,6 +14,7 @@
 
 #include "Assets/MeshGenerator/mesh_generator.h"
 #include "Math/random.h"
+#include "Assets/importer.h"
 
 using namespace Core;
 
@@ -440,12 +441,20 @@ public:
                 tex->setPixel( x, y, Math::Random::Color() );
         tex->apply();
 
+        auto tex2 = Assets::Importer::LoadTexture("/textures/nico.jpg");
+        auto dirt = Assets::Importer::LoadTexture("/textures/dirt.jpg");
+
         // MATERIAL
         material = RESOURCES.createMaterial();
         material->setShader(texShader);
         //material->setFloat(SID("pixelVal"), 1.0f);
-        material->setTexture( SID("shaderTexture"), tex);
+        material->setTexture( SID("shaderTexture"), tex2);
         material->setColor( SID("tintColor"), Color::WHITE );
+
+        auto dirtMaterial = RESOURCES.createMaterial();
+        dirtMaterial->setShader(texShader);
+        dirtMaterial->setTexture(SID("shaderTexture"), dirt);
+        dirtMaterial->setColor(SID("tintColor"), Color::WHITE);
 
         // GAMEOBJECT
         goModel = createGameObject("Test");
@@ -453,7 +462,7 @@ public:
         auto mr = goModel->addComponent<Components::MeshRenderer>(plane, material);
 
         auto go2 = createGameObject("Test2");
-        go2->addComponent<Components::MeshRenderer>(cube, material);
+        go2->addComponent<Components::MeshRenderer>(cube, dirtMaterial);
         go2->getComponent<Components::Transform>()->position = Math::Vec3(3, 0, 0);
 
         LOG("MaterialTestScene initialized!", Color::RED);

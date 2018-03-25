@@ -147,7 +147,7 @@ namespace Graphics
         void setSize(U32 width, U32 height) { m_width = width; m_height = height; m_pixels = new Color[m_width * m_height]; }
 
         void setPixel(U32 x, U32 y, Color color) { ((Color*)m_pixels)[x + y * m_width] = color; }
-        void setPixels(const void* pPixels) {}
+        void setPixels(const void* pPixels) { memcpy( m_pixels, pPixels, m_width * m_height * sizeof(Color) ); }
 
         virtual void init() = 0;
         virtual void apply() = 0;

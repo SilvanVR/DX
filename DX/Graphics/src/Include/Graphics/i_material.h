@@ -59,7 +59,7 @@ namespace Graphics {
 
         // Each API should decide themselves how to efficiently update their data
         // @Return:
-        //  True, if the uniform exists.
+        //  True, if the uniform/resource exists in the materials shader.
         virtual bool _SetInt(StringID name, I32 val) = 0;
         virtual bool _SetFloat(StringID name, F32 val) = 0;
         virtual bool _SetVec4(StringID name, const Math::Vec4& vec) = 0;

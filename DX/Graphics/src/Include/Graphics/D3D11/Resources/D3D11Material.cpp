@@ -75,6 +75,7 @@ namespace Graphics { namespace D3D11 {
     //----------------------------------------------------------------------
     void Material::_ChangedShader()
     {
+        m_textureCache.clear();
         _CreateConstantBuffers();
     }
 

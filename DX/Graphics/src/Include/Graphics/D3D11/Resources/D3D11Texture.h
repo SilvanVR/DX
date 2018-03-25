@@ -31,6 +31,8 @@ namespace Graphics { namespace D3D11 {
         ID3D11ShaderResourceView*   m_pTextureView   = nullptr;
         ID3D11SamplerState*         m_pSampleState   = nullptr;
 
+        bool m_gpuUpToDate = true;
+
         void _CreateSampler();
         void _CreateTexture();
         void _PushToGPU();

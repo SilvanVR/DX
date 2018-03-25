@@ -48,29 +48,3 @@
    a. set the right part of the big buffer as a constant buffer XXSetConstantBuffers1()
    b. Perform draw call
 5. If all draw calls have not been processed restart at 1.
-
-
-
-<<< Materials >>>
-During Shader Creation:
-	Which constant buffer is the material buffer?
-		-> Scan for "material" in name
-			-> SAVE: Data-Types + Names 
-			-> SAVE: Bind-Slot
-
-When a shader is assigned to a material:
-	Create a constant buffer large enough for the data
-
-Bind this constant buffer to shader when material gets binded
-
-
-
-Shader-Info:
-- Buffer-Size
-- For-each member (name) an offset into the buffer
-  > Member-Type (e.g. can be texture)
-- Binding Slot
-- ShaderType
-
-Problem: 
-- Buffer for different shaders? Yea

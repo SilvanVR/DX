@@ -23,6 +23,12 @@ namespace Graphics { namespace D3D11 {
     //----------------------------------------------------------------------
     void Texture::bind( U32 slot )
     {
+        if ( not m_gpuUpToDate )
+        {
+            _PushToGPU();
+            m_gpuUpToDate = true;
+        }
+
         g_pImmediateContext->PSSetSamplers( slot, 1, &m_pSampleState );
         g_pImmediateContext->PSSetShaderResources( slot, 1, &m_pTextureView );
     }
@@ -38,7 +44,7 @@ namespace Graphics { namespace D3D11 {
     //----------------------------------------------------------------------
     void Texture::apply()
     {
-        _PushToGPU();
+        m_gpuUpToDate = false;
     }
 
     //**********************************************************************
@@ -84,8 +90,8 @@ namespace Graphics { namespace D3D11 {
     {
         // Create a texture sampler state description.
         D3D11_SAMPLER_DESC samplerDesc;
-        //samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-        samplerDesc.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_MIP_POINT;
+        samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+        //samplerDesc.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_MIP_POINT;
         samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
         samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
         samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;

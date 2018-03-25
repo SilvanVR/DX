@@ -84,6 +84,8 @@ namespace Core { namespace Resources {
         ArrayList<Graphics::Material*>  m_materials;
         ArrayList<Graphics::Texture*>   m_textures;
 
+        HashMap<OS::Path, Graphics::Texture*> m_textureCache;
+
         Graphics::Shader*   m_defaultShader;
         Graphics::Shader*   m_wireframeShader;
 

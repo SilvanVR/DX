@@ -300,7 +300,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\Assets\loader.cpp" />
+    <ClCompile Include="src\Assets\importer.cpp" />
     <ClCompile Include="src\Assets\MeshGenerator\mesh_generator.cpp" />
     <ClCompile Include="src\Ext\StbImage\stb_image.cpp" />
     <ClCompile Include="src\Core\Config\configuration_manager.cpp" />
@@ -343,7 +343,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Core\Resources\default_shader.hpp" />
-    <ClInclude Include="src\Assets\loader.h" />
+    <ClInclude Include="src\Assets\importer.h" />
     <ClInclude Include="src\Assets\MeshGenerator\mesh_generator.h" />
     <ClInclude Include="src\Ext\StbImage\stb_image.h" />
     <ClInclude Include="src\Core\GraphicsCommandRecorder\graphics_command_recorder.h" />
