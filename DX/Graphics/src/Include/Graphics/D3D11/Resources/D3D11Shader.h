@@ -40,6 +40,8 @@ namespace Graphics { namespace D3D11 {
         const VertexShader* getVertexShader() const { return m_pVertexShader.get(); }
         const PixelShader*  getPixelShader() const { return m_pPixelShader.get(); }
 
+        bool getTextureBindingSlot(StringID name, U32* slot) const;
+
     private:
         std::unique_ptr<VertexShader>   m_pVertexShader = nullptr;
         std::unique_ptr<PixelShader>    m_pPixelShader  = nullptr;

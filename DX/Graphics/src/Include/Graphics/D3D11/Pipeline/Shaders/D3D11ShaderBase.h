@@ -29,6 +29,13 @@ namespace Graphics { namespace D3D11 {
         ArrayList<ConstantBufferMemberInfo> members;
     };
 
+    // Contains information about bound resources
+    struct TextureBindingInfo
+    {
+        StringID    name;
+        U32         slot;
+    };
+
     //**********************************************************************
     class ShaderBase
     {
@@ -49,7 +56,7 @@ namespace Graphics { namespace D3D11 {
 
         //----------------------------------------------------------------------
         // @Return:
-        //  Whether the shader (if compiled from file) is up to date on disc.
+        //  Whether the shader (if compiled from file) is up to date on disk.
         //  This returns always true if the shader was compiled from source.
         //----------------------------------------------------------------------
         bool isUpToDate() const;
@@ -58,7 +65,7 @@ namespace Graphics { namespace D3D11 {
         // @Return:
         //  List of information about every constant buffer found via reflection.
         //----------------------------------------------------------------------
-        const ArrayList<ConstantBufferInfo>&    getConstantBufferInformation()  const { return m_constantBufferInformation; }
+        const ArrayList<ConstantBufferInfo>&    getConstantBufferInfos()  const { return m_constantBufferInfos; }
 
         //----------------------------------------------------------------------
         // @Return:
@@ -66,7 +73,7 @@ namespace Graphics { namespace D3D11 {
         // Note: Use "hasMaterialBuffer()" before calling this function to ensure 
         // that this shader has an material constant buffer!
         //----------------------------------------------------------------------
-        const ConstantBufferInfo&               getMaterialBufferInformation()  const;
+        const ConstantBufferInfo&               getMaterialBufferInfo()  const;
 
         //----------------------------------------------------------------------
         // @Return:
@@ -75,13 +82,20 @@ namespace Graphics { namespace D3D11 {
         //----------------------------------------------------------------------
         bool hasMaterialBuffer() const;
 
+        //----------------------------------------------------------------------
+        // @Return:
+        //  List of information about every texture found via reflection.
+        //----------------------------------------------------------------------
+        const ArrayList<TextureBindingInfo>&    getBoundTextureInfos()  const { return m_boundTextureInfos; }
+
     protected:
         ID3DBlob*                       m_pShaderBlob           = nullptr;
         ID3D11ShaderReflection*         m_pShaderReflection     = nullptr;
         String                          m_entryPoint            = "main";
         OS::Path                        m_filePath;
         OS::SystemTime                  m_fileTimeAtCompilation;
-        ArrayList<ConstantBufferInfo>   m_constantBufferInformation;
+        ArrayList<ConstantBufferInfo>   m_constantBufferInfos;
+        ArrayList<TextureBindingInfo>   m_boundTextureInfos;
 
         //----------------------------------------------------------------------
         template <typename T>
@@ -102,14 +116,14 @@ namespace Graphics { namespace D3D11 {
             return _CompileFromSource( source, GetLatestProfile<T>().c_str() );
         }
 
-
     private:
         //----------------------------------------------------------------------
         bool _CompileFromFile(const OS::Path& path, CString profile);
         bool _CompileFromSource(const String& source, CString profile);
 
         void _ShaderReflection(ID3DBlob* pShaderBlob);
-        void _ReflectConstantBuffers();
+        void _ReflectResources(const D3D11_SHADER_DESC& shaderDesc);
+        void _ReflectConstantBuffer(ID3D11ShaderReflectionConstantBuffer* cb, U32 bindSlot);
 
         //----------------------------------------------------------------------
         ShaderBase(const ShaderBase& other)               = delete;

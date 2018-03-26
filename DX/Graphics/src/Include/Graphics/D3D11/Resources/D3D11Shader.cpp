@@ -191,4 +191,28 @@ namespace Graphics { namespace D3D11 {
         HR( g_pDevice->CreateBlendState( &blendDesc, &m_pBlendState ) );
     }
 
+    //----------------------------------------------------------------------
+    bool Shader::getTextureBindingSlot( StringID name, U32* slot ) const
+    {
+        for (auto& tex : m_pVertexShader->getBoundTextureInfos() )
+        {
+            if (tex.name == name)
+            {
+                *slot = tex.slot;
+                return true;
+            }
+        }
+
+        for ( auto& tex : m_pPixelShader->getBoundTextureInfos() )
+        {
+            if (tex.name == name)
+            {
+                *slot = tex.slot;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
 } } // End namespaces

@@ -86,18 +86,21 @@ namespace Graphics { namespace D3D11 {
     //----------------------------------------------------------------------
     bool Material::_SetTexture( StringID name, Graphics::Texture* texture )
     {
+        auto d3d11Shader = dynamic_cast<Shader*>( m_shader );
         D3D11::Texture* d3d11Texture = dynamic_cast<D3D11::Texture*>( texture );
 
-        // Does the texture exist in this shader?
+        U32 bindingSlot;
+        if ( d3d11Shader->getTextureBindingSlot( name, &bindingSlot ) )
+        {
+            TextureCache texCache;
+            texCache.bindSlot = bindingSlot;
+            texCache.texture  = d3d11Texture;
 
+            m_textureCache.emplace_back( texCache );
+            return true;
+        }
 
-        TextureCache texCache;
-        texCache.bindSlot = 0;
-        texCache.texture = d3d11Texture;
-
-        m_textureCache.emplace_back( texCache );
-
-        return true;
+        return false;
     }
 
     //**********************************************************************
@@ -113,7 +116,7 @@ namespace Graphics { namespace D3D11 {
         auto vertShader = d3d11Shader->getVertexShader();
         if ( vertShader->hasMaterialBuffer() )
         {
-            auto& cb = vertShader->getMaterialBufferInformation();
+            auto& cb = vertShader->getMaterialBufferInfo();
             m_materialDataVS.resize( (U32) cb.sizeInBytes, cb.slot );
         }
 
@@ -121,7 +124,7 @@ namespace Graphics { namespace D3D11 {
         auto pixelShader = d3d11Shader->getPixelShader();
         if ( pixelShader->hasMaterialBuffer() )
         {
-            auto& cb = pixelShader->getMaterialBufferInformation();
+            auto& cb = pixelShader->getMaterialBufferInfo();
             m_materialDataPS.resize( (U32) cb.sizeInBytes, cb.slot );
         }
     }
@@ -135,7 +138,7 @@ namespace Graphics { namespace D3D11 {
         auto vertexShader = d3d11Shader->getVertexShader();
         if ( vertexShader->hasMaterialBuffer() )
         {
-            auto& vertCb = vertexShader->getMaterialBufferInformation();
+            auto& vertCb = vertexShader->getMaterialBufferInfo();
             for (auto& mem : vertCb.members)
             {
                 if (mem.name == name)
@@ -150,7 +153,7 @@ namespace Graphics { namespace D3D11 {
         auto pixelShader = d3d11Shader->getPixelShader();
         if ( pixelShader->hasMaterialBuffer() )
         {
-            auto& pixelCb = pixelShader->getMaterialBufferInformation();
+            auto& pixelCb = pixelShader->getMaterialBufferInfo();
             for (auto& mem : pixelCb.members)
             {
                 if (mem.name == name)

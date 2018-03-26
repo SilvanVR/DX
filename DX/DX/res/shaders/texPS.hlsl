@@ -11,10 +11,14 @@ struct FragmentIn
 };
 
 Texture2D shaderTexture;
-SamplerState SampleType;
+SamplerState sampler0;
+
+Texture2D dirt;
+SamplerState sampler1;
 
 float4 main(FragmentIn fin) : SV_Target
 {
-	float4 textureColor = shaderTexture.Sample(SampleType, fin.tex);
-	return textureColor * tintColor;
+	float4 textureColor = shaderTexture.Sample(sampler0, fin.tex);
+	float4 textureColor2 = dirt.Sample(sampler1, fin.tex);
+	return textureColor * textureColor2 * tintColor;
 }

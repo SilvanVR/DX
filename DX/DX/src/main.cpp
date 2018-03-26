@@ -453,6 +453,7 @@ public:
         material->setShader(texShader);
         //material->setFloat(SID("pixelVal"), 1.0f);
         material->setTexture( SID("shaderTexture"), tex2);
+        material->setTexture( SID("dirt"), dirt );
         material->setColor( SID("tintColor"), Color::WHITE );
 
         auto dirtMaterial = RESOURCES.createMaterial();

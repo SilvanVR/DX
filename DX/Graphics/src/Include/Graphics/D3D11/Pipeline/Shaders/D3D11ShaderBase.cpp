@@ -18,24 +18,24 @@ namespace Graphics { namespace D3D11 {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    const ConstantBufferInfo& ShaderBase::getMaterialBufferInformation() const
+    const ConstantBufferInfo& ShaderBase::getMaterialBufferInfo() const
     {
         ASSERT( hasMaterialBuffer() && "This shader has no material cb!" );
 
-        for ( auto& cb : m_constantBufferInformation )
+        for ( auto& cb : m_constantBufferInfos )
         {
             String lower = StringUtils::toLower( cb.name.toString() );
             if ( lower.find( MATERIAL_NAME ) != String::npos )
                 return cb;
         }
 
-        return m_constantBufferInformation[0];
+        return m_constantBufferInfos[0];
     }
 
     //----------------------------------------------------------------------
     bool ShaderBase::hasMaterialBuffer() const
     {
-        for ( auto& cb : m_constantBufferInformation )
+        for ( auto& cb : m_constantBufferInfos )
         {
             String lower = StringUtils::toLower( cb.name.toString() );
             if ( lower.find( MATERIAL_NAME ) != String::npos )
@@ -149,52 +149,76 @@ namespace Graphics { namespace D3D11 {
         HR( D3DReflect( pShaderBlob->GetBufferPointer(), pShaderBlob->GetBufferSize(),
                         IID_ID3D11ShaderReflection, (void**)&m_pShaderReflection) );
 
-        _ReflectConstantBuffers();
-    }
-
-    //----------------------------------------------------------------------
-    void ShaderBase::_ReflectConstantBuffers()
-    {
-        // Make sure old buffer information is no longer valid
-        m_constantBufferInformation.clear();
-
         D3D11_SHADER_DESC shaderDesc;
         HR( m_pShaderReflection->GetDesc( &shaderDesc ) );
 
-        // Reflect constant buffers
-        for (U32 i = 0; i < shaderDesc.ConstantBuffers; i++)
+        _ReflectResources( shaderDesc );
+    }
+
+    //----------------------------------------------------------------------
+    void ShaderBase::_ReflectResources( const D3D11_SHADER_DESC& shaderDesc )
+    {
+        // Make sure old buffer information is no longer valid
+        m_constantBufferInfos.clear();
+        m_boundTextureInfos.clear();
+
+        for (U32 i = 0; i < shaderDesc.BoundResources; i++)
         {
-            auto buffer = m_pShaderReflection->GetConstantBufferByIndex( i );
+            D3D11_SHADER_INPUT_BIND_DESC bindDesc;
+            HR( m_pShaderReflection->GetResourceBindingDesc( i, &bindDesc ) );
 
-            D3D11_SHADER_BUFFER_DESC bufferDesc;
-            HR( buffer->GetDesc( &bufferDesc ) );
-
-            ConstantBufferInfo bufferInfo;
-            bufferInfo.name         = SID( bufferDesc.Name );
-            bufferInfo.sizeInBytes  = bufferDesc.Size;
-            bufferInfo.slot         = i; // ASSUME CB's in order @TODO: GET REAL BINDING SLOT
-
-            for (U32 j = 0; j < bufferDesc.Variables; j++)
+            switch (bindDesc.Type)
             {
-                auto var = buffer->GetVariableByIndex( j );
-
-                D3D11_SHADER_VARIABLE_DESC varDesc;
-                HR( var->GetDesc( &varDesc ) );
-
-                // If type information is needed
-                //auto type = var->GetType();
-                //D3D11_SHADER_TYPE_DESC typeDesc;
-                //HR( type->GetDesc( &typeDesc ) );
-
-                ConstantBufferMemberInfo info = {};
-                info.name   = SID( varDesc.Name );
-                info.offset = varDesc.StartOffset;
-                info.size   = varDesc.Size;
-                bufferInfo.members.emplace_back( info );
+            case D3D_SIT_CBUFFER:
+            {
+                auto cb = m_pShaderReflection->GetConstantBufferByName( bindDesc.Name );
+                _ReflectConstantBuffer( cb, bindDesc.BindPoint );
+                break;
             }
-
-            m_constantBufferInformation.emplace_back( bufferInfo );
+            case D3D_SIT_TEXTURE:
+            {
+                TextureBindingInfo texInfo;
+                texInfo.name = SID( bindDesc.Name );
+                texInfo.slot = bindDesc.BindPoint;
+                m_boundTextureInfos.emplace_back( texInfo );
+                break;
+            }
+            }
         }
     }
+
+    //----------------------------------------------------------------------
+    void ShaderBase::_ReflectConstantBuffer( ID3D11ShaderReflectionConstantBuffer* cb, U32 bindSlot )
+    {
+        D3D11_SHADER_BUFFER_DESC bufferDesc;
+        HR( cb->GetDesc( &bufferDesc ) );
+
+        ConstantBufferInfo bufferInfo;
+        bufferInfo.name         = SID( bufferDesc.Name );
+        bufferInfo.sizeInBytes  = bufferDesc.Size;
+        bufferInfo.slot         = bindSlot;
+
+        for (U32 j = 0; j < bufferDesc.Variables; j++)
+        {
+            auto var = cb->GetVariableByIndex( j );
+
+            D3D11_SHADER_VARIABLE_DESC varDesc;
+            HR( var->GetDesc( &varDesc ) );
+
+            // If type information is needed
+            //auto type = var->GetType();
+            //D3D11_SHADER_TYPE_DESC typeDesc;
+            //HR( type->GetDesc( &typeDesc ) );
+
+            ConstantBufferMemberInfo info = {};
+            info.name   = SID( varDesc.Name );
+            info.offset = varDesc.StartOffset;
+            info.size   = varDesc.Size;
+            bufferInfo.members.emplace_back( info );
+        }
+        m_constantBufferInfos.emplace_back( bufferInfo );
+    }
+
+
 
 } } // End namespaces
