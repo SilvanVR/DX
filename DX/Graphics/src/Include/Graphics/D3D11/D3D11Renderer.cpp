@@ -192,9 +192,9 @@ namespace Graphics {
     }
 
     //----------------------------------------------------------------------
-    ITexture* D3D11Renderer::createTexture()
+    ITexture* D3D11Renderer::createTexture( U32 width, U32 height, TextureFormat format, bool generateMips )
     {
-        return new D3D11::Texture();
+        return new D3D11::Texture( width, height, format, generateMips );
     }
 
     //**********************************************************************

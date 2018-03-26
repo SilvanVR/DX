@@ -99,4 +99,35 @@ namespace Graphics { namespace D3D11 { namespace Utility {
         return D3D11_TEXTURE_ADDRESS_CLAMP;
     }
 
+    //----------------------------------------------------------------------
+    DXGI_FORMAT TranslateTextureFormat( TextureFormat format )
+    {
+        switch (format)
+        {
+        case TextureFormat::Alpha8:         return DXGI_FORMAT_A8_UNORM; break;
+        case TextureFormat::ARGB4444:       return DXGI_FORMAT_B4G4R4A4_UNORM; break;
+        case TextureFormat::RGBA32:         return DXGI_FORMAT_R8G8B8A8_UNORM; break;
+        case TextureFormat::RGB565:         return DXGI_FORMAT_B5G6R5_UNORM; break;
+        case TextureFormat::R16:            return DXGI_FORMAT_R16_UNORM; break;
+        case TextureFormat::BGRA32:         return DXGI_FORMAT_B8G8R8A8_UNORM; break;
+        case TextureFormat::RHalf:          return DXGI_FORMAT_R16_FLOAT; break;
+        case TextureFormat::RGHalf:         return DXGI_FORMAT_R16G16_FLOAT; break;
+        case TextureFormat::RGBAHalf:       return DXGI_FORMAT_R16G16B16A16_FLOAT; break;
+        case TextureFormat::RFloat:         return DXGI_FORMAT_R32_FLOAT; break;
+        case TextureFormat::RGFloat:        return DXGI_FORMAT_R32G32_FLOAT; break;
+        case TextureFormat::RGBAFloat:      return DXGI_FORMAT_R32G32B32A32_FLOAT; break;
+        case TextureFormat::YUY2:           return DXGI_FORMAT_G8R8_G8B8_UNORM; break;
+        case TextureFormat::RGB9e5Float:    return DXGI_FORMAT_R9G9B9E5_SHAREDEXP; break;
+        case TextureFormat::BC4:            return DXGI_FORMAT_BC4_UNORM; break;
+        case TextureFormat::BC5:            return DXGI_FORMAT_BC5_UNORM; break;
+        case TextureFormat::BC6H:           return DXGI_FORMAT_BC6H_UF16; /*DXGI_FORMAT_BC6H_SF16*/ break;
+        case TextureFormat::BC7:            return DXGI_FORMAT_BC7_UNORM; /*DXGI_FORMAT_BC7_UNORM_SRGB*/ break;
+        case TextureFormat::RG16:           return DXGI_FORMAT_R8G8_UINT; break;
+        case TextureFormat::R8:             return DXGI_FORMAT_R8_UNORM;  break;
+        }
+
+        ASSERT( false && "Oops! Texture format was unknown, which should never happen." );
+        return DXGI_FORMAT_A8_UNORM;
+    }
+
 } } }

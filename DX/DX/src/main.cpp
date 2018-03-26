@@ -437,17 +437,16 @@ public:
         auto texShader = RESOURCES.createShader( "TexShader", "/shaders/texVS.hlsl", "/shaders/texPS.hlsl");
 
         // TEXTURES
-        auto tex = RESOURCES.createTexture(4, 4);
+        auto tex = RESOURCES.createTexture(4, 4, Graphics::TextureFormat::RGBA32);
         for (U32 x = 0; x < tex->getWidth(); x++)
             for (U32 y = 0; y < tex->getHeight(); y++)
                 tex->setPixel( x, y, Math::Random::Color() );
         tex->apply();
 
-        tex->setFilter(Graphics::TextureFilter::Trilinear);
-
-
         tex2 = Assets::Importer::LoadTexture("/textures/nico.jpg");
         auto dirt = Assets::Importer::LoadTexture("/textures/dirt.jpg");
+
+        U32 numMips = tex2->getMipCount();
 
         // MATERIAL
         material = RESOURCES.createMaterial();

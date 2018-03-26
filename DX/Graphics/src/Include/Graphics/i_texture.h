@@ -16,11 +16,14 @@ namespace Graphics
     class ITexture
     {
     public:
-        ITexture() = default;
+        ITexture(U32 width, U32 height, TextureFormat format, bool generateMips)
+            : m_width(width), m_height(height), m_format(format), m_generateMips(generateMips) 
+        {
+            if (m_generateMips)
+                m_mipCount = (U32)floor( log2( std::min( width, height ) ) ) + 1;
+            m_pixels = new Color[m_width * m_height];
+        }
         virtual ~ITexture() { SAFE_DELETE( m_pixels ); }
-
-        //----------------------------------------------------------------------
-        void generateMips() {}
 
         //----------------------------------------------------------------------
         inline F32                  getAspectRatio()    const { return (F32)getWidth() / getHeight(); }
@@ -34,17 +37,19 @@ namespace Graphics
         inline TextureAddressMode   getClampMode()      const { return m_clampMode; }
 
         //----------------------------------------------------------------------
+        // Set the filter mode for this texture. Note that this has no effect if
+        // aniso-level is greater than 1.
+        //----------------------------------------------------------------------
         void setFilter(TextureFilter filter)            { m_filter = filter; _UpdateSampler(); }
         void setClampMode(TextureAddressMode clampMode) { m_clampMode = clampMode; _UpdateSampler(); }
         void setAnisoLevel(U32 level)                   { m_anisoLevel = level; _UpdateSampler(); }
+        void generateMips() { m_generateMips = true; }
 
         //----------------------------------------------------------------------
-        void setSize(U32 width, U32 height) { m_width = width; m_height = height; m_pixels = new Color[m_width * m_height]; }
-
         void setPixel(U32 x, U32 y, Color color) { ((Color*)m_pixels)[x + y * m_width] = color; }
         void setPixels(const void* pPixels) { memcpy( m_pixels, pPixels, m_width * m_height * sizeof(Color) ); }
 
-        virtual void init() = 0;
+        //----------------------------------------------------------------------
         virtual void apply() = 0;
 
         //public bool Resize(int width, int height, TextureFormat format, bool hasMipMap);
@@ -58,6 +63,7 @@ namespace Graphics
         TextureDimension    m_dimension         = TextureDimension::Unknown;
         TextureFilter       m_filter            = TextureFilter::Trilinear;
         TextureAddressMode  m_clampMode         = TextureAddressMode::Repeat;
+        bool                m_generateMips      = true;
 
         // Heap allocated mem for pixels. How large it is depends on width/height and the format
         void*               m_pixels    = nullptr;

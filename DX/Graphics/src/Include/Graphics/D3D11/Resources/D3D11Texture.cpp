@@ -11,6 +11,15 @@
 namespace Graphics { namespace D3D11 {
 
     //----------------------------------------------------------------------
+    Texture::Texture( U32 width, U32 height, TextureFormat format, bool generateMips )
+        : ITexture( width, height, format, generateMips )
+    {
+        ASSERT( m_width > 0 && m_height > 0 );
+        _CreateTexture();
+        _CreateSampler();
+    }
+
+    //----------------------------------------------------------------------
     Texture::~Texture()
     {
         SAFE_RELEASE( m_pSampleState );
@@ -31,16 +40,11 @@ namespace Graphics { namespace D3D11 {
             m_gpuUpToDate = true;
         }
 
+        if ( m_generateMips )
+            g_pImmediateContext->GenerateMips( m_pTextureView );
+
         g_pImmediateContext->PSSetSamplers( slot, 1, &m_pSampleState );
         g_pImmediateContext->PSSetShaderResources( slot, 1, &m_pTextureView );
-    }
-
-    //----------------------------------------------------------------------
-    void Texture::init()
-    {
-        ASSERT( m_width != 0 && m_height != 0 );
-        _CreateTexture();
-        _CreateSampler();
     }
 
     //----------------------------------------------------------------------
@@ -61,17 +65,17 @@ namespace Graphics { namespace D3D11 {
 
         // Setup the description of the texture
         D3D11_TEXTURE2D_DESC textureDesc;
-        textureDesc.Height = getHeight();
-        textureDesc.Width = getWidth();
-        textureDesc.MipLevels = 0;
-        textureDesc.ArraySize = 1;
-        textureDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-        textureDesc.SampleDesc.Count = 1;
-        textureDesc.SampleDesc.Quality = 0;
-        textureDesc.Usage = D3D11_USAGE_DEFAULT;
-        textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
-        textureDesc.CPUAccessFlags = 0;
-        textureDesc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS;
+        textureDesc.Height              = getHeight();
+        textureDesc.Width               = getWidth();
+        textureDesc.MipLevels           = m_generateMips ? 0 : 1;
+        textureDesc.ArraySize           = 1;
+        textureDesc.Format              = Utility::TranslateTextureFormat( m_format );
+        textureDesc.SampleDesc.Count    = 1;
+        textureDesc.SampleDesc.Quality  = 0;
+        textureDesc.Usage               = D3D11_USAGE_DEFAULT;
+        textureDesc.BindFlags           = m_generateMips ? (D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET) : D3D11_BIND_SHADER_RESOURCE;
+        textureDesc.CPUAccessFlags      = 0;
+        textureDesc.MiscFlags           = m_generateMips ? D3D11_RESOURCE_MISC_GENERATE_MIPS : 0;
 
         // Create texture
         HR( g_pDevice->CreateTexture2D( &textureDesc, NULL, &m_pTexture ) );
@@ -90,6 +94,8 @@ namespace Graphics { namespace D3D11 {
     //----------------------------------------------------------------------
     void Texture::_CreateSampler()
     {
+        SAFE_RELEASE( m_pSampleState );
+
         D3D11_SAMPLER_DESC samplerDesc;
         samplerDesc.Filter = (m_anisoLevel > 1 ? D3D11_FILTER_ANISOTROPIC : Utility::TranslateFilter( m_filter ) );
 
@@ -118,9 +124,6 @@ namespace Graphics { namespace D3D11 {
         // Copy the data into the texture
         unsigned int rowPitch = (getWidth() * 4) * sizeof(unsigned char);
         g_pImmediateContext->UpdateSubresource( m_pTexture, 0, NULL, m_pixels, rowPitch, 0 );
-
-        // Generate mipmaps for this texture.
-        g_pImmediateContext->GenerateMips( m_pTextureView );
 
         SAFE_DELETE( m_pixels );
     }

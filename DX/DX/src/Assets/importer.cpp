@@ -21,7 +21,7 @@ namespace Assets
 
         if (pixels)
         {
-            auto tex = RESOURCES.createTexture( width, height );
+            auto tex = RESOURCES.createTexture( width, height, Graphics::TextureFormat::RGBA32, true );
             tex->setPixels( pixels );
             tex->apply();
 

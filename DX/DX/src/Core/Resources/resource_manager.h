@@ -63,8 +63,10 @@ namespace Core { namespace Resources {
         // @Params:
         //  "width": Width of the texture in pixels
         //  "height": Height of the texture in pixels
+        //  "format": The format of the texture
+        //  "generateMips": If true a complete mipchain will be generated
         //----------------------------------------------------------------------
-        Graphics::Texture* createTexture(U32 width, U32 height);
+        Graphics::Texture* createTexture(U32 width, U32 height, Graphics::TextureFormat format, bool generateMips = true);
 
         //----------------------------------------------------------------------
         void UnloadUnusedResources();

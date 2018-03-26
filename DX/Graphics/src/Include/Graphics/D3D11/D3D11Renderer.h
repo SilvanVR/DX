@@ -39,7 +39,7 @@ namespace Graphics {
         IMesh*      createMesh() override;
         IMaterial*  createMaterial() override;
         IShader*    createShader() override;
-        ITexture*   createTexture() override;
+        ITexture*   createTexture(U32 width, U32 height, TextureFormat format, bool generateMips) override;
 
     private:
         D3D11::Swapchain*   m_pSwapchain    = nullptr;

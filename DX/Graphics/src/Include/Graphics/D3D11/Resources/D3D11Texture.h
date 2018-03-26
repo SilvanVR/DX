@@ -15,13 +15,12 @@ namespace Graphics { namespace D3D11 {
     class Texture : public ITexture
     {
     public:
-        Texture() = default;
+        Texture(U32 width, U32 height, TextureFormat format, bool generateMips);
         ~Texture();
 
         //----------------------------------------------------------------------
         // ITexture Interface
         //----------------------------------------------------------------------
-        void init() override;
         void apply() override;
 
         void bind(U32 slot);
@@ -36,7 +35,7 @@ namespace Graphics { namespace D3D11 {
         //----------------------------------------------------------------------
         // ITexture Interface
         //----------------------------------------------------------------------
-        void _UpdateSampler() override { SAFE_RELEASE( m_pSampleState ); _CreateSampler(); }
+        void _UpdateSampler() override { _CreateSampler(); }
 
         //----------------------------------------------------------------------
         void _CreateSampler();

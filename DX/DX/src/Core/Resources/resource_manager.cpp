@@ -117,11 +117,9 @@ namespace Core { namespace Resources {
     }
 
     //----------------------------------------------------------------------
-    Graphics::Texture* ResourceManager::createTexture( U32 width, U32 height )
+    Graphics::Texture* ResourceManager::createTexture( U32 width, U32 height, Graphics::TextureFormat format, bool generateMips )
     {
-        auto texture = Locator::getRenderer().createTexture();
-        texture->setSize( width, height );
-        texture->init();
+        auto texture = Locator::getRenderer().createTexture( width, height, format, generateMips );
 
         m_textures.push_back( texture );
 
@@ -149,7 +147,7 @@ namespace Core { namespace Resources {
             // Default wireframe shader
             m_wireframeShader = Locator::getRenderer().createShader();
             m_wireframeShader->setName( SHADER_WIREFRAME_NAME );
-            m_wireframeShader->setRasterizationState( { Graphics::FillMode::WIREFRAME } );
+            m_wireframeShader->setRasterizationState( { Graphics::FillMode::Wireframe } );
             m_wireframeShader->compileFromSource( DEFAULT_VERTEX_SHADER_SOURCE, DEFAULT_FRAGMENT_SOURCE, "main" );
 
             m_shaders.push_back( m_wireframeShader );
