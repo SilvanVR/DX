@@ -34,7 +34,7 @@ namespace Graphics { namespace D3D11 {
     {
         SAFE_DELETE( m_pConstantBuffer );
         m_materialData.resize( size );
-        m_pConstantBuffer = new D3D11::ConstantBuffer( size, BufferUsage::LONG_LIVED );
+        m_pConstantBuffer = new D3D11::ConstantBuffer( size, BufferUsage::LongLived );
         m_bindSlot = bindSlot;
     }
 

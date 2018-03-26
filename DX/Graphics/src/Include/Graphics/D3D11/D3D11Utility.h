@@ -26,6 +26,7 @@ namespace Graphics { namespace D3D11 { namespace Utility {
     D3D11_FILTER TranslateFilter( TextureFilter filter );
 
     //----------------------------------------------------------------------
-    D3D11_TEXTURE_ADDRESS_MODE TranslateClampMode( TextureClampMode clampMode );
+    D3D11_TEXTURE_ADDRESS_MODE TranslateClampMode( TextureAddressMode clampMode );
+
 
 } } }

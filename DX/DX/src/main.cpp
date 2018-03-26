@@ -97,7 +97,7 @@ public:
     {
         mesh = Assets::MeshGenerator::CreatePlane();
         mesh->setColors(planeColors);
-        mesh->setBufferUsage(Graphics::BufferUsage::FREQUENTLY);
+        mesh->setBufferUsage(Graphics::BufferUsage::Frequently);
 
         mr = go->addComponent<Components::MeshRenderer>();
         mr->setMesh(mesh);
@@ -170,7 +170,7 @@ private:
     void generateMesh()
     {
         mesh = Assets::MeshGenerator::CreatePlane(width, height);
-        mesh->setBufferUsage(Graphics::BufferUsage::FREQUENTLY);
+        mesh->setBufferUsage(Graphics::BufferUsage::Frequently);
 
         ArrayList<Color> m_colors;
         for (U32 i = 0; i < mesh->getVertexCount(); i++)
@@ -471,7 +471,7 @@ public:
             Math::Vec2(3.0f, 0.0f),
             Math::Vec2(3.0f, 3.0f)
         };
-        plane->setBufferUsage(Graphics::BufferUsage::LONG_LIVED);
+        plane->setBufferUsage(Graphics::BufferUsage::LongLived);
         plane->setUVs(uvs);
         auto mr = goModel->addComponent<Components::MeshRenderer>(plane, material);
 
@@ -491,16 +491,16 @@ public:
         //material->setColor(SID("pixelColor"), Color(b, b, b) );
 
         if(KEYBOARD.wasKeyPressed(Key::NumPad1))
-            tex2->setClampMode(Graphics::TextureClampMode::Clamp);
+            tex2->setClampMode(Graphics::TextureAddressMode::Clamp);
 
         if (KEYBOARD.wasKeyPressed(Key::NumPad2))
-            tex2->setClampMode(Graphics::TextureClampMode::Mirror);
+            tex2->setClampMode(Graphics::TextureAddressMode::Mirror);
 
         if (KEYBOARD.wasKeyPressed(Key::NumPad3))
-            tex2->setClampMode(Graphics::TextureClampMode::MirrorOnce);
+            tex2->setClampMode(Graphics::TextureAddressMode::MirrorOnce);
 
         if (KEYBOARD.wasKeyPressed(Key::NumPad4))
-            tex2->setClampMode(Graphics::TextureClampMode::Repeat);
+            tex2->setClampMode(Graphics::TextureAddressMode::Repeat);
     }
 
     void shutdown() override

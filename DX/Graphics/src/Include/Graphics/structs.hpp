@@ -25,8 +25,8 @@ namespace Graphics {
     // Rasterizer State
     struct RasterizationState
     {
-        FillMode    fillMode = FillMode::SOLID;
-        CullMode    cullMode = CullMode::BACK;
+        FillMode    fillMode = FillMode::Solid;
+        CullMode    cullMode = CullMode::Back;
         bool        frontCounterClockwise = false;
     };
 
@@ -34,19 +34,19 @@ namespace Graphics {
     struct DepthStencilState
     {
         bool            depthEnable = true;
-        ComparisonFunc  depthFunc   = ComparisonFunc::LESS;
+        ComparisonFunc  depthFunc   = ComparisonFunc::Less;
     };
 
     // Blend State for a single rendertarget
     struct RenderTargetBlendState
     {
         bool        blendEnable     = true;
-        Blend       srcBlend        = Blend::ONE;
-        Blend       destBlend       = Blend::ZERO;
-        BlendOP     blendOp         = BlendOP::ADD;
-        Blend       srcBlendAlpha   = Blend::ONE;
-        Blend       destBlendAlpha  = Blend::ZERO;
-        BlendOP     blendOpAlpha    = BlendOP::ADD;
+        Blend       srcBlend        = Blend::One;
+        Blend       destBlend       = Blend::Zero;
+        BlendOP     blendOp         = BlendOP::Add;
+        Blend       srcBlendAlpha   = Blend::One;
+        Blend       destBlendAlpha  = Blend::Zero;
+        BlendOP     blendOpAlpha    = BlendOP::Add;
         U8          writeMask       = 0x0f;   // Only least significant 4 bits used
     };
 

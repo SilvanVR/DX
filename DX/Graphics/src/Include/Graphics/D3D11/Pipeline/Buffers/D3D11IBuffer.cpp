@@ -19,9 +19,9 @@ namespace Graphics { namespace D3D11 {
         D3D11_USAGE d3d11Usage;
         switch (m_usage)
         {
-        case BufferUsage::IMMUTABLE:    d3d11Usage = D3D11_USAGE_IMMUTABLE; break;
-        case BufferUsage::LONG_LIVED:   d3d11Usage = D3D11_USAGE_DEFAULT;   break;
-        case BufferUsage::FREQUENTLY:
+        case BufferUsage::Immutable:    d3d11Usage = D3D11_USAGE_IMMUTABLE; break;
+        case BufferUsage::LongLived:    d3d11Usage = D3D11_USAGE_DEFAULT;   break;
+        case BufferUsage::Frequently:
         {
             d3d11Usage = D3D11_USAGE_DYNAMIC;
             bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
@@ -60,12 +60,12 @@ namespace Graphics { namespace D3D11 {
 
         switch (m_usage)
         {
-        case BufferUsage::LONG_LIVED:
+        case BufferUsage::LongLived:
         {
             g_pImmediateContext->UpdateSubresource( m_pBuffer, 0, NULL, pData, 0, 0 );
             break;
         }
-        case BufferUsage::FREQUENTLY:
+        case BufferUsage::Frequently:
         {
             D3D11_MAPPED_SUBRESOURCE mappedResource = {};
             g_pImmediateContext->Map( m_pBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource );

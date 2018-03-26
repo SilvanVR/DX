@@ -77,7 +77,7 @@ namespace Graphics {
         const ArrayList<Math::Vec2>&    getUVs0()           const { return m_uvs0; }
         U32                             getVertexCount()    const { return static_cast<U32>( m_vertices.size() ); }
         U16                             getSubMeshCount()   const { return static_cast<U32>( m_subMeshes.size() ); }
-        bool                            isImmutable()       const { return m_bufferUsage == BufferUsage::IMMUTABLE; }
+        bool                            isImmutable()       const { return m_bufferUsage == BufferUsage::Immutable; }
 
         const ArrayList<U32>&           getIndices(U32 subMesh = 0)  const { return m_subMeshes[subMesh].indices; }
         U32                             getIndexCount(U32 subMesh)   const { return static_cast<U32>( getIndices( subMesh ).size() ); }
@@ -90,7 +90,7 @@ namespace Graphics {
         ArrayList<Math::Vec3>   m_vertices;
         ArrayList<Color>        m_vertexColors;
         ArrayList<Math::Vec2>   m_uvs0;
-        BufferUsage             m_bufferUsage = BufferUsage::IMMUTABLE;
+        BufferUsage             m_bufferUsage = BufferUsage::Immutable;
 
         struct SubMesh
         {

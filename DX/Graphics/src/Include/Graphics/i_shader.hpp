@@ -98,12 +98,12 @@ namespace Graphics {
             Graphics::BlendState blendState;
             blendState.alphaToCoverage = alphaToCoverage;
             blendState.blendStates[0].blendEnable    = true;
-            blendState.blendStates[0].srcBlend       = Graphics::Blend::SRC_ALPHA;
-            blendState.blendStates[0].destBlend      = Graphics::Blend::INV_SRC_ALPHA;
-            blendState.blendStates[0].blendOp        = Graphics::BlendOP::ADD;
-            blendState.blendStates[0].srcBlendAlpha  = Graphics::Blend::ONE;
-            blendState.blendStates[0].destBlendAlpha = Graphics::Blend::ZERO;
-            blendState.blendStates[0].blendOpAlpha   = Graphics::BlendOP::ADD;
+            blendState.blendStates[0].srcBlend       = Graphics::Blend::SrcAlpha;
+            blendState.blendStates[0].destBlend      = Graphics::Blend::InvSrcAlpha;
+            blendState.blendStates[0].blendOp        = Graphics::BlendOP::Add;
+            blendState.blendStates[0].srcBlendAlpha  = Graphics::Blend::One;
+            blendState.blendStates[0].destBlendAlpha = Graphics::Blend::Zero;
+            blendState.blendStates[0].blendOpAlpha   = Graphics::BlendOP::Add;
 
             setBlendState( blendState );
         }

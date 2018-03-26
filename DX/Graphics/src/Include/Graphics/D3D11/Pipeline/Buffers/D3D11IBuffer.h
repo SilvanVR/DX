@@ -28,7 +28,7 @@ namespace Graphics { namespace D3D11 {
 
         //----------------------------------------------------------------------
         U32             getSize()           const { return m_size; }
-        bool            isImmutable()       const { return m_usage == BufferUsage::IMMUTABLE; }
+        bool            isImmutable()       const { return m_usage == BufferUsage::Immutable; }
         BufferUsage     getBufferUsage()    const { return m_usage; }
         ID3D11Buffer*   getBuffer()         const { return m_pBuffer; }
 

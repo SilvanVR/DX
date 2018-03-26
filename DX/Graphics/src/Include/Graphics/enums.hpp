@@ -31,9 +31,9 @@ namespace Graphics {
     // Determines buffer types / update mechanism
     enum class BufferUsage
     {
-        IMMUTABLE = 1,  // Can't be updated once created.
-        LONG_LIVED,     // Expected to be updated occasionally.
-        FREQUENTLY      // Expected to be updated every frame.
+        Immutable = 1,  // Can't be updated once created.
+        LongLived,      // Expected to be updated occasionally.
+        Frequently      // Expected to be updated every frame.
     };
 
     // Topology for a submesh
@@ -49,67 +49,67 @@ namespace Graphics {
     // Rasterization fill mode
     enum class FillMode
     {
-        SOLID = 1,
-        WIREFRAME
+        Solid = 1,
+        Wireframe
     };
 
     // Rasterization cull mode
     enum class CullMode
     {
-        NONE = 1,
-        FRONT,
-        BACK
+        None = 1,
+        Front,
+        Back
     };
 
     // Comparison Functions
     enum class ComparisonFunc
     {
-        NEVER = 1,
-        LESS,
-        EQUAL,
-        LESS_EQUAL,
-        GREATER,
-        NOT_EQUAL,
-        GREATER_EQUAL,
-        ALWAYS
+        Never = 1,
+        Less,
+        Equal,
+        LessEqual,
+        Greater,
+        NotEqual,
+        GreaterEqual,
+        Always
     };
 
     // Blend values for the blend-state
     enum class Blend
     {
-        ZERO = 1,
-        ONE,
-        SRC_COLOR,
-        INV_SRC_COLOR,
-        SRC_ALPHA,
-        INV_SRC_ALPHA,
-        DEST_ALPHA,
-        INV_DEST_ALPHA,
-        DEST_COLOR,
-        INV_DEST_COLOR,
-        SRC_ALPHA_SAT,
-        BLEND_FACTOR,
-        INV_BLEND_FACTOR,
-        SRC1_COLOR,
-        INV_SRC1_COLOR,
-        SRC1_ALPHA,
-        INV_SRC1_ALPHA
+        Zero = 1,
+        One,
+        SrcColor,
+        InvSrcColor,
+        SrcAlpha,
+        InvSrcAlpha,
+        DestAlpha,
+        InvDestAlpha,
+        DestColor,
+        InvDestColor,
+        SrcAlphaSat,
+        BlendFactor,
+        InvBlendFactor,
+        Src1Color,
+        InvSrc1Color,
+        Src1Alpha,
+        InvSrc1Alpha
     };
 
     // Blend operations for the blending state
     enum class BlendOP
     {
-       ADD = 1,
-       SUBTRACT,
-       REV_SUBTRACT,
-       MIN,
-       MAX
+       Add = 1,
+       Subtract,
+       RevSubtract,
+       Min,
+       Max
     };
 
     //----------------------------------------------------------------------
     enum class TextureDimension
     {
-        UNKNOWN = 0,
+        Unknown = 0,
         Tex2D,
         Tex3D,
         Cube,
@@ -120,106 +120,60 @@ namespace Graphics {
     //----------------------------------------------------------------------
     enum class TextureFormat
     {
-        UNKNOWN = 0,
-        R32G32B32A32_TYPELESS = 1,
-        R32G32B32A32_FLOAT = 2,
-        R32G32B32A32_UINT = 3,
-        R32G32B32A32_SINT = 4,
-        R32G32B32_TYPELESS = 5,
-        R32G32B32_FLOAT = 6,
-        R32G32B32_UINT = 7,
-        R32G32B32_SINT = 8,
-        R16G16B16A16_TYPELESS = 9,
-        R16G16B16A16_FLOAT = 10,
-        R16G16B16A16_UNORM = 11,
-        R16G16B16A16_UINT = 12,
-        R16G16B16A16_SNORM = 13,
-        R16G16B16A16_SINT = 14,
-        R32G32_TYPELESS = 15,
-        R32G32_FLOAT = 16,
-        R32G32_UINT = 17,
-        R32G32_SINT = 18,
-        R32G8X24_TYPELESS = 19,
-        D32_FLOAT_S8X24_UINT = 20,
-        R32_FLOAT_X8X24_TYPELESS = 21,
-        X32_TYPELESS_G8X24_UINT = 22,
-        R10G10B10A2_TYPELESS = 23,
-        R10G10B10A2_UNORM = 24,
-        R10G10B10A2_UINT = 25,
-        R11G11B10_FLOAT = 26,
-        R8G8B8A8_TYPELESS = 27,
-        R8G8B8A8_UNORM = 28,
-        R8G8B8A8_UNORM_SRGB = 29,
-        R8G8B8A8_UINT = 30,
-        R8G8B8A8_SNORM = 31,
-        R8G8B8A8_SINT = 32,
-        R16G16_TYPELESS = 33,
-        R16G16_FLOAT = 34,
-        R16G16_UNORM = 35,
-        R16G16_UINT = 36,
-        R16G16_SNORM = 37,
-        R16G16_SINT = 38,
-        R32_TYPELESS = 39,
-        D32_FLOAT = 40,
-        R32_FLOAT = 41,
-        R32_UINT = 42,
-        R32_SINT = 43,
-        R24G8_TYPELESS = 44,
-        D24_UNORM_S8_UINT = 45,
-        R24_UNORM_X8_TYPELESS = 46,
-        X24_TYPELESS_G8_UINT = 47,
-        R8G8_TYPELESS = 48,
-        R8G8_UNORM = 49,
-        R8G8_UINT = 50,
-        R8G8_SNORM = 51,
-        R8G8_SINT = 52,
-        R16_TYPELESS = 53,
-        R16_FLOAT = 54,
-        D16_UNORM = 55,
-        R16_UNORM = 56,
-        R16_UINT = 57,
-        R16_SNORM = 58,
-        R16_SINT = 59,
-        R8_TYPELESS = 60,
-        R8_UNORM = 61,
-        R8_UINT = 62,
-        R8_SNORM = 63,
-        R8_SINT = 64,
-        A8_UNORM = 65,
-        R1_UNORM = 66,
-        R9G9B9E5_SHAREDEXP = 67,
-        R8G8_B8G8_UNORM = 68,
-        G8R8_G8B8_UNORM = 69,
-        BC1_TYPELESS = 70,
-        BC1_UNORM = 71,
-        BC1_UNORM_SRGB = 72,
-        BC2_TYPELESS = 73,
-        BC2_UNORM = 74,
-        BC2_UNORM_SRGB = 75,
-        BC3_TYPELESS = 76,
-        BC3_UNORM = 77,
-        BC3_UNORM_SRGB = 78,
-        BC4_TYPELESS = 79,
-        BC4_UNORM = 80,
-        BC4_SNORM = 81,
-        BC5_TYPELESS = 82,
-        BC5_UNORM = 83,
-        BC5_SNORM = 84,
-        B5G6R5_UNORM = 85,
-        B5G5R5A1_UNORM = 86,
-        B8G8R8A8_UNORM = 87,
-        B8G8R8X8_UNORM = 88,
-        R10G10B10_XR_BIAS_A2_UNORM = 89,
-        B8G8R8A8_TYPELESS = 90,
-        B8G8R8A8_UNORM_SRGB = 91,
-        B8G8R8X8_TYPELESS = 92,
-        B8G8R8X8_UNORM_SRGB = 93,
-        BC6H_TYPELESS = 94,
-        BC6H_UF16 = 95,
-        DXGI_FORMAT_BC6H_SF16 = 96,
-        DXGI_FORMAT_BC7_TYPELESS = 97,
-        DXGI_FORMAT_BC7_UNORM = 98,
-        DXGI_FORMAT_BC7_UNORM_SRGB = 99,
+        Unknown = 0,
+        Alpha8, //	Alpha - only texture format.
+        ARGB4444, //	A 16 bits / pixel texture format.Texture stores color with an alpha channel.
+        RGB24, //	Color texture format, 8 - bits per channel.
+        RGBA32, //	Color with alpha texture format, 8 - bits per channel.
+        ARGB32, //	Color with alpha texture format, 8 - bits per channel.
+        RGB565, //	A 16 bit color texture format.
+        R16, //	A 16 bit color texture format that only has a red channel.
+        DXT1, //	Compressed color texture format.
+        DXT5, //	Compressed color with alpha channel texture format.
+        RGBA4444, //	Color and alpha texture format, 4 bit per channel.
+        BGRA32, //	Color with alpha texture format, 8 - bits per channel.
+        RHalf, //	Scalar(R) texture format, 16 bit floating point.
+        RGHalf, //	Two color(RG) texture format, 16 bit floating point per channel.
+        RGBAHalf, //	RGB color and alpha texture format, 16 bit floating point per channel.
+        RFloat, //	Scalar(R) texture format, 32 bit floating point.
+        RGFloat, //	Two color(RG) texture format, 32 bit floating point per channel.
+        RGBAFloat, //	RGB color and alpha texture format, 32 - bit floats per channel.
+        YUY2, //	A format that uses the YUV color space and is often used for video encoding or playback.
+        RGB9e5Float, //	RGB HDR format, with 9 bit mantissa per channel and a 5 bit shared exponent.
+        BC4, //	Compressed one channel(R) texture format.
+        BC5, //	Compressed two - channel(RG) texture format.
+        BC6H, //	HDR compressed color texture format.
+        BC7, //	High quality compressed color texture format.
+        DXT1Crunched, //	Compressed color texture format with Crunch compression for smaller storage sizes.
+        DXT5Crunched, //	Compressed color with alpha channel texture format with Crunch compression for smaller storage sizes.
+        ETC_RGB4, //	ETC(GLES2.0) 4 bits / pixel compressed RGB texture format.
+        ATC_RGB4, //	ATC(ATITC) 4 bits / pixel compressed RGB texture format.
+        ATC_RGBA8, //	ATC(ATITC) 8 bits / pixel compressed RGB texture format.
+        EAC_R, //	ETC2 / EAC(GL ES 3.0) 4 bits / pixel compressed unsigned single - channel texture format.
+        EAC_R_SIGNED, //	ETC2 / EAC(GL ES 3.0) 4 bits / pixel compressed signed single - channel texture format.
+        EAC_RG, //	ETC2 / EAC(GL ES 3.0) 8 bits / pixel compressed unsigned dual - channel(RG) texture format.
+        EAC_RG_SIGNED, //	ETC2 / EAC(GL ES 3.0) 8 bits / pixel compressed signed dual - channel(RG) texture format.
+        ETC2_RGB, //	ETC2(GL ES 3.0) 4 bits / pixel compressed RGB texture format.
+        ETC2_RGBA1, //	ETC2(GL ES 3.0) 4 bits / pixel RGB + 1 - bit alpha texture format.
+        ETC2_RGBA8, //	ETC2(GL ES 3.0) 8 bits / pixel compressed RGBA texture format.
+        ASTC_RGB_4x4, //	ASTC(4x4 pixel block in 128 bits) compressed RGB texture format.
+        ASTC_RGB_5x5, //	ASTC(5x5 pixel block in 128 bits) compressed RGB texture format.
+        ASTC_RGB_6x6, //	ASTC(6x6 pixel block in 128 bits) compressed RGB texture format.
+        ASTC_RGB_8x8, //	ASTC(8x8 pixel block in 128 bits) compressed RGB texture format.
+        ASTC_RGB_10x10, //	ASTC(10x10 pixel block in 128 bits) compressed RGB texture format.
+        ASTC_RGB_12x12, //	ASTC(12x12 pixel block in 128 bits) compressed RGB texture format.
+        ASTC_RGBA_4x4, //	ASTC(4x4 pixel block in 128 bits) compressed RGBA texture format.
+        ASTC_RGBA_5x5, //	ASTC(5x5 pixel block in 128 bits) compressed RGBA texture format.
+        ASTC_RGBA_6x6, //	ASTC(6x6 pixel block in 128 bits) compressed RGBA texture format.
+        ASTC_RGBA_8x8, //	ASTC(8x8 pixel block in 128 bits) compressed RGBA texture format.
+        ASTC_RGBA_10x10, //	ASTC(10x10 pixel block in 128 bits) compressed RGBA texture format.
+        ASTC_RGBA_12x12, //	ASTC(12x12 pixel block in 128 bits) compressed RGBA texture format.
+        ETC_RGB4_3DS, //	ETC 4 bits / pixel compressed RGB texture format.
+        ETC_RGBA8_3DS, //	ETC 4 bits / pixel RGB + 4 bits / pixel Alpha compressed texture format.
+        RG16, //	Two color(RG) texture format, 8 - bits per channel.
+        R8, //	Scalar(R) render texture format, 8 bit fixed point.
+        ETC_RGB4Crunched, //	Compressed color texture format with Crunch compression for smaller storage sizes.
+        ETC2_RGBA8Crunched, //Compressed color with alpha channel texture format with Crunch compression for smaller storage sizes.
     };
 
     //----------------------------------------------------------------------
@@ -231,7 +185,7 @@ namespace Graphics {
     };
 
     //----------------------------------------------------------------------
-    enum class TextureClampMode
+    enum class TextureAddressMode
     {
         Repeat,
         Clamp,

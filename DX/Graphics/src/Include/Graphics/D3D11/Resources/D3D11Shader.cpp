@@ -136,14 +136,14 @@ namespace Graphics { namespace D3D11 {
         D3D11_RASTERIZER_DESC rsDesc = {};
         switch (rzState.fillMode)
         {
-        case FillMode::SOLID:       rsDesc.FillMode = D3D11_FILL_SOLID;     break;
-        case FillMode::WIREFRAME:   rsDesc.FillMode = D3D11_FILL_WIREFRAME; break;
+        case FillMode::Solid:       rsDesc.FillMode = D3D11_FILL_SOLID;     break;
+        case FillMode::Wireframe:   rsDesc.FillMode = D3D11_FILL_WIREFRAME; break;
         }
         switch (rzState.cullMode)
         {
-        case CullMode::BACK:        rsDesc.CullMode = D3D11_CULL_BACK;      break;
-        case CullMode::FRONT:       rsDesc.CullMode = D3D11_CULL_FRONT;     break;
-        case CullMode::NONE:        rsDesc.CullMode = D3D11_CULL_NONE;      break;
+        case CullMode::Back:        rsDesc.CullMode = D3D11_CULL_BACK;      break;
+        case CullMode::Front:       rsDesc.CullMode = D3D11_CULL_FRONT;     break;
+        case CullMode::None:        rsDesc.CullMode = D3D11_CULL_NONE;      break;
         }
 
         rsDesc.FrontCounterClockwise = rzState.frontCounterClockwise;

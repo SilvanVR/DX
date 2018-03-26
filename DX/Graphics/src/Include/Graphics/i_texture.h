@@ -23,19 +23,19 @@ namespace Graphics
         void generateMips() {}
 
         //----------------------------------------------------------------------
-        inline F32              getAspectRatio()    const { return (F32)getWidth() / getHeight(); }
-        inline U32              getWidth()          const { return m_width; }
-        inline U32              getHeight()         const { return m_height; }
-        inline U32              getMipCount()       const { return m_mipCount; }
-        inline U32              getAnisoLevel()     const { return m_anisoLevel; }
-        inline TextureFormat    getFormat()         const { return m_format; }
-        inline TextureDimension getDimension()      const { return m_dimension; }
-        inline TextureFilter    getFilter()         const { return m_filter; }
-        inline TextureClampMode getClampMode()      const { return m_clampMode; }
+        inline F32                  getAspectRatio()    const { return (F32)getWidth() / getHeight(); }
+        inline U32                  getWidth()          const { return m_width; }
+        inline U32                  getHeight()         const { return m_height; }
+        inline U32                  getMipCount()       const { return m_mipCount; }
+        inline U32                  getAnisoLevel()     const { return m_anisoLevel; }
+        inline TextureFormat        getFormat()         const { return m_format; }
+        inline TextureDimension     getDimension()      const { return m_dimension; }
+        inline TextureFilter        getFilter()         const { return m_filter; }
+        inline TextureAddressMode   getClampMode()      const { return m_clampMode; }
 
         //----------------------------------------------------------------------
         void setFilter(TextureFilter filter)            { m_filter = filter; _UpdateSampler(); }
-        void setClampMode(TextureClampMode clampMode)   { m_clampMode = clampMode; _UpdateSampler(); }
+        void setClampMode(TextureAddressMode clampMode) { m_clampMode = clampMode; _UpdateSampler(); }
         void setAnisoLevel(U32 level)                   { m_anisoLevel = level; _UpdateSampler(); }
 
         //----------------------------------------------------------------------
@@ -54,10 +54,10 @@ namespace Graphics
         U32                 m_height            = 0;
         U32                 m_mipCount          = 1;
         U32                 m_anisoLevel        = 1;
-        TextureFormat       m_format            = TextureFormat::UNKNOWN;
-        TextureDimension    m_dimension         = TextureDimension::UNKNOWN;
+        TextureFormat       m_format            = TextureFormat::Unknown;
+        TextureDimension    m_dimension         = TextureDimension::Unknown;
         TextureFilter       m_filter            = TextureFilter::Trilinear;
-        TextureClampMode    m_clampMode         = TextureClampMode::Repeat;
+        TextureAddressMode  m_clampMode         = TextureAddressMode::Repeat;
 
         // Heap allocated mem for pixels. How large it is depends on width/height and the format
         void*               m_pixels    = nullptr;
