@@ -410,6 +410,8 @@ class MaterialTestScene : public IScene
     GameObject* goModel;
     Graphics::Material* material;
 
+    Graphics::Texture* tex2;
+
 public:
     MaterialTestScene() : IScene("MaterialTestScene") {}
 
@@ -441,7 +443,10 @@ public:
                 tex->setPixel( x, y, Math::Random::Color() );
         tex->apply();
 
-        auto tex2 = Assets::Importer::LoadTexture("/textures/nico.jpg");
+        tex->setFilter(Graphics::TextureFilter::Trilinear);
+
+
+        tex2 = Assets::Importer::LoadTexture("/textures/nico.jpg");
         auto dirt = Assets::Importer::LoadTexture("/textures/dirt.jpg");
 
         // MATERIAL
@@ -458,7 +463,16 @@ public:
 
         // GAMEOBJECT
         goModel = createGameObject("Test");
-        //goModel->addComponent<ConstantRotation>(0.0f, 20.0f, 20.0f);
+        //goModel->addComponent<ConstantRotation>(0.0f, 20.0f, 20.0f);     
+        ArrayList<Math::Vec2> uvs =
+        {
+            Math::Vec2(0.0f, 3.0f),
+            Math::Vec2(0.0f, 0.0f),
+            Math::Vec2(3.0f, 0.0f),
+            Math::Vec2(3.0f, 3.0f)
+        };
+        plane->setBufferUsage(Graphics::BufferUsage::LONG_LIVED);
+        plane->setUVs(uvs);
         auto mr = goModel->addComponent<Components::MeshRenderer>(plane, material);
 
         auto go2 = createGameObject("Test2");
@@ -475,6 +489,18 @@ public:
 
         //Byte b = static_cast<Byte>( 255.0f * s );
         //material->setColor(SID("pixelColor"), Color(b, b, b) );
+
+        if(KEYBOARD.wasKeyPressed(Key::NumPad1))
+            tex2->setClampMode(Graphics::TextureClampMode::Clamp);
+
+        if (KEYBOARD.wasKeyPressed(Key::NumPad2))
+            tex2->setClampMode(Graphics::TextureClampMode::Mirror);
+
+        if (KEYBOARD.wasKeyPressed(Key::NumPad3))
+            tex2->setClampMode(Graphics::TextureClampMode::MirrorOnce);
+
+        if (KEYBOARD.wasKeyPressed(Key::NumPad4))
+            tex2->setClampMode(Graphics::TextureClampMode::Repeat);
     }
 
     void shutdown() override

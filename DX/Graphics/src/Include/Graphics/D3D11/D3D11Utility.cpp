@@ -1,15 +1,10 @@
-#pragma once
+#include "D3D11Utility.h"
 /**********************************************************************
-    class: None (D3D11Utility.hpp)
+    class: None (D3D11Utility.cpp)
 
     author: S. Hau
-    date: March 16: 2018
-
-    Contains utility functions for DirectX 11.
+    date: March 26 2018
 **********************************************************************/
-
-#include "../enums.hpp"
-#include "D3D11.hpp"
 
 namespace Graphics { namespace D3D11 { namespace Utility {
 
@@ -73,6 +68,35 @@ namespace Graphics { namespace D3D11 { namespace Utility {
 
         ASSERT( false );
         return D3D11_BLEND_OP_ADD;
+    }
+
+    //----------------------------------------------------------------------
+    D3D11_FILTER TranslateFilter( TextureFilter filter )
+    {
+        switch (filter)
+        {
+        case TextureFilter::Point:      return D3D11_FILTER_MIN_MAG_MIP_POINT; break;
+        case TextureFilter::Bilinear:   return D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT; break;
+        case TextureFilter::Trilinear:  return D3D11_FILTER_MIN_MAG_MIP_LINEAR; break;
+        }
+
+        ASSERT( false );
+        return D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+    }
+
+    //----------------------------------------------------------------------
+    D3D11_TEXTURE_ADDRESS_MODE TranslateClampMode( TextureClampMode clampMode )
+    {
+        switch (clampMode)
+        {
+        case TextureClampMode::Clamp:       return D3D11_TEXTURE_ADDRESS_CLAMP; break;
+        case TextureClampMode::Mirror:      return D3D11_TEXTURE_ADDRESS_MIRROR; break;
+        case TextureClampMode::MirrorOnce:  return D3D11_TEXTURE_ADDRESS_MIRROR_ONCE;  break;
+        case TextureClampMode::Repeat:      return D3D11_TEXTURE_ADDRESS_WRAP; break;
+        }
+
+        ASSERT( false );
+        return D3D11_TEXTURE_ADDRESS_CLAMP;
     }
 
 } } }

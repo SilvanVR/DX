@@ -9,7 +9,7 @@
 #include "../Pipeline/Shaders/D3D11VertexShader.h"
 #include "../Pipeline/Shaders/D3D11PixelShader.h"
 #include "../Resources/D3D11Mesh.h"
-#include "../D3D11Utility.hpp"
+#include "../D3D11Utility.h"
 
 namespace Graphics { namespace D3D11 {
 

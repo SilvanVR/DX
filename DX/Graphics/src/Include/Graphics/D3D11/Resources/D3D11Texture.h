@@ -33,6 +33,12 @@ namespace Graphics { namespace D3D11 {
 
         bool m_gpuUpToDate = true;
 
+        //----------------------------------------------------------------------
+        // ITexture Interface
+        //----------------------------------------------------------------------
+        void _UpdateSampler() override { SAFE_RELEASE( m_pSampleState ); _CreateSampler(); }
+
+        //----------------------------------------------------------------------
         void _CreateSampler();
         void _CreateTexture();
         void _PushToGPU();

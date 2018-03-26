@@ -148,6 +148,7 @@
     <ClCompile Include="src\Include\Graphics\D3D11\D3D11Globals.cpp" />
     <ClCompile Include="src\Include\Graphics\D3D11\D3D11Renderer.cpp" />
     <ClCompile Include="src\Include\Graphics\D3D11\D3D11Swapchain.cpp" />
+    <ClCompile Include="src\Include\Graphics\D3D11\D3D11Utility.cpp" />
     <ClCompile Include="src\Include\Graphics\D3D11\Pipeline\Buffers\D3D11Buffers.cpp" />
     <ClCompile Include="src\Include\Graphics\D3D11\Pipeline\Buffers\D3D11IBuffer.cpp" />
     <ClCompile Include="src\Include\Graphics\D3D11\Pipeline\Shaders\D3D11PixelShader.cpp" />
@@ -173,7 +174,7 @@
     <ClInclude Include="src\Include\Graphics\D3D11\D3D11Globals.h" />
     <ClInclude Include="src\Include\Graphics\D3D11\D3D11Renderer.h" />
     <ClInclude Include="src\Include\Graphics\D3D11\D3D11Swapchain.h" />
-    <ClInclude Include="src\Include\Graphics\D3D11\D3D11Utility.hpp" />
+    <ClInclude Include="src\Include\Graphics\D3D11\D3D11Utility.h" />
     <ClInclude Include="src\Include\Graphics\D3D11\Pipeline\Shaders\D3D11ShaderBase.h" />
     <ClInclude Include="src\Include\Graphics\D3D11\Pipeline\Shaders\D3D11VertexShader.h" />
     <ClInclude Include="src\Include\Graphics\D3D11\Resources\D3D11Material.h" />

@@ -63,6 +63,9 @@
     <ClCompile Include="src\Include\Graphics\D3D11\Resources\D3D11Texture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Include\Graphics\D3D11\D3D11Utility.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\stdafx.h">
@@ -119,9 +122,6 @@
     <ClInclude Include="src\Include\Graphics\D3D11\Resources\D3D11Shader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Include\Graphics\D3D11\D3D11Utility.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\Include\Graphics\D3D11\Pipeline\Shaders\D3D11VertexShader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -147,6 +147,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Include\Graphics\D3D11\D3D11Defines.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Include\Graphics\D3D11\D3D11Utility.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
