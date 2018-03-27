@@ -485,22 +485,22 @@ public:
     void tick(Time::Seconds d) override
     {
         //F32 s = (sinf( (F32)TIME.getTime().value ) + 1.0f) / 2.0f;
-        //material->setFloat(SID("pixelVal"), s);
 
-        //Byte b = static_cast<Byte>( 255.0f * s );
-        //material->setColor(SID("pixelColor"), Color(b, b, b) );
+        //if(KEYBOARD.wasKeyPressed(Key::NumPad1))
+        //    tex2->setClampMode(Graphics::TextureAddressMode::Clamp);
+        //if (KEYBOARD.wasKeyPressed(Key::NumPad2))
+        //    tex2->setClampMode(Graphics::TextureAddressMode::Mirror);
+        //if (KEYBOARD.wasKeyPressed(Key::NumPad3))
+        //    tex2->setClampMode(Graphics::TextureAddressMode::MirrorOnce);
+        //if (KEYBOARD.wasKeyPressed(Key::NumPad4))
+        //    tex2->setClampMode(Graphics::TextureAddressMode::Repeat);
 
-        if(KEYBOARD.wasKeyPressed(Key::NumPad1))
-            tex2->setClampMode(Graphics::TextureAddressMode::Clamp);
-
+        if (KEYBOARD.wasKeyPressed(Key::NumPad1))
+            RESOURCES.setGlobalAnisotropicFiltering(1);
         if (KEYBOARD.wasKeyPressed(Key::NumPad2))
-            tex2->setClampMode(Graphics::TextureAddressMode::Mirror);
-
+            RESOURCES.setGlobalAnisotropicFiltering(4);
         if (KEYBOARD.wasKeyPressed(Key::NumPad3))
-            tex2->setClampMode(Graphics::TextureAddressMode::MirrorOnce);
-
-        if (KEYBOARD.wasKeyPressed(Key::NumPad4))
-            tex2->setClampMode(Graphics::TextureAddressMode::Repeat);
+            RESOURCES.setGlobalAnisotropicFiltering(8);
     }
 
     void shutdown() override

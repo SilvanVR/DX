@@ -75,12 +75,12 @@ namespace Graphics { namespace D3D11 {
         MaterialData m_materialDataVS;
         MaterialData m_materialDataPS;
 
+        // Stores texture as a d3d11 texture and the bindslot
         struct TextureCache
         {
-            U32 bindSlot;
+            U32             bindSlot;
             D3D11::Texture* texture;
         };
-
         ArrayList<TextureCache> m_textureCache;
 
         //----------------------------------------------------------------------

@@ -126,6 +126,13 @@ namespace Core { namespace Resources {
         return texture;
     }
 
+    //----------------------------------------------------------------------
+    void ResourceManager::setGlobalAnisotropicFiltering( U32 level )
+    {
+        for ( auto& tex : m_textures )
+            tex->setAnisoLevel( level );
+    }
+
     //**********************************************************************
     // PRIVATE
     //**********************************************************************

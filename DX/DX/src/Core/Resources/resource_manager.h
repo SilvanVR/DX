@@ -70,6 +70,11 @@ namespace Core { namespace Resources {
         Graphics::Texture* createTexture(U32 width, U32 height, Graphics::TextureFormat format, bool generateMips = true);
 
         //----------------------------------------------------------------------
+        // Sets the anisotropic filtering for all textures @TODO: move this somewhere else
+        //----------------------------------------------------------------------
+        void setGlobalAnisotropicFiltering(U32 level);
+
+        //----------------------------------------------------------------------
         void UnloadUnusedResources();
 
         //----------------------------------------------------------------------
