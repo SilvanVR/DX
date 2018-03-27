@@ -18,30 +18,35 @@ namespace Graphics { namespace D3D11 {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    const ConstantBufferInfo& ShaderBase::getMaterialBufferInfo() const
+    const ConstantBufferInfo* ShaderBase::getConstantBufferInfo( StringID name ) const
     {
-        ASSERT( hasMaterialBuffer() && "This shader has no material cb!" );
+        if ( m_constantBuffers.count( name ) == 0 )
+            return nullptr;
 
-        for ( auto& cb : m_constantBufferInfos )
-        {
-            String lower = StringUtils::toLower( cb.name.toString() );
-            if ( lower.find( MATERIAL_NAME ) != String::npos )
-                return cb;
-        }
-
-        return m_constantBufferInfos[0];
+        return &m_constantBuffers.at( name );
     }
 
     //----------------------------------------------------------------------
-    bool ShaderBase::hasMaterialBuffer() const
+    const TextureBindingInfo* ShaderBase::getTextureBindingInfo( StringID name ) const
     {
-        for ( auto& cb : m_constantBufferInfos )
+        if ( m_textures.count( name ) == 0 )
+            return nullptr;
+
+        return &m_textures.at( name );
+    }
+
+    //----------------------------------------------------------------------
+    const ConstantBufferInfo* ShaderBase::getMaterialBufferInfo() const
+    {
+        for ( auto& pair : m_constantBuffers )
         {
-            String lower = StringUtils::toLower( cb.name.toString() );
+            String lower = StringUtils::toLower( pair.first.toString() );
             if ( lower.find( MATERIAL_NAME ) != String::npos )
-                return true;
+                return &pair.second;
         }
-        return false;
+
+        // This shader has no material set
+        return nullptr;
     }
 
     //----------------------------------------------------------------------
@@ -159,8 +164,8 @@ namespace Graphics { namespace D3D11 {
     void ShaderBase::_ReflectResources( const D3D11_SHADER_DESC& shaderDesc )
     {
         // Make sure old buffer information is no longer valid
-        m_constantBufferInfos.clear();
-        m_boundTextureInfos.clear();
+        m_constantBuffers.clear();
+        m_textures.clear();
 
         for (U32 i = 0; i < shaderDesc.BoundResources; i++)
         {
@@ -178,9 +183,8 @@ namespace Graphics { namespace D3D11 {
             case D3D_SIT_TEXTURE:
             {
                 TextureBindingInfo texInfo;
-                texInfo.name = SID( bindDesc.Name );
                 texInfo.slot = bindDesc.BindPoint;
-                m_boundTextureInfos.emplace_back( texInfo );
+                m_textures[ SID( bindDesc.Name ) ] = texInfo;
                 break;
             }
             }
@@ -194,7 +198,6 @@ namespace Graphics { namespace D3D11 {
         HR( cb->GetDesc( &bufferDesc ) );
 
         ConstantBufferInfo bufferInfo;
-        bufferInfo.name         = SID( bufferDesc.Name );
         bufferInfo.sizeInBytes  = bufferDesc.Size;
         bufferInfo.slot         = bindSlot;
 
@@ -216,7 +219,7 @@ namespace Graphics { namespace D3D11 {
             info.size   = varDesc.Size;
             bufferInfo.members.emplace_back( info );
         }
-        m_constantBufferInfos.emplace_back( bufferInfo );
+        m_constantBuffers[ SID( bufferDesc.Name ) ] = bufferInfo;
     }
 
 

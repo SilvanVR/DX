@@ -451,19 +451,19 @@ public:
         // MATERIAL
         material = RESOURCES.createMaterial();
         material->setShader(texShader);
-        //material->setFloat(SID("pixelVal"), 1.0f);
-        material->setTexture( SID("shaderTexture"), tex2);
-        material->setTexture( SID("dirt"), dirt );
+        material->setTexture( SID("tex0"), tex2);
+        material->setTexture( SID("tex1"), dirt );
+        material->setFloat( SID("mix"), 0.5f);
         material->setColor( SID("tintColor"), Color::WHITE );
 
         auto dirtMaterial = RESOURCES.createMaterial();
         dirtMaterial->setShader(texShader);
-        dirtMaterial->setTexture(SID("shaderTexture"), dirt);
+        dirtMaterial->setTexture(SID("tex0"), dirt);
         dirtMaterial->setColor(SID("tintColor"), Color::WHITE);
 
         // GAMEOBJECT
         goModel = createGameObject("Test");
-        //goModel->addComponent<ConstantRotation>(0.0f, 20.0f, 20.0f);     
+        //goModel->addComponent<ConstantRotation>(0.0f, 20.0f, 20.0f);
         ArrayList<Math::Vec2> uvs =
         {
             Math::Vec2(0.0f, 3.0f),

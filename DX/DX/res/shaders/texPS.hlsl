@@ -2,6 +2,7 @@
 cbuffer cbPerMaterial
 {
 	float4 tintColor;
+	float mix;
 };
 
 struct FragmentIn
@@ -10,15 +11,17 @@ struct FragmentIn
 	float2 tex : TEXCOORD0;
 };
 
-Texture2D shaderTexture;
+Texture2D tex0;
 SamplerState sampler0;
 
-Texture2D dirt;
+Texture2D tex1;
 SamplerState sampler1;
 
 float4 main(FragmentIn fin) : SV_Target
 {
-	float4 textureColor = shaderTexture.Sample(sampler0, fin.tex);
-	float4 textureColor2 = dirt.Sample(sampler1, fin.tex);
-	return textureColor * textureColor2 * tintColor;
+	float4 textureColor = tex0.Sample(sampler0, fin.tex);
+	float4 textureColor2 = tex1.Sample(sampler1, fin.tex);
+	
+	float4 combined = lerp(textureColor, textureColor2, 0.3);
+	return combined * tintColor;
 }

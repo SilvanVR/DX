@@ -192,27 +192,17 @@ namespace Graphics { namespace D3D11 {
     }
 
     //----------------------------------------------------------------------
-    bool Shader::getTextureBindingSlot( StringID name, U32* slot ) const
+    I32 Shader::getTextureBindingSlot( StringID name ) const
     {
-        for (auto& tex : m_pVertexShader->getBoundTextureInfos() )
-        {
-            if (tex.name == name)
-            {
-                *slot = tex.slot;
-                return true;
-            }
-        }
+        auto tex = m_pVertexShader->getTextureBindingInfo( name );
+        if (tex)
+            return tex->slot;
 
-        for ( auto& tex : m_pPixelShader->getBoundTextureInfos() )
-        {
-            if (tex.name == name)
-            {
-                *slot = tex.slot;
-                return true;
-            }
-        }
+        tex = m_pPixelShader->getTextureBindingInfo( name );
+        if (tex)
+            return tex->slot;
 
-        return false;
+        return -1;
     }
 
 } } // End namespaces

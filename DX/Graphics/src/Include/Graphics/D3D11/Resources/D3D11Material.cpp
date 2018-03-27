@@ -89,8 +89,8 @@ namespace Graphics { namespace D3D11 {
         auto d3d11Shader = dynamic_cast<Shader*>( m_shader );
         D3D11::Texture* d3d11Texture = dynamic_cast<D3D11::Texture*>( texture );
 
-        U32 bindingSlot;
-        if ( d3d11Shader->getTextureBindingSlot( name, &bindingSlot ) )
+        I32 bindingSlot = d3d11Shader->getTextureBindingSlot( name );
+        if ( bindingSlot >= 0 )
         {
             TextureCache texCache;
             texCache.bindSlot = bindingSlot;
@@ -113,20 +113,12 @@ namespace Graphics { namespace D3D11 {
         auto d3d11Shader = dynamic_cast<Shader*>( m_shader );
 
         // Create buffer for vertex shader
-        auto vertShader = d3d11Shader->getVertexShader();
-        if ( vertShader->hasMaterialBuffer() )
-        {
-            auto& cb = vertShader->getMaterialBufferInfo();
-            m_materialDataVS.resize( (U32) cb.sizeInBytes, cb.slot );
-        }
+        if ( auto cb = d3d11Shader->getVertexShader()->getMaterialBufferInfo() )
+            m_materialDataVS.resize( static_cast<U32>( cb->sizeInBytes ), cb->slot );
 
         // Create buffer for pixel shader
-        auto pixelShader = d3d11Shader->getPixelShader();
-        if ( pixelShader->hasMaterialBuffer() )
-        {
-            auto& cb = pixelShader->getMaterialBufferInfo();
-            m_materialDataPS.resize( (U32) cb.sizeInBytes, cb.slot );
-        }
+        if ( auto  cb = d3d11Shader->getPixelShader()->getMaterialBufferInfo() )
+            m_materialDataPS.resize( static_cast<U32>( cb->sizeInBytes ), cb->slot );
     }
  
     //----------------------------------------------------------------------
@@ -135,11 +127,9 @@ namespace Graphics { namespace D3D11 {
         auto d3d11Shader = reinterpret_cast<Shader*>( m_shader );
         
         // Check if uniform is in vertex-shader
-        auto vertexShader = d3d11Shader->getVertexShader();
-        if ( vertexShader->hasMaterialBuffer() )
+        if ( auto cb = d3d11Shader->getVertexShader()->getMaterialBufferInfo() )
         {
-            auto& vertCb = vertexShader->getMaterialBufferInfo();
-            for (auto& mem : vertCb.members)
+            for (auto& mem : cb->members)
             {
                 if (mem.name == name)
                 {
@@ -150,11 +140,9 @@ namespace Graphics { namespace D3D11 {
         }
 
         // Check if uniform is in pixel-shader
-        auto pixelShader = d3d11Shader->getPixelShader();
-        if ( pixelShader->hasMaterialBuffer() )
+        if ( auto cb = d3d11Shader->getPixelShader()->getMaterialBufferInfo() )
         {
-            auto& pixelCb = pixelShader->getMaterialBufferInfo();
-            for (auto& mem : pixelCb.members)
+            for (auto& mem : cb->members)
             {
                 if (mem.name == name)
                 {

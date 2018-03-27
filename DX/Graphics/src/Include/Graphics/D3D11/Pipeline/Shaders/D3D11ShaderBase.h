@@ -23,7 +23,6 @@ namespace Graphics { namespace D3D11 {
     // Contains information about an buffer in a shader
     struct ConstantBufferInfo
     {
-        StringID                            name;
         U32                                 slot = 0;
         Size                                sizeInBytes = 0;
         ArrayList<ConstantBufferMemberInfo> members;
@@ -51,7 +50,6 @@ namespace Graphics { namespace D3D11 {
         //----------------------------------------------------------------------
         const OS::Path& getFilePath()   const { return m_filePath; }
         CString         getEntryPoint() const { return m_entryPoint.c_str(); }
-        ID3DBlob*       getShaderBlob()       { return m_pShaderBlob; }
         bool            recompile();
 
         //----------------------------------------------------------------------
@@ -63,39 +61,33 @@ namespace Graphics { namespace D3D11 {
 
         //----------------------------------------------------------------------
         // @Return:
-        //  List of information about every constant buffer found via reflection.
+        //  Constant buffer with name "name". Nullptr if not existent.
         //----------------------------------------------------------------------
-        const ArrayList<ConstantBufferInfo>&    getConstantBufferInfos()  const { return m_constantBufferInfos; }
+        const ConstantBufferInfo*   getConstantBufferInfo(StringID name) const;
 
         //----------------------------------------------------------------------
         // @Return:
         //  Constant buffer info about first constant buffer with name "material" in it.
-        // Note: Use "hasMaterialBuffer()" before calling this function to ensure 
-        // that this shader has an material constant buffer!
+        //  Nullptr if not existent.
         //----------------------------------------------------------------------
-        const ConstantBufferInfo&               getMaterialBufferInfo()  const;
+        const ConstantBufferInfo*   getMaterialBufferInfo()  const;
 
         //----------------------------------------------------------------------
         // @Return:
-        //  True, when a material constant buffer exists in this shader.
-        //  (A buffer with name 'material' in it)
+        //  texture info with name "name". Nullptr if not existent.
         //----------------------------------------------------------------------
-        bool hasMaterialBuffer() const;
-
-        //----------------------------------------------------------------------
-        // @Return:
-        //  List of information about every texture found via reflection.
-        //----------------------------------------------------------------------
-        const ArrayList<TextureBindingInfo>&    getBoundTextureInfos()  const { return m_boundTextureInfos; }
+        const TextureBindingInfo*   getTextureBindingInfo(StringID name) const;
 
     protected:
-        ID3DBlob*                       m_pShaderBlob           = nullptr;
-        ID3D11ShaderReflection*         m_pShaderReflection     = nullptr;
-        String                          m_entryPoint            = "main";
-        OS::Path                        m_filePath;
-        OS::SystemTime                  m_fileTimeAtCompilation;
-        ArrayList<ConstantBufferInfo>   m_constantBufferInfos;
-        ArrayList<TextureBindingInfo>   m_boundTextureInfos;
+        ID3DBlob*                               m_pShaderBlob           = nullptr;
+        ID3D11ShaderReflection*                 m_pShaderReflection     = nullptr;
+        String                                  m_entryPoint            = "main";
+        OS::Path                                m_filePath;
+        OS::SystemTime                          m_fileTimeAtCompilation;
+
+        // Resources bound to this shader
+        HashMap<StringID, ConstantBufferInfo>   m_constantBuffers;
+        HashMap<StringID, TextureBindingInfo>   m_textures;
 
         //----------------------------------------------------------------------
         template <typename T>
