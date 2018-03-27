@@ -24,6 +24,7 @@ namespace Core { namespace Resources {
 
     const static CString SHADER_DEFAULT_NAME    = "DEFAULT";
     const static CString SHADER_WIREFRAME_NAME  = "WIREFRAME";
+    const static CString SHADER_ERROR_NAME      = "ERROR";
 
     //*********************************************************************
     class ResourceManager : public ISubSystem
@@ -89,6 +90,7 @@ namespace Core { namespace Resources {
         HashMap<OS::Path, Graphics::Texture*> m_textureCache;
 
         Graphics::Shader*   m_defaultShader;
+        Graphics::Shader*   m_errorShader;
         Graphics::Shader*   m_wireframeShader;
 
         Graphics::Material* m_defaultMaterial;

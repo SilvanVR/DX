@@ -9,7 +9,7 @@
 **********************************************************************/
 
 #include "locator.h"
-#include "default_shader.hpp"
+#include "default_shaders.hpp"
 
 namespace Core { namespace Resources {
 
@@ -111,7 +111,7 @@ namespace Core { namespace Resources {
         m_shaders.push_back( shader );
 
         if ( not shader->compileFromFile( vertPath, fragPath, "main" ) )
-            return m_defaultShader;
+            return m_errorShader;
 
         return shader;
     }
@@ -135,11 +135,19 @@ namespace Core { namespace Resources {
     {
         // SHADERS
         {
+            // Error shader
+            m_errorShader = Locator::getRenderer().createShader();
+            m_errorShader->setName( SHADER_ERROR_NAME );
+            if ( not m_errorShader->compileFromSource( ERROR_VERTEX_SHADER_SOURCE, ERROR_FRAGMENT_SHADER_SOURCE, "main" ) )
+                ERROR( "Error shader source didn't compile. This is mandatory!" );
+
+            m_shaders.push_back( m_errorShader );
+
             // Default shader
             m_defaultShader = Locator::getRenderer().createShader();
             m_defaultShader->setName( SHADER_DEFAULT_NAME );
 
-            if ( not m_defaultShader->compileFromSource( DEFAULT_VERTEX_SHADER_SOURCE, DEFAULT_FRAGMENT_SOURCE, "main" ) )
+            if ( not m_defaultShader->compileFromSource( DEFAULT_VERTEX_SHADER_SOURCE, DEFAULT_FRAGMENT_SHADER_SOURCE, "main" ) )
                 ERROR( "Default shader source didn't compile. This is mandatory!" );
 
             m_shaders.push_back( m_defaultShader );
@@ -148,7 +156,7 @@ namespace Core { namespace Resources {
             m_wireframeShader = Locator::getRenderer().createShader();
             m_wireframeShader->setName( SHADER_WIREFRAME_NAME );
             m_wireframeShader->setRasterizationState( { Graphics::FillMode::Wireframe } );
-            m_wireframeShader->compileFromSource( DEFAULT_VERTEX_SHADER_SOURCE, DEFAULT_FRAGMENT_SOURCE, "main" );
+            m_wireframeShader->compileFromSource( DEFAULT_VERTEX_SHADER_SOURCE, DEFAULT_FRAGMENT_SHADER_SOURCE, "main" );
 
             m_shaders.push_back( m_wireframeShader );
         }

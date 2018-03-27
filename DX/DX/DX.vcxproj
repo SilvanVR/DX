@@ -342,7 +342,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\Core\Resources\default_shader.hpp" />
+    <ClInclude Include="src\Core\Resources\default_shaders.hpp" />
     <ClInclude Include="src\Assets\importer.h" />
     <ClInclude Include="src\Assets\MeshGenerator\mesh_generator.h" />
     <ClInclude Include="src\Ext\StbImage\stb_image.h" />
@@ -388,9 +388,6 @@
     <ProjectReference Include="..\Graphics\Graphics.vcxproj">
       <Project>{0587b9e9-a0d5-4885-8311-8935bff5b76e}</Project>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="TODO.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
