@@ -31,4 +31,7 @@ namespace Graphics { namespace D3D11 { namespace Utility {
     //----------------------------------------------------------------------
     DXGI_FORMAT TranslateTextureFormat( TextureFormat format );
 
+    //----------------------------------------------------------------------
+    DXGI_FORMAT TranslateDepthFormat( U32 depth );
+
 } } }

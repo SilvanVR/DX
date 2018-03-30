@@ -1,4 +1,4 @@
-#include "D3D11Texture.h"
+#include "D3D11Texture2D.h"
 /**********************************************************************
     class: D3D11Texture (D3D11Texture.cpp)
 
@@ -11,8 +11,8 @@
 namespace Graphics { namespace D3D11 {
 
     //----------------------------------------------------------------------
-    Texture::Texture( U32 width, U32 height, TextureFormat format, bool generateMips )
-        : ITexture( width, height, format, generateMips )
+    Texture2D::Texture2D( U32 width, U32 height, TextureFormat format, bool generateMips )
+        : ITexture2D( width, height, format, generateMips )
     {
         ASSERT( m_width > 0 && m_height > 0 );
         _CreateTexture();
@@ -20,7 +20,7 @@ namespace Graphics { namespace D3D11 {
     }
 
     //----------------------------------------------------------------------
-    Texture::~Texture()
+    Texture2D::~Texture2D()
     {
         SAFE_RELEASE( m_pSampleState );
         SAFE_RELEASE( m_pTexture );
@@ -32,7 +32,7 @@ namespace Graphics { namespace D3D11 {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    void Texture::bind( U32 slot )
+    void Texture2D::bind( U32 slot )
     {
         if ( not m_gpuUpToDate )
         {
@@ -51,7 +51,7 @@ namespace Graphics { namespace D3D11 {
     }
 
     //----------------------------------------------------------------------
-    void Texture::apply()
+    void Texture2D::apply()
     {
         m_gpuUpToDate = false;
     }
@@ -61,7 +61,7 @@ namespace Graphics { namespace D3D11 {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    void Texture::_CreateTexture()
+    void Texture2D::_CreateTexture()
     {
         SAFE_RELEASE( m_pTexture );
         SAFE_RELEASE( m_pTextureView );
@@ -95,7 +95,7 @@ namespace Graphics { namespace D3D11 {
     }
 
     //----------------------------------------------------------------------
-    void Texture::_CreateSampler()
+    void Texture2D::_CreateSampler()
     {
         SAFE_RELEASE( m_pSampleState );
 
@@ -120,7 +120,7 @@ namespace Graphics { namespace D3D11 {
     }
 
     //----------------------------------------------------------------------
-    void Texture::_PushToGPU()
+    void Texture2D::_PushToGPU()
     {
         ASSERT( m_pixels != nullptr );
 

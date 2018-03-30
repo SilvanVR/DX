@@ -7,12 +7,12 @@
 **********************************************************************/
 
 #include "../command_buffer.h"
-#include "../i_render_texture.h"
 #include "Resources/D3D11Mesh.h"
 #include "Resources/D3D11Material.h"
 #include "Resources/D3D11Shader.h"
 #include "Pipeline/Buffers/D3D11Buffers.h"
-#include "Resources/D3D11Texture.h"
+#include "Resources/D3D11Texture2D.h"
+#include "Resources/D3D11RenderTexture.h"
 
 using namespace DirectX;
 
@@ -21,6 +21,9 @@ namespace Graphics {
     D3D11::ConstantBuffer*  pConstantBufferObject = nullptr;
     D3D11::ConstantBuffer*  pConstantBufferCamera = nullptr;
     //@ADD: Per frame cb
+
+    //----------------------------------------------------------------------
+    IRenderTexture* D3D11Renderer::s_currentRenderTarget = nullptr;
 
     //**********************************************************************
     // INIT STUFF
@@ -36,7 +39,6 @@ namespace Graphics {
             pConstantBufferCamera = new D3D11::ConstantBuffer( sizeof(XMMATRIX), BufferUsage::Frequently );
             pConstantBufferObject = new D3D11::ConstantBuffer( sizeof(XMMATRIX), BufferUsage::Frequently );
         }
-
     }
 
     //----------------------------------------------------------------------
@@ -47,11 +49,11 @@ namespace Graphics {
         _DeinitD3D11();
     }
 
-    static RenderTexture* s_currentRenderTarget = nullptr;
-
     //----------------------------------------------------------------------
     void D3D11Renderer::dispatch( const CommandBuffer& cmd )
     {
+        // @TODO: Rewrite whole dispatching, add concept of renderpasses
+
         // Depth Prepass first
         // Render in offscreen framebuffer and blit result to the swapchain
 
@@ -71,7 +73,7 @@ namespace Graphics {
                 case GPUCommand::SET_RENDER_TARGET:
                 {
                     GPUC_SetRenderTarget& c = *reinterpret_cast<GPUC_SetRenderTarget*>( commands[i].get() );
-                    _SetRenderTarget( c.renderTarget );
+                    _SetRenderTarget( reinterpret_cast<D3D11::RenderTexture*>( c.renderTarget ) );
                     break;
                 }
                 case GPUCommand::CLEAR_RENDER_TARGET:
@@ -119,12 +121,12 @@ namespace Graphics {
                 shader->bind();
                 m_activeGlobalMaterial->bind();
             }
-            else {
+            else 
+            {
                 shader = pair.first->getShader();
                 shader->bind();
                 pair.first->bind();
             }
-
 
             for (auto& index : pair.second)
             {
@@ -192,9 +194,15 @@ namespace Graphics {
     }
 
     //----------------------------------------------------------------------
-    ITexture* D3D11Renderer::createTexture( U32 width, U32 height, TextureFormat format, bool generateMips )
+    ITexture2D* D3D11Renderer::createTexture2D( U32 width, U32 height, TextureFormat format, bool generateMips )
     {
-        return new D3D11::Texture( width, height, format, generateMips );
+        return new D3D11::Texture2D( width, height, format, generateMips );
+    }
+
+    //----------------------------------------------------------------------
+    IRenderTexture* D3D11Renderer::createRenderTexture( U32 width, U32 height, U32 depth, TextureFormat format )
+    {
+        return new D3D11::RenderTexture( width, height, depth, format );
     }
 
     //**********************************************************************
@@ -269,7 +277,7 @@ namespace Graphics {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    void D3D11Renderer::_SetRenderTarget( RenderTexture* renderTarget )
+    void D3D11Renderer::_SetRenderTarget( D3D11::RenderTexture* renderTarget )
     {
         s_currentRenderTarget = renderTarget;
 
@@ -281,7 +289,11 @@ namespace Graphics {
         }
         else
         {
-            // @TODO: Set rendertexture as target
+            // Unbind all shader resources, because the render target might be used as a srv
+            ID3D11ShaderResourceView* resourceViews[] = { NULL, NULL, NULL, NULL };
+            g_pImmediateContext->PSSetShaderResources(0, 4, resourceViews);
+
+            renderTarget->bindForRendering();
         }
     }
 
@@ -294,7 +306,7 @@ namespace Graphics {
         }
         else
         {
-            // @TODO: Clear rendertexture
+            s_currentRenderTarget->clear( clearColor, 1.0f, 0 );
         }
     }
 

@@ -12,10 +12,9 @@
 #include "structs.hpp"
 #include "i_mesh.h"
 #include "i_material.h"
+#include "i_render_texture.hpp"
 
 namespace Graphics {
-
-    class RenderTexture;
 
     //----------------------------------------------------------------------
     enum class GPUCommand

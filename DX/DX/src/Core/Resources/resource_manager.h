@@ -18,7 +18,7 @@
 #include "Graphics/i_mesh.h"
 #include "Graphics/i_material.h"
 #include "Graphics/i_shader.hpp"
-#include "Graphics/i_texture.h"
+#include "Graphics/i_texture2d.hpp"
 
 namespace Core { namespace Resources {
 
@@ -67,7 +67,7 @@ namespace Core { namespace Resources {
         //  "format": The format of the texture
         //  "generateMips": If true a complete mipchain will be generated
         //----------------------------------------------------------------------
-        Graphics::Texture* createTexture(U32 width, U32 height, Graphics::TextureFormat format, bool generateMips = true);
+        Graphics::Texture2D* createTexture2D(U32 width, U32 height, Graphics::TextureFormat format, bool generateMips = true);
 
         //----------------------------------------------------------------------
         // Sets the anisotropic filtering for all textures @TODO: move this somewhere else

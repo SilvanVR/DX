@@ -16,14 +16,9 @@ namespace Graphics
     class ITexture
     {
     public:
-        ITexture(U32 width, U32 height, TextureFormat format, bool generateMips)
-            : m_width(width), m_height(height), m_format(format), m_generateMips(generateMips) 
-        {
-            if (m_generateMips)
-                m_mipCount = (U32)floor( log2( std::min( width, height ) ) ) + 1;
-            m_pixels = new Color[m_width * m_height];
-        }
-        virtual ~ITexture() { SAFE_DELETE( m_pixels ); }
+        ITexture(U32 width, U32 height, TextureFormat format)
+            : m_width(width), m_height(height), m_format(format) {}
+        virtual ~ITexture() = default;
 
         //----------------------------------------------------------------------
         inline F32                  getAspectRatio()    const { return (F32)getWidth() / getHeight(); }
@@ -43,11 +38,6 @@ namespace Graphics
         void setFilter(TextureFilter filter)            { m_filter = filter; _UpdateSampler(); }
         void setClampMode(TextureAddressMode clampMode) { m_clampMode = clampMode; _UpdateSampler(); }
         void setAnisoLevel(U32 level)                   { m_anisoLevel = level; _UpdateSampler(); }
-        void generateMips() { m_generateMips = true; }
-
-        //----------------------------------------------------------------------
-        void setPixel(U32 x, U32 y, Color color) { ((Color*)m_pixels)[x + y * m_width] = color; }
-        void setPixels(const void* pPixels) { memcpy( m_pixels, pPixels, m_width * m_height * sizeof(Color) ); }
 
         //----------------------------------------------------------------------
         virtual void apply() = 0;
@@ -63,15 +53,14 @@ namespace Graphics
         TextureDimension    m_dimension         = TextureDimension::Unknown;
         TextureFilter       m_filter            = TextureFilter::Trilinear;
         TextureAddressMode  m_clampMode         = TextureAddressMode::Repeat;
-        bool                m_generateMips      = true;
-
-        // Heap allocated mem for pixels. How large it is depends on width/height and the format
-        void*               m_pixels    = nullptr;
 
         // Indicates that something related to sampling has been changed. 
         virtual void _UpdateSampler() = 0;
 
     private:
+        // Bind this texture to the given slot
+        virtual void bind(U32 slot) = 0;
+
         //----------------------------------------------------------------------
         ITexture(const ITexture& other)               = delete;
         ITexture& operator = (const ITexture& other)  = delete;

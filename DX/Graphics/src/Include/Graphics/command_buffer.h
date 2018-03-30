@@ -12,8 +12,6 @@
 
 #include "gpu_commands.hpp"
 
-namespace Graphics { class RenderTexture; }
-
 namespace Graphics {
 
     #define COMMAND_BUFFER_INITIAL_CAPACITY 128

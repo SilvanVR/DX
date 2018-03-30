@@ -10,8 +10,8 @@
 #include "Common/bit_mask.hpp"
 #include "Graphics/structs.hpp"
 #include "Graphics/command_buffer.h"
+#include "Graphics/i_render_texture.hpp"
 
-namespace Graphics { class RenderTexture; }
 namespace Core { class GraphicsCommandRecorder; }
 
 namespace Components {

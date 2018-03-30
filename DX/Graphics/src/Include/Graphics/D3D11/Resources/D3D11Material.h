@@ -8,7 +8,7 @@
 
 #include "../../i_material.h"
 #include "../Pipeline/Buffers/D3D11Buffers.h"
-#include "D3D11Texture.h"
+#include "D3D11Texture.hpp"
 
 namespace Graphics { namespace D3D11 {
 
@@ -78,8 +78,8 @@ namespace Graphics { namespace D3D11 {
         // Stores texture as a d3d11 texture and the bindslot
         struct TextureCache
         {
-            U32             bindSlot;
-            D3D11::Texture* texture;
+            U32                     bindSlot;
+            D3D11::D3D11Texture*    texture;
         };
         ArrayList<TextureCache> m_textureCache;
 

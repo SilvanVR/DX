@@ -412,23 +412,36 @@ class MaterialTestScene : public IScene
 
     Graphics::Texture* tex2;
 
+    Graphics::RenderTexture* renderTex;
+
 public:
     MaterialTestScene() : IScene("MaterialTestScene") {}
 
     void init() override
     {
+        // Camera
         auto go = createGameObject("Camera");
         auto cam = go->addComponent<Components::Camera>();
         go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -10);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 10.0f, 0.3f);
         //go->addComponent<AutoOrbiting>(10.0f);
 
+        // Camera 2
+        renderTex = Locator::getRenderer().createRenderTexture(400,400,24, Graphics::TextureFormat::RGBA32);
+        auto cam2GO = createGameObject("Camera2");
+        cam2GO->getComponent<Components::Transform>()->position = Math::Vec3(0, 3, -10);
+        cam2GO->addComponent<AutoOrbiting>(10.0f);
+
+        auto cam2 = cam2GO->addComponent<Components::Camera>();
+        cam2->setRenderTarget(renderTex);
+        cam2->setClearColor(Color::GREEN);
+
         auto grid = createGameObject("Grid");
         grid->addComponent<GridGeneration>(20);
 
         // MESH
         auto cube = Assets::MeshGenerator::CreateCubeUV();
-        //cube->setColors(cubeColors);
+        cube->setColors(cubeColors);
 
         auto plane = Assets::MeshGenerator::CreatePlane();
         plane->setColors(planeColors);
@@ -437,16 +450,15 @@ public:
         auto texShader = RESOURCES.createShader( "TexShader", "/shaders/texVS.hlsl", "/shaders/texPS.hlsl");
 
         // TEXTURES
-        auto tex = RESOURCES.createTexture(4, 4, Graphics::TextureFormat::RGBA32);
+        auto tex = RESOURCES.createTexture2D(4, 4, Graphics::TextureFormat::RGBA32);
         for (U32 x = 0; x < tex->getWidth(); x++)
             for (U32 y = 0; y < tex->getHeight(); y++)
                 tex->setPixel( x, y, Math::Random::Color() );
         tex->apply();
+        tex->setFilter(Graphics::TextureFilter::Point);
 
         tex2 = Assets::Importer::LoadTexture("/textures/nico.jpg");
         auto dirt = Assets::Importer::LoadTexture("/textures/dirt.jpg");
-
-        U32 numMips = tex2->getMipCount();
 
         // MATERIAL
         material = RESOURCES.createMaterial();
@@ -461,6 +473,12 @@ public:
         dirtMaterial->setTexture(SID("tex0"), dirt);
         dirtMaterial->setColor(SID("tintColor"), Color::WHITE);
 
+        auto customTexMaterial = RESOURCES.createMaterial();
+        customTexMaterial->setShader(texShader);
+        customTexMaterial->setTexture(SID("tex0"), renderTex);
+        customTexMaterial->setFloat(SID("mix"), 0.0f);
+        customTexMaterial->setColor(SID("tintColor"), Color::WHITE);
+
         // GAMEOBJECT
         goModel = createGameObject("Test");
         //goModel->addComponent<ConstantRotation>(0.0f, 20.0f, 20.0f);
@@ -471,13 +489,17 @@ public:
             Math::Vec2(3.0f, 0.0f),
             Math::Vec2(3.0f, 3.0f)
         };
-        plane->setBufferUsage(Graphics::BufferUsage::LongLived);
-        plane->setUVs(uvs);
+        //plane->setBufferUsage(Graphics::BufferUsage::LongLived);
+        //plane->setUVs(uvs);
         auto mr = goModel->addComponent<Components::MeshRenderer>(plane, material);
 
         auto go2 = createGameObject("Test2");
         go2->addComponent<Components::MeshRenderer>(cube, dirtMaterial);
         go2->getComponent<Components::Transform>()->position = Math::Vec3(3, 0, 0);
+
+        auto go3 = createGameObject("Test3");
+        go3->addComponent<Components::MeshRenderer>(plane, customTexMaterial);
+        go3->getComponent<Components::Transform>()->position = Math::Vec3(0, 2, 0);
 
         LOG("MaterialTestScene initialized!", Color::RED);
     }
@@ -505,6 +527,7 @@ public:
 
     void shutdown() override
     {
+        SAFE_DELETE(renderTex);
         LOG("MaterialTestScene Shutdown!", Color::RED);
     }
 

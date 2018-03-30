@@ -60,10 +60,13 @@
     <ClCompile Include="src\Include\Graphics\i_material.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Include\Graphics\D3D11\Resources\D3D11Texture.cpp">
+    <ClCompile Include="src\Include\Graphics\D3D11\D3D11Utility.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Include\Graphics\D3D11\D3D11Utility.cpp">
+    <ClCompile Include="src\Include\Graphics\D3D11\Resources\D3D11RenderTexture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Include\Graphics\D3D11\Resources\D3D11Texture2D.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -131,13 +134,7 @@
     <ClInclude Include="src\Include\Graphics\i_material.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Include\Graphics\i_render_texture.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\Include\Graphics\i_texture.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Include\Graphics\D3D11\Resources\D3D11Texture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Include\Graphics\D3D11\D3D11Defines.hpp">
@@ -147,6 +144,21 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Include\Graphics\i_mesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Include\Graphics\D3D11\Resources\D3D11RenderTexture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Include\Graphics\i_texture2d.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Include\Graphics\i_render_texture.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Include\Graphics\D3D11\Resources\D3D11Texture2D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Include\Graphics\D3D11\Resources\D3D11Texture.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

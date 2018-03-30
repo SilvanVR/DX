@@ -6,24 +6,25 @@
     date: March 24, 2018
 **********************************************************************/
 
-#include "i_texture.h"
+#include "i_texture2d.hpp"
 #include "../D3D11.hpp"
+#include "D3D11Texture.hpp"
 
 namespace Graphics { namespace D3D11 {
 
     //**********************************************************************
-    class Texture : public ITexture
+    class Texture2D : public ITexture2D, public D3D11Texture
     {
     public:
-        Texture(U32 width, U32 height, TextureFormat format, bool generateMips);
-        ~Texture();
+        Texture2D(U32 width, U32 height, TextureFormat format, bool generateMips);
+        ~Texture2D();
 
         //----------------------------------------------------------------------
         // ITexture Interface
         //----------------------------------------------------------------------
         void apply() override;
 
-        void bind(U32 slot);
+        void bind(U32 slot) override;
 
     private:
         ID3D11Texture2D*            m_pTexture       = nullptr;
@@ -43,10 +44,10 @@ namespace Graphics { namespace D3D11 {
         void _PushToGPU();
 
         //----------------------------------------------------------------------
-        Texture(const Texture& other)               = delete;
-        Texture& operator = (const Texture& other)  = delete;
-        Texture(Texture&& other)                    = delete;
-        Texture& operator = (Texture&& other)       = delete;
+        Texture2D(const Texture2D& other)               = delete;
+        Texture2D& operator = (const Texture2D& other)  = delete;
+        Texture2D(Texture2D&& other)                    = delete;
+        Texture2D& operator = (Texture2D&& other)       = delete;
     };
 
 } } // End namespaces

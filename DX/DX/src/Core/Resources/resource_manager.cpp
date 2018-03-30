@@ -117,9 +117,9 @@ namespace Core { namespace Resources {
     }
 
     //----------------------------------------------------------------------
-    Graphics::Texture* ResourceManager::createTexture( U32 width, U32 height, Graphics::TextureFormat format, bool generateMips )
+    Graphics::Texture2D* ResourceManager::createTexture2D( U32 width, U32 height, Graphics::TextureFormat format, bool generateMips )
     {
-        auto texture = Locator::getRenderer().createTexture( width, height, format, generateMips );
+        auto texture = Locator::getRenderer().createTexture2D( width, height, format, generateMips );
 
         m_textures.push_back( texture );
 

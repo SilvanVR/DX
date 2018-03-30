@@ -14,7 +14,7 @@
 
 namespace Graphics {
 
-    class RenderTexture;
+    namespace D3D11 { class RenderTexture; }
 
     //**********************************************************************
     // D3D11 Renderer Subsystem.
@@ -22,6 +22,7 @@ namespace Graphics {
     class D3D11Renderer : public IRenderer
     {
         static const U8 INITIAL_MSAA_SAMPLES = 4;
+        static IRenderTexture* s_currentRenderTarget;
 
     public:
         D3D11Renderer(OS::Window* window) : IRenderer( window ) {}
@@ -36,17 +37,20 @@ namespace Graphics {
         void setVSync(bool enabled) override { m_vsync = enabled; }
         void setMultiSampleCount(U32 numSamples) override;
 
-        IMesh*      createMesh() override;
-        IMaterial*  createMaterial() override;
-        IShader*    createShader() override;
-        ITexture*   createTexture(U32 width, U32 height, TextureFormat format, bool generateMips) override;
+        IMesh*          createMesh() override;
+        IMaterial*      createMaterial() override;
+        IShader*        createShader() override;
+        ITexture2D*     createTexture2D(U32 width, U32 height, TextureFormat format, bool generateMips) override;
+        IRenderTexture* createRenderTexture(U32 width, U32 height, U32 depth, TextureFormat format) override;
+
+        static IRenderTexture* getCurrentRenderTarget() { return s_currentRenderTarget; }
 
     private:
         D3D11::Swapchain*   m_pSwapchain    = nullptr;
         bool                m_vsync         = false;
 
         //----------------------------------------------------------------------
-        inline void _SetRenderTarget(RenderTexture* renderTarget);
+        inline void _SetRenderTarget(D3D11::RenderTexture* renderTarget);
         inline void _ClearRenderTarget(const Color& clearColor);
         inline void _SetCameraPerspective(const DirectX::XMMATRIX& view, F32 fov, F32 zNear, F32 zFar);
         inline void _SetCameraOrtho(const DirectX::XMMATRIX& view, F32 left, F32 right, F32 bottom, F32 top, F32 zNear, F32 zFar);

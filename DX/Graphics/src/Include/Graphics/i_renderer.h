@@ -14,9 +14,10 @@
 
 namespace Graphics {
 
+    class IRenderTexture;
     class CommandBuffer;
+    class ITexture2D;
     class IMaterial;
-    class ITexture;
     class IShader;
     class IMesh;
 
@@ -48,10 +49,11 @@ namespace Graphics {
         virtual void setVSync(bool enabled) = 0;
 
         //----------------------------------------------------------------------
-        virtual IMesh*      createMesh() = 0;
-        virtual IMaterial*  createMaterial() = 0;
-        virtual IShader*    createShader() = 0;
-        virtual ITexture*   createTexture(U32 width, U32 height, TextureFormat format, bool generateMips) = 0;
+        virtual IMesh*          createMesh() = 0;
+        virtual IMaterial*      createMaterial() = 0;
+        virtual IShader*        createShader() = 0;
+        virtual ITexture2D*     createTexture2D(U32 width, U32 height, TextureFormat format, bool generateMips) = 0;
+        virtual IRenderTexture* createRenderTexture(U32 width, U32 height, U32 depth, TextureFormat format) = 0;
 
         //----------------------------------------------------------------------
         // Add a global shader to this renderer. A global shader allows to render

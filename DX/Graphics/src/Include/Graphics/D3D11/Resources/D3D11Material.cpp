@@ -69,7 +69,7 @@ namespace Graphics { namespace D3D11 {
             m_materialDataPS.bind( ShaderType::Fragment );
 
         // Bind textures
-        for ( auto& texInfo : m_textureCache )
+        for (auto& texInfo : m_textureCache)
             texInfo.texture->bind( texInfo.bindSlot );
     }
 
@@ -88,7 +88,7 @@ namespace Graphics { namespace D3D11 {
     bool Material::_SetTexture( StringID name, Graphics::Texture* texture )
     {
         auto d3d11Shader = dynamic_cast<Shader*>( m_shader );
-        D3D11::Texture* d3d11Texture = dynamic_cast<D3D11::Texture*>( texture );
+        D3D11::D3D11Texture* d3d11Texture = dynamic_cast<D3D11::D3D11Texture*>( texture );
 
         I32 bindingSlot = d3d11Shader->getTextureBindingSlot( name );
         if ( bindingSlot >= 0 )
