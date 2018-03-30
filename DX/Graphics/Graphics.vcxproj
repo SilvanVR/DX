@@ -183,7 +183,7 @@
     <ClInclude Include="src\Include\Graphics\D3D11\Resources\D3D11Texture.h" />
     <ClInclude Include="src\Include\Graphics\enums.hpp" />
     <ClInclude Include="src\Include\Graphics\i_material.h" />
-    <ClInclude Include="src\Include\Graphics\i_mesh.hpp" />
+    <ClInclude Include="src\Include\Graphics\i_mesh.h" />
     <ClInclude Include="src\Include\Graphics\D3D11\Pipeline\Buffers\D3D11Buffers.h" />
     <ClInclude Include="src\Include\Graphics\D3D11\Pipeline\Buffers\D3D11IBuffer.h" />
     <ClInclude Include="src\Include\Graphics\D3D11\Pipeline\Shaders\D3D11PixelShader.h" />

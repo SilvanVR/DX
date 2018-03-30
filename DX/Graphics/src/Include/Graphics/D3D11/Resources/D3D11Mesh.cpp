@@ -21,6 +21,19 @@ namespace Graphics { namespace D3D11 {
     //----------------------------------------------------------------------
     void Mesh::bind( const VertexLayout& vertLayout, U32 subMeshIndex )
     {
+        if ( not m_queuedBufferUpdates.empty() )
+        {
+            auto buffUpdate = m_queuedBufferUpdates.front();
+            switch ( buffUpdate.type )
+            {
+            case MeshBufferType::Vertex:    _UpdateVertexBuffer();                  break;
+            case MeshBufferType::TexCoord:  _UpdateUVBuffer();                      break;
+            case MeshBufferType::Color:     _UpdateColorBuffer();                   break;
+            case MeshBufferType::Index:     _UpdateIndexBuffer(buffUpdate.index);   break;
+            }
+            m_queuedBufferUpdates.pop();
+        }
+
         _SetTopology( subMeshIndex );
         _BindVertexBuffer( vertLayout, subMeshIndex ); 
         _BindIndexBuffer( subMeshIndex );
@@ -64,8 +77,7 @@ namespace Graphics { namespace D3D11 {
         {
             ASSERT( not isImmutable() && "Mesh is immutable! It can't be updated. "
                 "Either change the buffer usage via setBufferUsage() or call clear() to reset the whole mesh." );
-
-            m_pVertexBuffer->update( m_vertices.data(), m_vertices.size() * sizeof( Math::Vec3 ) );
+            m_queuedBufferUpdates.push( { MeshBufferType::Vertex } );
         }
     }
 
@@ -116,18 +128,12 @@ namespace Graphics { namespace D3D11 {
         {
             ASSERT( not isImmutable() && "Mesh is immutable! It can't be updated. "
                 "Either change the buffer usage via setBufferUsage() or call clear() to reset the whole mesh." );
+
             auto& sm = m_subMeshes[subMeshIndex];
             sm.indices      = indices;
             sm.baseVertex   = baseVertex;
 
-            // Update index-buffer
-            Size indexSize = 0;
-            switch ( getIndexFormat( subMeshIndex ) )
-            {
-            case IndexFormat::U16: indexSize = sizeof( U16 ); break;
-            case IndexFormat::U32: indexSize = sizeof( U32 ); break;
-            }
-            m_pIndexBuffers[subMeshIndex]->update( sm.indices.data(), sm.indices.size() * indexSize );
+            m_queuedBufferUpdates.push( { MeshBufferType::Index, subMeshIndex } );
         }
     }
 
@@ -157,17 +163,7 @@ namespace Graphics { namespace D3D11 {
         {
             ASSERT( not isImmutable() && "Mesh is immutable! It can't be updated. "
                 "Either change the buffer usage via setBufferUsage() or call clear() to reset the whole mesh." );
-
-            ArrayList<F32> colorsNormalized( m_vertexColors.size() * 4 );
-            for (U32 i = 0; i < m_vertexColors.size(); i++)
-            {
-                auto normalized = m_vertexColors[i].normalized();
-                colorsNormalized[i * 4 + 0] = normalized[0];
-                colorsNormalized[i * 4 + 1] = normalized[1];
-                colorsNormalized[i * 4 + 2] = normalized[2];
-                colorsNormalized[i * 4 + 3] = normalized[3];
-            }
-            m_pColorBuffer->update( colorsNormalized.data(), static_cast<U32>( colorsNormalized.size() ) * sizeof( F32 ) );
+            m_queuedBufferUpdates.push( { MeshBufferType::Color } );
         }
     }
 
@@ -189,14 +185,53 @@ namespace Graphics { namespace D3D11 {
         {
             ASSERT( not isImmutable() && "Mesh is immutable! It can't be updated. "
                 "Either change the buffer usage via setBufferUsage() or call clear() to reset the whole mesh." );
-
-            m_pUVBuffer->update( m_uvs0.data(), m_uvs0.size() * sizeof( Math::Vec2 ) );
+            m_queuedBufferUpdates.push( { MeshBufferType::TexCoord } );
         }
     }
 
     //**********************************************************************
     // PRIVATE
     //**********************************************************************
+
+    //----------------------------------------------------------------------
+    void Mesh::_UpdateVertexBuffer()
+    {
+        m_pVertexBuffer->update( m_vertices.data(), m_vertices.size() * sizeof( Math::Vec3 ) );
+    }
+
+    //----------------------------------------------------------------------
+    void Mesh::_UpdateIndexBuffer( U32 index )
+    {
+        // Update index-buffer
+        Size indexSize = 0;
+        switch ( getIndexFormat( index ) )
+        {
+        case IndexFormat::U16: indexSize = sizeof( U16 ); break;
+        case IndexFormat::U32: indexSize = sizeof( U32 ); break;
+        }
+        m_pIndexBuffers[index]->update( m_subMeshes[index].indices.data(), m_subMeshes[index].indices.size() * indexSize );
+    }
+
+    //----------------------------------------------------------------------
+    void Mesh::_UpdateUVBuffer()
+    {
+        m_pUVBuffer->update( m_uvs0.data(), m_uvs0.size() * sizeof( Math::Vec2 ) );
+    }
+
+    //----------------------------------------------------------------------
+    void Mesh::_UpdateColorBuffer()
+    {
+        ArrayList<F32> colorsNormalized( m_vertexColors.size() * 4 );
+        for (U32 i = 0; i < m_vertexColors.size(); i++)
+        {
+            auto normalized = m_vertexColors[i].normalized();
+            colorsNormalized[i * 4 + 0] = normalized[0];
+            colorsNormalized[i * 4 + 1] = normalized[1];
+            colorsNormalized[i * 4 + 2] = normalized[2];
+            colorsNormalized[i * 4 + 3] = normalized[3];
+        }
+        m_pColorBuffer->update( colorsNormalized.data(), static_cast<U32>( colorsNormalized.size() ) * sizeof( F32 ) );
+    }
 
     //----------------------------------------------------------------------
     void Mesh::_RecreateBuffers()

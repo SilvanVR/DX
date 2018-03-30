@@ -10,7 +10,7 @@
 **********************************************************************/
 
 #include "structs.hpp"
-#include "i_mesh.hpp"
+#include "i_mesh.h"
 #include "i_material.h"
 
 namespace Graphics {

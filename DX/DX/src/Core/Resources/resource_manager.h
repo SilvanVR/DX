@@ -15,7 +15,7 @@
 **********************************************************************/
 
 #include "SubSystem/i_subsystem.hpp"
-#include "Graphics/i_mesh.hpp"
+#include "Graphics/i_mesh.h"
 #include "Graphics/i_material.h"
 #include "Graphics/i_shader.hpp"
 #include "Graphics/i_texture.h"

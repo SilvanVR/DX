@@ -12,7 +12,7 @@
 **********************************************************************/
 
 #include "i_render_component.hpp"
-#include "Graphics/i_mesh.hpp"
+#include "Graphics/i_mesh.h"
 #include "Graphics/i_material.h"
 
 namespace Components {

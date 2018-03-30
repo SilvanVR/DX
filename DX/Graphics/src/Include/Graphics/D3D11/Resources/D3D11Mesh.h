@@ -8,7 +8,7 @@
     D3D11 implementation of an mesh.
 **********************************************************************/
 
-#include "../../i_mesh.hpp"
+#include "../../i_mesh.h"
 
 namespace Graphics { namespace D3D11 {
 
@@ -29,8 +29,8 @@ namespace Graphics { namespace D3D11 {
         void setVertices(const ArrayList<Math::Vec3>& vertices) override;
         void setIndices(const ArrayList<U32>& indices, U32 subMesh = 0, 
                         MeshTopology topology = MeshTopology::Triangles, U32 baseVertex = 0) override;
-        void setColors(const ArrayList<Color>& colors) override;
         void setUVs(const ArrayList<Math::Vec2>& uvs) override;
+        void setColors(const ArrayList<Color>& colors) override;
 
     private:
         VertexBuffer*   m_pVertexBuffer   = nullptr;
@@ -39,6 +39,22 @@ namespace Graphics { namespace D3D11 {
 
         // Array of index buffer. One indexbuffer for each submesh.
         ArrayList<IndexBuffer*> m_pIndexBuffers;
+
+        // Buffer updates are queued because only one thread is allowed to use the D3D11-Context.
+        enum class MeshBufferType
+        {
+            Vertex,
+            Color,
+            TexCoord,
+            Normal,
+            Index
+        };
+        struct BufferUpdateInformation
+        {
+            MeshBufferType  type;
+            U32             index = 0; // Only used for some types e.g. as submesh index for Index-Buffer updates
+        };
+        std::queue<BufferUpdateInformation> m_queuedBufferUpdates;
 
         //----------------------------------------------------------------------
         // IMesh Interface
@@ -51,6 +67,11 @@ namespace Graphics { namespace D3D11 {
         inline void _SetTopology(U32 subMesh);
         inline void _BindVertexBuffer(const VertexLayout& vertLayout, U32 subMesh);
         inline void _BindIndexBuffer(U32 subMesh);
+
+        inline void _UpdateUVBuffer();
+        inline void _UpdateVertexBuffer();
+        inline void _UpdateColorBuffer();
+        inline void _UpdateIndexBuffer(U32 index);
 
         //----------------------------------------------------------------------
         Mesh(const Mesh& other)               = delete;

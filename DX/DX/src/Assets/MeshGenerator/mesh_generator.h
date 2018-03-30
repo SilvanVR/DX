@@ -6,7 +6,7 @@
     date: March 11, 2018
 **********************************************************************/
 
-#include "Graphics/i_mesh.hpp"
+#include "Graphics/i_mesh.h"
 
 namespace Assets { 
 

@@ -41,7 +41,10 @@ namespace Graphics { namespace D3D11 {
         }
 
         if ( m_generateMips )
+        {
             g_pImmediateContext->GenerateMips( m_pTextureView );
+            m_generateMips = false;
+        }
 
         g_pImmediateContext->PSSetSamplers( slot, 1, &m_pSampleState );
         g_pImmediateContext->PSSetShaderResources( slot, 1, &m_pTextureView );
