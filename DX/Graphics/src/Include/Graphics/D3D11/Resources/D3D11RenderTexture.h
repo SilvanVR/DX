@@ -4,6 +4,11 @@
 
     author: S. Hau
     date: March 24, 2018
+
+    D3D11 implementation of a render-texture. It consists of more than 
+    one buffer, so it can be bound as a srv and to the output-merger
+    at the same time. Internally always the previous rendered buffer
+    will be used when bound as a srv.
 **********************************************************************/
 
 #include "i_render_texture.hpp"
@@ -15,31 +20,30 @@ namespace Graphics { namespace D3D11 {
     //**********************************************************************
     class RenderTexture : public IRenderTexture, public D3D11Texture
     {
+        static const I32 NUM_BUFFERS = 2; // Number of render-buffers
+
     public:
         RenderTexture() = default;
         ~RenderTexture();
-
-        //----------------------------------------------------------------------
-        // D3D11Texture Interface
-        //----------------------------------------------------------------------
-        void bind(U32 slot) override;
 
         //----------------------------------------------------------------------
         // ITexture Interface
         //----------------------------------------------------------------------
         void _UpdateSampler() override {}
 
-        void bindForRendering();
-
         //----------------------------------------------------------------------
         // IRenderTexture Interface
         //----------------------------------------------------------------------
         void create(U32 width, U32 height, U32 depth, TextureFormat format) override;
         void clear(Color color, F32 depth, U8 stencil) override;
+        void bindForRendering() override;
+
+        //----------------------------------------------------------------------
+        // D3D11Texture Interface
+        //----------------------------------------------------------------------
+        void bind(U32 slot) override;
 
     private:
-        static const I32 NUM_BUFFERS = 2;
-
         struct
         {
             ID3D11Texture2D*            m_pRenderTexture        = nullptr;
@@ -56,9 +60,12 @@ namespace Graphics { namespace D3D11 {
         I32 m_index = 0;
 
         //----------------------------------------------------------------------
-        void _CreateRenderTargetAndView(I32 index);
+        void _CreateTexture(I32 index);
+        void _CreateViews(I32 index);
         void _CreateDepthBuffer(I32 index);
         void _CreateSampler();
+
+        inline I32 _PreviousBufferIndex();
 
         //----------------------------------------------------------------------
         RenderTexture(const RenderTexture& other)               = delete;

@@ -18,7 +18,8 @@ namespace Graphics { namespace D3D11 {
 
         for (I32 i = 0; i < NUM_BUFFERS; i++)
         {
-            _CreateRenderTargetAndView( i );
+            _CreateTexture( i );
+            _CreateViews( i );
             if (m_depth > 0)
                 _CreateDepthBuffer( i );
         }
@@ -49,9 +50,7 @@ namespace Graphics { namespace D3D11 {
         g_pImmediateContext->PSSetSamplers( slot, 1, &m_pSampleState );
 
         // Bind previous rendered framebuffer
-        I32 index = (m_index - 1);
-        if (index < 0)
-            index += NUM_BUFFERS;
+        I32 index = _PreviousBufferIndex();
         g_pImmediateContext->PSSetShaderResources( slot, 1, &m_buffers[index].m_pRenderTextureView );
     }
 
@@ -75,7 +74,16 @@ namespace Graphics { namespace D3D11 {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    void RenderTexture::_CreateRenderTargetAndView( I32 index )
+    I32 RenderTexture::_PreviousBufferIndex()
+    {
+        I32 index = (m_index - 1);
+        if (index < 0)
+            index += NUM_BUFFERS;
+        return index;
+    }
+
+    //----------------------------------------------------------------------
+    void RenderTexture::_CreateTexture( I32 index )
     {   
         // Setup the description of the texture
         D3D11_TEXTURE2D_DESC textureDesc;
@@ -93,10 +101,14 @@ namespace Graphics { namespace D3D11 {
 
         // Create texture
         HR( g_pDevice->CreateTexture2D( &textureDesc, NULL, &m_buffers[index].m_pRenderTexture) );
+    }
 
+    //----------------------------------------------------------------------
+    void RenderTexture::_CreateViews( I32 index )
+    {
         // Setup the shader resource view description
         D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
-        srvDesc.Format = textureDesc.Format;
+        srvDesc.Format = Utility::TranslateTextureFormat( m_format );
         srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
         srvDesc.Texture2D.MostDetailedMip = 0;
         srvDesc.Texture2D.MipLevels = -1;

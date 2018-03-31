@@ -50,7 +50,7 @@ namespace Graphics {
         bool                m_vsync         = false;
 
         //----------------------------------------------------------------------
-        inline void _SetRenderTarget(D3D11::RenderTexture* renderTarget);
+        inline void _SetRenderTarget(IRenderTexture* renderTarget);
         inline void _ClearRenderTarget(const Color& clearColor);
         inline void _SetCameraPerspective(const DirectX::XMMATRIX& view, F32 fov, F32 zNear, F32 zFar);
         inline void _SetCameraOrtho(const DirectX::XMMATRIX& view, F32 left, F32 right, F32 bottom, F32 top, F32 zNear, F32 zFar);

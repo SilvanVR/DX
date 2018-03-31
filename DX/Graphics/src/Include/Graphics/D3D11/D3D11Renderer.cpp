@@ -73,7 +73,7 @@ namespace Graphics {
                 case GPUCommand::SET_RENDER_TARGET:
                 {
                     GPUC_SetRenderTarget& c = *reinterpret_cast<GPUC_SetRenderTarget*>( commands[i].get() );
-                    _SetRenderTarget( reinterpret_cast<D3D11::RenderTexture*>( c.renderTarget ) );
+                    _SetRenderTarget( c.renderTarget );
                     break;
                 }
                 case GPUCommand::CLEAR_RENDER_TARGET:
@@ -277,7 +277,7 @@ namespace Graphics {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    void D3D11Renderer::_SetRenderTarget( D3D11::RenderTexture* renderTarget )
+    void D3D11Renderer::_SetRenderTarget( IRenderTexture* renderTarget )
     {
         s_currentRenderTarget = renderTarget;
 
@@ -290,8 +290,8 @@ namespace Graphics {
         else
         {
             // Unbind all shader resources, because the render target might be used as a srv
-            ID3D11ShaderResourceView* resourceViews[] = { NULL, NULL, NULL, NULL };
-            g_pImmediateContext->PSSetShaderResources(0, 4, resourceViews);
+            ID3D11ShaderResourceView* resourceViews[16] = {};
+            g_pImmediateContext->PSSetShaderResources( 0, 16, resourceViews );
 
             renderTarget->bindForRendering();
         }

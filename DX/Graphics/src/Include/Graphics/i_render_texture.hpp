@@ -35,8 +35,13 @@ namespace Graphics
         //----------------------------------------------------------------------
         virtual void create(U32 width, U32 height, U32 depth, TextureFormat format) = 0;
 
+        //----------------------------------------------------------------------
+        // Bind this texture to the output merger for rendering.
+        //----------------------------------------------------------------------
+        virtual void bindForRendering() = 0;
+
     protected:
-        U32 m_depth = 0;
+        U32 m_depth = 0; // Number of bits in the depth buffer
 
     private:
         //----------------------------------------------------------------------
