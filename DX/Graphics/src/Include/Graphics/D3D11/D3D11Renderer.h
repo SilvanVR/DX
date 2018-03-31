@@ -40,8 +40,8 @@ namespace Graphics {
         IMesh*          createMesh() override;
         IMaterial*      createMaterial() override;
         IShader*        createShader() override;
-        ITexture2D*     createTexture2D(U32 width, U32 height, TextureFormat format, bool generateMips) override;
-        IRenderTexture* createRenderTexture(U32 width, U32 height, U32 depth, TextureFormat format) override;
+        ITexture2D*     createTexture2D() override;
+        IRenderTexture* createRenderTexture() override;
 
         static IRenderTexture* getCurrentRenderTarget() { return s_currentRenderTarget; }
 

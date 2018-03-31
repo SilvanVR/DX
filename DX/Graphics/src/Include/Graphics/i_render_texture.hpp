@@ -17,14 +17,23 @@ namespace Graphics
     class IRenderTexture : public ITexture
     {
     public:
-        IRenderTexture(U32 width, U32 height, U32 depth, TextureFormat format) 
-            : ITexture(width, height, format), m_depth(depth) {}
+        IRenderTexture() = default;
         virtual ~IRenderTexture() = default;
 
         //----------------------------------------------------------------------
         // Clears the texture with the given color, depth and stencil data.
         //----------------------------------------------------------------------
         virtual void clear(Color color, F32 depth, U8 stencil) = 0;
+
+        //----------------------------------------------------------------------
+        // Creates a new render texture.
+        // @Params:
+        //  "width": Width in pixels.
+        //  "height": Height in pixels.
+        //  "depth": Bit-depth of the depth-buffer. Allowed is only 0, 16, 24, 32
+        //  "format": The texture format.
+        //----------------------------------------------------------------------
+        virtual void create(U32 width, U32 height, U32 depth, TextureFormat format) = 0;
 
     protected:
         U32 m_depth = 0;

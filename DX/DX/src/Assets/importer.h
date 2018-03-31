@@ -9,7 +9,7 @@
 **********************************************************************/
 
 #include "OS/FileSystem/path.h"
-#include "Graphics/i_texture.h"
+#include "Graphics/i_texture2d.hpp"
 
 namespace Assets
 {
@@ -21,7 +21,7 @@ namespace Assets
         //----------------------------------------------------------------------
         // Loads a texture from a file and immediately uploads it to the gpu.
         //----------------------------------------------------------------------
-        static Graphics::Texture* LoadTexture( const OS::Path& filePath );
+        static Graphics::Texture2D* LoadTexture( const OS::Path& filePath );
 
     private:
         //----------------------------------------------------------------------

@@ -16,20 +16,19 @@ namespace Graphics
     class ITexture
     {
     public:
-        ITexture(U32 width, U32 height, TextureFormat format)
-            : m_width(width), m_height(height), m_format(format) {}
+        ITexture() = default;
         virtual ~ITexture() = default;
 
         //----------------------------------------------------------------------
-        inline F32                  getAspectRatio()    const { return (F32)getWidth() / getHeight(); }
-        inline U32                  getWidth()          const { return m_width; }
-        inline U32                  getHeight()         const { return m_height; }
-        inline U32                  getMipCount()       const { return m_mipCount; }
-        inline U32                  getAnisoLevel()     const { return m_anisoLevel; }
-        inline TextureFormat        getFormat()         const { return m_format; }
-        inline TextureDimension     getDimension()      const { return m_dimension; }
-        inline TextureFilter        getFilter()         const { return m_filter; }
-        inline TextureAddressMode   getClampMode()      const { return m_clampMode; }
+        F32                  getAspectRatio()    const { return (F32)getWidth() / getHeight(); }
+        U32                  getWidth()          const { return m_width; }
+        U32                  getHeight()         const { return m_height; }
+        U32                  getMipCount()       const { return m_mipCount; }
+        U32                  getAnisoLevel()     const { return m_anisoLevel; }
+        TextureFormat        getFormat()         const { return m_format; }
+        TextureDimension     getDimension()      const { return m_dimension; }
+        TextureFilter        getFilter()         const { return m_filter; }
+        TextureAddressMode   getClampMode()      const { return m_clampMode; }
 
         //----------------------------------------------------------------------
         // Set the filter mode for this texture. Note that this has no effect if
@@ -38,11 +37,6 @@ namespace Graphics
         void setFilter(TextureFilter filter)            { m_filter = filter; _UpdateSampler(); }
         void setClampMode(TextureAddressMode clampMode) { m_clampMode = clampMode; _UpdateSampler(); }
         void setAnisoLevel(U32 level)                   { m_anisoLevel = level; _UpdateSampler(); }
-
-        //----------------------------------------------------------------------
-        virtual void apply() = 0;
-
-        //public bool Resize(int width, int height, TextureFormat format, bool hasMipMap);
 
     protected:
         U32                 m_width             = 0;
@@ -54,13 +48,13 @@ namespace Graphics
         TextureFilter       m_filter            = TextureFilter::Trilinear;
         TextureAddressMode  m_clampMode         = TextureAddressMode::Repeat;
 
+        //----------------------------------------------------------------------
+        void _Init(U32 width, U32 height, TextureFormat format) { m_width = width; m_height = height; m_format = format; }
+
         // Indicates that something related to sampling has been changed. 
         virtual void _UpdateSampler() = 0;
 
     private:
-        // Bind this texture to the given slot
-        virtual void bind(U32 slot) = 0;
-
         //----------------------------------------------------------------------
         ITexture(const ITexture& other)               = delete;
         ITexture& operator = (const ITexture& other)  = delete;

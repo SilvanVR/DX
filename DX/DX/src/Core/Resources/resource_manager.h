@@ -60,7 +60,7 @@ namespace Core { namespace Resources {
         Graphics::Shader* createShader(CString name, const OS::Path& vertPath, const OS::Path& fragPath);
 
         //----------------------------------------------------------------------
-        // Creates a new texture resource
+        // Creates a new texture resource.
         // @Params:
         //  "width": Width of the texture in pixels
         //  "height": Height of the texture in pixels
@@ -68,6 +68,18 @@ namespace Core { namespace Resources {
         //  "generateMips": If true a complete mipchain will be generated
         //----------------------------------------------------------------------
         Graphics::Texture2D* createTexture2D(U32 width, U32 height, Graphics::TextureFormat format, bool generateMips = true);
+
+        //----------------------------------------------------------------------
+        // Creates a new immutable texture resource.
+        // @Params:
+        //  "width": Width of the texture in pixels
+        //  "height": Height of the texture in pixels
+        //  "format": The format of the texture
+        //  "pData": Pointer to initial texture data. If this is not null the
+        //           texture will be immutable.
+        //----------------------------------------------------------------------
+        Graphics::Texture2D* createTexture2D(U32 width, U32 height, Graphics::TextureFormat format, const void* pData);
+
 
         //----------------------------------------------------------------------
         // Sets the anisotropic filtering for all textures @TODO: move this somewhere else

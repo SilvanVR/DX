@@ -410,7 +410,8 @@ class MaterialTestScene : public IScene
     GameObject* goModel;
     Graphics::Material* material;
 
-    Graphics::Texture* tex2;
+    Graphics::Texture2D* tex;
+    Graphics::Texture2D* tex2;
 
     Graphics::RenderTexture* renderTex;
 
@@ -427,7 +428,8 @@ public:
         //go->addComponent<AutoOrbiting>(10.0f);
 
         // Camera 2
-        renderTex = Locator::getRenderer().createRenderTexture(400,400,24, Graphics::TextureFormat::RGBA32);
+        renderTex = Locator::getRenderer().createRenderTexture();
+        renderTex->create(400, 400, 24, Graphics::TextureFormat::RGBA32);
         auto cam2GO = createGameObject("Camera2");
         cam2GO->getComponent<Components::Transform>()->position = Math::Vec3(0, 3, -10);
         cam2GO->addComponent<AutoOrbiting>(10.0f);
@@ -450,7 +452,7 @@ public:
         auto texShader = RESOURCES.createShader( "TexShader", "/shaders/texVS.hlsl", "/shaders/texPS.hlsl");
 
         // TEXTURES
-        auto tex = RESOURCES.createTexture2D(4, 4, Graphics::TextureFormat::RGBA32);
+        tex = RESOURCES.createTexture2D(4, 4, Graphics::TextureFormat::RGBA32);
         for (U32 x = 0; x < tex->getWidth(); x++)
             for (U32 y = 0; y < tex->getHeight(); y++)
                 tex->setPixel( x, y, Math::Random::Color() );
@@ -465,7 +467,7 @@ public:
         material->setShader(texShader);
         material->setTexture( SID("tex0"), tex2);
         material->setTexture( SID("tex1"), dirt );
-        material->setFloat( SID("mix"), 0.5f);
+        material->setFloat( SID("mix"), 0.0f);
         material->setColor( SID("tintColor"), Color::WHITE );
 
         auto dirtMaterial = RESOURCES.createMaterial();
@@ -506,6 +508,10 @@ public:
 
     void tick(Time::Seconds d) override
     {
+        //for (U32 x = 0; x < tex->getWidth(); x++)
+        //    for (U32 y = 0; y < tex->getHeight(); y++)
+        //        tex->setPixel(x, y, Math::Random::Color());
+        //tex->apply();
         //F32 s = (sinf( (F32)TIME.getTime().value ) + 1.0f) / 2.0f;
 
         //if(KEYBOARD.wasKeyPressed(Key::NumPad1))

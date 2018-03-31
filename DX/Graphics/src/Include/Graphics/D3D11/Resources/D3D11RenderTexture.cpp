@@ -11,14 +11,16 @@
 namespace Graphics { namespace D3D11 {
 
     //----------------------------------------------------------------------
-    RenderTexture::RenderTexture( U32 width, U32 height, U32 depth, TextureFormat format )
-        : IRenderTexture( width, height, depth, format )
+    void RenderTexture::create( U32 width, U32 height, U32 depth, TextureFormat format )
     {
+        ITexture::_Init( width, height, format );
+        m_depth = depth;
+
         for (I32 i = 0; i < NUM_BUFFERS; i++)
         {
-            _CreateRenderTargetAndView(i);
+            _CreateRenderTargetAndView( i );
             if (m_depth > 0)
-                _CreateDepthBuffer(i);
+                _CreateDepthBuffer( i );
         }
         _CreateSampler();
     }
@@ -57,14 +59,15 @@ namespace Graphics { namespace D3D11 {
     void RenderTexture::bindForRendering()
     {
         m_index = (m_index + 1) % NUM_BUFFERS;
-        g_pImmediateContext->OMSetRenderTargets( 1, &m_buffers[m_index].m_pRenderTargetView, m_buffers[m_index].m_pDepthStencilView );
+        g_pImmediateContext->OMSetRenderTargets( 1, &m_buffers[m_index].m_pRenderTargetView, m_depth == 0 ? nullptr : m_buffers[m_index].m_pDepthStencilView );
     }
 
     //----------------------------------------------------------------------
     void RenderTexture::clear( Color color, F32 depth, U8 stencil )
     {
         g_pImmediateContext->ClearRenderTargetView( m_buffers[m_index].m_pRenderTargetView, color.normalized().data() );
-        g_pImmediateContext->ClearDepthStencilView( m_buffers[m_index].m_pDepthStencilView, (D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL), 1.0f, 0 );
+        if (m_depth > 0)
+            g_pImmediateContext->ClearDepthStencilView( m_buffers[m_index].m_pDepthStencilView, (D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL), 1.0f, 0 );
     }
 
     //**********************************************************************

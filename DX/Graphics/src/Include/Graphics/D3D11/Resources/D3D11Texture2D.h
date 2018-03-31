@@ -16,14 +16,19 @@ namespace Graphics { namespace D3D11 {
     class Texture2D : public ITexture2D, public D3D11Texture
     {
     public:
-        Texture2D(U32 width, U32 height, TextureFormat format, bool generateMips);
+        Texture2D() = default;
         ~Texture2D();
 
         //----------------------------------------------------------------------
         // ITexture Interface
         //----------------------------------------------------------------------
-        void apply() override;
+        void create(U32 width, U32 height, TextureFormat format, bool generateMips) override;
+        void create(U32 width, U32 height, TextureFormat format, const void* pData) override;
+        void apply() override { m_gpuUpToDate = false; }
 
+        //----------------------------------------------------------------------
+        // D3D11Texture Interface
+        //----------------------------------------------------------------------
         void bind(U32 slot) override;
 
     private:
@@ -41,6 +46,8 @@ namespace Graphics { namespace D3D11 {
         //----------------------------------------------------------------------
         void _CreateSampler();
         void _CreateTexture();
+        void _CreateTexture(const void* pData);
+        void _CreateShaderResourveView();
         void _PushToGPU();
 
         //----------------------------------------------------------------------

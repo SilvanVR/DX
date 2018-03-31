@@ -69,6 +69,9 @@
     <ClCompile Include="src\Include\Graphics\D3D11\Resources\D3D11Texture2D.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Include\Graphics\Utils\utils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\stdafx.h">
@@ -159,6 +162,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Include\Graphics\D3D11\Resources\D3D11Texture.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Include\Graphics\Utils\utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -52,8 +52,8 @@ namespace Graphics {
         virtual IMesh*          createMesh() = 0;
         virtual IMaterial*      createMaterial() = 0;
         virtual IShader*        createShader() = 0;
-        virtual ITexture2D*     createTexture2D(U32 width, U32 height, TextureFormat format, bool generateMips) = 0;
-        virtual IRenderTexture* createRenderTexture(U32 width, U32 height, U32 depth, TextureFormat format) = 0;
+        virtual ITexture2D*     createTexture2D() = 0;
+        virtual IRenderTexture* createRenderTexture() = 0;
 
         //----------------------------------------------------------------------
         // Add a global shader to this renderer. A global shader allows to render

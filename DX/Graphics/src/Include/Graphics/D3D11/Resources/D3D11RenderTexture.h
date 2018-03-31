@@ -16,7 +16,7 @@ namespace Graphics { namespace D3D11 {
     class RenderTexture : public IRenderTexture, public D3D11Texture
     {
     public:
-        RenderTexture(U32 width, U32 height, U32 depth, TextureFormat format);
+        RenderTexture() = default;
         ~RenderTexture();
 
         //----------------------------------------------------------------------
@@ -28,13 +28,13 @@ namespace Graphics { namespace D3D11 {
         // ITexture Interface
         //----------------------------------------------------------------------
         void _UpdateSampler() override {}
-        void apply() override {}
 
         void bindForRendering();
 
         //----------------------------------------------------------------------
         // IRenderTexture Interface
         //----------------------------------------------------------------------
+        void create(U32 width, U32 height, U32 depth, TextureFormat format) override;
         void clear(Color color, F32 depth, U8 stencil) override;
 
     private:

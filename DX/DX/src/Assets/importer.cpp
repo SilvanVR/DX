@@ -13,7 +13,7 @@ namespace Assets
 {
 
     //----------------------------------------------------------------------
-    Graphics::Texture* Importer::LoadTexture( const OS::Path& filePath )
+    Graphics::Texture2D* Importer::LoadTexture( const OS::Path& filePath )
     {
         //stbi_set_flip_vertically_on_load(1);
         I32 width, height, bpp;

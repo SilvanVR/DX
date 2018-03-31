@@ -7,24 +7,45 @@
 **********************************************************************/
 
 #include "../D3D11Utility.h"
+#include "Utils/utils.h"
 
 namespace Graphics { namespace D3D11 {
 
     //----------------------------------------------------------------------
-    Texture2D::Texture2D( U32 width, U32 height, TextureFormat format, bool generateMips )
-        : ITexture2D( width, height, format, generateMips )
+    Texture2D::~Texture2D()
     {
-        ASSERT( m_width > 0 && m_height > 0 );
+        SAFE_DELETE( m_pixels );
+        SAFE_RELEASE( m_pSampleState );
+        SAFE_RELEASE( m_pTexture );
+        SAFE_RELEASE( m_pTextureView );
+    }
+
+    //----------------------------------------------------------------------
+    void Texture2D::create( U32 width, U32 height, TextureFormat format, bool generateMips )
+    {
+        ASSERT( width > 0 && height > 0 );
+        ITexture::_Init( width, height, format );
+
+        m_isImmutable = false;
+        if (m_generateMips)
+            _CalculateMipCount();
+        m_pixels = new Byte[m_width * m_height * ByteCountFromTextureFormat( format )];
+
         _CreateTexture();
+        _CreateShaderResourveView();
         _CreateSampler();
     }
 
     //----------------------------------------------------------------------
-    Texture2D::~Texture2D()
+    void Texture2D::create( U32 width, U32 height, TextureFormat format, const void* pData )
     {
-        SAFE_RELEASE( m_pSampleState );
-        SAFE_RELEASE( m_pTexture );
-        SAFE_RELEASE( m_pTextureView );
+        ASSERT( width > 0 && height > 0 && pData != nullptr );
+        ITexture::_Init( width, height, format );
+
+        m_isImmutable = true;
+        _CreateTexture( pData );
+        _CreateShaderResourveView();
+        _CreateSampler();
     }
 
     //**********************************************************************
@@ -50,17 +71,11 @@ namespace Graphics { namespace D3D11 {
         g_pImmediateContext->PSSetShaderResources( slot, 1, &m_pTextureView );
     }
 
-    //----------------------------------------------------------------------
-    void Texture2D::apply()
-    {
-        m_gpuUpToDate = false;
-    }
-
     //**********************************************************************
     // PRIVATE
     //**********************************************************************
 
-    //----------------------------------------------------------------------
+        //----------------------------------------------------------------------
     void Texture2D::_CreateTexture()
     {
         SAFE_RELEASE( m_pTexture );
@@ -82,10 +97,40 @@ namespace Graphics { namespace D3D11 {
 
         // Create texture
         HR( g_pDevice->CreateTexture2D( &textureDesc, NULL, &m_pTexture ) );
+    }
 
+    //----------------------------------------------------------------------
+    void Texture2D::_CreateTexture( const void* pData )
+    {
+        SAFE_RELEASE( m_pTexture );
+        SAFE_RELEASE( m_pTextureView );
+
+        // Setup the description of the texture
+        D3D11_TEXTURE2D_DESC textureDesc;
+        textureDesc.Height              = getHeight();
+        textureDesc.Width               = getWidth();
+        textureDesc.MipLevels           = 1;
+        textureDesc.ArraySize           = 1;
+        textureDesc.Format              = Utility::TranslateTextureFormat( m_format );
+        textureDesc.SampleDesc.Count    = 1;
+        textureDesc.SampleDesc.Quality  = 0;
+        textureDesc.Usage               = D3D11_USAGE_IMMUTABLE;
+        textureDesc.BindFlags           = D3D11_BIND_SHADER_RESOURCE;
+        textureDesc.CPUAccessFlags      = 0;
+        textureDesc.MiscFlags           = 0;
+        
+        D3D11_SUBRESOURCE_DATA subResourceData = {};
+        subResourceData.pSysMem = pData;
+        subResourceData.SysMemPitch = m_width * ByteCountFromTextureFormat( m_format ) ;
+        HR( g_pDevice->CreateTexture2D( &textureDesc, &subResourceData , &m_pTexture ) );
+    }
+
+    //----------------------------------------------------------------------
+    void Texture2D::_CreateShaderResourveView()
+    {
         // Setup the shader resource view description
         D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
-        srvDesc.Format = textureDesc.Format;
+        srvDesc.Format = Utility::TranslateTextureFormat( m_format );
         srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
         srvDesc.Texture2D.MostDetailedMip = 0;
         srvDesc.Texture2D.MipLevels = -1;
@@ -125,10 +170,8 @@ namespace Graphics { namespace D3D11 {
         ASSERT( m_pixels != nullptr );
 
         // Copy the data into the texture
-        unsigned int rowPitch = (getWidth() * 4) * sizeof(unsigned char);
+        unsigned int rowPitch = (getWidth() * sizeof( Color ));
         g_pImmediateContext->UpdateSubresource( m_pTexture, 0, NULL, m_pixels, rowPitch, 0 );
-
-        SAFE_DELETE( m_pixels );
     }
 
 } } // End namespaces
