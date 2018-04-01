@@ -18,6 +18,7 @@
 #include "GameplayLayer/Components/Rendering/mesh_renderer.h"
 #include "GameplayLayer/Components/Rendering/camera.h"
 #include "GameplayLayer/Components/fps_camera.h"
+#include "GameplayLayer/Components/skybox.h"
 
 class IGame : public Core::CoreEngine
 {

@@ -33,11 +33,11 @@ public:
     template<typename T, typename... Args> T* addComponent(Args&&... args);
 
 private:
-    StringID                                m_name;
-    IScene*                                 m_attachedScene;
-    bool                                    m_isActive = true;
+    StringID m_name;
+    IScene*  m_attachedScene = nullptr;
+    bool     m_isActive = true;
 
-    HashMap<Hash, Components::IComponent*>  m_components;
+    std::unordered_map<Hash, Components::IComponent*> m_components;
 
     //----------------------------------------------------------------------
     friend class IScene;
@@ -64,7 +64,8 @@ private:
 template<typename T>
 Hash TypeHash()
 {
-    return typeid(T).hash_code();
+    static Hash hash = typeid(T).hash_code();
+    return hash;
 }
 
 //**********************************************************************

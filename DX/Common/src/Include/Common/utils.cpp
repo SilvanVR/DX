@@ -5,6 +5,7 @@
 namespace Utils
 {
 
+    //----------------------------------------------------------------------
     String bytesToString( U64 bytes, bool binaryPrefix )
     {
         static const U64 gigabyte = 1000 * 1000 * 1000;
@@ -32,6 +33,7 @@ namespace Utils
         return result;
     }
 
+    //----------------------------------------------------------------------
     String memoryAddressToString( void* address )
     {
         std::ostringstream stream;

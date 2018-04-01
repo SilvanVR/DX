@@ -321,6 +321,7 @@
     <ClCompile Include="src\Core\SceneManager\scene_manager.cpp" />
     <ClCompile Include="src\GameplayLayer\Components\fps_camera.cpp" />
     <ClCompile Include="src\GameplayLayer\Components\Rendering\camera.cpp" />
+    <ClCompile Include="src\GameplayLayer\Components\skybox.cpp" />
     <ClCompile Include="src\GameplayLayer\Components\transform.cpp" />
     <ClCompile Include="src\GameplayLayer\Components\Rendering\mesh_renderer.cpp" />
     <ClCompile Include="src\GameplayLayer\gameobject.cpp" />
@@ -368,6 +369,7 @@
     <ClInclude Include="src\GameplayLayer\Components\fps_camera.h" />
     <ClInclude Include="src\GameplayLayer\Components\Rendering\camera.h" />
     <ClInclude Include="src\GameplayLayer\Components\Rendering\i_render_component.hpp" />
+    <ClInclude Include="src\GameplayLayer\Components\skybox.h" />
     <ClInclude Include="src\GameplayLayer\Components\transform.h" />
     <ClInclude Include="src\GameplayLayer\Components\Rendering\mesh_renderer.h" />
     <ClInclude Include="src\GameplayLayer\gameobject.h" />

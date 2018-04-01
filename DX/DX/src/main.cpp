@@ -468,6 +468,11 @@ public:
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 10.0f, 0.3f);
         //go->addComponent<AutoOrbiting>(10.0f);
 
+        auto cubemap = Assets::Importer::LoadCubemap("/cubemaps/tropical_sunny_day/Left.png", "/cubemaps/tropical_sunny_day/Right.png",
+            "/cubemaps/tropical_sunny_day/Up.png", "/cubemaps/tropical_sunny_day/Down.png",
+            "/cubemaps/tropical_sunny_day/Front.png", "/cubemaps/tropical_sunny_day/Back.png");
+        go->addComponent<Components::Skybox>(cubemap);
+
         // Camera 2
         auto renderTex = RESOURCES.createRenderTexture();
         renderTex->create(400, 400, 24, Graphics::TextureFormat::BGRA32);
@@ -603,7 +608,7 @@ public:
         auto sphere = Assets::MeshGenerator::CreateCubeUV();
 
         // SHADER
-        auto texShader = RESOURCES.createShader("TexShader", "/shaders/cubeVS.hlsl", "/shaders/cubePS.hlsl");
+        auto texShader = RESOURCES.createShader("Skybox", "/shaders/skyboxVS.hlsl", "/shaders/skyboxPS.hlsl");
         texShader->setRasterizationState({ Graphics::FillMode::Solid, Graphics::CullMode::None });
 
         // TEXTURES
@@ -622,13 +627,13 @@ public:
             cubemap->setPixels((Graphics::CubemapFace)i, colors[i].data());
         cubemap->apply();
 
-        auto cubemap2 = Assets::Importer::LoadCubemap("/textures/checker.jpg", "/textures/checker.jpg", 
-                                                      "/textures/checker.jpg", "/textures/checker.jpg", 
-                                                      "/textures/checker.jpg", "/textures/checker.jpg");
+        //auto cubemap2 = Assets::Importer::LoadCubemap("/textures/checker.jpg", "/textures/checker.jpg", 
+        //                                              "/textures/checker.jpg", "/textures/checker.jpg", 
+        //                                              "/textures/checker.jpg", "/textures/checker.jpg");
 
-        //auto cubemap2 = Assets::Importer::LoadCubemap("/textures/cubemaps/tropical_sunny_day/Left.png", "/textures/cubemaps/tropical_sunny_day/Right.png",
-        //                                              "/textures/cubemaps/tropical_sunny_day/Up.png", "/textures/cubemaps/tropical_sunny_day/Down.png",
-        //                                              "/textures/cubemaps/tropical_sunny_day/Front.png", "/textures/cubemaps/tropical_sunny_day/Back.png");
+        auto cubemap2 = Assets::Importer::LoadCubemap( "/cubemaps/tropical_sunny_day/Left.png", "/cubemaps/tropical_sunny_day/Right.png",
+                                                       "/cubemaps/tropical_sunny_day/Up.png", "/cubemaps/tropical_sunny_day/Down.png",
+                                                       "/cubemaps/tropical_sunny_day/Front.png", "/cubemaps/tropical_sunny_day/Back.png");
 
         // MATERIAL
         auto material = RESOURCES.createMaterial();

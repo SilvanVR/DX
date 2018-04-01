@@ -149,6 +149,7 @@ namespace Core
         OS::VirtualFileSystem::mount( "config",   "../DX/res" );
         OS::VirtualFileSystem::mount( "logs",     "../DX/res/logs" );
         OS::VirtualFileSystem::mount( "textures", "../DX/res/textures" );
+        OS::VirtualFileSystem::mount( "cubemaps", "../DX/res/textures/cubemaps" );
         OS::VirtualFileSystem::mount( "shaders",  "../DX/res/shaders" );
         OS::VirtualFileSystem::mount( "models",   "../DX/res/models" );
         OS::VirtualFileSystem::mount( "internal", "../DX/res/internal" );
