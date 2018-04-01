@@ -24,7 +24,7 @@ namespace Graphics { namespace D3D11 {
         //----------------------------------------------------------------------
         void create(U32 width, U32 height, TextureFormat format, bool generateMips) override;
         void create(U32 width, U32 height, TextureFormat format, const void* pData) override;
-        void apply(bool updateMips) override;
+        void apply(bool updateMips, bool keepPixelsInRAM) override;
 
         //----------------------------------------------------------------------
         // IBindableTexture Interface
@@ -36,6 +36,8 @@ namespace Graphics { namespace D3D11 {
         ID3D11ShaderResourceView*   m_pTextureView   = nullptr;
 
         bool m_gpuUpToDate = true;
+        bool m_generateMips = true;
+        bool m_keepPixelsInRAM = false;
 
         //----------------------------------------------------------------------
         // ITexture Interface

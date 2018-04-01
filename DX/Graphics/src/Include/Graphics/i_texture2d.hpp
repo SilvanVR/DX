@@ -43,8 +43,9 @@ namespace Graphics
         // Apply all previous pixels changes to the texture.
         // @Params:
         //  "updateMips": If true, mipmaps will be generated. Ignored if not possible.
+        //  "keepPixelsInRAM": If true, pixel data won't be deleted after uploading to the gpu.
         //----------------------------------------------------------------------
-        virtual void apply(bool updateMips = true) = 0;
+        virtual void apply(bool updateMips = true, bool keepPixelsInRAM = false) = 0;
 
         //----------------------------------------------------------------------
         // @Return:
@@ -88,7 +89,6 @@ namespace Graphics
         }
 
     protected:
-        bool                m_generateMips = true;
         bool                m_isImmutable = true;
 
         // Heap allocated mem for pixels. How large it is depends on width/height and the format

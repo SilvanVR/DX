@@ -9,6 +9,7 @@
 **********************************************************************/
 
 #include "i_texture.h"
+#include "Utils/utils.h"
 
 namespace Graphics
 {
@@ -41,6 +42,14 @@ namespace Graphics
         virtual void create(I32 size, TextureFormat format, bool generateMips) = 0;
 
         //----------------------------------------------------------------------
+        // Apply all previous setPixel() changes
+        // @Params:
+        //  "updateMips": Mipmaps will be updated. Ignored if tex has no mips.
+        //  "keepPixelsInRAM": If true, pixel data won't be deleted after uploading to the gpu.
+        //----------------------------------------------------------------------
+        virtual void apply(bool updateMips = true, bool keepPixelsInRAM = false) = 0;
+
+        //----------------------------------------------------------------------
         // Set one pixel for the specified cubemap face. This function is only supported by the formats RGBA32 and BGRA32.
         // @Params:
         //  "face": Cubemap face to modify
@@ -48,7 +57,13 @@ namespace Graphics
         //  "y": Y-Position of the specified face in pixel-coords.
         //  "color": New color of the pixel.
         //----------------------------------------------------------------------
-        virtual void setPixel(CubemapFace face, U32 x, U32 y, Color color) = 0;
+        void setPixel(CubemapFace face, U32 x, U32 y, Color color)
+        {
+            ASSERT( (m_format == TextureFormat::RGBA32 || m_format == TextureFormat::BGRA32)
+                   && not m_facePixels[(I32)face].empty() 
+                   && x < m_width && y < m_height );
+            reinterpret_cast<Color*>( m_facePixels[(I32)face].data() )[x + y * m_width] = color;
+        }
 
         //----------------------------------------------------------------------
         // Set pixels for a whole cubemap face.
@@ -56,15 +71,17 @@ namespace Graphics
         //  "face": Cubemap face to modify.
         //  "pPixels": Pointer to pixel data. 
         //----------------------------------------------------------------------
-        virtual void setPixels(CubemapFace face, const void* pPixels) = 0;
+        void setPixels(CubemapFace face, const void* pPixels)
+        {
+            ASSERT( not m_facePixels[(I32)face].empty() );
+            Size sizeInBytes = m_width * m_height * ByteCountFromTextureFormat( m_format );
+            ASSERT( m_facePixels[(I32)face].size() <= sizeInBytes );
+            memcpy( m_facePixels[(I32)face].data(), pPixels, sizeInBytes );
+        }
 
-        //----------------------------------------------------------------------
-        // Apply all previous setPixel() changes
-        // @Params:
-        //  "updateMips": Mipmaps will be updated. Ignored if tex has no mips.
-        //----------------------------------------------------------------------
-        virtual void apply(bool updateMips = true) = 0;
-
+    protected:
+        // Heap allocated mem for each face. How large it is depends on width/height and the format
+        ArrayList<Byte> m_facePixels[6];
 
     private:
         //----------------------------------------------------------------------

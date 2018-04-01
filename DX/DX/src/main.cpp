@@ -604,34 +604,43 @@ public:
 
         // SHADER
         auto texShader = RESOURCES.createShader("TexShader", "/shaders/cubeVS.hlsl", "/shaders/cubePS.hlsl");
+        texShader->setRasterizationState({ Graphics::FillMode::Solid, Graphics::CullMode::None });
 
         // TEXTURES
         auto dirt = Assets::Importer::LoadTexture("/textures/dirt.jpg");
 
+        // CUBEMAPS
         const I32 size = 512;
         Color colorsPerFace[6] = { Color::WHITE, Color::GREEN, Color::RED, Color::BLUE, Color::ORANGE, Color::VIOLET };
         ArrayList<Color> colors[6];
         for(I32 i = 0; i < 6; i++)
             colors[i].resize(size * size, colorsPerFace[i]);
 
-        // CUBEMAPS
         auto cubemap = RESOURCES.createCubemap();
         cubemap->create(size, Graphics::TextureFormat::BGRA32, true);
-        for (int i = 0; i < 6; i++){
+        for (int i = 0; i < 6; i++)
             cubemap->setPixels((Graphics::CubemapFace)i, colors[i].data());
-        }
         cubemap->apply();
-        
+
+        auto cubemap2 = Assets::Importer::LoadCubemap("/textures/checker.jpg", "/textures/checker.jpg", 
+                                                      "/textures/checker.jpg", "/textures/checker.jpg", 
+                                                      "/textures/checker.jpg", "/textures/checker.jpg");
+
+        //auto cubemap2 = Assets::Importer::LoadCubemap("/textures/cubemaps/tropical_sunny_day/Left.png", "/textures/cubemaps/tropical_sunny_day/Right.png",
+        //                                              "/textures/cubemaps/tropical_sunny_day/Up.png", "/textures/cubemaps/tropical_sunny_day/Down.png",
+        //                                              "/textures/cubemaps/tropical_sunny_day/Front.png", "/textures/cubemaps/tropical_sunny_day/Back.png");
+
         // MATERIAL
         auto material = RESOURCES.createMaterial();
         material->setShader(texShader);
-        material->setTexture(SID("Cubemap"), cubemap);
+        material->setTexture(SID("Cubemap"), cubemap2);
         material->setColor(SID("tintColor"), Color::WHITE);
 
         // GAMEOBJECT
         auto go2 = createGameObject("Test2");
         go2->addComponent<Components::MeshRenderer>(sphere, material);
         go2->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, 0);
+        //go2->getComponent<Components::Transform>()->scale = Math::Vec3(500);
 
         LOG("CubemapScene initialized!", Color::RED);
     }

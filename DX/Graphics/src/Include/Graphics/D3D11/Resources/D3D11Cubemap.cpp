@@ -64,26 +64,9 @@ namespace Graphics { namespace D3D11 {
     }
 
     //----------------------------------------------------------------------
-    void Cubemap::setPixel( CubemapFace face, U32 x, U32 y, Color color )
+    void Cubemap::apply( bool updateMips, bool keepPixelsInRAM )
     {
-        ASSERT( (m_format == TextureFormat::RGBA32 || m_format == TextureFormat::BGRA32)
-               && not m_facePixels[(I32)face].empty() 
-               && x < m_width && y < m_height );
-        reinterpret_cast<Color*>( m_facePixels[(I32)face].data() )[x + y * m_width] = color;
-    }
-
-    //----------------------------------------------------------------------
-    void Cubemap::setPixels( CubemapFace face, const void* pPixels )
-    {
-        ASSERT( not m_facePixels[(I32)face].empty() );
-        Size sizeInBytes = m_width * m_height * ByteCountFromTextureFormat( m_format );
-        ASSERT( m_facePixels[(I32)face].size() <= sizeInBytes );
-        memcpy( m_facePixels[(I32)face].data(), pPixels, sizeInBytes );
-    }
-
-    //----------------------------------------------------------------------
-    void Cubemap::apply( bool updateMips )
-    {
+        m_keepPixelsInRAM = keepPixelsInRAM;
         m_gpuUpToDate = false;
         if (m_mipCount > 1)
             m_generateMips = updateMips;
@@ -134,9 +117,14 @@ namespace Graphics { namespace D3D11 {
         U32 rowPitch = ( getWidth() * ByteCountFromTextureFormat( m_format ) );
         for (U32 face = 0; face < NUM_FACES; face++)
         {
+            // Upload data to gpu
             U32 faceLevel = D3D11CalcSubresource( 0, face, m_mipCount );
             g_pImmediateContext->UpdateSubresource( m_pTexture, faceLevel, NULL, m_facePixels[(I32)face].data(), rowPitch, 0 );
-        } 
+
+            // Free mem in RAM if desired
+            if ( not m_keepPixelsInRAM )
+                m_facePixels[(I32)face].clear();
+        }
     }
 
 } } // End namespaces

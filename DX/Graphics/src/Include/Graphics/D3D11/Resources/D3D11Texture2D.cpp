@@ -52,8 +52,9 @@ namespace Graphics { namespace D3D11 {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    void Texture2D::apply( bool updateMips ) 
+    void Texture2D::apply( bool updateMips, bool keepPixelsInRAM )
     { 
+        m_keepPixelsInRAM = keepPixelsInRAM;
         m_gpuUpToDate = false; 
         if (m_mipCount > 1)
             m_generateMips = updateMips;
@@ -143,6 +144,9 @@ namespace Graphics { namespace D3D11 {
         // Copy the data into the texture
         unsigned int rowPitch = ( getWidth() * ByteCountFromTextureFormat( m_format ) );
         g_pImmediateContext->UpdateSubresource( m_pTexture, 0, NULL, m_pixels.data(), rowPitch, 0 );
+
+        if ( not m_keepPixelsInRAM )
+            m_pixels.clear();
     }
 
 } } // End namespaces
