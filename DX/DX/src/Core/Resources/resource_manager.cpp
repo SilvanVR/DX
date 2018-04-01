@@ -128,7 +128,7 @@ namespace Core { namespace Resources {
     }
 
     //----------------------------------------------------------------------
-    Graphics::Texture2D* ResourceManager::createTexture2D(U32 width, U32 height, Graphics::TextureFormat format, const void* pData)
+    Graphics::Texture2D* ResourceManager::createTexture2D( U32 width, U32 height, Graphics::TextureFormat format, const void* pData )
     {
         auto texture = Locator::getRenderer().createTexture2D();
         texture->create( width, height, format, pData );
@@ -143,6 +143,22 @@ namespace Core { namespace Resources {
     {
         for ( auto& tex : m_textures )
             tex->setAnisoLevel( level );
+    }
+
+    //----------------------------------------------------------------------
+    Graphics::RenderTexture* ResourceManager::createRenderTexture()
+    {
+        auto tex = Locator::getRenderer().createRenderTexture();
+        m_textures.push_back( tex );
+        return tex;
+    }
+
+    //----------------------------------------------------------------------
+    Graphics::Cubemap* ResourceManager::createCubemap()
+    {
+        auto cubemap = Locator::getRenderer().createCubemap();
+        m_textures.push_back( cubemap );
+        return cubemap;
     }
 
     //**********************************************************************

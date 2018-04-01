@@ -17,7 +17,7 @@ namespace Graphics
     {
     public:
         ITexture2D() = default;
-        virtual ~ITexture2D() { SAFE_DELETE( m_pixels ); }
+        virtual ~ITexture2D() {}
 
         //----------------------------------------------------------------------
         // Creates a new 2d-texture.
@@ -41,13 +41,10 @@ namespace Graphics
 
         //----------------------------------------------------------------------
         // Apply all previous pixels changes to the texture.
+        // @Params:
+        //  "updateMips": If true, mipmaps will be generated. (This does not work for immutable textures)
         //----------------------------------------------------------------------
-        virtual void apply() = 0;
-
-        //----------------------------------------------------------------------
-        // Generates mipmaps before the next frame
-        //----------------------------------------------------------------------
-        void generateMips() { m_generateMips = true; _CalculateMipCount(); }
+        virtual void apply(bool updateMips = true) = 0;
 
         //----------------------------------------------------------------------
         // @Return:
@@ -61,7 +58,7 @@ namespace Graphics
         void setPixel( U32 x, U32 y, Color color ) 
         { 
             ASSERT( not isImmutable() && (m_format == TextureFormat::RGBA32 || m_format == TextureFormat::BGRA32) );
-            ((Color*)m_pixels)[x + y * m_width] = color; 
+            reinterpret_cast<Color*>( m_pixels.data() )[x + y * m_width] = color; 
         }
 
         //----------------------------------------------------------------------
@@ -73,7 +70,8 @@ namespace Graphics
         {
             ASSERT( not isImmutable() ); 
             Size sizeInBytes = m_width * m_height * ByteCountFromTextureFormat( m_format );
-            memcpy( m_pixels, pPixels, sizeInBytes );
+            ASSERT( m_pixels.size() <= sizeInBytes );
+            memcpy( m_pixels.data(), pPixels, sizeInBytes );
         }
 
         //----------------------------------------------------------------------
@@ -83,8 +81,8 @@ namespace Graphics
         //----------------------------------------------------------------------
         void setPixels( const void* pPixels, Size sizeInBytes ) 
         {
-            ASSERT( not isImmutable() ); 
-            memcpy( m_pixels, pPixels, sizeInBytes );
+            ASSERT( not isImmutable() && ( sizeInBytes <= m_pixels.size() ) ); 
+            memcpy( m_pixels.data(), pPixels, sizeInBytes );
         }
 
     protected:
@@ -92,10 +90,7 @@ namespace Graphics
         bool                m_isImmutable = true;
 
         // Heap allocated mem for pixels. How large it is depends on width/height and the format
-        void*               m_pixels = nullptr;
-
-        //----------------------------------------------------------------------
-        void _CalculateMipCount() { m_mipCount = (U32)floor( log2( std::min( m_width, m_height ) ) ) + 1; }
+        ArrayList<Byte>     m_pixels;
 
     private:
         //----------------------------------------------------------------------

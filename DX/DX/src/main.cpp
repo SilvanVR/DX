@@ -405,6 +405,49 @@ public:
 
 };
 
+class ManyObjectsScene : public IScene
+{
+    U32 m_numObjects;
+
+public:
+    ManyObjectsScene(U32 numObjects) : IScene("MaterialTestScene"), m_numObjects(numObjects) {}
+
+    void init() override
+    {
+        auto go = createGameObject("Camera");
+        auto cam = go->addComponent<Components::Camera>();
+        go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -10);
+        go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 10.0f, 0.3f);
+
+        // MESH
+        auto cube = Assets::MeshGenerator::CreateCube(1.0f);
+        cube->setColors(cubeColors);
+
+        U32 sq = (U32)sqrt(m_numObjects);
+
+        for (U32 i = 0; i < m_numObjects; i++)
+        {
+            auto go = createGameObject("Test");
+            go->addComponent<Components::MeshRenderer>(cube);
+            go->getComponent<Components::Transform>()->position = Math::Random::Vec3(-1,1).normalized() * sqrtf((F32)m_numObjects);
+        }
+
+        // GAMEOBJECTs
+        //for (U32 i = 0; i < sq; i++)
+        //{
+        //    for (U32 j = 0; j < sq; j++)
+        //    {
+        //        auto go = createGameObject("Test");
+        //        go->addComponent<Components::MeshRenderer>(cube);
+        //        go->getComponent<Components::Transform>()->position = Math::Vec3(i * 3.0f, 0, j * 3.0f);
+        //    }
+        //}
+        LOG("ManyObjectsScene initialized!", Color::RED);
+    }
+
+    void shutdown() override { LOG("ManyObjectsScene Shutdown!", Color::RED); }
+};
+
 class MaterialTestScene : public IScene
 {
     GameObject* goModel;
@@ -412,8 +455,6 @@ class MaterialTestScene : public IScene
 
     Graphics::Texture2D* tex;
     Graphics::Texture2D* tex2;
-
-    Graphics::RenderTexture* renderTex;
 
 public:
     MaterialTestScene() : IScene("MaterialTestScene") {}
@@ -428,7 +469,7 @@ public:
         //go->addComponent<AutoOrbiting>(10.0f);
 
         // Camera 2
-        renderTex = Locator::getRenderer().createRenderTexture();
+        auto renderTex = RESOURCES.createRenderTexture();
         renderTex->create(400, 400, 24, Graphics::TextureFormat::RGBA32);
         auto cam2GO = createGameObject("Camera2");
         cam2GO->getComponent<Components::Transform>()->position = Math::Vec3(0, 3, -10);
@@ -533,53 +574,71 @@ public:
 
     void shutdown() override
     {
-        SAFE_DELETE(renderTex);
         LOG("MaterialTestScene Shutdown!", Color::RED);
     }
 
 };
 
-class ManyObjectsScene : public IScene
+class CubemapScene : public IScene
 {
-    U32 m_numObjects;
+    GameObject* goModel;
+    Graphics::Material* material;
 
 public:
-    ManyObjectsScene(U32 numObjects) : IScene("MaterialTestScene"), m_numObjects(numObjects) {}
+    CubemapScene() : IScene("CubemapScene") {}
 
     void init() override
     {
+        // Camera
         auto go = createGameObject("Camera");
         auto cam = go->addComponent<Components::Camera>();
         go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -10);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 10.0f, 0.3f);
+        //go->addComponent<AutoOrbiting>(10.0f);
+
+        auto grid = createGameObject("Grid");
+        grid->addComponent<GridGeneration>(20);
 
         // MESH
-        auto cube = Assets::MeshGenerator::CreateCube(1.0f);
-        cube->setColors(cubeColors);
+        auto sphere = Assets::MeshGenerator::CreateCubeUV();
 
-        U32 sq = (U32)sqrt(m_numObjects);
+        // SHADER
+        auto texShader = RESOURCES.createShader("TexShader", "/shaders/cubeVS.hlsl", "/shaders/cubePS.hlsl");
 
-        for (U32 i = 0; i < m_numObjects; i++)
-        {
-            auto go = createGameObject("Test");
-            go->addComponent<Components::MeshRenderer>(cube);
-            go->getComponent<Components::Transform>()->position = Math::Random::Vec3(-1,1).normalized() * sqrtf((F32)m_numObjects);
+        // TEXTURES
+        auto dirt = Assets::Importer::LoadTexture("/textures/dirt.jpg");
+
+        const I32 size = 512;
+        Color pixels[size];
+        for(I32 i = 0; i < size; i++)
+            pixels[i] = Color::RED;
+
+        // CUBEMAPS
+        auto cubemap = RESOURCES.createCubemap();
+        cubemap->create(size, Graphics::TextureFormat::RGBA32, false);
+        for (int i = 0; i < 6; i++){
+            cubemap->setPixels((Graphics::CubemapFace)i, pixels);
         }
+        
+        // MATERIAL
+        auto material = RESOURCES.createMaterial();
+        material->setShader(texShader);
+        material->setTexture(SID("Cubemap"), cubemap);
+        material->setColor(SID("tintColor"), Color::WHITE);
 
-        // GAMEOBJECTs
-        //for (U32 i = 0; i < sq; i++)
-        //{
-        //    for (U32 j = 0; j < sq; j++)
-        //    {
-        //        auto go = createGameObject("Test");
-        //        go->addComponent<Components::MeshRenderer>(cube);
-        //        go->getComponent<Components::Transform>()->position = Math::Vec3(i * 3.0f, 0, j * 3.0f);
-        //    }
-        //}
-        LOG("ManyObjectsScene initialized!", Color::RED);
+        // GAMEOBJECT
+        auto go2 = createGameObject("Test2");
+        go2->addComponent<Components::MeshRenderer>(sphere, material);
+        go2->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, 0);
+
+        LOG("CubemapScene initialized!", Color::RED);
     }
 
-    void shutdown() override { LOG("ManyObjectsScene Shutdown!", Color::RED); }
+    void shutdown() override
+    {
+        LOG("CubemapScene Shutdown!", Color::RED);
+    }
+
 };
 
 //----------------------------------------------------------------------
@@ -612,7 +671,7 @@ public:
 
         IGC_SET_VAR("test", 1.0f);
 
-        Locator::getSceneManager().LoadSceneAsync(new MaterialTestScene());
+        Locator::getSceneManager().LoadSceneAsync(new CubemapScene());
     }
 
     //----------------------------------------------------------------------
@@ -653,6 +712,8 @@ public:
             Locator::getSceneManager().LoadSceneAsync(new MaterialTestScene);
         if (KEYBOARD.wasKeyPressed(Key::Four))
             Locator::getSceneManager().LoadSceneAsync(new ManyObjectsScene(100));
+        if (KEYBOARD.wasKeyPressed(Key::Five))
+            Locator::getSceneManager().LoadSceneAsync(new CubemapScene());
 
         if (KEYBOARD.wasKeyPressed(Key::F1))
             Locator::getRenderer().setGlobalMaterialActive("NONE");

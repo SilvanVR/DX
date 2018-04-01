@@ -19,6 +19,8 @@
 #include "Graphics/i_material.h"
 #include "Graphics/i_shader.hpp"
 #include "Graphics/i_texture2d.hpp"
+#include "Graphics/i_render_texture.hpp"
+#include "Graphics/i_cubemap.hpp"
 
 namespace Core { namespace Resources {
 
@@ -79,6 +81,16 @@ namespace Core { namespace Resources {
         //           texture will be immutable.
         //----------------------------------------------------------------------
         Graphics::Texture2D* createTexture2D(U32 width, U32 height, Graphics::TextureFormat format, const void* pData);
+
+        //----------------------------------------------------------------------
+        // Creates a new render texture
+        //----------------------------------------------------------------------
+        Graphics::RenderTexture* createRenderTexture();
+
+        //----------------------------------------------------------------------
+        // Creates a new cubemap
+        //----------------------------------------------------------------------
+        Graphics::Cubemap* createCubemap();
 
 
         //----------------------------------------------------------------------

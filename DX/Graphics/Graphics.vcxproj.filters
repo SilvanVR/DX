@@ -66,10 +66,13 @@
     <ClCompile Include="src\Include\Graphics\D3D11\Resources\D3D11RenderTexture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Include\Graphics\D3D11\Resources\D3D11Texture2D.cpp">
+    <ClCompile Include="src\Include\Graphics\Utils\utils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Include\Graphics\Utils\utils.cpp">
+    <ClCompile Include="src\Include\Graphics\D3D11\Resources\D3D11Cubemap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Include\Graphics\D3D11\Resources\D3D11Texture2D.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -165,6 +168,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Include\Graphics\D3D11\Resources\D3D11IBindableTexture.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Include\Graphics\i_cubemap.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Include\Graphics\D3D11\Resources\D3D11Cubemap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

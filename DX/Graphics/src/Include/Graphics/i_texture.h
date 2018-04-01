@@ -54,6 +54,9 @@ namespace Graphics
         // Indicates that something related to sampling has been changed. 
         virtual void _UpdateSampler() = 0;
 
+        //----------------------------------------------------------------------
+        void _UpdateMipCount() { m_mipCount = static_cast<U32>( std::floor( std::log2( std::min( m_width, m_height) ) ) + 1 ); }
+
     private:
         //----------------------------------------------------------------------
         ITexture(const ITexture& other)               = delete;

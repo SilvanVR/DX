@@ -13,6 +13,7 @@
 #include "Pipeline/Buffers/D3D11Buffers.h"
 #include "Resources/D3D11Texture2D.h"
 #include "Resources/D3D11RenderTexture.h"
+#include "Resources/D3D11Cubemap.h"
 
 using namespace DirectX;
 
@@ -203,6 +204,12 @@ namespace Graphics {
     IRenderTexture* D3D11Renderer::createRenderTexture()
     {
         return new D3D11::RenderTexture();
+    }
+
+    //----------------------------------------------------------------------
+    ICubemap* D3D11Renderer::createCubemap()
+    {
+        return new D3D11::Cubemap();
     }
 
     //**********************************************************************

@@ -1,30 +1,31 @@
 #pragma once
 /**********************************************************************
-    class: Texture (D3D11Texture.h)
+    class: Cubemap (D3D11Cubemap.h)
 
     author: S. Hau
-    date: March 24, 2018
+    date: April 1, 2018
 **********************************************************************/
 
-#include "i_texture2d.hpp"
+#include "i_cubemap.hpp"
 #include "../D3D11.hpp"
 #include "D3D11IBindableTexture.hpp"
 
 namespace Graphics { namespace D3D11 {
 
     //**********************************************************************
-    class Texture2D : public Graphics::ITexture2D, public D3D11::IBindableTexture
+    class Cubemap : public Graphics::ICubemap, public D3D11::IBindableTexture
     {
     public:
-        Texture2D() = default;
-        ~Texture2D();
+        Cubemap() = default;
+        ~Cubemap();
 
         //----------------------------------------------------------------------
-        // ITexture Interface
+        // ICubemap Interface
         //----------------------------------------------------------------------
-        void create(U32 width, U32 height, TextureFormat format, bool generateMips) override;
-        void create(U32 width, U32 height, TextureFormat format, const void* pData) override;
-        void apply(bool updateMips) override;
+        void create(I32 size, TextureFormat format, bool generateMips) override;
+        void setPixel(CubemapFace face, I32 x, I32 y, Color color) override;
+        void setPixels(CubemapFace face, const void* pPixels) override;
+        void apply(bool updateMips = true) override;
 
         //----------------------------------------------------------------------
         // IBindableTexture Interface
@@ -35,24 +36,26 @@ namespace Graphics { namespace D3D11 {
         ID3D11Texture2D*            m_pTexture       = nullptr;
         ID3D11ShaderResourceView*   m_pTextureView   = nullptr;
 
-        bool m_gpuUpToDate = true;
+        bool m_gpuUpToDate  = true;
+        bool m_generateMips = false;
+
+
+        // Heap allocated mem for each face. How large it is depends on width/height and the format
+        void* m_pixels[6] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
 
         //----------------------------------------------------------------------
         // ITexture Interface
         //----------------------------------------------------------------------
         void _UpdateSampler() override { SAFE_RELEASE( m_pSampleState ); _CreateSampler( m_anisoLevel, m_filter, m_clampMode ); }
 
-        //----------------------------------------------------------------------
-        void _CreateTexture();
-        void _CreateTexture(const void* pData);
-        void _CreateShaderResourveView();
+
         void _PushToGPU();
 
         //----------------------------------------------------------------------
-        Texture2D(const Texture2D& other)               = delete;
-        Texture2D& operator = (const Texture2D& other)  = delete;
-        Texture2D(Texture2D&& other)                    = delete;
-        Texture2D& operator = (Texture2D&& other)       = delete;
+        Cubemap(const Cubemap& other)               = delete;
+        Cubemap& operator = (const Cubemap& other)  = delete;
+        Cubemap(Cubemap&& other)                    = delete;
+        Cubemap& operator = (Cubemap&& other)       = delete;
     };
 
 } } // End namespaces

@@ -154,6 +154,7 @@
     <ClCompile Include="src\Include\Graphics\D3D11\Pipeline\Shaders\D3D11PixelShader.cpp" />
     <ClCompile Include="src\Include\Graphics\D3D11\Pipeline\Shaders\D3D11ShaderBase.cpp" />
     <ClCompile Include="src\Include\Graphics\D3D11\Pipeline\Shaders\D3D11VertexShader.cpp" />
+    <ClCompile Include="src\Include\Graphics\D3D11\Resources\D3D11Cubemap.cpp" />
     <ClCompile Include="src\Include\Graphics\D3D11\Resources\D3D11Material.cpp" />
     <ClCompile Include="src\Include\Graphics\D3D11\Resources\D3D11Mesh.cpp" />
     <ClCompile Include="src\Include\Graphics\D3D11\Resources\D3D11RenderTexture.cpp" />
@@ -179,6 +180,7 @@
     <ClInclude Include="src\Include\Graphics\D3D11\D3D11Utility.h" />
     <ClInclude Include="src\Include\Graphics\D3D11\Pipeline\Shaders\D3D11ShaderBase.h" />
     <ClInclude Include="src\Include\Graphics\D3D11\Pipeline\Shaders\D3D11VertexShader.h" />
+    <ClInclude Include="src\Include\Graphics\D3D11\Resources\D3D11Cubemap.h" />
     <ClInclude Include="src\Include\Graphics\D3D11\Resources\D3D11Material.h" />
     <ClInclude Include="src\Include\Graphics\D3D11\Resources\D3D11Mesh.h" />
     <ClInclude Include="src\Include\Graphics\D3D11\Resources\D3D11RenderTexture.h" />
@@ -186,6 +188,7 @@
     <ClInclude Include="src\Include\Graphics\D3D11\Resources\D3D11IBindableTexture.hpp" />
     <ClInclude Include="src\Include\Graphics\D3D11\Resources\D3D11Texture2D.h" />
     <ClInclude Include="src\Include\Graphics\enums.hpp" />
+    <ClInclude Include="src\Include\Graphics\i_cubemap.hpp" />
     <ClInclude Include="src\Include\Graphics\i_material.h" />
     <ClInclude Include="src\Include\Graphics\i_mesh.h" />
     <ClInclude Include="src\Include\Graphics\D3D11\Pipeline\Buffers\D3D11Buffers.h" />

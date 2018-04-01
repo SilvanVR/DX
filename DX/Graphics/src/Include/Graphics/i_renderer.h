@@ -18,6 +18,7 @@ namespace Graphics {
     class CommandBuffer;
     class ITexture2D;
     class IMaterial;
+    class ICubemap;
     class IShader;
     class IMesh;
 
@@ -54,6 +55,7 @@ namespace Graphics {
         virtual IShader*        createShader() = 0;
         virtual ITexture2D*     createTexture2D() = 0;
         virtual IRenderTexture* createRenderTexture() = 0;
+        virtual ICubemap*       createCubemap() = 0;
 
         //----------------------------------------------------------------------
         // Add a global shader to this renderer. A global shader allows to render

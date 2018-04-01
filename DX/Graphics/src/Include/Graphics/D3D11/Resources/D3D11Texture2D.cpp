@@ -14,7 +14,6 @@ namespace Graphics { namespace D3D11 {
     //----------------------------------------------------------------------
     Texture2D::~Texture2D()
     {
-        SAFE_DELETE( m_pixels );
         SAFE_RELEASE( m_pTexture );
         SAFE_RELEASE( m_pTextureView );
     }
@@ -27,8 +26,8 @@ namespace Graphics { namespace D3D11 {
 
         m_isImmutable = false;
         if (m_generateMips)
-            _CalculateMipCount();
-        m_pixels = new Byte[m_width * m_height * ByteCountFromTextureFormat( format )];
+            _UpdateMipCount();
+        m_pixels.resize( m_width * m_height * ByteCountFromTextureFormat( format ) );
 
         _CreateTexture();
         _CreateShaderResourveView();
@@ -50,6 +49,14 @@ namespace Graphics { namespace D3D11 {
     //**********************************************************************
     // PUBLIC
     //**********************************************************************
+
+    //----------------------------------------------------------------------
+    void Texture2D::apply( bool updateMips ) 
+    { 
+        ASSERT( updateMips && (m_mipCount > 1) && "Texture has no mipmaps" );
+        m_generateMips = updateMips;
+        m_gpuUpToDate = false; 
+    }
 
     //----------------------------------------------------------------------
     void Texture2D::bind( U32 slot )
@@ -74,7 +81,7 @@ namespace Graphics { namespace D3D11 {
     // PRIVATE
     //**********************************************************************
 
-        //----------------------------------------------------------------------
+    //----------------------------------------------------------------------
     void Texture2D::_CreateTexture()
     {
         SAFE_RELEASE( m_pTexture );
@@ -141,11 +148,11 @@ namespace Graphics { namespace D3D11 {
     //----------------------------------------------------------------------
     void Texture2D::_PushToGPU()
     {
-        ASSERT( m_pixels != nullptr );
+        ASSERT( not m_pixels.empty() );
 
         // Copy the data into the texture
-        unsigned int rowPitch = (getWidth() * sizeof( Color ));
-        g_pImmediateContext->UpdateSubresource( m_pTexture, 0, NULL, m_pixels, rowPitch, 0 );
+        unsigned int rowPitch = ( getWidth() * ByteCountFromTextureFormat( m_format ) );
+        g_pImmediateContext->UpdateSubresource( m_pTexture, 0, NULL, m_pixels.data(), rowPitch, 0 );
     }
 
 } } // End namespaces

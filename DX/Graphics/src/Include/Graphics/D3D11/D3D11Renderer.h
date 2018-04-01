@@ -42,6 +42,7 @@ namespace Graphics {
         IShader*        createShader() override;
         ITexture2D*     createTexture2D() override;
         IRenderTexture* createRenderTexture() override;
+        ICubemap*       createCubemap() override;
 
         static IRenderTexture* getCurrentRenderTarget() { return s_currentRenderTarget; }
 
