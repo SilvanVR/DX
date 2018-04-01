@@ -8,12 +8,12 @@
 
 #include "i_texture2d.hpp"
 #include "../D3D11.hpp"
-#include "D3D11Texture.hpp"
+#include "D3D11IBindableTexture.hpp"
 
 namespace Graphics { namespace D3D11 {
 
     //**********************************************************************
-    class Texture2D : public ITexture2D, public D3D11Texture
+    class Texture2D : public Graphics::ITexture2D, public D3D11::IBindableTexture
     {
     public:
         Texture2D() = default;
@@ -27,24 +27,22 @@ namespace Graphics { namespace D3D11 {
         void apply() override { m_gpuUpToDate = false; }
 
         //----------------------------------------------------------------------
-        // D3D11Texture Interface
+        // IBindableTexture Interface
         //----------------------------------------------------------------------
         void bind(U32 slot) override;
 
     private:
         ID3D11Texture2D*            m_pTexture       = nullptr;
         ID3D11ShaderResourceView*   m_pTextureView   = nullptr;
-        ID3D11SamplerState*         m_pSampleState   = nullptr;
 
         bool m_gpuUpToDate = true;
 
         //----------------------------------------------------------------------
         // ITexture Interface
         //----------------------------------------------------------------------
-        void _UpdateSampler() override { _CreateSampler(); }
+        void _UpdateSampler() override { SAFE_RELEASE( m_pSampleState ); _CreateSampler( m_anisoLevel, m_filter, m_clampMode ); }
 
         //----------------------------------------------------------------------
-        void _CreateSampler();
         void _CreateTexture();
         void _CreateTexture(const void* pData);
         void _CreateShaderResourveView();

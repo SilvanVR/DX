@@ -183,7 +183,7 @@
     <ClInclude Include="src\Include\Graphics\D3D11\Resources\D3D11Mesh.h" />
     <ClInclude Include="src\Include\Graphics\D3D11\Resources\D3D11RenderTexture.h" />
     <ClInclude Include="src\Include\Graphics\D3D11\Resources\D3D11Shader.h" />
-    <ClInclude Include="src\Include\Graphics\D3D11\Resources\D3D11Texture.hpp" />
+    <ClInclude Include="src\Include\Graphics\D3D11\Resources\D3D11IBindableTexture.hpp" />
     <ClInclude Include="src\Include\Graphics\D3D11\Resources\D3D11Texture2D.h" />
     <ClInclude Include="src\Include\Graphics\enums.hpp" />
     <ClInclude Include="src\Include\Graphics\i_material.h" />

@@ -161,10 +161,10 @@
     <ClInclude Include="src\Include\Graphics\D3D11\Resources\D3D11Texture2D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Include\Graphics\D3D11\Resources\D3D11Texture.hpp">
+    <ClInclude Include="src\Include\Graphics\Utils\utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Include\Graphics\Utils\utils.h">
+    <ClInclude Include="src\Include\Graphics\D3D11\Resources\D3D11IBindableTexture.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

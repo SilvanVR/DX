@@ -23,7 +23,7 @@ namespace Graphics { namespace D3D11 {
             if (m_depth > 0)
                 _CreateDepthBuffer( i );
         }
-        _CreateSampler();
+        _CreateSampler( m_anisoLevel, m_filter, m_clampMode );
     }
 
     //----------------------------------------------------------------------
@@ -37,7 +37,6 @@ namespace Graphics { namespace D3D11 {
             SAFE_RELEASE( m_buffers[i].m_pDepthStencilBuffer );
             SAFE_RELEASE( m_buffers[i].m_pDepthStencilView );
         }
-        SAFE_RELEASE( m_pSampleState );
     }
 
     //**********************************************************************
@@ -49,7 +48,7 @@ namespace Graphics { namespace D3D11 {
     {
         g_pImmediateContext->PSSetSamplers( slot, 1, &m_pSampleState );
 
-        // Bind previous rendered framebuffer
+        // Bind previous rendered buffer
         I32 index = _PreviousBufferIndex();
         g_pImmediateContext->PSSetShaderResources( slot, 1, &m_buffers[index].m_pRenderTextureView );
     }
@@ -57,6 +56,7 @@ namespace Graphics { namespace D3D11 {
     //----------------------------------------------------------------------
     void RenderTexture::bindForRendering()
     {
+        // Bind next buffer
         m_index = (m_index + 1) % NUM_BUFFERS;
         g_pImmediateContext->OMSetRenderTargets( 1, &m_buffers[m_index].m_pRenderTargetView, m_depth == 0 ? nullptr : m_buffers[m_index].m_pDepthStencilView );
     }
@@ -85,7 +85,6 @@ namespace Graphics { namespace D3D11 {
     //----------------------------------------------------------------------
     void RenderTexture::_CreateTexture( I32 index )
     {   
-        // Setup the description of the texture
         D3D11_TEXTURE2D_DESC textureDesc;
         textureDesc.Height              = getHeight();
         textureDesc.Width               = getWidth();
@@ -99,14 +98,12 @@ namespace Graphics { namespace D3D11 {
         textureDesc.CPUAccessFlags      = 0;
         textureDesc.MiscFlags           = 0;
 
-        // Create texture
         HR( g_pDevice->CreateTexture2D( &textureDesc, NULL, &m_buffers[index].m_pRenderTexture) );
     }
 
     //----------------------------------------------------------------------
     void RenderTexture::_CreateViews( I32 index )
     {
-        // Setup the shader resource view description
         D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
         srvDesc.Format = Utility::TranslateTextureFormat( m_format );
         srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
@@ -135,31 +132,6 @@ namespace Graphics { namespace D3D11 {
 
         HR( g_pDevice->CreateTexture2D( &depthStencilDesc, NULL, &m_buffers[index].m_pDepthStencilBuffer) );
         HR( g_pDevice->CreateDepthStencilView( m_buffers[index].m_pDepthStencilBuffer, NULL, &m_buffers[index].m_pDepthStencilView ) );
-    }
-
-    //----------------------------------------------------------------------
-    void RenderTexture::_CreateSampler()
-    {
-        SAFE_RELEASE( m_pSampleState );
-
-        D3D11_SAMPLER_DESC samplerDesc;
-        samplerDesc.Filter = (m_anisoLevel > 1 ? D3D11_FILTER_ANISOTROPIC : Utility::TranslateFilter( m_filter ) );
-
-        auto clampMode = Utility::TranslateClampMode( m_clampMode );
-        samplerDesc.AddressU        = clampMode;
-        samplerDesc.AddressV        = clampMode;
-        samplerDesc.AddressW        = clampMode;
-        samplerDesc.MipLODBias      = 0.0f;
-        samplerDesc.MaxAnisotropy   = m_anisoLevel;
-        samplerDesc.ComparisonFunc  = D3D11_COMPARISON_NEVER;
-        samplerDesc.BorderColor[0]  = 0.0f;
-        samplerDesc.BorderColor[1]  = 0.0f;
-        samplerDesc.BorderColor[2]  = 0.0f;
-        samplerDesc.BorderColor[3]  = 0.0f;
-        samplerDesc.MinLOD          = 0;
-        samplerDesc.MaxLOD          = D3D11_FLOAT32_MAX;
-
-        HR( g_pDevice->CreateSamplerState( &samplerDesc, &m_pSampleState ) );
     }
 
 } } // End namespaces

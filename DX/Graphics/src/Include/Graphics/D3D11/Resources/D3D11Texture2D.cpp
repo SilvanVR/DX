@@ -15,7 +15,6 @@ namespace Graphics { namespace D3D11 {
     Texture2D::~Texture2D()
     {
         SAFE_DELETE( m_pixels );
-        SAFE_RELEASE( m_pSampleState );
         SAFE_RELEASE( m_pTexture );
         SAFE_RELEASE( m_pTextureView );
     }
@@ -33,7 +32,7 @@ namespace Graphics { namespace D3D11 {
 
         _CreateTexture();
         _CreateShaderResourveView();
-        _CreateSampler();
+        _CreateSampler( m_anisoLevel, m_filter, m_clampMode );
     }
 
     //----------------------------------------------------------------------
@@ -45,7 +44,7 @@ namespace Graphics { namespace D3D11 {
         m_isImmutable = true;
         _CreateTexture( pData );
         _CreateShaderResourveView();
-        _CreateSampler();
+        _CreateSampler( m_anisoLevel, m_filter, m_clampMode );
     }
 
     //**********************************************************************
@@ -137,31 +136,6 @@ namespace Graphics { namespace D3D11 {
 
         // Create the shader resource view for the texture
         HR( g_pDevice->CreateShaderResourceView( m_pTexture, &srvDesc, &m_pTextureView ) );
-    }
-
-    //----------------------------------------------------------------------
-    void Texture2D::_CreateSampler()
-    {
-        SAFE_RELEASE( m_pSampleState );
-
-        D3D11_SAMPLER_DESC samplerDesc;
-        samplerDesc.Filter = (m_anisoLevel > 1 ? D3D11_FILTER_ANISOTROPIC : Utility::TranslateFilter( m_filter ) );
-
-        auto clampMode = Utility::TranslateClampMode( m_clampMode );
-        samplerDesc.AddressU        = clampMode;
-        samplerDesc.AddressV        = clampMode;
-        samplerDesc.AddressW        = clampMode;
-        samplerDesc.MipLODBias      = 0.0f;
-        samplerDesc.MaxAnisotropy   = m_anisoLevel;
-        samplerDesc.ComparisonFunc  = D3D11_COMPARISON_NEVER;
-        samplerDesc.BorderColor[0]  = 0.0f;
-        samplerDesc.BorderColor[1]  = 0.0f;
-        samplerDesc.BorderColor[2]  = 0.0f;
-        samplerDesc.BorderColor[3]  = 0.0f;
-        samplerDesc.MinLOD          = 0;
-        samplerDesc.MaxLOD          = D3D11_FLOAT32_MAX;
-
-        HR( g_pDevice->CreateSamplerState( &samplerDesc, &m_pSampleState ) );
     }
 
     //----------------------------------------------------------------------

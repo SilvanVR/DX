@@ -13,23 +13,18 @@
 
 #include "i_render_texture.hpp"
 #include "../D3D11.hpp"
-#include "D3D11Texture.hpp"
+#include "D3D11IBindableTexture.hpp"
 
 namespace Graphics { namespace D3D11 {
 
     //**********************************************************************
-    class RenderTexture : public IRenderTexture, public D3D11Texture
+    class RenderTexture : public Graphics::IRenderTexture, public D3D11::IBindableTexture
     {
         static const I32 NUM_BUFFERS = 2; // Number of render-buffers
 
     public:
         RenderTexture() = default;
         ~RenderTexture();
-
-        //----------------------------------------------------------------------
-        // ITexture Interface
-        //----------------------------------------------------------------------
-        void _UpdateSampler() override {}
 
         //----------------------------------------------------------------------
         // IRenderTexture Interface
@@ -39,7 +34,7 @@ namespace Graphics { namespace D3D11 {
         void bindForRendering() override;
 
         //----------------------------------------------------------------------
-        // D3D11Texture Interface
+        // D3D11ITexture Interface
         //----------------------------------------------------------------------
         void bind(U32 slot) override;
 
@@ -54,16 +49,18 @@ namespace Graphics { namespace D3D11 {
             ID3D11DepthStencilView*     m_pDepthStencilView     = nullptr;
         } m_buffers[NUM_BUFFERS];
 
-        ID3D11SamplerState*             m_pSampleState          = nullptr;
-
         // Ping pong framebuffer index
         I32 m_index = 0;
+
+        //----------------------------------------------------------------------
+        // ITexture Interface
+        //----------------------------------------------------------------------
+        void _UpdateSampler() override { SAFE_RELEASE( m_pSampleState ); _CreateSampler( m_anisoLevel, m_filter, m_clampMode ); }
 
         //----------------------------------------------------------------------
         void _CreateTexture(I32 index);
         void _CreateViews(I32 index);
         void _CreateDepthBuffer(I32 index);
-        void _CreateSampler();
 
         inline I32 _PreviousBufferIndex();
 
