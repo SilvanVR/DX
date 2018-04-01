@@ -23,7 +23,7 @@ namespace Graphics { namespace D3D11 {
         // ICubemap Interface
         //----------------------------------------------------------------------
         void create(I32 size, TextureFormat format, bool generateMips) override;
-        void setPixel(CubemapFace face, I32 x, I32 y, Color color) override;
+        void setPixel(CubemapFace face, U32 x, U32 y, Color color) override;
         void setPixels(CubemapFace face, const void* pPixels) override;
         void apply(bool updateMips = true) override;
 
@@ -39,16 +39,17 @@ namespace Graphics { namespace D3D11 {
         bool m_gpuUpToDate  = true;
         bool m_generateMips = false;
 
-
         // Heap allocated mem for each face. How large it is depends on width/height and the format
-        void* m_pixels[6] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
+        ArrayList<Byte> m_facePixels[6];
 
         //----------------------------------------------------------------------
         // ITexture Interface
         //----------------------------------------------------------------------
         void _UpdateSampler() override { SAFE_RELEASE( m_pSampleState ); _CreateSampler( m_anisoLevel, m_filter, m_clampMode ); }
 
-
+        //----------------------------------------------------------------------
+        void _CreateTexture();
+        void _CreateShaderResourceView();
         void _PushToGPU();
 
         //----------------------------------------------------------------------

@@ -42,7 +42,7 @@ namespace Graphics
         //----------------------------------------------------------------------
         // Apply all previous pixels changes to the texture.
         // @Params:
-        //  "updateMips": If true, mipmaps will be generated. (This does not work for immutable textures)
+        //  "updateMips": If true, mipmaps will be generated. Ignored if not possible.
         //----------------------------------------------------------------------
         virtual void apply(bool updateMips = true) = 0;
 
@@ -57,7 +57,9 @@ namespace Graphics
         //----------------------------------------------------------------------
         void setPixel( U32 x, U32 y, Color color ) 
         { 
-            ASSERT( not isImmutable() && (m_format == TextureFormat::RGBA32 || m_format == TextureFormat::BGRA32) );
+            ASSERT( not isImmutable() 
+                    && (m_format == TextureFormat::RGBA32 || m_format == TextureFormat::BGRA32) 
+                    && x < m_width && y < m_height );
             reinterpret_cast<Color*>( m_pixels.data() )[x + y * m_width] = color; 
         }
 

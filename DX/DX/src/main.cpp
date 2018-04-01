@@ -470,7 +470,7 @@ public:
 
         // Camera 2
         auto renderTex = RESOURCES.createRenderTexture();
-        renderTex->create(400, 400, 24, Graphics::TextureFormat::RGBA32);
+        renderTex->create(400, 400, 24, Graphics::TextureFormat::BGRA32);
         auto cam2GO = createGameObject("Camera2");
         cam2GO->getComponent<Components::Transform>()->position = Math::Vec3(0, 3, -10);
         cam2GO->addComponent<AutoOrbiting>(10.0f);
@@ -609,16 +609,18 @@ public:
         auto dirt = Assets::Importer::LoadTexture("/textures/dirt.jpg");
 
         const I32 size = 512;
-        Color pixels[size];
-        for(I32 i = 0; i < size; i++)
-            pixels[i] = Color::RED;
+        Color colorsPerFace[6] = { Color::WHITE, Color::GREEN, Color::RED, Color::BLUE, Color::ORANGE, Color::VIOLET };
+        ArrayList<Color> colors[6];
+        for(I32 i = 0; i < 6; i++)
+            colors[i].resize(size * size, colorsPerFace[i]);
 
         // CUBEMAPS
         auto cubemap = RESOURCES.createCubemap();
-        cubemap->create(size, Graphics::TextureFormat::RGBA32, false);
+        cubemap->create(size, Graphics::TextureFormat::BGRA32, true);
         for (int i = 0; i < 6; i++){
-            cubemap->setPixels((Graphics::CubemapFace)i, pixels);
+            cubemap->setPixels((Graphics::CubemapFace)i, colors[i].data());
         }
+        cubemap->apply();
         
         // MATERIAL
         auto material = RESOURCES.createMaterial();

@@ -48,7 +48,7 @@ namespace Graphics
         //  "y": Y-Position of the specified face in pixel-coords.
         //  "color": New color of the pixel.
         //----------------------------------------------------------------------
-        virtual void setPixel(CubemapFace face, I32 x, I32 y, Color color) = 0;
+        virtual void setPixel(CubemapFace face, U32 x, U32 y, Color color) = 0;
 
         //----------------------------------------------------------------------
         // Set pixels for a whole cubemap face.
@@ -61,7 +61,7 @@ namespace Graphics
         //----------------------------------------------------------------------
         // Apply all previous setPixel() changes
         // @Params:
-        //  "updateMips": Mipmaps will be updated
+        //  "updateMips": Mipmaps will be updated. Ignored if tex has no mips.
         //----------------------------------------------------------------------
         virtual void apply(bool updateMips = true) = 0;
 

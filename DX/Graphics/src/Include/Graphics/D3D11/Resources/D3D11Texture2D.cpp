@@ -21,10 +21,11 @@ namespace Graphics { namespace D3D11 {
     //----------------------------------------------------------------------
     void Texture2D::create( U32 width, U32 height, TextureFormat format, bool generateMips )
     {
-        ASSERT( width > 0 && height > 0 );
+        ASSERT( width > 0 && height > 0 && m_width == 0 && "Invalid params or texture were already created" );
         ITexture::_Init( width, height, format );
 
         m_isImmutable = false;
+        m_generateMips = generateMips;
         if (m_generateMips)
             _UpdateMipCount();
         m_pixels.resize( m_width * m_height * ByteCountFromTextureFormat( format ) );
@@ -37,7 +38,7 @@ namespace Graphics { namespace D3D11 {
     //----------------------------------------------------------------------
     void Texture2D::create( U32 width, U32 height, TextureFormat format, const void* pData )
     {
-        ASSERT( width > 0 && height > 0 && pData != nullptr );
+        ASSERT( width > 0 && height > 0 && pData != nullptr && m_width == 0 && "Invalid params or texture were already created" );
         ITexture::_Init( width, height, format );
 
         m_isImmutable = true;
@@ -53,9 +54,9 @@ namespace Graphics { namespace D3D11 {
     //----------------------------------------------------------------------
     void Texture2D::apply( bool updateMips ) 
     { 
-        ASSERT( updateMips && (m_mipCount > 1) && "Texture has no mipmaps" );
-        m_generateMips = updateMips;
         m_gpuUpToDate = false; 
+        if (m_mipCount > 1)
+            m_generateMips = updateMips;
     }
 
     //----------------------------------------------------------------------
@@ -84,64 +85,53 @@ namespace Graphics { namespace D3D11 {
     //----------------------------------------------------------------------
     void Texture2D::_CreateTexture()
     {
-        SAFE_RELEASE( m_pTexture );
-        SAFE_RELEASE( m_pTextureView );
+        D3D11_TEXTURE2D_DESC texDesc;
+        texDesc.Height              = getHeight();
+        texDesc.Width               = getWidth();
+        texDesc.MipLevels           = m_generateMips ? 0 : 1;
+        texDesc.ArraySize           = 1;
+        texDesc.Format              = Utility::TranslateTextureFormat( m_format );
+        texDesc.SampleDesc.Count    = 1;
+        texDesc.SampleDesc.Quality  = 0;
+        texDesc.Usage               = D3D11_USAGE_DEFAULT;
+        texDesc.BindFlags           = m_generateMips ? (D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET) : D3D11_BIND_SHADER_RESOURCE;
+        texDesc.CPUAccessFlags      = 0;
+        texDesc.MiscFlags           = m_generateMips ? D3D11_RESOURCE_MISC_GENERATE_MIPS : 0;
 
-        // Setup the description of the texture
-        D3D11_TEXTURE2D_DESC textureDesc;
-        textureDesc.Height              = getHeight();
-        textureDesc.Width               = getWidth();
-        textureDesc.MipLevels           = m_generateMips ? 0 : 1;
-        textureDesc.ArraySize           = 1;
-        textureDesc.Format              = Utility::TranslateTextureFormat( m_format );
-        textureDesc.SampleDesc.Count    = 1;
-        textureDesc.SampleDesc.Quality  = 0;
-        textureDesc.Usage               = D3D11_USAGE_DEFAULT;
-        textureDesc.BindFlags           = m_generateMips ? (D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET) : D3D11_BIND_SHADER_RESOURCE;
-        textureDesc.CPUAccessFlags      = 0;
-        textureDesc.MiscFlags           = m_generateMips ? D3D11_RESOURCE_MISC_GENERATE_MIPS : 0;
-
-        // Create texture
-        HR( g_pDevice->CreateTexture2D( &textureDesc, NULL, &m_pTexture ) );
+        HR( g_pDevice->CreateTexture2D( &texDesc, NULL, &m_pTexture ) );
     }
 
     //----------------------------------------------------------------------
     void Texture2D::_CreateTexture( const void* pData )
     {
-        SAFE_RELEASE( m_pTexture );
-        SAFE_RELEASE( m_pTextureView );
-
-        // Setup the description of the texture
-        D3D11_TEXTURE2D_DESC textureDesc;
-        textureDesc.Height              = getHeight();
-        textureDesc.Width               = getWidth();
-        textureDesc.MipLevels           = 1;
-        textureDesc.ArraySize           = 1;
-        textureDesc.Format              = Utility::TranslateTextureFormat( m_format );
-        textureDesc.SampleDesc.Count    = 1;
-        textureDesc.SampleDesc.Quality  = 0;
-        textureDesc.Usage               = D3D11_USAGE_IMMUTABLE;
-        textureDesc.BindFlags           = D3D11_BIND_SHADER_RESOURCE;
-        textureDesc.CPUAccessFlags      = 0;
-        textureDesc.MiscFlags           = 0;
+        D3D11_TEXTURE2D_DESC texDesc;
+        texDesc.Height              = getHeight();
+        texDesc.Width               = getWidth();
+        texDesc.MipLevels           = 1;
+        texDesc.ArraySize           = 1;
+        texDesc.Format              = Utility::TranslateTextureFormat( m_format );
+        texDesc.SampleDesc.Count    = 1;
+        texDesc.SampleDesc.Quality  = 0;
+        texDesc.Usage               = D3D11_USAGE_IMMUTABLE;
+        texDesc.BindFlags           = D3D11_BIND_SHADER_RESOURCE;
+        texDesc.CPUAccessFlags      = 0;
+        texDesc.MiscFlags           = 0;
         
         D3D11_SUBRESOURCE_DATA subResourceData = {};
         subResourceData.pSysMem = pData;
         subResourceData.SysMemPitch = m_width * ByteCountFromTextureFormat( m_format ) ;
-        HR( g_pDevice->CreateTexture2D( &textureDesc, &subResourceData , &m_pTexture ) );
+        HR( g_pDevice->CreateTexture2D( &texDesc, &subResourceData , &m_pTexture ) );
     }
 
     //----------------------------------------------------------------------
     void Texture2D::_CreateShaderResourveView()
     {
-        // Setup the shader resource view description
         D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
         srvDesc.Format = Utility::TranslateTextureFormat( m_format );
         srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
         srvDesc.Texture2D.MostDetailedMip = 0;
         srvDesc.Texture2D.MipLevels = -1;
 
-        // Create the shader resource view for the texture
         HR( g_pDevice->CreateShaderResourceView( m_pTexture, &srvDesc, &m_pTextureView ) );
     }
 
