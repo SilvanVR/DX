@@ -45,10 +45,6 @@ namespace Core {
             // Record where to render, view- & projection, viewport
             cam->recordGraphicsCommands( cmd, lerp );
 
-            // Add optionally attached command buffer aswell
-            //foreach commandBuffer in camera->commandBuffers
-                //graphicsEngine->dispatch(commandBuffer)
-
             // Do viewfrustum culling with every renderer component
             for (auto& renderer : renderers)
             {
@@ -62,6 +58,10 @@ namespace Core {
 
             // Execute rendering commands
             graphicsEngine.dispatch( cmd );
+
+            // Execute additional cmds
+            for (auto& camCMD : cam->getAdditionalCommandBuffers() )
+                graphicsEngine.dispatch( *camCMD );
         }
     }
 

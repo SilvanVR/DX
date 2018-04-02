@@ -530,15 +530,6 @@ public:
         // GAMEOBJECT
         goModel = createGameObject("Test");
         //goModel->addComponent<ConstantRotation>(0.0f, 20.0f, 20.0f);
-        ArrayList<Math::Vec2> uvs =
-        {
-            Math::Vec2(0.0f, 3.0f),
-            Math::Vec2(0.0f, 0.0f),
-            Math::Vec2(3.0f, 0.0f),
-            Math::Vec2(3.0f, 3.0f)
-        };
-        //plane->setBufferUsage(Graphics::BufferUsage::LongLived);
-        //plane->setUVs(uvs);
         auto mr = goModel->addComponent<Components::MeshRenderer>(plane, material);
 
         auto go2 = createGameObject("Test2");
@@ -549,17 +540,13 @@ public:
         go3->addComponent<Components::MeshRenderer>(plane, customTexMaterial);
         go3->getComponent<Components::Transform>()->position = Math::Vec3(0, 2, 0);
 
+        go->addComponent<Components::MeshRenderer>(cube, dirtMaterial);
+
         LOG("MaterialTestScene initialized!", Color::RED);
     }
 
     void tick(Time::Seconds d) override
     {
-        //for (U32 x = 0; x < tex->getWidth(); x++)
-        //    for (U32 y = 0; y < tex->getHeight(); y++)
-        //        tex->setPixel(x, y, Math::Random::Color());
-        //tex->apply();
-        //F32 s = (sinf( (F32)TIME.getTime().value ) + 1.0f) / 2.0f;
-
         //if(KEYBOARD.wasKeyPressed(Key::NumPad1))
         //    tex2->setClampMode(Graphics::TextureAddressMode::Clamp);
         //if (KEYBOARD.wasKeyPressed(Key::NumPad2))
@@ -581,13 +568,13 @@ public:
     {
         LOG("MaterialTestScene Shutdown!", Color::RED);
     }
-
 };
 
 class CubemapScene : public IScene
 {
     GameObject* goModel;
     Graphics::Material* material;
+    Graphics::CommandBuffer cmd;
 
 public:
     CubemapScene() : IScene("CubemapScene") {}
@@ -601,6 +588,7 @@ public:
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 10.0f, 0.3f);
         //go->addComponent<AutoOrbiting>(10.0f);
         //go->addComponent<Components::Skybox>(cubemap);
+        cam->addCommandBuffer(&cmd);
 
         auto grid = createGameObject("Grid");
         grid->addComponent<GridGeneration>(20);
@@ -613,8 +601,7 @@ public:
         texShader->setRasterizationState({ Graphics::FillMode::Solid, Graphics::CullMode::None });
 
         // CUBEMAPS
-        const I32 size = 512;
-        Color colorsPerFace[6] = { Color::WHITE, Color::GREEN, Color::RED, Color::BLUE, Color::ORANGE, Color::VIOLET };
+        const I32 size = 512;        Color colorsPerFace[6] = { Color::WHITE, Color::GREEN, Color::RED, Color::BLUE, Color::ORANGE, Color::VIOLET };
         ArrayList<Color> colors[6];
         for(I32 i = 0; i < 6; i++)
             colors[i].resize(size * size, colorsPerFace[i]);
@@ -634,8 +621,12 @@ public:
 
         // GAMEOBJECT
         auto go2 = createGameObject("Test2");
-        go2->addComponent<Components::MeshRenderer>(sphere, material);
+       // go2->addComponent<Components::MeshRenderer>(sphere, material);
         go2->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, 0);
+
+        cmd.drawMesh(sphere, material, go2->getComponent<Components::Transform>()->getTransformationMatrix(), 0);
+
+        cam->removeCommandBuffer(&cmd);
 
         LOG("CubemapScene initialized!", Color::RED);
     }
@@ -750,8 +741,6 @@ public:
         LOG( "Shutdown game..." );
     }
 };
-
-
 
 
 int main()

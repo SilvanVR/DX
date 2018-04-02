@@ -18,7 +18,7 @@ namespace Core {
 
     //----------------------------------------------------------------------
     static IScene*  sceneToLoad = nullptr;  // If not null, we have to transition to this scene the next tick
-    static bool     popScene = false;    // If true, pop current scene when transitioning to a new scene
+    static bool     popScene = false;       // If true, pop current scene when transitioning to a new scene
 
     //----------------------------------------------------------------------
     void SceneManager::init()

@@ -85,7 +85,6 @@ namespace Components {
         default:
             WARN_RENDERING( "UNKNOWN CAMERA MODE" );
         }
-
     }
 
     //**********************************************************************

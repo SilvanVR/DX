@@ -65,7 +65,7 @@ namespace Core {
         // @Params:
         //  "scene": The new scene to load.
         //----------------------------------------------------------------------
-        void LoadScene(IScene* scene) { PushScene( scene, true ); }
+        void LoadScene(IScene* scene) { PushScene(scene, true); }
         void LoadSceneAsync(IScene* scene) { PushSceneAsync(scene, true); }
 
         //----------------------------------------------------------------------

@@ -6,7 +6,7 @@
     date: December 25, 2017
 
     Manages all resources in the game:
-    - Stores them
+    - Creates & Stores them
     - Deletes them
 
     Ideas:
@@ -43,26 +43,26 @@ namespace Core { namespace Resources {
         void shutdown() override;
 
         //----------------------------------------------------------------------
-        // Creates a new mesh resource
+        // Creates a new mesh
         //----------------------------------------------------------------------
         Graphics::Mesh* createMesh();
         Graphics::Mesh* createMesh(const ArrayList<Math::Vec3>& vertices, const ArrayList<U32>& indices);
         Graphics::Mesh* createMesh(const ArrayList<Math::Vec3>& vertices, const ArrayList<U32>& indices, const ArrayList<Math::Vec2>& uvs);
 
         //----------------------------------------------------------------------
-        // Creates a new material resource
+        // Creates a new material
         // @Params:
         //  "shader": Shader to use for this material. If null default shader will be applied.
         //----------------------------------------------------------------------
         Graphics::Material* createMaterial(Graphics::Shader* shader = nullptr);
 
         //----------------------------------------------------------------------
-        // Creates a new shader for use by the graphics engine.
+        // Creates a new shader
         //----------------------------------------------------------------------
         Graphics::Shader* createShader(CString name, const OS::Path& vertPath, const OS::Path& fragPath);
 
         //----------------------------------------------------------------------
-        // Creates a new texture resource.
+        // Creates a new texture
         // @Params:
         //  "width": Width of the texture in pixels
         //  "height": Height of the texture in pixels
@@ -72,7 +72,7 @@ namespace Core { namespace Resources {
         Graphics::Texture2D* createTexture2D(U32 width, U32 height, Graphics::TextureFormat format, bool generateMips = true);
 
         //----------------------------------------------------------------------
-        // Creates a new immutable texture resource.
+        // Creates a new immutable texture
         // @Params:
         //  "width": Width of the texture in pixels
         //  "height": Height of the texture in pixels
@@ -92,12 +92,13 @@ namespace Core { namespace Resources {
         //----------------------------------------------------------------------
         Graphics::Cubemap* createCubemap();
 
-
         //----------------------------------------------------------------------
         // Sets the anisotropic filtering for all textures @TODO: move this somewhere else
         //----------------------------------------------------------------------
         void setGlobalAnisotropicFiltering(U32 level);
 
+        //----------------------------------------------------------------------
+        // Unloads every resource which is not being used by anybody
         //----------------------------------------------------------------------
         void UnloadUnusedResources();
 
@@ -115,8 +116,6 @@ namespace Core { namespace Resources {
         ArrayList<Graphics::Shader*>    m_shaders;
         ArrayList<Graphics::Material*>  m_materials;
         ArrayList<Graphics::Texture*>   m_textures;
-
-        HashMap<OS::Path, Graphics::Texture*> m_textureCache;
 
         Graphics::Shader*   m_defaultShader;
         Graphics::Shader*   m_errorShader;

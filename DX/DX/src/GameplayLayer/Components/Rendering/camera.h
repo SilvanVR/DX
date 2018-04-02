@@ -75,13 +75,23 @@ namespace Components {
         // @Return:
         //  Target texture in which this camera renders. Nullptr if rendering to screen.
         //----------------------------------------------------------------------
-        Graphics::RenderTexture* getRenderTarget() { return m_renderTarget; }
+        Graphics::RenderTexture*        getRenderTarget() { return m_renderTarget; }
 
         //----------------------------------------------------------------------
         // Set the render target in which this camera renders. Nullptr means the camera should
         // render to the screen. The viewport will be adapted to cover the whole texture.
         //----------------------------------------------------------------------
         void setRenderTarget(Graphics::RenderTexture* renderTarget) { m_renderTarget = renderTarget; }
+
+        //----------------------------------------------------------------------
+        // Add additional command buffer to this camera
+        //----------------------------------------------------------------------
+        void addCommandBuffer(Graphics::CommandBuffer* cmd) { m_additionalCommandBuffers.push_back(cmd); }
+
+        //----------------------------------------------------------------------
+        // Remove a command buffer from this camera
+        //----------------------------------------------------------------------
+        void removeCommandBuffer(Graphics::CommandBuffer* cmd) { m_additionalCommandBuffers.erase( std::remove( m_additionalCommandBuffers.begin(), m_additionalCommandBuffers.end(), cmd ) ); }
 
         //----------------------------------------------------------------------
         // const DirectX::XMMATRIX& getProjectionMatrix() const { return m_projection; }
@@ -121,10 +131,14 @@ namespace Components {
         // Contains commands to render one frame into the rendertarget
         Graphics::CommandBuffer m_commandBuffer;
 
+        // Additional attached command buffer
+        ArrayList<Graphics::CommandBuffer*> m_additionalCommandBuffers;
+
         //----------------------------------------------------------------------
         friend class Core::GraphicsCommandRecorder;
         void recordGraphicsCommands(Graphics::CommandBuffer& cmd, F32 lerp);
         Graphics::CommandBuffer& getCommandBuffer() { return m_commandBuffer; }
+        ArrayList<Graphics::CommandBuffer*>& getAdditionalCommandBuffers() { return m_additionalCommandBuffers; }
 
         //----------------------------------------------------------------------
         Camera(const Camera& other)               = delete;
