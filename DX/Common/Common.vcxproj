@@ -148,6 +148,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\Include\Events\event.hpp" />
+    <ClInclude Include="src\Include\Events\event_dispatcher.h" />
     <ClInclude Include="src\Include\Math\dxmath_wrapper.h" />
     <ClInclude Include="src\Include\Math\math_utils.h" />
     <ClInclude Include="src\Include\pch.hpp" />
@@ -198,6 +200,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Include\Common\string.cpp" />
+    <ClCompile Include="src\Include\Events\event_dispatcher.cpp" />
     <ClCompile Include="src\Include\Logging\logging.cpp" />
     <ClCompile Include="src\Include\Logging\Console\console.cpp" />
     <ClCompile Include="src\Include\Logging\Console\console_win.cpp" />

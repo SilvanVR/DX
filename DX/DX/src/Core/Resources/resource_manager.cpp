@@ -10,6 +10,8 @@
 
 #include "locator.h"
 #include "default_shaders.hpp"
+#include "Events/event_dispatcher.h"
+#include "Core/event_names.hpp"
 
 namespace Core { namespace Resources {
 
@@ -19,6 +21,10 @@ namespace Core { namespace Resources {
         Locator::getCoreEngine().subscribe( this );
 
         _CreateDefaultAssets();
+
+        // Register to switch scene event
+        Events::Event& evt = Events::EventDispatcher::GetEvent( EVENT_SCENE_CHANGED );
+        evt.addListener( BIND_THIS_FUNC_0_ARGS( &ResourceManager::_OnSceneChanged) );
 
         // HOT-RELOADING CALLBACK
         Locator::getEngineClock().setInterval([this]{
@@ -161,6 +167,12 @@ namespace Core { namespace Resources {
         return cubemap;
     }
 
+    //----------------------------------------------------------------------
+    void ResourceManager::UnloadUnusedResources()
+    {
+        // @TODO
+    }
+
     //**********************************************************************
     // PRIVATE
     //**********************************************************************
@@ -203,6 +215,13 @@ namespace Core { namespace Resources {
 
             Locator::getRenderer().addGlobalMaterial( "Wireframe", m_wireframeMaterial );
         }
+    }
+
+    //----------------------------------------------------------------------
+    void ResourceManager::_OnSceneChanged()
+    {
+        // @TODO: Unload unused res
+        UnloadUnusedResources();
     }
 
 } } // end namespaces

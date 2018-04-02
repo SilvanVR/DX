@@ -624,10 +624,6 @@ public:
        // go2->addComponent<Components::MeshRenderer>(sphere, material);
         go2->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, 0);
 
-        cmd.drawMesh(sphere, material, go2->getComponent<Components::Transform>()->getTransformationMatrix(), 0);
-
-        cam->removeCommandBuffer(&cmd);
-
         LOG("CubemapScene initialized!", Color::RED);
     }
 

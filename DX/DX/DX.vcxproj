@@ -343,6 +343,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Core\event_names.hpp" />
     <ClInclude Include="src\Core\Resources\default_shaders.hpp" />
     <ClInclude Include="src\Assets\importer.h" />
     <ClInclude Include="src\Assets\MeshGenerator\mesh_generator.h" />

@@ -230,5 +230,8 @@
     <ClInclude Include="src\GameplayLayer\Components\skybox.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Core\event_names.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

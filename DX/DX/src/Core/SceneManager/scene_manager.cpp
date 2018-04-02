@@ -13,6 +13,8 @@
 
 #include "locator.h"
 #include "GameplayLayer/i_scene.h"
+#include "Events/event_dispatcher.h"
+#include "Core/event_names.hpp"
 
 namespace Core {
 
@@ -47,6 +49,7 @@ namespace Core {
         {
             _SwitchToScene( sceneToLoad );
             sceneToLoad = nullptr;
+            Events::EventDispatcher::GetEvent( EVENT_SCENE_CHANGED ).invoke();
         }
 
         // Update all scenes in the scene-stack

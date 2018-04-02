@@ -126,6 +126,7 @@ namespace Core { namespace Resources {
 
         //----------------------------------------------------------------------
         void _CreateDefaultAssets();
+        void _OnSceneChanged();
 
         //----------------------------------------------------------------------
         ResourceManager(const ResourceManager& other)               = delete;
