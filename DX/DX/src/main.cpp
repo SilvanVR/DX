@@ -600,6 +600,7 @@ public:
         go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -10);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 10.0f, 0.3f);
         //go->addComponent<AutoOrbiting>(10.0f);
+        //go->addComponent<Components::Skybox>(cubemap);
 
         auto grid = createGameObject("Grid");
         grid->addComponent<GridGeneration>(20);
@@ -610,9 +611,6 @@ public:
         // SHADER
         auto texShader = RESOURCES.createShader("Skybox", "/shaders/skyboxVS.hlsl", "/shaders/skyboxPS.hlsl");
         texShader->setRasterizationState({ Graphics::FillMode::Solid, Graphics::CullMode::None });
-
-        // TEXTURES
-        auto dirt = Assets::Importer::LoadTexture("/textures/dirt.jpg");
 
         // CUBEMAPS
         const I32 size = 512;
@@ -627,25 +625,17 @@ public:
             cubemap->setPixels((Graphics::CubemapFace)i, colors[i].data());
         cubemap->apply();
 
-        //auto cubemap2 = Assets::Importer::LoadCubemap("/textures/checker.jpg", "/textures/checker.jpg", 
-        //                                              "/textures/checker.jpg", "/textures/checker.jpg", 
-        //                                              "/textures/checker.jpg", "/textures/checker.jpg");
-
-        auto cubemap2 = Assets::Importer::LoadCubemap( "/cubemaps/tropical_sunny_day/Left.png", "/cubemaps/tropical_sunny_day/Right.png",
-                                                       "/cubemaps/tropical_sunny_day/Up.png", "/cubemaps/tropical_sunny_day/Down.png",
-                                                       "/cubemaps/tropical_sunny_day/Front.png", "/cubemaps/tropical_sunny_day/Back.png");
-
         // MATERIAL
         auto material = RESOURCES.createMaterial();
         material->setShader(texShader);
-        material->setTexture(SID("Cubemap"), cubemap2);
+        material->setTexture(SID("Cubemap"), cubemap);
         material->setColor(SID("tintColor"), Color::WHITE);
+        material->setPriority(5000);
 
         // GAMEOBJECT
         auto go2 = createGameObject("Test2");
         go2->addComponent<Components::MeshRenderer>(sphere, material);
         go2->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, 0);
-        //go2->getComponent<Components::Transform>()->scale = Math::Vec3(500);
 
         LOG("CubemapScene initialized!", Color::RED);
     }

@@ -19,6 +19,8 @@ namespace Graphics {
     class IMaterial
     {
     public:
+        static const U32 DEFAULT_PRIORITY = 1000;
+
         IMaterial() = default;
         virtual ~IMaterial() {}
 
@@ -26,7 +28,14 @@ namespace Graphics {
         void        setShader(IShader* shader) { m_shader = shader; _ChangedShader(); }
 
         //----------------------------------------------------------------------
-        IShader*    getShader() const { return m_shader; }
+        IShader*    getShader()     const { return m_shader; }
+        U32         getPriority()   const { return m_priority; }
+
+        //----------------------------------------------------------------------
+        // Set the priority for this material. A higher priority means this material
+        // will be drawn before others with a lower priority.
+        //----------------------------------------------------------------------
+        void        setPriority(U32 newPriority) { m_priority = newPriority; }
 
         //**********************************************************************
         // MATERIAL PARAMETERS
@@ -48,7 +57,8 @@ namespace Graphics {
         void setTexture(StringID name, Texture* tex);
 
     protected:
-        IShader* m_shader = nullptr;
+        IShader*    m_shader = nullptr;
+        U32         m_priority = DEFAULT_PRIORITY;
 
         // Data maps
         HashMap<StringID, I32>                  m_intMap;

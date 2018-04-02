@@ -15,6 +15,8 @@
 #include "Resources/D3D11RenderTexture.h"
 #include "Resources/D3D11Cubemap.h"
 
+#include <set>
+
 using namespace DirectX;
 
 namespace Graphics {
@@ -53,6 +55,7 @@ namespace Graphics {
     //----------------------------------------------------------------------
     void D3D11Renderer::dispatch( const CommandBuffer& cmd )
     {
+        // PS: THIS FUNCTION IS HIGHLY INEFFICIENT YET
         // @TODO: Rewrite whole dispatching, add concept of renderpasses
 
         // Depth Prepass first
@@ -64,7 +67,7 @@ namespace Graphics {
         pConstantBufferObject->bindToVertexShader(1);
 
         // Just sort drawcalls quickly by material
-        HashMap<Material*, ArrayList<U32>> sortedMaterials;
+        std::map<Material*, ArrayList<GPUC_DrawMesh*>> sortedMaterials;
 
         auto& commands = cmd.getGPUCommands();
         for ( U32 i = 0; i < commands.size(); i++ )
@@ -104,7 +107,7 @@ namespace Graphics {
                 case GPUCommand::DRAW_MESH:
                 {
                     GPUC_DrawMesh& c = *reinterpret_cast<GPUC_DrawMesh*>( commands[i].get() );
-                    sortedMaterials[c.material].push_back( i );
+                    sortedMaterials[c.material].push_back( &c );
                     break;
                 }
                 default:
@@ -112,9 +115,19 @@ namespace Graphics {
             }
         }
 
-        // Now render by material
+        // Sort shaders by priority
+        auto comp = [](const Material* a, const Material* b) {
+            return a->getPriority() < b->getPriority();
+        };
+        ArrayList<Material*> sortedByPriority;
         for (auto& pair : sortedMaterials)
+            sortedByPriority.push_back(pair.first);
+        std::sort(sortedByPriority.begin(), sortedByPriority.end(), comp);
+
+        // Now render by material
+        for (auto& material : sortedByPriority)
         {
+            // Bind materials
             IShader* shader = nullptr;
             if (m_activeGlobalMaterial)
             {
@@ -124,24 +137,23 @@ namespace Graphics {
             }
             else 
             {
-                shader = pair.first->getShader();
+                shader = material->getShader();
                 shader->bind();
-                pair.first->bind();
+                material->bind();
             }
 
-            for (auto& index : pair.second)
+            // Perform draw calls
+            for (auto& drawCall : sortedMaterials[material])
             {
-                GPUC_DrawMesh& c = *reinterpret_cast<GPUC_DrawMesh*>( commands[index].get() );
-
                 // Update per object buffer
-                pConstantBufferObject->update( &c.modelMatrix, sizeof( DirectX::XMMATRIX ) );
+                pConstantBufferObject->update( &drawCall->modelMatrix, sizeof( DirectX::XMMATRIX ) );
 
                 // Bind buffers
-                auto mesh = reinterpret_cast<D3D11::Mesh*>( c.mesh );
-                mesh->bind( shader->getVertexLayout(), c.subMeshIndex );
+                auto mesh = reinterpret_cast<D3D11::Mesh*>( drawCall->mesh );
+                mesh->bind( shader->getVertexLayout(), drawCall->subMeshIndex );
 
                 // Submit draw call
-                g_pImmediateContext->DrawIndexed( mesh->getIndexCount( c.subMeshIndex ), 0, mesh->getBaseVertex( c.subMeshIndex ) );
+                g_pImmediateContext->DrawIndexed( mesh->getIndexCount( drawCall->subMeshIndex ), 0, mesh->getBaseVertex( drawCall->subMeshIndex ) );
             }
         }
     }

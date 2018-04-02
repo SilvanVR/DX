@@ -14,6 +14,9 @@
 
 namespace Components {
 
+    // Draw skybox at last with depth testing enabled
+    #define MATERIAL_PRIORITY 10000
+
     //----------------------------------------------------------------------
     void Skybox::AddedToGameObject(GameObject* go)
     {
@@ -22,13 +25,13 @@ namespace Components {
         // Create skybox shader
         auto m_skyboxShader = RESOURCES.createShader( "Skybox", "/shaders/skyboxVS.hlsl", "/shaders/skyboxPS.hlsl" );
         m_skyboxShader->setRasterizationState( { Graphics::FillMode::Solid, Graphics::CullMode::Front } );
-        //@TODO: Set Queue
 
         // Create skybox material
         auto m_skyboxMaterial = RESOURCES.createMaterial();
         m_skyboxMaterial->setShader( m_skyboxShader );
         m_skyboxMaterial->setTexture( SID( "Cubemap" ), m_cubemap );
         m_skyboxMaterial->setColor( SID( "tintColor" ), Color::WHITE );
+        m_skyboxMaterial->setPriority( MATERIAL_PRIORITY );
 
         // Create skybox mesh
         auto mesh = Assets::MeshGenerator::CreateCube();

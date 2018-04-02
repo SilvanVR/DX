@@ -30,7 +30,7 @@ namespace Components {
         const Graphics::Cubemap* getCubemap() const { return m_cubemap; }
 
     private:
-        Graphics::Cubemap*  m_cubemap       = nullptr;
+        Graphics::Cubemap* m_cubemap = nullptr;
 
         //----------------------------------------------------------------------
         Skybox(const Skybox& other)               = delete;
