@@ -274,11 +274,11 @@ namespace Graphics { namespace D3D11 {
         D3D_PRIMITIVE_TOPOLOGY dxTopology;
         switch (m_subMeshes[subMeshIndex].topology)
         {
-        case MeshTopology::Lines:       dxTopology = D3D11_PRIMITIVE_TOPOLOGY_LINELIST; break;
-        case MeshTopology::LineStrip:   dxTopology = D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP; break;
-        case MeshTopology::Points:      dxTopology = D3D11_PRIMITIVE_TOPOLOGY_POINTLIST; break;
-        case MeshTopology::Quads: ASSERT(false && "checkThis"); dxTopology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP; break;
-        case MeshTopology::Triangles:   dxTopology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST; break;
+        case MeshTopology::Lines:           dxTopology = D3D11_PRIMITIVE_TOPOLOGY_LINELIST; break;
+        case MeshTopology::LineStrip:       dxTopology = D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP; break;
+        case MeshTopology::Points:          dxTopology = D3D11_PRIMITIVE_TOPOLOGY_POINTLIST; break;
+        case MeshTopology::Triangles:       dxTopology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST; break;
+        case MeshTopology::TriangleStrip:   dxTopology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP; break;
         }
         g_pImmediateContext->IASetPrimitiveTopology( dxTopology );
     }

@@ -25,6 +25,7 @@ namespace Core {
     namespace Profiling         { class Profiler; }
     namespace Input             { class InputManager; }
     namespace Resources         { class ResourceManager; }
+    namespace Debug             { class DebugManager; }
     class IInGameConsole;
     class SceneManager;
 
@@ -55,7 +56,7 @@ namespace Core {
         Graphics::IRenderer*                m_renderer          = nullptr;
         SceneManager*                       m_sceneManager      = nullptr;
         Resources::ResourceManager*         m_resourceManager   = nullptr;
-
+        Debug::DebugManager*                m_debugManager      = nullptr;
 
 
         //----------------------------------------------------------------------

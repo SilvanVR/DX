@@ -694,6 +694,21 @@ public:
             LOG(TS(enabled), Color::BLUE);*/
         }
 
+        if (KEYBOARD.wasKeyPressed(Key::G))
+            DEBUG.drawLine({ 0,0,0 }, { 10,10,10 }, Color::RED, 2);
+
+        if (KEYBOARD.wasKeyPressed(Key::H))
+            DEBUG.drawLine({ 0,0,0 }, { 10,10,0 }, Color::BLUE, 2);
+
+        if (KEYBOARD.wasKeyPressed(Key::H))
+            DEBUG.drawSphere({ 0,5,0 }, 10, Color::BLUE, 5);
+
+        if (KEYBOARD.wasKeyPressed(Key::F))
+            DEBUG.drawRay({ 0,0,0 }, { -100,-100,0 }, Color::GREEN, 2);
+
+        if (KEYBOARD.wasKeyPressed(Key::F))
+            DEBUG.drawBox({ 5,5,5 }, { 10,10,10 }, Color::VIOLET, 5, false);
+
         if (KEYBOARD.wasKeyPressed(Key::R))
             auto go = SCENE.createGameObject("LOL");
 

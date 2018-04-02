@@ -302,6 +302,7 @@
   <ItemGroup>
     <ClCompile Include="src\Assets\importer.cpp" />
     <ClCompile Include="src\Assets\MeshGenerator\mesh_generator.cpp" />
+    <ClCompile Include="src\Core\DebugManager\debug_manager.cpp" />
     <ClCompile Include="src\Ext\StbImage\stb_image.cpp" />
     <ClCompile Include="src\Core\Config\configuration_manager.cpp" />
     <ClCompile Include="src\Core\Config\config_file.cpp" />
@@ -343,6 +344,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Core\DebugManager\debug_manager.h" />
     <ClInclude Include="src\Core\event_names.hpp" />
     <ClInclude Include="src\Core\Resources\default_shaders.hpp" />
     <ClInclude Include="src\Assets\importer.h" />

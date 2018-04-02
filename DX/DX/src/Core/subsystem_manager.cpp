@@ -20,6 +20,7 @@
 #include "Graphics/D3D11/D3D11Renderer.h"
 #include "SceneManager/scene_manager.h"
 #include "Resources/resource_manager.h"
+#include "DebugManager/debug_manager.h"
 
 //----------------------------------------------------------------------
 #define ENABLE_THREADING 1
@@ -88,6 +89,10 @@ namespace Core
         //----------------------------------------------------------------------
         m_resourceManager = initializeSubSystem( new Resources::ResourceManager() );
         LOG( " > ResourceManager initialized!", LOGCOLOR );
+
+        //----------------------------------------------------------------------
+        m_debugManager = initializeSubSystem( new Debug::DebugManager() );
+        LOG( " > DebugManager initialized!", LOGCOLOR );
     }
 
     //----------------------------------------------------------------------
@@ -95,6 +100,10 @@ namespace Core
     {
         // Shutdown every Sub-System here in reversed order to above
         LOG( "<<< Shutting down Sub-Systems >>>", LOGCOLOR  );
+
+        //----------------------------------------------------------------------
+        LOG( " > Shutdown DebugManager...", LOGCOLOR );
+        shutdownSubSystem( m_debugManager );
 
         //----------------------------------------------------------------------
         LOG( " > Shutdown ResourceManager...", LOGCOLOR );

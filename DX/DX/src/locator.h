@@ -34,6 +34,7 @@
 #include "Graphics/i_renderer.h"
 #include "Core/SceneManager/scene_manager.h"
 #include "Core/Resources/resource_manager.h"
+#include "Core/DebugManager/debug_manager.h"
 
 //----------------------------------------------------------------------
 // Defines
@@ -44,6 +45,7 @@
 #define TIME                    Locator::getEngineClock()
 #define SCENE                   Locator::getSceneManager().getCurrentScene()
 #define RESOURCES               Locator::getResourceManager()
+#define DEBUG                   Locator::getDebugManager()
 
 //*********************************************************************
 // Retrieve / Change every subsystem via a static method.
@@ -66,6 +68,7 @@ public:
     static Graphics::IRenderer&                       getRenderer()       { return *gRenderer; }
     static Core::SceneManager&                        getSceneManager()   { return *gSceneManager; }
     static Core::Resources::ResourceManager&          getResourceManager(){ return *gResourceManager; }
+    static Core::Debug::DebugManager&                 getDebugManager()   { return *gDebugManager;}
 
     //----------------------------------------------------------------------
     // Provide a Sub-System
@@ -82,6 +85,7 @@ public:
     static void provide(Graphics::IRenderer* r)                               { gRenderer = r; }
     static void provide(Core::SceneManager* s)                                { gSceneManager = s; }
     static void provide(Core::Resources::ResourceManager* r)                  { gResourceManager = r; }
+    static void provide(Core::Debug::DebugManager* d)                         { gDebugManager = d; }
 
 private:
     static Core::CoreEngine*                          gCoreEngine;
@@ -100,6 +104,7 @@ private:
     static Graphics::IRenderer*                       gRenderer;
     static Core::SceneManager*                        gSceneManager;
     static Core::Resources::ResourceManager*          gResourceManager;
+    static Core::Debug::DebugManager*                 gDebugManager;
 
     //----------------------------------------------------------------------
     Locator()                                   = delete;

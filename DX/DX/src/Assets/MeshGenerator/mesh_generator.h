@@ -22,6 +22,7 @@ namespace Assets {
         //----------------------------------------------------------------------
         static Graphics::Mesh* CreateCube(F32 size = 1.0f);
         static Graphics::Mesh* CreateCube(F32 size, Color color);
+        static Graphics::Mesh* CreateCube(const Math::Vec3& min, const Math::Vec3& max);
 
         //----------------------------------------------------------------------
         // Generates a new cube mesh with uv coordinates (no colors!).
@@ -52,11 +53,14 @@ namespace Assets {
         //----------------------------------------------------------------------
         // Generates a new sphere mesh.
         // @Params:
-        // "size": The size of the plane.
+        // "size": The size of the sphere.
+        // "center": Center of the sphere mesh.
+        // "radius": Radius of the sphere mesh.
         // "color" [opt]: The vertex-color for each vertex.
         //----------------------------------------------------------------------
         static Graphics::Mesh* CreateUVSphere(U32 meridians, U32 parallels);
         static Graphics::Mesh* CreateUVSphere(U32 meridians, U32 parallels, Color color);
+        static Graphics::Mesh* CreateUVSphere(const Math::Vec3& center, F32 radius, U32 meridians, U32 parallels);
 
         //----------------------------------------------------------------------
         // Generates a new grid mesh in the XZ plane.

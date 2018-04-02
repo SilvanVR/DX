@@ -51,6 +51,31 @@ namespace Assets {
     }
 
     //----------------------------------------------------------------------
+    Graphics::Mesh* MeshGenerator::CreateCube( const Math::Vec3& min, const Math::Vec3& max )
+    {
+        ArrayList<Math::Vec3> vertices = {
+            min,
+            Math::Vec3( min.x, max.y, min.z),
+            Math::Vec3( max.x, max.y, min.z),
+            Math::Vec3( max.x, min.y, min.z),
+            Math::Vec3( min.x, min.y, max.z),
+            Math::Vec3( min.x, max.y, max.z),
+            max,
+            Math::Vec3( max.x, min.y, max.z)
+        };
+        ArrayList<U32> indices = {
+            0, 1, 2, 0, 2, 3,
+            4, 6, 5, 4, 7, 6,
+            4, 5, 1, 4, 1, 0,
+            3, 2, 6, 3, 6, 7,
+            1, 5, 6, 1, 6, 2,
+            4, 0, 3, 4, 3, 7
+        };
+
+        return RESOURCES.createMesh( vertices, indices );
+    }
+
+    //----------------------------------------------------------------------
     Graphics::Mesh* MeshGenerator::CreateCubeUV( F32 size )
     {
         ArrayList<Math::Vec3> vertices =
@@ -213,31 +238,33 @@ namespace Assets {
     }
 
     //----------------------------------------------------------------------
-    // Credits @https://github.com/caosdoar/spheres
-    Graphics::Mesh* MeshGenerator::CreateUVSphere( U32 meridians, U32 parallels )
+    Graphics::Mesh* MeshGenerator::CreateUVSphere( const Math::Vec3& center, F32 size, U32 meridians, U32 parallels )
     {
         ArrayList<Math::Vec3>   vertices;
         ArrayList<U32>          indices;
 
-        vertices.emplace_back( 0.0f, 1.0f, 0.0f );
+        // Vertices
+        vertices.emplace_back( center.x, center.y + size, center.z );
         for (U32 j = 0; j < parallels - 1; ++j)
         {
-            F64 const polar = M_PI * F64(j + 1) / F64(parallels);
-            F64 const sp = std::sin(polar);
-            F64 const cp = std::cos(polar);
+            const F64 polar = M_PI * F64(j + 1) / F64( parallels );
+            const F64 sp = std::sin( polar );
+            const F64 cp = std::cos( polar );
             for (U32 i = 0; i < meridians; ++i)
             {
-                F64 const azimuth = 2.0 * M_PI * F64(i) / F64(meridians);
-                F64 const sa = std::sin(azimuth);
-                F64 const ca = std::cos(azimuth);
-                F64 const x = sp * ca;
-                F64 const y = cp;
-                F64 const z = sp * sa;
-                vertices.emplace_back( (F32)x, (F32)y, (F32)z);
+                const F64 azimuth = 2.0 * M_PI * F64( i ) / F64( meridians );
+                const F64 sa = std::sin( azimuth );
+                const F64 ca = std::cos( azimuth );
+                const F64 x = sp * ca;
+                const F64 y = cp;
+                const F64 z = sp * sa;
+                Math::Vec3 vertex( F32(x * size), F32(y * size), F32(z * size) );
+                vertices.push_back( center + vertex );
             }
         }
-        vertices.emplace_back( 0.0f, -1.0f, 0.0f );
+        vertices.emplace_back( center.x, center.y + -size, center.z );
 
+        // Indices
         for (U32 i = 0; i < meridians; ++i)
         {
             U32 const a = i + 1;
@@ -271,8 +298,8 @@ namespace Assets {
             const U32 a = i + meridians * (parallels - 2) + 1;
             const U32 b = (i + 1) % meridians + meridians * (parallels - 2) + 1;
             indices.emplace_back( static_cast<U32>( vertices.size() ) - 1);
-            indices.emplace_back(a);
-            indices.emplace_back(b);
+            indices.emplace_back( a );
+            indices.emplace_back( b );
         }
 
         auto mesh = RESOURCES.createMesh();
@@ -280,6 +307,13 @@ namespace Assets {
         mesh->setIndices( indices );
 
         return mesh;
+    }
+
+    //----------------------------------------------------------------------
+    // Credits @https://github.com/caosdoar/spheres
+    Graphics::Mesh* MeshGenerator::CreateUVSphere( U32 meridians, U32 parallels )
+    {
+        return CreateUVSphere( Math::Vec3(0), 1.0f, meridians, parallels );
     }
 
     //----------------------------------------------------------------------

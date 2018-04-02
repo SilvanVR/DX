@@ -20,3 +20,4 @@ Core::IInGameConsole*                   Locator::gInGameConsole     = nullptr;
 Graphics::IRenderer*                    Locator::gRenderer          = nullptr;
 Core::SceneManager*                     Locator::gSceneManager      = nullptr;
 Core::Resources::ResourceManager*       Locator::gResourceManager   = nullptr;
+Core::Debug::DebugManager*              Locator::gDebugManager      = nullptr;

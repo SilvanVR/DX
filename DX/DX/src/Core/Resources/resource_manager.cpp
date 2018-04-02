@@ -220,7 +220,6 @@ namespace Core { namespace Resources {
     //----------------------------------------------------------------------
     void ResourceManager::_OnSceneChanged()
     {
-        // @TODO: Unload unused res
         UnloadUnusedResources();
     }
 

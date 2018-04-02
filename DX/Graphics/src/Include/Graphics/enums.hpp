@@ -40,7 +40,7 @@ namespace Graphics {
     enum class MeshTopology
     {
         Triangles = 1,
-        Quads,
+        TriangleStrip,
         Lines,
         LineStrip,
         Points
