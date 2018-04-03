@@ -20,6 +20,8 @@ namespace Graphics {
     class IShader
     {
     public:
+        static const U32 DEFAULT_PRIORITY = 1000;
+
         IShader() = default;
         virtual ~IShader() {}
 
@@ -108,10 +110,19 @@ namespace Graphics {
             setBlendState( blendState );
         }
 
+        U32         getPriority()   const { return m_priority; }
+
+        //----------------------------------------------------------------------
+        // Set the priority for this material. A higher priority means this material
+        // will be drawn before others with a lower priority.
+        //----------------------------------------------------------------------
+        void        setPriority(U32 newPriority) { m_priority = newPriority; }
+
     protected:
         // These are only used when configured correctly
-        std::array<F32, 4> m_blendFactors = { 1.0f, 1.0f, 1.0f, 1.0f };
-        String             m_name = "NO NAME";
+        std::array<F32, 4>  m_blendFactors  = { 1.0f, 1.0f, 1.0f, 1.0f };
+        String              m_name          = "NO NAME";
+        U32                 m_priority      = DEFAULT_PRIORITY;
 
     private:
         //----------------------------------------------------------------------

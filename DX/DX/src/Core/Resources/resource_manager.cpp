@@ -215,6 +215,15 @@ namespace Core { namespace Resources {
 
             Locator::getRenderer().addGlobalMaterial( "Wireframe", m_wireframeMaterial );
         }
+
+        // TEXTURES
+        {
+            Color blacks[4] = { Color::BLACK, Color::BLACK, Color::BLACK, Color::BLACK };
+            m_black = createTexture2D( 2, 2, Graphics::TextureFormat::RGBA32, blacks );
+
+            Color whites[4] = { Color::WHITE, Color::WHITE, Color::WHITE, Color::WHITE };
+            m_white = createTexture2D(2, 2, Graphics::TextureFormat::RGBA32, whites);
+        }
     }
 
     //----------------------------------------------------------------------

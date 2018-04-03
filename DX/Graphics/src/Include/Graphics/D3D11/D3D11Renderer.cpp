@@ -117,7 +117,7 @@ namespace Graphics {
 
         // Sort shaders by priority
         auto comp = [](const Material* a, const Material* b) {
-            return a->getPriority() < b->getPriority();
+            return a->getShader()->getPriority() < b->getShader()->getPriority();
         };
         ArrayList<Material*> sortedByPriority;
         for (auto& pair : sortedMaterials)

@@ -590,7 +590,6 @@ class CubemapScene : public IScene
 {
     GameObject* goModel;
     Graphics::Material* material;
-    Graphics::CommandBuffer cmd;
 
 public:
     CubemapScene() : IScene("CubemapScene") {}
@@ -604,7 +603,6 @@ public:
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 10.0f, 0.3f);
         //go->addComponent<AutoOrbiting>(10.0f);
         //go->addComponent<Components::Skybox>(cubemap);
-        cam->addCommandBuffer(&cmd);
 
         auto grid = createGameObject("Grid");
         grid->addComponent<GridGeneration>(20);
@@ -633,7 +631,6 @@ public:
         material->setShader(texShader);
         material->setTexture(SID("Cubemap"), cubemap);
         material->setColor(SID("tintColor"), Color::WHITE);
-        material->setPriority(5000);
 
         // GAMEOBJECT
         auto go2 = createGameObject("Test2");
@@ -646,6 +643,54 @@ public:
     void shutdown() override
     {
         LOG("CubemapScene Shutdown!", Color::RED);
+    }
+
+};
+
+class TestScene : public IScene
+{
+    GameObject* goModel;
+    Graphics::Material* material;
+
+public:
+    TestScene() : IScene("TestScene") {}
+
+    void init() override
+    {
+        // Camera
+        auto go = createGameObject("Camera");
+        auto cam = go->addComponent<Components::Camera>();
+        go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -10);
+        go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 10.0f, 0.3f);
+        //go->addComponent<Components::Skybox>(cubemap);
+
+        createGameObject("Grid")->addComponent<GridGeneration>(20);
+
+        // MESH
+        auto plane = Assets::MeshGenerator::CreatePlane();
+
+        // SHADER
+        auto texShader = RESOURCES.createShader("Skybox", "/shaders/texVS.hlsl", "/shaders/texPS.hlsl");
+
+        // TEXTURES
+        auto tex = Assets::Importer::LoadTexture("/textures/nico.jpg");
+
+        // MATERIAL
+        auto material = RESOURCES.createMaterial();
+        material->setShader(texShader);
+        material->setTexture(SID("tex0"), tex);
+        material->setColor(SID("tintColor"), Color::WHITE);
+
+        // GAMEOBJECT
+        auto go2 = createGameObject("Test2");
+        go2->addComponent<Components::MeshRenderer>(plane, material);
+
+        LOG("TestScene initialized!", Color::RED);
+    }
+
+    void shutdown() override
+    {
+        LOG("TestScene Shutdown!", Color::RED);
     }
 
 };
@@ -680,7 +725,7 @@ public:
 
         IGC_SET_VAR("test", 1.0f);
 
-        Locator::getSceneManager().LoadSceneAsync(new CubemapScene());
+        Locator::getSceneManager().LoadSceneAsync(new TestScene());
     }
 
     //----------------------------------------------------------------------
@@ -737,6 +782,8 @@ public:
         if (KEYBOARD.wasKeyPressed(Key::Four))
             Locator::getSceneManager().LoadSceneAsync(new ManyObjectsScene(10000));
         if (KEYBOARD.wasKeyPressed(Key::Five))
+            Locator::getSceneManager().LoadSceneAsync(new CubemapScene());
+        if (KEYBOARD.wasKeyPressed(Key::Zero))
             Locator::getSceneManager().LoadSceneAsync(new CubemapScene());
 
         if (KEYBOARD.wasKeyPressed(Key::F1))

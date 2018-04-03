@@ -17,6 +17,5 @@ float4 main(FragmentIn fin) : SV_Target
 {
 	float4 textureColor = Cubemap.Sample(sampler0, normalize(fin.tex));
 	
-	//return float4(fin.tex, 1);
 	return textureColor * tintColor;
 }

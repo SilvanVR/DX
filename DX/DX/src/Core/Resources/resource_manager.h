@@ -111,6 +111,9 @@ namespace Core { namespace Resources {
         Graphics::Material*   getDefaultMaterial()    const { return m_defaultMaterial; }
         Graphics::Shader*     getDefaultShader()      const { return m_defaultShader; }
 
+        Graphics::Texture2D*  getBlackTexture() const { return m_black; }
+        Graphics::Texture2D*  getWhiteTexture() const { return m_white; }
+
     private:
         ArrayList<Graphics::Mesh*>      m_meshes;
         ArrayList<Graphics::Shader*>    m_shaders;
@@ -123,6 +126,9 @@ namespace Core { namespace Resources {
 
         Graphics::Material* m_defaultMaterial;
         Graphics::Material* m_wireframeMaterial;
+
+        Graphics::Texture2D* m_black;
+        Graphics::Texture2D* m_white;
 
         //----------------------------------------------------------------------
         void _CreateDefaultAssets();
