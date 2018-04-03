@@ -36,6 +36,9 @@ namespace Graphics {
         void setCameraPerspective(const DirectX::XMMATRIX& view, F32 fov, F32 zNear, F32 zFar);
         void setCameraOrtho(const DirectX::XMMATRIX& view, F32 left, F32 right, F32 bottom, F32 top, F32 zNear, F32 zFar);
         void setViewport(const Graphics::ViewportRect& viewport);
+        void copyTexture(ITexture* srcTex, ITexture* dstTex);
+        void copyTexture(ITexture* srcTex, I32 srcElement, I32 srcMip, ITexture* dstTex, I32 dstElement, I32 dstMip);
+
 
     private:
         ArrayList<std::unique_ptr<GPUCommandBase>> m_gpuCommands;

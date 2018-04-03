@@ -52,9 +52,21 @@ namespace Graphics {
     }
 
     //----------------------------------------------------------------------
-    void CommandBuffer::setViewport(const Graphics::ViewportRect& viewport)
+    void CommandBuffer::setViewport( const Graphics::ViewportRect& viewport )
     {
         m_gpuCommands.push_back( std::make_unique<GPUC_SetViewport>( viewport ) );
+    }
+
+    //----------------------------------------------------------------------
+    void CommandBuffer::copyTexture( ITexture* srcTex, ITexture* dstTex )
+    {
+        m_gpuCommands.push_back( std::make_unique<GPUC_CopyTexture>( srcTex, 0, dstTex, 0, 0 ) );
+    }
+
+    //----------------------------------------------------------------------
+    void CommandBuffer::copyTexture( ITexture* srcTex, I32 srcElement, I32 srcMip, ITexture* dstTex, I32 dstElement, I32 dstMip )
+    {
+        m_gpuCommands.push_back( std::make_unique<GPUC_CopyTexture>( srcTex, srcElement, srcMip, dstTex, dstElement, dstMip ) );
     }
 
 } // End namespaces

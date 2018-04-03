@@ -84,6 +84,17 @@ namespace Core { namespace Resources {
         Graphics::Texture2D* createTexture2D(U32 width, U32 height, Graphics::TextureFormat format, const void* pData);
 
         //----------------------------------------------------------------------
+        // Creates a new texture
+        // @Params:
+        //  "width": Width of the texture in pixels
+        //  "height": Height of the texture in pixels
+        //  "depth": Number of textures in the array
+        //  "format": The format of the texture
+        //  "generateMips": If true a complete mipchain will be generated
+        //----------------------------------------------------------------------
+        Graphics::Texture2DArray* createTexture2DArray(U32 width, U32 height, U32 depth, Graphics::TextureFormat format, bool generateMips = true);
+
+        //----------------------------------------------------------------------
         // Creates a new render texture
         //----------------------------------------------------------------------
         Graphics::RenderTexture* createRenderTexture();

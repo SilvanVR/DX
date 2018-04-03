@@ -109,10 +109,19 @@ namespace Graphics {
                     sortedMaterials[c.material].push_back( &c );
                     break;
                 }
+                case GPUCommand::COPY_TEXTURE:
+                {
+                    GPUC_CopyTexture& c = *reinterpret_cast<GPUC_CopyTexture*>( commands[i].get() );
+                    U32 dstElement = D3D11CalcSubresource( c.dstMip, c.dstElement, c.srcTex->getMipCount() );
+                    U32 srcElement = D3D11CalcSubresource( c.srcMip, c.srcElement, c.dstTex->getMipCount() );
+                    g_pImmediateContext->CopySubresourceRegion( dst, dstElement, 0, 0, 0, src, c.srcElement, NULL );
+                    break;
+                }
                 default:
                     WARN_RENDERING( "Unknown GPU Command in given command buffer!" );
             }
         }
+
 
         // Sort shaders by priority
         auto comp = [](const Material* a, const Material* b) {

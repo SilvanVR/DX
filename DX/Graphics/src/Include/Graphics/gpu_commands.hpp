@@ -25,7 +25,8 @@ namespace Graphics {
         SET_CAMERA_PERSPECTIVE,
         SET_CAMERA_ORTHO,
         SET_VIEWPORT,
-        CLEAR_RENDER_TARGET
+        CLEAR_RENDER_TARGET,
+        COPY_TEXTURE
     };
 
     //**********************************************************************
@@ -112,6 +113,18 @@ namespace Graphics {
               viewport( viewport ) {}
 
         Graphics::ViewportRect viewport;
+    };
+
+    //**********************************************************************
+    struct GPUC_CopyTexture : public GPUCommandBase
+    {
+        GPUC_CopyTexture(ITexture* srcTex, I32 srcElement, I32 srcMip, ITexture* dstTex, I32 dstElement, I32 dstMip)
+            : GPUCommandBase( GPUCommand::COPY_TEXTURE ), 
+            srcTex( srcTex ), srcElement(srcElement ), srcMip( srcMip ), dstTex( dstTex ), dstElement( dstElement ), dstMip( dstMip ){}
+
+        ITexture*   srcTex;
+        ITexture*   dstTex;
+        I32         srcElement, dstElement, srcMip, dstMip;
     };
 
 } // End namespaces

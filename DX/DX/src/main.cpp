@@ -648,7 +648,6 @@ class TestScene : public IScene
 {
     GameObject* goModel;
     Graphics::Material* material;
-    Graphics::Texture2DArray* arr;
 
 public:
     TestScene() : IScene("TestScene") {}
@@ -671,18 +670,17 @@ public:
         auto texShader = RESOURCES.createShader("TextureArray", "/shaders/arrayTexVS.hlsl", "/shaders/arrayTexPS.hlsl");
 
         // TEXTURES
-        //auto tex = Assets::Importer::LoadTexture("/textures/dirt.jpg");
+        auto tex = Assets::Importer::LoadTexture("/textures/dirt.jpg");
         //auto tex2 = Assets::Importer::LoadTexture("/textures/nico.jpg");
 
         Color cols[] = { Color::WHITE, Color::BLUE, Color::GREEN};
 
-        const I32 slices = 2;
+        const I32 slices = 3;
         const I32 size = 8;
         ArrayList<ArrayList<Color>> colors;
         colors.resize(slices);
 
-        arr = Locator::getRenderer().createTexture2DArray();
-        arr->create(size, size, slices, Graphics::TextureFormat::RGBA32, false);
+        auto arr = RESOURCES.createTexture2DArray(size, size, slices, Graphics::TextureFormat::RGBA32, true);
         for (I32 slice = 0; slice < slices; slice++)
         {
             colors[slice].resize(size * size, cols[slice]);
@@ -692,11 +690,15 @@ public:
 
         arr->setFilter(Graphics::TextureFilter::Point);
 
+        Graphics::CommandBuffer copyCmd;
+        copyCmd.copyTexture(tex, 0, 0, arr, 0, 0);
+        Locator::getRenderer().dispatch(copyCmd);
+
         // MATERIAL
         auto material = RESOURCES.createMaterial();
         material->setShader(texShader);
         material->setTexture(SID("texArray"), arr);
-        material->setInt(SID("texIndex"), 0);
+        material->setInt(SID("texIndex"), 2);
 
         // GAMEOBJECT
         auto go2 = createGameObject("Test2");
@@ -705,11 +707,7 @@ public:
         LOG("TestScene initialized!", Color::RED);
     }
 
-    void shutdown() override
-    {
-        SAFE_DELETE(arr);
-        LOG("TestScene Shutdown!", Color::RED);
-    }
+    void shutdown() override { LOG("TestScene Shutdown!", Color::RED); }
 
 };
 

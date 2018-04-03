@@ -145,6 +145,17 @@ namespace Core { namespace Resources {
     }
 
     //----------------------------------------------------------------------
+    Graphics::Texture2DArray* ResourceManager::createTexture2DArray( U32 width, U32 height, U32 depth, Graphics::TextureFormat format, bool generateMips )
+    {
+        auto texture = Locator::getRenderer().createTexture2DArray();
+        texture->create( width, height, depth, format, generateMips );
+
+        m_textures.push_back(texture);
+
+        return texture;
+    }
+
+    //----------------------------------------------------------------------
     void ResourceManager::setGlobalAnisotropicFiltering( U32 level )
     {
         for ( auto& tex : m_textures )
