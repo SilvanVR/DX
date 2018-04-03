@@ -29,7 +29,7 @@ namespace Graphics
     class ICubemap : public ITexture
     {
     public:
-        ICubemap() = default;
+        ICubemap() : ITexture(TextureDimension::Cube) {}
         virtual ~ICubemap() {}
 
         //----------------------------------------------------------------------
@@ -78,6 +78,12 @@ namespace Graphics
             ASSERT( m_facePixels[(I32)face].size() <= sizeInBytes );
             memcpy( m_facePixels[(I32)face].data(), pPixels, sizeInBytes );
         }
+
+        //----------------------------------------------------------------------
+        // Return the pixels for this texture. P.S. This might be empty after
+        // the texture data was uploaded to the gpu.
+        //----------------------------------------------------------------------
+        const ArrayList<Byte>& getPixels(CubemapFace face) const { return m_facePixels[I32(face)]; }
 
     protected:
         // Heap allocated mem for each face. How large it is depends on width/height and the format

@@ -60,12 +60,13 @@ namespace Graphics {
     //----------------------------------------------------------------------
     void CommandBuffer::copyTexture( ITexture* srcTex, ITexture* dstTex )
     {
-        m_gpuCommands.push_back( std::make_unique<GPUC_CopyTexture>( srcTex, 0, dstTex, 0, 0 ) );
+        m_gpuCommands.push_back( std::make_unique<GPUC_CopyTexture>( srcTex, 0, 0, dstTex, 0, 0 ) );
     }
 
     //----------------------------------------------------------------------
     void CommandBuffer::copyTexture( ITexture* srcTex, I32 srcElement, I32 srcMip, ITexture* dstTex, I32 dstElement, I32 dstMip )
     {
+        ASSERT( srcTex->getWidth() == dstTex->getWidth() && srcTex->getHeight() == dstTex->getHeight() && "Textures must be of same size" );
         m_gpuCommands.push_back( std::make_unique<GPUC_CopyTexture>( srcTex, srcElement, srcMip, dstTex, dstElement, dstMip ) );
     }
 

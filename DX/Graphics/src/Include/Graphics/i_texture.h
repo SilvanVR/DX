@@ -16,7 +16,7 @@ namespace Graphics
     class ITexture
     {
     public:
-        ITexture() = default;
+        ITexture(TextureDimension dimension) : m_dimension(dimension) {}
         virtual ~ITexture() = default;
 
         //----------------------------------------------------------------------

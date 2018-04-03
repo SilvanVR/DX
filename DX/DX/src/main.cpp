@@ -644,13 +644,16 @@ public:
     void shutdown() override { LOG("CubemapScene Shutdown!", Color::RED); }
 };
 
-class TestScene : public IScene
+class TexArrayScene : public IScene
 {
     GameObject* goModel;
     Graphics::Material* material;
 
+    Graphics::Texture2D* tex;
+    Graphics::Texture2DArray* arr;
+
 public:
-    TestScene() : IScene("TestScene") {}
+    TexArrayScene() : IScene("TexArrayScene") {}
 
     void init() override
     {
@@ -670,29 +673,80 @@ public:
         auto texShader = RESOURCES.createShader("TextureArray", "/shaders/arrayTexVS.hlsl", "/shaders/arrayTexPS.hlsl");
 
         // TEXTURES
-        auto tex = Assets::Importer::LoadTexture("/textures/dirt.jpg");
+        tex = Assets::Importer::LoadTexture("/textures/dirt.jpg");
         //auto tex2 = Assets::Importer::LoadTexture("/textures/nico.jpg");
 
-        Color cols[] = { Color::WHITE, Color::BLUE, Color::GREEN};
+        Color cols[] = { Color::WHITE, Color::BLUE, Color::GREEN };
 
         const I32 slices = 3;
-        const I32 size = 8;
+        const I32 size = 512;
         ArrayList<ArrayList<Color>> colors;
         colors.resize(slices);
 
-        auto arr = RESOURCES.createTexture2DArray(size, size, slices, Graphics::TextureFormat::RGBA32, true);
+        arr = RESOURCES.createTexture2DArray(size, size, slices, Graphics::TextureFormat::RGBA32, false);
         for (I32 slice = 0; slice < slices; slice++)
         {
             colors[slice].resize(size * size, cols[slice]);
-            arr->setPixels( slice, colors[slice].data() );
+            arr->setPixels(slice, colors[slice].data());
         }
         arr->apply();
-
         arr->setFilter(Graphics::TextureFilter::Point);
 
-        Graphics::CommandBuffer copyCmd;
-        copyCmd.copyTexture(tex, 0, 0, arr, 0, 0);
-        Locator::getRenderer().dispatch(copyCmd);
+        // MATERIAL
+        auto material = RESOURCES.createMaterial();
+        material->setShader(texShader);
+        material->setTexture(SID("texArray"), arr);
+        material->setInt(SID("texIndex"), 2);
+
+        auto material2 = RESOURCES.createMaterial();
+        material2->setShader(texShader);
+        material2->setTexture(SID("texArray"), tex);
+        material2->setInt(SID("texIndex"), 0);
+
+        // GAMEOBJECT
+        auto go2 = createGameObject("Test2");
+        go2->addComponent<Components::MeshRenderer>(plane, material);
+
+        auto go3 = createGameObject("Test3");
+        go3->addComponent<Components::MeshRenderer>(plane, material2);
+        go3->getComponent<Components::Transform>()->position = { 0,5,0 };
+
+        LOG("TexArrayScene initialized!", Color::RED);
+    }
+
+    void shutdown() override { LOG("TexArrayScene Shutdown!", Color::RED); }
+
+};
+
+class TestScene : public IScene
+{
+    GameObject* goModel;
+    Graphics::Material* material;
+
+    Graphics::Texture2D* tex;
+    Graphics::Texture2DArray* arr;
+
+public:
+    TestScene() : IScene("TestScene") {}
+
+    void init() override
+    {
+        // Camera
+        auto go = createGameObject("Camera");
+        auto cam = go->addComponent<Components::Camera>();
+        go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -10);
+        go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 10.0f, 0.3f);
+
+        createGameObject("Grid")->addComponent<GridGeneration>(20);
+
+        // MESH
+        auto plane = Assets::MeshGenerator::CreatePlane();
+
+        // SHADER
+        auto texShader = RESOURCES.createShader("TextureArray", "/shaders/arrayTexVS.hlsl", "/shaders/arrayTexPS.hlsl");
+
+        // TEXTURES
+        tex = Assets::Importer::LoadTexture("/textures/dirt.jpg");
 
         // MATERIAL
         auto material = RESOURCES.createMaterial();
@@ -741,7 +795,7 @@ public:
 
         IGC_SET_VAR("test", 1.0f);
 
-        Locator::getSceneManager().LoadSceneAsync(new TestScene());
+        Locator::getSceneManager().LoadSceneAsync(new TexArrayScene());
     }
 
     //----------------------------------------------------------------------

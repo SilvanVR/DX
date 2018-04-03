@@ -16,11 +16,11 @@ namespace Graphics
     class ITexture2DArray : public ITexture
     {
     public:
-        ITexture2DArray() = default;
+        ITexture2DArray() : ITexture(TextureDimension::Tex2DArray) {}
         virtual ~ITexture2DArray() {}
 
         //----------------------------------------------------------------------
-        U32 depthCount() const { return m_depth; }
+        U32 getDepthCount() const { return m_depth; }
 
         //----------------------------------------------------------------------
         // Creates a new 2d-texture array.
@@ -47,12 +47,20 @@ namespace Graphics
         //  "slice": Texture index.
         //  "pPixels": Pointer to the pixel-data.
         //----------------------------------------------------------------------
-        void setPixels( I32 slice, const void* pPixels )
+        void setPixels(I32 slice, const void* pPixels)
         {
             Size sizeInBytes = m_width * m_height * ByteCountFromTextureFormat( m_format );
             ASSERT( m_pixels[slice].size() <= sizeInBytes );
             memcpy( m_pixels[slice].data(), pPixels, sizeInBytes );
         }
+
+        //----------------------------------------------------------------------
+        // Return the pixels for this texture. P.S. This might be empty after
+        // the texture data was uploaded to the gpu.
+        // @Params:
+        //  "slice": Pixels from the array slice.
+        //----------------------------------------------------------------------
+        const ArrayList<Byte>& getPixels(I32 slice) const { return m_pixels[slice]; }
 
     protected:
         // One array of pixels for each texture.

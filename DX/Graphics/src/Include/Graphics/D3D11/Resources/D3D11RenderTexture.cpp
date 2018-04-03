@@ -31,11 +31,11 @@ namespace Graphics { namespace D3D11 {
     {
         for (I32 i = 0; i < NUM_BUFFERS; i++)
         {
-            SAFE_RELEASE( m_buffers[i].m_pRenderTexture );
-            SAFE_RELEASE( m_buffers[i].m_pRenderTextureView );
-            SAFE_RELEASE( m_buffers[i].m_pRenderTargetView );
-            SAFE_RELEASE( m_buffers[i].m_pDepthStencilBuffer );
-            SAFE_RELEASE( m_buffers[i].m_pDepthStencilView );
+            SAFE_RELEASE( m_buffers[i].pRenderTexture );
+            SAFE_RELEASE( m_buffers[i].pRenderTextureView );
+            SAFE_RELEASE( m_buffers[i].pRenderTargetView );
+            SAFE_RELEASE( m_buffers[i].pDepthStencilBuffer );
+            SAFE_RELEASE( m_buffers[i].pDepthStencilView );
         }
     }
 
@@ -50,7 +50,7 @@ namespace Graphics { namespace D3D11 {
 
         // Bind previous rendered buffer
         I32 index = _PreviousBufferIndex();
-        g_pImmediateContext->PSSetShaderResources( slot, 1, &m_buffers[index].m_pRenderTextureView );
+        g_pImmediateContext->PSSetShaderResources( slot, 1, &m_buffers[index].pRenderTextureView );
     }
 
     //----------------------------------------------------------------------
@@ -58,15 +58,15 @@ namespace Graphics { namespace D3D11 {
     {
         // Bind next buffer
         m_index = (m_index + 1) % NUM_BUFFERS;
-        g_pImmediateContext->OMSetRenderTargets( 1, &m_buffers[m_index].m_pRenderTargetView, m_depth == 0 ? nullptr : m_buffers[m_index].m_pDepthStencilView );
+        g_pImmediateContext->OMSetRenderTargets( 1, &m_buffers[m_index].pRenderTargetView, m_depth == 0 ? nullptr : m_buffers[m_index].pDepthStencilView );
     }
 
     //----------------------------------------------------------------------
     void RenderTexture::clear( Color color, F32 depth, U8 stencil )
     {
-        g_pImmediateContext->ClearRenderTargetView( m_buffers[m_index].m_pRenderTargetView, color.normalized().data() );
+        g_pImmediateContext->ClearRenderTargetView( m_buffers[m_index].pRenderTargetView, color.normalized().data() );
         if (m_depth > 0)
-            g_pImmediateContext->ClearDepthStencilView( m_buffers[m_index].m_pDepthStencilView, (D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL), 1.0f, 0 );
+            g_pImmediateContext->ClearDepthStencilView( m_buffers[m_index].pDepthStencilView, (D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL), 1.0f, 0 );
     }
 
     //**********************************************************************
@@ -98,7 +98,7 @@ namespace Graphics { namespace D3D11 {
         textureDesc.CPUAccessFlags      = 0;
         textureDesc.MiscFlags           = 0;
 
-        HR( g_pDevice->CreateTexture2D( &textureDesc, NULL, &m_buffers[index].m_pRenderTexture) );
+        HR( g_pDevice->CreateTexture2D( &textureDesc, NULL, &m_buffers[index].pRenderTexture) );
     }
 
     //----------------------------------------------------------------------
@@ -110,9 +110,9 @@ namespace Graphics { namespace D3D11 {
         srvDesc.Texture2D.MostDetailedMip = 0;
         srvDesc.Texture2D.MipLevels = -1;
 
-        HR( g_pDevice->CreateShaderResourceView( m_buffers[index].m_pRenderTexture, &srvDesc, &m_buffers[index].m_pRenderTextureView ) );
+        HR( g_pDevice->CreateShaderResourceView( m_buffers[index].pRenderTexture, &srvDesc, &m_buffers[index].pRenderTextureView ) );
 
-        HR( g_pDevice->CreateRenderTargetView( m_buffers[index].m_pRenderTexture, NULL, &m_buffers[index].m_pRenderTargetView ) );
+        HR( g_pDevice->CreateRenderTargetView( m_buffers[index].pRenderTexture, NULL, &m_buffers[index].pRenderTargetView ) );
     }
 
     //----------------------------------------------------------------------
@@ -130,8 +130,8 @@ namespace Graphics { namespace D3D11 {
         depthStencilDesc.CPUAccessFlags = 0;
         depthStencilDesc.MiscFlags      = 0;
 
-        HR( g_pDevice->CreateTexture2D( &depthStencilDesc, NULL, &m_buffers[index].m_pDepthStencilBuffer) );
-        HR( g_pDevice->CreateDepthStencilView( m_buffers[index].m_pDepthStencilBuffer, NULL, &m_buffers[index].m_pDepthStencilView ) );
+        HR( g_pDevice->CreateTexture2D( &depthStencilDesc, NULL, &m_buffers[index].pDepthStencilBuffer) );
+        HR( g_pDevice->CreateDepthStencilView( m_buffers[index].pDepthStencilBuffer, NULL, &m_buffers[index].pDepthStencilView ) );
     }
 
 } } // End namespaces

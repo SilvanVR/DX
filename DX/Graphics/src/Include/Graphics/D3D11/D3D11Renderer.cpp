@@ -112,9 +112,12 @@ namespace Graphics {
                 case GPUCommand::COPY_TEXTURE:
                 {
                     GPUC_CopyTexture& c = *reinterpret_cast<GPUC_CopyTexture*>( commands[i].get() );
-                    U32 dstElement = D3D11CalcSubresource( c.dstMip, c.dstElement, c.srcTex->getMipCount() );
-                    U32 srcElement = D3D11CalcSubresource( c.srcMip, c.srcElement, c.dstTex->getMipCount() );
-                    g_pImmediateContext->CopySubresourceRegion( dst, dstElement, 0, 0, 0, src, c.srcElement, NULL );
+                    U32 dstElement = D3D11CalcSubresource( c.dstMip, c.dstElement, c.dstTex->getMipCount() );
+                    U32 srcElement = D3D11CalcSubresource( c.srcMip, c.srcElement, c.srcTex->getMipCount() );
+                    D3D11::IBindableTexture* dstTex = dynamic_cast<D3D11::IBindableTexture*>( c.dstTex );
+                    D3D11::IBindableTexture* srcTex = dynamic_cast<D3D11::IBindableTexture*>( c.srcTex );
+                    g_pImmediateContext->CopySubresourceRegion( dstTex->getD3D11Texture(), dstElement, 0, 0, 0, 
+                                                                srcTex->getD3D11Texture(), srcElement, NULL );
                     break;
                 }
                 default:

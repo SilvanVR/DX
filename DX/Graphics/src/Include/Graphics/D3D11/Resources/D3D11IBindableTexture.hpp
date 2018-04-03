@@ -23,8 +23,17 @@ namespace Graphics { namespace D3D11 {
         //----------------------------------------------------------------------
         virtual void bind(U32 slot) = 0;
 
+        // Virtual because the render texture has more than one texture
+        virtual ID3D11Texture2D* getD3D11Texture() { return m_pTexture; }
+
     protected:
-        ID3D11SamplerState* m_pSampleState = nullptr;
+        ID3D11SamplerState*         m_pSampleState      = nullptr;
+        ID3D11Texture2D*            m_pTexture          = nullptr;
+        ID3D11ShaderResourceView*   m_pTextureView      = nullptr;
+
+        bool                        m_gpuUpToDate      = true;
+        bool                        m_generateMips     = true;
+        bool                        m_keepPixelsInRAM  = false;
 
         //----------------------------------------------------------------------
         void _CreateSampler( U32 anisoLevel, TextureFilter filter, TextureAddressMode addressMode )

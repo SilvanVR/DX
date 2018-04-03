@@ -16,7 +16,7 @@ namespace Graphics
     class ITexture2D : public ITexture
     {
     public:
-        ITexture2D() = default;
+        ITexture2D() : ITexture(TextureDimension::Tex2D) {}
         virtual ~ITexture2D() {}
 
         //----------------------------------------------------------------------
@@ -87,6 +87,12 @@ namespace Graphics
             ASSERT( not isImmutable() && ( sizeInBytes <= m_pixels.size() ) ); 
             memcpy( m_pixels.data(), pPixels, sizeInBytes );
         }
+
+        //----------------------------------------------------------------------
+        // Return the pixels for this texture. P.S. This might be empty after
+        // the texture data was uploaded to the gpu.
+        //----------------------------------------------------------------------
+        const ArrayList<Byte>& getPixels() const { return m_pixels; }
 
     protected:
         bool                m_isImmutable = true;

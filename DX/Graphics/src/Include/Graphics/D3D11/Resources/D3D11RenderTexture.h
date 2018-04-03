@@ -37,16 +37,17 @@ namespace Graphics { namespace D3D11 {
         // D3D11ITexture Interface
         //----------------------------------------------------------------------
         void bind(U32 slot) override;
+        ID3D11Texture2D* getD3D11Texture() override { return m_buffers[_PreviousBufferIndex()].pRenderTexture; }
 
     private:
         struct
         {
-            ID3D11Texture2D*            m_pRenderTexture        = nullptr;
-            ID3D11ShaderResourceView*   m_pRenderTextureView    = nullptr;
-            ID3D11RenderTargetView*     m_pRenderTargetView     = nullptr;
+            ID3D11Texture2D*            pRenderTexture        = nullptr;
+            ID3D11ShaderResourceView*   pRenderTextureView    = nullptr;
+            ID3D11RenderTargetView*     pRenderTargetView     = nullptr;
 
-            ID3D11Texture2D*            m_pDepthStencilBuffer   = nullptr;
-            ID3D11DepthStencilView*     m_pDepthStencilView     = nullptr;
+            ID3D11Texture2D*            pDepthStencilBuffer   = nullptr;
+            ID3D11DepthStencilView*     pDepthStencilView     = nullptr;
         } m_buffers[NUM_BUFFERS];
 
         // Ping pong framebuffer index

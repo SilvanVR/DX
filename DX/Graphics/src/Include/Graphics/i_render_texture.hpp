@@ -17,7 +17,7 @@ namespace Graphics
     class IRenderTexture : public ITexture
     {
     public:
-        IRenderTexture() = default;
+        IRenderTexture() : ITexture(TextureDimension::Tex2D) {}
         virtual ~IRenderTexture() = default;
 
         //----------------------------------------------------------------------

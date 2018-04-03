@@ -32,13 +32,6 @@ namespace Graphics { namespace D3D11 {
         void bind(U32 slot) override;
 
     private:
-        ID3D11Texture2D*            m_pTexture       = nullptr;
-        ID3D11ShaderResourceView*   m_pTextureView   = nullptr;
-
-        bool m_gpuUpToDate = true;
-        bool m_generateMips = true;
-        bool m_keepPixelsInRAM = false;
-
         //----------------------------------------------------------------------
         // ITexture Interface
         //----------------------------------------------------------------------
