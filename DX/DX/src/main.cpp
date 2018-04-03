@@ -615,7 +615,8 @@ public:
         texShader->setRasterizationState({ Graphics::FillMode::Solid, Graphics::CullMode::None });
 
         // CUBEMAPS
-        const I32 size = 512;        Color colorsPerFace[6] = { Color::WHITE, Color::GREEN, Color::RED, Color::BLUE, Color::ORANGE, Color::VIOLET };
+        const I32 size = 512;
+        Color colorsPerFace[6] = { Color::WHITE, Color::GREEN, Color::RED, Color::BLUE, Color::ORANGE, Color::VIOLET };
         ArrayList<Color> colors[6];
         for(I32 i = 0; i < 6; i++)
             colors[i].resize(size * size, colorsPerFace[i]);
@@ -634,23 +635,20 @@ public:
 
         // GAMEOBJECT
         auto go2 = createGameObject("Test2");
-       // go2->addComponent<Components::MeshRenderer>(sphere, material);
+        go2->addComponent<Components::MeshRenderer>(sphere, material);
         go2->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, 0);
 
         LOG("CubemapScene initialized!", Color::RED);
     }
 
-    void shutdown() override
-    {
-        LOG("CubemapScene Shutdown!", Color::RED);
-    }
-
+    void shutdown() override { LOG("CubemapScene Shutdown!", Color::RED); }
 };
 
 class TestScene : public IScene
 {
     GameObject* goModel;
     Graphics::Material* material;
+    Graphics::Texture2DArray* arr;
 
 public:
     TestScene() : IScene("TestScene") {}
@@ -670,16 +668,35 @@ public:
         auto plane = Assets::MeshGenerator::CreatePlane();
 
         // SHADER
-        auto texShader = RESOURCES.createShader("Skybox", "/shaders/texVS.hlsl", "/shaders/texPS.hlsl");
+        auto texShader = RESOURCES.createShader("TextureArray", "/shaders/arrayTexVS.hlsl", "/shaders/arrayTexPS.hlsl");
 
         // TEXTURES
-        auto tex = Assets::Importer::LoadTexture("/textures/nico.jpg");
+        //auto tex = Assets::Importer::LoadTexture("/textures/dirt.jpg");
+        //auto tex2 = Assets::Importer::LoadTexture("/textures/nico.jpg");
+
+        Color cols[] = { Color::WHITE, Color::BLUE, Color::GREEN};
+
+        const I32 slices = 2;
+        const I32 size = 8;
+        ArrayList<ArrayList<Color>> colors;
+        colors.resize(slices);
+
+        arr = Locator::getRenderer().createTexture2DArray();
+        arr->create(size, size, slices, Graphics::TextureFormat::RGBA32, false);
+        for (I32 slice = 0; slice < slices; slice++)
+        {
+            colors[slice].resize(size * size, cols[slice]);
+            arr->setPixels( slice, colors[slice].data() );
+        }
+        arr->apply();
+
+        arr->setFilter(Graphics::TextureFilter::Point);
 
         // MATERIAL
         auto material = RESOURCES.createMaterial();
         material->setShader(texShader);
-        material->setTexture(SID("tex0"), tex);
-        material->setColor(SID("tintColor"), Color::WHITE);
+        material->setTexture(SID("texArray"), arr);
+        material->setInt(SID("texIndex"), 0);
 
         // GAMEOBJECT
         auto go2 = createGameObject("Test2");
@@ -690,6 +707,7 @@ public:
 
     void shutdown() override
     {
+        SAFE_DELETE(arr);
         LOG("TestScene Shutdown!", Color::RED);
     }
 
@@ -732,8 +750,6 @@ public:
     void tick(Time::Seconds delta) override
     {
         getWindow().setTitle( PROFILER.getUpdateDelta().toString().c_str() );
-        static U64 ticks = 0;
-        ticks++;
 
         //clock.tick( delta );
         //LOG( TS( clock.getTime().value ) );
@@ -757,21 +773,12 @@ public:
 
         if (KEYBOARD.wasKeyPressed(Key::G))
             DEBUG.drawLine({ 0,0,0 }, { 10,10,10 }, Color::RED, 2);
-
-        if (KEYBOARD.wasKeyPressed(Key::H))
-            DEBUG.drawLine({ 0,0,0 }, { 10,10,0 }, Color::BLUE, 2);
-
         if (KEYBOARD.wasKeyPressed(Key::H))
             DEBUG.drawSphere({ 0,5,0 }, 10, Color::BLUE, 5);
-
         if (KEYBOARD.wasKeyPressed(Key::F))
-            DEBUG.drawRay({ 0,0,0 }, { -100,-100,0 }, Color::GREEN, 2);
-
+            DEBUG.drawRay({ 5,5,5 }, { 0,100,0 }, Color::GREEN, 2);
         if (KEYBOARD.wasKeyPressed(Key::F))
             DEBUG.drawCube({ 5,5,5 }, { 10,10,10 }, Color::VIOLET, 5, false);
-
-        if (KEYBOARD.wasKeyPressed(Key::R))
-            auto go = SCENE.createGameObject("LOL");
 
         if (KEYBOARD.wasKeyPressed(Key::One))
             Locator::getSceneManager().LoadSceneAsync(new MyScene);
@@ -784,7 +791,7 @@ public:
         if (KEYBOARD.wasKeyPressed(Key::Five))
             Locator::getSceneManager().LoadSceneAsync(new CubemapScene());
         if (KEYBOARD.wasKeyPressed(Key::Zero))
-            Locator::getSceneManager().LoadSceneAsync(new CubemapScene());
+            Locator::getSceneManager().LoadSceneAsync(new TestScene());
 
         if (KEYBOARD.wasKeyPressed(Key::F1))
             Locator::getRenderer().setGlobalMaterialActive("NONE");
@@ -794,7 +801,7 @@ public:
         if (KEYBOARD.wasKeyPressed(Key::M))
             _ChangeMultiSampling();
 
-        if( KEYBOARD.isKeyDown( Key::Escape ) )
+        if(KEYBOARD.isKeyDown(Key::Escape))
             terminate();
     }
 

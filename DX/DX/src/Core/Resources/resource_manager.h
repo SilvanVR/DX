@@ -21,6 +21,7 @@
 #include "Graphics/i_texture2d.hpp"
 #include "Graphics/i_render_texture.hpp"
 #include "Graphics/i_cubemap.hpp"
+#include "Graphics/i_texture2d_array.hpp"
 
 namespace Core { namespace Resources {
 

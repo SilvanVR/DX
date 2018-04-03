@@ -1,29 +1,28 @@
 #pragma once
 /**********************************************************************
-    class: Texture2D (D3D11Texture2D.h)
+    class: Texture2DArray (D3D11Texture.h)
 
     author: S. Hau
-    date: March 24, 2018
+    date: April 3, 2018
 **********************************************************************/
 
-#include "i_texture2d.hpp"
+#include "i_texture2d_array.hpp"
 #include "../D3D11.hpp"
 #include "D3D11IBindableTexture.hpp"
 
 namespace Graphics { namespace D3D11 {
 
     //**********************************************************************
-    class Texture2D : public Graphics::ITexture2D, public D3D11::IBindableTexture
+    class Texture2DArray : public Graphics::ITexture2DArray, public D3D11::IBindableTexture
     {
     public:
-        Texture2D() = default;
-        ~Texture2D();
+        Texture2DArray() = default;
+        ~Texture2DArray();
 
         //----------------------------------------------------------------------
-        // ITexture Interface
+        // ITexture2DArray Interface
         //----------------------------------------------------------------------
-        void create(U32 width, U32 height, TextureFormat format, bool generateMips) override;
-        void create(U32 width, U32 height, TextureFormat format, const void* pData) override;
+        void create(U32 width, U32 height, U32 depth, TextureFormat format, bool generateMips) override;
         void apply(bool updateMips, bool keepPixelsInRAM) override;
 
         //----------------------------------------------------------------------
@@ -35,9 +34,9 @@ namespace Graphics { namespace D3D11 {
         ID3D11Texture2D*            m_pTexture       = nullptr;
         ID3D11ShaderResourceView*   m_pTextureView   = nullptr;
 
-        bool m_gpuUpToDate = true;
-        bool m_generateMips = true;
-        bool m_keepPixelsInRAM = false;
+        bool m_gpuUpToDate      = true;
+        bool m_generateMips     = true;
+        bool m_keepPixelsInRAM  = false;
 
         //----------------------------------------------------------------------
         // ITexture Interface
@@ -45,16 +44,15 @@ namespace Graphics { namespace D3D11 {
         void _UpdateSampler() override { SAFE_RELEASE( m_pSampleState ); _CreateSampler( m_anisoLevel, m_filter, m_clampMode ); }
 
         //----------------------------------------------------------------------
-        void _CreateTexture();
-        void _CreateTexture(const void* pData);
+        void _CreateTextureArray();
         void _CreateShaderResourveView();
         void _PushToGPU();
 
         //----------------------------------------------------------------------
-        Texture2D(const Texture2D& other)               = delete;
-        Texture2D& operator = (const Texture2D& other)  = delete;
-        Texture2D(Texture2D&& other)                    = delete;
-        Texture2D& operator = (Texture2D&& other)       = delete;
+        Texture2DArray(const Texture2DArray& other)               = delete;
+        Texture2DArray& operator = (const Texture2DArray& other)  = delete;
+        Texture2DArray(Texture2DArray&& other)                    = delete;
+        Texture2DArray& operator = (Texture2DArray&& other)       = delete;
     };
 
 } } // End namespaces

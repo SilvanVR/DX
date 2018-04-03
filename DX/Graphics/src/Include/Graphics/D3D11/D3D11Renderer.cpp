@@ -14,8 +14,7 @@
 #include "Resources/D3D11Texture2D.h"
 #include "Resources/D3D11RenderTexture.h"
 #include "Resources/D3D11Cubemap.h"
-
-#include <set>
+#include "Resources/D3D11Texture2DArray.h"
 
 using namespace DirectX;
 
@@ -189,40 +188,13 @@ namespace Graphics {
     }
 
     //----------------------------------------------------------------------
-    Mesh* D3D11Renderer::createMesh()
-    {
-        return new D3D11::Mesh();
-    }
-
-    //----------------------------------------------------------------------
-    IMaterial* D3D11Renderer::createMaterial()
-    {
-        return new D3D11::Material();
-    }
-
-    //----------------------------------------------------------------------
-    IShader* D3D11Renderer::createShader()
-    {
-        return new D3D11::Shader();
-    }
-
-    //----------------------------------------------------------------------
-    ITexture2D* D3D11Renderer::createTexture2D()
-    {
-        return new D3D11::Texture2D();
-    }
-
-    //----------------------------------------------------------------------
-    IRenderTexture* D3D11Renderer::createRenderTexture()
-    {
-        return new D3D11::RenderTexture();
-    }
-
-    //----------------------------------------------------------------------
-    ICubemap* D3D11Renderer::createCubemap()
-    {
-        return new D3D11::Cubemap();
-    }
+    Mesh*               D3D11Renderer::createMesh()             { return new D3D11::Mesh(); }
+    IMaterial*          D3D11Renderer::createMaterial()         { return new D3D11::Material(); }
+    IShader*            D3D11Renderer::createShader()           { return new D3D11::Shader(); }
+    ITexture2D*         D3D11Renderer::createTexture2D()        { return new D3D11::Texture2D(); }
+    IRenderTexture*     D3D11Renderer::createRenderTexture()    { return new D3D11::RenderTexture(); }
+    ICubemap*           D3D11Renderer::createCubemap()          { return new D3D11::Cubemap(); }
+    ITexture2DArray*    D3D11Renderer::createTexture2DArray()   { return new D3D11::Texture2DArray(); }
 
     //**********************************************************************
     // PRIVATE

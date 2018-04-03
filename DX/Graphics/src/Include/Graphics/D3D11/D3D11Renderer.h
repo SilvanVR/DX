@@ -37,12 +37,13 @@ namespace Graphics {
         void setVSync(bool enabled) override { m_vsync = enabled; }
         void setMultiSampleCount(U32 numSamples) override;
 
-        IMesh*          createMesh() override;
-        IMaterial*      createMaterial() override;
-        IShader*        createShader() override;
-        ITexture2D*     createTexture2D() override;
-        IRenderTexture* createRenderTexture() override;
-        ICubemap*       createCubemap() override;
+        IMesh*              createMesh() override;
+        IMaterial*          createMaterial() override;
+        IShader*            createShader() override;
+        ITexture2D*         createTexture2D() override;
+        IRenderTexture*     createRenderTexture() override;
+        ICubemap*           createCubemap() override;
+        ITexture2DArray*    createTexture2DArray() override;
 
         static IRenderTexture* getCurrentRenderTarget() { return s_currentRenderTarget; }
 

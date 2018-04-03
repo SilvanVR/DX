@@ -1,9 +1,9 @@
-#include "D3D11Texture2D.h"
+#include "D3D11Texture2DArray.h"
 /**********************************************************************
-    class: Texture2D (D3D11Texture2D.cpp)
+    class: Texture2DArray (D3D11Texture2DArray.cpp)
 
     author: S. Hau
-    date: March 24, 2018
+    date: April 3, 2018
 **********************************************************************/
 
 #include "../D3D11Utility.h"
@@ -12,37 +12,28 @@
 namespace Graphics { namespace D3D11 {
 
     //----------------------------------------------------------------------
-    Texture2D::~Texture2D()
+    Texture2DArray::~Texture2DArray()
     {
         SAFE_RELEASE( m_pTexture );
         SAFE_RELEASE( m_pTextureView );
     }
 
     //----------------------------------------------------------------------
-    void Texture2D::create( U32 width, U32 height, TextureFormat format, bool generateMips )
+    void Texture2DArray::create( U32 width, U32 height, U32 depth, TextureFormat format, bool generateMips )
     {
         ASSERT( width > 0 && height > 0 && m_width == 0 && "Invalid params or texture were already created" );
         ITexture::_Init( width, height, format );
 
-        m_isImmutable = false;
+        m_depth = depth;
         m_generateMips = generateMips;
         if (m_generateMips)
             _UpdateMipCount();
-        m_pixels.resize( m_width * m_height * ByteCountFromTextureFormat( format ) );
 
-        _CreateTexture();
-        _CreateShaderResourveView();
-        _CreateSampler( m_anisoLevel, m_filter, m_clampMode );
-    }
+        m_pixels.resize( depth );
+        for (auto& slice : m_pixels)
+            slice.resize( m_width * m_height * ByteCountFromTextureFormat( format ) );
 
-    //----------------------------------------------------------------------
-    void Texture2D::create( U32 width, U32 height, TextureFormat format, const void* pData )
-    {
-        ASSERT( width > 0 && height > 0 && pData != nullptr && m_width == 0 && "Invalid params or texture were already created" );
-        ITexture::_Init( width, height, format );
-
-        m_isImmutable = true;
-        _CreateTexture( pData );
+        _CreateTextureArray();
         _CreateShaderResourveView();
         _CreateSampler( m_anisoLevel, m_filter, m_clampMode );
     }
@@ -52,7 +43,7 @@ namespace Graphics { namespace D3D11 {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    void Texture2D::apply( bool updateMips, bool keepPixelsInRAM )
+    void Texture2DArray::apply( bool updateMips, bool keepPixelsInRAM )
     { 
         m_keepPixelsInRAM = keepPixelsInRAM;
         m_gpuUpToDate = false; 
@@ -61,7 +52,7 @@ namespace Graphics { namespace D3D11 {
     }
 
     //----------------------------------------------------------------------
-    void Texture2D::bind( U32 slot )
+    void Texture2DArray::bind( U32 slot )
     {
         if ( not m_gpuUpToDate )
         {
@@ -84,13 +75,13 @@ namespace Graphics { namespace D3D11 {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    void Texture2D::_CreateTexture()
+    void Texture2DArray::_CreateTextureArray()
     {
         D3D11_TEXTURE2D_DESC texDesc;
         texDesc.Height              = getHeight();
         texDesc.Width               = getWidth();
         texDesc.MipLevels           = m_generateMips ? 0 : 1;
-        texDesc.ArraySize           = 1;
+        texDesc.ArraySize           = m_depth;
         texDesc.Format              = Utility::TranslateTextureFormat( m_format );
         texDesc.SampleDesc.Count    = 1;
         texDesc.SampleDesc.Quality  = 0;
@@ -103,47 +94,31 @@ namespace Graphics { namespace D3D11 {
     }
 
     //----------------------------------------------------------------------
-    void Texture2D::_CreateTexture( const void* pData )
-    {
-        D3D11_TEXTURE2D_DESC texDesc;
-        texDesc.Height              = getHeight();
-        texDesc.Width               = getWidth();
-        texDesc.MipLevels           = 1;
-        texDesc.ArraySize           = 1;
-        texDesc.Format              = Utility::TranslateTextureFormat( m_format );
-        texDesc.SampleDesc.Count    = 1;
-        texDesc.SampleDesc.Quality  = 0;
-        texDesc.Usage               = D3D11_USAGE_IMMUTABLE;
-        texDesc.BindFlags           = D3D11_BIND_SHADER_RESOURCE;
-        texDesc.CPUAccessFlags      = 0;
-        texDesc.MiscFlags           = 0;
-        
-        D3D11_SUBRESOURCE_DATA subResourceData = {};
-        subResourceData.pSysMem = pData;
-        subResourceData.SysMemPitch = m_width * ByteCountFromTextureFormat( m_format ) ;
-        HR( g_pDevice->CreateTexture2D( &texDesc, &subResourceData , &m_pTexture ) );
-    }
-
-    //----------------------------------------------------------------------
-    void Texture2D::_CreateShaderResourveView()
+    void Texture2DArray::_CreateShaderResourveView()
     {
         D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
         srvDesc.Format = Utility::TranslateTextureFormat( m_format );
-        srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-        srvDesc.Texture2D.MostDetailedMip = 0;
-        srvDesc.Texture2D.MipLevels = -1;
+        srvDesc.ViewDimension = D3D_SRV_DIMENSION_TEXTURE2DARRAY;
+        srvDesc.Texture2DArray.MostDetailedMip  = 0;
+        srvDesc.Texture2DArray.MipLevels        = -1;
+        srvDesc.Texture2DArray.FirstArraySlice  = 0;
+        srvDesc.Texture2DArray.ArraySize        = m_depth;
 
         HR( g_pDevice->CreateShaderResourceView( m_pTexture, &srvDesc, &m_pTextureView ) );
     }
 
     //----------------------------------------------------------------------
-    void Texture2D::_PushToGPU()
+    void Texture2DArray::_PushToGPU()
     {
         ASSERT( not m_pixels.empty() );
 
-        // Copy the data into the texture
+        // Upload data to gpu
         U32 rowPitch = ( getWidth() * ByteCountFromTextureFormat( m_format ) );
-        g_pImmediateContext->UpdateSubresource( m_pTexture, 0, NULL, m_pixels.data(), rowPitch, 0 );
+        for ( U32 slice = 0; slice < m_pixels.size(); slice++ )
+        {
+            U32 sliceLevel = D3D11CalcSubresource( 0, slice, m_mipCount );
+            g_pImmediateContext->UpdateSubresource( m_pTexture, sliceLevel, NULL, m_pixels[slice].data(), rowPitch, 0 );
+        }
 
         if ( not m_keepPixelsInRAM )
             m_pixels.clear();
