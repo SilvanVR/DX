@@ -58,8 +58,9 @@ namespace Core {
         // functions. It's guaranteed that OnTick() runs before the Game ticks.
         // @Params:
         //  "subSystem": The subsystem which should be notified.
+        //  "insertFront": Insert the subsystem at the front.
         //----------------------------------------------------------------------
-        void subscribe(ISubSystem* subSystem) { m_subscribers.push_back( subSystem ); }
+        void subscribe(ISubSystem* subSystem, bool insertFront = false);
 
     private:
         Time::MasterClock           m_engineClock;

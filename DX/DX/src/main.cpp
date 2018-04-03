@@ -223,6 +223,22 @@ public:
     }
 };
 
+class DrawFrustum : public Components::IComponent
+{
+public:
+    void Tick(Time::Seconds delta) override
+    {
+        auto cam = getGameObject()->getComponent<Components::Camera>();
+        auto transform = getGameObject()->getComponent<Components::Transform>();
+
+        auto up = transform->rotation.getUp();
+        auto right = transform->rotation.getRight();
+        auto fw = transform->rotation.getForward();
+
+        DEBUG.drawFrustum(transform->position, up, right, fw, cam->getFOV(), cam->getZNear(), cam->getZFar(), cam->getAspectRatio(), Color::RED, 0, true);
+    }
+};
+
 //----------------------------------------------------------------------
 // SCENES
 //----------------------------------------------------------------------
@@ -707,7 +723,7 @@ public:
             DEBUG.drawRay({ 0,0,0 }, { -100,-100,0 }, Color::GREEN, 2);
 
         if (KEYBOARD.wasKeyPressed(Key::F))
-            DEBUG.drawBox({ 5,5,5 }, { 10,10,10 }, Color::VIOLET, 5, false);
+            DEBUG.drawCube({ 5,5,5 }, { 10,10,10 }, Color::VIOLET, 5, false);
 
         if (KEYBOARD.wasKeyPressed(Key::R))
             auto go = SCENE.createGameObject("LOL");
@@ -719,7 +735,7 @@ public:
         if (KEYBOARD.wasKeyPressed(Key::Three))
             Locator::getSceneManager().LoadSceneAsync(new MaterialTestScene);
         if (KEYBOARD.wasKeyPressed(Key::Four))
-            Locator::getSceneManager().LoadSceneAsync(new ManyObjectsScene(100));
+            Locator::getSceneManager().LoadSceneAsync(new ManyObjectsScene(10000));
         if (KEYBOARD.wasKeyPressed(Key::Five))
             Locator::getSceneManager().LoadSceneAsync(new CubemapScene());
 

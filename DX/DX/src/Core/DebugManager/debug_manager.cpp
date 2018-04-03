@@ -15,13 +15,15 @@
 #include "Core/event_names.hpp"
 #include "GameplayLayer/i_scene.h"
 #include "Assets/MeshGenerator/mesh_generator.h"
+#include "Math/math_utils.h"
 
 namespace Core { namespace Debug {
 
     //----------------------------------------------------------------------
     void DebugManager::init()
     {
-        Locator::getCoreEngine().subscribe( this );
+        // Debug manager needs to tick before the scene manager
+        Locator::getCoreEngine().subscribe( this, true );
 
         // Register to switch scene event
         Events::Event& evt = Events::EventDispatcher::GetEvent( EVENT_SCENE_CHANGED );
@@ -81,13 +83,7 @@ namespace Core { namespace Debug {
         mesh->setIndices( { 0, 1 }, 0, Graphics::MeshTopology::Lines );
         mesh->setColors( { color, color } );
 
-        MeshInfo meshInfo;
-        meshInfo.mesh = mesh;
-        meshInfo.duration = duration;
-        meshInfo.depthTest = depthTest;
-        m_currentMeshes.push_back( meshInfo );
-
-        m_commandBuffer.drawMesh( mesh, depthTest ? m_colorMaterial : m_colorMaterialNoDepthTest, DirectX::XMMatrixIdentity(), 0 );
+        _AddMesh( mesh, duration, depthTest );
     }
 
     //----------------------------------------------------------------------
@@ -98,17 +94,11 @@ namespace Core { namespace Debug {
         mesh->setIndices( { 0, 1 }, 0, Graphics::MeshTopology::Lines );
         mesh->setColors( { color, color } );
 
-        MeshInfo meshInfo;
-        meshInfo.mesh = mesh;
-        meshInfo.duration = duration;
-        meshInfo.depthTest = depthTest;
-        m_currentMeshes.push_back( meshInfo );
-
-        m_commandBuffer.drawMesh( mesh, depthTest ? m_colorMaterial : m_colorMaterialNoDepthTest, DirectX::XMMatrixIdentity(), 0 );
+        _AddMesh( mesh, duration, depthTest );
     }
 
     //----------------------------------------------------------------------
-    void DebugManager::drawBox( const Math::Vec3& min, const Math::Vec3& max, Color color, Time::Seconds duration, bool depthTest )
+    void DebugManager::drawCube( const Math::Vec3& min, const Math::Vec3& max, Color color, Time::Seconds duration, bool depthTest )
     {
         // Line for each edge
         ArrayList<Math::Vec3> vertices =
@@ -143,29 +133,52 @@ namespace Core { namespace Debug {
         mesh->setIndices( indices, 0, Graphics::MeshTopology::Lines );
         mesh->setColors( colors );
 
-        MeshInfo meshInfo;
-        meshInfo.mesh       = mesh;
-        meshInfo.duration   = duration;
-        meshInfo.depthTest  = depthTest;
-        m_currentMeshes.push_back( meshInfo );
-
-        m_commandBuffer.drawMesh( mesh, depthTest ? m_colorMaterial : m_colorMaterialNoDepthTest, DirectX::XMMatrixIdentity(), 0 );
+        _AddMesh( mesh, duration, depthTest );
     }
 
     //----------------------------------------------------------------------
-    void DebugManager::drawSphere( const Math::Vec3& center, F32 radius, Color color, Time::Seconds duration, bool depthTest )
+    void DebugManager::drawSphere( const Math::Vec3& pos, F32 radius, Color color, Time::Seconds duration, bool depthTest )
     {
-        auto mesh = Assets::MeshGenerator::CreateUVSphere( center, radius, 30, 30 );
+        auto mesh = Assets::MeshGenerator::CreateUVSphere( pos, radius, 30, 30 );
         ArrayList<Color> colors( mesh->getIndexCount( 0 ), color );
         mesh->setColors( colors );
 
-        MeshInfo meshInfo;
-        meshInfo.mesh       = mesh;
-        meshInfo.duration   = duration;
-        meshInfo.depthTest  = depthTest;
-        m_currentMeshes.push_back( meshInfo );
+        _AddMesh( mesh, duration, depthTest );
+    }
 
-        m_commandBuffer.drawMesh( mesh, depthTest ? m_colorMaterial : m_colorMaterialNoDepthTest, DirectX::XMMatrixIdentity(), 0 );
+    //----------------------------------------------------------------------
+    void DebugManager::drawFrustum( const Math::Vec3& pos, const Math::Vec3& up, const Math::Vec3& right, const Math::Vec3& forward, 
+                                    F32 fovAngleYRad, F32 zNear, F32 zFar, F32 aspectRatio,
+                                    Color color, Time::Seconds duration, bool depthTest )
+    {
+        auto frustumCorners = Math::CalculateFrustumCorners( pos, up, right, forward, fovAngleYRad, zNear, zFar, aspectRatio );
+        ArrayList<Math::Vec3> vertices( frustumCorners.begin(), frustumCorners.end() );
+
+        enum corner { NEAR_TOP_LEFT = 0, NEAR_TOP_RIGHT = 1, NEAR_BOTTOM_LEFT = 2, NEAR_BOTTOM_RIGHT = 3,
+                      FAR_TOP_LEFT = 4, FAR_TOP_RIGHT = 5, FAR_BOTTOM_LEFT = 6, FAR_BOTTOM_RIGHT = 7 };
+
+        ArrayList<U32> indices = {
+            NEAR_TOP_LEFT, NEAR_TOP_RIGHT,
+            NEAR_BOTTOM_LEFT, NEAR_BOTTOM_RIGHT,
+            NEAR_TOP_LEFT, NEAR_BOTTOM_LEFT,
+            NEAR_TOP_RIGHT, NEAR_BOTTOM_RIGHT,
+            FAR_TOP_LEFT, FAR_TOP_RIGHT,
+            FAR_BOTTOM_LEFT, FAR_BOTTOM_RIGHT,
+            FAR_TOP_LEFT, FAR_BOTTOM_LEFT,
+            FAR_TOP_RIGHT, FAR_BOTTOM_RIGHT,
+            NEAR_TOP_LEFT, FAR_TOP_LEFT,
+            NEAR_TOP_RIGHT, FAR_TOP_RIGHT,
+            NEAR_BOTTOM_LEFT, FAR_BOTTOM_LEFT,
+            NEAR_BOTTOM_RIGHT, FAR_BOTTOM_RIGHT
+        };
+
+        ArrayList<Color> colors( indices.size(), color );
+        auto mesh = RESOURCES.createMesh();
+        mesh->setVertices( vertices );
+        mesh->setIndices( indices, 0, Graphics::MeshTopology::Lines );
+        mesh->setColors( colors );
+
+        _AddMesh( mesh, duration, depthTest );
     }
 
     //**********************************************************************
@@ -186,9 +199,24 @@ namespace Core { namespace Debug {
     //----------------------------------------------------------------------
     void DebugManager::_OnSceneChanged()
     {
+        m_currentMeshes.clear();
+        _UpdateCommandBuffer();
+
         // Re-Add the command buffer to the new cameras in the scene
         for ( auto& cam : SCENE.getComponentManager().getCameras() )
             cam->addCommandBuffer( &m_commandBuffer );
+    }
+
+    //----------------------------------------------------------------------
+    void DebugManager::_AddMesh( Graphics::Mesh* mesh, Time::Seconds duration, bool depthTest )
+    {
+        MeshInfo meshInfo;
+        meshInfo.mesh       = mesh;
+        meshInfo.duration   = duration;
+        meshInfo.depthTest  = depthTest;
+        m_currentMeshes.push_back( meshInfo );
+
+        m_commandBuffer.drawMesh( mesh, depthTest ? m_colorMaterial : m_colorMaterialNoDepthTest, DirectX::XMMatrixIdentity(), 0 );
     }
 
 } } // end namespaces

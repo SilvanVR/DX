@@ -32,12 +32,19 @@ namespace Core { namespace Debug {
         //----------------------------------------------------------------------
         // Draws a box in wireframe.
         //----------------------------------------------------------------------
-        void drawBox(const Math::Vec3& min, const Math::Vec3& max, Color color, Time::Seconds duration, bool depthTest = true);
+        void drawCube(const Math::Vec3& min, const Math::Vec3& max, Color color, Time::Seconds duration, bool depthTest = true);
 
         //----------------------------------------------------------------------
         // Draws a sphere in wireframe.
         //----------------------------------------------------------------------
         void drawSphere(const Math::Vec3& center, F32 radius, Color color, Time::Seconds duration, bool depthTest = true);
+
+        //----------------------------------------------------------------------
+        // Draws a frustum in wireframe.
+        //----------------------------------------------------------------------
+        void drawFrustum(const Math::Vec3& pos, const Math::Vec3& up, const Math::Vec3& right, const Math::Vec3& forward,
+                         F32 fovAngleYRad, F32 zNear, F32 zFar, F32 aspectRatio,
+                         Color color, Time::Seconds duration, bool depthTest = true);
 
     private:
         // Stores rendering commands for drawing the entire debug stuff
@@ -63,6 +70,7 @@ namespace Core { namespace Debug {
         //----------------------------------------------------------------------
         void _OnSceneChanged();
         void _UpdateCommandBuffer();
+        inline void _AddMesh(Graphics::Mesh* mesh, Time::Seconds duration, bool depthTest);
 
         //----------------------------------------------------------------------
         DebugManager(const DebugManager& other)               = delete;
