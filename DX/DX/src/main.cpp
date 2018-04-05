@@ -223,7 +223,7 @@ public:
     }
 };
 
-class DrawFrustum : public Components::IComponent
+class DrawFrustumDebug : public Components::IComponent
 {
 public:
     void Tick(Time::Seconds delta) override
@@ -236,6 +236,20 @@ public:
         auto fw = transform->rotation.getForward();
 
         DEBUG.drawFrustum(transform->position, up, right, fw, cam->getFOV(), cam->getZNear(), cam->getZFar(), cam->getAspectRatio(), Color::RED, 0, true);
+    }
+};
+
+class DrawFrustum : public Components::IComponent
+{
+public:
+    void AddedToGameObject(GameObject* go) override
+    {
+        auto cam = go->getComponent<Components::Camera>();
+        auto mesh = Assets::MeshGenerator::CreateFrustum( Math::Vec3(0), Math::Vec3::UP, Math::Vec3::RIGHT, Math::Vec3::FORWARD, 
+                                                          cam->getFOV(), cam->getZNear(), cam->getZFar(), cam->getAspectRatio() );
+
+        auto mr = go->addComponent<Components::MeshRenderer>();
+        mr->setMesh( mesh );
     }
 };
 
@@ -335,12 +349,12 @@ public:
     }
 };
 
-class MyScene : public IScene
+class VertexGenScene : public IScene
 {
     GameObject* goModel;
 
 public:
-    MyScene() : IScene("MyScene"){}
+    VertexGenScene() : IScene("VertexGenScene"){}
 
     void init() override
     {
@@ -395,7 +409,7 @@ public:
             //cam2->getViewport().width = 0.5f;
         }
 
-        LOG("MyScene initialized!", Color::RED);
+        LOG("VertexGenScene initialized!", Color::RED);
     }
 
     void tick( Time::Seconds d ) override
@@ -403,21 +417,12 @@ public:
         static F32 speed = 50.0f;
         F32 delta = (F32)d.value;
         if (KEYBOARD.isKeyDown(Key::Add))
-        {
-            //cam->setFOV(cam->getFOV() + speed * (F32)delta.value);
             goModel->getComponent<Components::Transform>()->scale.y += speed * delta;
-        }
         if (KEYBOARD.isKeyDown(Key::Subtract))
-        {
-            //cam->setFOV(cam->getFOV() - speed * delta);
             goModel->getComponent<Components::Transform>()->scale.y -= speed * delta;
-        }
     }
 
-    void shutdown() override
-    {
-        LOG("MyScene Shutdown!", Color::RED);
-    }
+    void shutdown() override { LOG("VertexGenScene Shutdown!", Color::RED); }
 
 };
 
@@ -466,7 +471,6 @@ public:
 
 class MaterialTestScene : public IScene
 {
-    GameObject* goModel;
     Graphics::Material* material;
 
     Graphics::Texture2D* tex;
@@ -544,7 +548,7 @@ public:
         customTexMaterial->setColor(SID("tintColor"), Color::WHITE);
 
         // GAMEOBJECT
-        goModel = createGameObject("Test");
+        auto goModel = createGameObject("Test");
         //goModel->addComponent<ConstantRotation>(0.0f, 20.0f, 20.0f);
         auto mr = goModel->addComponent<Components::MeshRenderer>(plane, material);
 
@@ -646,9 +650,6 @@ public:
 
 class TexArrayScene : public IScene
 {
-    GameObject* goModel;
-    Graphics::Material* material;
-
     Graphics::Texture2D* tex;
     Graphics::Texture2DArray* arr;
 
@@ -676,7 +677,7 @@ public:
         tex = Assets::Importer::LoadTexture("/textures/dirt.jpg");
         //auto tex2 = Assets::Importer::LoadTexture("/textures/nico.jpg");
 
-        Color cols[] = { Color::WHITE, Color::BLUE, Color::GREEN };
+        Color cols[] = { Color::RED, Color::BLUE, Color::GREEN };
 
         const I32 slices = 3;
         const I32 size = 512;
@@ -696,12 +697,17 @@ public:
         auto material = RESOURCES.createMaterial();
         material->setShader(texShader);
         material->setTexture(SID("texArray"), arr);
-        material->setInt(SID("texIndex"), 2);
+        material->setInt(SID("texIndex"), 0);
 
         auto material2 = RESOURCES.createMaterial();
         material2->setShader(texShader);
-        material2->setTexture(SID("texArray"), tex);
-        material2->setInt(SID("texIndex"), 0);
+        material2->setTexture(SID("texArray"), arr);
+        material2->setInt(SID("texIndex"), 1);
+
+        auto material3 = RESOURCES.createMaterial();
+        material3->setShader(texShader);
+        material3->setTexture(SID("texArray"), arr);
+        material3->setInt(SID("texIndex"), 2);
 
         // GAMEOBJECT
         auto go2 = createGameObject("Test2");
@@ -709,23 +715,20 @@ public:
 
         auto go3 = createGameObject("Test3");
         go3->addComponent<Components::MeshRenderer>(plane, material2);
-        go3->getComponent<Components::Transform>()->position = { 0,5,0 };
+        go3->getComponent<Components::Transform>()->position.x = -2;
+
+        auto go4 = createGameObject("Test4");
+        go4->addComponent<Components::MeshRenderer>(plane, material3);
+        go4->getComponent<Components::Transform>()->position.x = 2;
 
         LOG("TexArrayScene initialized!", Color::RED);
     }
 
     void shutdown() override { LOG("TexArrayScene Shutdown!", Color::RED); }
-
 };
 
 class TestScene : public IScene
 {
-    GameObject* goModel;
-    Graphics::Material* material;
-
-    Graphics::Texture2D* tex;
-    Graphics::Texture2DArray* arr;
-
 public:
     TestScene() : IScene("TestScene") {}
 
@@ -737,26 +740,27 @@ public:
         go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -10);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 10.0f, 0.3f);
 
+        auto go3 = createGameObject("Camera2");
+        auto cam2 = go3->addComponent<Components::Camera>();
+        go3->getComponent<Components::Transform>()->position = Math::Vec3(0, 5, -10);
+        go3->addComponent<AutoOrbiting>(10.0f);
+
+        cam2->setClearMode(Components::Camera::EClearMode::NONE);
+        cam2->setZFar(20.0f);
+        cam2->getViewport().width  = 0.25f;
+        cam2->getViewport().height = 0.25f;
+
+        go3->addComponent<DrawFrustum>();
+
         createGameObject("Grid")->addComponent<GridGeneration>(20);
 
         // MESH
         auto plane = Assets::MeshGenerator::CreatePlane();
-
-        // SHADER
-        auto texShader = RESOURCES.createShader("TextureArray", "/shaders/arrayTexVS.hlsl", "/shaders/arrayTexPS.hlsl");
-
-        // TEXTURES
-        tex = Assets::Importer::LoadTexture("/textures/dirt.jpg");
-
-        // MATERIAL
-        auto material = RESOURCES.createMaterial();
-        material->setShader(texShader);
-        material->setTexture(SID("texArray"), arr);
-        material->setInt(SID("texIndex"), 2);
+        plane->setColors(planeColors);
 
         // GAMEOBJECT
         auto go2 = createGameObject("Test2");
-        go2->addComponent<Components::MeshRenderer>(plane, material);
+        go2->addComponent<Components::MeshRenderer>(plane);
 
         LOG("TestScene initialized!", Color::RED);
     }
@@ -795,7 +799,7 @@ public:
 
         IGC_SET_VAR("test", 1.0f);
 
-        Locator::getSceneManager().LoadSceneAsync(new TexArrayScene());
+        Locator::getSceneManager().LoadSceneAsync(new TestScene());
     }
 
     //----------------------------------------------------------------------
@@ -833,7 +837,7 @@ public:
             DEBUG.drawCube({ 5,5,5 }, { 10,10,10 }, Color::VIOLET, 5, false);
 
         if (KEYBOARD.wasKeyPressed(Key::One))
-            Locator::getSceneManager().LoadSceneAsync(new MyScene);
+            Locator::getSceneManager().LoadSceneAsync(new VertexGenScene);
         if (KEYBOARD.wasKeyPressed(Key::Two))
             Locator::getSceneManager().LoadSceneAsync(new SceneCameras);
         if (KEYBOARD.wasKeyPressed(Key::Three))

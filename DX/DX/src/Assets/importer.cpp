@@ -46,30 +46,31 @@ namespace Assets
         auto posZPixels = stbi_load( posZ.c_str(), &width, &height, &bpp, 4 );
         auto negZPixels = stbi_load( negZ.c_str(), &width, &height, &bpp, 4 );
 
-        if (posXPixels)
-        {
-            auto cubemap = RESOURCES.createCubemap();
-            cubemap->create( width, Graphics::TextureFormat::RGBA32, generateMips );
-      
-            cubemap->setPixels( Graphics::CubemapFace::PositiveX, posXPixels );
-            cubemap->setPixels( Graphics::CubemapFace::NegativeX, negXPixels );
-            cubemap->setPixels( Graphics::CubemapFace::PositiveY, posYPixels );
-            cubemap->setPixels( Graphics::CubemapFace::NegativeY, negYPixels );
-            cubemap->setPixels( Graphics::CubemapFace::PositiveZ, posZPixels );
-            cubemap->setPixels( Graphics::CubemapFace::NegativeZ, negZPixels );
-
-            stbi_image_free( posXPixels );
-            stbi_image_free( negXPixels );
-            stbi_image_free( posYPixels );
-            stbi_image_free( negYPixels );
-            stbi_image_free( posZPixels );
-            stbi_image_free( negZPixels );
-
-            cubemap->apply();
-            return cubemap;
+        if ( not posXPixels || not negXPixels || not posYPixels || not negYPixels || not posZPixels || not negZPixels )
+        { 
+            WARN( "LoadCubemap(): At least one of the specified cubemap faces couln't be loaded!" );
+            return nullptr;
         }
 
-        return nullptr;
+        auto cubemap = RESOURCES.createCubemap();
+        cubemap->create( width, Graphics::TextureFormat::RGBA32, generateMips );
+      
+        cubemap->setPixels( Graphics::CubemapFace::PositiveX, posXPixels );
+        cubemap->setPixels( Graphics::CubemapFace::NegativeX, negXPixels );
+        cubemap->setPixels( Graphics::CubemapFace::PositiveY, posYPixels );
+        cubemap->setPixels( Graphics::CubemapFace::NegativeY, negYPixels );
+        cubemap->setPixels( Graphics::CubemapFace::PositiveZ, posZPixels );
+        cubemap->setPixels( Graphics::CubemapFace::NegativeZ, negZPixels );
+
+        stbi_image_free( posXPixels );
+        stbi_image_free( negXPixels );
+        stbi_image_free( posYPixels );
+        stbi_image_free( negYPixels );
+        stbi_image_free( posZPixels );
+        stbi_image_free( negZPixels );
+
+        cubemap->apply();
+        return cubemap;
     }
 
 }

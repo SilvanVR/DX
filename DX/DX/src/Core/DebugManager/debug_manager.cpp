@@ -15,7 +15,6 @@
 #include "Core/event_names.hpp"
 #include "GameplayLayer/i_scene.h"
 #include "Assets/MeshGenerator/mesh_generator.h"
-#include "Math/math_utils.h"
 
 namespace Core { namespace Debug {
 
@@ -54,6 +53,7 @@ namespace Core { namespace Debug {
                 erasedMesh = true;
                 it = m_currentMeshes.erase( it );
                 // @TODO: Delete mesh from resource manager
+                //it->mesh.destroy();
             }
             else
             {
@@ -61,7 +61,7 @@ namespace Core { namespace Debug {
             }
         }
 
-        // A mesh was removed, update command buffer list
+        // If a mesh was removed, update command buffer list
         if (erasedMesh)
             _UpdateCommandBuffer();
     }
@@ -108,9 +108,9 @@ namespace Core { namespace Debug {
             Math::Vec3( max.x, min.y, min.z ),
             Math::Vec3( min.x, max.y, min.z ),
             max,
-            Math::Vec3(max.x, max.y, min.z),
-            Math::Vec3(min.x, max.y, max.z),
-            Math::Vec3(max.x, min.y, max.z),
+            Math::Vec3( max.x, max.y, min.z ),
+            Math::Vec3( min.x, max.y, max.z ),
+            Math::Vec3( max.x, min.y, max.z ),
         };
         ArrayList<U32> indices = {
             0, 1,
@@ -150,34 +150,8 @@ namespace Core { namespace Debug {
     void DebugManager::drawFrustum( const Math::Vec3& pos, const Math::Vec3& up, const Math::Vec3& right, const Math::Vec3& forward, 
                                     F32 fovAngleYRad, F32 zNear, F32 zFar, F32 aspectRatio,
                                     Color color, Time::Seconds duration, bool depthTest )
-    {
-        auto frustumCorners = Math::CalculateFrustumCorners( pos, up, right, forward, fovAngleYRad, zNear, zFar, aspectRatio );
-        ArrayList<Math::Vec3> vertices( frustumCorners.begin(), frustumCorners.end() );
-
-        enum corner { NEAR_TOP_LEFT = 0, NEAR_TOP_RIGHT = 1, NEAR_BOTTOM_LEFT = 2, NEAR_BOTTOM_RIGHT = 3,
-                      FAR_TOP_LEFT = 4, FAR_TOP_RIGHT = 5, FAR_BOTTOM_LEFT = 6, FAR_BOTTOM_RIGHT = 7 };
-
-        ArrayList<U32> indices = {
-            NEAR_TOP_LEFT, NEAR_TOP_RIGHT,
-            NEAR_BOTTOM_LEFT, NEAR_BOTTOM_RIGHT,
-            NEAR_TOP_LEFT, NEAR_BOTTOM_LEFT,
-            NEAR_TOP_RIGHT, NEAR_BOTTOM_RIGHT,
-            FAR_TOP_LEFT, FAR_TOP_RIGHT,
-            FAR_BOTTOM_LEFT, FAR_BOTTOM_RIGHT,
-            FAR_TOP_LEFT, FAR_BOTTOM_LEFT,
-            FAR_TOP_RIGHT, FAR_BOTTOM_RIGHT,
-            NEAR_TOP_LEFT, FAR_TOP_LEFT,
-            NEAR_TOP_RIGHT, FAR_TOP_RIGHT,
-            NEAR_BOTTOM_LEFT, FAR_BOTTOM_LEFT,
-            NEAR_BOTTOM_RIGHT, FAR_BOTTOM_RIGHT
-        };
-
-        ArrayList<Color> colors( indices.size(), color );
-        auto mesh = RESOURCES.createMesh();
-        mesh->setVertices( vertices );
-        mesh->setIndices( indices, 0, Graphics::MeshTopology::Lines );
-        mesh->setColors( colors );
-
+    {        
+        auto mesh = Assets::MeshGenerator::CreateFrustum( pos, up, right, forward, fovAngleYRad, zNear, zFar, aspectRatio, color );
         _AddMesh( mesh, duration, depthTest );
     }
 

@@ -31,7 +31,6 @@ namespace Assets
                                               const OS::Path& posY, const OS::Path& negY, 
                                               const OS::Path& posZ, const OS::Path& negZ, bool generateMips = false);
 
-
     private:
         //----------------------------------------------------------------------
         Importer(const Importer& other)                 = delete;

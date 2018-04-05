@@ -69,6 +69,12 @@ namespace Assets {
         //----------------------------------------------------------------------
         static Graphics::Mesh* CreateGrid(U32 size);
 
+        //----------------------------------------------------------------------
+        // Generates a new perspective frustum mesh (Lines only).
+        //----------------------------------------------------------------------
+        static Graphics::Mesh* CreateFrustum(const Math::Vec3& pos, const Math::Vec3& up, const Math::Vec3& right, const Math::Vec3& forward,
+                                             F32 fovAngleYRad, F32 zNear, F32 zFar, F32 aspectRatio, Color color = Color::WHITE);
+
     private:
         //----------------------------------------------------------------------
         MeshGenerator()                                         = delete;
