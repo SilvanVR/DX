@@ -13,7 +13,7 @@ namespace Assets
 {
 
     //----------------------------------------------------------------------
-    Graphics::Texture2D* Importer::LoadTexture( const OS::Path& filePath )
+    Graphics::Texture2D* Importer::LoadTexture( const OS::Path& filePath, bool generateMips )
     {
         //stbi_set_flip_vertically_on_load(1);
         I32 width, height, bpp;
@@ -21,7 +21,7 @@ namespace Assets
 
         if (pixels)
         {
-            auto tex = RESOURCES.createTexture2D( width, height, Graphics::TextureFormat::RGBA32, true );
+            auto tex = RESOURCES.createTexture2D( width, height, Graphics::TextureFormat::RGBA32, generateMips );
             tex->setPixels( pixels );
             tex->apply();
 
@@ -30,7 +30,8 @@ namespace Assets
             return tex;
         }
 
-        return nullptr;
+        WARN( "LoadTexture(): Texture '" + filePath.toString() + "' could not be loaded." );
+        return RESOURCES.getWhiteTexture();
     }
 
     //----------------------------------------------------------------------

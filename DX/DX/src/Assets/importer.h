@@ -22,7 +22,7 @@ namespace Assets
         //----------------------------------------------------------------------
         // Loads a texture from a file.
         //----------------------------------------------------------------------
-        static Graphics::Texture2D* LoadTexture( const OS::Path& filePath );
+        static Graphics::Texture2D* LoadTexture(const OS::Path& filePath, bool generateMips = true);
 
         //----------------------------------------------------------------------
         // Loads several textures to create a cubemap.

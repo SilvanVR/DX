@@ -729,6 +729,9 @@ public:
 
 class TestScene : public IScene
 {
+    GameObject* go2;
+    Graphics::Material* material;
+
 public:
     TestScene() : IScene("TestScene") {}
 
@@ -754,15 +757,37 @@ public:
 
         createGameObject("Grid")->addComponent<GridGeneration>(20);
 
+        // SHADER
+        auto texShader = RESOURCES.createShader("TexShader", "/shaders/texVS.hlsl", "/shaders/texPS.hlsl");
+
+        // MATERIAL
+        material = RESOURCES.createMaterial();
+        material->setShader(texShader);
+        material->setTexture(SID("tex0"), Assets::Importer::LoadTexture("/textures/dirt.jpg"));
+        material->setTexture(SID("tex1"), Assets::Importer::LoadTexture("/textures/nico.jpg"));
+        material->setFloat(SID("mix"), 0.0f);
+        material->setColor(SID("tintColor"), Color::WHITE);
+
         // MESH
-        auto plane = Assets::MeshGenerator::CreatePlane();
-        plane->setColors(planeColors);
+        auto mesh = Assets::MeshGenerator::CreateCubeUV();
+        mesh->setColors(cubeColors);
 
         // GAMEOBJECT
-        auto go2 = createGameObject("Test2");
-        go2->addComponent<Components::MeshRenderer>(plane);
+        go2 = createGameObject("Test2");
+        go2->addComponent<Components::MeshRenderer>(mesh, material);
 
         LOG("TestScene initialized!", Color::RED);
+    }
+
+    void tick(Time::Seconds d) override
+    {
+        if (KEYBOARD.wasKeyPressed(Key::L))
+        {
+            ASYNC_JOB([=] {
+                auto tex = Assets::Importer::LoadTexture("/textures/4k.jpg");
+                material->setTexture(SID("tex0"), tex);
+            });
+        }
     }
 
     void shutdown() override { LOG("TestScene Shutdown!", Color::RED); }

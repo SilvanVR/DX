@@ -126,12 +126,11 @@ namespace Core { namespace Debug {
             1, 7,
             3, 5
         };
-        ArrayList<Color> colors( indices.size(), color );
 
         auto mesh = RESOURCES.createMesh();
         mesh->setVertices( vertices );
         mesh->setIndices( indices, 0, Graphics::MeshTopology::Lines );
-        mesh->setColors( colors );
+        mesh->setColors( ArrayList<Color>( indices.size(), color ) );
 
         _AddMesh( mesh, duration, depthTest );
     }
@@ -139,9 +138,8 @@ namespace Core { namespace Debug {
     //----------------------------------------------------------------------
     void DebugManager::drawSphere( const Math::Vec3& pos, F32 radius, Color color, Time::Seconds duration, bool depthTest )
     {
-        auto mesh = Assets::MeshGenerator::CreateUVSphere( pos, radius, 30, 30 );
-        ArrayList<Color> colors( mesh->getIndexCount( 0 ), color );
-        mesh->setColors( colors );
+        auto mesh = Assets::MeshGenerator::CreateUVSphere( pos, radius, 30, 30 );       
+        mesh->setColors(  ArrayList<Color>( mesh->getIndexCount( 0 ), color ) );
 
         _AddMesh( mesh, duration, depthTest );
     }
