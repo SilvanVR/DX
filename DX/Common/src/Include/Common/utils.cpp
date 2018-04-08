@@ -1,5 +1,10 @@
 #include "utils.h"
+/**********************************************************************
+    class: None (utils.cpp)
 
+    author: S. Hau
+    date: October 3, 2017
+**********************************************************************/
 #include <sstream>
 
 namespace Utils

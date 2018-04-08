@@ -91,17 +91,27 @@ namespace Graphics { namespace D3D11 {
         D3D11::IBindableTexture* d3d11Texture = dynamic_cast<D3D11::IBindableTexture*>( texture );
 
         I32 bindingSlot = d3d11Shader->getTextureBindingSlot( name );
-        if ( bindingSlot >= 0 )
+        if ( bindingSlot < 0 )
+            return false;
+
+        if ( m_textureMap.count( name ) == 0 )
         {
+            // Texture slot was set for the first time
             TextureCache texCache;
             texCache.bindSlot = bindingSlot;
             texCache.texture  = d3d11Texture;
 
             m_textureCache.emplace_back( texCache );
-            return true;
+        }
+        else
+        {
+            // Update texture slot
+            for (auto& entry : m_textureCache )
+                if (entry.bindSlot == bindingSlot)
+                    entry.texture = d3d11Texture;
         }
 
-        return false;
+        return true;
     }
 
     //**********************************************************************

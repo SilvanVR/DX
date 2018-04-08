@@ -15,6 +15,7 @@
 #include "Assets/MeshGenerator/mesh_generator.h"
 #include "Math/random.h"
 #include "Assets/importer.h"
+#include "Common/async_resource_ptr.hpp"
 
 using namespace Core;
 
@@ -727,10 +728,16 @@ public:
     void shutdown() override { LOG("TexArrayScene Shutdown!", Color::RED); }
 };
 
+
+using TexturePtr = AsyncResourcePtr<Graphics::ITexture>;
+
+
 class TestScene : public IScene
 {
     GameObject* go2;
     Graphics::Material* material;
+
+    TexturePtr t;
 
 public:
     TestScene() : IScene("TestScene") {}
@@ -760,13 +767,31 @@ public:
         // SHADER
         auto texShader = RESOURCES.createShader("TexShader", "/shaders/texVS.hlsl", "/shaders/texPS.hlsl");
 
+        auto dirtTex = Assets::Importer::LoadTexture("/textures/dirt.jpg");
+
         // MATERIAL
         material = RESOURCES.createMaterial();
         material->setShader(texShader);
-        material->setTexture(SID("tex0"), Assets::Importer::LoadTexture("/textures/dirt.jpg"));
+        //material->setTexture(SID("tex0"), Assets::Importer::LoadTexture("/textures/dirt.jpg"));
         material->setTexture(SID("tex1"), Assets::Importer::LoadTexture("/textures/nico.jpg"));
         material->setFloat(SID("mix"), 0.0f);
         material->setColor(SID("tintColor"), Color::WHITE);
+
+        TexturePtr null;
+        constexpr Size size = sizeof(TexturePtr);
+        //auto tex2  = Locator::getRenderer().createTexture2D();
+        //auto tex3  = Locator::getRenderer().createTexture2D();
+
+        t.reset(dirtTex);
+        t.setResourceChangedCallback([=](Graphics::Texture* tex){ material->setTexture(SID("tex0"), tex);  });
+        t.setDeleteCallback([](Graphics::Texture* tex) { });
+
+        material->setTexture(SID("tex0"), t.get());
+
+        ASYNC_JOB([=] {
+            auto tex = Assets::Importer::LoadTexture("/textures/4k.jpg");
+            t.reset(tex);
+        });
 
         // MESH
         auto mesh = Assets::MeshGenerator::CreateCubeUV();

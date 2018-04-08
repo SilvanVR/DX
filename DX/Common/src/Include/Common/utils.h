@@ -1,5 +1,12 @@
 #pragma once
+/**********************************************************************
+    class: None (utils.h)
 
+    author: S. Hau
+    date: October 3, 2017
+
+    Some utility functions, which dont belong to anywhere else.
+**********************************************************************/
 
 namespace Utils
 {
