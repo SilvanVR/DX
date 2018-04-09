@@ -6,12 +6,8 @@
     date: December 25, 2017
 
     Manages all resources in the game:
-    - Creates & Stores them
+    - Creates & knows about them
     - Deletes them
-
-    Ideas:
-    Resource-Table in the background with a counter
-    -> If counter reaches zero, delete resource (possibly with a delay e.g. after 5sec unused)
 **********************************************************************/
 
 #include "SubSystem/i_subsystem.hpp"
@@ -32,11 +28,7 @@ namespace Core { namespace Resources {
     //*********************************************************************
     class ResourceManager : public ISubSystem
     {
-        using WeakTexturePtr    = std::weak_ptr<Graphics::Texture>;
         using WeakTexture2DPtr  = std::weak_ptr<Graphics::Texture2D>;
-        using WeakMaterialPtr   = std::weak_ptr<Graphics::Material>;
-        using WeakMeshPtr       = std::weak_ptr<Graphics::Mesh>;
-        using WeakShaderPtr     = std::weak_ptr<Graphics::Shader>;
 
     public:
         ResourceManager() = default;
@@ -134,11 +126,6 @@ namespace Core { namespace Resources {
         void setGlobalAnisotropicFiltering(U32 level);
 
         //----------------------------------------------------------------------
-        // Unloads every resource which is not being used by anybody
-        //----------------------------------------------------------------------
-        void UnloadUnusedResources();
-
-        //----------------------------------------------------------------------
         U32 getMeshCount()      const { return static_cast<U32>( m_meshes.size() ); }
         U32 getShaderCount()    const { return static_cast<U32>( m_shaders.size() ); }
         U32 getMaterialCount()  const { return static_cast<U32>( m_materials.size() ); }
@@ -175,12 +162,10 @@ namespace Core { namespace Resources {
             OS::Path        path;
             OS::SystemTime  timeAtLoad;
         };
-
         HashMap<Graphics::Texture2D*, FileInfo> m_textureFileInfo;
 
         //----------------------------------------------------------------------
         void _CreateDefaultAssets();
-        void _OnSceneChanged();
 
         void _DeleteTexture(Graphics::Texture* tex);
         void _DeleteMesh(Graphics::Mesh* mesh);

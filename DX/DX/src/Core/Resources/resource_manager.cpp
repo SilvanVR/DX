@@ -6,13 +6,15 @@
     author: S. Hau
     date: December 25, 2017
 
+    @Considerations:
+      - Different deallocation scheme, e.g. delete after 5sec unused.
 **********************************************************************/
 
 #include "locator.h"
 #include "default_shaders.hpp"
-#include "Events/event_dispatcher.h"
-#include "Core/event_names.hpp"
 #include "Assets/importer.h"
+
+#define PRINT_DELETES 0
 
 namespace Core { namespace Resources {
 
@@ -22,10 +24,6 @@ namespace Core { namespace Resources {
         Locator::getCoreEngine().subscribe( this );
 
         _CreateDefaultAssets();
-
-        // Register to switch scene event
-        Events::Event& evt = Events::EventDispatcher::GetEvent( EVENT_SCENE_CHANGED );
-        evt.addListener( BIND_THIS_FUNC_0_ARGS( &ResourceManager::_OnSceneChanged) );
 
         // HOT-RELOADING CALLBACK
         Locator::getEngineClock().setInterval([this]{
@@ -203,12 +201,6 @@ namespace Core { namespace Resources {
     }
 
     //----------------------------------------------------------------------
-    void ResourceManager::UnloadUnusedResources()
-    {
-        // @TODO
-    }
-
-    //----------------------------------------------------------------------
     Texture2DPtr ResourceManager::getTexture2D( const OS::Path& path, bool genMips )
     {
         StringID pathAsID = SID( path.c_str() );
@@ -252,7 +244,9 @@ namespace Core { namespace Resources {
     //----------------------------------------------------------------------
     void ResourceManager::_DeleteMesh( Graphics::Mesh* mesh )
     {
+#if PRINT_DELETES
         LOG( "DELETING MESH", Color::RED );
+#endif
         m_meshes.erase( std::remove( m_meshes.begin(), m_meshes.end(), mesh ) );
         SAFE_DELETE( mesh );
     }
@@ -260,7 +254,9 @@ namespace Core { namespace Resources {
     //----------------------------------------------------------------------
     void ResourceManager::_DeleteMaterial( Graphics::Material* mat )
     {
+#if PRINT_DELETES
         LOG( "DELETING MATERIAL", Color::RED );
+#endif
         m_materials.erase( std::remove( m_materials.begin(), m_materials.end(), mat ) );
         SAFE_DELETE( mat );
     }
@@ -268,6 +264,7 @@ namespace Core { namespace Resources {
     //----------------------------------------------------------------------
     void ResourceManager::_DeleteTexture( Graphics::Texture* tex )
     {
+#if PRINT_DELETES
         Graphics::Texture2D* tex2D = dynamic_cast<Graphics::Texture2D*>( tex );
         if (tex2D)
         {
@@ -279,7 +276,7 @@ namespace Core { namespace Resources {
         }
         else
             LOG( "DELETING TEXTURE", Color::RED );
-
+#endif
         m_textures.erase( std::remove( m_textures.begin(), m_textures.end(), tex ) );
         SAFE_DELETE( tex );
     }
@@ -287,7 +284,9 @@ namespace Core { namespace Resources {
     //----------------------------------------------------------------------
     void ResourceManager::_DeleteShader( Graphics::Shader* shader )
     {
+#if PRINT_DELETES
         LOG( "DELETING SHADER " + shader->getName() );
+#endif
         m_shaders.erase( std::remove( m_shaders.begin(), m_shaders.end(), shader ) );
         SAFE_DELETE( shader );
     }
@@ -339,12 +338,6 @@ namespace Core { namespace Resources {
             Color whites[4] = { Color::WHITE, Color::WHITE, Color::WHITE, Color::WHITE };
             m_white = createTexture2D(2, 2, Graphics::TextureFormat::RGBA32, whites);
         }
-    }
-
-    //----------------------------------------------------------------------
-    void ResourceManager::_OnSceneChanged()
-    {
-        UnloadUnusedResources();
     }
 
 } } // end namespaces
