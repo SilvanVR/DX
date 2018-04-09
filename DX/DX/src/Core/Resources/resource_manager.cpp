@@ -12,7 +12,6 @@
 
 #include "locator.h"
 #include "default_shaders.hpp"
-#include "Assets/importer.h"
 
 #define PRINT_DELETES 0
 
@@ -21,8 +20,6 @@ namespace Core { namespace Resources {
     //----------------------------------------------------------------------
     void ResourceManager::init()
     {
-        Locator::getCoreEngine().subscribe( this );
-
         _CreateDefaultAssets();
 
         // HOT-RELOADING CALLBACK
@@ -44,23 +41,6 @@ namespace Core { namespace Resources {
                 }
             }
 
-            // Texture reloading
-            for (auto& pair : m_textureFileInfo)
-            {
-                auto& texture   = pair.first;
-                auto& fileInfo  = pair.second;
-
-                auto currentFileTime = fileInfo.path.getLastWrittenFileTime();
-                if ( fileInfo.timeAtLoad != currentFileTime )
-                {
-                    // Reload texture
-                    LOG( "Reloading texture: " + fileInfo.path.toString() );
-                    //texture->setPixels(nullptr);
-
-                    fileInfo.timeAtLoad = currentFileTime;
-                }
-            }
-
         }, 500);
     }
 
@@ -75,11 +55,6 @@ namespace Core { namespace Resources {
         m_wireframeMaterial.reset();
         m_black.reset();
         m_white.reset();
-    }
-
-    //----------------------------------------------------------------------
-    void ResourceManager::OnTick( Time::Seconds delta )
-    {        
     }
 
     //**********************************************************************
@@ -200,43 +175,6 @@ namespace Core { namespace Resources {
         return CubemapPtr( cubemap, BIND_THIS_FUNC_1_ARGS( &ResourceManager::_DeleteTexture ) );
     }
 
-    //----------------------------------------------------------------------
-    Texture2DPtr ResourceManager::getTexture2D( const OS::Path& path, bool genMips )
-    {
-        StringID pathAsID = SID( path.c_str() );
-        if ( m_textureCache.find( pathAsID ) != m_textureCache.end() )
-        {
-            auto weakPtr = m_textureCache[pathAsID];
-
-            if ( not weakPtr.expired() )
-            {
-                LOG( "Texture '" + path.toString() + "' already loaded!" );
-                return Texture2DPtr( weakPtr );
-            }
-        }
-
-        auto tex = Assets::Importer::LoadTexture( path, genMips );
-
-        //@TODO: handle load failure
-        m_textureCache[pathAsID] = tex;
-
-        FileInfo fileInfo;
-        fileInfo.path       = path;
-        fileInfo.timeAtLoad = path.getLastWrittenFileTime();
-        m_textureFileInfo[tex.get()] = fileInfo;
-
-        return tex;
-    }
-
-    //----------------------------------------------------------------------
-    CubemapPtr ResourceManager::getCubemap( const OS::Path& posX, const OS::Path& negX,
-                                            const OS::Path& posY, const OS::Path& negY,
-                                            const OS::Path& posZ, const OS::Path& negZ, bool generateMips )
-    {
-        auto tex = Assets::Importer::LoadCubemap( posX, negX, posY, negY, posZ, negZ, generateMips );
-        return tex;
-    }
-
     //**********************************************************************
     // PRIVATE
     //**********************************************************************
@@ -336,6 +274,19 @@ namespace Core { namespace Resources {
 
             Color whites[4] = { Color::WHITE, Color::WHITE, Color::WHITE, Color::WHITE };
             m_white = createTexture2D( 2, 2, Graphics::TextureFormat::RGBA32, whites );
+        }
+
+        // CUBEMAPS
+        {
+            const I32 size = 2;
+            m_defaultCubemap = createCubemap();
+            m_defaultCubemap->setFilter( Graphics::TextureFilter::Point );
+            m_defaultCubemap->create( size, Graphics::TextureFormat::BGRA32, false );
+
+            Color colorsPerFace[6] = { Color::WHITE, Color::GREEN, Color::RED, Color::BLUE, Color::ORANGE, Color::VIOLET };
+            for (int i = 0; i < 6; i++)
+                m_defaultCubemap->setPixels( (Graphics::CubemapFace)i, ArrayList<Color>( size*size, colorsPerFace[i] ).data() );
+            m_defaultCubemap->apply();
         }
     }
 

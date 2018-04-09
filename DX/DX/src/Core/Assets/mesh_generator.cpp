@@ -12,7 +12,7 @@
 #include <math.h> // M_PI
 #include "Math/math_utils.h"
 
-namespace Assets { 
+namespace Core { namespace Assets { 
 
     //----------------------------------------------------------------------
     MeshPtr MeshGenerator::CreateCube( F32 size )
@@ -416,4 +416,4 @@ namespace Assets {
         return mesh;
     }
 
-}  // end namespaces
+} } // End namespaces

@@ -35,6 +35,7 @@
 #include "Core/SceneManager/scene_manager.h"
 #include "Core/Resources/resource_manager.h"
 #include "Core/DebugManager/debug_manager.h"
+#include "Core/Assets/asset_manager.h"
 
 //----------------------------------------------------------------------
 // Defines
@@ -46,6 +47,7 @@
 #define SCENE                   Locator::getSceneManager().getCurrentScene()
 #define RESOURCES               Locator::getResourceManager()
 #define DEBUG                   Locator::getDebugManager()
+#define ASSETS                  Locator::getAssetManager()
 
 //*********************************************************************
 // Retrieve / Change every subsystem via a static method.
@@ -69,6 +71,7 @@ public:
     static Core::SceneManager&                        getSceneManager()   { return *gSceneManager; }
     static Core::Resources::ResourceManager&          getResourceManager(){ return *gResourceManager; }
     static Core::Debug::DebugManager&                 getDebugManager()   { return *gDebugManager;}
+    static Core::Assets::AssetManager&                getAssetManager()   { return *gAssetManager; }
 
     //----------------------------------------------------------------------
     // Provide a Sub-System
@@ -86,6 +89,7 @@ public:
     static void provide(Core::SceneManager* s)                                { gSceneManager = s; }
     static void provide(Core::Resources::ResourceManager* r)                  { gResourceManager = r; }
     static void provide(Core::Debug::DebugManager* d)                         { gDebugManager = d; }
+    static void provide(Core::Assets::AssetManager* a)                        { gAssetManager = a; }
 
 private:
     static Core::CoreEngine*                          gCoreEngine;
@@ -105,6 +109,7 @@ private:
     static Core::SceneManager*                        gSceneManager;
     static Core::Resources::ResourceManager*          gResourceManager;
     static Core::Debug::DebugManager*                 gDebugManager;
+    static Core::Assets::AssetManager*                gAssetManager;
 
     //----------------------------------------------------------------------
     Locator()                                   = delete;

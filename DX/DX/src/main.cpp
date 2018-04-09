@@ -12,7 +12,7 @@
 #include "Common/color.h"
 #include "GameplayLayer/Components/fps_camera.h"
 
-#include "Assets/MeshGenerator/mesh_generator.h"
+#include "Core/Assets/mesh_generator.h"
 #include "Math/random.h"
 
 using namespace Core;
@@ -487,7 +487,7 @@ public:
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 10.0f, 0.3f);
         //go->addComponent<AutoOrbiting>(10.0f);
 
-        auto cubemap = RESOURCES.getCubemap("/cubemaps/tropical_sunny_day/Left.png", "/cubemaps/tropical_sunny_day/Right.png",
+        auto cubemap = ASSETS.getCubemap("/cubemaps/tropical_sunny_day/Left.png", "/cubemaps/tropical_sunny_day/Right.png",
             "/cubemaps/tropical_sunny_day/Up.png", "/cubemaps/tropical_sunny_day/Down.png",
             "/cubemaps/tropical_sunny_day/Front.png", "/cubemaps/tropical_sunny_day/Back.png");
         go->addComponent<Components::Skybox>(cubemap);
@@ -524,8 +524,8 @@ public:
         tex->apply();
         tex->setFilter(Graphics::TextureFilter::Point);
 
-        tex2 = RESOURCES.getTexture2D("/textures/nico.jpg");
-        auto dirt = RESOURCES.getTexture2D("/textures/dirt.jpg");
+        tex2 = ASSETS.getTexture2D("/textures/nico.jpg");
+        auto dirt = ASSETS.getTexture2D("/textures/dirt.jpg");
 
         // MATERIAL
         material = RESOURCES.createMaterial();
@@ -614,23 +614,10 @@ public:
         auto texShader = RESOURCES.createShader("Skybox", "/shaders/skyboxVS.hlsl", "/shaders/skyboxPS.hlsl");
         texShader->setRasterizationState({ Graphics::FillMode::Solid, Graphics::CullMode::None });
 
-        // CUBEMAPS
-        const I32 size = 512;
-        Color colorsPerFace[6] = { Color::WHITE, Color::GREEN, Color::RED, Color::BLUE, Color::ORANGE, Color::VIOLET };
-        ArrayList<Color> colors[6];
-        for(I32 i = 0; i < 6; i++)
-            colors[i].resize(size * size, colorsPerFace[i]);
-
-        auto cubemap = RESOURCES.createCubemap();
-        cubemap->create(size, Graphics::TextureFormat::BGRA32, true);
-        for (int i = 0; i < 6; i++)
-            cubemap->setPixels((Graphics::CubemapFace)i, colors[i].data());
-        cubemap->apply();
-
         // MATERIAL
         auto material = RESOURCES.createMaterial();
         material->setShader(texShader);
-        material->setTexture(SID("Cubemap"), cubemap);
+        material->setTexture(SID("Cubemap"), RESOURCES.getDefaultCubemap());
         material->setColor(SID("tintColor"), Color::WHITE);
 
         // GAMEOBJECT
@@ -670,7 +657,7 @@ public:
         auto texShader = RESOURCES.createShader("TextureArray", "/shaders/arrayTexVS.hlsl", "/shaders/arrayTexPS.hlsl");
 
         // TEXTURES
-        tex = RESOURCES.getTexture2D("/textures/dirt.jpg");
+        tex = ASSETS.getTexture2D("/textures/dirt.jpg");
         //auto tex2 = Assets::Importer::LoadTexture("/textures/nico.jpg");
 
         Color cols[] = { Color::RED, Color::BLUE, Color::GREEN };
@@ -760,8 +747,8 @@ public:
         // MATERIAL
         material = RESOURCES.createMaterial();
         material->setShader(texShader);
-        material->setTexture(SID("tex0"), RESOURCES.getTexture2D("/textures/dirt.jpg"));
-        material->setTexture(SID("tex1"), RESOURCES.getTexture2D("/textures/nico.jpg"));
+        material->setTexture(SID("tex0"), ASSETS.getTexture2D("/textures/dirt.jpg"));
+        material->setTexture(SID("tex1"), ASSETS.getTexture2D("/textures/nico.jpg"));
         material->setFloat(SID("mix"), 0.0f);
         material->setColor(SID("tintColor"), Color::WHITE);
 
@@ -783,7 +770,7 @@ public:
         if (KEYBOARD.wasKeyPressed(Key::L))
         {
             ASYNC_JOB([=] {
-                auto tex = RESOURCES.getTexture2D("/textures/4k.jpg");
+                auto tex = ASSETS.getTexture2D("/textures/4k.jpg");
                 material->setTexture(SID("tex0"), tex);
             });
         }

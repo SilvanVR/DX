@@ -26,6 +26,7 @@ namespace Core {
     namespace Input             { class InputManager; }
     namespace Resources         { class ResourceManager; }
     namespace Debug             { class DebugManager; }
+    namespace Assets            { class AssetManager; }
     class IInGameConsole;
     class SceneManager;
 
@@ -42,7 +43,6 @@ namespace Core {
         void init();
         void shutdown();
 
-
     private:
         //----------------------------------------------------------------------
         // Every Sub-System is enumerated here
@@ -56,8 +56,8 @@ namespace Core {
         Graphics::IRenderer*                m_renderer          = nullptr;
         SceneManager*                       m_sceneManager      = nullptr;
         Resources::ResourceManager*         m_resourceManager   = nullptr;
+        Assets::AssetManager*               m_assetManager      = nullptr;
         Debug::DebugManager*                m_debugManager      = nullptr;
-
 
         //----------------------------------------------------------------------
         void _InitVirtualFilePaths();

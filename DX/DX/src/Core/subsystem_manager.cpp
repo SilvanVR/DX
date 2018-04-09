@@ -20,6 +20,7 @@
 #include "Graphics/D3D11/D3D11Renderer.h"
 #include "SceneManager/scene_manager.h"
 #include "Resources/resource_manager.h"
+#include "Assets/asset_manager.h"
 #include "DebugManager/debug_manager.h"
 
 //----------------------------------------------------------------------
@@ -91,6 +92,10 @@ namespace Core
         LOG( " > SceneManager initialized!", LOGCOLOR );
 
         //----------------------------------------------------------------------
+        m_assetManager = initializeSubSystem( new Assets::AssetManager() );
+        LOG(" > AssetManager initialized!", LOGCOLOR );
+
+        //----------------------------------------------------------------------
         m_debugManager = initializeSubSystem( new Debug::DebugManager() );
         LOG( " > DebugManager initialized!", LOGCOLOR );
     }
@@ -104,6 +109,10 @@ namespace Core
         //----------------------------------------------------------------------
         LOG( " > Shutdown DebugManager...", LOGCOLOR );
         shutdownSubSystem( m_debugManager );
+
+        //----------------------------------------------------------------------
+        LOG( " > Shutdown AssetManager...", LOGCOLOR );
+        shutdownSubSystem( m_assetManager );
 
         //----------------------------------------------------------------------
         LOG( " > Shutdown SceneManager...", LOGCOLOR );

@@ -28,8 +28,6 @@ namespace Core { namespace Resources {
     //*********************************************************************
     class ResourceManager : public ISubSystem
     {
-        using WeakTexture2DPtr  = std::weak_ptr<Graphics::Texture2D>;
-
     public:
         ResourceManager() = default;
         ~ResourceManager() = default;
@@ -38,7 +36,6 @@ namespace Core { namespace Resources {
         // ISubSystem Interface
         //----------------------------------------------------------------------
         void init() override;
-        void OnTick(Time::Seconds delta) override;
         void shutdown() override;
 
         //----------------------------------------------------------------------
@@ -103,24 +100,6 @@ namespace Core { namespace Resources {
         CubemapPtr createCubemap();
 
         //----------------------------------------------------------------------
-        // Creates a new 2d texture from a file. Returns a default one and issues a warning if file couldn't be loaded.
-        // @Params:
-        //  "path": Path to the texture.
-        //  "genMips": If true a complete mipchain will be generated.
-        //----------------------------------------------------------------------
-        Texture2DPtr getTexture2D(const OS::Path& path, bool genMips = true);
-
-        //----------------------------------------------------------------------
-        // Creates a new cubemap from a file. Returns a default one and issues a warning if file couldn't be loaded.
-        // @Params:
-        //  "path": Path to the texture.
-        //  "genMips": If true a complete mipchain will be generated.
-        //----------------------------------------------------------------------
-        CubemapPtr getCubemap(const OS::Path& posX, const OS::Path& negX,
-                              const OS::Path& posY, const OS::Path& negY,
-                              const OS::Path& posZ, const OS::Path& negZ, bool generateMips = false);
-
-        //----------------------------------------------------------------------
         // Sets the anisotropic filtering for all textures @TODO: move this somewhere else
         //----------------------------------------------------------------------
         void setGlobalAnisotropicFiltering(U32 level);
@@ -131,12 +110,13 @@ namespace Core { namespace Resources {
         U32 getMaterialCount()  const { return static_cast<U32>( m_materials.size() ); }
         U32 getTextureCount()   const { return static_cast<U32>( m_textures.size() ); }
 
-        const MaterialPtr&      getDefaultMaterial()    const { return m_defaultMaterial; }
-        const ShaderPtr&        getDefaultShader()      const { return m_defaultShader; }
+        const MaterialPtr&      getDefaultMaterial() const { return m_defaultMaterial; }
+        const ShaderPtr&        getDefaultShader()   const { return m_defaultShader; }
 
         const Texture2DPtr&     getBlackTexture() const { return m_black; }
         const Texture2DPtr&     getWhiteTexture() const { return m_white; }
 
+        const CubemapPtr&       getDefaultCubemap() const { return m_defaultCubemap; }
 
     private:
         ArrayList<Graphics::Mesh*>      m_meshes;
@@ -154,15 +134,7 @@ namespace Core { namespace Resources {
         Texture2DPtr    m_black;
         Texture2DPtr    m_white;
 
-        // Contains <Path,Ptr> to all textures. They might be already unloaded.
-        HashMap<StringID, WeakTexture2DPtr> m_textureCache;
-
-        struct FileInfo
-        {
-            OS::Path        path;
-            OS::SystemTime  timeAtLoad;
-        };
-        HashMap<Graphics::Texture2D*, FileInfo> m_textureFileInfo;
+        CubemapPtr      m_defaultCubemap;
 
         //----------------------------------------------------------------------
         void _CreateDefaultAssets();

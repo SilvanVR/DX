@@ -8,7 +8,7 @@
 
 #include "Graphics/i_mesh.h"
 
-namespace Assets { 
+namespace Core { namespace Assets { 
 
     //*********************************************************************
     class MeshGenerator
@@ -84,4 +84,4 @@ namespace Assets {
         MeshGenerator& operator = (MeshGenerator&& other)       = delete;
     };
 
-}
+} } // End namespaces

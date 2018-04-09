@@ -6,7 +6,7 @@
     date: April 1, 2018
 **********************************************************************/
 
-#include "Assets/MeshGenerator/mesh_generator.h"
+#include "Core/Assets/mesh_generator.h"
 #include "GameplayLayer/gameobject.h"
 #include "GameplayLayer/i_scene.h"
 #include "Rendering/mesh_renderer.h"
@@ -34,7 +34,7 @@ namespace Components {
         m_skyboxMaterial->setColor( SID( "tintColor" ), Color::WHITE );
 
         // Create skybox mesh
-        m_skyboxMesh = Assets::MeshGenerator::CreateCube();
+        m_skyboxMesh = Core::Assets::MeshGenerator::CreateCube();
 
         // Create gameobject which renders the skybox
         auto mr = m_gameObject->addComponent<Components::MeshRenderer>();
