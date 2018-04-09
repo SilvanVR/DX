@@ -11,7 +11,7 @@
 
 namespace Core { namespace Assets {
 
-    #define LOG_COLOR Color::BLUE
+    #define LOG_COLOR Color::GREEN
     
     //----------------------------------------------------------------------
     void AssetManager::init()
@@ -29,8 +29,11 @@ namespace Core { namespace Assets {
                 if ( fileInfo.timeAtLoad != currentFileTime )
                 {
                     // Reload texture
-                    LOG( "Reloading texture: " + fileInfo.path.toString() );
-                    //texture->setPixels(nullptr);
+                    LOG( "Reloading texture: " + fileInfo.path.toString(), LOG_COLOR );
+                    I32 width, height, bpp;
+                    auto pixels = stbi_load( fileInfo.path.c_str(), &width, &height, &bpp, 4 );
+                    texture->setPixels( pixels );
+                    texture->apply();
 
                     fileInfo.timeAtLoad = currentFileTime;
                 }
@@ -45,34 +48,6 @@ namespace Core { namespace Assets {
 
     }
 
-    //----------------------------------------------------------------------
-    //Texture2DPtr ResourceManager::getTexture2D(const OS::Path& path, bool genMips)
-    //{
-    //    StringID pathAsID = SID(path.c_str());
-    //    if (m_textureCache.find(pathAsID) != m_textureCache.end())
-    //    {
-    //        auto weakPtr = m_textureCache[pathAsID];
-
-    //        if (not weakPtr.expired())
-    //        {
-    //            LOG("Texture '" + path.toString() + "' already loaded!");
-    //            return Texture2DPtr(weakPtr);
-    //        }
-    //    }
-
-    //    auto tex = Assets::Importer::LoadTexture(path, genMips);
-
-    //    //@TODO: handle load failure
-    //    m_textureCache[pathAsID] = tex;
-
-    //    FileInfo fileInfo;
-    //    fileInfo.path = path;
-    //    fileInfo.timeAtLoad = path.getLastWrittenFileTime();
-    //    m_textureFileInfo[tex.get()] = fileInfo;
-
-    //    return tex;
-    //}
-
     //**********************************************************************
     // PUBLIC
     //**********************************************************************
@@ -80,12 +55,27 @@ namespace Core { namespace Assets {
     //----------------------------------------------------------------------
     Texture2DPtr AssetManager::getTexture2D( const OS::Path& filePath, bool generateMips )
     {
+        StringID pathAsID = SID( filePath.c_str() );
+        if (m_textureCache.find( pathAsID ) != m_textureCache.end())
+        {
+            auto weakPtr = m_textureCache[pathAsID];
+            if ( not weakPtr.expired() )
+                return Texture2DPtr( weakPtr );
+        }
+
         auto texture = _LoadTexture2D( filePath, generateMips );
         if ( not texture )
         {
             WARN( "LoadTexture(): Texture '" + filePath.toString() + "' could not be loaded. Returning the default texture instead." );
             return RESOURCES.getWhiteTexture();
         }
+
+        m_textureCache[pathAsID] = texture;
+
+        FileInfo fileInfo;
+        fileInfo.path       = filePath;
+        fileInfo.timeAtLoad = filePath.getLastWrittenFileTime();
+        m_textureFileInfo[texture.get()] = fileInfo;
 
         return texture;
     }
