@@ -67,7 +67,7 @@ namespace Core { namespace Resources {
     //----------------------------------------------------------------------
     void ResourceManager::shutdown()
     {
-        // Must be deleted here, cause the shared_ptr can be deconstructer after their containing arraylists, which crashes the program
+        // Must be deleted here, cause the shared_ptr can be deconstructed after their containing arraylists, which crashes the program
         m_defaultShader.reset();
         m_errorShader.reset();
         m_wireframeShader.reset();
@@ -268,7 +268,6 @@ namespace Core { namespace Resources {
         Graphics::Texture2D* tex2D = dynamic_cast<Graphics::Texture2D*>( tex );
         if (tex2D)
         {
-            //@TODO: remove texture resource from arr
             if ( m_textureFileInfo.find(tex2D) != m_textureFileInfo.end() )
                 LOG( "DELETING TEXTURE " + m_textureFileInfo[tex2D].path.toString(), Color::RED );
             else
@@ -336,7 +335,7 @@ namespace Core { namespace Resources {
             m_black = createTexture2D( 2, 2, Graphics::TextureFormat::RGBA32, blacks );
 
             Color whites[4] = { Color::WHITE, Color::WHITE, Color::WHITE, Color::WHITE };
-            m_white = createTexture2D(2, 2, Graphics::TextureFormat::RGBA32, whites);
+            m_white = createTexture2D( 2, 2, Graphics::TextureFormat::RGBA32, whites );
         }
     }
 

@@ -757,12 +757,10 @@ public:
         // SHADER
         auto texShader = RESOURCES.createShader("TexShader", "/shaders/texVS.hlsl", "/shaders/texPS.hlsl");
 
-        auto tex = RESOURCES.getTexture2D("/textures/dirt.jpg");
-
         // MATERIAL
         material = RESOURCES.createMaterial();
         material->setShader(texShader);
-        material->setTexture(SID("tex0"), tex);
+        material->setTexture(SID("tex0"), RESOURCES.getTexture2D("/textures/dirt.jpg"));
         material->setTexture(SID("tex1"), RESOURCES.getTexture2D("/textures/nico.jpg"));
         material->setFloat(SID("mix"), 0.0f);
         material->setColor(SID("tintColor"), Color::WHITE);

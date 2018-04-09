@@ -56,13 +56,13 @@ namespace Assets {
     {
         ArrayList<Math::Vec3> vertices = {
             min,
-            Math::Vec3( min.x, max.y, min.z),
-            Math::Vec3( max.x, max.y, min.z),
-            Math::Vec3( max.x, min.y, min.z),
-            Math::Vec3( min.x, min.y, max.z),
-            Math::Vec3( min.x, max.y, max.z),
+            Math::Vec3( min.x, max.y, min.z ),
+            Math::Vec3( max.x, max.y, min.z ),
+            Math::Vec3( max.x, min.y, min.z ),
+            Math::Vec3( min.x, min.y, max.z ),
+            Math::Vec3( min.x, max.y, max.z ),
             max,
-            Math::Vec3( max.x, min.y, max.z)
+            Math::Vec3( max.x, min.y, max.z )
         };
         ArrayList<U32> indices = {
             0, 1, 2, 0, 2, 3,
@@ -82,40 +82,40 @@ namespace Assets {
         ArrayList<Math::Vec3> vertices =
         {
             // Front Face
-            Math::Vec3(-size, -size, -size),
-            Math::Vec3(-size,  size, -size),
-            Math::Vec3( size,  size, -size),
-            Math::Vec3( size, -size, -size),
+            Math::Vec3( -size, -size, -size ),
+            Math::Vec3( -size,  size, -size ),
+            Math::Vec3(  size,  size, -size ),
+            Math::Vec3(  size, -size, -size ),
 
             // Back Face
-            Math::Vec3(-size, -size, size),
-            Math::Vec3(-size,  size, size),
-            Math::Vec3( size,  size, size),
-            Math::Vec3( size, -size, size),
+            Math::Vec3( -size, -size, size ),
+            Math::Vec3( -size,  size, size ),
+            Math::Vec3(  size,  size, size ),
+            Math::Vec3(  size, -size, size ),
 
             // Right Face
-            Math::Vec3(size, -size, -size),
-            Math::Vec3(size,  size, -size),
-            Math::Vec3(size,  size, size),
-            Math::Vec3(size, -size, size),
+            Math::Vec3( size, -size, -size ),
+            Math::Vec3( size,  size, -size ),
+            Math::Vec3( size,  size, size ),
+            Math::Vec3( size, -size, size ),
 
             // Left Face
-            Math::Vec3(-size, -size, -size),
-            Math::Vec3(-size,  size, -size),
-            Math::Vec3(-size,  size,  size),
-            Math::Vec3(-size, -size,  size),
+            Math::Vec3( -size, -size, -size ),
+            Math::Vec3( -size,  size, -size ),
+            Math::Vec3( -size,  size,  size ),
+            Math::Vec3( -size, -size,  size ),
 
             // Top Face
-            Math::Vec3(-size,  size, -size),
-            Math::Vec3(-size,  size,  size),
-            Math::Vec3( size,  size,  size),
-            Math::Vec3( size,  size, -size),
+            Math::Vec3( -size,  size, -size ),
+            Math::Vec3( -size,  size,  size ),
+            Math::Vec3(  size,  size,  size ),
+            Math::Vec3(  size,  size, -size ),
 
             // Bottom Face
-            Math::Vec3(-size, -size, -size),
-            Math::Vec3(-size, -size,  size),
-            Math::Vec3( size, -size,  size),
-            Math::Vec3( size, -size, -size),
+            Math::Vec3( -size, -size, -size ),
+            Math::Vec3( -size, -size,  size ),
+            Math::Vec3(  size, -size,  size ),
+            Math::Vec3(  size, -size, -size ),
         };
         ArrayList<U32> indices = {
             0, 1, 2, 0, 2, 3,
@@ -127,35 +127,35 @@ namespace Assets {
         };
         ArrayList<Math::Vec2> uvs =
         {
-            Math::Vec2(0.0f, 1.0f),
-            Math::Vec2(0.0f, 0.0f),
-            Math::Vec2(1.0f, 0.0f),
-            Math::Vec2(1.0f, 1.0f),
+            Math::Vec2( 0.0f, 1.0f ),
+            Math::Vec2( 0.0f, 0.0f ),
+            Math::Vec2( 1.0f, 0.0f ),
+            Math::Vec2( 1.0f, 1.0f ),
 
-            Math::Vec2(1.0f, 1.0f),
-            Math::Vec2(1.0f, 0.0f),
-            Math::Vec2(0.0f, 0.0f),
-            Math::Vec2(0.0f, 1.0f),
+            Math::Vec2( 1.0f, 1.0f ),
+            Math::Vec2( 1.0f, 0.0f ),
+            Math::Vec2( 0.0f, 0.0f ),
+            Math::Vec2( 0.0f, 1.0f ),
 
-            Math::Vec2(0.0f, 1.0f),
-            Math::Vec2(0.0f, 0.0f),
-            Math::Vec2(1.0f, 0.0f),
-            Math::Vec2(1.0f, 1.0f),
+            Math::Vec2( 0.0f, 1.0f ),
+            Math::Vec2( 0.0f, 0.0f ),
+            Math::Vec2( 1.0f, 0.0f ),
+            Math::Vec2( 1.0f, 1.0f ),
 
-            Math::Vec2(1.0f, 1.0f),
-            Math::Vec2(1.0f, 0.0f),
-            Math::Vec2(0.0f, 0.0f),
-            Math::Vec2(0.0f, 1.0f),
+            Math::Vec2( 1.0f, 1.0f ),
+            Math::Vec2( 1.0f, 0.0f ),
+            Math::Vec2( 0.0f, 0.0f ),
+            Math::Vec2( 0.0f, 1.0f ),
 
-            Math::Vec2(0.0f, 1.0f),
-            Math::Vec2(0.0f, 0.0f),
-            Math::Vec2(1.0f, 0.0f),
-            Math::Vec2(1.0f, 1.0f),
+            Math::Vec2( 0.0f, 1.0f ),
+            Math::Vec2( 0.0f, 0.0f ),
+            Math::Vec2( 1.0f, 0.0f ),
+            Math::Vec2( 1.0f, 1.0f ),
 
-            Math::Vec2(1.0f, 1.0f),
-            Math::Vec2(1.0f, 0.0f),
-            Math::Vec2(0.0f, 0.0f),
-            Math::Vec2(0.0f, 1.0f)
+            Math::Vec2( 1.0f, 1.0f ),
+            Math::Vec2( 1.0f, 0.0f ),
+            Math::Vec2( 0.0f, 0.0f ),
+            Math::Vec2( 0.0f, 1.0f )
         };
 
         return RESOURCES.createMesh( vertices, indices, uvs );
@@ -166,20 +166,20 @@ namespace Assets {
     {
         ArrayList<Math::Vec3> vertices =
         {
-            Math::Vec3(-size, -size, 0.0f),
-            Math::Vec3(-size,  size, 0.0f),
-            Math::Vec3( size,  size, 0.0f),
-            Math::Vec3( size, -size, 0.0f)
+            Math::Vec3( -size, -size, 0.0f ),
+            Math::Vec3( -size,  size, 0.0f ),
+            Math::Vec3(  size,  size, 0.0f ),
+            Math::Vec3(  size, -size, 0.0f )
         };
         ArrayList<U32> indices = {
             0, 1, 2, 0, 2, 3
         };
         ArrayList<Math::Vec2> uvs =
         {
-            Math::Vec2(0.0f, 1.0f),
-            Math::Vec2(0.0f, 0.0f),
-            Math::Vec2(1.0f, 0.0f),
-            Math::Vec2(1.0f, 1.0f)
+            Math::Vec2( 0.0f, 1.0f ),
+            Math::Vec2( 0.0f, 0.0f ),
+            Math::Vec2( 1.0f, 0.0f ),
+            Math::Vec2( 1.0f, 1.0f )
         };
 
         return RESOURCES.createMesh( vertices, indices, uvs );
@@ -381,9 +381,9 @@ namespace Assets {
     }
 
     MeshPtr MeshGenerator::CreateFrustum( const Math::Vec3& pos, const Math::Vec3& up, const Math::Vec3& right, const Math::Vec3& forward,
-                                                  F32 fovAngleYRad, F32 zNear, F32 zFar, F32 aspectRatio, Color color )
+                                          F32 fovAngleYRad, F32 zNear, F32 zFar, F32 aspectRatio, Color color )
     {
-        auto frustumCorners = Math::CalculateFrustumCorners(pos, up, right, forward, fovAngleYRad, zNear, zFar, aspectRatio);
+        auto frustumCorners = Math::CalculateFrustumCorners( pos, up, right, forward, fovAngleYRad, zNear, zFar, aspectRatio );
         ArrayList<Math::Vec3> vertices( frustumCorners.begin(), frustumCorners.end() );
 
         enum corner {
