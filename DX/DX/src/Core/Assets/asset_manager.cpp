@@ -11,7 +11,8 @@
 
 namespace Core { namespace Assets {
 
-    #define LOG_COLOR Color::GREEN
+    #define HOT_RELOAD_INTERVAL_MILLIS  50
+    #define LOG_COLOR                   Color::GREEN
     
     //----------------------------------------------------------------------
     void AssetManager::init()
@@ -25,21 +26,27 @@ namespace Core { namespace Assets {
                 auto& texture   = pair.first;
                 auto& fileInfo  = pair.second;
 
-                auto currentFileTime = fileInfo.path.getLastWrittenFileTime();
-                if ( fileInfo.timeAtLoad != currentFileTime )
-                {
-                    // Reload texture
-                    LOG( "Reloading texture: " + fileInfo.path.toString(), LOG_COLOR );
-                    I32 width, height, bpp;
-                    auto pixels = stbi_load( fileInfo.path.c_str(), &width, &height, &bpp, 4 );
-                    texture->setPixels( pixels );
-                    texture->apply();
-
-                    fileInfo.timeAtLoad = currentFileTime;
+                try {
+                    auto currentFileTime = fileInfo.path.getLastWrittenFileTime();
+                    if ( fileInfo.timeAtLoad != currentFileTime )
+                    {
+                        // Reload texture on a separate thread
+                        LOG( "Reloading texture: " + fileInfo.path.toString(), LOG_COLOR );
+                        ASYNC_JOB([=] {
+                            I32 width, height, bpp;
+                            auto pixels = stbi_load( fileInfo.path.c_str(), &width, &height, &bpp, 4 );
+                            texture->setPixels( pixels );
+                            texture->apply();
+                            stbi_image_free( pixels );
+                        });
+                        fileInfo.timeAtLoad = currentFileTime;
+                    }
+                } catch(...) { 
+                    // Do nothing here. This means simply the file could not be opened, because another app has not yet freed the handle
                 }
             }
 
-        }, 500);
+        }, HOT_RELOAD_INTERVAL_MILLIS);
     }
 
     //----------------------------------------------------------------------

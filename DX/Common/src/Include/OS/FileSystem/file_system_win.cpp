@@ -15,7 +15,6 @@
 
 namespace OS { 
 
-
     //----------------------------------------------------------------------
     bool FileSystem::dirExists( const char* directory )
     {
@@ -49,7 +48,6 @@ namespace OS {
         }
     }
 
-
     //----------------------------------------------------------------------
     OS::SystemTime FileSystem::getLastWrittenFileTime( const char* physicalPath )
     {
@@ -60,12 +58,14 @@ namespace OS {
 
         if (hFile == INVALID_HANDLE_VALUE)
         {
-            LOG( "FileSystem-Windows: Could not open file '" + String( physicalPath ) + "'" );
+            CloseHandle( hFile );
+            throw std::runtime_error( "FileSystem-Windows: Could not open file '" + String( physicalPath ) + "'" );
         }
 
         if (not GetFileTime( hFile, NULL, NULL, &ftLastWriteTime ))
         {
-            LOG( "FileSystem-Windows: Could not get the filetime of file '" + String( physicalPath ) + "'" );
+            CloseHandle( hFile );
+            throw std::runtime_error( "FileSystem-Windows: Could not get the filetime of file '" + String( physicalPath ) + "'" );
         }
 
         CloseHandle( hFile );
