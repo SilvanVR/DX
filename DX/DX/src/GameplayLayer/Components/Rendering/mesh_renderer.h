@@ -22,19 +22,19 @@ namespace Components {
     {
     public:
         MeshRenderer() = default;
-        MeshRenderer(Graphics::Mesh* mesh, Graphics::Material* material = nullptr);
+        MeshRenderer(MeshPtr mesh, MaterialPtr material = nullptr);
 
-        Graphics::Mesh*                         getMesh()                   const   { return m_mesh; }
-        Graphics::Material*                     getMaterial(U32 index = 0)  const   { return m_materials[index]; }
-        const ArrayList<Graphics::Material*>&   getMaterials()              const   { return m_materials; }
+        MeshPtr                                 getMesh()                   const   { return m_mesh; }
+        MaterialPtr                             getMaterial(U32 index = 0)  const   { return m_materials[index]; }
+        const ArrayList<MaterialPtr>&           getMaterials()              const   { return m_materials; }
         U32                                     getMaterialCount()          const   { return static_cast<U32>( m_materials.size() ); }
 
-        void setMesh(Graphics::Mesh* mesh);
-        void setMaterial(Graphics::Material* m, U32 index = 0);
+        void setMesh(MeshPtr mesh);
+        void setMaterial(MaterialPtr m, U32 index = 0);
 
     private:
-        Graphics::Mesh*                 m_mesh;
-        ArrayList<Graphics::Material*>  m_materials;
+        MeshPtr                 m_mesh;
+        ArrayList<MaterialPtr>  m_materials;
 
         //----------------------------------------------------------------------
         // IComponent Interface

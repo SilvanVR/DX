@@ -23,22 +23,22 @@ namespace Components {
         auto m_gameObject = go->getScene()->createGameObject( "Skybox" );
 
         // Create skybox shader
-        auto m_skyboxShader = RESOURCES.createShader( "Skybox", "/shaders/skyboxVS.hlsl", "/shaders/skyboxPS.hlsl" );
+        m_skyboxShader = RESOURCES.createShader( "Skybox", "/shaders/skyboxVS.hlsl", "/shaders/skyboxPS.hlsl" );
         m_skyboxShader->setRasterizationState( { Graphics::FillMode::Solid, Graphics::CullMode::Front } );
         m_skyboxShader->setPriority( SHADER_PRIORITY );
 
         // Create skybox material
-        auto m_skyboxMaterial = RESOURCES.createMaterial();
+        m_skyboxMaterial = RESOURCES.createMaterial();
         m_skyboxMaterial->setShader( m_skyboxShader );
         m_skyboxMaterial->setTexture( SID( "Cubemap" ), m_cubemap );
         m_skyboxMaterial->setColor( SID( "tintColor" ), Color::WHITE );
 
         // Create skybox mesh
-        auto mesh = Assets::MeshGenerator::CreateCube();
+        m_skyboxMesh = Assets::MeshGenerator::CreateCube();
 
         // Create gameobject which renders the skybox
         auto mr = m_gameObject->addComponent<Components::MeshRenderer>();
-        mr->setMesh( mesh );
+        mr->setMesh( m_skyboxMesh );
         mr->setMaterial( m_skyboxMaterial );
     }
 

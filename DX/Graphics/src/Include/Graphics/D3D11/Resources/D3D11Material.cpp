@@ -85,10 +85,10 @@ namespace Graphics { namespace D3D11 {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    bool Material::_SetTexture( StringID name, Graphics::Texture* texture )
+    bool Material::_SetTexture( StringID name, TexturePtr texture )
     {
-        auto d3d11Shader = dynamic_cast<Shader*>( m_shader );
-        D3D11::IBindableTexture* d3d11Texture = dynamic_cast<D3D11::IBindableTexture*>( texture );
+        auto d3d11Shader = dynamic_cast<Shader*>( m_shader.get() );
+        D3D11::IBindableTexture* d3d11Texture = dynamic_cast<D3D11::IBindableTexture*>( texture.get() );
 
         I32 bindingSlot = d3d11Shader->getTextureBindingSlot( name );
         if ( bindingSlot < 0 )
@@ -121,7 +121,7 @@ namespace Graphics { namespace D3D11 {
     //----------------------------------------------------------------------
     void Material::_CreateConstantBuffers()
     {
-        auto d3d11Shader = dynamic_cast<Shader*>( m_shader );
+        auto d3d11Shader = dynamic_cast<Shader*>( m_shader.get() );
 
         // Create buffer for vertex shader
         if ( auto cb = d3d11Shader->getVertexShader()->getMaterialBufferInfo() )
@@ -135,7 +135,7 @@ namespace Graphics { namespace D3D11 {
     //----------------------------------------------------------------------
     bool Material::_UpdateConstantBuffer( StringID name, const void* pData, Size sizeInBytes )
     {
-        auto d3d11Shader = reinterpret_cast<Shader*>( m_shader );
+        auto d3d11Shader = reinterpret_cast<Shader*>( m_shader.get() );
         
         // Check if uniform is in vertex-shader
         if ( auto cb = d3d11Shader->getVertexShader()->getMaterialBufferInfo() )

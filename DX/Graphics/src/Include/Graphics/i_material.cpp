@@ -66,7 +66,7 @@ namespace Graphics {
     }
 
     //----------------------------------------------------------------------
-    Texture* IMaterial::getTexture( StringID name ) const
+    TexturePtr IMaterial::getTexture( StringID name ) const
     {
         if ( m_textureMap.count( name ) > 0 )
             return m_textureMap.at( name );
@@ -127,7 +127,7 @@ namespace Graphics {
     }
 
     //----------------------------------------------------------------------
-    void IMaterial::setTexture( StringID name, Texture* texture )
+    void IMaterial::setTexture( StringID name, TexturePtr texture )
     { 
         if ( _SetTexture( name, texture ) )
             m_textureMap[ name ] = texture;

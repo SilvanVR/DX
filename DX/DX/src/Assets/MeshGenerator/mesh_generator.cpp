@@ -15,7 +15,7 @@
 namespace Assets { 
 
     //----------------------------------------------------------------------
-    Graphics::Mesh* MeshGenerator::CreateCube( F32 size )
+    MeshPtr MeshGenerator::CreateCube( F32 size )
     {
         ArrayList<Math::Vec3> vertices =
         {
@@ -41,7 +41,7 @@ namespace Assets {
     }
 
     //----------------------------------------------------------------------
-    Graphics::Mesh* MeshGenerator::CreateCube( F32 size, Color color )
+    MeshPtr MeshGenerator::CreateCube( F32 size, Color color )
     {
         auto mesh = CreateCube( size );
 
@@ -52,7 +52,7 @@ namespace Assets {
     }
 
     //----------------------------------------------------------------------
-    Graphics::Mesh* MeshGenerator::CreateCube( const Math::Vec3& min, const Math::Vec3& max )
+    MeshPtr MeshGenerator::CreateCube( const Math::Vec3& min, const Math::Vec3& max )
     {
         ArrayList<Math::Vec3> vertices = {
             min,
@@ -77,7 +77,7 @@ namespace Assets {
     }
 
     //----------------------------------------------------------------------
-    Graphics::Mesh* MeshGenerator::CreateCubeUV( F32 size )
+    MeshPtr MeshGenerator::CreateCubeUV( F32 size )
     {
         ArrayList<Math::Vec3> vertices =
         {
@@ -162,7 +162,7 @@ namespace Assets {
     }
 
     //----------------------------------------------------------------------
-    Graphics::Mesh* MeshGenerator::CreatePlane( F32 size )
+    MeshPtr MeshGenerator::CreatePlane( F32 size )
     {
         ArrayList<Math::Vec3> vertices =
         {
@@ -186,7 +186,7 @@ namespace Assets {
     }
 
     //----------------------------------------------------------------------
-    Graphics::Mesh* MeshGenerator::CreatePlane( F32 size, Color color )
+    MeshPtr MeshGenerator::CreatePlane( F32 size, Color color )
     {
         auto mesh = CreatePlane( size );
 
@@ -197,7 +197,7 @@ namespace Assets {
     }
 
     //----------------------------------------------------------------------
-    Graphics::Mesh* MeshGenerator::CreatePlane( U32 width, U32 height )
+    MeshPtr MeshGenerator::CreatePlane( U32 width, U32 height )
     {
         ArrayList<Math::Vec3>   vertices;
         ArrayList<U32>          indices;
@@ -228,7 +228,7 @@ namespace Assets {
     }
 
     //----------------------------------------------------------------------
-    Graphics::Mesh* MeshGenerator::CreatePlane( U32 width, U32 height, Color color )
+    MeshPtr MeshGenerator::CreatePlane( U32 width, U32 height, Color color )
     {
         auto mesh = CreatePlane( width, height );
 
@@ -239,7 +239,7 @@ namespace Assets {
     }
 
     //----------------------------------------------------------------------
-    Graphics::Mesh* MeshGenerator::CreateUVSphere( const Math::Vec3& center, F32 size, U32 meridians, U32 parallels )
+    MeshPtr MeshGenerator::CreateUVSphere( const Math::Vec3& center, F32 size, U32 meridians, U32 parallels )
     {
         ArrayList<Math::Vec3>   vertices;
         ArrayList<U32>          indices;
@@ -312,13 +312,13 @@ namespace Assets {
 
     //----------------------------------------------------------------------
     // Credits @https://github.com/caosdoar/spheres
-    Graphics::Mesh* MeshGenerator::CreateUVSphere( U32 meridians, U32 parallels )
+    MeshPtr MeshGenerator::CreateUVSphere( U32 meridians, U32 parallels )
     {
         return CreateUVSphere( Math::Vec3(0), 1.0f, meridians, parallels );
     }
 
     //----------------------------------------------------------------------
-    Graphics::Mesh* MeshGenerator::CreateUVSphere( U32 meridians, U32 parallels, Color color )
+    MeshPtr MeshGenerator::CreateUVSphere( U32 meridians, U32 parallels, Color color )
     {
         auto mesh = CreateUVSphere( meridians, parallels );
 
@@ -329,7 +329,7 @@ namespace Assets {
     }
 
     //----------------------------------------------------------------------
-    Graphics::Mesh* MeshGenerator::CreateGrid( U32 size )
+    MeshPtr MeshGenerator::CreateGrid( U32 size )
     {
         ArrayList<Math::Vec3>   vertices;
         ArrayList<U32>          indices;
@@ -380,7 +380,7 @@ namespace Assets {
         return mesh;
     }
 
-    Graphics::Mesh* MeshGenerator::CreateFrustum( const Math::Vec3& pos, const Math::Vec3& up, const Math::Vec3& right, const Math::Vec3& forward,
+    MeshPtr MeshGenerator::CreateFrustum( const Math::Vec3& pos, const Math::Vec3& up, const Math::Vec3& right, const Math::Vec3& forward,
                                                   F32 fovAngleYRad, F32 zNear, F32 zFar, F32 aspectRatio, Color color )
     {
         auto frustumCorners = Math::CalculateFrustumCorners(pos, up, right, forward, fovAngleYRad, zNear, zFar, aspectRatio);

@@ -66,4 +66,7 @@ namespace Graphics
     };
 
     using Texture = ITexture;
-}
+
+} // End namespaces
+
+using TexturePtr = std::shared_ptr<Graphics::ITexture>;

@@ -73,7 +73,7 @@ namespace Graphics
         {
             ASSERT( not isImmutable() ); 
             Size sizeInBytes = m_width * m_height * ByteCountFromTextureFormat( m_format );
-            ASSERT( m_pixels.size() <= sizeInBytes );
+            m_pixels.resize( sizeInBytes );
             memcpy( m_pixels.data(), pPixels, sizeInBytes );
         }
 
@@ -111,3 +111,5 @@ namespace Graphics
     using Texture2D = ITexture2D;
 
 }
+
+using Texture2DPtr = std::shared_ptr<Graphics::ITexture2D>;

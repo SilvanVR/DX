@@ -10,6 +10,7 @@
 
 #include "SubSystem/i_subsystem.hpp"
 #include "OS/Window/window.h"
+#include "i_material.h"
 #include "structs.hpp"
 
 namespace Graphics {
@@ -18,7 +19,6 @@ namespace Graphics {
     class IRenderTexture;
     class CommandBuffer;
     class ITexture2D;
-    class IMaterial;
     class ICubemap;
     class IShader;
     class IMesh;
@@ -66,7 +66,7 @@ namespace Graphics {
         //  "name": The name of this shader to identify it.
         //  "material": The actual material.
         //----------------------------------------------------------------------
-        void addGlobalMaterial(CString name, IMaterial* material);
+        void addGlobalMaterial(CString name, MaterialPtr material);
 
         //----------------------------------------------------------------------
         // Set a global shader with the given name as active. If a global shader
@@ -80,8 +80,8 @@ namespace Graphics {
         OS::Window* m_window = nullptr;
 
         //----------------------------------------------------------------------
-        HashMap<StringID, IMaterial*> m_globalMaterials;
-        IMaterial*                    m_activeGlobalMaterial = nullptr; // If this is not null the scene should be rendered just with this material
+        HashMap<StringID, MaterialPtr>  m_globalMaterials;
+        MaterialPtr                     m_activeGlobalMaterial = nullptr; // If this is not null the scene should be rendered just with this material
 
         //----------------------------------------------------------------------
         virtual void OnWindowSizeChanged(U16 w, U16 h) = 0;

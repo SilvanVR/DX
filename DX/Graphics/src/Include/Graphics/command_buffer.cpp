@@ -22,13 +22,13 @@ namespace Graphics {
     }
 
     //----------------------------------------------------------------------
-    void CommandBuffer::drawMesh( Mesh* mesh, Material* material, const DirectX::XMMATRIX& modelMatrix, I32 subMeshIndex )
+    void CommandBuffer::drawMesh( MeshPtr mesh, MaterialPtr material, const DirectX::XMMATRIX& modelMatrix, I32 subMeshIndex )
     {
         m_gpuCommands.push_back( std::make_unique<GPUC_DrawMesh>( mesh, material, modelMatrix, subMeshIndex ) );
     }
 
     //----------------------------------------------------------------------
-    void CommandBuffer::setRenderTarget( Graphics::RenderTexture* renderTarget )
+    void CommandBuffer::setRenderTarget( RenderTexturePtr renderTarget )
     {
         m_gpuCommands.push_back( std::make_unique<GPUC_SetRenderTarget>( renderTarget ) );
     }

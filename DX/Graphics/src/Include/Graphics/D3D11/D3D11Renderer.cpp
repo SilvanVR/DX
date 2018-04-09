@@ -66,7 +66,7 @@ namespace Graphics {
         pConstantBufferObject->bindToVertexShader(1);
 
         // Just sort drawcalls quickly by material
-        std::map<Material*, ArrayList<GPUC_DrawMesh*>> sortedMaterials;
+        std::map<MaterialPtr, ArrayList<GPUC_DrawMesh*>> sortedMaterials;
 
         auto& commands = cmd.getGPUCommands();
         for ( U32 i = 0; i < commands.size(); i++ )
@@ -76,7 +76,7 @@ namespace Graphics {
                 case GPUCommand::SET_RENDER_TARGET:
                 {
                     GPUC_SetRenderTarget& c = *reinterpret_cast<GPUC_SetRenderTarget*>( commands[i].get() );
-                    _SetRenderTarget( c.renderTarget );
+                    _SetRenderTarget( c.renderTarget.get() );
                     break;
                 }
                 case GPUCommand::CLEAR_RENDER_TARGET:
@@ -127,10 +127,10 @@ namespace Graphics {
 
 
         // Sort shaders by priority
-        auto comp = [](const Material* a, const Material* b) {
+        auto comp = [](const MaterialPtr& a, const MaterialPtr& b) {
             return a->getShader()->getPriority() < b->getShader()->getPriority();
         };
-        ArrayList<Material*> sortedByPriority;
+        ArrayList<MaterialPtr> sortedByPriority;
         for (auto& pair : sortedMaterials)
             sortedByPriority.push_back(pair.first);
         std::sort(sortedByPriority.begin(), sortedByPriority.end(), comp);
@@ -139,7 +139,7 @@ namespace Graphics {
         for (auto& material : sortedByPriority)
         {
             // Bind materials
-            IShader* shader = nullptr;
+            ShaderPtr shader = nullptr;
             if (m_activeGlobalMaterial)
             {
                 shader = m_activeGlobalMaterial->getShader();
@@ -160,7 +160,7 @@ namespace Graphics {
                 pConstantBufferObject->update( &drawCall->modelMatrix, sizeof( DirectX::XMMATRIX ) );
 
                 // Bind buffers
-                auto mesh = reinterpret_cast<D3D11::Mesh*>( drawCall->mesh );
+                auto mesh = reinterpret_cast<D3D11::Mesh*>( drawCall->mesh.get() );
                 mesh->bind( shader->getVertexLayout(), drawCall->subMeshIndex );
 
                 // Submit draw call

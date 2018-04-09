@@ -52,8 +52,6 @@ namespace Core { namespace Debug {
             {
                 erasedMesh = true;
                 it = m_currentMeshes.erase( it );
-                // @TODO: Delete mesh from resource manager
-                //it->mesh.destroy();
             }
             else
             {
@@ -69,6 +67,7 @@ namespace Core { namespace Debug {
     //----------------------------------------------------------------------
     void DebugManager::shutdown()
     {
+        m_currentMeshes.clear();
     }
 
     //**********************************************************************
@@ -180,7 +179,7 @@ namespace Core { namespace Debug {
     }
 
     //----------------------------------------------------------------------
-    void DebugManager::_AddMesh( Graphics::Mesh* mesh, Time::Seconds duration, bool depthTest )
+    void DebugManager::_AddMesh( MeshPtr mesh, Time::Seconds duration, bool depthTest )
     {
         MeshInfo meshInfo;
         meshInfo.mesh       = mesh;

@@ -14,8 +14,6 @@
 
 #include "Assets/MeshGenerator/mesh_generator.h"
 #include "Math/random.h"
-#include "Assets/importer.h"
-#include "Common/async_resource_ptr.hpp"
 
 using namespace Core;
 
@@ -90,7 +88,7 @@ public:
 
 class WorldGeneration : public Components::IComponent
 {
-    Graphics::Mesh*             mesh;
+    MeshPtr                     mesh;
     Components::MeshRenderer*   mr;
 
 public:
@@ -128,7 +126,7 @@ public:
 
 class VertexGeneration : public Components::IComponent
 {
-    Graphics::Mesh*             mesh;
+    MeshPtr                     mesh;
     Components::MeshRenderer*   mr;
 
     const U32 width  = 20;
@@ -472,10 +470,10 @@ public:
 
 class MaterialTestScene : public IScene
 {
-    Graphics::Material* material;
+    MaterialPtr material;
 
-    Graphics::Texture2D* tex;
-    Graphics::Texture2D* tex2;
+    Texture2DPtr tex;
+    Texture2DPtr tex2;
 
 public:
     MaterialTestScene() : IScene("MaterialTestScene") {}
@@ -489,7 +487,7 @@ public:
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 10.0f, 0.3f);
         //go->addComponent<AutoOrbiting>(10.0f);
 
-        auto cubemap = Assets::Importer::LoadCubemap("/cubemaps/tropical_sunny_day/Left.png", "/cubemaps/tropical_sunny_day/Right.png",
+        auto cubemap = RESOURCES.getCubemap("/cubemaps/tropical_sunny_day/Left.png", "/cubemaps/tropical_sunny_day/Right.png",
             "/cubemaps/tropical_sunny_day/Up.png", "/cubemaps/tropical_sunny_day/Down.png",
             "/cubemaps/tropical_sunny_day/Front.png", "/cubemaps/tropical_sunny_day/Back.png");
         go->addComponent<Components::Skybox>(cubemap);
@@ -526,8 +524,8 @@ public:
         tex->apply();
         tex->setFilter(Graphics::TextureFilter::Point);
 
-        tex2 = Assets::Importer::LoadTexture("/textures/nico.jpg");
-        auto dirt = Assets::Importer::LoadTexture("/textures/dirt.jpg");
+        tex2 = RESOURCES.getTexture2D("/textures/nico.jpg");
+        auto dirt = RESOURCES.getTexture2D("/textures/dirt.jpg");
 
         // MATERIAL
         material = RESOURCES.createMaterial();
@@ -593,9 +591,6 @@ public:
 
 class CubemapScene : public IScene
 {
-    GameObject* goModel;
-    Graphics::Material* material;
-
 public:
     CubemapScene() : IScene("CubemapScene") {}
 
@@ -651,8 +646,8 @@ public:
 
 class TexArrayScene : public IScene
 {
-    Graphics::Texture2D* tex;
-    Graphics::Texture2DArray* arr;
+    Texture2DPtr        tex;
+    Texture2DArrayPtr   arr;
 
 public:
     TexArrayScene() : IScene("TexArrayScene") {}
@@ -675,7 +670,7 @@ public:
         auto texShader = RESOURCES.createShader("TextureArray", "/shaders/arrayTexVS.hlsl", "/shaders/arrayTexPS.hlsl");
 
         // TEXTURES
-        tex = Assets::Importer::LoadTexture("/textures/dirt.jpg");
+        tex = RESOURCES.getTexture2D("/textures/dirt.jpg");
         //auto tex2 = Assets::Importer::LoadTexture("/textures/nico.jpg");
 
         Color cols[] = { Color::RED, Color::BLUE, Color::GREEN };
@@ -729,15 +724,10 @@ public:
 };
 
 
-using TexturePtr = AsyncResourcePtr<Graphics::ITexture>;
-
-
 class TestScene : public IScene
 {
     GameObject* go2;
-    Graphics::Material* material;
-
-    TexturePtr t;
+    MaterialPtr material;
 
 public:
     TestScene() : IScene("TestScene") {}
@@ -767,31 +757,17 @@ public:
         // SHADER
         auto texShader = RESOURCES.createShader("TexShader", "/shaders/texVS.hlsl", "/shaders/texPS.hlsl");
 
-        auto dirtTex = Assets::Importer::LoadTexture("/textures/dirt.jpg");
+        auto tex = RESOURCES.getTexture2D("/textures/dirt.jpg");
 
         // MATERIAL
         material = RESOURCES.createMaterial();
         material->setShader(texShader);
-        //material->setTexture(SID("tex0"), Assets::Importer::LoadTexture("/textures/dirt.jpg"));
-        material->setTexture(SID("tex1"), Assets::Importer::LoadTexture("/textures/nico.jpg"));
+        material->setTexture(SID("tex0"), tex);
+        material->setTexture(SID("tex1"), RESOURCES.getTexture2D("/textures/nico.jpg"));
         material->setFloat(SID("mix"), 0.0f);
         material->setColor(SID("tintColor"), Color::WHITE);
 
-        TexturePtr null;
-        constexpr Size size = sizeof(TexturePtr);
-        //auto tex2  = Locator::getRenderer().createTexture2D();
-        //auto tex3  = Locator::getRenderer().createTexture2D();
-
-        t.reset(dirtTex);
-        t.setResourceChangedCallback([=](Graphics::Texture* tex){ material->setTexture(SID("tex0"), tex);  });
-        t.setDeleteCallback([](Graphics::Texture* tex) { });
-
-        material->setTexture(SID("tex0"), t.get());
-
-        ASYNC_JOB([=] {
-            auto tex = Assets::Importer::LoadTexture("/textures/4k.jpg");
-            t.reset(tex);
-        });
+        //Assets::Importer::LoadTextureAsync("/textures/4k.jpg", [=](Texture2DPtr tex){  material->setTexture(SID("tex0"), tex); });
 
         // MESH
         auto mesh = Assets::MeshGenerator::CreateCubeUV();
@@ -809,7 +785,7 @@ public:
         if (KEYBOARD.wasKeyPressed(Key::L))
         {
             ASYNC_JOB([=] {
-                auto tex = Assets::Importer::LoadTexture("/textures/4k.jpg");
+                auto tex = RESOURCES.getTexture2D("/textures/4k.jpg");
                 material->setTexture(SID("tex0"), tex);
             });
         }
@@ -861,6 +837,9 @@ public:
         //LOG( TS( clock.getTime().value ) );
         //auto time = clock.getTime();
 
+        if (KEYBOARD.wasKeyPressed(Key::T))
+            LOG("Num Textures: " + TS(RESOURCES.getTextureCount()));
+
         static bool inState = false;
         if (KEYBOARD.wasKeyPressed(Key::Q)) {
             inState = !inState;
@@ -896,8 +875,11 @@ public:
             Locator::getSceneManager().LoadSceneAsync(new ManyObjectsScene(10000));
         if (KEYBOARD.wasKeyPressed(Key::Five))
             Locator::getSceneManager().LoadSceneAsync(new CubemapScene());
+        if (KEYBOARD.wasKeyPressed(Key::Six))
+            Locator::getSceneManager().LoadSceneAsync(new TexArrayScene());
         if (KEYBOARD.wasKeyPressed(Key::Zero))
             Locator::getSceneManager().LoadSceneAsync(new TestScene());
+
 
         if (KEYBOARD.wasKeyPressed(Key::F1))
             Locator::getRenderer().setGlobalMaterialActive("NONE");

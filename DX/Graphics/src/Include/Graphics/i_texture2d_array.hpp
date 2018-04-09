@@ -76,5 +76,6 @@ namespace Graphics
     };
 
     using Texture2DArray = ITexture2DArray;
-
 }
+
+using Texture2DArrayPtr = std::shared_ptr<Graphics::ITexture2DArray>;

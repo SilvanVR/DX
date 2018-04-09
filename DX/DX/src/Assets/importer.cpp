@@ -7,13 +7,12 @@
 **********************************************************************/
 
 #include "Ext/StbImage/stb_image.h"
-#include "locator.h"
 
 namespace Assets
 {
 
     //----------------------------------------------------------------------
-    Graphics::Texture2D* Importer::LoadTexture( const OS::Path& filePath, bool generateMips )
+    Texture2DPtr Importer::LoadTexture( const OS::Path& filePath, bool generateMips )
     {
         //stbi_set_flip_vertically_on_load(1);
         I32 width, height, bpp;
@@ -35,9 +34,9 @@ namespace Assets
     }
 
     //----------------------------------------------------------------------
-    Graphics::Cubemap* Importer::LoadCubemap( const OS::Path& posX, const OS::Path& negX,
-                                              const OS::Path& posY, const OS::Path& negY,
-                                              const OS::Path& posZ, const OS::Path& negZ, bool generateMips )
+    CubemapPtr Importer::LoadCubemap( const OS::Path& posX, const OS::Path& negX,
+                                      const OS::Path& posY, const OS::Path& negY,
+                                      const OS::Path& posZ, const OS::Path& negZ, bool generateMips )
     {
         I32 width, height, bpp;
         auto posXPixels = stbi_load( posX.c_str(), &width, &height, &bpp, 4 );

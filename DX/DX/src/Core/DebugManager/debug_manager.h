@@ -51,17 +51,17 @@ namespace Core { namespace Debug {
         Graphics::CommandBuffer m_commandBuffer;
 
         // Wireframe shader with + without depth testing
-        Graphics::Shader*       m_colorShaderWireframe = nullptr;
-        Graphics::Shader*       m_colorShaderWireframeNoDepthTest = nullptr;
+        ShaderPtr               m_colorShaderWireframe = nullptr;
+        ShaderPtr               m_colorShaderWireframeNoDepthTest = nullptr;
 
         // Corresponding materials for the shaders above
-        Graphics::Material*     m_colorMaterial = nullptr;
-        Graphics::Material*     m_colorMaterialNoDepthTest = nullptr;
+        MaterialPtr             m_colorMaterial = nullptr;
+        MaterialPtr             m_colorMaterialNoDepthTest = nullptr;
 
         // Creates a new mesh for each new debug drawing request
         struct MeshInfo
         {
-            Graphics::Mesh* mesh;
+            MeshPtr         mesh;
             Time::Seconds   duration;
             bool            depthTest;
         };
@@ -70,7 +70,7 @@ namespace Core { namespace Debug {
         //----------------------------------------------------------------------
         void _OnSceneChanged();
         void _UpdateCommandBuffer();
-        inline void _AddMesh(Graphics::Mesh* mesh, Time::Seconds duration, bool depthTest);
+        inline void _AddMesh(MeshPtr mesh, Time::Seconds duration, bool depthTest);
 
         //----------------------------------------------------------------------
         DebugManager(const DebugManager& other)               = delete;

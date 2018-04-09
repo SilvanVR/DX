@@ -68,7 +68,7 @@ namespace Graphics { namespace D3D11 {
         bool _SetFloat(StringID name, F32 val)                          override { return _UpdateConstantBuffer( name, &val, sizeof( val ) ); }
         bool _SetVec4(StringID name, const Math::Vec4& vec)             override { return _UpdateConstantBuffer( name, &vec, sizeof( vec ) ); }
         bool _SetMatrix(StringID name, const DirectX::XMMATRIX& matrix) override { return _UpdateConstantBuffer( name, &matrix, sizeof( matrix ) ); }
-        bool _SetTexture(StringID name, Graphics::Texture* texture) override;
+        bool _SetTexture(StringID name, TexturePtr texture) override;
 
     private:
         // Contains the material data in a contiguous block of memory. Will be empty if not used for a shader.

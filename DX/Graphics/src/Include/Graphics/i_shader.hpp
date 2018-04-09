@@ -140,4 +140,4 @@ namespace Graphics {
 
 } // End namespaces
 
-//**********************************************************************
+using ShaderPtr = std::shared_ptr<Graphics::IShader>;

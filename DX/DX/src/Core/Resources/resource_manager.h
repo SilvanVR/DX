@@ -32,6 +32,12 @@ namespace Core { namespace Resources {
     //*********************************************************************
     class ResourceManager : public ISubSystem
     {
+        using WeakTexturePtr    = std::weak_ptr<Graphics::Texture>;
+        using WeakTexture2DPtr  = std::weak_ptr<Graphics::Texture2D>;
+        using WeakMaterialPtr   = std::weak_ptr<Graphics::Material>;
+        using WeakMeshPtr       = std::weak_ptr<Graphics::Mesh>;
+        using WeakShaderPtr     = std::weak_ptr<Graphics::Shader>;
+
     public:
         ResourceManager() = default;
         ~ResourceManager() = default;
@@ -46,31 +52,31 @@ namespace Core { namespace Resources {
         //----------------------------------------------------------------------
         // Creates a new mesh
         //----------------------------------------------------------------------
-        Graphics::Mesh* createMesh();
-        Graphics::Mesh* createMesh(const ArrayList<Math::Vec3>& vertices, const ArrayList<U32>& indices);
-        Graphics::Mesh* createMesh(const ArrayList<Math::Vec3>& vertices, const ArrayList<U32>& indices, const ArrayList<Math::Vec2>& uvs);
+        MeshPtr createMesh();
+        MeshPtr createMesh(const ArrayList<Math::Vec3>& vertices, const ArrayList<U32>& indices);
+        MeshPtr createMesh(const ArrayList<Math::Vec3>& vertices, const ArrayList<U32>& indices, const ArrayList<Math::Vec2>& uvs);
 
         //----------------------------------------------------------------------
         // Creates a new material
         // @Params:
         //  "shader": Shader to use for this material. If null default shader will be applied.
         //----------------------------------------------------------------------
-        Graphics::Material* createMaterial(Graphics::Shader* shader = nullptr);
+        MaterialPtr createMaterial(ShaderPtr shader = nullptr);
 
         //----------------------------------------------------------------------
         // Creates a new shader
         //----------------------------------------------------------------------
-        Graphics::Shader* createShader(CString name, const OS::Path& vertPath, const OS::Path& fragPath);
+        ShaderPtr createShader(CString name, const OS::Path& vertPath, const OS::Path& fragPath);
 
         //----------------------------------------------------------------------
-        // Creates a new texture
+        // Creates a new 2d texture
         // @Params:
         //  "width": Width of the texture in pixels
         //  "height": Height of the texture in pixels
         //  "format": The format of the texture
         //  "generateMips": If true a complete mipchain will be generated
         //----------------------------------------------------------------------
-        Graphics::Texture2D* createTexture2D(U32 width, U32 height, Graphics::TextureFormat format, bool generateMips = true);
+        Texture2DPtr createTexture2D(U32 width, U32 height, Graphics::TextureFormat format, bool generateMips = true);
 
         //----------------------------------------------------------------------
         // Creates a new immutable texture
@@ -81,7 +87,7 @@ namespace Core { namespace Resources {
         //  "pData": Pointer to initial texture data. If this is not null the
         //           texture will be immutable.
         //----------------------------------------------------------------------
-        Graphics::Texture2D* createTexture2D(U32 width, U32 height, Graphics::TextureFormat format, const void* pData);
+        Texture2DPtr createTexture2D(U32 width, U32 height, Graphics::TextureFormat format, const void* pData);
 
         //----------------------------------------------------------------------
         // Creates a new texture
@@ -92,17 +98,35 @@ namespace Core { namespace Resources {
         //  "format": The format of the texture
         //  "generateMips": If true a complete mipchain will be generated
         //----------------------------------------------------------------------
-        Graphics::Texture2DArray* createTexture2DArray(U32 width, U32 height, U32 depth, Graphics::TextureFormat format, bool generateMips = true);
+        Texture2DArrayPtr createTexture2DArray(U32 width, U32 height, U32 depth, Graphics::TextureFormat format, bool generateMips = true);
 
         //----------------------------------------------------------------------
         // Creates a new render texture
         //----------------------------------------------------------------------
-        Graphics::RenderTexture* createRenderTexture();
+        RenderTexturePtr createRenderTexture();
 
         //----------------------------------------------------------------------
         // Creates a new cubemap
         //----------------------------------------------------------------------
-        Graphics::Cubemap* createCubemap();
+        CubemapPtr createCubemap();
+
+        //----------------------------------------------------------------------
+        // Creates a new 2d texture from a file. Returns a default one and issues a warning if file couldn't be loaded.
+        // @Params:
+        //  "path": Path to the texture.
+        //  "genMips": If true a complete mipchain will be generated.
+        //----------------------------------------------------------------------
+        Texture2DPtr getTexture2D(const OS::Path& path, bool genMips = true);
+
+        //----------------------------------------------------------------------
+        // Creates a new cubemap from a file. Returns a default one and issues a warning if file couldn't be loaded.
+        // @Params:
+        //  "path": Path to the texture.
+        //  "genMips": If true a complete mipchain will be generated.
+        //----------------------------------------------------------------------
+        CubemapPtr getCubemap(const OS::Path& posX, const OS::Path& negX,
+                              const OS::Path& posY, const OS::Path& negY,
+                              const OS::Path& posZ, const OS::Path& negZ, bool generateMips = false);
 
         //----------------------------------------------------------------------
         // Sets the anisotropic filtering for all textures @TODO: move this somewhere else
@@ -120,11 +144,12 @@ namespace Core { namespace Resources {
         U32 getMaterialCount()  const { return static_cast<U32>( m_materials.size() ); }
         U32 getTextureCount()   const { return static_cast<U32>( m_textures.size() ); }
 
-        Graphics::Material*   getDefaultMaterial()    const { return m_defaultMaterial; }
-        Graphics::Shader*     getDefaultShader()      const { return m_defaultShader; }
+        const MaterialPtr&      getDefaultMaterial()    const { return m_defaultMaterial; }
+        const ShaderPtr&        getDefaultShader()      const { return m_defaultShader; }
 
-        Graphics::Texture2D*  getBlackTexture() const { return m_black; }
-        Graphics::Texture2D*  getWhiteTexture() const { return m_white; }
+        const Texture2DPtr&     getBlackTexture() const { return m_black; }
+        const Texture2DPtr&     getWhiteTexture() const { return m_white; }
+
 
     private:
         ArrayList<Graphics::Mesh*>      m_meshes;
@@ -132,19 +157,35 @@ namespace Core { namespace Resources {
         ArrayList<Graphics::Material*>  m_materials;
         ArrayList<Graphics::Texture*>   m_textures;
 
-        Graphics::Shader*   m_defaultShader;
-        Graphics::Shader*   m_errorShader;
-        Graphics::Shader*   m_wireframeShader;
+        ShaderPtr       m_defaultShader;
+        ShaderPtr       m_errorShader;
+        ShaderPtr       m_wireframeShader;
 
-        Graphics::Material* m_defaultMaterial;
-        Graphics::Material* m_wireframeMaterial;
+        MaterialPtr     m_defaultMaterial;
+        MaterialPtr     m_wireframeMaterial;
 
-        Graphics::Texture2D* m_black;
-        Graphics::Texture2D* m_white;
+        Texture2DPtr    m_black;
+        Texture2DPtr    m_white;
+
+        // Contains <Path,Ptr> to all textures. They might be already unloaded.
+        HashMap<StringID, WeakTexture2DPtr> m_textureCache;
+
+        struct FileInfo
+        {
+            OS::Path        path;
+            OS::SystemTime  timeAtLoad;
+        };
+
+        HashMap<Graphics::Texture2D*, FileInfo> m_textureFileInfo;
 
         //----------------------------------------------------------------------
         void _CreateDefaultAssets();
         void _OnSceneChanged();
+
+        void _DeleteTexture(Graphics::Texture* tex);
+        void _DeleteMesh(Graphics::Mesh* mesh);
+        void _DeleteMaterial(Graphics::Material* mat);
+        void _DeleteShader(Graphics::Shader* shader);
 
         //----------------------------------------------------------------------
         ResourceManager(const ResourceManager& other)               = delete;

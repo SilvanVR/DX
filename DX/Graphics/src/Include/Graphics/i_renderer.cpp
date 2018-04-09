@@ -26,7 +26,7 @@ namespace Graphics {
     //----------------------------------------------------------------------
 
     //----------------------------------------------------------------------
-    void IRenderer::addGlobalMaterial( CString name, IMaterial* material )
+    void IRenderer::addGlobalMaterial( CString name, MaterialPtr material )
     { 
         m_globalMaterials[SID( name )] = material;
     }

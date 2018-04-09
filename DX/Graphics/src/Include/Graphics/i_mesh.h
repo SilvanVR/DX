@@ -143,4 +143,4 @@ namespace Graphics {
 
 } // End namespaces
 
-//**********************************************************************
+using MeshPtr = std::shared_ptr<Graphics::IMesh>;

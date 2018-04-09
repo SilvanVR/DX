@@ -100,3 +100,5 @@ namespace Graphics
     using Cubemap = ICubemap;
 
 }
+
+using CubemapPtr = std::shared_ptr<Graphics::ICubemap>;

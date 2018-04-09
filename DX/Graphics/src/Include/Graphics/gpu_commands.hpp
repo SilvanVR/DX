@@ -46,24 +46,24 @@ namespace Graphics {
     //**********************************************************************
     struct GPUC_DrawMesh : public GPUCommandBase
     {
-        GPUC_DrawMesh( Mesh* mesh, Material* material, const DirectX::XMMATRIX& modelMatrix, I32 subMeshIndex )
+        GPUC_DrawMesh( MeshPtr mesh, MaterialPtr material, const DirectX::XMMATRIX& modelMatrix, I32 subMeshIndex )
             : GPUCommandBase( GPUCommand::DRAW_MESH ),
             material( material ), mesh( mesh ), modelMatrix( modelMatrix ), subMeshIndex( subMeshIndex ) {}
 
         DirectX::XMMATRIX   modelMatrix;
-        Mesh*               mesh;
-        Material*           material;
+        MeshPtr             mesh;
+        MaterialPtr         material;
         I32                 subMeshIndex;
     };
 
     //**********************************************************************
     struct GPUC_SetRenderTarget : public GPUCommandBase
     {
-        GPUC_SetRenderTarget( Graphics::RenderTexture* renderTarget )
+        GPUC_SetRenderTarget( RenderTexturePtr renderTarget )
             : GPUCommandBase( GPUCommand::SET_RENDER_TARGET ), 
             renderTarget( renderTarget ) {}
 
-        Graphics::RenderTexture*    renderTarget;
+        RenderTexturePtr renderTarget;
     };
 
     //**********************************************************************

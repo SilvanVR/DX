@@ -83,12 +83,12 @@ namespace Core
         LOG( " > Renderer initialized!", LOGCOLOR );
 
         //----------------------------------------------------------------------
-        m_sceneManager = initializeSubSystem( new SceneManager() );
-        LOG( " > SceneManager initialized!", LOGCOLOR );
-
-        //----------------------------------------------------------------------
         m_resourceManager = initializeSubSystem( new Resources::ResourceManager() );
         LOG( " > ResourceManager initialized!", LOGCOLOR );
+
+        //----------------------------------------------------------------------
+        m_sceneManager = initializeSubSystem( new SceneManager() );
+        LOG( " > SceneManager initialized!", LOGCOLOR );
 
         //----------------------------------------------------------------------
         m_debugManager = initializeSubSystem( new Debug::DebugManager() );
@@ -106,16 +106,16 @@ namespace Core
         shutdownSubSystem( m_debugManager );
 
         //----------------------------------------------------------------------
-        LOG( " > Shutdown ResourceManager...", LOGCOLOR );
-        shutdownSubSystem( m_resourceManager );
-
-        //----------------------------------------------------------------------
         LOG( " > Shutdown SceneManager...", LOGCOLOR );
         shutdownSubSystem( m_sceneManager );
 
         //----------------------------------------------------------------------
         LOG( " > Shutdown Renderer...", LOGCOLOR );
         shutdownSubSystem( m_renderer );
+
+        //----------------------------------------------------------------------
+        LOG( " > Shutdown ResourceManager...", LOGCOLOR );
+        shutdownSubSystem( m_resourceManager );
 
         //----------------------------------------------------------------------
         LOG( " > Shutdown In-Game Console...", LOGCOLOR  );

@@ -54,3 +54,5 @@ namespace Graphics
     using RenderTexture = IRenderTexture;
 
 }
+
+using RenderTexturePtr = std::shared_ptr<Graphics::IRenderTexture>;

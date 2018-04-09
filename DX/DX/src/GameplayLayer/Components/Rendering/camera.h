@@ -75,13 +75,13 @@ namespace Components {
         // @Return:
         //  Target texture in which this camera renders. Nullptr if rendering to screen.
         //----------------------------------------------------------------------
-        Graphics::RenderTexture*        getRenderTarget() { return m_renderTarget; }
+        RenderTexturePtr                getRenderTarget() { return m_renderTarget; }
 
         //----------------------------------------------------------------------
         // Set the render target in which this camera renders. Nullptr means the camera should
         // render to the screen. The viewport will be adapted to cover the whole texture.
         //----------------------------------------------------------------------
-        void setRenderTarget(Graphics::RenderTexture* renderTarget) { m_renderTarget = renderTarget; }
+        void setRenderTarget(RenderTexturePtr renderTarget) { m_renderTarget = renderTarget; }
 
         //----------------------------------------------------------------------
         // Add additional command buffer to this camera
@@ -123,7 +123,7 @@ namespace Components {
         Color       m_clearColor    = Color::BLACK;
 
         // Target render texture (nullptr means camera renders to screen)
-        Graphics::RenderTexture* m_renderTarget = nullptr;
+        RenderTexturePtr m_renderTarget = nullptr;
 
         // Which layer this camera renders
         //Common::BitMask               m_layerMask;

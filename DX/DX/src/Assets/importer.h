@@ -11,6 +11,7 @@
 #include "OS/FileSystem/path.h"
 #include "Graphics/i_texture2d.hpp"
 #include "Graphics/i_cubemap.hpp"
+#include "locator.h"
 
 namespace Assets
 {
@@ -22,14 +23,14 @@ namespace Assets
         //----------------------------------------------------------------------
         // Loads a texture from a file.
         //----------------------------------------------------------------------
-        static Graphics::Texture2D* LoadTexture(const OS::Path& filePath, bool generateMips = true);
+        static Texture2DPtr LoadTexture(const OS::Path& filePath, bool generateMips = true);
 
         //----------------------------------------------------------------------
         // Loads several textures to create a cubemap.
         //----------------------------------------------------------------------
-        static Graphics::Cubemap* LoadCubemap(const OS::Path& posX, const OS::Path& negX, 
-                                              const OS::Path& posY, const OS::Path& negY, 
-                                              const OS::Path& posZ, const OS::Path& negZ, bool generateMips = false);
+        static CubemapPtr LoadCubemap(const OS::Path& posX, const OS::Path& negX,
+                                      const OS::Path& posY, const OS::Path& negY, 
+                                      const OS::Path& posZ, const OS::Path& negZ, bool generateMips = false);
 
     private:
         //----------------------------------------------------------------------

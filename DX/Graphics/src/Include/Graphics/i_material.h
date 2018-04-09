@@ -23,21 +23,21 @@ namespace Graphics {
         virtual ~IMaterial() {}
 
         //----------------------------------------------------------------------
-        void        setShader(IShader* shader) { m_shader = shader; _ChangedShader(); }
+        void        setShader(ShaderPtr shader) { m_shader = shader; _ChangedShader(); }
 
         //----------------------------------------------------------------------
-        IShader*    getShader()     const { return m_shader; }
+        ShaderPtr   getShader()     const { return m_shader; }
 
         //**********************************************************************
         // MATERIAL PARAMETERS
         //**********************************************************************
         //----------------------------------------------------------------------
-        I32                 getInt(StringID name)       const;
-        F32                 getFloat(StringID name)     const;
-        Math::Vec4          getVec4(StringID name)      const;
-        DirectX::XMMATRIX   getMatrix(StringID name)    const;
-        Color               getColor(StringID name)     const;
-        Texture*            getTexture(StringID name)   const;
+        I32                                 getInt(StringID name)       const;
+        F32                                 getFloat(StringID name)     const;
+        Math::Vec4                          getVec4(StringID name)      const;
+        DirectX::XMMATRIX                   getMatrix(StringID name)    const;
+        Color                               getColor(StringID name)     const;
+        TexturePtr                          getTexture(StringID name)   const;
 
         //----------------------------------------------------------------------
         void setInt(StringID name, I32 val);
@@ -45,17 +45,17 @@ namespace Graphics {
         void setVec4(StringID name, const Math::Vec4& vec);
         void setMatrix(StringID name, const DirectX::XMMATRIX& matrix);
         void setColor(StringID name, Color color);
-        void setTexture(StringID name, Texture* tex);
+        void setTexture(StringID name, TexturePtr tex);
 
     protected:
-        IShader*    m_shader = nullptr;
+        ShaderPtr m_shader = nullptr;
 
         // Data maps
-        HashMap<StringID, I32>                  m_intMap;
-        HashMap<StringID, F32>                  m_floatMap;
-        HashMap<StringID, Math::Vec4>           m_vec4Map;
-        HashMap<StringID, DirectX::XMMATRIX>    m_matrixMap;
-        HashMap<StringID, Texture*>             m_textureMap;
+        HashMap<StringID, I32>                          m_intMap;
+        HashMap<StringID, F32>                          m_floatMap;
+        HashMap<StringID, Math::Vec4>                   m_vec4Map;
+        HashMap<StringID, DirectX::XMMATRIX>            m_matrixMap;
+        HashMap<StringID, TexturePtr>                   m_textureMap;
 
         // Each API should decide themselves how to efficiently update their data
         // @Return:
@@ -64,7 +64,7 @@ namespace Graphics {
         virtual bool _SetFloat(StringID name, F32 val) = 0;
         virtual bool _SetVec4(StringID name, const Math::Vec4& vec) = 0;
         virtual bool _SetMatrix(StringID name, const DirectX::XMMATRIX& matrix) = 0;
-        virtual bool _SetTexture(StringID name, Texture* texture) = 0;
+        virtual bool _SetTexture(StringID name, TexturePtr texture) = 0;
 
     private:
         //----------------------------------------------------------------------
@@ -82,3 +82,5 @@ namespace Graphics {
     using Material = IMaterial;
 
 } // End namespaces
+
+using MaterialPtr = std::shared_ptr<Graphics::IMaterial>;
