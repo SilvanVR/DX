@@ -752,7 +752,7 @@ public:
         material->setFloat(SID("mix"), 0.0f);
         material->setColor(SID("tintColor"), Color::WHITE);
 
-        //Assets::Importer::LoadTextureAsync("/textures/4k.jpg", [=](Texture2DPtr tex){  material->setTexture(SID("tex0"), tex); });
+  
 
         // MESH
         auto mesh = Assets::MeshGenerator::CreateCubeUV();
@@ -768,16 +768,10 @@ public:
     void tick(Time::Seconds d) override
     {
         if (KEYBOARD.wasKeyPressed(Key::L))
-        {
-            ASYNC_JOB([=] {
-                auto tex = ASSETS.getTexture2D("/textures/4k.jpg");
-                material->setTexture(SID("tex0"), tex);
-            });
-        }
+            ASSETS.getTexture2DAsync("/textures/4k.jpg", true, [=](Texture2DPtr tex) { material->setTexture(SID("tex0"), tex); });
     }
 
     void shutdown() override { LOG("TestScene Shutdown!", Color::RED); }
-
 };
 
 //----------------------------------------------------------------------
@@ -821,9 +815,6 @@ public:
         //clock.tick( delta );
         //LOG( TS( clock.getTime().value ) );
         //auto time = clock.getTime();
-
-        if (KEYBOARD.wasKeyPressed(Key::T))
-            LOG("Num Textures: " + TS(RESOURCES.getTextureCount()));
 
         static bool inState = false;
         if (KEYBOARD.wasKeyPressed(Key::Q)) {

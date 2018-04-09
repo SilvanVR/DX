@@ -21,28 +21,17 @@ namespace Core { namespace Assets {
         Locator::getEngineClock().setInterval([this]{
 
             // Texture reloading
-            for (auto& pair : m_textureFileInfo)
+            for ( auto it = m_textureCache.begin(); it != m_textureCache.end(); )
             {
-                auto& texture   = pair.first;
-                auto& fileInfo  = pair.second;
-
-                try {
-                    auto currentFileTime = fileInfo.path.getLastWrittenFileTime();
-                    if ( fileInfo.timeAtLoad != currentFileTime )
-                    {
-                        // Reload texture on a separate thread
-                        LOG( "Reloading texture: " + fileInfo.path.toString(), LOG_COLOR );
-                        ASYNC_JOB([=] {
-                            I32 width, height, bpp;
-                            auto pixels = stbi_load( fileInfo.path.c_str(), &width, &height, &bpp, 4 );
-                            texture->setPixels( pixels );
-                            texture->apply();
-                            stbi_image_free( pixels );
-                        });
-                        fileInfo.timeAtLoad = currentFileTime;
-                    }
-                } catch(...) { 
-                    // Do nothing here. This means simply the file could not be opened, because another app has not yet freed the handle
+                if ( it->second.texture.expired() )
+                {
+                    // Texture does no longer exist, so remove it from the cache map
+                    it = m_textureCache.erase( it );
+                }
+                else
+                {
+                    it->second.ReloadAsyncIfNotUpToDate();
+                    it++;
                 }
             }
 
@@ -52,7 +41,6 @@ namespace Core { namespace Assets {
     //----------------------------------------------------------------------
     void AssetManager::shutdown()
     {
-
     }
 
     //**********************************************************************
@@ -62,14 +50,16 @@ namespace Core { namespace Assets {
     //----------------------------------------------------------------------
     Texture2DPtr AssetManager::getTexture2D( const OS::Path& filePath, bool generateMips )
     {
+        // Check if texture was already loaded
         StringID pathAsID = SID( filePath.c_str() );
-        if (m_textureCache.find( pathAsID ) != m_textureCache.end())
+        if ( m_textureCache.find( pathAsID ) != m_textureCache.end() )
         {
-            auto weakPtr = m_textureCache[pathAsID];
+            auto weakPtr = m_textureCache[pathAsID].texture;
             if ( not weakPtr.expired() )
                 return Texture2DPtr( weakPtr );
         }
 
+        // Try loading texture
         auto texture = _LoadTexture2D( filePath, generateMips );
         if ( not texture )
         {
@@ -77,14 +67,23 @@ namespace Core { namespace Assets {
             return RESOURCES.getWhiteTexture();
         }
 
-        m_textureCache[pathAsID] = texture;
+        TextureAssetInfo texInfo;
+        texInfo.texture     = texture;
+        texInfo.path        = filePath;
+        texInfo.timeAtLoad  = filePath.getLastWrittenFileTime();
 
-        FileInfo fileInfo;
-        fileInfo.path       = filePath;
-        fileInfo.timeAtLoad = filePath.getLastWrittenFileTime();
-        m_textureFileInfo[texture.get()] = fileInfo;
+        m_textureCache[pathAsID] = texInfo;
 
         return texture;
+    }
+
+    //----------------------------------------------------------------------
+    void AssetManager::getTexture2DAsync( const OS::Path& filePath, bool genMips, const std::function<void(Texture2DPtr)>& callback )
+    {
+        ASYNC_JOB([=] {
+            auto tex = getTexture2D( filePath, genMips );
+            callback( tex );
+        });
     }
 
     //----------------------------------------------------------------------
@@ -92,6 +91,16 @@ namespace Core { namespace Assets {
                                          const OS::Path& posY, const OS::Path& negY,
                                          const OS::Path& posZ, const OS::Path& negZ, bool generateMips )
     {
+        // Check if cubemap was already loaded (checks only first path)
+        StringID pathAsID = SID( posX.c_str() );
+        if ( m_cubemapCache.find( pathAsID ) != m_cubemapCache.end() )
+        {
+            auto weakPtr = m_cubemapCache[pathAsID].cubemap;
+            if ( not weakPtr.expired() )
+                return CubemapPtr( weakPtr );
+        }
+
+        // Try loading cubemap
         auto cubemap = _LoadCubemap( posX, negX, posY, negY, posZ, negZ, generateMips );
         if (not cubemap)
         {
@@ -99,6 +108,13 @@ namespace Core { namespace Assets {
                    posX.toString() + " .Returning default cubemap instead." );
             return RESOURCES.getDefaultCubemap();
         }
+
+        CubemapAssetInfo texInfo;
+        texInfo.cubemap     = cubemap;
+        texInfo.path        = posX;
+        texInfo.timeAtLoad  = posX.getLastWrittenFileTime();
+
+        m_cubemapCache[pathAsID] = texInfo;
 
         return cubemap;
     }
@@ -134,7 +150,7 @@ namespace Core { namespace Assets {
                                            const OS::Path& posY, const OS::Path& negY,
                                            const OS::Path& posZ, const OS::Path& negZ, bool generateMips )
     {
-        LOG( "AssetManager: Loading Cubemap '" + posX.toString() + "' (Positive X-Face) etc.", LOG_COLOR );
+        LOG( "AssetManager: Loading 6 Cubemap Faces '" + posX.toString() + "' (Positive X-Face) etc.", LOG_COLOR );
 
         I32 width, height, bpp;
         auto posXPixels = stbi_load( posX.c_str(), &width, &height, &bpp, 4 );
@@ -145,7 +161,15 @@ namespace Core { namespace Assets {
         auto negZPixels = stbi_load( negZ.c_str(), &width, &height, &bpp, 4 );
 
         if ( not posXPixels || not negXPixels || not posYPixels || not negYPixels || not posZPixels || not negZPixels )
+        {
+            stbi_image_free( posXPixels );
+            stbi_image_free( negXPixels );
+            stbi_image_free( posYPixels );
+            stbi_image_free( negYPixels );
+            stbi_image_free( posZPixels );
+            stbi_image_free( negZPixels );
             return nullptr;
+        }
 
         auto cubemap = RESOURCES.createCubemap();
         cubemap->create( width, Graphics::TextureFormat::RGBA32, generateMips );
@@ -168,5 +192,37 @@ namespace Core { namespace Assets {
         return cubemap;
     }
 
+    //**********************************************************************
+    // PRIVATE - ASSET INFOS
+    //**********************************************************************
+
+    //----------------------------------------------------------------------
+    void AssetManager::TextureAssetInfo::ReloadAsyncIfNotUpToDate()
+    {
+        if ( auto tex = texture.lock() )
+        {
+            try {
+                auto currentFileTime = path.getLastWrittenFileTime();
+
+                if (timeAtLoad != currentFileTime)
+                {
+                    // Reload texture on a separate thread
+                    LOG( "Reloading texture: " + path.toString(), LOG_COLOR );
+                    ASYNC_JOB([=] {
+                        I32 width, height, bpp;
+                        auto pixels = stbi_load( path.c_str(), &width, &height, &bpp, 4 );
+                        tex->setPixels( pixels );
+                        tex->apply();
+                        stbi_image_free( pixels );
+                    });
+
+                    timeAtLoad = currentFileTime;
+                }
+            }
+            catch (...) {
+                // Do nothing here. This means simply the file could not be opened, because another app has not yet closed the handle
+            }
+        }
+    }
 
 } } // End namespaces

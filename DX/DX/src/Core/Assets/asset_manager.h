@@ -21,7 +21,8 @@ namespace Core { namespace Assets {
     //**********************************************************************
     class AssetManager : public ISubSystem
     {
-        using WeakTexture2DPtr = std::weak_ptr<Graphics::Texture2D>;
+        using WeakTexture2DPtr  = std::weak_ptr<Graphics::Texture2D>;
+        using WeakCubemapPtr    = std::weak_ptr<Graphics::Cubemap>;
 
     public:
         AssetManager() = default;
@@ -34,35 +35,50 @@ namespace Core { namespace Assets {
         void shutdown() override;
 
         //----------------------------------------------------------------------
-        // Creates a new 2d texture from a file. Returns a default one and issues a warning if the file couldn't be loaded.
+        // Creates a new 2d texture from a file. Will be loaded only if not already in memory.
+        // Returns a default one and issues a warning if the file couldn't be loaded.
         // @Params:
         //  "path": Path to the texture.
         //  "genMips": If true a complete mipchain will be generated.
         //----------------------------------------------------------------------
-        Texture2DPtr getTexture2D(const OS::Path& filePath, bool generateMips = true);
+        Texture2DPtr getTexture2D(const OS::Path& filePath, bool genMips = true);
+        void getTexture2DAsync(const OS::Path& filePath, bool genMips, const std::function<void(Texture2DPtr)>& callback);
 
         //----------------------------------------------------------------------
-        // Creates a new cubemap from a file. Returns a default one and issues a warning if file couldn't be loaded.
+        // Creates a new cubemap from a file. Will be loaded only if not already in memory. (Checks only first path)
+        // Returns a default one and issues a warning if file couldn't be loaded.
         // @Params:
-        //  "path": Path to the texture.
-        //  "genMips": If true a complete mipchain will be generated.
+        //  "pos?": Path to each cubemap face.
+        //  "genMips": If true a complete mipchain will be generated for each face.
         //----------------------------------------------------------------------
         CubemapPtr getCubemap(const OS::Path& posX, const OS::Path& negX,
-                               const OS::Path& posY, const OS::Path& negY, 
-                               const OS::Path& posZ, const OS::Path& negZ, bool generateMips = false);
+                              const OS::Path& posY, const OS::Path& negY, 
+                              const OS::Path& posZ, const OS::Path& negZ, bool genMips = false);
 
     private:
-
-        // Contains <Path,Ptr> to all textures. They might be already unloaded.
-        HashMap<StringID, WeakTexture2DPtr> m_textureCache;
-
         struct FileInfo
         {
-            OS::Path        path;
-            OS::SystemTime  timeAtLoad;
+            OS::Path            path;
+            OS::SystemTime      timeAtLoad;
         };
-        HashMap<Graphics::Texture2D*, FileInfo> m_textureFileInfo;
 
+        struct TextureAssetInfo : public FileInfo
+        {
+            WeakTexture2DPtr    texture;
+
+            // Reloads the texture on a separate thread if not up to date.
+            void ReloadAsyncIfNotUpToDate();
+        };
+
+        struct CubemapAssetInfo : public FileInfo
+        {
+            WeakCubemapPtr cubemap;
+            // No reloading supported for cubemaps
+        };
+
+        // Lists of all loaded resources. Stores weak-ptrs, which means that the texture might be already unloaded.
+        HashMap<StringID, TextureAssetInfo> m_textureCache;
+        HashMap<StringID, CubemapAssetInfo> m_cubemapCache;
 
         //----------------------------------------------------------------------
         inline Texture2DPtr _LoadTexture2D(const OS::Path& filePath, bool generateMips);
