@@ -750,9 +750,7 @@ public:
         material->setTexture(SID("tex0"), ASSETS.getTexture2D("/textures/dirt.jpg"));
         material->setTexture(SID("tex1"), ASSETS.getTexture2D("/textures/nico.jpg"));
         material->setFloat(SID("mix"), 0.0f);
-        material->setColor(SID("tintColor"), Color::WHITE);
-
-  
+        material->setColor(SID("tintColor"), Color::WHITE);  
 
         // MESH
         auto mesh = Assets::MeshGenerator::CreateCubeUV();
