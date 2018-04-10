@@ -42,7 +42,7 @@ namespace Graphics
         U32                 m_width             = 0;
         U32                 m_height            = 0;
         U32                 m_mipCount          = 1;
-        U32                 m_anisoLevel        = 1;
+        U32                 m_anisoLevel        = 8;
         TextureFormat       m_format            = TextureFormat::Unknown;
         TextureDimension    m_dimension         = TextureDimension::Unknown;
         TextureFilter       m_filter            = TextureFilter::Trilinear;
