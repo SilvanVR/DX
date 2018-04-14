@@ -2,8 +2,8 @@
 
 #define STB_VOXEL_RENDER_IMPLEMENTATION
 #define STBVOX_CONFIG_MODE 20
-#include "stb_voxel_renderer.hpp"
 
+#include "stb_voxel_renderer.hpp"
 #include "PolyVoxCore/Array.h"
 
 #define DISPLAY_CONSOLE 1
@@ -142,7 +142,6 @@ public:
     }
 };
 
-
 class MyScene : public IScene
 {
 public:
@@ -157,7 +156,6 @@ public:
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 10.0f, 0.3f);
         go->addComponent<Minimap>(20.0f, 3.0f);
         go->addComponent<Components::AudioListener>();
-        go->addComponent<MusicManager>(ArrayList<OS::Path>{"/audio/minecraft.wav", "/audio/minecraft2.wav"});
 
         // SHADER
         auto texShader = RESOURCES.createShader("TexShader", "/shaders/texVS.hlsl", "/shaders/texPS.hlsl");
@@ -205,12 +203,18 @@ public:
         getWindow().setCursor( "../dx/res/internal/cursors/Areo Cursor Red.cur" );
         getWindow().setIcon( "../dx/res/internal/icon.ico" );
 
-        Locator::getSceneManager().LoadSceneAsync( new MyScene() );
+        // Create a gameobject in the default scene with a new component and add new scene onto the stack.
+        // This way the music manager will stay alife during the whole program.
+        SCENE.createGameObject("MusicManager")->addComponent<MusicManager>(ArrayList<OS::Path>{"/audio/minecraft.wav", "/audio/minecraft2.wav"});
+
+        Locator::getSceneManager().PushSceneAsync( new MyScene(), false );
     }
 
     //----------------------------------------------------------------------
     void tick(Time::Seconds delta) override
     {
+        if (KEYBOARD.wasKeyPressed(Key::One))
+            Locator::getSceneManager().LoadSceneAsync(new MyScene);
     }
 
     //----------------------------------------------------------------------
