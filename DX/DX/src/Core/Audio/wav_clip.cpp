@@ -84,7 +84,7 @@ namespace Core { namespace Audio {
     bool WAVClip::load( const OS::Path& path )
     {
         auto extension = path.getExtension();
-        if (extension != "wav")
+        if ( extension != "wav" )
         {
             WARN_AUDIO( "WAVClip::load(): Wrong extension '" + extension + "'." );
             return false;
@@ -101,10 +101,10 @@ namespace Core { namespace Audio {
             0,
             NULL);
 
-        if (INVALID_HANDLE_VALUE == hFile)
+        if ( INVALID_HANDLE_VALUE == hFile )
             return false;
 
-        if (INVALID_SET_FILE_POINTER == SetFilePointer(hFile, 0, NULL, FILE_BEGIN))
+        if ( INVALID_SET_FILE_POINTER == SetFilePointer( hFile, 0, NULL, FILE_BEGIN ) )
             return false;
 
         DWORD dwChunkSize;

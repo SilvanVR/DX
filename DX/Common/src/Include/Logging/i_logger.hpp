@@ -239,6 +239,7 @@ namespace Logging {
             case LOG_CHANNEL_MEMORY:     return "[Memory] ";
             case LOG_CHANNEL_RENDERING:  return "[Rendering] ";
             case LOG_CHANNEL_PHYSICS:    return "[Physics] ";
+            case LOG_CHANNEL_AUDIO:      return "[Audio] ";
             case LOG_CHANNEL_TEST:       return "[TEST] ";
             default:  
                 return "";

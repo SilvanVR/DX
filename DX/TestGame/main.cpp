@@ -76,8 +76,11 @@ public:
         if (KEYBOARD.isKeyDown(Key::Right))
             pitch += speed * delta.value;
 
-        clip->setBasePitch(pitch);
-        clip->setVolume(volume);
+        if (clip)
+        {
+            clip->setBasePitch(pitch);
+            clip->setVolume(volume);
+        }
     }
 
     void shutdown() override

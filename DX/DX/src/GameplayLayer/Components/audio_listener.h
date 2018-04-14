@@ -16,6 +16,9 @@ namespace Components {
     public:
         AudioListener() = default;
 
+        //----------------------------------------------------------------------
+        // IComponent Interface
+        //----------------------------------------------------------------------
         void AddedToGameObject(GameObject* go) override;
         void Tick(Time::Seconds delta) override;
 

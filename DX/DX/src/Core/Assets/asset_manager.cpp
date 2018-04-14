@@ -139,7 +139,7 @@ namespace Core { namespace Assets {
         if( not wav.load( filePath ) )
         {
             WARN( "AssetManager::getAudioClip(): Audio clip '" + filePath.toString() + "' could not be loaded. Returning nullptr." );
-            return nullptr;            
+            return nullptr;
         }
 
         auto audioClip = RESOURCES.createAudioClip();

@@ -21,8 +21,9 @@ namespace Core { namespace Audio {
         ~AudioClip();
 
         //----------------------------------------------------------------------
-        bool isLooping() const { return m_isLooping; }
-        F32 getVolume() const { F32 volume; m_pSourceVoice->GetVolume(&volume); return volume; }
+        bool    isLooping()     const { return m_isLooping; }
+        F32     getVolume()     const { F32 volume; m_pSourceVoice->GetVolume(&volume); return volume; }
+        F32     getBasePitch()  const { return m_basePitch; }
 
         //----------------------------------------------------------------------
         // Starts playing this clip from the beginning.
@@ -55,26 +56,26 @@ namespace Core { namespace Audio {
         void setBasePitch(F32 basePitch);
 
         //----------------------------------------------------------------------
-        // Change the name for this audio clip. Automatically set to the filepath.
-        //----------------------------------------------------------------------
-        void setName(const String& name) { m_name = name; }
-
-        //----------------------------------------------------------------------
         // Set whether this audio clip will loop or not.
         //----------------------------------------------------------------------
         void setIsLooping(bool isLooping);
 
-
+        //----------------------------------------------------------------------
+        // Update the 3D-Settings for this clip.
+        //----------------------------------------------------------------------
         void update3D(const X3DAUDIO_EMITTER& emitter);
+
+        //----------------------------------------------------------------------
+        // Set the wavclip for this audio-clip, which contains the actual audio data.
+        //----------------------------------------------------------------------
         void setWAVClip(const WAVClip& wavClip);
 
     private:
-        String                  m_name;
         IXAudio2SourceVoice*    m_pSourceVoice = nullptr;
         XAUDIO2_VOICE_DETAILS   m_details;
         F32                     m_basePitch = 1.0f;
-        bool                    m_isLooping = false;
         WAVClip                 m_wavClip;
+        bool                    m_isLooping = false;
 
         inline void _SubmitSourceBuffer();
 

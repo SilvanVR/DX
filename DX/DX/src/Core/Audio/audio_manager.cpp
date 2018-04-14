@@ -34,16 +34,15 @@ namespace Core { namespace Audio {
     }
 
     //----------------------------------------------------------------------
-    void AudioManager::OnTick( Time::Seconds delta )
-    {
-    }
-
-    //----------------------------------------------------------------------
     void AudioManager::shutdown()
     {
         m_pMasterVoice->DestroyVoice();
         m_pXAudio2->StopEngine();
     }
+
+    //**********************************************************************
+    // PUBLIC
+    //**********************************************************************
 
     //----------------------------------------------------------------------
     void AudioManager::update3DVoice( const X3DAUDIO_EMITTER& emitter, IXAudio2SourceVoice* voice, UINT32 sourceChannels )
@@ -51,7 +50,7 @@ namespace Core { namespace Audio {
         X3DAudioCalculate( m_X3DInstance, &m_listener, &emitter, X3DAUDIO_CALCULATE_MATRIX, &m_DSPSettings );
 
         if ( FAILED( voice->SetOutputMatrix( NULL, sourceChannels, m_voiceDetails.InputChannels, m_DSPSettings.pMatrixCoefficients ) ) )
-            WARN_AUDIO( "FAILED" );
+            WARN_AUDIO( "AudioManager::update3DVoice(): Failed to set the output matrix for a source voice." );
     }
 
     //----------------------------------------------------------------------
@@ -63,7 +62,7 @@ namespace Core { namespace Audio {
     //----------------------------------------------------------------------
     void AudioManager::setVolume( F32 volume )
     {
-        if ( FAILED( m_pMasterVoice->SetVolume(volume) ) )
+        if ( FAILED( m_pMasterVoice->SetVolume( volume ) ) )
             WARN_AUDIO( "AudioManager::setVolume(): Could not set the master volume." );
     }
 

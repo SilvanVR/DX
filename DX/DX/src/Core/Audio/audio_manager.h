@@ -12,8 +12,8 @@
 
 namespace Core { namespace Audio {
 
-    #define INPUTCHANNELS 1  // number of source channels
-    #define OUTPUTCHANNELS 8 // maximum number of destination channels supported
+    #define INPUTCHANNELS 1  // Number of source channels
+    #define OUTPUTCHANNELS 8 // Maximum number of destination channels supported
 
     //**********************************************************************
     class AudioManager : public Core::ISubSystem
@@ -26,7 +26,6 @@ namespace Core { namespace Audio {
         // ISubSystem Interface
         //----------------------------------------------------------------------
         void init() override;
-        void OnTick(Time::Seconds delta) override;
         void shutdown() override;
 
         //----------------------------------------------------------------------
@@ -35,9 +34,17 @@ namespace Core { namespace Audio {
         void setVolume(F32 volume);
 
         //----------------------------------------------------------------------
-        void update3DVoice(const X3DAUDIO_EMITTER& emitter, IXAudio2SourceVoice* voice, UINT32 sourceChannels);
+        // Update the listeners position / orientation for computing 3d sound.
+        //----------------------------------------------------------------------
         void updateListener(const X3DAUDIO_LISTENER& listener);
 
+        //----------------------------------------------------------------------
+        // Update the 3d sound effect for a source voice and a given emitter.
+        //----------------------------------------------------------------------
+        void update3DVoice(const X3DAUDIO_EMITTER& emitter, IXAudio2SourceVoice* voice, UINT32 sourceChannels);
+
+        //----------------------------------------------------------------------
+        // This is needed to create XAudio2SourceVoices.
         IXAudio2* getXAudio2() { return m_pXAudio2; }
 
     private:

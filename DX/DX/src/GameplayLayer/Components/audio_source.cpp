@@ -8,7 +8,7 @@
 
 #include "transform.h"
 #include "GameplayLayer/gameobject.h"
-#include "locator.h"
+#include "Core/Audio/audio_manager.h"
 
 namespace Components {
 
@@ -46,7 +46,7 @@ namespace Components {
         auto transform = getComponent<Components::Transform>();
 
         X3DAUDIO_EMITTER emitter = {};
-        emitter.ChannelCount        = 1;
+        emitter.ChannelCount        = INPUTCHANNELS;
         emitter.CurveDistanceScaler = m_innerRadius;
         emitter.OrientFront         = transform->rotation.getForward();
         emitter.OrientTop           = transform->rotation.getUp();
