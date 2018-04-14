@@ -120,29 +120,35 @@ namespace Core { namespace Assets {
     }
 
     //----------------------------------------------------------------------
-    AudioClipPtr AssetManager::getAudioClip( const OS::Path& path )
+    AudioClipPtr AssetManager::getAudioClip( const OS::Path& filePath )
     {
         // Check if audio was already loaded
-        StringID pathAsID = SID( path.c_str() );
+        StringID pathAsID = SID( filePath.c_str() );
         if ( m_audioCache.find( pathAsID ) != m_audioCache.end() )
         {
-            auto weakPtr = m_audioCache[pathAsID].audio;
-            if ( not weakPtr.expired() )
-                return AudioClipPtr( weakPtr );
+            auto wav = m_audioCache[pathAsID].wavClip;
+            auto audioClip = RESOURCES.createAudioClip();
+            audioClip->setWAVClip( wav );
+            return audioClip;
         }
 
         // Try loading audio
-        auto audioClip = _LoadAudioClip( path );
-        if (not audioClip)
+        LOG( "AssetManager: Loading Audio '" + filePath.toString() + "'", LOG_COLOR );
+
+        Audio::WAVClip wav;
+        if( not wav.load( filePath ) )
         {
-            WARN( "LoadAudioClip(): Audio clip '" + path.toString() + "' could not be loaded. Returning nullptr." );
-            return nullptr;
+            WARN( "AssetManager::getAudioClip(): Audio clip '" + filePath.toString() + "' could not be loaded. Returning nullptr." );
+            return nullptr;            
         }
 
+        auto audioClip = RESOURCES.createAudioClip();
+        audioClip->setWAVClip( wav );
+
         AudioClipAssetInfo info;
-        info.audio      = audioClip;
-        info.path       = path;
-        info.timeAtLoad = path.getLastWrittenFileTime();
+        info.wavClip    = wav;
+        info.path       = filePath;
+        info.timeAtLoad = filePath.getLastWrittenFileTime();
 
         m_audioCache[pathAsID] = info;
 
@@ -220,16 +226,6 @@ namespace Core { namespace Assets {
 
         cubemap->apply();
         return cubemap;
-    }
-
-    //----------------------------------------------------------------------
-    AudioClipPtr AssetManager::_LoadAudioClip( const OS::Path& filePath )
-    {
-        LOG( "AssetManager: Loading Audio '" + filePath.toString() + "'", LOG_COLOR );
-
-        return std::make_shared<Audio::AudioClip>( filePath );
-
-        //return nullptr;
     }
 
     //**********************************************************************

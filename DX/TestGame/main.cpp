@@ -25,8 +25,7 @@ public:
         clip = ASSETS.getAudioClip( "/audio/doki.wav" );
 
         auto go2 = createGameObject("Sound");
-        auto as = go2->addComponent<Components::AudioSource>(clip);
-        //as->setClip(clip);
+        auto as = go2->addComponent<Components::AudioSource>(clip, false);
         go2->addComponent<Components::MeshRenderer>(Core::Assets::MeshGenerator::CreateCube(0.5f, Color::BLUE));
 
         auto go3 = createGameObject("Sound");
@@ -47,14 +46,32 @@ public:
             play = !play;
         }
 
+        if (KEYBOARD.wasKeyPressed(Key::E))
+            clip->play();
+
+        if (KEYBOARD.wasKeyPressed(Key::R))
+            clip->pause();
+
+        if (KEYBOARD.wasKeyPressed(Key::T))
+            clip->resume();
+
+        if (KEYBOARD.wasKeyPressed(Key::Z))
+            clip->stop();
+
         static F32 pitch = 1.0f;
+        static F32 volume = 1.0f;
         static F32 speed = 0.5f;
         if (KEYBOARD.isKeyDown(Key::Up))
-            pitch += speed * delta.value;
+            volume += speed * delta.value;
         if (KEYBOARD.isKeyDown(Key::Down))
+            volume -= speed * delta.value;
+        if (KEYBOARD.isKeyDown(Key::Left))
             pitch -= speed * delta.value;
+        if (KEYBOARD.isKeyDown(Key::Right))
+            pitch += speed * delta.value;
 
         clip->setBasePitch(pitch);
+        clip->setVolume(volume);
     }
 
     void shutdown() override

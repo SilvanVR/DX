@@ -34,7 +34,7 @@ namespace Core { namespace Audio {
     }
 
     //----------------------------------------------------------------------
-    void AudioManager::OnTick(Time::Seconds delta)
+    void AudioManager::OnTick( Time::Seconds delta )
     {
     }
 
@@ -46,7 +46,7 @@ namespace Core { namespace Audio {
     }
 
     //----------------------------------------------------------------------
-    void AudioManager::update3DVoice(const X3DAUDIO_EMITTER& emitter, IXAudio2SourceVoice* voice, UINT32 sourceChannels)
+    void AudioManager::update3DVoice( const X3DAUDIO_EMITTER& emitter, IXAudio2SourceVoice* voice, UINT32 sourceChannels )
     {
         X3DAudioCalculate( m_X3DInstance, &m_listener, &emitter, X3DAUDIO_CALCULATE_MATRIX, &m_DSPSettings );
 
@@ -55,16 +55,16 @@ namespace Core { namespace Audio {
     }
 
     //----------------------------------------------------------------------
-    void AudioManager::updateListener(const X3DAUDIO_LISTENER& listener)
+    void AudioManager::updateListener( const X3DAUDIO_LISTENER& listener )
     {
         m_listener = listener;
     }
 
     //----------------------------------------------------------------------
-    void AudioManager::setVolume(F32 volume)
+    void AudioManager::setVolume( F32 volume )
     {
         if ( FAILED( m_pMasterVoice->SetVolume(volume) ) )
-            WARN_AUDIO( "AudioManager::setVolume(): Could not set the volume." );
+            WARN_AUDIO( "AudioManager::setVolume(): Could not set the master volume." );
     }
 
 } } // End namespaces

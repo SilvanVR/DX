@@ -304,6 +304,7 @@
     <ClCompile Include="src\Core\Assets\mesh_generator.cpp" />
     <ClCompile Include="src\Core\Audio\audio_clip.cpp" />
     <ClCompile Include="src\Core\Audio\audio_manager.cpp" />
+    <ClCompile Include="src\Core\Audio\wav_clip.cpp" />
     <ClCompile Include="src\Core\DebugManager\debug_manager.cpp" />
     <ClCompile Include="src\Ext\StbImage\stb_image.cpp" />
     <ClCompile Include="src\Core\Config\configuration_manager.cpp" />
@@ -351,6 +352,7 @@
     <ClInclude Include="src\Core\Assets\asset_manager.h" />
     <ClInclude Include="src\Core\Audio\audio_clip.h" />
     <ClInclude Include="src\Core\Audio\audio_manager.h" />
+    <ClInclude Include="src\Core\Audio\wav_clip.h" />
     <ClInclude Include="src\Core\DebugManager\debug_manager.h" />
     <ClInclude Include="src\Core\event_names.hpp" />
     <ClInclude Include="src\Core\Resources\default_shaders.hpp" />

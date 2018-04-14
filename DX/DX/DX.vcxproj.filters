@@ -126,6 +126,9 @@
     <ClCompile Include="src\GameplayLayer\Components\audio_source.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Core\Audio\wav_clip.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\stdafx.h">
@@ -261,6 +264,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\GameplayLayer\Components\audio_source.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Audio\wav_clip.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

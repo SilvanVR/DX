@@ -30,9 +30,13 @@ namespace Core { namespace Audio {
         void shutdown() override;
 
         //----------------------------------------------------------------------
+        // Set the volume level for all audio sources.
+        //----------------------------------------------------------------------
+        void setVolume(F32 volume);
+
+        //----------------------------------------------------------------------
         void update3DVoice(const X3DAUDIO_EMITTER& emitter, IXAudio2SourceVoice* voice, UINT32 sourceChannels);
         void updateListener(const X3DAUDIO_LISTENER& listener);
-        void setVolume(F32 volume);
 
         IXAudio2* getXAudio2() { return m_pXAudio2; }
 

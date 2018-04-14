@@ -8,6 +8,10 @@
     Manages all resources in the game:
     - Creates & knows about them
     - Deletes them
+
+    This is to separate the concept of creating/deleting resources
+    and loading them from disk, which is the responsibility of the
+    AssetManager.
 **********************************************************************/
 
 #include "SubSystem/i_subsystem.hpp"
@@ -18,6 +22,7 @@
 #include "Graphics/i_render_texture.hpp"
 #include "Graphics/i_cubemap.hpp"
 #include "Graphics/i_texture2d_array.hpp"
+#include "Core/Audio/audio_clip.h"
 
 namespace Core { namespace Resources {
 
@@ -100,6 +105,11 @@ namespace Core { namespace Resources {
         CubemapPtr createCubemap();
 
         //----------------------------------------------------------------------
+        // Creates a new audio clip
+        //----------------------------------------------------------------------
+        AudioClipPtr createAudioClip();
+
+        //----------------------------------------------------------------------
         // Sets the anisotropic filtering for all textures @TODO: move this somewhere else
         //----------------------------------------------------------------------
         void setGlobalAnisotropicFiltering(U32 level);
@@ -123,6 +133,7 @@ namespace Core { namespace Resources {
         ArrayList<Graphics::Shader*>    m_shaders;
         ArrayList<Graphics::Material*>  m_materials;
         ArrayList<Graphics::Texture*>   m_textures;
+        ArrayList<Audio::AudioClip*>    m_audioClips;
 
         ShaderPtr       m_defaultShader;
         ShaderPtr       m_errorShader;
@@ -143,6 +154,7 @@ namespace Core { namespace Resources {
         void _DeleteMesh(Graphics::Mesh* mesh);
         void _DeleteMaterial(Graphics::Material* mat);
         void _DeleteShader(Graphics::Shader* shader);
+        void _DeleteAudioClip(Audio::AudioClip* clip);
 
         //----------------------------------------------------------------------
         ResourceManager(const ResourceManager& other)               = delete;

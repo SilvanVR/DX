@@ -177,6 +177,16 @@ namespace Core { namespace Resources {
         return CubemapPtr( cubemap, BIND_THIS_FUNC_1_ARGS( &ResourceManager::_DeleteTexture ) );
     }
 
+    //----------------------------------------------------------------------
+    AudioClipPtr ResourceManager::createAudioClip()
+    {
+        auto audioClip = new Audio::AudioClip();
+
+        m_audioClips.push_back( audioClip );
+
+        return AudioClipPtr( audioClip, BIND_THIS_FUNC_1_ARGS( &ResourceManager::_DeleteAudioClip ) );
+    }
+
     //**********************************************************************
     // PRIVATE
     //**********************************************************************
@@ -228,6 +238,16 @@ namespace Core { namespace Resources {
 #endif
         m_shaders.erase( std::remove( m_shaders.begin(), m_shaders.end(), shader ) );
         SAFE_DELETE( shader );
+    }
+
+    //----------------------------------------------------------------------
+    void ResourceManager::_DeleteAudioClip( Audio::AudioClip* clip )
+    {
+        #if PRINT_DELETES
+            LOG( "DELETING AudioClip", Color::RED );
+        #endif
+        m_audioClips.erase( std::remove( m_audioClips.begin(), m_audioClips.end(), clip ) );
+        SAFE_DELETE( clip );
     }
 
     //----------------------------------------------------------------------
