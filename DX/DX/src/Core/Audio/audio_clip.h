@@ -22,6 +22,7 @@ namespace Core { namespace Audio {
 
         //----------------------------------------------------------------------
         bool isLooping() const { return m_isLooping; }
+        F32 getVolume() const { F32 volume; m_pSourceVoice->GetVolume(&volume); return volume; }
 
         //----------------------------------------------------------------------
         // Starts playing this clip from the beginning.

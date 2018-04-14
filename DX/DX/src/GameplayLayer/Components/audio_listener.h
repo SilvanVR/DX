@@ -16,9 +16,12 @@ namespace Components {
     public:
         AudioListener() = default;
 
+        void AddedToGameObject(GameObject* go) override;
         void Tick(Time::Seconds delta) override;
 
     private:
+        inline void _UpdateListener();
+
         //----------------------------------------------------------------------
         AudioListener(const AudioListener& other)               = delete;
         AudioListener& operator = (const AudioListener& other)  = delete;

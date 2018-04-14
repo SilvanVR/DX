@@ -13,7 +13,23 @@
 namespace Components {
 
     //----------------------------------------------------------------------
+    void AudioListener::AddedToGameObject( GameObject* go )
+    {
+        _UpdateListener();
+    }
+
+    //----------------------------------------------------------------------
     void AudioListener::Tick( Time::Seconds delta )
+    {
+        _UpdateListener();
+    }
+
+    //**********************************************************************
+    // PRIVATE
+    //**********************************************************************
+
+    //----------------------------------------------------------------------
+    void AudioListener::_UpdateListener()
     {
         auto transform = getComponent<Components::Transform>();
 

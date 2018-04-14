@@ -25,12 +25,13 @@ public:
         clip = ASSETS.getAudioClip( "/audio/doki.wav" );
 
         auto go2 = createGameObject("Sound");
-        auto as = go2->addComponent<Components::AudioSource>(clip, false);
+        auto as = go2->addComponent<Components::AudioSource>(clip, true);
+
         go2->addComponent<Components::MeshRenderer>(Core::Assets::MeshGenerator::CreateCube(0.5f, Color::BLUE));
 
         auto go3 = createGameObject("Sound");
         go3->getComponent<Components::Transform>()->position = Math::Vec3(50, 0, 0);
-        go3->addComponent<Components::AudioSource>(ASSETS.getAudioClip("/audio/test.wav"));
+        //go3->addComponent<Components::AudioSource>(ASSETS.getAudioClip("/audio/test.wav"));
         go3->addComponent<Components::MeshRenderer>(Core::Assets::MeshGenerator::CreateCube(0.5f, Color::RED));
 
         mesh = Core::Assets::MeshGenerator::CreateGrid(100.0f);
@@ -45,6 +46,11 @@ public:
             play ? clip->play() : clip->pause();
             play = !play;
         }
+
+        if (KEYBOARD.wasKeyPressed(Key::H))
+            DEBUG.drawSphere({}, 10.0f, Color::GREEN, 5000);
+        if (KEYBOARD.wasKeyPressed(Key::G))
+            DEBUG.drawSphere({}, 20.0f, Color::RED, 5000);
 
         if (KEYBOARD.wasKeyPressed(Key::E))
             clip->play();
@@ -62,9 +68,9 @@ public:
         static F32 volume = 1.0f;
         static F32 speed = 0.5f;
         if (KEYBOARD.isKeyDown(Key::Up))
-            volume += speed * delta.value;
+            volume += 2 * speed * delta.value;
         if (KEYBOARD.isKeyDown(Key::Down))
-            volume -= speed * delta.value;
+            volume -= 2 * speed * delta.value;
         if (KEYBOARD.isKeyDown(Key::Left))
             pitch -= speed * delta.value;
         if (KEYBOARD.isKeyDown(Key::Right))
