@@ -41,7 +41,8 @@ namespace Logging {
         LOG_CHANNEL_MEMORY       = 1 << 1,
         LOG_CHANNEL_RENDERING    = 1 << 2,
         LOG_CHANNEL_PHYSICS      = 1 << 3,
-        LOG_CHANNEL_TEST         = 1 << 4,
+        LOG_CHANNEL_AUDIO        = 1 << 4,
+        LOG_CHANNEL_TEST         = 1 << 5,
         LOG_CHANNEL_ALL          = ~0
     };
 

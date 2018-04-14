@@ -302,6 +302,8 @@
   <ItemGroup>
     <ClCompile Include="src\Core\Assets\asset_manager.cpp" />
     <ClCompile Include="src\Core\Assets\mesh_generator.cpp" />
+    <ClCompile Include="src\Core\Audio\audio_clip.cpp" />
+    <ClCompile Include="src\Core\Audio\audio_manager.cpp" />
     <ClCompile Include="src\Core\DebugManager\debug_manager.cpp" />
     <ClCompile Include="src\Ext\StbImage\stb_image.cpp" />
     <ClCompile Include="src\Core\Config\configuration_manager.cpp" />
@@ -320,6 +322,8 @@
     <ClCompile Include="src\Core\Profiling\profiler.cpp" />
     <ClCompile Include="src\Core\Resources\resource_manager.cpp" />
     <ClCompile Include="src\Core\SceneManager\scene_manager.cpp" />
+    <ClCompile Include="src\GameplayLayer\Components\audio_listener.cpp" />
+    <ClCompile Include="src\GameplayLayer\Components\audio_source.cpp" />
     <ClCompile Include="src\GameplayLayer\Components\fps_camera.cpp" />
     <ClCompile Include="src\GameplayLayer\Components\Rendering\camera.cpp" />
     <ClCompile Include="src\GameplayLayer\Components\skybox.cpp" />
@@ -345,6 +349,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Core\Assets\asset_manager.h" />
+    <ClInclude Include="src\Core\Audio\audio_clip.h" />
+    <ClInclude Include="src\Core\Audio\audio_manager.h" />
     <ClInclude Include="src\Core\DebugManager\debug_manager.h" />
     <ClInclude Include="src\Core\event_names.hpp" />
     <ClInclude Include="src\Core\Resources\default_shaders.hpp" />
@@ -368,6 +374,8 @@
     <ClInclude Include="src\Core\MemoryManager\memory_tracker.h" />
     <ClInclude Include="src\Core\Resources\resource_manager.h" />
     <ClInclude Include="src\Core\SceneManager\scene_manager.h" />
+    <ClInclude Include="src\GameplayLayer\Components\audio_listener.h" />
+    <ClInclude Include="src\GameplayLayer\Components\audio_source.h" />
     <ClInclude Include="src\GameplayLayer\Components\component_manager.h" />
     <ClInclude Include="src\GameplayLayer\Components\fps_camera.h" />
     <ClInclude Include="src\GameplayLayer\Components\Rendering\camera.h" />

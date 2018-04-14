@@ -10,7 +10,7 @@
 #include "Time/durations.h"
 
 class GameObject;
-namespace Graphics { class CommandBuffer; }
+namespace Graphics { class CommandBuffer; };
 
 namespace Components {
 
@@ -34,6 +34,12 @@ namespace Components {
         // Whether this component is active. (P.S. if the attached gameobject is not active this returns also false!)
         //----------------------------------------------------------------------
         bool                isActive()      const;
+
+        //----------------------------------------------------------------------
+        // @Return:
+        // Component from attached gameobject. Nullptr if not found.
+        //----------------------------------------------------------------------
+        template<typename T> inline T* getComponent() { return m_pGameObject->getComponent<T>(); }
 
     protected:
         //----------------------------------------------------------------------

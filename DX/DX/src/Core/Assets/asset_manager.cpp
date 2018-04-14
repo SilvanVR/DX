@@ -11,7 +11,7 @@
 
 namespace Core { namespace Assets {
 
-    #define HOT_RELOAD_INTERVAL_MILLIS  50
+    #define HOT_RELOAD_INTERVAL_MILLIS  500
     #define LOG_COLOR                   Color::GREEN
     
     //----------------------------------------------------------------------
@@ -119,6 +119,36 @@ namespace Core { namespace Assets {
         return cubemap;
     }
 
+    //----------------------------------------------------------------------
+    AudioClipPtr AssetManager::getAudioClip( const OS::Path& path )
+    {
+        // Check if audio was already loaded
+        StringID pathAsID = SID( path.c_str() );
+        if ( m_audioCache.find( pathAsID ) != m_audioCache.end() )
+        {
+            auto weakPtr = m_audioCache[pathAsID].audio;
+            if ( not weakPtr.expired() )
+                return AudioClipPtr( weakPtr );
+        }
+
+        // Try loading audio
+        auto audioClip = _LoadAudioClip( path );
+        if (not audioClip)
+        {
+            WARN( "LoadAudioClip(): Audio clip '" + path.toString() + "' could not be loaded. Returning nullptr." );
+            return nullptr;
+        }
+
+        AudioClipAssetInfo info;
+        info.audio      = audioClip;
+        info.path       = path;
+        info.timeAtLoad = path.getLastWrittenFileTime();
+
+        m_audioCache[pathAsID] = info;
+
+        return audioClip;
+    }
+
     //**********************************************************************
     // PRIVATE
     //**********************************************************************
@@ -190,6 +220,16 @@ namespace Core { namespace Assets {
 
         cubemap->apply();
         return cubemap;
+    }
+
+    //----------------------------------------------------------------------
+    AudioClipPtr AssetManager::_LoadAudioClip( const OS::Path& filePath )
+    {
+        LOG( "AssetManager: Loading Audio '" + filePath.toString() + "'", LOG_COLOR );
+
+        return std::make_shared<Audio::AudioClip>( filePath );
+
+        //return nullptr;
     }
 
     //**********************************************************************

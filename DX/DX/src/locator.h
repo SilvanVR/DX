@@ -36,6 +36,7 @@
 #include "Core/Resources/resource_manager.h"
 #include "Core/DebugManager/debug_manager.h"
 #include "Core/Assets/asset_manager.h"
+#include "Core/Audio/audio_manager.h"
 
 //----------------------------------------------------------------------
 // Defines
@@ -72,6 +73,7 @@ public:
     static Core::Resources::ResourceManager&          getResourceManager(){ return *gResourceManager; }
     static Core::Debug::DebugManager&                 getDebugManager()   { return *gDebugManager;}
     static Core::Assets::AssetManager&                getAssetManager()   { return *gAssetManager; }
+    static Core::Audio::AudioManager&                 getAudioManager()   { return *gAudioManager; }
 
     //----------------------------------------------------------------------
     // Provide a Sub-System
@@ -90,6 +92,7 @@ public:
     static void provide(Core::Resources::ResourceManager* r)                  { gResourceManager = r; }
     static void provide(Core::Debug::DebugManager* d)                         { gDebugManager = d; }
     static void provide(Core::Assets::AssetManager* a)                        { gAssetManager = a; }
+    static void provide(Core::Audio::AudioManager* a)                         { gAudioManager = a; }
 
 private:
     static Core::CoreEngine*                          gCoreEngine;
@@ -110,6 +113,7 @@ private:
     static Core::Resources::ResourceManager*          gResourceManager;
     static Core::Debug::DebugManager*                 gDebugManager;
     static Core::Assets::AssetManager*                gAssetManager;
+    static Core::Audio::AudioManager*                 gAudioManager;
 
     //----------------------------------------------------------------------
     Locator()                                   = delete;

@@ -80,7 +80,7 @@ public:
 
     void Tick( Time::Seconds delta ) override
     {
-        auto t = getGameObject()->getComponent<Components::Transform>();
+        auto t = getComponent<Components::Transform>();
         t->rotation = Math::Quat::FromEulerAngles( m_curDegrees );
         m_curDegrees += m_speeds * (F32)delta.value;
     }
@@ -207,7 +207,7 @@ public:
 
     void Tick(Time::Seconds delta) override
     {
-        auto t = getGameObject()->getComponent<Components::Transform>();
+        auto t = getComponent<Components::Transform>();
 
         Math::Vec3 vecXZ = t->position;
         vecXZ.y = 0.0f;
@@ -711,6 +711,43 @@ public:
 };
 
 
+class SoundTestScene : public IScene
+{
+    GameObject* go2;
+    MaterialPtr material;
+
+public:
+    SoundTestScene() : IScene("SoundTestScene") {}
+
+    void init() override
+    {
+        // Camera
+        auto go = createGameObject("Camera");
+        auto cam = go->addComponent<Components::Camera>();
+        go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -10);
+        go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 10.0f, 0.3f);
+
+        createGameObject("Grid")->addComponent<GridGeneration>(20);
+
+        // MESH
+        auto mesh = Assets::MeshGenerator::CreateCubeUV();
+        mesh->setColors(cubeColors);
+
+        // GAMEOBJECT
+        go2 = createGameObject("Test2");
+        go2->addComponent<Components::MeshRenderer>(mesh);
+
+        LOG("SoundTestScene initialized!", Color::RED);
+    }
+
+    void tick(Time::Seconds d) override
+    {
+       // if (KEYBOARD.wasKeyPressed(Key::L))
+    }
+
+    void shutdown() override { LOG("SoundTestScene Shutdown!", Color::RED); }
+};
+
 class TestScene : public IScene
 {
     GameObject* go2;
@@ -802,7 +839,7 @@ public:
 
         IGC_SET_VAR("test", 1.0f);
 
-        Locator::getSceneManager().LoadSceneAsync(new TestScene());
+        Locator::getSceneManager().LoadSceneAsync(new SoundTestScene());
     }
 
     //----------------------------------------------------------------------
@@ -851,6 +888,8 @@ public:
             Locator::getSceneManager().LoadSceneAsync(new CubemapScene());
         if (KEYBOARD.wasKeyPressed(Key::Six))
             Locator::getSceneManager().LoadSceneAsync(new TexArrayScene());
+        if (KEYBOARD.wasKeyPressed(Key::Seven))
+            Locator::getSceneManager().LoadSceneAsync(new SoundTestScene());
         if (KEYBOARD.wasKeyPressed(Key::Zero))
             Locator::getSceneManager().LoadSceneAsync(new TestScene());
 

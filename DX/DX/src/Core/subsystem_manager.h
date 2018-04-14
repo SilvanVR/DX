@@ -27,6 +27,7 @@ namespace Core {
     namespace Resources         { class ResourceManager; }
     namespace Debug             { class DebugManager; }
     namespace Assets            { class AssetManager; }
+    namespace Audio             { class AudioManager; }
     class IInGameConsole;
     class SceneManager;
 
@@ -58,6 +59,7 @@ namespace Core {
         Resources::ResourceManager*         m_resourceManager   = nullptr;
         Assets::AssetManager*               m_assetManager      = nullptr;
         Debug::DebugManager*                m_debugManager      = nullptr;
+        Audio::AudioManager*                m_audioManager      = nullptr;
 
         //----------------------------------------------------------------------
         void _InitVirtualFilePaths();

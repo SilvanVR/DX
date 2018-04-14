@@ -21,8 +21,12 @@
 #include <stack>
 #include <map>
 
+#include "pch.hpp"
+
 #ifdef _WIN32
     #include <DirectXMath.h>
+    #include <xaudio2.h>
+    #include <x3daudio.h>
+    
+    #pragma comment(lib,"xaudio2.lib")
 #endif
-
-#include "pch.hpp"

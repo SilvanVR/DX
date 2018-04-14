@@ -40,6 +40,9 @@ extern Logging::ILogger*        gLogger;
 #define WARN_PHYSICS(...)       gLogger->warn( Logging::LOG_CHANNEL_PHYSICS, __VA_ARGS__ )
 #define ERROR_PHYSICS(...)      gLogger->error( Logging::LOG_CHANNEL_PHYSICS, __VA_ARGS__ )
 
+#define LOG_AUDIO(...)          gLogger->log( Logging::LOG_CHANNEL_AUDIO, __VA_ARGS__ )
+#define WARN_AUDIO(...)         gLogger->warn( Logging::LOG_CHANNEL_AUDIO, __VA_ARGS__ )
+#define ERROR_AUDIO(...)        gLogger->error( Logging::LOG_CHANNEL_AUDIO, __VA_ARGS__ )
 
 namespace Logging {
 

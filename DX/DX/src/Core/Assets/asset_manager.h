@@ -15,6 +15,7 @@
 #include "OS/FileSystem/path.h"
 #include "Graphics/i_texture2d.hpp"
 #include "Graphics/i_cubemap.hpp"
+#include "Core/Audio/audio_clip.h"
 
 namespace Core { namespace Assets {
 
@@ -23,6 +24,7 @@ namespace Core { namespace Assets {
     {
         using WeakTexture2DPtr  = std::weak_ptr<Graphics::Texture2D>;
         using WeakCubemapPtr    = std::weak_ptr<Graphics::Cubemap>;
+        using WeakAudioClipPtr  = std::weak_ptr<Audio::AudioClip>;
 
     public:
         AssetManager() = default;
@@ -55,6 +57,13 @@ namespace Core { namespace Assets {
                               const OS::Path& posY, const OS::Path& negY, 
                               const OS::Path& posZ, const OS::Path& negZ, bool genMips = false);
 
+        //----------------------------------------------------------------------
+        // Creates a new audio object. Will be loaded only if not already in memory.
+        // @Params:
+        //  "path": Path to the audio clip.
+        //----------------------------------------------------------------------
+        AudioClipPtr getAudioClip(const OS::Path& path);
+
     private:
         struct FileInfo
         {
@@ -76,15 +85,23 @@ namespace Core { namespace Assets {
             // No reloading supported for cubemaps
         };
 
-        // Lists of all loaded resources. Stores weak-ptrs, which means that the texture might be already unloaded.
-        HashMap<StringID, TextureAssetInfo> m_textureCache;
-        HashMap<StringID, CubemapAssetInfo> m_cubemapCache;
+        struct AudioClipAssetInfo : public FileInfo
+        {
+            WeakAudioClipPtr audio;
+            // No reloading supported for audio
+        };
+
+        // Lists of all loaded resources. Stores weak-ptrs, which means that the resource might be already unloaded.
+        HashMap<StringID, TextureAssetInfo>     m_textureCache;
+        HashMap<StringID, CubemapAssetInfo>     m_cubemapCache;
+        HashMap<StringID, AudioClipAssetInfo>   m_audioCache;
 
         //----------------------------------------------------------------------
         inline Texture2DPtr _LoadTexture2D(const OS::Path& filePath, bool generateMips);
         inline CubemapPtr _LoadCubemap(const OS::Path& posX, const OS::Path& negX, 
                                        const OS::Path& posY, const OS::Path& negY,
                                        const OS::Path& posZ, const OS::Path& negZ, bool generateMips);
+        inline AudioClipPtr _LoadAudioClip(const OS::Path& filePath);
 
         //----------------------------------------------------------------------
         AssetManager(const AssetManager& other)                 = delete;

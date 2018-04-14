@@ -20,6 +20,8 @@
 #include "GameplayLayer/Components/fps_camera.h"
 #include "GameplayLayer/Components/skybox.h"
 #include "Core/Assets/mesh_generator.h"
+#include "GameplayLayer/Components/audio_listener.h"
+#include "GameplayLayer/Components/audio_source.h"
 
 class IGame : public Core::CoreEngine
 {

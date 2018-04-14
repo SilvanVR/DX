@@ -1,11 +1,15 @@
 #include <DX.h>
-
 #define DISPLAY_CONSOLE 1
 
+
+//**********************************************************************
 class MyScene : public IScene
 {
     GameObject*             go;
     Components::Camera*     cam;
+
+    MeshPtr         mesh;
+    AudioClipPtr    clip;
 
 public:
     MyScene() : IScene("MyScene"){}
@@ -16,6 +20,41 @@ public:
         cam = go->addComponent<Components::Camera>();
         go->getComponent<Components::Transform>()->position = Math::Vec3(0,0,-10);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 10.0f, 0.3f);
+        go->addComponent<Components::AudioListener>();
+
+        clip = ASSETS.getAudioClip( "/audio/doki.wav" );
+
+        auto go2 = createGameObject("Sound");
+        auto as = go2->addComponent<Components::AudioSource>(clip);
+        //as->setClip(clip);
+        go2->addComponent<Components::MeshRenderer>(Core::Assets::MeshGenerator::CreateCube(0.5f, Color::BLUE));
+
+        auto go3 = createGameObject("Sound");
+        go3->getComponent<Components::Transform>()->position = Math::Vec3(50, 0, 0);
+        go3->addComponent<Components::AudioSource>(ASSETS.getAudioClip("/audio/test.wav"));
+        go3->addComponent<Components::MeshRenderer>(Core::Assets::MeshGenerator::CreateCube(0.5f, Color::RED));
+
+        mesh = Core::Assets::MeshGenerator::CreateGrid(100.0f);
+        createGameObject("Grid")->addComponent<Components::MeshRenderer>(mesh);
+    }
+
+    void tick(Time::Seconds delta) override
+    {
+        if (KEYBOARD.wasKeyPressed(Key::F))
+        {
+            static bool play = true;
+            play ? clip->play() : clip->pause();
+            play = !play;
+        }
+
+        static F32 pitch = 1.0f;
+        static F32 speed = 0.5f;
+        if (KEYBOARD.isKeyDown(Key::Up))
+            pitch += speed * delta.value;
+        if (KEYBOARD.isKeyDown(Key::Down))
+            pitch -= speed * delta.value;
+
+        clip->setBasePitch(pitch);
     }
 
     void shutdown() override
@@ -25,9 +64,6 @@ public:
 
 class Game : public IGame
 {
-    GameObject* go;
-    Components::Camera* cam;
-
 public:
     //----------------------------------------------------------------------
     void init() override 
@@ -35,7 +71,7 @@ public:
         LOG( "Init game..." );
         gLogger->setSaveToDisk( false );
 
-        // Want to call a function every x-milliseconds or after x-millis
+        // Print time and delta every 1000ms
         Locator::getEngineClock().setInterval([] {
            LOG( "Time: " + TS( Locator::getEngineClock().getTime().value ) + " FPS: " + TS( Locator::getProfiler().getFPS() ) );
         }, 1000);
@@ -48,13 +84,6 @@ public:
     //----------------------------------------------------------------------
     void tick(Time::Seconds delta) override
     {
-        static U64 ticks = 0;
-
-        ticks++;
-        //LOG( "Tick: " + TS(ticks) );
-
-        if ( ticks == GAME_TICK_RATE * 100.1f)
-            terminate();
     }
 
     //----------------------------------------------------------------------
@@ -64,21 +93,20 @@ public:
     }
 };
 
+#ifdef _DEBUG
+    const char* gameName = "[DEBUG] Test Game";
+#else
+    const char* gameName = "[RELEASE] Test Game";
+#endif
+
 #if DISPLAY_CONSOLE
 
     int main()
     {
         Game game;
-
-#ifdef _DEBUG
-        const char* gameName = "[DEBUG] Test Game";
-#else
-        const char* gameName = "[RELEASE] Test Game";
-#endif
-
         game.start( gameName, 800, 600 );
 
-        system("pause");
+        //system("pause");
         return 0;
     }
 
@@ -93,7 +121,7 @@ public:
         int       nCmdShow)
     {
         Game game;
-        game.start("Awesome Game!", 800, 600);
+        game.start( gameName, 800, 600 );
 
         return 0;
     }

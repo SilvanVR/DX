@@ -22,6 +22,7 @@
 #include "Resources/resource_manager.h"
 #include "Assets/asset_manager.h"
 #include "DebugManager/debug_manager.h"
+#include "Audio/audio_manager.h"
 
 //----------------------------------------------------------------------
 #define ENABLE_THREADING 1
@@ -88,6 +89,10 @@ namespace Core
         LOG( " > ResourceManager initialized!", LOGCOLOR );
 
         //----------------------------------------------------------------------
+        m_audioManager = initializeSubSystem( new Audio::AudioManager() );
+        LOG( " > AudioManager initialized!", LOGCOLOR );
+
+        //----------------------------------------------------------------------
         m_sceneManager = initializeSubSystem( new SceneManager() );
         LOG( " > SceneManager initialized!", LOGCOLOR );
 
@@ -119,8 +124,12 @@ namespace Core
         shutdownSubSystem( m_sceneManager );
 
         //----------------------------------------------------------------------
+        LOG(" > Shutdown AudioManager...", LOGCOLOR);
+        shutdownSubSystem( m_audioManager );
+
+        //----------------------------------------------------------------------
         LOG( " > Shutdown Renderer...", LOGCOLOR );
-        shutdownSubSystem( m_renderer );
+        shutdownSubSystem( m_renderer ); // must be deleted before resource manager, so global material handles get freed
 
         //----------------------------------------------------------------------
         LOG( " > Shutdown ResourceManager...", LOGCOLOR );
@@ -172,6 +181,7 @@ namespace Core
         OS::VirtualFileSystem::mount( "models",   "../DX/res/models" );
         OS::VirtualFileSystem::mount( "internal", "../DX/res/internal" );
         OS::VirtualFileSystem::mount( "cursors",  "../DX/res/internal/cursors" );
+        OS::VirtualFileSystem::mount( "audio",    "../DX/res/audio" );
     }
 
     //----------------------------------------------------------------------

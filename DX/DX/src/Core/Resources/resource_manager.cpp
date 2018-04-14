@@ -211,7 +211,7 @@ namespace Core { namespace Resources {
             if ( m_textureFileInfo.find(tex2D) != m_textureFileInfo.end() )
                 LOG( "DELETING TEXTURE " + m_textureFileInfo[tex2D].path.toString(), Color::RED );
             else
-                LOG("DELETING TEXTURE", Color::RED);
+                LOG( "DELETING TEXTURE" , Color::RED);
         }
         else
             LOG( "DELETING TEXTURE", Color::RED );
@@ -272,10 +272,10 @@ namespace Core { namespace Resources {
         // TEXTURES
         {
             Color blacks[4] = { Color::BLACK, Color::BLACK, Color::BLACK, Color::BLACK };
-            m_black = createTexture2D( 2, 2, Graphics::TextureFormat::RGBA32, blacks );
+            m_black = createTexture2D( 2, 2, Graphics::TextureFormat::BGRA32, blacks );
 
             Color whites[4] = { Color::WHITE, Color::WHITE, Color::WHITE, Color::WHITE };
-            m_white = createTexture2D( 2, 2, Graphics::TextureFormat::RGBA32, whites );
+            m_white = createTexture2D( 2, 2, Graphics::TextureFormat::BGRA32, whites );
         }
 
         // CUBEMAPS

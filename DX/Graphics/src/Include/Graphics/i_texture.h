@@ -8,6 +8,7 @@
 **********************************************************************/
 
 #include "enums.hpp"
+#include <cmath>
 
 namespace Graphics
 {
