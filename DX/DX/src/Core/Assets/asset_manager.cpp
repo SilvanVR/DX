@@ -126,17 +126,20 @@ namespace Core { namespace Assets {
         StringID pathAsID = SID( filePath.c_str() );
         if ( m_audioCache.find( pathAsID ) != m_audioCache.end() )
         {
-            auto wav = m_audioCache[pathAsID].wavClip;
-            auto audioClip = RESOURCES.createAudioClip();
-            audioClip->setWAVClip( wav );
-            return audioClip;
+            auto weakPtr = m_audioCache[pathAsID].wavClip;
+            if ( not weakPtr.expired() )
+            {
+                auto audioClip = RESOURCES.createAudioClip();
+                audioClip->setWAVClip( Audio::WAVClipPtr( weakPtr ) );
+                return audioClip;
+            }
         }
 
         // Try loading audio
         LOG( "AssetManager: Loading Audio '" + filePath.toString() + "'", LOG_COLOR );
 
-        Audio::WAVClip wav;
-        if( not wav.load( filePath ) )
+        auto wav = std::make_shared<Audio::WAVClip>();
+        if( not wav->load( filePath ) )
         {
             WARN( "AssetManager::getAudioClip(): Audio clip '" + filePath.toString() + "' could not be loaded. Returning nullptr." );
             return nullptr;
@@ -145,6 +148,7 @@ namespace Core { namespace Assets {
         auto audioClip = RESOURCES.createAudioClip();
         audioClip->setWAVClip( wav );
 
+        // Cache loaded audio
         AudioClipAssetInfo info;
         info.wavClip    = wav;
         info.path       = filePath;

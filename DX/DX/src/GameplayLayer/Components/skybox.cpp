@@ -18,7 +18,7 @@ namespace Components {
     #define SHADER_PRIORITY 10000
 
     //----------------------------------------------------------------------
-    void Skybox::AddedToGameObject(GameObject* go)
+    void Skybox::addedToGameObject(GameObject* go)
     {
         auto m_gameObject = go->getScene()->createGameObject( "Skybox" );
 

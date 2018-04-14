@@ -31,7 +31,7 @@ public:
 
         auto go3 = createGameObject("Sound");
         go3->getComponent<Components::Transform>()->position = Math::Vec3(50, 0, 0);
-        //go3->addComponent<Components::AudioSource>(ASSETS.getAudioClip("/audio/test.wav"));
+        go3->addComponent<Components::AudioSource>(ASSETS.getAudioClip("/audio/doki.wav"));
         go3->addComponent<Components::MeshRenderer>(Core::Assets::MeshGenerator::CreateCube(0.5f, Color::RED));
 
         mesh = Core::Assets::MeshGenerator::CreateGrid(100.0f);

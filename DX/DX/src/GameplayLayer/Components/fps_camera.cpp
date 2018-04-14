@@ -13,13 +13,13 @@
 namespace Components {
 
     //----------------------------------------------------------------------
-    void FPSCamera::AddedToGameObject( GameObject* go )
+    void FPSCamera::addedToGameObject( GameObject* go )
     {
         m_pTransform = go->getComponent<Components::Transform>();
     }
 
     //----------------------------------------------------------------------
-    void FPSCamera::Tick( Time::Seconds delta )
+    void FPSCamera::tick( Time::Seconds delta )
     {
         if ( MOUSE.wasKeyPressed( MouseKey::MButton ) )
             m_cameraMode = (m_cameraMode == ECameraMode::MAYA ? ECameraMode::FPS : ECameraMode::MAYA);

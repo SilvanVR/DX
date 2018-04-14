@@ -45,18 +45,18 @@ namespace Components {
         //----------------------------------------------------------------------
         // Will be called before this component ticks for the first time.
         //----------------------------------------------------------------------
-        virtual void Init() {}
+        virtual void init() {}
 
-        virtual void PreTick(Time::Seconds delta) {}
-        virtual void Tick(Time::Seconds delta) {}
-        virtual void LateTick(Time::Seconds delta) {}
+        virtual void preTick(Time::Seconds delta) {}
+        virtual void tick(Time::Seconds delta) {}
+        virtual void lateTick(Time::Seconds delta) {}
 
-        virtual void Shutdown() {}
+        virtual void shutdown() {}
 
         //----------------------------------------------------------------------
         // Called immediately after the component was attached to a gameobject.
         //----------------------------------------------------------------------
-        virtual void AddedToGameObject(GameObject* go) {}
+        virtual void addedToGameObject(GameObject* go) {}
 
     private:
         GameObject* m_pGameObject   = nullptr;
@@ -64,7 +64,7 @@ namespace Components {
         bool        m_isActive      = true;
 
         //----------------------------------------------------------------------
-        void _SetGameObject(GameObject* go) { m_pGameObject = go; AddedToGameObject( m_pGameObject ); }
+        void _SetGameObject(GameObject* go) { m_pGameObject = go; addedToGameObject( m_pGameObject ); }
 
         //----------------------------------------------------------------------
         IComponent(const IComponent& other)               = delete;

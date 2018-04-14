@@ -45,7 +45,7 @@ namespace Components {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    void MeshRenderer::AddedToGameObject( GameObject* go )
+    void MeshRenderer::addedToGameObject( GameObject* go )
     {
         auto transform = go->getComponent<Transform>();
         if ( transform == nullptr )

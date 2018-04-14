@@ -81,7 +81,7 @@ namespace Time {
         operator Microseconds() const;
         operator Nanoseconds() const;
 
-        String toString() const { return TS( value ) + " min"; }
+        String toString() const;
     };
 
     //**********************************************************************

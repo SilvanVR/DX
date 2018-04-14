@@ -13,13 +13,13 @@
 namespace Components {
 
     //----------------------------------------------------------------------
-    void AudioListener::AddedToGameObject( GameObject* go )
+    void AudioListener::addedToGameObject( GameObject* go )
     {
         _UpdateListener();
     }
 
     //----------------------------------------------------------------------
-    void AudioListener::Tick( Time::Seconds delta )
+    void AudioListener::tick( Time::Seconds delta )
     {
         _UpdateListener();
     }

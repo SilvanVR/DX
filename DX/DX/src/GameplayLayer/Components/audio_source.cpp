@@ -23,13 +23,13 @@ namespace Components {
     }
 
     //----------------------------------------------------------------------
-    void AudioSource::AddedToGameObject( GameObject* go )
+    void AudioSource::addedToGameObject( GameObject* go )
     {
         _Update3DSettings();
     }
 
     //----------------------------------------------------------------------
-    void AudioSource::Tick( Time::Seconds delta )
+    void AudioSource::tick( Time::Seconds delta )
     {
         m_tickCount = (m_tickCount + 1) % TICK_SKIP_COUNT;
         if (m_tickCount == 0)

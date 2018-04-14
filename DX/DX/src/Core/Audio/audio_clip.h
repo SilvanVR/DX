@@ -21,9 +21,10 @@ namespace Core { namespace Audio {
         ~AudioClip();
 
         //----------------------------------------------------------------------
-        bool    isLooping()     const { return m_isLooping; }
-        F32     getVolume()     const { F32 volume; m_pSourceVoice->GetVolume(&volume); return volume; }
-        F32     getBasePitch()  const { return m_basePitch; }
+        bool                    isLooping()     const { return m_isLooping; }
+        F32                     getVolume()     const { F32 volume; m_pSourceVoice->GetVolume(&volume); return volume; }
+        F32                     getBasePitch()  const { return m_basePitch; }
+        const Time::Seconds     getLength()     const { return m_wavClip->getLength(); }
 
         //----------------------------------------------------------------------
         // Starts playing this clip from the beginning.
@@ -68,13 +69,13 @@ namespace Core { namespace Audio {
         //----------------------------------------------------------------------
         // Set the wavclip for this audio-clip, which contains the actual audio data.
         //----------------------------------------------------------------------
-        void setWAVClip(const WAVClip& wavClip);
+        void setWAVClip(const WAVClipPtr& wavClip);
 
     private:
         IXAudio2SourceVoice*    m_pSourceVoice = nullptr;
         XAUDIO2_VOICE_DETAILS   m_details;
         F32                     m_basePitch = 1.0f;
-        WAVClip                 m_wavClip;
+        WAVClipPtr              m_wavClip;
         bool                    m_isLooping = false;
 
         inline void _SubmitSourceBuffer();

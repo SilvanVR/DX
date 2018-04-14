@@ -9,6 +9,7 @@
 **********************************************************************/
 
 #include "OS/FileSystem/path.h"
+#include "Time/durations.h"
 
 namespace Core { namespace Audio {
 
@@ -29,12 +30,16 @@ namespace Core { namespace Audio {
         const WAVEFORMATEXTENSIBLE& getDescription()    const   { return m_wfx; }
         const ArrayList<Byte>&      getData()           const   { return m_pData; }
         const OS::Path&             getFilePath()       const   { return m_filePath; }
+        const Time::Seconds         getLength()         const   { return m_length; }
 
     private:
         OS::Path                m_filePath;
         ArrayList<Byte>         m_pData;
         WAVEFORMATEXTENSIBLE    m_wfx;
+        Time::Seconds           m_length;
     };
 
+    using WAVClipPtr = std::shared_ptr<WAVClip>;
 
 } } // End namespaces
+

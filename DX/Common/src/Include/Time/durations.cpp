@@ -31,6 +31,13 @@ namespace Time {
         return Nanoseconds( value * 60.0 * 1000.0 * 1000.0 * 1000.0 );
     }
 
+    String Minutes::toString() const 
+    { 
+        F64 min;
+        F64 decimal = std::modf( value, &min );
+        I32 sec = static_cast<I32>( 60.0 * decimal );
+        return TS( static_cast<I32>( min ) ) + "." + TS( sec ) + " min";
+    }
 
     //----------------------------------------------------------------------
     Seconds::operator Minutes() const

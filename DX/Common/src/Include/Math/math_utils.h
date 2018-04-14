@@ -30,4 +30,15 @@ namespace Math {
     std::array<Vec3, 8> CalculateFrustumCorners(const Vec3& pos, const Vec3& up, const Vec3& right, const Vec3& forward,
                                                  F32 fovAngleYRad, F32 zNear, F32 zFar, F32 aspectRatio);
 
+    //----------------------------------------------------------------------
+    template <typename T, typename T2> inline
+    T clamp( T val, T2 min, T2 max )
+    {
+        if (val < min)
+            return min;
+        else if (val > max)
+            return max;
+        return val;
+    }
+
 }

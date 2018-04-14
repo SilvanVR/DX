@@ -8,11 +8,10 @@
 
 #define DISPLAY_CONSOLE 1
 
-
 class DrawFrustum : public Components::IComponent
 {
 public:
-    void AddedToGameObject(GameObject* go) override
+    void addedToGameObject(GameObject* go) override
     {
         auto cam = go->getComponent<Components::Camera>();
         auto mesh = Core::Assets::MeshGenerator::CreateFrustum(Math::Vec3(0), Math::Vec3::UP, Math::Vec3::RIGHT, Math::Vec3::FORWARD,
@@ -28,7 +27,7 @@ class WorldGeneration : public Components::IComponent
     stbvox_mesh_maker* mm;
 
 public:
-    void Init() override
+    void init() override
     {
        // stbvox_init_mesh_maker(mm);
 
@@ -38,7 +37,7 @@ public:
        // stbvox_set_buffer();
     }
 
-    void Tick(Time::Seconds delta) override
+    void tick(Time::Seconds delta) override
     {
 
     }
@@ -55,7 +54,7 @@ class Minimap : public Components::IComponent
 public:
     Minimap(F32 heightOffset, F32 size) : m_heightOffset(heightOffset), m_size(size) {}
 
-    void AddedToGameObject(GameObject* go) override
+    void addedToGameObject(GameObject* go) override
     {
         minimapCamGo = go->getScene()->createGameObject();
         auto cam = minimapCamGo->addComponent<Components::Camera>();
@@ -72,7 +71,7 @@ public:
         minimapCamTransform->rotation = Math::Quat::LookRotation(Math::Vec3::DOWN, Math::Vec3::FORWARD);
     }
 
-    void Tick(Time::Seconds delta) override
+    void tick(Time::Seconds delta) override
     {
         minimapCamTransform->position = transform->position;
         minimapCamTransform->position.y += m_heightOffset;
@@ -82,23 +81,83 @@ public:
     }
 };
 
+class MusicManager : public Components::IComponent
+{
+    ArrayList<AudioClipPtr> m_tracks;
+
+    I32           m_curIndex        = 0;
+    I32           m_nextIndex       = 1;
+    Time::Seconds m_timer           = 0.0f;
+    Time::Seconds m_transitionTime  = 5.0f;
+
+public:
+    MusicManager(const ArrayList<OS::Path>& musicFilePaths)
+    {
+        for (auto& path : musicFilePaths)
+            m_tracks.push_back(ASSETS.getAudioClip(path));
+
+        if ( not m_tracks.empty() )
+            m_tracks[m_curIndex]->play();
+
+        auto length = m_tracks[m_curIndex]->getLength();
+        Time::Minutes mins = length;
+
+        LOG(length.toString());
+        LOG(mins.toString());
+    }
+
+    void tick(Time::Seconds delta) override
+    {
+        static bool startNextTrack = true;
+        if ( m_tracks.size() <= 1 )
+            return;
+
+        m_timer += delta;
+
+        if ( m_timer > (m_tracks[m_curIndex]->getLength() - m_transitionTime) )
+        {
+            if (startNextTrack)
+            {
+                m_tracks[m_nextIndex]->play();
+                startNextTrack = false;
+            }
+
+            // Smoothly transition between next two tracks
+            F32 volume = (F32)((m_tracks[m_curIndex]->getLength() - m_timer) / m_transitionTime).value;
+            volume = Math::clamp( volume, 0.0f, 1.0f );
+
+            m_tracks[m_curIndex]->setVolume( volume );
+            m_tracks[m_nextIndex]->setVolume( 1.0f - volume );
+
+            // Check when fully transitioned to next track and stop then
+            if ( volume == 0.0f )
+            {
+                m_tracks[m_curIndex]->stop();
+                m_curIndex      = m_nextIndex;
+                m_nextIndex     = (m_nextIndex + 1) % m_tracks.size();
+                m_timer         = 0.0f;
+                startNextTrack  = true;
+            }
+        }
+    }
+};
+
+
 class MyScene : public IScene
 {
-    GameObject*             go;
-    Components::Camera*     cam;
-
 public:
     MyScene() : IScene("MyScene"){}
 
     void init() override
     {
-        go = createGameObject("Camera");
-        cam = go->addComponent<Components::Camera>();
+        // CAMERA
+        auto go = createGameObject("Camera");
+        auto cam = go->addComponent<Components::Camera>();
         go->getComponent<Components::Transform>()->position = Math::Vec3(0,0,-10);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 10.0f, 0.3f);
         go->addComponent<Minimap>(20.0f, 3.0f);
-
-        createGameObject("World Generation")->addComponent<WorldGeneration>();
+        go->addComponent<Components::AudioListener>();
+        go->addComponent<MusicManager>(ArrayList<OS::Path>{"/audio/minecraft.wav", "/audio/minecraft2.wav"});
 
         // SHADER
         auto texShader = RESOURCES.createShader("TexShader", "/shaders/texVS.hlsl", "/shaders/texPS.hlsl");
@@ -120,7 +179,8 @@ public:
         // MESH
         auto mesh = Core::Assets::MeshGenerator::CreateCubeUV();
 
-        // GAMEOBJECT
+        // GAMEOBJECTS
+        createGameObject("World Generation")->addComponent<WorldGeneration>();
         createGameObject("Cube")->addComponent<Components::MeshRenderer>(mesh, material);
     }
 
@@ -131,9 +191,6 @@ public:
 
 class Game : public IGame
 {
-    GameObject* go;
-    Components::Camera* cam;
-
 public:
     //----------------------------------------------------------------------
     void init() override 
@@ -154,13 +211,6 @@ public:
     //----------------------------------------------------------------------
     void tick(Time::Seconds delta) override
     {
-        static U64 ticks = 0;
-
-        ticks++;
-        //LOG( "Tick: " + TS(ticks) );
-
-        if ( ticks == GAME_TICK_RATE * 100.1f)
-            terminate();
     }
 
     //----------------------------------------------------------------------

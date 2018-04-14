@@ -78,7 +78,7 @@ public:
     ConstantRotation(F32 pitchSpeed, F32 yawSpeed, F32 rollSpeed) 
         : m_speeds(Math::Vec3{ pitchSpeed, yawSpeed, rollSpeed }) {}
 
-    void Tick( Time::Seconds delta ) override
+    void tick( Time::Seconds delta ) override
     {
         auto t = getComponent<Components::Transform>();
         t->rotation = Math::Quat::FromEulerAngles( m_curDegrees );
@@ -92,7 +92,7 @@ class WorldGeneration : public Components::IComponent
     Components::MeshRenderer*   mr;
 
 public:
-    void AddedToGameObject(GameObject* go) override
+    void addedToGameObject(GameObject* go) override
     {
         mesh = Assets::MeshGenerator::CreatePlane();
         mesh->setColors(planeColors);
@@ -102,7 +102,7 @@ public:
         mr->setMesh(mesh);
     }
 
-    void Tick(Time::Seconds delta)
+    void tick(Time::Seconds delta)
     {
         auto newVertices = mesh->getVertices();
         auto indices = mesh->getIndices();
@@ -133,7 +133,7 @@ class VertexGeneration : public Components::IComponent
     const U32 height = 20;
 
 public:
-    void AddedToGameObject(GameObject* go) override
+    void addedToGameObject(GameObject* go) override
     {
         generateMesh();
         auto transform = go->getComponent<Components::Transform>();
@@ -144,7 +144,7 @@ public:
         mr->setMesh(mesh);
     }
 
-    void Tick(Time::Seconds delta)
+    void tick(Time::Seconds delta)
     {
         auto newVertices = mesh->getVertices();
         auto indices = mesh->getIndices();
@@ -185,7 +185,7 @@ class GridGeneration : public Components::IComponent
 public:
     GridGeneration(U32 size) : m_size(size) {}
 
-    void AddedToGameObject(GameObject* go) override
+    void addedToGameObject(GameObject* go) override
     {
         auto mesh = Assets::MeshGenerator::CreateGrid(m_size);
         go->addComponent<Components::MeshRenderer>(mesh);
@@ -205,7 +205,7 @@ public:
     AutoOrbiting(F32 yawSpeed, Math::Vec3 center = Math::Vec3())
         : m_speed( yawSpeed ), m_center(center) {}
 
-    void Tick(Time::Seconds delta) override
+    void tick(Time::Seconds delta) override
     {
         auto t = getComponent<Components::Transform>();
 
@@ -225,7 +225,7 @@ public:
 class DrawFrustumDebug : public Components::IComponent
 {
 public:
-    void Tick(Time::Seconds delta) override
+    void tick(Time::Seconds delta) override
     {
         auto cam = getGameObject()->getComponent<Components::Camera>();
         auto transform = getGameObject()->getComponent<Components::Transform>();
@@ -241,7 +241,7 @@ public:
 class DrawFrustum : public Components::IComponent
 {
 public:
-    void AddedToGameObject(GameObject* go) override
+    void addedToGameObject(GameObject* go) override
     {
         auto cam = go->getComponent<Components::Camera>();
         auto mesh = Assets::MeshGenerator::CreateFrustum( Math::Vec3(0), Math::Vec3::UP, Math::Vec3::RIGHT, Math::Vec3::FORWARD, 

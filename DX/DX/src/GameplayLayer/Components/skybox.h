@@ -26,7 +26,7 @@ namespace Components {
         //----------------------------------------------------------------------
         // IComponent Interface
         //----------------------------------------------------------------------
-        void AddedToGameObject(GameObject* go) override;
+        void addedToGameObject(GameObject* go) override;
 
         //----------------------------------------------------------------------
         void setCubemap(CubemapPtr cubemap) { m_cubemap = cubemap; }

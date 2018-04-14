@@ -146,7 +146,7 @@ template<typename T>
 void GameObject::_DestroyComponent( Size hash )
 {
     T* comp = dynamic_cast<T*>( m_components[hash] );
-    comp->Shutdown();
+    comp->shutdown();
     m_attachedScene->getComponentManager().Destroy<T>( comp );
     m_components.erase( hash );
     SAFE_DELETE( comp );

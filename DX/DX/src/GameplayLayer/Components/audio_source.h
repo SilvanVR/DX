@@ -20,8 +20,8 @@ namespace Components {
         //----------------------------------------------------------------------
         // IComponent Interface
         //----------------------------------------------------------------------
-        void AddedToGameObject(GameObject* go) override;
-        void Tick(Time::Seconds delta) override;
+        void addedToGameObject(GameObject* go) override;
+        void tick(Time::Seconds delta) override;
 
         //----------------------------------------------------------------------
         void                setClip(AudioClipPtr audioClip){ m_audioClip = audioClip; }

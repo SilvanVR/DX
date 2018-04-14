@@ -125,6 +125,9 @@ namespace Core { namespace Audio {
         m_pData.resize( dwChunkSize );
         ReadChunkData( hFile, m_pData.data(), dwChunkSize, dwChunkPosition );
 
+        // Calculate length im seconds
+        m_length = (F32)dwChunkSize / m_wfx.Format.nAvgBytesPerSec;
+
         return true;
     };
 

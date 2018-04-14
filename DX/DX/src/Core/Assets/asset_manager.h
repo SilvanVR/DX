@@ -24,6 +24,7 @@ namespace Core { namespace Assets {
     {
         using WeakTexture2DPtr  = std::weak_ptr<Graphics::Texture2D>;
         using WeakCubemapPtr    = std::weak_ptr<Graphics::Cubemap>;
+        using WeakWavClipPtr    = std::weak_ptr<Audio::WAVClip>;
 
     public:
         AssetManager() = default;
@@ -86,7 +87,7 @@ namespace Core { namespace Assets {
 
         struct AudioClipAssetInfo : public FileInfo
         {
-            Audio::WAVClip wavClip;
+            WeakWavClipPtr wavClip;
             // No reloading supported for audio
         };
 

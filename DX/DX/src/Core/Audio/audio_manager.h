@@ -53,7 +53,7 @@ namespace Core { namespace Audio {
         XAUDIO2_VOICE_DETAILS   m_voiceDetails;
         X3DAUDIO_HANDLE         m_X3DInstance;
         F32                     m_matrixCoefficients[INPUTCHANNELS * OUTPUTCHANNELS];
-        X3DAUDIO_LISTENER       m_listener = {};
+        X3DAUDIO_LISTENER       m_listener = { {}, {}, { 4096, 4096, 4096 } };
         X3DAUDIO_DSP_SETTINGS   m_DSPSettings = {};
 
         //----------------------------------------------------------------------
