@@ -61,6 +61,13 @@ namespace Graphics {
         virtual void setUVs(const ArrayList<Math::Vec2>& uvs) = 0;
 
         //----------------------------------------------------------------------
+        // Sets the normals for this mesh. If a normal buffer was not created,
+        // it will be created to fit the amount of data given. Otherwise, the gpu
+        // buffer will just be updated. Note that this is a slow operation.
+        //----------------------------------------------------------------------
+        virtual void setNormals(const ArrayList<Math::Vec3>& normals) = 0;
+
+        //----------------------------------------------------------------------
         // @Return: Buffer usage, which determines if it can be updated or not.
         //----------------------------------------------------------------------
         BufferUsage getBufferUsage()    const { return m_bufferUsage; }
@@ -90,6 +97,7 @@ namespace Graphics {
         ArrayList<Math::Vec3>   m_vertices;
         ArrayList<Color>        m_vertexColors;
         ArrayList<Math::Vec2>   m_uvs0;
+        ArrayList<Math::Vec3>   m_normals;
         BufferUsage             m_bufferUsage = BufferUsage::Immutable;
 
         struct SubMesh

@@ -1,13 +1,47 @@
 #include <DX.h>
-
-#define STB_VOXEL_RENDER_IMPLEMENTATION
-#define STBVOX_CONFIG_MODE 20
-
-#include "stb_voxel_renderer.hpp"
-#include "PolyVoxCore/Array.h"
-
 #define DISPLAY_CONSOLE 1
 
+#include "PolyVoxCore/CubicSurfaceExtractorWithNormals.h"
+#include "PolyVoxCore/MarchingCubesSurfaceExtractor.h"
+#include "PolyVoxCore/SurfaceMesh.h"
+#include "PolyVoxCore/SimpleVolume.h"
+
+using namespace PolyVox;
+
+void createSphereInVolume(SimpleVolume<uint8_t>& volData, float fRadius)
+{
+    //This vector hold the position of the center of the volume
+    Vector3DFloat v3dVolCenter(volData.getWidth() / 2, volData.getHeight() / 2, volData.getDepth() / 2);
+
+    //This three-level for loop iterates over every voxel in the volume
+    for (int z = 0; z < volData.getDepth(); z++)
+    {
+        for (int y = 0; y < volData.getHeight(); y++)
+        {
+            for (int x = 0; x < volData.getWidth(); x++)
+            {
+                //Store our current position as a vector...
+                Vector3DFloat v3dCurrentPos(x, y, z);
+                //And compute how far the current position is from the center of the volume
+                float fDistToCenter = (v3dCurrentPos - v3dVolCenter).length();
+
+                uint8_t uVoxelValue = 0;
+
+                //If the current voxel is less than 'radius' units from the center then we make it solid.
+                if (fDistToCenter <= fRadius)
+                {
+                    //Our new voxel value
+                    uVoxelValue = 255;
+                }
+
+                //Wrte the voxel value into the volume	
+                volData.setVoxelAt(x, y, z, uVoxelValue);
+            }
+        }
+    }
+}
+
+//**********************************************************************
 class DrawFrustum : public Components::IComponent
 {
 public:
@@ -22,30 +56,9 @@ public:
     }
 };
 
-class WorldGeneration : public Components::IComponent
-{
-    stbvox_mesh_maker* mm;
-
-public:
-    void init() override
-    {
-       // stbvox_init_mesh_maker(mm);
-
-        //   In mode 0 & mode 20, there is only one slot. The mesh data for that
-        //   slot is two interleaved vertex attributes: attr_vertex, a single
-        //   32-bit uint, and attr_face, a single 32-bit uint.
-       // stbvox_set_buffer();
-    }
-
-    void tick(Time::Seconds delta) override
-    {
-
-    }
-};
-
+//**********************************************************************
 class Minimap : public Components::IComponent
 {
-    GameObject* minimapCamGo;
     Components::Transform* minimapCamTransform;
     Components::Transform* transform;
     F32 m_heightOffset;
@@ -56,7 +69,7 @@ public:
 
     void addedToGameObject(GameObject* go) override
     {
-        minimapCamGo = go->getScene()->createGameObject();
+        auto minimapCamGo = go->getScene()->createGameObject();
         auto cam = minimapCamGo->addComponent<Components::Camera>();
         cam->setClearMode(Components::Camera::EClearMode::NONE);
         cam->setCameraMode(Components::Camera::EMode::ORTHOGRAPHIC);
@@ -73,14 +86,12 @@ public:
 
     void tick(Time::Seconds delta) override
     {
-        minimapCamTransform->position = transform->position;
-        minimapCamTransform->position.y += m_heightOffset;
-        //minimapCamTransform->lookAt(transform->position);
-
-        //DEBUG.drawSphere(minimapCamTransform->position, 1.0f, Color::RED, 0);
+        minimapCamTransform->position.x = transform->position.x;
+        minimapCamTransform->position.z = transform->position.z;
     }
 };
 
+//**********************************************************************
 class MusicManager : public Components::IComponent
 {
     ArrayList<AudioClipPtr> m_tracks;
@@ -98,12 +109,6 @@ public:
 
         if ( not m_tracks.empty() )
             m_tracks[m_curIndex]->play();
-
-        auto length = m_tracks[m_curIndex]->getLength();
-        Time::Minutes mins = length;
-
-        LOG(length.toString());
-        LOG(mins.toString());
     }
 
     void tick(Time::Seconds delta) override
@@ -142,6 +147,80 @@ public:
     }
 };
 
+////**********************************************************************
+//class WorldGeneration : public Components::IComponent
+//{
+//    stbvox_mesh_maker* mm;
+//
+//public:
+//    void init() override
+//    {
+//       // stbvox_init_mesh_maker(mm);
+//
+//        //   In mode 0 & mode 20, there is only one slot. The mesh data for that
+//        //   slot is two interleaved vertex attributes: attr_vertex, a single
+//        //   32-bit uint, and attr_face, a single 32-bit uint.
+//       // stbvox_set_buffer();
+//    }
+//
+//    void tick(Time::Seconds delta) override
+//    {
+//
+//    }
+//};
+
+//**********************************************************************
+class WorldGeneration : public Components::IComponent
+{
+public:
+    void addedToGameObject(GameObject* go) override
+    {
+        //Create an empty volume and then place a sphere in it
+        SimpleVolume<uint8_t> volData(PolyVox::Region(Vector3DInt32(0, 0, 0), Vector3DInt32(63, 63, 63)));
+        createSphereInVolume(volData, 30);
+
+        //A mesh object to hold the result of surface extraction
+        SurfaceMesh<PositionMaterialNormal> mesh;
+
+        //Create a surface extractor. Comment out one of the following two lines to decide which type gets created.
+        CubicSurfaceExtractorWithNormals< SimpleVolume<uint8_t> > surfaceExtractor(&volData, volData.getEnclosingRegion(), &mesh);
+        //MarchingCubesSurfaceExtractor< SimpleVolume<uint8_t> > surfaceExtractor(&volData, volData.getEnclosingRegion(), &mesh);
+
+        //Execute the surface extractor.
+        surfaceExtractor.execute();
+
+        // BUILD MESH
+        auto chunk = RESOURCES.createMesh();
+        ArrayList<Math::Vec3> vertices;
+        ArrayList<Math::Vec3> normals;
+        ArrayList<Color> colors;
+        for (auto vertex : mesh.getVertices())
+        {
+            vertices.emplace_back( vertex.getPosition().getX(), vertex.getPosition().getY(), vertex.getPosition().getZ() );
+            normals.emplace_back( vertex.getNormal().getX(), vertex.getNormal().getY(), vertex.getNormal().getZ());
+
+            U8 material = static_cast<U8>( vertex.getMaterial() + 0.5 );
+
+            colors.emplace_back(Math::Random::Color());
+        }
+
+        chunk->setVertices(vertices);        
+        chunk->setIndices(mesh.getIndices());
+        chunk->setColors(colors);
+        chunk->setNormals(normals);
+
+        auto shader = RESOURCES.createShader("TerrainShader", "/shaders/terrainVS.hlsl", "/shaders/terrainPS.hlsl");
+        auto material = RESOURCES.createMaterial(shader);
+
+        getGameObject()->addComponent<Components::MeshRenderer>(chunk, material);
+    }
+
+    void tick(Time::Seconds delta) override
+    {
+    }
+};
+
+//**********************************************************************
 class MyScene : public IScene
 {
 public:
@@ -154,7 +233,7 @@ public:
         auto cam = go->addComponent<Components::Camera>();
         go->getComponent<Components::Transform>()->position = Math::Vec3(0,0,-10);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 10.0f, 0.3f);
-        go->addComponent<Minimap>(20.0f, 3.0f);
+        go->addComponent<Minimap>(500.0f, 3.0f);
         go->addComponent<Components::AudioListener>();
 
         // SHADER
@@ -167,19 +246,15 @@ public:
         terrain->setAnisoLevel(1);
 
         // MATERIAL
-        auto material = RESOURCES.createMaterial();
-        material->setShader(texShader);
+        auto material = RESOURCES.createMaterial(texShader);
         material->setTexture(SID("tex0"), terrain);
         material->setTexture(SID("tex1"), dirt);
         material->setFloat(SID("mix"), 0.0f);
         material->setColor(SID("tintColor"), Color::WHITE);
 
-        // MESH
-        auto mesh = Core::Assets::MeshGenerator::CreateCubeUV();
-
         // GAMEOBJECTS
         createGameObject("World Generation")->addComponent<WorldGeneration>();
-        createGameObject("Cube")->addComponent<Components::MeshRenderer>(mesh, material);
+        createGameObject("Cube")->addComponent<Components::MeshRenderer>(Core::Assets::MeshGenerator::CreateCubeUV(), material);
     }
 
     void shutdown() override
@@ -197,7 +272,10 @@ public:
         gLogger->setSaveToDisk( false );
 
         Locator::getEngineClock().setInterval([] {
-           LOG( "Time: " + TS( Locator::getEngineClock().getTime().value ) + " FPS: " + TS( Locator::getProfiler().getFPS() ) );
+           //LOG( "Time: " + TS( Locator::getEngineClock().getTime().value ) + " FPS: " + TS( Locator::getProfiler().getFPS() ) );
+            U32 fps = PROFILER.getFPS();
+            F64 delta = (1000.0 / fps);
+           LOG("Time: " + TS(TIME.getTime().value) + " FPS: " + TS(fps) + " Delta: " + TS(delta) + " ms");
         }, 1000);
 
         getWindow().setCursor( "../dx/res/internal/cursors/Areo Cursor Red.cur" );

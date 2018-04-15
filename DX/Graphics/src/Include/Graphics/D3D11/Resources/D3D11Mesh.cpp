@@ -21,7 +21,7 @@ namespace Graphics { namespace D3D11 {
     //----------------------------------------------------------------------
     void Mesh::bind( const VertexLayout& vertLayout, U32 subMeshIndex )
     {
-        if ( not m_queuedBufferUpdates.empty() )
+        while ( not m_queuedBufferUpdates.empty() )
         {
             auto buffUpdate = m_queuedBufferUpdates.front();
             switch ( buffUpdate.type )
@@ -30,6 +30,7 @@ namespace Graphics { namespace D3D11 {
             case MeshBufferType::TexCoord:  _UpdateUVBuffer();                      break;
             case MeshBufferType::Color:     _UpdateColorBuffer();                   break;
             case MeshBufferType::Index:     _UpdateIndexBuffer(buffUpdate.index);   break;
+            case MeshBufferType::Normal:    _UpdateNormalBuffer();                  break;
             }
             m_queuedBufferUpdates.pop();
         }
@@ -49,12 +50,14 @@ namespace Graphics { namespace D3D11 {
         SAFE_DELETE( m_pVertexBuffer );
         SAFE_DELETE( m_pColorBuffer );
         SAFE_DELETE( m_pUVBuffer );
+        SAFE_DELETE( m_pNormalBuffer );
         for (auto& indexBuffer : m_pIndexBuffers)
             SAFE_DELETE( indexBuffer );
 
         m_vertices.clear();
         m_vertexColors.clear();
         m_uvs0.clear();
+        m_normals.clear();
         m_pIndexBuffers.clear();
         m_subMeshes.clear();
     }
@@ -189,6 +192,28 @@ namespace Graphics { namespace D3D11 {
         }
     }
 
+    //----------------------------------------------------------------------
+    void Mesh::setNormals(const ArrayList<Math::Vec3>& normals)
+    {
+#if _DEBUG
+        if (m_pNormalBuffer != nullptr)
+            ASSERT((m_normals.size() == normals.size() &&
+                "IMesh::setNormals(): The amount of normals given must be the number of normals already present! "
+                "Otherwise call clear() before, so the gpu buffer will be recreated."));
+#endif
+        m_normals = normals;
+        if (m_pNormalBuffer == nullptr)
+        {
+            m_pNormalBuffer = new VertexBuffer( normals.data(), getVertexCount() * sizeof( Math::Vec3 ), m_bufferUsage );
+        }
+        else
+        {
+            ASSERT( not isImmutable() && "Mesh is immutable! It can't be updated. "
+                   "Either change the buffer usage via setBufferUsage() or call clear() to reset the whole mesh.");
+            m_queuedBufferUpdates.push({ MeshBufferType::Normal });
+        }
+    }
+
     //**********************************************************************
     // PRIVATE
     //**********************************************************************
@@ -234,6 +259,12 @@ namespace Graphics { namespace D3D11 {
     }
 
     //----------------------------------------------------------------------
+    void Mesh::_UpdateNormalBuffer()
+    {
+        m_pNormalBuffer->update( m_normals.data(), m_normals.size() * sizeof( Math::Vec3 ) );
+    }
+
+    //----------------------------------------------------------------------
     void Mesh::_RecreateBuffers()
     {
         // Recreate vertex buffer
@@ -255,6 +286,13 @@ namespace Graphics { namespace D3D11 {
         {
             SAFE_DELETE( m_pUVBuffer );
             setUVs( m_uvs0 );
+        }
+
+        // Recreate normal buffer
+        if (m_pNormalBuffer)
+        {
+            SAFE_DELETE( m_pNormalBuffer );
+            setNormals( m_normals );
         }
 
         // Recreate index buffers
@@ -315,6 +353,14 @@ namespace Graphics { namespace D3D11 {
                 ASSERT( m_pUVBuffer && "Shader requires a uv-buffer, but mesh has none!" );
                 pBuffers.emplace_back( m_pUVBuffer->getBuffer() );
                 strides.emplace_back( static_cast<U32>( sizeof( Math::Vec2 ) ) );
+                offsets.emplace_back( 0 );
+                break;
+            }
+            case InputLayoutType::NORMAL:
+            {
+                ASSERT( m_pNormalBuffer && "Shader requires a normal-buffer, but mesh has none!");
+                pBuffers.emplace_back( m_pNormalBuffer->getBuffer() );
+                strides.emplace_back( static_cast<U32>( sizeof( Math::Vec3 ) ) );
                 offsets.emplace_back( 0 );
                 break;
             }

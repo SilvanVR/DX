@@ -161,7 +161,12 @@ namespace Graphics { namespace D3D11 {
             case 2: m_vertexLayout.add( { InputLayoutType::TEXCOORD2 } ); break;
             case 3: m_vertexLayout.add( { InputLayoutType::TEXCOORD3 } ); break;
             default: nameExists = false;
-            }            
+            }
+        }
+        else if (semanticName == SEMANTIC_NORMAL)
+        {
+            m_vertexLayout.add({ InputLayoutType::NORMAL });
+            nameExists = true;
         }
         if (not nameExists)
             WARN_RENDERING( "D3D11VertexShader: Semantic name '" + semanticName + "' for shader '" + getFilePath().toString() + "' does not exist.");

@@ -114,7 +114,7 @@ namespace Core { namespace Resources {
         if ( not shader->compileFromFile( vertPath, fragPath, "main" ) )
             return m_errorShader;
 
-        return  ShaderPtr( shader, BIND_THIS_FUNC_1_ARGS( &ResourceManager::_DeleteShader ) );
+        return ShaderPtr( shader, BIND_THIS_FUNC_1_ARGS( &ResourceManager::_DeleteShader ) );
     }
 
     //----------------------------------------------------------------------

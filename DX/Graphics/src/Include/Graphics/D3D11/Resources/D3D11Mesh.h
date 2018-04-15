@@ -31,11 +31,13 @@ namespace Graphics { namespace D3D11 {
                         MeshTopology topology = MeshTopology::Triangles, U32 baseVertex = 0) override;
         void setUVs(const ArrayList<Math::Vec2>& uvs) override;
         void setColors(const ArrayList<Color>& colors) override;
+        void setNormals(const ArrayList<Math::Vec3>& normals) override;
 
     private:
         VertexBuffer*   m_pVertexBuffer   = nullptr;
         VertexBuffer*   m_pColorBuffer    = nullptr;
         VertexBuffer*   m_pUVBuffer       = nullptr;
+        VertexBuffer*   m_pNormalBuffer   = nullptr;
 
         // Array of index buffer. One indexbuffer for each submesh.
         ArrayList<IndexBuffer*> m_pIndexBuffers;
@@ -72,6 +74,7 @@ namespace Graphics { namespace D3D11 {
         inline void _UpdateVertexBuffer();
         inline void _UpdateColorBuffer();
         inline void _UpdateIndexBuffer(U32 index);
+        inline void _UpdateNormalBuffer();
 
         //----------------------------------------------------------------------
         Mesh(const Mesh& other)               = delete;
