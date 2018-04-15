@@ -14,6 +14,7 @@ struct VertexIn
     float3 PosL : POSITION;
 	float4 Color : COLOR;
 	float3 Normal : NORMAL;
+	float2 Material : TEXCOORD0;
 };
 
 struct VertexOut
@@ -21,6 +22,8 @@ struct VertexOut
     float4 PosH : SV_POSITION;
 	float4 Color : COLOR;
 	float3 Normal : NORMAL;
+	float2 Material : TEXCOORD0;
+	float4 WorldPos : POSITION;
 };
 
 VertexOut main(VertexIn vin)
@@ -31,6 +34,8 @@ VertexOut main(VertexIn vin)
     OUT.PosH = mul(mvp, float4(vin.PosL, 1.0f));
 	OUT.Color = vin.Color;
 	OUT.Normal = normalize(vin.Normal);
+	OUT.Material = vin.Material;
+	OUT.WorldPos = mul(gWorld, float4(vin.PosL, 1.0f));
 	
     return OUT;
 }

@@ -634,7 +634,6 @@ public:
 class TexArrayScene : public IScene
 {
     Texture2DPtr        tex;
-    Texture2DArrayPtr   arr;
 
 public:
     TexArrayScene() : IScene("TexArrayScene") {}
@@ -657,40 +656,32 @@ public:
         auto texShader = RESOURCES.createShader("TextureArray", "/shaders/arrayTexVS.hlsl", "/shaders/arrayTexPS.hlsl");
 
         // TEXTURES
-        tex = ASSETS.getTexture2D("/textures/dirt.jpg");
-        //auto tex2 = Assets::Importer::LoadTexture("/textures/nico.jpg");
-
         Color cols[] = { Color::RED, Color::BLUE, Color::GREEN };
 
         const I32 slices = 3;
         const I32 size = 512;
-        ArrayList<ArrayList<Color>> colors;
-        colors.resize(slices);
 
-        arr = RESOURCES.createTexture2DArray(size, size, slices, Graphics::TextureFormat::RGBA32, false);
+        auto texArr = RESOURCES.createTexture2DArray(size, size, slices, Graphics::TextureFormat::RGBA32, false);
         for (I32 slice = 0; slice < slices; slice++)
-        {
-            colors[slice].resize(size * size, cols[slice]);
-            arr->setPixels(slice, colors[slice].data());
-        }
-        arr->apply();
-        arr->setFilter(Graphics::TextureFilter::Point);
+            texArr->setPixels(slice, ArrayList<Color>(size * size, cols[slice]).data());
+        texArr->apply();
+        texArr->setFilter(Graphics::TextureFilter::Point);
 
         // MATERIAL
         auto material = RESOURCES.createMaterial();
         material->setShader(texShader);
-        material->setTexture(SID("texArray"), arr);
-        material->setInt(SID("texIndex"), 0);
+        material->setTexture("texArray", texArr);
+        material->setInt("texIndex", 0);
 
         auto material2 = RESOURCES.createMaterial();
         material2->setShader(texShader);
-        material2->setTexture(SID("texArray"), arr);
-        material2->setInt(SID("texIndex"), 1);
+        material2->setTexture("texArray", texArr);
+        material2->setInt("texIndex", 1);
 
         auto material3 = RESOURCES.createMaterial();
         material3->setShader(texShader);
-        material3->setTexture(SID("texArray"), arr);
-        material3->setInt(SID("texIndex"), 2);
+        material3->setTexture("texArray", texArr);
+        material3->setInt("texIndex", 2);
 
         // GAMEOBJECT
         auto go2 = createGameObject("Test2");
@@ -708,44 +699,6 @@ public:
     }
 
     void shutdown() override { LOG("TexArrayScene Shutdown!", Color::RED); }
-};
-
-
-class SoundTestScene : public IScene
-{
-    GameObject* go2;
-    MaterialPtr material;
-
-public:
-    SoundTestScene() : IScene("SoundTestScene") {}
-
-    void init() override
-    {
-        // Camera
-        auto go = createGameObject("Camera");
-        auto cam = go->addComponent<Components::Camera>();
-        go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -10);
-        go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 10.0f, 0.3f);
-
-        createGameObject("Grid")->addComponent<GridGeneration>(20);
-
-        // MESH
-        auto mesh = Assets::MeshGenerator::CreateCubeUV();
-        mesh->setColors(cubeColors);
-
-        // GAMEOBJECT
-        go2 = createGameObject("Test2");
-        go2->addComponent<Components::MeshRenderer>(mesh);
-
-        LOG("SoundTestScene initialized!", Color::RED);
-    }
-
-    void tick(Time::Seconds d) override
-    {
-       // if (KEYBOARD.wasKeyPressed(Key::L))
-    }
-
-    void shutdown() override { LOG("SoundTestScene Shutdown!", Color::RED); }
 };
 
 class TestScene : public IScene
@@ -839,7 +792,7 @@ public:
 
         IGC_SET_VAR("test", 1.0f);
 
-        Locator::getSceneManager().LoadSceneAsync(new SoundTestScene());
+        Locator::getSceneManager().LoadSceneAsync(new TestScene());
     }
 
     //----------------------------------------------------------------------
@@ -888,8 +841,6 @@ public:
             Locator::getSceneManager().LoadSceneAsync(new CubemapScene());
         if (KEYBOARD.wasKeyPressed(Key::Six))
             Locator::getSceneManager().LoadSceneAsync(new TexArrayScene());
-        if (KEYBOARD.wasKeyPressed(Key::Seven))
-            Locator::getSceneManager().LoadSceneAsync(new SoundTestScene());
         if (KEYBOARD.wasKeyPressed(Key::Zero))
             Locator::getSceneManager().LoadSceneAsync(new TestScene());
 
