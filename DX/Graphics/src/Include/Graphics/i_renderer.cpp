@@ -44,6 +44,4 @@ namespace Graphics {
         m_activeGlobalMaterial = m_globalMaterials[id];
     }
 
-
-
 } // End namespaces

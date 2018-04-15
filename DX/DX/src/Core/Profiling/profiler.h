@@ -57,6 +57,10 @@ namespace Core { namespace Profiling {
         //----------------------------------------------------------------------
         void log();
 
+        //----------------------------------------------------------------------
+        // Log gpu profiling stuff (Drawcalls, num vertices etc) to the console.
+        //----------------------------------------------------------------------
+        void logGPU();
 
     private:
         U32                 m_fps = 0;

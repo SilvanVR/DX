@@ -94,6 +94,8 @@ namespace Core {
                 F64 lerp = (F64)(gameTickAccumulator / TICK_RATE_IN_SECONDS);
                 //ASSERT( lerp <= 1.0 );
 
+                Locator::getRenderer().resetFrameInfo();
+
                 // Records rendering commands for the current scene and dispatches them to the renderer
                 m_graphicsCommandRecorder.dispatch( SCENE, (F32)lerp );
 

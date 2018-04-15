@@ -125,7 +125,6 @@ namespace Graphics {
             }
         }
 
-
         // Sort shaders by priority
         auto comp = [](const MaterialPtr& a, const MaterialPtr& b) {
             return a->getShader()->getPriority() < b->getShader()->getPriority();
@@ -156,6 +155,11 @@ namespace Graphics {
             // Perform draw calls
             for (auto& drawCall : sortedMaterials[material])
             {
+                m_frameInfo.drawCalls++;
+                m_frameInfo.numVertices += drawCall->mesh->getVertexCount();
+                for (auto i = 0; i < drawCall->mesh->getSubMeshCount(); i++)
+                    m_frameInfo.numTriangles += drawCall->mesh->getIndexCount(i) / 3;
+
                 // Update per object buffer
                 pConstantBufferObject->update( &drawCall->modelMatrix, sizeof( DirectX::XMMATRIX ) );
 

@@ -1,4 +1,3 @@
-#include <DX.h>
 #define DISPLAY_CONSOLE 1
 
 #include "PolyVoxCore/CubicSurfaceExtractorWithNormals.h"
@@ -6,12 +5,13 @@
 #include "PolyVoxCore/SurfaceMesh.h"
 #include "PolyVoxCore/SimpleVolume.h"
 
-using namespace PolyVox;
+#include <DX.h>
+#include "Math/dxmath_wrapper.h"
 
-void createSphereInVolume(SimpleVolume<uint8_t>& volData, float fRadius)
+void createSphereInVolume(PolyVox::SimpleVolume<uint8_t>& volData, float fRadius)
 {
     //This vector hold the position of the center of the volume
-    Vector3DFloat v3dVolCenter(volData.getWidth() / 2, volData.getHeight() / 2, volData.getDepth() / 2);
+    PolyVox::Vector3DFloat v3dVolCenter(volData.getWidth() / 2, volData.getHeight() / 2, volData.getDepth() / 2);
     //Vector3DFloat v3dVolCenter(0,0,0);
 
     //This three-level for loop iterates over every voxel in the volume
@@ -22,7 +22,7 @@ void createSphereInVolume(SimpleVolume<uint8_t>& volData, float fRadius)
             for (int x = 0; x < volData.getWidth(); x++)
             {
                 //Store our current position as a vector...
-                Vector3DFloat v3dCurrentPos(x, y, z);
+                PolyVox::Vector3DFloat v3dCurrentPos(x, y, z);
                 //And compute how far the current position is from the center of the volume
                 float fDistToCenter = (v3dCurrentPos - v3dVolCenter).length();
 
@@ -173,19 +173,21 @@ public:
 //**********************************************************************
 class WorldGeneration : public Components::IComponent
 {
+    MaterialPtr material;
+
 public:
     void addedToGameObject(GameObject* go) override
     {
         //Create an empty volume and then place a sphere in it
-        SimpleVolume<U8> volData(PolyVox::Region(Vector3DInt32(0, 0, 0), Vector3DInt32(63, 63, 63)));
+        PolyVox::SimpleVolume<U8> volData(PolyVox::Region(PolyVox::Vector3DInt32(0, 0, 0), PolyVox::Vector3DInt32(63, 63, 63)));
         createSphereInVolume(volData, 10);
 
         //A mesh object to hold the result of surface extraction
-        SurfaceMesh<PositionMaterialNormal> mesh;
+        PolyVox::SurfaceMesh<PolyVox::PositionMaterialNormal> mesh;
 
-        //Create a surface extractor. Comment out one of the following two lines to decide which type gets created.
-        CubicSurfaceExtractorWithNormals< SimpleVolume<uint8_t> > surfaceExtractor(&volData, volData.getEnclosingRegion(), &mesh);
-        //MarchingCubesSurfaceExtractor< SimpleVolume<uint8_t> > surfaceExtractor(&volData, volData.getEnclosingRegion(), &mesh);
+        //Create a surface extractor. 
+        //PolyVox::CubicSurfaceExtractorWithNormals< PolyVox::SimpleVolume<U8> > surfaceExtractor(&volData, volData.getEnclosingRegion(), &mesh);
+        PolyVox::MarchingCubesSurfaceExtractor< PolyVox::SimpleVolume<U8> > surfaceExtractor(&volData, volData.getEnclosingRegion(), &mesh);
 
         //Execute the surface extractor.
         surfaceExtractor.execute();
@@ -205,23 +207,30 @@ public:
             colors.emplace_back(Math::Random::Color());
         }
 
-        chunk->setVertices(vertices);        
+        chunk->setVertices(vertices);
         chunk->setIndices(mesh.getIndices());
         chunk->setColors(colors);
         chunk->setNormals(normals);
 
         auto shader = RESOURCES.createShader("TerrainShader", "/shaders/terrainVS.hlsl", "/shaders/terrainPS.hlsl");
-        auto material = RESOURCES.createMaterial(shader);
+        material = RESOURCES.createMaterial(shader);
         material->setColor("color", Color::WHITE);
         material->setVec4("dir", Math::Vec4(0, -1, 1, 0));
         material->setFloat("intensity", 1.0f);
 
         getGameObject()->addComponent<Components::MeshRenderer>(chunk, material);
-        getGameObject()->getComponent<Components::Transform>()->position = (-volData.getWidth() / 2, -volData.getHeight() / 2, -volData.getDepth() / 2);
+        getGameObject()->getComponent<Components::Transform>()->position = (-volData.getWidth() / 2.0f, -volData.getHeight() / 2.0f, -volData.getDepth() / 2.0f);
     }
 
     void tick(Time::Seconds delta) override
     {
+        static F64 yaw = 0;
+        yaw += 45.0 * delta.value;
+        auto fw = Math::Quat::FromEulerAngles({ 0, (F32)yaw, 0}).getForward();
+        material->setVec4("dir", Math::Vec4(fw.x, -fw.y, fw.z, 0));
+
+        //Math::Vec3 start{0,15,0};
+        //DEBUG.drawLine(start, start + fw * 10, Color::RED, 0);
     }
 };
 
@@ -238,7 +247,7 @@ public:
         auto cam = go->addComponent<Components::Camera>();
         go->getComponent<Components::Transform>()->position = Math::Vec3(0,0,-20);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 10.0f, 0.3f);
-        go->addComponent<Minimap>(500.0f, 3.0f);
+        //go->addComponent<Minimap>(500.0f, 3.0f);
         go->addComponent<Components::AudioListener>();
 
         // SHADER
@@ -280,7 +289,7 @@ public:
            //LOG( "Time: " + TS( Locator::getEngineClock().getTime().value ) + " FPS: " + TS( Locator::getProfiler().getFPS() ) );
             U32 fps = PROFILER.getFPS();
             F64 delta = (1000.0 / fps);
-           LOG("Time: " + TS(TIME.getTime().value) + " FPS: " + TS(fps) + " Delta: " + TS(delta) + " ms");
+            LOG("Time: " + TS(TIME.getTime().value) + " FPS: " + TS(fps) + " Delta: " + TS(delta) + " ms");
         }, 1000);
 
         getWindow().setCursor( "../dx/res/internal/cursors/Areo Cursor Red.cur" );
@@ -298,6 +307,8 @@ public:
     {
         if (KEYBOARD.wasKeyPressed(Key::One))
             Locator::getSceneManager().LoadSceneAsync(new MyScene);
+        if (KEYBOARD.wasKeyPressed(Key::P))
+            PROFILER.logGPU();
     }
 
     //----------------------------------------------------------------------

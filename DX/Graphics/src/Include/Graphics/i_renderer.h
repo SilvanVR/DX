@@ -15,6 +15,7 @@
 
 namespace Graphics {
 
+    //----------------------------------------------------------------------
     class ITexture2DArray;
     class IRenderTexture;
     class CommandBuffer;
@@ -22,6 +23,14 @@ namespace Graphics {
     class ICubemap;
     class IShader;
     class IMesh;
+
+    //----------------------------------------------------------------------
+    struct FrameInfo
+    {
+        U32 drawCalls;
+        U32 numVertices;
+        U32 numTriangles;
+    };
 
     //**********************************************************************
     // Interface-Class for a Renderer-Subsystem
@@ -76,8 +85,17 @@ namespace Graphics {
         //----------------------------------------------------------------------
         void setGlobalMaterialActive(CString name = "NONE");
 
+        //----------------------------------------------------------------------
+        // @Return:
+        //  Global information about the last rendered frame.
+        //----------------------------------------------------------------------
+        const FrameInfo& getLastFrameInfo() const { return m_frameInfo; }
+
+        void resetFrameInfo() { m_frameInfo = {}; }
+
     protected:
         OS::Window* m_window = nullptr;
+        FrameInfo   m_frameInfo = {};
 
         //----------------------------------------------------------------------
         HashMap<StringID, MaterialPtr>  m_globalMaterials;

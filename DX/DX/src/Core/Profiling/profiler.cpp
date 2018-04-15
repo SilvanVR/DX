@@ -102,5 +102,16 @@ namespace Core { namespace Profiling {
         }
     }
 
+    //----------------------------------------------------------------------
+    void Profiler::logGPU()
+    {
+        auto frameInfo = Locator::getRenderer().getLastFrameInfo();
+        String str = "<<< Last Frame Info >>>\n"
+            "Drawcalls: " + TS( frameInfo.drawCalls ) + "\n"
+            "Vertices: " + TS( frameInfo.numVertices ) + "\n"
+            "Triangles: " + TS( frameInfo.numTriangles );
+        LOG( str, LOGCOLOR );
+    }
+
 
 } } // end namespaces

@@ -15,9 +15,6 @@ struct FragmentIn
 
 float4 main(FragmentIn fin) : SV_Target
 {
-	//return fin.Color;
-	//return float4(fin.Normal, 1);
-	
 	float3 l = normalize(-dir.xyz);	
 	float nDotL = dot(fin.Normal, l);
 	
