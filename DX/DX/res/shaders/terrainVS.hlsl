@@ -30,7 +30,7 @@ VertexOut main(VertexIn vin)
     float4x4 mvp = mul(gViewProj, gWorld);
     OUT.PosH = mul(mvp, float4(vin.PosL, 1.0f));
 	OUT.Color = vin.Color;
-	OUT.Normal = vin.Normal;
+	OUT.Normal = normalize(vin.Normal);
 	
     return OUT;
 }

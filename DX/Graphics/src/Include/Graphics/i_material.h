@@ -47,6 +47,13 @@ namespace Graphics {
         void setColor(StringID name, Color color);
         void setTexture(StringID name, TexturePtr tex);
 
+        inline void setInt(CString name, I32 val)                           { setInt(SID(name), val); }
+        inline void setFloat(CString name, F32 val)                         { setFloat(SID(name), val); }
+        inline void setVec4(CString name, const Math::Vec4& vec)            { setVec4(SID(name), vec); }
+        inline void setMatrix(CString name, const DirectX::XMMATRIX& matrix){ setMatrix(SID(name), matrix); }
+        inline void setColor(CString name, Color color)                     { setColor(SID(name), color); }
+        inline void setTexture(CString name, TexturePtr tex)                { setTexture(SID(name), tex); }
+
     protected:
         ShaderPtr m_shader = nullptr;
 

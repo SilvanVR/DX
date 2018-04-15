@@ -12,6 +12,7 @@ void createSphereInVolume(SimpleVolume<uint8_t>& volData, float fRadius)
 {
     //This vector hold the position of the center of the volume
     Vector3DFloat v3dVolCenter(volData.getWidth() / 2, volData.getHeight() / 2, volData.getDepth() / 2);
+    //Vector3DFloat v3dVolCenter(0,0,0);
 
     //This three-level for loop iterates over every voxel in the volume
     for (int z = 0; z < volData.getDepth(); z++)
@@ -176,8 +177,8 @@ public:
     void addedToGameObject(GameObject* go) override
     {
         //Create an empty volume and then place a sphere in it
-        SimpleVolume<uint8_t> volData(PolyVox::Region(Vector3DInt32(0, 0, 0), Vector3DInt32(63, 63, 63)));
-        createSphereInVolume(volData, 30);
+        SimpleVolume<U8> volData(PolyVox::Region(Vector3DInt32(0, 0, 0), Vector3DInt32(63, 63, 63)));
+        createSphereInVolume(volData, 10);
 
         //A mesh object to hold the result of surface extraction
         SurfaceMesh<PositionMaterialNormal> mesh;
@@ -211,8 +212,12 @@ public:
 
         auto shader = RESOURCES.createShader("TerrainShader", "/shaders/terrainVS.hlsl", "/shaders/terrainPS.hlsl");
         auto material = RESOURCES.createMaterial(shader);
+        material->setColor("color", Color::WHITE);
+        material->setVec4("dir", Math::Vec4(0, -1, 1, 0));
+        material->setFloat("intensity", 1.0f);
 
         getGameObject()->addComponent<Components::MeshRenderer>(chunk, material);
+        getGameObject()->getComponent<Components::Transform>()->position = (-volData.getWidth() / 2, -volData.getHeight() / 2, -volData.getDepth() / 2);
     }
 
     void tick(Time::Seconds delta) override
@@ -231,7 +236,7 @@ public:
         // CAMERA
         auto go = createGameObject("Camera");
         auto cam = go->addComponent<Components::Camera>();
-        go->getComponent<Components::Transform>()->position = Math::Vec3(0,0,-10);
+        go->getComponent<Components::Transform>()->position = Math::Vec3(0,0,-20);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 10.0f, 0.3f);
         go->addComponent<Minimap>(500.0f, 3.0f);
         go->addComponent<Components::AudioListener>();
@@ -247,10 +252,10 @@ public:
 
         // MATERIAL
         auto material = RESOURCES.createMaterial(texShader);
-        material->setTexture(SID("tex0"), terrain);
-        material->setTexture(SID("tex1"), dirt);
-        material->setFloat(SID("mix"), 0.0f);
-        material->setColor(SID("tintColor"), Color::WHITE);
+        material->setTexture("tex0", terrain);
+        material->setTexture("tex1", dirt);
+        material->setFloat("mix", 0.0f);
+        material->setColor("tintColor", Color::WHITE);
 
         // GAMEOBJECTS
         createGameObject("World Generation")->addComponent<WorldGeneration>();

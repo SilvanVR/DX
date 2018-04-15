@@ -55,7 +55,14 @@ namespace Graphics { namespace D3D11 {
         if ( m_filePath.empty() ) // Compiled shaders from source are always up to date
             return true;
 
-        return m_fileTimeAtCompilation == m_filePath.getLastWrittenFileTime(); 
+        try {
+            return m_fileTimeAtCompilation == m_filePath.getLastWrittenFileTime();
+        }
+        catch (...) {
+            // Do nothing, simply return true. Being here means file could not be opened.
+        }
+
+        return true; 
     }
 
     //----------------------------------------------------------------------

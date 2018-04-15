@@ -1,7 +1,9 @@
 
 cbuffer cbPerMaterial
 {
-	float4 color;
+	float4 	dir;
+	float4 	color;
+	float 	intensity;
 };
 
 struct FragmentIn
@@ -13,5 +15,14 @@ struct FragmentIn
 
 float4 main(FragmentIn fin) : SV_Target
 {
-	return float4(fin.Normal, 1);
+	//return fin.Color;
+	//return float4(fin.Normal, 1);
+	
+	float3 l = normalize(-dir.xyz);	
+	float nDotL = dot(fin.Normal, l);
+	
+	float ambient = 0.4f;
+	float3 diffuse = color.rgb * saturate(nDotL) * intensity;
+	
+	return float4(fin.Color.rgb * ambient + fin.Color.rgb * diffuse, 1);
 }
