@@ -75,6 +75,11 @@ public:
     // Converts to "(r, g, b)" or "(r, g, b, a)"
     String toString(bool includeAlpha = false) const;
 
+    //----------------------------------------------------------------------
+    // Linearly interpolate between color a and b.
+    //----------------------------------------------------------------------
+    static Color Lerp(Color a, Color b, F32 lerp);
+
 public:
     static Color WHITE;
     static Color BLACK;

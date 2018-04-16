@@ -158,7 +158,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="stb_perlin.hpp" />
     <ClInclude Include="stb_voxel_renderer.hpp" />
+    <ClInclude Include="world_generator.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

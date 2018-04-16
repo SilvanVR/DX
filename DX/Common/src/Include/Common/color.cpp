@@ -168,3 +168,12 @@ String Color::toString( bool includeAlpha ) const
 
     return result;
 }
+
+//---------------------------------------------------------------------------
+Color Color::Lerp( Color a, Color b, F32 lerp )
+{
+    return Color(Byte( a.getRed()     * (1.0f - lerp) + b.getRed()    * lerp + 0.5f ) ,
+                 Byte( a.getGreen()   * (1.0f - lerp) + b.getGreen()  * lerp + 0.5f ) ,
+                 Byte( a.getBlue()    * (1.0f - lerp) + b.getBlue()   * lerp + 0.5f ) ,
+                 Byte( a.getAlpha()   * (1.0f - lerp) + b.getAlpha()  * lerp + 0.5f ) );
+}

@@ -12,3 +12,4 @@
 #include "stdafx.h"
 #include "locator.h"
 #include "i_game.hpp"
+#include "OS/FileSystem/virtual_file_system.h"

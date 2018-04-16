@@ -18,6 +18,15 @@ struct FragmentIn
 Texture2DArray texArray;
 SamplerState sampler0;
 
+
+float3 fog(float3 color, float3 fcolor, float depth, float density)
+{
+    const float e = 2.71828182845904523536028747135266249;
+    float f = pow(e, -pow(depth*density, 2));
+    return lerp(fcolor, color, f);
+}
+
+
 float4 main(FragmentIn fin) : SV_Target
 {	
 	// Compute UV-Coordinates by projecting the world-pos along the respective axis
@@ -39,7 +48,18 @@ float4 main(FragmentIn fin) : SV_Target
 	float ambient = 0.4f;
 	float3 diffuse = color.rgb * saturate(nDotL) * intensity;
 	
-	//return textureColor;
-	return float4(textureColor.rgb * ambient + textureColor.rgb * diffuse, 1);
-	//return float4(fin.Color.rgb * ambient + fin.Color.rgb * diffuse, 1);
+	float3 finalColor = textureColor.rgb * ambient + textureColor.rgb * diffuse;
+	return float4(finalColor, 1);
+	
+	//return float4( fog(finalColor, float3(0.8), depth, 0.005), 1 );
 }
+
+
+
+
+
+
+
+
+
+
