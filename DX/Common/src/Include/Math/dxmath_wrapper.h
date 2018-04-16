@@ -31,6 +31,9 @@ namespace Math {
         Vector2F&   operator *=     (F32 s)             { x *= s; y *= s; return *this; }
         Vector2F&   operator /=     (F32 s)             { x /= s; y /= s; return *this; }
 
+        bool        operator == (const Vector2F& v) const { return x == v.x && y == v.y; }
+        bool        operator != (const Vector2F& v) const { return !(*this == v); }
+
         F32         magnitude() const;
         Vector2F    normalized() const;
 
@@ -61,6 +64,9 @@ namespace Math {
         Vector3F&   operator *=     (F32 s)             { x *= s; y *= s; z *= s; return *this; }
         Vector3F&   operator /=     (F32 s)             { x /= s; y /= s; z /= s; return *this; }
 
+        bool        operator == (const Vector3F& v) const { return x == v.x && y == v.y && z == v.z; }
+        bool        operator != (const Vector3F& v) const { return !(*this == v); }
+
         F32         magnitude() const;
         Vector3F    normalized() const;
         Vector3F    cross(const Vector3F& v) const;
@@ -89,6 +95,9 @@ namespace Math {
         Vector4F    operator -      (const Vector4F& v) const { return Vector4F( x - v.x, y - v.y, z - v.z, w - v.w ); }
         Vector4F&   operator +=     (const Vector4F& v) { x += v.x, y += v.y; z += v.z; w += v.w; return *this; }
         Vector4F&   operator -=     (const Vector4F& v) { x -= v.x, y -= v.y; z -= v.z; w -= v.w; return *this; }
+
+        bool        operator == (const Vector4F& v) const { return x == v.x && y == v.y && z == v.z && w == v.w; }
+        bool        operator != (const Vector4F& v) const { return !(*this == v); }
 
         String toString() const { return "(" + TS(x) + "," + TS(y) + "," + TS(z) + "," +TS(w) + ")"; }
     };

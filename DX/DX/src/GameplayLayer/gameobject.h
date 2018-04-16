@@ -10,6 +10,7 @@
 **********************************************************************/
 
 #include "Components/i_component.h"
+#include "Components/transform.h"
 #include "Logging/logging.h"
 
 class IScene;
@@ -31,6 +32,8 @@ public:
     template<typename T> bool removeComponent();
     template<typename T> bool removeComponent(T* comp);
     template<typename T, typename... Args> T* addComponent(Args&&... args);
+
+    Components::Transform* getTransform() { return getComponent<Components::Transform>(); }
 
 private:
     StringID m_name;

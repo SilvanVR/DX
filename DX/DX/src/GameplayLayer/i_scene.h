@@ -62,6 +62,9 @@ private:
     ArrayList<GameObject*>          m_gameObjects;
     Components::ComponentManager    m_componentManager;
 
+    // Separate list of gameobjects to add to the gameobject list. Necessary, so components can create new gameobjects in tick()
+    ArrayList<GameObject*>          m_gameObjectsToAdd;
+
     //----------------------------------------------------------------------
     friend class Core::SceneManager;
     void _PreTick(Time::Seconds delta);

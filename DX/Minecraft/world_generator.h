@@ -15,6 +15,23 @@
 #include "PolyVoxCore/LargeVolume.h"
 #include "noise_map.h"
 
+namespace std {
+
+    template <>
+    struct hash<Math::Vec2>
+    {
+        std::size_t operator()(const Math::Vec2& v) const
+        {
+            using std::size_t;
+            using std::hash;
+            using std::string;
+
+            return ((hash<float>()(v.x) ^ (hash<float>()(v.y) << 1)) >> 1);
+        }
+    };
+
+}
+
 enum class BlockType
 {
     UNKNOWN = 0,
@@ -24,19 +41,6 @@ enum class BlockType
     Stone,
     Snow
 };
-
-//class Block
-//{
-//public:
-//    Block() : m_id(0) {}
-//    Block(BlockType blockType) : m_id(static_cast<U8>(blockType)) { }
-//
-//    U8 getID() const { return m_id; }
-//
-//private:
-//    U8 m_id;
-//};
-
 
 template <typename Type>
 class TBlock
@@ -138,8 +142,8 @@ class WorldGeneration : public Components::IComponent
     ArrayList<TerrainType> m_regions;
     MaterialPtr m_noiseMapMaterial;
 
-    static const I32 m_noiseMapSize = 64;
-    F32 m_speed = 10.0f;
+    bool m_generating       = false;
+    F32 m_speed             = 10.0f;
 
     F32 m_noiseScale        = 10.0f;
     F32 m_noiseLacunarity   = 1.0f;
@@ -147,7 +151,9 @@ class WorldGeneration : public Components::IComponent
     I32 m_noiseOctaves      = 4;
     F32 m_terrainHeight     = 10.0f;
 
-    static const I32 chunkSize = m_noiseMapSize;
+    static const I32 s_chunkSize = 64;
+    static const I32 s_maxViewDst = 100;
+    F32 m_chunksVisibleInViewDst = s_maxViewDst / s_chunkSize;
 
     enum class DrawMode
     {
@@ -156,10 +162,10 @@ class WorldGeneration : public Components::IComponent
     } m_drawMode = DrawMode::ColorMap;
 
 public:
-    WorldGeneration() : m_volData(PolyVox::Region(PolyVox::Vector3DInt32(0, 0, 0), PolyVox::Vector3DInt32(chunkSize-1, 64, chunkSize-1))) {}
+    WorldGeneration() : m_volData(PolyVox::Region(PolyVox::Vector3DInt32(0, 0, 0), PolyVox::Vector3DInt32(s_chunkSize -1, 64, s_chunkSize -1))) {}
 
     //----------------------------------------------------------------------
-    void addedToGameObject(GameObject* go) override
+    void init() override
     {
         //m_regions.push_back(TerrainType{ "Water", 0.3f, Color(0x4286f4), BlockType::Water });
         //m_regions.push_back(TerrainType{ "WaterShallow", 0.4f, Color(0x82cdff), BlockType::Water });
@@ -172,26 +178,26 @@ public:
         _SetupShaderAndMaterial();
 
         // Create gameobject and add mesh renderer component
-        m_chunkGO = getGameObject()->getScene()->createGameObject();
+        m_chunkGO = SCENE.createGameObject();
         m_meshRenderer = m_chunkGO->addComponent<Components::MeshRenderer>(Core::Assets::MeshGenerator::CreatePlane(1, Color::RED), m_chunkMaterial);
 
-        // VISUALIZATION OF PERLIN NOISE
+        // VISUALIZATION OF PERLIN NOISE ON A FLAT PLANE
         auto texShader = RESOURCES.createShader("TexShader", "/shaders/texVS.hlsl", "/shaders/texPS.hlsl");
         m_noiseMapMaterial = RESOURCES.createMaterial(texShader);
 
-        auto planeGO = getGameObject()->getScene()->createGameObject();
-        planeGO->addComponent<Components::MeshRenderer>(Core::Assets::MeshGenerator::CreatePlane(1, Color::GREEN), m_noiseMapMaterial);
+        SCENE.createGameObject()->addComponent<Components::MeshRenderer>(Core::Assets::MeshGenerator::CreatePlane(1, Color::GREEN), m_noiseMapMaterial);
     }
+
+    F32 lastScale = 0.0f;
 
     //----------------------------------------------------------------------
     void tick(Time::Seconds delta) override
     {
-        static F64 yaw = 0;
-        yaw += 45.0 * delta.value;
-        auto fw = Math::Quat::FromEulerAngles({ 0, (F32)yaw, 0}).getForward();
-        //material->setVec4("dir", Math::Vec4(fw.x, -fw.y, fw.z, 0));
+        //static F64 yaw = 0;
+        //yaw += 45.0 * delta.value;
+        //auto fw = Math::Quat::FromEulerAngles({ 0, (F32)yaw, 0}).getForward();
+        //m_chunkMaterial->setVec4("dir", Math::Vec4(fw.x, -fw.y, fw.z, 0));
 
-        static F32 lastScale = 0.0f;
         if (KEYBOARD.isKeyDown(Key::Up))
             m_noiseScale += delta.value * m_speed * 10.0f;
         if (KEYBOARD.isKeyDown(Key::Down))
@@ -227,16 +233,15 @@ public:
         if (KEYBOARD.isKeyDown(Key::Right))
             m_terrainHeight += delta.value * m_speed;
 
-        static bool computing = false;
         if ( (lastScale != m_noiseScale || lastLacunarity != m_noiseLacunarity || lastGain != m_noiseGain 
-            || lastOctaves != m_noiseOctaves || lastDrawMode != m_drawMode || lastTerrainHeight != m_terrainHeight) && !computing)
+            || lastOctaves != m_noiseOctaves || lastDrawMode != m_drawMode || lastTerrainHeight != m_terrainHeight) && !m_generating)
         {
-            computing = true;
+            m_generating = true;
             lastScale = m_noiseScale; lastLacunarity = m_noiseLacunarity; lastGain = m_noiseGain; 
             lastOctaves = m_noiseOctaves; lastDrawMode = m_drawMode; lastTerrainHeight = m_terrainHeight;
 
             ASYNC_JOB([&] {
-                NoiseMap noiseMap(m_noiseMapSize, m_noiseMapSize, m_noiseScale, m_noiseLacunarity, m_noiseGain, m_noiseOctaves);
+                NoiseMap noiseMap(s_chunkSize, s_chunkSize, m_noiseScale, m_noiseLacunarity, m_noiseGain, m_noiseOctaves);
                 switch (m_drawMode)
                 {
                 case DrawMode::NoiseMap: m_noiseMapMaterial->setTexture("tex", _GenerateNoiseTextureFromNoiseMap(noiseMap)); break;
@@ -245,7 +250,7 @@ public:
                 auto mesh = _GenerateMeshFromNoiseMap(m_volData, noiseMap, m_terrainHeight);
                 m_meshRenderer->setMesh(mesh);
                 m_chunkGO->getComponent<Components::Transform>()->position = { -m_volData.getWidth() / 2.0f, 5.0f, -m_volData.getDepth() / 2.0f };
-                computing = false;
+                m_generating = false;
             });
 
             LOG("Scale: " + TS(m_noiseScale));
@@ -255,9 +260,57 @@ public:
             LOG("Terrain Height: " + TS(m_terrainHeight));
         }
 
-        // Calculate which chunks to generate
-        //Components::Camera* main = SCENE.getMainCamera();
+        for (auto& pair : m_terrainChunkDictionary)
+            pair.second->go->setActive( false );
+
+        // Calculate which chunks are visible
+        Components::Camera* viewer = SCENE.getMainCamera();
+        auto transform = viewer->getComponent<Components::Transform>();
+
+        I32 currentChunkCoordX = static_cast<I32>(transform->position.x / s_chunkSize);
+        I32 currentChunkCoordY = static_cast<I32>(transform->position.z / s_chunkSize);
+
+        for (I32 yOffset = -m_chunksVisibleInViewDst; yOffset <= m_chunksVisibleInViewDst; yOffset++)
+        {
+            for (I32 xOffset = -m_chunksVisibleInViewDst; xOffset <= m_chunksVisibleInViewDst; xOffset++)
+            {
+                Math::Vec2 viewedChunkCoord( currentChunkCoordX + xOffset, currentChunkCoordY + yOffset );
+
+                if (m_terrainChunkDictionary.find(viewedChunkCoord) != m_terrainChunkDictionary.end())
+                {
+                    m_terrainChunkDictionary[viewedChunkCoord]->go->setActive(true);
+                }
+                else
+                {
+                     m_terrainChunkDictionary[viewedChunkCoord] = std::make_shared<TerrainChunk>( viewedChunkCoord, s_chunkSize );
+                }
+            }
+        }
+        if (KEYBOARD.wasKeyPressed(Key::C))
+           LOG( TS( m_terrainChunkDictionary.size() ) );
     }
+
+    struct TerrainChunk
+    {
+        Math::Vec2  position;
+        GameObject* go;
+        
+        TerrainChunk(Math::Vec2 pos, I32 size) : position(pos * size)
+        {
+            //LOG(position.toString());
+            Math::Vec3 posV3(position.x, 0, position.y);
+            go = SCENE.createGameObject("CHUNK");
+            auto transform = go->getTransform();
+            transform->position = posV3;
+            transform->scale = Math::Vec3(size * 0.5f);
+            transform->rotation = Math::Quat(Math::Vec3::RIGHT, 90.0f);
+
+            go->addComponent<Components::MeshRenderer>(Core::Assets::MeshGenerator::CreatePlane(1, Math::Random::Color()));
+        }
+
+    };
+
+    std::unordered_map<Math::Vec2, std::shared_ptr<TerrainChunk>> m_terrainChunkDictionary;
 
 private:
     //----------------------------------------------------------------------
@@ -273,7 +326,7 @@ private:
         }
 
         auto texArr = RESOURCES.createTexture2DArray( blockTextures[0]->getWidth(), blockTextures[0]->getHeight(), 
-                                                      blockTextures.size(), Graphics::TextureFormat::RGBA32, false );
+                                                      (U32)blockTextures.size(), Graphics::TextureFormat::RGBA32, false );
         texArr->setAnisoLevel( 1 );
         texArr->setFilter( Graphics::TextureFilter::Point );
 
@@ -381,7 +434,7 @@ private:
                 {
                     if ( y < curHeight )
                     {
-                        Block block = _GetBlockInRegionFromHeight( noiseValue );
+                        Block block = _GetBlockFromHeight( noiseValue );
                         volData.setVoxelAt( x, y, z, block );
                     }
                 }
@@ -394,7 +447,7 @@ private:
     }
 
     //----------------------------------------------------------------------
-    Block _GetBlockInRegionFromHeight(F32 y)
+    Block _GetBlockFromHeight(F32 y)
     {
         for (auto region : m_regions)
             if (y <= region.height)

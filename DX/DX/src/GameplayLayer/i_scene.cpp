@@ -36,7 +36,7 @@ GameObject* IScene::createGameObject( CString name )
     GameObject* go = new GameObject( this, name );
 
     go->addComponent<Components::Transform>();
-    m_gameObjects.push_back( go );
+    m_gameObjectsToAdd.push_back( go );
     return go;
 }
 
@@ -76,6 +76,12 @@ Components::Camera* IScene::getMainCamera()
 //----------------------------------------------------------------------
 void IScene::_PreTick( Time::Seconds delta )
 {
+    if ( not m_gameObjectsToAdd.empty() )
+    {
+        m_gameObjects.insert( m_gameObjects.end(), m_gameObjectsToAdd.begin(), m_gameObjectsToAdd.end() );
+        m_gameObjectsToAdd.clear();
+    }
+
     // Update components from all game-objects
     for ( auto go : m_gameObjects )
     {
