@@ -27,10 +27,14 @@ namespace Components {
     //----------------------------------------------------------------------
     void MeshRenderer::setMesh( MeshPtr mesh )
     { 
-        m_mesh = mesh; 
-        m_materials.resize( m_mesh->getSubMeshCount() );
-        for ( auto& mat : m_materials )
-            mat = RESOURCES.getDefaultMaterial();
+        m_mesh = mesh;
+        if (m_mesh != nullptr)
+        {
+            m_materials.resize( m_mesh->getSubMeshCount() );
+            for ( I32 i = 0; i < m_materials.size(); i++ )
+                if (m_materials[i] == nullptr)
+                    m_materials[i] = RESOURCES.getDefaultMaterial();
+        }
     }
 
     //----------------------------------------------------------------------

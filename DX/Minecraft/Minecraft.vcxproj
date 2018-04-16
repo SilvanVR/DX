@@ -158,6 +158,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="noise_map.h" />
     <ClInclude Include="stb_perlin.hpp" />
     <ClInclude Include="stb_voxel_renderer.hpp" />
     <ClInclude Include="world_generator.h" />

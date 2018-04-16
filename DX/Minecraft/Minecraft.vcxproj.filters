@@ -29,5 +29,8 @@
     <ClInclude Include="stb_perlin.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="noise_map.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

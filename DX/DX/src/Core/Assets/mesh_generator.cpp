@@ -164,8 +164,7 @@ namespace Core { namespace Assets {
     //----------------------------------------------------------------------
     MeshPtr MeshGenerator::CreatePlane( F32 size )
     {
-        ArrayList<Math::Vec3> vertices =
-        {
+        ArrayList<Math::Vec3> vertices = {
             Math::Vec3( -size, -size, 0.0f ),
             Math::Vec3( -size,  size, 0.0f ),
             Math::Vec3(  size,  size, 0.0f ),
@@ -174,15 +173,23 @@ namespace Core { namespace Assets {
         ArrayList<U32> indices = {
             0, 1, 2, 0, 2, 3
         };
-        ArrayList<Math::Vec2> uvs =
-        {
+        ArrayList<Math::Vec2> uvs = {
             Math::Vec2( 0.0f, 1.0f ),
             Math::Vec2( 0.0f, 0.0f ),
             Math::Vec2( 1.0f, 0.0f ),
             Math::Vec2( 1.0f, 1.0f )
         };
+        ArrayList<Math::Vec3> normals = { 
+            Math::Vec3( 0.0f, 0.0f, -1.0f ),
+            Math::Vec3( 0.0f, 0.0f, -1.0f ),
+            Math::Vec3( 0.0f, 0.0f, -1.0f ),
+            Math::Vec3( 0.0f, 0.0f, -1.0f )
+        };
 
-        return RESOURCES.createMesh( vertices, indices, uvs );
+        auto mesh = RESOURCES.createMesh( vertices, indices, uvs );
+        mesh->setNormals( normals );
+
+        return mesh;
     }
 
     //----------------------------------------------------------------------

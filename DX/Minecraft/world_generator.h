@@ -12,129 +12,182 @@
 #include "PolyVoxCore/CubicSurfaceExtractorWithNormals.h"
 #include "PolyVoxCore/MarchingCubesSurfaceExtractor.h"
 #include "PolyVoxCore/SurfaceMesh.h"
-#include "PolyVoxCore/SimpleVolume.h"
 #include "PolyVoxCore/LargeVolume.h"
-#include "PolyVoxCore/MaterialDensityPair.h"
-#include "PolyVoxCore/Material.h"
+#include "noise_map.h"
 
-#define STB_PERLIN_IMPLEMENTATION 
-#include "stb_perlin.hpp"
+enum class BlockType
+{
+    UNKNOWN = 0,
+    Sand,
+    Gravel,
+    Dirt,
+    Stone,
+    Snow
+};
 
-class NoiseMap
+//class Block
+//{
+//public:
+//    Block() : m_id(0) {}
+//    Block(BlockType blockType) : m_id(static_cast<U8>(blockType)) { }
+//
+//    U8 getID() const { return m_id; }
+//
+//private:
+//    U8 m_id;
+//};
+
+
+template <typename Type>
+class TBlock
 {
 public:
-    NoiseMap(I32 width, I32 height, F32 scale = 0.3f)
-        : m_width(width), m_height(height)
+    TBlock() : m_uMaterial(0) {}
+    TBlock(Type uMaterial) : m_uMaterial(uMaterial) {}
+    TBlock(BlockType blockType) : m_uMaterial(static_cast<Type>(blockType)) { }
+
+    bool operator==(const TBlock& rhs) const
     {
-        m_noiseMap = new F32[width * height];
+        return (m_uMaterial == rhs.m_uMaterial);
+    };
 
-        if (scale < 0.0f)
-            scale = 0.0001f;
-
-        for (I32 y = 0; y < height; y++)
-        {
-            for (I32 x = 0; x < width; x++)
-            {
-                F32 sampleX = x / scale;
-                F32 sampleY = y / scale;
-                m_noiseMap[x + y * width] = stb_perlin_noise3(sampleX, sampleY, 0, 0, 0, 0);
-            }
-        }
+    bool operator!=(const TBlock& rhs) const
+    {
+        return !(*this == rhs);
     }
-    ~NoiseMap() { delete m_noiseMap; }
 
-    F32 getValue(I32 x, I32 y) const { return m_noiseMap[x + y * m_width]; }
+    Type getMaterial() const { return m_uMaterial; }
+    void setMaterial(Type uMaterial) { m_uMaterial = uMaterial; }
 
 private:
-    F32*    m_noiseMap = nullptr;
-    I32     m_width, m_height;
+    Type m_uMaterial;
+};
+
+typedef TBlock<uint8_t> Block;
+
+template<typename Type>
+class PolyVox::DefaultIsQuadNeeded< TBlock<Type> >
+{
+public:
+    bool operator()(TBlock<Type> back, TBlock<Type> front, uint32_t& materialToUse)
+    {
+        if ((back.getMaterial() > 0) && (front.getMaterial() == 0))
+        {
+            materialToUse = static_cast<uint32_t>(back.getMaterial());
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
 };
 
 
-#define NUM_MATERIALS 3
-using Block = PolyVox::Material8;
+//void createSphereInVolume(PolyVox::LargeVolume<PolyVox::Material8>& volData, float fRadius)
+//{
+//    //This vector hold the position of the center of the volume
+//    PolyVox::Vector3DFloat v3dVolCenter(volData.getWidth() / 2, volData.getHeight() / 2, volData.getDepth() / 2);
+//    //Vector3DFloat v3dVolCenter(0,0,0);
+//
+//    //This three-level for loop iterates over every voxel in the volume
+//    for (int z = 0; z < volData.getDepth(); z++)
+//    {
+//        for (int y = 0; y < volData.getHeight(); y++)
+//        {
+//            for (int x = 0; x < volData.getWidth(); x++)
+//            {
+//                //Store our current position as a vector...
+//                PolyVox::Vector3DFloat v3dCurrentPos(x, y, z);
+//                //And compute how far the current position is from the center of the volume
+//                float fDistToCenter = (v3dCurrentPos - v3dVolCenter).length();
+//
+//                uint8_t uVoxelValue = 0;
+//
+//                //If the current voxel is less than 'radius' units from the center then we make it solid.
+//                if (fDistToCenter <= fRadius)
+//                {
+//                    //Our new voxel value
+//                    uVoxelValue = Math::Random::Int(1, NUM_MATERIALS);
+//                }
+//
+//                //Wrte the voxel value into the volume	
+//                volData.setVoxelAt(x, y, z, uVoxelValue);
+//            }
+//        }
+//    }
+//}
 
-void createSphereInVolume(PolyVox::LargeVolume<PolyVox::Material8>& volData, float fRadius)
+struct TerrainType
 {
-    //This vector hold the position of the center of the volume
-    PolyVox::Vector3DFloat v3dVolCenter(volData.getWidth() / 2, volData.getHeight() / 2, volData.getDepth() / 2);
-    //Vector3DFloat v3dVolCenter(0,0,0);
+    String  name;
+    F32     height;
+    Color   color;
+    Block   block;
+};
 
-    //This three-level for loop iterates over every voxel in the volume
-    for (int z = 0; z < volData.getDepth(); z++)
-    {
-        for (int y = 0; y < volData.getHeight(); y++)
-        {
-            for (int x = 0; x < volData.getWidth(); x++)
-            {
-                //Store our current position as a vector...
-                PolyVox::Vector3DFloat v3dCurrentPos(x, y, z);
-                //And compute how far the current position is from the center of the volume
-                float fDistToCenter = (v3dCurrentPos - v3dVolCenter).length();
-
-                uint8_t uVoxelValue = 0;
-
-                //If the current voxel is less than 'radius' units from the center then we make it solid.
-                if (fDistToCenter <= fRadius)
-                {
-                    //Our new voxel value
-                    uVoxelValue = Math::Random::Int(1, NUM_MATERIALS);
-                }
-
-                //Wrte the voxel value into the volume	
-                volData.setVoxelAt(x, y, z, uVoxelValue);
-            }
-        }
-    }
-}
 
 //**********************************************************************
 class WorldGeneration : public Components::IComponent
 {
     MaterialPtr                 m_chunkMaterial;
     PolyVox::LargeVolume<Block> m_volData;
+    Components::MeshRenderer*   m_meshRenderer;
+    GameObject*                 m_chunkGO;
 
-    I32 size = 128;
-    F32 scale = 0.3f;
-    F32 speed = 5.0f;
-    Texture2DPtr m_noiseMap;
+    ArrayList<TerrainType> m_regions;
+    MaterialPtr m_noiseMapMaterial;
+
+    static const I32 m_noiseMapSize = 64;
+    F32 m_speed = 10.0f;
+
+    F32 m_noiseScale        = 10.0f;
+    F32 m_noiseLacunarity   = 1.0f;
+    F32 m_noiseGain         = 0.3f;
+    I32 m_noiseOctaves      = 4;
+    F32 m_terrainHeight     = 10.0f;
+
+    static const I32 chunkSize = m_noiseMapSize;
+
+    enum class DrawMode
+    {
+        NoiseMap,
+        ColorMap
+    } m_drawMode = DrawMode::ColorMap;
 
 public:
-    WorldGeneration() : m_volData(PolyVox::Region(PolyVox::Vector3DInt32(0, 0, 0), PolyVox::Vector3DInt32(63, 63, 63))) {}
+    WorldGeneration() : m_volData(PolyVox::Region(PolyVox::Vector3DInt32(0, 0, 0), PolyVox::Vector3DInt32(chunkSize-1, 64, chunkSize-1))) {}
 
     //----------------------------------------------------------------------
     void addedToGameObject(GameObject* go) override
     {
-        //_SetupShaderAndMaterial();
+        //m_regions.push_back(TerrainType{ "Water", 0.3f, Color(0x4286f4), BlockType::Water });
+        //m_regions.push_back(TerrainType{ "WaterShallow", 0.4f, Color(0x82cdff), BlockType::Water });
+        m_regions.push_back(TerrainType{ "Sand", 0.2f, Color(0xf9f39a), BlockType::Sand });
+        m_regions.push_back(TerrainType{ "Gravel", 0.3f, Color(0x99ff6b), BlockType::Gravel });
+        m_regions.push_back(TerrainType{ "Dirt", 0.7f, Color(0x5eaa3b), BlockType::Dirt });
+        m_regions.push_back(TerrainType{ "Stone", 0.9f, Color(0x4f4a32), BlockType::Stone });
+        m_regions.push_back(TerrainType{ "Snow", 1.0f, Color(0xffffff), BlockType::Snow });
+
+        _SetupShaderAndMaterial();
 
         //createSphereInVolume(m_volData, 30);
-
-        //// A mesh object to hold the result of surface extraction
         //PolyVox::SurfaceMesh<PolyVox::PositionMaterialNormal> mesh;
-
-        //// Create a surface extractor. 
         //PolyVox::CubicSurfaceExtractorWithNormals< PolyVox::LargeVolume<Block> > surfaceExtractor(&m_volData, m_volData.getEnclosingRegion(), &mesh);
         ////PolyVox::MarchingCubesSurfaceExtractor< PolyVox::LargeVolume<Block> > surfaceExtractor(&m_volData, m_volData.getEnclosingRegion(), &mesh);
-
-        //// Execute the surface extractor.
         //surfaceExtractor.execute();
 
-        //// BUILD FIRST CHUNK
+        // Create gameobject and add mesh renderer component
         //auto chunkMesh = _BuildMeshForRendering(mesh);
-        //auto chunkGO = getGameObject()->getScene()->createGameObject();
-        //chunkGO->addComponent<Components::MeshRenderer>(chunkMesh, m_chunkMaterial);
-        //chunkGO->getComponent<Components::Transform>()->position = (-m_volData.getWidth() / 2.0f, -m_volData.getHeight() / 2.0f, -m_volData.getDepth() / 2.0f);
+        m_chunkGO = getGameObject()->getScene()->createGameObject();
+        m_meshRenderer = m_chunkGO->addComponent<Components::MeshRenderer>(Core::Assets::MeshGenerator::CreatePlane(1, Color::RED), m_chunkMaterial);
 
-        // VISUALIZATION OF PERLIN NOISE      
-        m_noiseMap = RESOURCES.createTexture2D(size, size, Graphics::TextureFormat::BGRA32);
-        Color col = Color::Lerp(Color::BLACK, Color::WHITE, 0.5f);
-
+        // VISUALIZATION OF PERLIN NOISE
         auto texShader = RESOURCES.createShader("TexShader", "/shaders/texVS.hlsl", "/shaders/texPS.hlsl");
-        auto mat = RESOURCES.createMaterial(texShader);
-        mat->setTexture("tex", m_noiseMap);
+        m_noiseMapMaterial = RESOURCES.createMaterial(texShader);
 
         auto planeGO = getGameObject()->getScene()->createGameObject();
-        planeGO->addComponent<Components::MeshRenderer>(Core::Assets::MeshGenerator::CreatePlane(1), mat);
+        planeGO->addComponent<Components::MeshRenderer>(Core::Assets::MeshGenerator::CreatePlane(1), m_noiseMapMaterial);
     }
 
     //----------------------------------------------------------------------
@@ -147,22 +200,66 @@ public:
 
         static F32 lastScale = 0.0f;
         if (KEYBOARD.isKeyDown(Key::Up))
-            scale += delta.value * speed;
+            m_noiseScale += delta.value * m_speed * 10.0f;
         if (KEYBOARD.isKeyDown(Key::Down))
-            scale -= delta.value * speed;
+            m_noiseScale -= delta.value * m_speed * 10.0f;
 
-        if (lastScale != scale)
+        static F32 lastLacunarity = 0.0f;
+        if (KEYBOARD.isKeyDown(Key::T))
+            m_noiseLacunarity += delta.value * m_speed;
+        if (KEYBOARD.isKeyDown(Key::G))
+            m_noiseLacunarity -= delta.value * m_speed;
+
+        static F32 lastGain = 0.0f;
+        if (KEYBOARD.isKeyDown(Key::Z))
+            m_noiseGain += delta.value * m_speed * 0.1f;
+        if (KEYBOARD.isKeyDown(Key::H))
+            m_noiseGain -= delta.value * m_speed * 0.1f;
+
+        static I32 lastOctaves = 0;
+        if (KEYBOARD.wasKeyPressed(Key::U))
+            m_noiseOctaves++;
+        if (KEYBOARD.wasKeyPressed(Key::J))
+            m_noiseOctaves--;
+
+        static DrawMode lastDrawMode;
+        if (KEYBOARD.wasKeyPressed(Key::F5))
+            m_drawMode = DrawMode::NoiseMap;
+        if (KEYBOARD.wasKeyPressed(Key::F6))
+            m_drawMode = DrawMode::ColorMap;
+
+        static F32 lastTerrainHeight = 0.0f;
+        if (KEYBOARD.isKeyDown(Key::Left))
+            m_terrainHeight -= delta.value * m_speed;
+        if (KEYBOARD.isKeyDown(Key::Right))
+            m_terrainHeight += delta.value * m_speed;
+
+        static bool computing = false;
+        if ( (lastScale != m_noiseScale || lastLacunarity != m_noiseLacunarity || lastGain != m_noiseGain 
+            || lastOctaves != m_noiseOctaves || lastDrawMode != m_drawMode || lastTerrainHeight != m_terrainHeight) && !computing)
         {
-            lastScale = scale;
-            NoiseMap noiseMap(size, size, scale);
-            for (U32 x = 0; x < m_noiseMap->getWidth(); x++)
-                for (U32 y = 0; y < m_noiseMap->getHeight(); y++)
+            computing = true;
+            lastScale = m_noiseScale; lastLacunarity = m_noiseLacunarity; lastGain = m_noiseGain; 
+            lastOctaves = m_noiseOctaves; lastDrawMode = m_drawMode; lastTerrainHeight = m_terrainHeight;
+
+            ASYNC_JOB([&] {
+                NoiseMap noiseMap(m_noiseMapSize, m_noiseMapSize, m_noiseScale, m_noiseLacunarity, m_noiseGain, m_noiseOctaves);
+                switch (m_drawMode)
                 {
-                    F32 perlinValue = noiseMap.getValue(x, y);
-                    F32 col = perlinValue * 255.0f;
-                    m_noiseMap->setPixel(x, y, Color::Lerp(Color::BLACK, Color::WHITE, perlinValue));
+                case DrawMode::NoiseMap: m_noiseMapMaterial->setTexture("tex", _GenerateNoiseTextureFromNoiseMap(noiseMap)); break;
+                case DrawMode::ColorMap: m_noiseMapMaterial->setTexture("tex", _GenerateColorTextureFromNoiseMap(noiseMap)); break;
                 }
-            m_noiseMap->apply(true, true);
+                auto mesh = _GenerateMeshFromNoiseMap(m_volData, noiseMap, m_terrainHeight);
+                m_meshRenderer->setMesh(mesh);
+                m_chunkGO->getComponent<Components::Transform>()->position = { -m_volData.getWidth() / 2.0f, 5.0f, -m_volData.getDepth() / 2.0f };
+                computing = false;
+            });
+
+            LOG("Scale: " + TS(m_noiseScale));
+            LOG("Lacunarity: " + TS(m_noiseLacunarity));
+            LOG("Gain: " + TS(m_noiseGain));
+            LOG("Octaves: " + TS(m_noiseOctaves));
+            LOG("Terrain Height: " + TS(m_terrainHeight));
         }
 
         //Math::Vec3 start{0,15,0};
@@ -172,21 +269,26 @@ public:
         //Components::Camera* main = SCENE.getMainCamera();
     }
 
+private:
     //----------------------------------------------------------------------
     void _SetupShaderAndMaterial()
     {
         auto shader = RESOURCES.createShader( "ChunkShader", "/shaders/chunkVS.hlsl", "/shaders/chunkPS.hlsl" );
 
-        auto tex  = ASSETS.getTexture2D( "/textures/blocks/dirt.png" );
-        auto tex2 = ASSETS.getTexture2D( "/textures/blocks/brick.png" );
-        auto tex3 = ASSETS.getTexture2D( "/textures/blocks/stone.png" );
+        ArrayList<Texture2DPtr> blockTextures;
+        for (auto region : m_regions)
+        {
+            String path = "/textures/blocks/" + region.name + ".png";
+            blockTextures.push_back( ASSETS.getTexture2D( path.c_str() ) );
+        }
 
-        auto texArr = RESOURCES.createTexture2DArray( tex->getWidth(), tex->getHeight(), NUM_MATERIALS, Graphics::TextureFormat::RGBA32, false );
-        texArr->setPixels( 0, tex );
-        texArr->setPixels( 1, tex2 );
-        texArr->setPixels( 2, tex3 );
+        auto texArr = RESOURCES.createTexture2DArray(blockTextures[0]->getWidth(), blockTextures[0]->getHeight(), 
+                                                     blockTextures.size(), Graphics::TextureFormat::RGBA32, false );
         texArr->setAnisoLevel( 1 );
         texArr->setFilter( Graphics::TextureFilter::Point );
+
+        for (U32 i = 0; i < blockTextures.size(); i++)
+            texArr->setPixels( i, blockTextures[i] );
         texArr->apply();
 
         m_chunkMaterial = RESOURCES.createMaterial( shader );
@@ -224,5 +326,91 @@ public:
         chunk->setUVs( materialID );
 
         return chunk;
+    }
+
+    //----------------------------------------------------------------------
+    Texture2DPtr _GenerateColorTextureFromNoiseMap(const NoiseMap& noiseMap)
+    {
+        auto tex2D = RESOURCES.createTexture2D(noiseMap.getWidth(), noiseMap.getHeight(), Graphics::TextureFormat::BGRA32);
+        for (U32 x = 0; x < tex2D->getWidth(); x++)
+        {
+            for (U32 y = 0; y < tex2D->getHeight(); y++)
+            {
+                F32 curHeight = noiseMap.getValue(x, y);
+                for (auto region : m_regions)
+                {
+                    if (curHeight <= region.height)
+                    {
+                        tex2D->setPixel(x, y, region.color);
+                        break;
+                    }
+                }
+            }
+        }
+        tex2D->setAnisoLevel(1);
+        tex2D->setFilter(Graphics::TextureFilter::Point);
+        tex2D->apply();
+        return tex2D;
+    }
+
+    //----------------------------------------------------------------------
+    Texture2DPtr _GenerateNoiseTextureFromNoiseMap(const NoiseMap& noiseMap)
+    {
+        auto tex2D = RESOURCES.createTexture2D(noiseMap.getWidth(), noiseMap.getHeight(), Graphics::TextureFormat::BGRA32);
+        for (U32 x = 0; x < tex2D->getWidth(); x++)
+        {
+            for (U32 y = 0; y < tex2D->getHeight(); y++)
+            {
+                F32 curHeight = noiseMap.getValue(x, y);
+                tex2D->setPixel(x, y, Color::Lerp(Color::BLACK, Color::WHITE, curHeight));
+            }
+        }
+        tex2D->setAnisoLevel(1);
+        tex2D->setFilter(Graphics::TextureFilter::Point);
+        tex2D->apply();
+
+        return tex2D;
+    }
+
+    //----------------------------------------------------------------------
+    MeshPtr _GenerateMeshFromNoiseMap(PolyVox::LargeVolume<Block>& volData, const NoiseMap& noiseMap, F32 maxHeight = 10.0f)
+    {
+        volData.flushAll();
+
+        PolyVox::SurfaceMesh<PolyVox::PositionMaterialNormal> mesh;
+        PolyVox::CubicSurfaceExtractorWithNormals<PolyVox::LargeVolume<Block>> surfaceExtractor( &m_volData, m_volData.getEnclosingRegion(), &mesh );
+
+        for (int y = 0; y < volData.getHeight(); y++)
+        {
+            for (int x = 0; x < volData.getWidth(); x++)
+            {
+                for (int z = 0; z < volData.getDepth(); z++)
+                {
+                    F32 noiseValue = noiseMap.getValue(x, z);
+                    F32 curHeight = noiseValue * maxHeight;
+
+                    if ( y < curHeight )
+                    {
+                        Block block = _GetBlockInRegion(noiseValue);
+                        volData.setVoxelAt(x, y, z, block);
+                    }
+                }
+            }
+        }
+
+        surfaceExtractor.execute();
+
+        return _BuildMeshForRendering( mesh );
+    }
+
+    //----------------------------------------------------------------------
+    Block _GetBlockInRegion(F32 y)
+    {
+        for (auto region : m_regions)
+            if (y <= region.height)
+                return region.block;
+
+        ASSERT(false);
+        return Block(BlockType::UNKNOWN);
     }
 };
