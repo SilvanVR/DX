@@ -215,16 +215,7 @@ namespace Core { namespace Resources {
     void ResourceManager::_DeleteTexture( Graphics::Texture* tex )
     {
 #if PRINT_DELETES
-        Graphics::Texture2D* tex2D = dynamic_cast<Graphics::Texture2D*>( tex );
-        if (tex2D)
-        {
-            if ( m_textureFileInfo.find(tex2D) != m_textureFileInfo.end() )
-                LOG( "DELETING TEXTURE " + m_textureFileInfo[tex2D].path.toString(), Color::RED );
-            else
-                LOG( "DELETING TEXTURE" , Color::RED);
-        }
-        else
-            LOG( "DELETING TEXTURE", Color::RED );
+        LOG( "DELETING TEXTURE", Color::RED );
 #endif
         m_textures.erase( std::remove( m_textures.begin(), m_textures.end(), tex ) );
         SAFE_DELETE( tex );

@@ -8,6 +8,7 @@
 
 #include "i_texture.h"
 #include "Utils/utils.h"
+#include "i_texture2d.hpp"
 
 namespace Graphics
 {
@@ -52,6 +53,20 @@ namespace Graphics
             Size sizeInBytes = m_width * m_height * ByteCountFromTextureFormat( m_format );
             ASSERT( m_pixels[slice].size() <= sizeInBytes );
             memcpy( m_pixels[slice].data(), pPixels, sizeInBytes );
+        }
+
+        //----------------------------------------------------------------------
+        // Set a pixel for a single array slice. (Copies pixel data from the given texture.)
+        // @Params:
+        //  "slice": Texture index.
+        //  "tex": 2D-Texture containing the pixel data. Must be valid and having the
+        //         same width, height and format as this texture array.
+        //----------------------------------------------------------------------
+        void setPixels(I32 slice, Texture2DPtr tex)
+        {
+            ASSERT( ( m_width == tex->getWidth() ) && ( m_height == tex->getHeight() ) 
+                 && ( m_format == tex->getFormat() ) && ( tex->getPixels().size() != 0 ) );
+            memcpy( m_pixels[slice].data(), tex->getPixels().data(), tex->getPixels().size() );
         }
 
         //----------------------------------------------------------------------

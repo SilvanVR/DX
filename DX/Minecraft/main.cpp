@@ -261,19 +261,19 @@ public:
         chunk->setUVs(materials);
 
         // SHADER + MATERIAL
-        auto shader = RESOURCES.createShader("TerrainShader", "/shaders/terrainVS.hlsl", "/shaders/terrainPS.hlsl");
+        auto shader = RESOURCES.createShader("TerrainShader", "/shaders/chunkVS.hlsl", "/shaders/chunkPS.hlsl");
 
         auto tex = ASSETS.getTexture2D("/textures/blocks/dirt.png");
         auto tex2 = ASSETS.getTexture2D("/textures/blocks/brick.png");
         auto tex3 = ASSETS.getTexture2D("/textures/blocks/stone.png");
 
         texArr = RESOURCES.createTexture2DArray( tex->getWidth(), tex->getHeight(), NUM_MATERIALS, Graphics::TextureFormat::RGBA32 );
-        texArr->setPixels( 0, tex->getPixels().data() );
-        texArr->setPixels( 1, tex2->getPixels().data() );
-        texArr->setPixels( 2, tex3->getPixels().data() );
-        texArr->apply();
+        texArr->setPixels( 0, tex );
+        texArr->setPixels( 1, tex2 );
+        texArr->setPixels( 2, tex3 );
         texArr->setAnisoLevel(1);
         texArr->setFilter(Graphics::TextureFilter::Point);
+        texArr->apply();
 
         material = RESOURCES.createMaterial(shader);
         material->setColor("color", Color::WHITE);
@@ -290,7 +290,7 @@ public:
         static F64 yaw = 0;
         yaw += 45.0 * delta.value;
         auto fw = Math::Quat::FromEulerAngles({ 0, (F32)yaw, 0}).getForward();
-        material->setVec4("dir", Math::Vec4(fw.x, -fw.y, fw.z, 0));
+        //material->setVec4("dir", Math::Vec4(fw.x, -fw.y, fw.z, 0));
 
         //Math::Vec3 start{0,15,0};
         //DEBUG.drawLine(start, start + fw * 10, Color::RED, 0);
@@ -319,7 +319,7 @@ public:
         //go->addComponent<Components::Skybox>(cubemap);
 
         // SHADER
-        auto texShader = RESOURCES.createShader("TexShader", "/shaders/texVS.hlsl", "/shaders/texPS.hlsl");
+        auto texShader = RESOURCES.createShader("TexShader", "../DX/res/shaders/texVS.hlsl", "../DX/res/shaders/texPS.hlsl");
 
         // TEXTURES
         auto terrain = ASSETS.getTexture2D("/textures/terrain.png");
@@ -355,6 +355,7 @@ public:
     {
         LOG( "Init game..." );
         OS::VirtualFileSystem::mount("textures", "res/textures");
+        OS::VirtualFileSystem::mount("shaders", "res/shaders");
         gLogger->setSaveToDisk( false );
 
         Locator::getEngineClock().setInterval([] {

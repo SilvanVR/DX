@@ -844,6 +844,8 @@ public:
         if (KEYBOARD.wasKeyPressed(Key::Zero))
             Locator::getSceneManager().LoadSceneAsync(new TestScene());
 
+        if (KEYBOARD.wasKeyPressed(Key::P))
+            PROFILER.logGPU();
 
         if (KEYBOARD.wasKeyPressed(Key::F1))
             Locator::getRenderer().setGlobalMaterialActive("NONE");
