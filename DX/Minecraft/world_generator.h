@@ -171,14 +171,7 @@ public:
 
         _SetupShaderAndMaterial();
 
-        //createSphereInVolume(m_volData, 30);
-        //PolyVox::SurfaceMesh<PolyVox::PositionMaterialNormal> mesh;
-        //PolyVox::CubicSurfaceExtractorWithNormals< PolyVox::LargeVolume<Block> > surfaceExtractor(&m_volData, m_volData.getEnclosingRegion(), &mesh);
-        ////PolyVox::MarchingCubesSurfaceExtractor< PolyVox::LargeVolume<Block> > surfaceExtractor(&m_volData, m_volData.getEnclosingRegion(), &mesh);
-        //surfaceExtractor.execute();
-
         // Create gameobject and add mesh renderer component
-        //auto chunkMesh = _BuildMeshForRendering(mesh);
         m_chunkGO = getGameObject()->getScene()->createGameObject();
         m_meshRenderer = m_chunkGO->addComponent<Components::MeshRenderer>(Core::Assets::MeshGenerator::CreatePlane(1, Color::RED), m_chunkMaterial);
 
@@ -187,7 +180,7 @@ public:
         m_noiseMapMaterial = RESOURCES.createMaterial(texShader);
 
         auto planeGO = getGameObject()->getScene()->createGameObject();
-        planeGO->addComponent<Components::MeshRenderer>(Core::Assets::MeshGenerator::CreatePlane(1), m_noiseMapMaterial);
+        planeGO->addComponent<Components::MeshRenderer>(Core::Assets::MeshGenerator::CreatePlane(1, Color::GREEN), m_noiseMapMaterial);
     }
 
     //----------------------------------------------------------------------
@@ -262,9 +255,6 @@ public:
             LOG("Terrain Height: " + TS(m_terrainHeight));
         }
 
-        //Math::Vec3 start{0,15,0};
-        //DEBUG.drawLine(start, start + fw * 10, Color::RED, 0);
-
         // Calculate which chunks to generate
         //Components::Camera* main = SCENE.getMainCamera();
     }
@@ -282,8 +272,8 @@ private:
             blockTextures.push_back( ASSETS.getTexture2D( path.c_str() ) );
         }
 
-        auto texArr = RESOURCES.createTexture2DArray(blockTextures[0]->getWidth(), blockTextures[0]->getHeight(), 
-                                                     blockTextures.size(), Graphics::TextureFormat::RGBA32, false );
+        auto texArr = RESOURCES.createTexture2DArray( blockTextures[0]->getWidth(), blockTextures[0]->getHeight(), 
+                                                      blockTextures.size(), Graphics::TextureFormat::RGBA32, false );
         texArr->setAnisoLevel( 1 );
         texArr->setFilter( Graphics::TextureFilter::Point );
 
@@ -380,19 +370,19 @@ private:
         PolyVox::SurfaceMesh<PolyVox::PositionMaterialNormal> mesh;
         PolyVox::CubicSurfaceExtractorWithNormals<PolyVox::LargeVolume<Block>> surfaceExtractor( &m_volData, m_volData.getEnclosingRegion(), &mesh );
 
-        for (int y = 0; y < volData.getHeight(); y++)
+        for (int x = 0; x < volData.getWidth(); x++)
         {
-            for (int x = 0; x < volData.getWidth(); x++)
+            for (int z = 0; z < volData.getDepth(); z++)
             {
-                for (int z = 0; z < volData.getDepth(); z++)
-                {
-                    F32 noiseValue = noiseMap.getValue(x, z);
-                    F32 curHeight = noiseValue * maxHeight;
+                F32 noiseValue = noiseMap.getValue(x, z);
+                F32 curHeight = noiseValue * maxHeight;
 
+                for (int y = 0; y < volData.getHeight(); y++)
+                {
                     if ( y < curHeight )
                     {
-                        Block block = _GetBlockInRegion(noiseValue);
-                        volData.setVoxelAt(x, y, z, block);
+                        Block block = _GetBlockInRegionFromHeight( noiseValue );
+                        volData.setVoxelAt( x, y, z, block );
                     }
                 }
             }
@@ -404,7 +394,7 @@ private:
     }
 
     //----------------------------------------------------------------------
-    Block _GetBlockInRegion(F32 y)
+    Block _GetBlockInRegionFromHeight(F32 y)
     {
         for (auto region : m_regions)
             if (y <= region.height)
