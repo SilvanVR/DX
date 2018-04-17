@@ -7,7 +7,7 @@
 class NoiseMap
 {
 public:
-    NoiseMap(I32 width, I32 height, F32 scale = 0.3f, F32 lacunarity = 2.0f, F32 gain = 0.5f, I32 octaves = 4)
+    NoiseMap(I32 width, I32 height, F32 scale = 0.3f, F32 lacunarity = 2.0f, F32 gain = 0.5f, I32 octaves = 4, Math::Vec2 offset = { 0.0f, 0.0f })
         : m_width(width), m_height(height)
     {
         m_noiseMap = new F32[width * height];
@@ -22,8 +22,8 @@ public:
         {
             for (I32 x = 0; x < width; x++)
             {
-                F32 sampleX = (x - halfWidth) / scale;
-                F32 sampleY = (y - halfHeight) / scale;
+                F32 sampleX = (x - halfWidth + offset.x) / scale;
+                F32 sampleY = (y - halfHeight + offset.y) / scale;
 
                 F32 noiseValue = stb_perlin_turbulence_noise3(sampleX, sampleY, 0.0f, lacunarity, gain, octaves, 0, 0, 0);
                 m_noiseMap[x + y * width] = Math::clamp(noiseValue, 0.0f, 1.0f);

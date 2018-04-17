@@ -34,7 +34,7 @@ namespace std {
 
 enum class BlockType
 {
-    UNKNOWN = 0,
+    Air = 0,
     Sand,
     Gravel,
     Dirt,
@@ -130,30 +130,29 @@ struct TerrainType
     Block   block;
 };
 
-
 //**********************************************************************
 class WorldGeneration : public Components::IComponent
 {
-    MaterialPtr                 m_chunkMaterial;
+    static const I32 s_chunkSize    = 32;
+    static const I32 s_chunkHeight  = 128;
+    static const I32 s_maxViewDst   = 100;
+
     PolyVox::LargeVolume<Block> m_volData;
-    Components::MeshRenderer*   m_meshRenderer;
-    GameObject*                 m_chunkGO;
+    ArrayList<TerrainType>      m_regions;
 
-    ArrayList<TerrainType> m_regions;
-    MaterialPtr m_noiseMapMaterial;
+    MaterialPtr                 m_chunkMaterial;
+    MaterialPtr                 m_noiseMapMaterial;
 
-    bool m_generating       = false;
-    F32 m_speed             = 10.0f;
+    bool    m_generating        = false;
+    F32     m_speed             = 10.0f;
 
-    F32 m_noiseScale        = 10.0f;
-    F32 m_noiseLacunarity   = 1.0f;
-    F32 m_noiseGain         = 0.3f;
-    I32 m_noiseOctaves      = 4;
-    F32 m_terrainHeight     = 10.0f;
+    F32     m_noiseScale        = 50.0f;
+    F32     m_noiseLacunarity   = 2.0f;
+    F32     m_noiseGain         = 0.3f;
+    I32     m_noiseOctaves      = 4;
+    F32     m_terrainHeight     = 30.0f;
 
-    static const I32 s_chunkSize = 64;
-    static const I32 s_maxViewDst = 100;
-    F32 m_chunksVisibleInViewDst = s_maxViewDst / s_chunkSize;
+    F32     m_chunksVisibleInViewDst = s_maxViewDst / s_chunkSize;
 
     enum class DrawMode
     {
@@ -162,7 +161,9 @@ class WorldGeneration : public Components::IComponent
     } m_drawMode = DrawMode::ColorMap;
 
 public:
-    WorldGeneration() : m_volData(PolyVox::Region(PolyVox::Vector3DInt32(0, 0, 0), PolyVox::Vector3DInt32(s_chunkSize -1, 64, s_chunkSize -1))) {}
+    WorldGeneration() 
+        : m_volData(PolyVox::Region(PolyVox::Vector3DInt32(INT_MIN, -s_chunkHeight, INT_MIN),
+                                    PolyVox::Vector3DInt32(INT_MAX, s_chunkHeight, INT_MAX))) {}
 
     //----------------------------------------------------------------------
     void init() override
@@ -177,10 +178,6 @@ public:
 
         _SetupShaderAndMaterial();
 
-        // Create gameobject and add mesh renderer component
-        m_chunkGO = SCENE.createGameObject();
-        m_meshRenderer = m_chunkGO->addComponent<Components::MeshRenderer>(Core::Assets::MeshGenerator::CreatePlane(1, Color::RED), m_chunkMaterial);
-
         // VISUALIZATION OF PERLIN NOISE ON A FLAT PLANE
         auto texShader = RESOURCES.createShader("TexShader", "/shaders/texVS.hlsl", "/shaders/texPS.hlsl");
         m_noiseMapMaterial = RESOURCES.createMaterial(texShader);
@@ -189,7 +186,6 @@ public:
     }
 
     F32 lastScale = 0.0f;
-
     //----------------------------------------------------------------------
     void tick(Time::Seconds delta) override
     {
@@ -234,23 +230,18 @@ public:
             m_terrainHeight += delta.value * m_speed;
 
         if ( (lastScale != m_noiseScale || lastLacunarity != m_noiseLacunarity || lastGain != m_noiseGain 
-            || lastOctaves != m_noiseOctaves || lastDrawMode != m_drawMode || lastTerrainHeight != m_terrainHeight) && !m_generating)
+            || lastOctaves != m_noiseOctaves || lastDrawMode != m_drawMode || lastTerrainHeight != m_terrainHeight))
         {
-            m_generating = true;
             lastScale = m_noiseScale; lastLacunarity = m_noiseLacunarity; lastGain = m_noiseGain; 
             lastOctaves = m_noiseOctaves; lastDrawMode = m_drawMode; lastTerrainHeight = m_terrainHeight;
 
             ASYNC_JOB([&] {
-                NoiseMap noiseMap(s_chunkSize, s_chunkSize, m_noiseScale, m_noiseLacunarity, m_noiseGain, m_noiseOctaves);
+                NoiseMap noiseMap(s_chunkSize, s_chunkSize, m_noiseScale, m_noiseLacunarity, m_noiseGain, m_noiseOctaves );
                 switch (m_drawMode)
                 {
                 case DrawMode::NoiseMap: m_noiseMapMaterial->setTexture("tex", _GenerateNoiseTextureFromNoiseMap(noiseMap)); break;
                 case DrawMode::ColorMap: m_noiseMapMaterial->setTexture("tex", _GenerateColorTextureFromNoiseMap(noiseMap)); break;
                 }
-                auto mesh = _GenerateMeshFromNoiseMap(m_volData, noiseMap, m_terrainHeight);
-                m_meshRenderer->setMesh(mesh);
-                m_chunkGO->getComponent<Components::Transform>()->position = { -m_volData.getWidth() / 2.0f, 5.0f, -m_volData.getDepth() / 2.0f };
-                m_generating = false;
             });
 
             LOG("Scale: " + TS(m_noiseScale));
@@ -282,34 +273,65 @@ public:
                 }
                 else
                 {
-                     m_terrainChunkDictionary[viewedChunkCoord] = std::make_shared<TerrainChunk>( viewedChunkCoord, s_chunkSize );
+                    auto newChunk = std::make_shared<TerrainChunk>( viewedChunkCoord, s_chunkSize );
+                    m_terrainChunkDictionary[viewedChunkCoord] = newChunk;
+                    m_chunkGenerationQueue.push(newChunk);
                 }
             }
         }
-        if (KEYBOARD.wasKeyPressed(Key::C))
-           LOG( TS( m_terrainChunkDictionary.size() ) );
+
+        // Generate new chunk if requested and not currently generating one
+        if ( not m_chunkGenerationQueue.empty() && not m_generating )
+        {
+            m_generating = true;
+            auto nextChunk = m_chunkGenerationQueue.front();
+
+            ASYNC_JOB([=] {
+                NoiseMap noiseMap( s_chunkSize, s_chunkSize, m_noiseScale, m_noiseLacunarity, m_noiseGain, m_noiseOctaves, nextChunk->position);
+                auto mesh = _GenerateMeshFromNoiseMap(nextChunk->bounds, noiseMap, m_terrainHeight);
+
+                nextChunk->go->addComponent<Components::MeshRenderer>(mesh, m_chunkMaterial);
+                //nextChunk->go->getComponent<Components::Transform>()->position = { -s_chunkSize / 2.0f, 0.0f, -s_chunkSize / 2.0f };
+                m_generating = false;
+            });
+
+            m_chunkGenerationQueue.pop();
+        }
     }
+
+    struct Bounds
+    {
+        Math::Vec3 min;
+        Math::Vec3 max;
+    };
 
     struct TerrainChunk
     {
-        Math::Vec2  position;
         GameObject* go;
+        Math::Vec2  position;
+        Bounds      bounds;
         
-        TerrainChunk(Math::Vec2 pos, I32 size) : position(pos * size)
+        TerrainChunk(const Math::Vec2& pos, I32 size) 
+            : position(pos * size)
         {
-            //LOG(position.toString());
-            Math::Vec3 posV3(position.x, 0, position.y);
+            LOG(position.toString());
+            Math::Vec3 posV3(position.x, -s_chunkHeight - 15.0f, position.y);
             go = SCENE.createGameObject("CHUNK");
             auto transform = go->getTransform();
             transform->position = posV3;
-            transform->scale = Math::Vec3(size * 0.5f);
-            transform->rotation = Math::Quat(Math::Vec3::RIGHT, 90.0f);
 
-            go->addComponent<Components::MeshRenderer>(Core::Assets::MeshGenerator::CreatePlane(1, Math::Random::Color()));
+            bounds.min = Math::Vec3(position.x, -s_chunkHeight, position.y);
+            bounds.max = bounds.min + Math::Vec3((F32)s_chunkSize, 2 * s_chunkHeight, (F32)s_chunkSize);
+
+            DEBUG.drawCube(bounds.min, bounds.max, Color::RED, 20000);
+            //transform->scale = Math::Vec3(size);
+            //transform->rotation = Math::Quat(Math::Vec3::RIGHT, 90.0f);
+
+            //go->addComponent<Components::MeshRenderer>(Core::Assets::MeshGenerator::CreatePlane(0.5f, Math::Random::Color()));
         }
-
     };
 
+    std::queue<std::shared_ptr<TerrainChunk>> m_chunkGenerationQueue;
     std::unordered_map<Math::Vec2, std::shared_ptr<TerrainChunk>> m_terrainChunkDictionary;
 
 private:
@@ -416,26 +438,29 @@ private:
     }
 
     //----------------------------------------------------------------------
-    MeshPtr _GenerateMeshFromNoiseMap(PolyVox::LargeVolume<Block>& volData, const NoiseMap& noiseMap, F32 maxHeight = 10.0f)
+    MeshPtr _GenerateMeshFromNoiseMap(const Bounds& bounds, const NoiseMap& noiseMap, F32 maxHeight)
     {
-        volData.flushAll();
+        PolyVox::Region chunkDim(PolyVox::Vector3DInt32( bounds.min.x, bounds.min.y, bounds.min.z ),
+                                 PolyVox::Vector3DInt32( bounds.max.x, bounds.max.y, bounds.max.z ));
+        auto lowCorn    = chunkDim.getLowerCorner();
+        auto upperCorn  = chunkDim.getUpperCorner();
 
         PolyVox::SurfaceMesh<PolyVox::PositionMaterialNormal> mesh;
-        PolyVox::CubicSurfaceExtractorWithNormals<PolyVox::LargeVolume<Block>> surfaceExtractor( &m_volData, m_volData.getEnclosingRegion(), &mesh );
+        PolyVox::CubicSurfaceExtractorWithNormals<PolyVox::LargeVolume<Block>> surfaceExtractor( &m_volData, chunkDim, &mesh );
 
-        for (int x = 0; x < volData.getWidth(); x++)
+        for (int x = 0; x < noiseMap.getWidth(); x++)
         {
-            for (int z = 0; z < volData.getDepth(); z++)
+            for (int z = 0; z < noiseMap.getHeight(); z++)
             {
                 F32 noiseValue = noiseMap.getValue(x, z);
                 F32 curHeight = noiseValue * maxHeight;
 
-                for (int y = 0; y < volData.getHeight(); y++)
+                for (int y = -s_chunkHeight; y < s_chunkHeight; y++)
                 {
                     if ( y < curHeight )
                     {
                         Block block = _GetBlockFromHeight( noiseValue );
-                        volData.setVoxelAt( x, y, z, block );
+                        m_volData.setVoxelAt( bounds.min.x + x, y, bounds.min.z + z, block );
                     }
                 }
             }
@@ -454,6 +479,7 @@ private:
                 return region.block;
 
         ASSERT(false);
-        return Block(BlockType::UNKNOWN);
+        return Block(BlockType::Air);
     }
+
 };

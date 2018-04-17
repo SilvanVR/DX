@@ -108,9 +108,14 @@ namespace Core
     //----------------------------------------------------------------------
     void SubSystemManager::shutdown()
     {
-        // Shutdown every Sub-System here in reversed order to above
+        // Shutdown every Sub-System here in reversed order to above (almost, some systems should be shutdown before others)
         LOG( "<<< Shutting down Sub-Systems >>>", LOGCOLOR  );
 
+        //----------------------------------------------------------------------
+#if ENABLE_THREADING
+        LOG( " > Shutdown ThreadManager...", LOGCOLOR  );
+        shutdownSubSystem( m_threadManager );
+#endif
         //----------------------------------------------------------------------
         LOG( " > Shutdown DebugManager...", LOGCOLOR );
         shutdownSubSystem( m_debugManager );
@@ -147,11 +152,6 @@ namespace Core
         LOG( " > Shutdown Profiler...", LOGCOLOR  );
         shutdownSubSystem( m_profiler );
 
-        //----------------------------------------------------------------------
-#if ENABLE_THREADING
-        LOG( " > Shutdown ThreadManager...", LOGCOLOR  );
-        shutdownSubSystem( m_threadManager );
-#endif
         //----------------------------------------------------------------------
 #if ENABLE_CONFIG
         LOG( " > Shutdown ConfigurationManager...", LOGCOLOR  );
