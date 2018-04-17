@@ -45,16 +45,20 @@ namespace Components {
         Math::Vec3 left     = m_pTransform->rotation.getLeft();
         Math::Vec3 up       = m_pTransform->rotation.getUp();
 
-        m_pTransform->position += left    * (F32)AXIS_MAPPER.getAxisValue( "Horizontal" ) * delta * m_fpsSpeed;
-        m_pTransform->position += forward * (F32)AXIS_MAPPER.getAxisValue( "Vertical" )   * delta * m_fpsSpeed;
-        m_pTransform->position += up      * (F32)AXIS_MAPPER.getAxisValue( "Up" )         * delta * m_fpsSpeed;
+        F32 speed = m_fpsSpeed;
+        if ( KEYBOARD.isKeyDown( Key::Control ) )
+            speed *= 10.0f;
+
+        m_pTransform->position += left    * (F32)AXIS_MAPPER.getAxisValue( "Horizontal" ) * delta * speed;
+        m_pTransform->position += forward * (F32)AXIS_MAPPER.getAxisValue( "Vertical" )   * delta * speed;
+        m_pTransform->position += up      * (F32)AXIS_MAPPER.getAxisValue( "Up" )         * delta * speed;
 
         // Rotation with mouse using delta-mouse
         if ( MOUSE.isKeyDown( MouseKey::RButton ) )
         {
             auto deltaMouse = MOUSE.getMouseDelta();
-            m_pTransform->rotation *= Math::Quat(m_pTransform->rotation.getRight(), deltaMouse.y * m_fpsMouseSensitivity);
-            m_pTransform->rotation *= Math::Quat(Math::Vec3::UP, deltaMouse.x * m_fpsMouseSensitivity);
+            m_pTransform->rotation *= Math::Quat( m_pTransform->rotation.getRight(), deltaMouse.y * m_fpsMouseSensitivity );
+            m_pTransform->rotation *= Math::Quat( Math::Vec3::UP, deltaMouse.x * m_fpsMouseSensitivity );
         } 
 
         m_pTransform->position += m_pTransform->rotation.getForward() * (F32)AXIS_MAPPER.getMouseWheelAxisValue() * delta * 20.0f;
@@ -63,9 +67,9 @@ namespace Components {
     //----------------------------------------------------------------------
     void FPSCamera::_UpdateMayaCamera( F32 delta )
     {
-        float distanceToPOI = (m_pTransform->position - m_pointOfInterest).magnitude();
+        F32 distanceToPOI = (m_pTransform->position - m_pointOfInterest).magnitude();
 
-        // standard camera-rotation using delta-mouse
+        // Standard camera-rotation using delta-mouse
         if ( MOUSE.isKeyDown( MouseKey::RButton ) )
         {
             auto deltaMouse = MOUSE.getMouseDelta();

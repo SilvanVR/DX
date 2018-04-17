@@ -135,7 +135,7 @@ class WorldGeneration : public Components::IComponent
 {
     static const I32 s_chunkSize    = 32;
     static const I32 s_chunkHeight  = 128;
-    static const I32 s_maxViewDst   = 100;
+    static const I32 s_maxViewDst   = 200;
 
     PolyVox::LargeVolume<Block> m_volData;
     ArrayList<TerrainType>      m_regions;
@@ -258,24 +258,30 @@ public:
         Components::Camera* viewer = SCENE.getMainCamera();
         auto transform = viewer->getComponent<Components::Transform>();
 
-        I32 currentChunkCoordX = static_cast<I32>(transform->position.x / s_chunkSize);
-        I32 currentChunkCoordY = static_cast<I32>(transform->position.z / s_chunkSize);
+        I32 currentChunkCoordX = static_cast<I32>( std::floor( transform->position.x / s_chunkSize ) );
+        I32 currentChunkCoordY = static_cast<I32>( std::floor( transform->position.z / s_chunkSize ) );
 
-        for (I32 yOffset = -m_chunksVisibleInViewDst; yOffset <= m_chunksVisibleInViewDst; yOffset++)
+        for (I32 ring = 0; ring < m_chunksVisibleInViewDst; ring++)
         {
-            for (I32 xOffset = -m_chunksVisibleInViewDst; xOffset <= m_chunksVisibleInViewDst; xOffset++)
+            for (I32 x = -ring; x <= ring; x++)
             {
-                Math::Vec2 viewedChunkCoord( currentChunkCoordX + xOffset, currentChunkCoordY + yOffset );
+                for (I32 y = -ring; y <= ring; y++)
+                {
+                    if ( std::abs(x) == ring || std::abs(y) == ring)
+                    {
+                        Math::Vec2 viewedChunkCoord( currentChunkCoordX + x, currentChunkCoordY + y );
 
-                if (m_terrainChunkDictionary.find(viewedChunkCoord) != m_terrainChunkDictionary.end())
-                {
-                    m_terrainChunkDictionary[viewedChunkCoord]->go->setActive(true);
-                }
-                else
-                {
-                    auto newChunk = std::make_shared<TerrainChunk>( viewedChunkCoord, s_chunkSize );
-                    m_terrainChunkDictionary[viewedChunkCoord] = newChunk;
-                    m_chunkGenerationQueue.push(newChunk);
+                        if (m_terrainChunkDictionary.find(viewedChunkCoord) != m_terrainChunkDictionary.end())
+                        {
+                            m_terrainChunkDictionary[viewedChunkCoord]->go->setActive(true);
+                        }
+                        else
+                        {
+                            auto newChunk = std::make_shared<TerrainChunk>(viewedChunkCoord, s_chunkSize);
+                            m_terrainChunkDictionary[viewedChunkCoord] = newChunk;
+                            m_chunkGenerationQueue.push(newChunk);
+                        }
+                    }
                 }
             }
         }
@@ -287,11 +293,11 @@ public:
             auto nextChunk = m_chunkGenerationQueue.front();
 
             ASYNC_JOB([=] {
-                NoiseMap noiseMap( s_chunkSize, s_chunkSize, m_noiseScale, m_noiseLacunarity, m_noiseGain, m_noiseOctaves, nextChunk->position);
+                // Noise map must be one pixel larger, so it fills the boundary chunks aswell, otherwise the mesh will contain holes
+                NoiseMap noiseMap( s_chunkSize + 1, s_chunkSize + 1, m_noiseScale, m_noiseLacunarity, m_noiseGain, m_noiseOctaves, nextChunk->position);
                 auto mesh = _GenerateMeshFromNoiseMap(nextChunk->bounds, noiseMap, m_terrainHeight);
 
                 nextChunk->go->addComponent<Components::MeshRenderer>(mesh, m_chunkMaterial);
-                //nextChunk->go->getComponent<Components::Transform>()->position = { -s_chunkSize / 2.0f, 0.0f, -s_chunkSize / 2.0f };
                 m_generating = false;
             });
 
@@ -314,7 +320,6 @@ public:
         TerrainChunk(const Math::Vec2& pos, I32 size) 
             : position(pos * size)
         {
-            LOG(position.toString());
             Math::Vec3 posV3(position.x, -s_chunkHeight - 15.0f, position.y);
             go = SCENE.createGameObject("CHUNK");
             auto transform = go->getTransform();
