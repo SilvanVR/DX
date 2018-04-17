@@ -67,6 +67,9 @@ namespace Math {
         bool        operator == (const Vector3F& v) const { return x == v.x && y == v.y && z == v.z; }
         bool        operator != (const Vector3F& v) const { return !(*this == v); }
 
+        F32         operator[] (I32 index) const    { return reinterpret_cast<const F32*>(&x)[index]; }
+        F32&        operator[] (I32 index)          { return reinterpret_cast<F32*>(&x)[index]; }
+
         F32         magnitude() const;
         Vector3F    normalized() const;
         Vector3F    cross(const Vector3F& v) const;

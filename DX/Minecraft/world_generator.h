@@ -10,9 +10,9 @@
 **********************************************************************/
 #include <DX.h>
 #include "PolyVoxCore/CubicSurfaceExtractorWithNormals.h"
-#include "PolyVoxCore/MarchingCubesSurfaceExtractor.h"
 #include "PolyVoxCore/SurfaceMesh.h"
 #include "PolyVoxCore/LargeVolume.h"
+#include "PolyVoxCore/Raycast.h"
 #include "noise_map.h"
 
 namespace std {
@@ -130,12 +130,105 @@ struct TerrainType
     Block   block;
 };
 
+class Ray
+{
+public:
+    Ray(const Math::Vec3& orig, const Math::Vec3& dir) : orig(orig), dir(dir)
+    {
+        invdir = Math::Vec3( 1.0f / dir.x, 1.0f / dir.y, 1.0f / dir.z );
+        sign[0] = (invdir.x < 0);
+        sign[1] = (invdir.y < 0);
+        sign[2] = (invdir.z < 0);
+    }
+    Math::Vec3 orig, dir;
+    Math::Vec3 invdir;
+    I32 sign[3];
+};
+
+struct RayCastResult
+{
+    Math::Vec3 hitPoint = Math::Vec3(0);
+};
+
+class Bounds
+{
+    Math::Vec3 bounds[2];
+
+public:
+    Bounds() = default;
+    Bounds(const Math::Vec3& min, const Math::Vec3& max) { bounds[0] = min; bounds[1] = max; }
+
+    const Math::Vec3& getMin() const { return bounds[0]; }
+    const Math::Vec3& getMax() const { return bounds[1]; }
+
+    Math::Vec3& getMin() { return bounds[0]; }
+    Math::Vec3& getMax() { return bounds[1]; }
+
+    bool intersects(const Ray& r)
+    {
+        F64 t1 = (getMin()[0] - r.orig[0])*r.invdir[0];
+        F64 t2 = (getMax()[0] - r.orig[0])*r.invdir[0];
+
+        F64 tmin = std::min(t1, t2);
+        F64 tmax = std::max(t1, t2);
+
+        for (int i = 1; i < 3; ++i) {
+            t1 = (getMin()[i] - r.orig[i])*r.invdir[i];
+            t2 = (getMax()[i] - r.orig[i])*r.invdir[i];
+
+            tmin = std::max(tmin, std::min(t1, t2));
+            tmax = std::min(tmax, std::max(t1, t2));
+        }
+
+        return tmax > std::max(tmin, 0.0);
+    }
+
+    bool intersects(const Ray& r, float* distance)
+    {
+        float tmin, tmax, tymin, tymax, tzmin, tzmax;
+
+        tmin = (bounds[r.sign[0]].x - r.orig.x) * r.invdir.x;
+        tmax = (bounds[1 - r.sign[0]].x - r.orig.x) * r.invdir.x;
+        tymin = (bounds[r.sign[1]].y - r.orig.y) * r.invdir.y;
+        tymax = (bounds[1 - r.sign[1]].y - r.orig.y) * r.invdir.y;
+
+        if ((tmin > tymax) || (tymin > tmax))
+            return false;
+
+        if (tymin > tmin)
+            tmin = tymin;
+        if (tymax < tmax)
+            tmax = tymax;
+
+        tzmin = (bounds[r.sign[2]].z - r.orig.z) * r.invdir.z;
+        tzmax = (bounds[1 - r.sign[2]].z - r.orig.z) * r.invdir.z;
+
+        if ((tmin > tzmax) || (tzmin > tmax))
+            return false;
+
+        if (tzmin > tmin)
+            tmin = tzmin;
+        if (tzmax < tmax)
+            tmax = tzmax;
+
+        *distance = tmin;
+
+        if (*distance < 0) {
+            *distance = tmax;
+            if (*distance < 0) return false;
+        }
+
+        return true;
+    }
+
+    String toString() { return "Min: " + getMin().toString() + " Max: " + getMax().toString(); }
+};
+
 //**********************************************************************
 class WorldGeneration : public Components::IComponent
 {
     static const I32 s_chunkSize    = 32;
     static const I32 s_chunkHeight  = 128;
-    static const I32 s_maxViewDst   = 200;
 
     PolyVox::LargeVolume<Block> m_volData;
     ArrayList<TerrainType>      m_regions;
@@ -152,7 +245,7 @@ class WorldGeneration : public Components::IComponent
     I32     m_noiseOctaves      = 4;
     F32     m_terrainHeight     = 30.0f;
 
-    F32     m_chunksVisibleInViewDst = s_maxViewDst / s_chunkSize;
+    F32     m_chunksVisibleInViewDst;
 
     enum class DrawMode
     {
@@ -161,8 +254,9 @@ class WorldGeneration : public Components::IComponent
     } m_drawMode = DrawMode::ColorMap;
 
 public:
-    WorldGeneration() 
-        : m_volData(PolyVox::Region(PolyVox::Vector3DInt32(INT_MIN, -s_chunkHeight, INT_MIN),
+    WorldGeneration(I32 chunkViewDistance = 10) 
+        : m_chunksVisibleInViewDst( chunkViewDistance ), 
+          m_volData(PolyVox::Region(PolyVox::Vector3DInt32(INT_MIN, -s_chunkHeight, INT_MIN),
                                     PolyVox::Vector3DInt32(INT_MAX, s_chunkHeight, INT_MAX))) {}
 
     //----------------------------------------------------------------------
@@ -258,8 +352,8 @@ public:
         Components::Camera* viewer = SCENE.getMainCamera();
         auto transform = viewer->getComponent<Components::Transform>();
 
-        I32 currentChunkCoordX = static_cast<I32>( std::floor( transform->position.x / s_chunkSize ) );
-        I32 currentChunkCoordY = static_cast<I32>( std::floor( transform->position.z / s_chunkSize ) );
+        I32 currentChunkCoordX = static_cast<I32>( std::floorf( transform->position.x / s_chunkSize ) );
+        I32 currentChunkCoordY = static_cast<I32>( std::floorf( transform->position.z / s_chunkSize ) );
 
         for (I32 ring = 0; ring < m_chunksVisibleInViewDst; ring++)
         {
@@ -297,19 +391,65 @@ public:
                 NoiseMap noiseMap( s_chunkSize + 1, s_chunkSize + 1, m_noiseScale, m_noiseLacunarity, m_noiseGain, m_noiseOctaves, nextChunk->position);
                 auto mesh = _GenerateMeshFromNoiseMap(nextChunk->bounds, noiseMap, m_terrainHeight);
 
-                nextChunk->go->addComponent<Components::MeshRenderer>(mesh, m_chunkMaterial);
+                auto mr = nextChunk->go->getComponent<Components::MeshRenderer>();
+                mr->setMesh(mesh);
+                mr->setMaterial(m_chunkMaterial);
                 m_generating = false;
             });
 
             m_chunkGenerationQueue.pop();
         }
+
+        if (KEYBOARD.wasKeyPressed(Key::C))
+        {
+            F32 rayDistance = 100.0f;
+
+            auto viewerDir = transform->rotation.getForward();
+
+            RayCastResult result;
+            Ray ray(transform->position, viewerDir * rayDistance);
+
+            if ( ChunkRayCast(ray, &result) )
+            {
+                DEBUG.drawSphere(result.hitPoint, 0.1f, Color::RED, 10);
+                DEBUG.drawRay(transform->position, viewerDir * rayDistance, Color::BLUE, 10);
+            }
+        }
     }
 
-    struct Bounds
+    bool ChunkRayCast(const Ray& ray, RayCastResult* result)
     {
-        Math::Vec3 min;
-        Math::Vec3 max;
-    };
+        auto cb = [&](const PolyVox::LargeVolume<Block>::Sampler& sampler) -> bool
+        {
+            auto hitVoxel = sampler.getVoxel();
+
+            if (hitVoxel.getMaterial() == (U8)BlockType::Air)
+                return true;
+
+            auto blockCenter = sampler.getPosition();
+
+            F32 blockSize = 0.5f;
+
+            Bounds voxelBounds;
+            voxelBounds.getMin() = Math::Vec3(blockCenter.getX() - blockSize, blockCenter.getY() - blockSize, blockCenter.getZ() - blockSize);
+            voxelBounds.getMax() = Math::Vec3(blockCenter.getX() + blockSize, blockCenter.getY() + blockSize, blockCenter.getZ() + blockSize);
+
+            F32 distance;
+            if (voxelBounds.intersects(ray, &distance))
+                result->hitPoint = ray.orig + ray.dir * distance;
+
+            DEBUG.drawCube(voxelBounds.getMin(), voxelBounds.getMax(), Color::GREEN, 10);
+
+            return false;
+        };
+
+        PolyVox::Vector3DFloat start(ray.orig.x, ray.orig.y, ray.orig.z);
+        PolyVox::Vector3DFloat dir(ray.dir.x, ray.dir.y, ray.dir.z);
+
+        auto polyVoxResult = PolyVox::raycastWithDirection( &m_volData, start, dir, cb );
+
+        return (polyVoxResult == PolyVox::RaycastResult::Interupted);
+    }
 
     struct TerrainChunk
     {
@@ -320,24 +460,29 @@ public:
         TerrainChunk(const Math::Vec2& pos, I32 size) 
             : position(pos * size)
         {
-            Math::Vec3 posV3(position.x, -s_chunkHeight - 15.0f, position.y);
+            F32 yPos = -s_chunkHeight - 15.0f;
+            Math::Vec3 posV3(position.x, yPos, position.y);
             go = SCENE.createGameObject("CHUNK");
             auto transform = go->getTransform();
             transform->position = posV3;
 
-            bounds.min = Math::Vec3(position.x, -s_chunkHeight, position.y);
-            bounds.max = bounds.min + Math::Vec3((F32)s_chunkSize, 2 * s_chunkHeight, (F32)s_chunkSize);
+            bounds.getMin() = Math::Vec3(position.x, yPos, position.y);
+            bounds.getMax() = bounds.getMin() + Math::Vec3((F32)s_chunkSize, 2 * s_chunkHeight, (F32)s_chunkSize);
 
-            DEBUG.drawCube(bounds.min, bounds.max, Color::RED, 20000);
-            //transform->scale = Math::Vec3(size);
-            //transform->rotation = Math::Quat(Math::Vec3::RIGHT, 90.0f);
+            go->addComponent<Components::MeshRenderer>();
 
-            //go->addComponent<Components::MeshRenderer>(Core::Assets::MeshGenerator::CreatePlane(0.5f, Math::Random::Color()));
+            DEBUG.drawCube(bounds.getMin(), bounds.getMax(), Color::GREEN, 20000);
         }
+
+        //void generateMesh(const NoiseMap& noiseMap)
+        //{
+        //    auto mesh = _GenerateMeshFromNoiseMap( bounds, noiseMap, m_terrainHeight );
+        //    go->addComponent<Components::MeshRenderer>(mesh, m_chunkMaterial);
+        //}
     };
 
-    std::queue<std::shared_ptr<TerrainChunk>> m_chunkGenerationQueue;
-    std::unordered_map<Math::Vec2, std::shared_ptr<TerrainChunk>> m_terrainChunkDictionary;
+    std::queue<std::shared_ptr<TerrainChunk>>                       m_chunkGenerationQueue;
+    std::unordered_map<Math::Vec2, std::shared_ptr<TerrainChunk>>   m_terrainChunkDictionary;
 
 private:
     //----------------------------------------------------------------------
@@ -445,10 +590,8 @@ private:
     //----------------------------------------------------------------------
     MeshPtr _GenerateMeshFromNoiseMap(const Bounds& bounds, const NoiseMap& noiseMap, F32 maxHeight)
     {
-        PolyVox::Region chunkDim(PolyVox::Vector3DInt32( bounds.min.x, bounds.min.y, bounds.min.z ),
-                                 PolyVox::Vector3DInt32( bounds.max.x, bounds.max.y, bounds.max.z ));
-        auto lowCorn    = chunkDim.getLowerCorner();
-        auto upperCorn  = chunkDim.getUpperCorner();
+        PolyVox::Region chunkDim(PolyVox::Vector3DInt32( bounds.getMin().x, bounds.getMin().y, bounds.getMin().z ),
+                                 PolyVox::Vector3DInt32( bounds.getMax().x, bounds.getMax().y, bounds.getMax().z ));
 
         PolyVox::SurfaceMesh<PolyVox::PositionMaterialNormal> mesh;
         PolyVox::CubicSurfaceExtractorWithNormals<PolyVox::LargeVolume<Block>> surfaceExtractor( &m_volData, chunkDim, &mesh );
@@ -465,7 +608,7 @@ private:
                     if ( y < curHeight )
                     {
                         Block block = _GetBlockFromHeight( noiseValue );
-                        m_volData.setVoxelAt( bounds.min.x + x, y, bounds.min.z + z, block );
+                        m_volData.setVoxelAt( bounds.getMin().x + x, y, bounds.getMin().z + z, block );
                     }
                 }
             }

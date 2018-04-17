@@ -158,7 +158,10 @@ public:
         material->setColor("tintColor", Color::WHITE);
 
         // GAMEOBJECTS
-        createGameObject("World Generation")->addComponent<WorldGeneration>();
+        I32 chunkViewDistance = 2;
+        auto worldGenerator = createGameObject("World Generation")->addComponent<WorldGeneration>(chunkViewDistance);
+
+
         //createGameObject("Cube")->addComponent<Components::MeshRenderer>(mesh, material);
     }
 
