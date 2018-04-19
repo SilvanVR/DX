@@ -106,7 +106,7 @@ struct TerrainType
 //**********************************************************************
 class WorldGeneration : public Components::IComponent
 {
-    static const I32 s_chunkSize    = 32;
+    static const I32 s_chunkSize    = 16;
     static const I32 s_chunkHeight  = 128;
 
     PolyVox::LargeVolume<Block> m_volData;

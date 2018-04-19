@@ -135,6 +135,12 @@ namespace Core { namespace Debug {
     }
 
     //----------------------------------------------------------------------
+    void DebugManager::drawCube( const Math::AABB& aabb, Color color, Time::Seconds duration, bool depthTest )
+    {
+        drawCube( aabb.getMin(), aabb.getMax(), color, duration, depthTest );
+    }
+
+    //----------------------------------------------------------------------
     void DebugManager::drawSphere( const Math::Vec3& pos, F32 radius, Color color, Time::Seconds duration, bool depthTest )
     {
         auto mesh = Assets::MeshGenerator::CreateUVSphere( pos, radius, 30, 30 );       

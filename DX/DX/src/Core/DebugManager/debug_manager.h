@@ -8,6 +8,7 @@
 
 #include "SubSystem/i_subsystem.hpp"
 #include "Graphics/command_buffer.h"
+#include "Math/aabb.h"
 
 namespace Core { namespace Debug {
 
@@ -33,6 +34,7 @@ namespace Core { namespace Debug {
         // Draws a box in wireframe.
         //----------------------------------------------------------------------
         void drawCube(const Math::Vec3& min, const Math::Vec3& max, Color color, Time::Seconds duration, bool depthTest = true);
+        void drawCube(const Math::AABB& aabb, Color color, Time::Seconds duration, bool depthTest = true);
 
         //----------------------------------------------------------------------
         // Draws a sphere in wireframe.
