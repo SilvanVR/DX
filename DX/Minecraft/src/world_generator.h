@@ -17,6 +17,10 @@
 #include "Math/aabb.h"
 #include "Physics/ray.h"
 
+inline Math::Vec3               ConvertVector(const PolyVox::Vector3DFloat& v) { return Math::Vec3( v.getX(), v.getY(), v.getZ() ); }
+inline Math::Vec3               ConvertVector(const PolyVox::Vector3DInt32& v) { return Math::Vec3( v.getX(), v.getY(), v.getZ() ); }
+inline PolyVox::Vector3DFloat   ConvertVector(const Math::Vec3& v) { return { v.x, v.y, v.z }; }
+
 namespace std {
 
     template <>
@@ -287,7 +291,11 @@ public:
             {
                 DEBUG.drawSphere(result.hitPoint, 0.1f, Color::RED, 10);
                 DEBUG.drawRay(transform->position, ray.getDirection(), Color::BLUE, 10);
-                DEBUG.drawCube(result.bounds.getMin(), result.bounds.getMax(), Color::GREEN, 10);
+
+                Math::Vec3 blockSize(0.5f, 0.5f, 0.5f);
+                Math::Vec3 min = result.blockCenter - blockSize;
+                Math::Vec3 max = result.blockCenter + blockSize;
+                DEBUG.drawCube(min, max, Color::GREEN, 10);
             }
         }
     }
@@ -295,7 +303,7 @@ public:
     struct ChunkRayCastResult
     {
         Math::Vec3  hitPoint = Math::Vec3(0,0,0);
-        Math::AABB  bounds;
+        Math::Vec3  blockCenter;
         Block       block = Block(BlockType::Air);
     };
 
@@ -307,17 +315,15 @@ public:
             if (voxel.getMaterial() == (U8)BlockType::Air)
                 return true;
 
-            F32 blockSize = 0.5f;
-            auto blockCenter = sampler.getPosition();
-
-            result->block = voxel;
-
-            result->bounds[0] = Math::Vec3( blockCenter.getX() - blockSize, blockCenter.getY() - blockSize, blockCenter.getZ() - blockSize );
-            result->bounds[1] = Math::Vec3( blockCenter.getX() + blockSize, blockCenter.getY() + blockSize, blockCenter.getZ() + blockSize );
+            result->block       = voxel;
+            result->blockCenter = ConvertVector( sampler.getPosition() );
 
             // Since polyvox raycast does not deliever the exact hit-point but rather the block, it must be calculated separately
+            Math::Vec3 blockSize(0.5f, 0.5f, 0.5f);
+            Math::AABB blockBounds(result->blockCenter - blockSize, result->blockCenter + blockSize);
+
             Physics::RayCastResult rayResult;
-            if ( ray.intersects( result->bounds, &rayResult ) )
+            if ( ray.intersects( blockBounds, &rayResult ) )
                 result->hitPoint = rayResult.hitPoint;
 
             return false;
