@@ -337,6 +337,7 @@
     <ClCompile Include="src\Core\subsystem_manager.cpp" />
     <ClCompile Include="src\Core\ThreadManager\thread_manager.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\Physics\ray.cpp" />
     <ClCompile Include="src\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='StaticLib - Debug|Win32'">Create</PrecompiledHeader>
@@ -394,6 +395,7 @@
     <ClInclude Include="src\Core\ThreadManager\thread_manager.h" />
     <ClInclude Include="src\DX.h" />
     <ClInclude Include="src\i_game.hpp" />
+    <ClInclude Include="src\Physics\ray.h" />
     <ClInclude Include="src\stdafx.h" />
   </ItemGroup>
   <ItemGroup>

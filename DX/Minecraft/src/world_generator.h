@@ -14,6 +14,9 @@
 #include "PolyVoxCore/Raycast.h"
 #include "noise_map.h"
 
+#include "Math/aabb.h"
+#include "Physics/ray.h"
+
 namespace std {
 
     template <>
@@ -94,99 +97,7 @@ struct TerrainType
     Block   block;
 };
 
-class Ray
-{
-public:
-    Ray(const Math::Vec3& orig, const Math::Vec3& dir) : orig(orig), dir(dir)
-    {
-        invdir = Math::Vec3( 1.0f / dir.x, 1.0f / dir.y, 1.0f / dir.z );
-        sign[0] = (invdir.x < 0);
-        sign[1] = (invdir.y < 0);
-        sign[2] = (invdir.z < 0);
-    }
-    Math::Vec3 orig, dir;
-    Math::Vec3 invdir;
-    I32 sign[3];
-};
 
-struct RayCastResult
-{
-    Math::Vec3 hitPoint = Math::Vec3(0);
-};
-
-class Bounds
-{
-    Math::Vec3 bounds[2];
-
-public:
-    Bounds() = default;
-    Bounds(const Math::Vec3& min, const Math::Vec3& max) { bounds[0] = min; bounds[1] = max; }
-
-    const Math::Vec3& getMin() const { return bounds[0]; }
-    const Math::Vec3& getMax() const { return bounds[1]; }
-
-    Math::Vec3& getMin() { return bounds[0]; }
-    Math::Vec3& getMax() { return bounds[1]; }
-
-    bool intersects(const Ray& r)
-    {
-        F64 t1 = (getMin()[0] - r.orig[0])*r.invdir[0];
-        F64 t2 = (getMax()[0] - r.orig[0])*r.invdir[0];
-
-        F64 tmin = std::min(t1, t2);
-        F64 tmax = std::max(t1, t2);
-
-        for (int i = 1; i < 3; ++i) {
-            t1 = (getMin()[i] - r.orig[i])*r.invdir[i];
-            t2 = (getMax()[i] - r.orig[i])*r.invdir[i];
-
-            tmin = std::max(tmin, std::min(t1, t2));
-            tmax = std::min(tmax, std::max(t1, t2));
-        }
-
-        return tmax > std::max(tmin, 0.0);
-    }
-
-    bool intersects(const Ray& r, float* distance)
-    {
-        float tmin, tmax, tymin, tymax, tzmin, tzmax;
-
-        tmin = (bounds[r.sign[0]].x - r.orig.x) * r.invdir.x;
-        tmax = (bounds[1 - r.sign[0]].x - r.orig.x) * r.invdir.x;
-        tymin = (bounds[r.sign[1]].y - r.orig.y) * r.invdir.y;
-        tymax = (bounds[1 - r.sign[1]].y - r.orig.y) * r.invdir.y;
-
-        if ((tmin > tymax) || (tymin > tmax))
-            return false;
-
-        if (tymin > tmin)
-            tmin = tymin;
-        if (tymax < tmax)
-            tmax = tymax;
-
-        tzmin = (bounds[r.sign[2]].z - r.orig.z) * r.invdir.z;
-        tzmax = (bounds[1 - r.sign[2]].z - r.orig.z) * r.invdir.z;
-
-        if ((tmin > tzmax) || (tzmin > tmax))
-            return false;
-
-        if (tzmin > tmin)
-            tmin = tzmin;
-        if (tzmax < tmax)
-            tmax = tzmax;
-
-        *distance = tmin;
-
-        if (*distance < 0) {
-            *distance = tmax;
-            if (*distance < 0) return false;
-        }
-
-        return true;
-    }
-
-    String toString() { return "Min: " + getMin().toString() + " Max: " + getMax().toString(); }
-};
 
 //**********************************************************************
 class WorldGeneration : public Components::IComponent
@@ -367,48 +278,53 @@ public:
         if (KEYBOARD.wasKeyPressed(Key::C))
         {
             F32 rayDistance = 100.0f;
-
             auto viewerDir = transform->rotation.getForward();
 
-            RayCastResult result;
-            Ray ray(transform->position, viewerDir * rayDistance);
+            Physics::Ray ray(transform->position, viewerDir * rayDistance);
 
+            ChunkRayCastResult result;
             if ( ChunkRayCast(ray, &result) )
             {
                 DEBUG.drawSphere(result.hitPoint, 0.1f, Color::RED, 10);
-                DEBUG.drawRay(transform->position, viewerDir * rayDistance, Color::BLUE, 10);
+                DEBUG.drawRay(transform->position, ray.getDirection(), Color::BLUE, 10);
+                DEBUG.drawCube(result.bounds.getMin(), result.bounds.getMax(), Color::GREEN, 10);
             }
         }
     }
 
-    bool ChunkRayCast(const Ray& ray, RayCastResult* result)
+    struct ChunkRayCastResult
+    {
+        Math::Vec3  hitPoint = Math::Vec3(0,0,0);
+        Math::AABB  bounds;
+        Block       block = Block(BlockType::Air);
+    };
+
+    bool ChunkRayCast(const Physics::Ray& ray, ChunkRayCastResult* result)
     {
         auto cb = [&](const PolyVox::LargeVolume<Block>::Sampler& sampler) -> bool
         {
             auto voxel = sampler.getVoxel();
-
             if (voxel.getMaterial() == (U8)BlockType::Air)
                 return true;
 
+            F32 blockSize = 0.5f;
             auto blockCenter = sampler.getPosition();
 
-            F32 blockSize = 0.5f;
+            result->block = voxel;
 
-            Bounds voxelBounds;
-            voxelBounds.getMin() = Math::Vec3(blockCenter.getX() - blockSize, blockCenter.getY() - blockSize, blockCenter.getZ() - blockSize);
-            voxelBounds.getMax() = Math::Vec3(blockCenter.getX() + blockSize, blockCenter.getY() + blockSize, blockCenter.getZ() + blockSize);
+            result->bounds[0] = Math::Vec3( blockCenter.getX() - blockSize, blockCenter.getY() - blockSize, blockCenter.getZ() - blockSize );
+            result->bounds[1] = Math::Vec3( blockCenter.getX() + blockSize, blockCenter.getY() + blockSize, blockCenter.getZ() + blockSize );
 
-            F32 distance;
-            if (voxelBounds.intersects(ray, &distance))
-                result->hitPoint = ray.orig + ray.dir * distance;
-
-            DEBUG.drawCube(voxelBounds.getMin(), voxelBounds.getMax(), Color::GREEN, 10);
+            // Since polyvox raycast does not deliever the exact hit-point but rather the block, it must be calculated separately
+            Physics::RayCastResult rayResult;
+            if ( ray.intersects( result->bounds, &rayResult ) )
+                result->hitPoint = rayResult.hitPoint;
 
             return false;
         };
 
-        PolyVox::Vector3DFloat start(ray.orig.x, ray.orig.y, ray.orig.z);
-        PolyVox::Vector3DFloat dir(ray.dir.x, ray.dir.y, ray.dir.z);
+        PolyVox::Vector3DFloat start( ray.getOrigin().x, ray.getOrigin().y, ray.getOrigin().z );
+        PolyVox::Vector3DFloat dir( ray.getDirection().x, ray.getDirection().y, ray.getDirection().z );
 
         auto polyVoxResult = PolyVox::raycastWithDirection( &m_volData, start, dir, cb );
 
@@ -419,7 +335,7 @@ public:
     {
         GameObject* go;
         Math::Vec2  position;
-        Bounds      bounds;
+        Math::AABB  bounds;
         
         TerrainChunk(const Math::Vec2& pos, I32 size) 
             : position(pos * size)
@@ -548,7 +464,7 @@ private:
     }
 
     //----------------------------------------------------------------------
-    MeshPtr _GenerateMeshFromNoiseMap(const Bounds& bounds, const NoiseMap& noiseMap, F32 maxHeight)
+    MeshPtr _GenerateMeshFromNoiseMap(const Math::AABB& bounds, const NoiseMap& noiseMap, F32 maxHeight)
     {
         PolyVox::Region chunkDim(PolyVox::Vector3DInt32( bounds.getMin().x, bounds.getMin().y, bounds.getMin().z ),
                                  PolyVox::Vector3DInt32( bounds.getMax().x, bounds.getMax().y, bounds.getMax().z ));
