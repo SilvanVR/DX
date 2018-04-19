@@ -9,15 +9,13 @@ cbuffer cbPerMaterial
 struct FragmentIn
 {
     float4 PosH : SV_POSITION;
-	float4 Color : COLOR;
 	float3 Normal : NORMAL;
-	float  MaterialID : MATERIAL;
+	float2 Material : MATERIAL; // X Coord contains side-block, Y Top/Bottom block
 	float4 WorldPos : POSITION;
 };
 
 Texture2DArray texArray;
 SamplerState sampler0;
-
 
 float3 fog(float3 color, float3 fcolor, float depth, float density)
 {
@@ -26,20 +24,18 @@ float3 fog(float3 color, float3 fcolor, float depth, float density)
     return lerp(fcolor, color, f);
 }
 
-
 float4 main(FragmentIn fin) : SV_Target
 {	
 	// Compute UV-Coordinates by projecting the world-pos along the respective axis
-	float2 uv;
+	float3 uvw;
 	if (fin.Normal.x > 0.9 || fin.Normal.x < -0.9)
-		uv = fin.WorldPos.zy;
+		uvw = float3( fin.WorldPos.zy,fin.Material.x );
 	else if (fin.Normal.y > 0.9 || fin.Normal.y < -0.9)
-		uv = fin.WorldPos.xz;
+		uvw = float3( fin.WorldPos.xz,fin.Material.y );
 	else 
-		uv = fin.WorldPos.xy;
+		uvw = float3( fin.WorldPos.xy,fin.Material.x );
 	
-	// Sample appropriate texture
-	float4 textureColor = texArray.Sample(sampler0, float3(uv,fin.MaterialID));	
+	float4 textureColor = texArray.Sample(sampler0, uvw);
 	
 	// Phong Lighting
 	float3 l = normalize(-dir.xyz);	

@@ -150,7 +150,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp" />
+    <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DX\DX.vcxproj">
@@ -158,10 +158,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="noise_map.h" />
-    <ClInclude Include="stb_perlin.hpp" />
-    <ClInclude Include="stb_voxel_renderer.hpp" />
-    <ClInclude Include="world_generator.h" />
+    <ClInclude Include="src\noise_map.h" />
+    <ClInclude Include="src\ext\stb_perlin.hpp" />
+    <ClInclude Include="src\world_generator.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

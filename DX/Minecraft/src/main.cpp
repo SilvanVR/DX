@@ -138,31 +138,9 @@ public:
         //    "/cubemaps/tropical_sunny_day/Front.png", "/cubemaps/tropical_sunny_day/Back.png");
         //go->addComponent<Components::Skybox>(cubemap);
 
-        // SHADER
-        auto texShader = RESOURCES.createShader("TexShader", "../DX/res/shaders/texVS.hlsl", "../DX/res/shaders/texPS.hlsl");
-
-        // TEXTURES
-        auto terrain = ASSETS.getTexture2D("/textures/terrain.png");
-        terrain->setFilter(Graphics::TextureFilter::Point);
-        terrain->setAnisoLevel(1);
-
-        // MESH
-        auto mesh = Core::Assets::MeshGenerator::CreateCubeUV();
-        mesh->setColors({Color::WHITE});
-
-        // MATERIAL
-        auto material = RESOURCES.createMaterial(texShader);
-        material->setTexture("tex0", terrain);
-        material->setTexture("tex1", terrain);
-        material->setFloat("mix", 0.0f);
-        material->setColor("tintColor", Color::WHITE);
-
         // GAMEOBJECTS
-        I32 chunkViewDistance = 2;
+        I32 chunkViewDistance = 4;
         auto worldGenerator = createGameObject("World Generation")->addComponent<WorldGeneration>(chunkViewDistance);
-
-
-        //createGameObject("Cube")->addComponent<Components::MeshRenderer>(mesh, material);
     }
 
     void shutdown() override

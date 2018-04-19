@@ -10,7 +10,6 @@
 **********************************************************************/
 #include <DX.h>
 #include "PolyVoxCore/CubicSurfaceExtractorWithNormals.h"
-#include "PolyVoxCore/SurfaceMesh.h"
 #include "PolyVoxCore/LargeVolume.h"
 #include "PolyVoxCore/Raycast.h"
 #include "noise_map.h"
@@ -67,7 +66,7 @@ private:
     Type m_uMaterial;
 };
 
-typedef TBlock<uint8_t> Block;
+typedef TBlock<U8> Block;
 
 template<typename Type>
 class PolyVox::DefaultIsQuadNeeded< TBlock<Type> >
@@ -86,41 +85,6 @@ public:
         }
     }
 };
-
-
-//void createSphereInVolume(PolyVox::LargeVolume<PolyVox::Material8>& volData, float fRadius)
-//{
-//    //This vector hold the position of the center of the volume
-//    PolyVox::Vector3DFloat v3dVolCenter(volData.getWidth() / 2, volData.getHeight() / 2, volData.getDepth() / 2);
-//    //Vector3DFloat v3dVolCenter(0,0,0);
-//
-//    //This three-level for loop iterates over every voxel in the volume
-//    for (int z = 0; z < volData.getDepth(); z++)
-//    {
-//        for (int y = 0; y < volData.getHeight(); y++)
-//        {
-//            for (int x = 0; x < volData.getWidth(); x++)
-//            {
-//                //Store our current position as a vector...
-//                PolyVox::Vector3DFloat v3dCurrentPos(x, y, z);
-//                //And compute how far the current position is from the center of the volume
-//                float fDistToCenter = (v3dCurrentPos - v3dVolCenter).length();
-//
-//                uint8_t uVoxelValue = 0;
-//
-//                //If the current voxel is less than 'radius' units from the center then we make it solid.
-//                if (fDistToCenter <= fRadius)
-//                {
-//                    //Our new voxel value
-//                    uVoxelValue = Math::Random::Int(1, NUM_MATERIALS);
-//                }
-//
-//                //Wrte the voxel value into the volume	
-//                volData.setVoxelAt(x, y, z, uVoxelValue);
-//            }
-//        }
-//    }
-//}
 
 struct TerrainType
 {
@@ -330,7 +294,7 @@ public:
             lastOctaves = m_noiseOctaves; lastDrawMode = m_drawMode; lastTerrainHeight = m_terrainHeight;
 
             ASYNC_JOB([&] {
-                NoiseMap noiseMap(s_chunkSize, s_chunkSize, m_noiseScale, m_noiseLacunarity, m_noiseGain, m_noiseOctaves );
+                NoiseMap noiseMap(s_chunkSize * 10.0f, s_chunkSize * 10.0f, m_noiseScale, m_noiseLacunarity, m_noiseGain, m_noiseOctaves );
                 switch (m_drawMode)
                 {
                 case DrawMode::NoiseMap: m_noiseMapMaterial->setTexture("tex", _GenerateNoiseTextureFromNoiseMap(noiseMap)); break;
@@ -421,9 +385,9 @@ public:
     {
         auto cb = [&](const PolyVox::LargeVolume<Block>::Sampler& sampler) -> bool
         {
-            auto hitVoxel = sampler.getVoxel();
+            auto voxel = sampler.getVoxel();
 
-            if (hitVoxel.getMaterial() == (U8)BlockType::Air)
+            if (voxel.getMaterial() == (U8)BlockType::Air)
                 return true;
 
             auto blockCenter = sampler.getPosition();
@@ -520,8 +484,7 @@ private:
 
         ArrayList<Math::Vec3>   vertices;
         ArrayList<Math::Vec3>   normals;
-        ArrayList<Math::Vec2>   materialID;
-        ArrayList<Color>        colors;
+        ArrayList<Math::Vec2>   materials;
         for ( auto& vertex : polyvoxMesh.getVertices() )
         {
             vertices.emplace_back( vertex.getPosition().getX(), vertex.getPosition().getY(), vertex.getPosition().getZ() );
@@ -529,16 +492,13 @@ private:
 
             // Subtract minus 1, so the material range starts at 0 (cause 0 meant, there is no block)
             U8 material = static_cast<U8>( vertex.getMaterial() + 0.5 ) - 1;
-            materialID.emplace_back( material );
-
-            colors.emplace_back( Math::Random::Color() );
+            materials.emplace_back(Math::Vec2(material, material));
         }
 
         chunk->setVertices( vertices );
         chunk->setIndices( polyvoxMesh.getIndices() );
-        chunk->setColors( colors );
         chunk->setNormals( normals );
-        chunk->setUVs( materialID );
+        chunk->setUVs( materials );
 
         return chunk;
     }
@@ -551,7 +511,7 @@ private:
         {
             for (U32 y = 0; y < tex2D->getHeight(); y++)
             {
-                F32 curHeight = noiseMap.getValue(x, y);
+                F32 curHeight = noiseMap.get(x, y);
                 for (auto region : m_regions)
                 {
                     if (curHeight <= region.height)
@@ -576,7 +536,7 @@ private:
         {
             for (U32 y = 0; y < tex2D->getHeight(); y++)
             {
-                F32 curHeight = noiseMap.getValue(x, y);
+                F32 curHeight = noiseMap.get(x, y);
                 tex2D->setPixel(x, y, Color::Lerp(Color::BLACK, Color::WHITE, curHeight));
             }
         }
@@ -600,7 +560,7 @@ private:
         {
             for (int z = 0; z < noiseMap.getHeight(); z++)
             {
-                F32 noiseValue = noiseMap.getValue(x, z);
+                F32 noiseValue = noiseMap.get(x, z);
                 F32 curHeight = noiseValue * maxHeight;
 
                 for (int y = -s_chunkHeight; y < s_chunkHeight; y++)

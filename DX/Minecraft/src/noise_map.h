@@ -2,7 +2,7 @@
 #include <DX.h>
 
 #define STB_PERLIN_IMPLEMENTATION 
-#include "stb_perlin.hpp"
+#include "ext/stb_perlin.hpp"
 
 class NoiseMap
 {
@@ -34,7 +34,7 @@ public:
 
     I32 getWidth() const { return m_width; }
     I32 getHeight() const { return m_height; }
-    F32 getValue(I32 x, I32 y) const { return m_noiseMap[x + y * m_width]; }
+    F32 get(I32 x, I32 y) const { return m_noiseMap[x + y * m_width]; }
 
 private:
     F32*    m_noiseMap = nullptr;
