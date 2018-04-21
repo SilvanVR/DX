@@ -49,6 +49,28 @@ namespace Math {
     };
 
     //**********************************************************************
+    class Vector2Int : public DirectX::XMINT2
+    {
+    public:
+        Vector2Int(I32 value = 0);
+        Vector2Int(I32 x, I32 y);
+
+        Vector2Int  operator +      (const Vector2Int& v) const { return Vector2Int( x + v.x, y + v.y ); }
+        Vector2Int  operator -      (const Vector2Int& v) const { return Vector2Int( x - v.x, y - v.y ); }
+        Vector2Int  operator *      (I32 s)               const { return Vector2Int( x * s, y * s ); }
+        Vector2Int  operator /      (I32 s)               const { return Vector2Int( x / s, y / s ); }
+        Vector2Int& operator +=     (const Vector2Int& v) { x += v.x, y += v.y; return *this; }
+        Vector2Int& operator -=     (const Vector2Int& v) { x -= v.x, y -= v.y; return *this; }
+        Vector2Int& operator *=     (I32 s) { x *= s; y *= s; return *this; }
+        Vector2Int& operator /=     (I32 s) { x /= s; y /= s; return *this; }
+
+        bool        operator == (const Vector2Int& v) const { return x == v.x && y == v.y; }
+        bool        operator != (const Vector2Int& v) const { return !(*this == v); }
+
+        String toString() const { return "(" + TS(x) + "," + TS(y) + ")"; }
+    };
+
+    //**********************************************************************
     class Vector3F : public DirectX::XMFLOAT3
     {
     public:
@@ -73,6 +95,8 @@ namespace Math {
         F32         magnitude() const;
         Vector3F    normalized() const;
         Vector3F    cross(const Vector3F& v) const;
+        F32         maxValue() const;
+        F32         minValue() const;
 
         String toString() const { return "(" + TS(x) + "," + TS(y) + "," + TS(z) + ")"; }
 
@@ -137,10 +161,11 @@ namespace Math {
     };
 
     //----------------------------------------------------------------------
-    using Vec2 = Vector2F;
-    using Vec3 = Vector3F;
-    using Vec4 = Vector4F;
-    using Quat = Quaternion;
+    using Vec2      = Vector2F;
+    using Vec2Int   = Vector2Int;
+    using Vec3      = Vector3F;
+    using Vec4      = Vector4F;
+    using Quat      = Quaternion;
 
 }
 

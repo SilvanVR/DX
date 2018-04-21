@@ -116,6 +116,74 @@ public:
     }
 };
 
+class PlayerController : public Components::IComponent
+{
+    F32 rayDistance;
+    Components::Transform* transform;
+
+public:
+    PlayerController(F32 placeDistance = 10.0f) : rayDistance(placeDistance) {}
+
+    void addedToGameObject(GameObject* go) override
+    {
+        transform = getComponent<Components::Transform>();
+    }
+
+    void tick(Time::Seconds delta) override
+    {
+        auto viewerDir = transform->rotation.getForward();
+
+        Physics::Ray ray(transform->position, viewerDir * rayDistance);
+        World::Get().RayCast(ray, [](const ChunkRayCastResult& result){
+            if (result.block != Block::Air)
+            {
+                Math::Vec3 blockSize(BLOCK_SIZE * 0.5f);
+                Math::Vec3 min = result.blockCenter - blockSize;
+                Math::Vec3 max = result.blockCenter + blockSize;
+                DEBUG.drawCube(min, max, Color::GREEN, 0);
+            }
+        });
+
+        // Remove blocks
+        if ( MOUSE.wasKeyPressed(MouseKey::LButton) )
+        {
+            World::Get().RayCast(ray, [=](const ChunkRayCastResult& result) {
+                if (result.block != Block::Air)
+                {
+                    World::Get().SetVoxelAt((I32)result.blockCenter.x, (I32)result.blockCenter.y, (I32)result.blockCenter.z, Block::Air);
+                    //DEBUG.drawSphere(result.hitPoint, 0.1f, Color::RED, 10);
+                    //DEBUG.drawRay(transform->position, ray.getDirection(), Color::BLUE, 10);
+                }
+            });
+        }
+
+        // Place block
+        if ( KEYBOARD.wasKeyPressed(Key::E) )
+        {
+            World::Get().RayCast(ray, [=](const ChunkRayCastResult& result) {
+                if (result.block != Block::Air)
+                {
+                    Math::Vec3 hitDir = result.hitPoint - result.blockCenter;
+
+                    // Calculate where to place the new block by checking which component has the largest abs.
+                    Math::Vec3 axis(0, 0, hitDir.z);
+                    F32 xAbs = std::abs(hitDir.x);
+                    F32 yAbs = std::abs(hitDir.y);
+                    F32 zAbs = std::abs(hitDir.z);
+                    if (xAbs > yAbs && xAbs > zAbs)
+                        axis = Math::Vec3(hitDir.x, 0, 0);
+                    else if (yAbs > xAbs && yAbs > zAbs)
+                        axis = Math::Vec3(0, hitDir.y, 0);
+
+                    // Set world voxel
+                    Math::Vec3 block = result.blockCenter + axis.normalized();
+                    World::Get().SetVoxelAt((I32)block.x, (I32)block.y, (I32)block.z, Block::Sand);
+                }
+            });
+        }
+    }
+};
+
 //**********************************************************************
 class MyScene : public IScene
 {
@@ -129,9 +197,12 @@ public:
         auto cam = go->addComponent<Components::Camera>();
         go->getComponent<Components::Transform>()->position = Math::Vec3(0,0,-5);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 10.0f, 0.3f);
-        //go->addComponent<Minimap>(500.0f, 3.0f);
+        //go->addComponent<Minimap>(500.0f, 50.0f);
         go->addComponent<Components::AudioListener>();
         cam->setClearColor(Color::BLUE);
+
+        F32 placeDistance = 10.0f;
+        go->addComponent<PlayerController>(placeDistance);
 
         //auto cubemap = ASSETS.getCubemap("/cubemaps/tropical_sunny_day/Left.png", "/cubemaps/tropical_sunny_day/Right.png",
         //    "/cubemaps/tropical_sunny_day/Up.png", "/cubemaps/tropical_sunny_day/Down.png",
@@ -139,7 +210,7 @@ public:
         //go->addComponent<Components::Skybox>(cubemap);
 
         // GAMEOBJECTS
-        I32 chunkViewDistance = 4;
+        I32 chunkViewDistance = 8;
         auto worldGenerator = createGameObject("World Generation")->addComponent<WorldGeneration>(chunkViewDistance);
     }
 
