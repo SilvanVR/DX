@@ -15,117 +15,29 @@ World::World() : m_volData( PolyVox::Region( PolyVox::Vector3DInt32( INT_MIN, IN
 {}
 
 //----------------------------------------------------------------------
+void World::shutdown()
+{
+    m_chunkGenerationList.clear();
+    m_chunkUpdateCompleteList.clear();
+    m_terrainChunks.clear();
+    CHUNK_MATERIAL.reset();
+}
+
+//----------------------------------------------------------------------
 void World::update( F32 delta )
 {
-    if ( not m_blockUpdates.empty() && not m_generating )
-    {
-        for (auto& blockUpdate : m_blockUpdates)
-        {
-            m_volData.setVoxelAt( blockUpdate.position, blockUpdate.block );
+    // ORDER OF THIS FUNCTIONS IS IMPORTANT
+    _ExecuteBlockUpdates();
 
-            // Update corresponding chunk and possibly neighbour chunks
-            auto chunkCoord = CHUNK_COORD( blockUpdate.position.getX(), blockUpdate.position.getZ() );
+    _CalculateChunkVisibility();
 
-            auto chunkCoordRight    = CHUNK_COORD( blockUpdate.position.getX() + 1, blockUpdate.position.getZ() );
-            auto chunkCoordLeft     = CHUNK_COORD( blockUpdate.position.getX() - 1, blockUpdate.position.getZ() );
-            auto chunkCoordForward  = CHUNK_COORD( blockUpdate.position.getX(), blockUpdate.position.getZ() + 1 );
-            auto chunkCoordBack     = CHUNK_COORD( blockUpdate.position.getX(), blockUpdate.position.getZ() - 1 );
+    _PerformRayCasts();
 
-            // Check if neighbour chunk has to be regenerated aswell
-            if ( chunkCoord != chunkCoordRight )
-                _AddChunk( chunkCoordRight );
-            else if (chunkCoord != chunkCoordLeft)
-                _AddChunk( chunkCoordLeft );
+    _ExecuteChunkBatchUpdates();
 
-            if (chunkCoord != chunkCoordForward)
-                _AddChunk( chunkCoordForward );
-            else if (chunkCoord != chunkCoordBack)
-                _AddChunk( chunkCoordBack );
+    _ExecuteChunkUpdates();
 
-            _AddChunk( chunkCoord );
-        }
-        m_blockUpdates.clear();
-    }
-
-    // Disable all chunks
-    for (auto& pair : m_terrainChunks)
-        pair.second->setActive( false );
-
-    // Calculate which chunks are visible
-    Components::Camera* viewer = SCENE.getMainCamera();
-    auto transform = viewer->getComponent<Components::Transform>();
-
-    I32 currentChunkCoordX = static_cast<I32>( std::floorf( transform->position.x / CHUNK_SIZE ) );
-    I32 currentChunkCoordY = static_cast<I32>( std::floorf( transform->position.z / CHUNK_SIZE) );
-
-    for (I32 ring = 0; ring < CHUNK_VIEW_DISTANCE; ring++)
-    {
-        for (I32 x = -ring; x <= ring; x++)
-        {
-            for (I32 y = -ring; y <= ring; y++)
-            {
-                if ( std::abs(x) == ring || std::abs(y) == ring)
-                {
-                    Math::Vec2Int chunkCoords( currentChunkCoordX + x, currentChunkCoordY + y );
-
-                    if ( m_terrainChunks.find(chunkCoords) != m_terrainChunks.end() )
-                    {
-                        // Chunk already exists, so just enable it
-                        m_terrainChunks[chunkCoords]->setActive( true );
-
-                    }
-                    else
-                    {
-                        _CreateChunk( chunkCoords );
-                    }
-                }
-            }
-        }
-    }
-
-    // Do raycast
-    if ( not m_raycastRequestQueue.empty() && not m_generating )
-    {
-        while (not m_raycastRequestQueue.empty())
-        {
-            auto& req = m_raycastRequestQueue.front();
-
-            ChunkRayCastResult result;
-            _RayCast(req.ray, &result);
-            req.callback(result);
-
-            m_raycastRequestQueue.pop();
-        }
-    }
-
-    // Update/Generate new chunk if requested and not currently generating one
-    if ( not m_chunkUpdateList.empty() && not m_generating )
-    {
-        m_generating = true;
-        auto nextChunk = m_chunkUpdateList.front();
-
-        ASYNC_JOB([=] {
-            if ( not nextChunk->generated )
-            {
-                m_chunkCallback( m_volData, nextChunk );
-                nextChunk->generated = true;
-            }
-            auto mesh = _GenerateMesh( nextChunk->bounds );
-            m_chunkUpdateCompleteList.push_back({ nextChunk, mesh });
-            m_generating = false;
-        });
-
-        m_chunkUpdateList.pop_front();
-    }
-
-    // Update chunk with newly generated data
-    for (auto& chunkGen : m_chunkUpdateCompleteList)
-    {
-        auto mr = chunkGen.chunk->go->getComponent<Components::MeshRenderer>();
-        mr->setMesh( chunkGen.mesh );
-        mr->setMaterial( CHUNK_MATERIAL );
-    }
-    m_chunkUpdateCompleteList.clear();
+    _ApplyChunkUpdates();
 }
 
 //**********************************************************************
@@ -137,25 +49,15 @@ void World::update( F32 delta )
 //**********************************************************************
 
 //----------------------------------------------------------------------
-void World::_AddChunk( const Math::Vec2Int& coords )
+void World::_UpdateChunkInBatch( const Math::Vec2Int& coords )
 {
     if ( m_terrainChunks.find( coords ) == m_terrainChunks.end() )
-        ASSERT(false);
+        ASSERT( false ); // This should never happen
 
     // Queue chunk for generating if not already in for it
     auto chunk = m_terrainChunks[coords];
-    if ( std::find(m_chunkUpdateList.begin(), m_chunkUpdateList.end(), chunk) == m_chunkUpdateList.end() )
-    m_chunkUpdateList.emplace_front( chunk );
-}
-
-//----------------------------------------------------------------------
-void World::_CreateChunk( const Math::Vec2Int& coords )
-{
-    auto newChunk = std::make_shared<Chunk>( coords );
-    m_terrainChunks[coords] = newChunk;
-
-    // Queue chunk for generating
-    m_chunkUpdateList.emplace_back( newChunk );
+    if ( std::find( m_chunkUpdateBatchList.begin(), m_chunkUpdateBatchList.end(), chunk ) == m_chunkUpdateBatchList.end() )
+        m_chunkUpdateBatchList.emplace_front( chunk );
 }
 
 //----------------------------------------------------------------------
@@ -226,4 +128,156 @@ MeshPtr CreateMeshForRendering( const PolyVox::SurfaceMesh<PolyVox::PositionMate
     chunk->setUVs( materials );
 
     return chunk;
+}
+
+
+//----------------------------------------------------------------------
+void World::_ExecuteBlockUpdates()
+{
+    // Execute single block updates and determine which chunks were affected to regenerate them
+    if ( not m_blockUpdates.empty() && not m_generating )
+    {
+        for (auto& blockUpdate : m_blockUpdates)
+        {
+            m_volData.setVoxelAt( blockUpdate.position, blockUpdate.block );
+
+            // Queue corresponding chunk for update
+            auto chunkCoord = CHUNK_COORD( blockUpdate.position.getX(), blockUpdate.position.getZ() );
+            _UpdateChunkInBatch( chunkCoord );
+
+            // Check if neighbour chunk(s) has to be regenerated aswell
+            auto chunkCoordRight    = CHUNK_COORD( blockUpdate.position.getX() + 1, blockUpdate.position.getZ() );
+            auto chunkCoordLeft     = CHUNK_COORD( blockUpdate.position.getX() - 1, blockUpdate.position.getZ() );
+            auto chunkCoordForward  = CHUNK_COORD( blockUpdate.position.getX(), blockUpdate.position.getZ() + 1 );
+            auto chunkCoordBack     = CHUNK_COORD( blockUpdate.position.getX(), blockUpdate.position.getZ() - 1 );
+
+            if (chunkCoord != chunkCoordRight)
+                _UpdateChunkInBatch( chunkCoordRight );
+            else if (chunkCoord != chunkCoordLeft)
+                _UpdateChunkInBatch( chunkCoordLeft );
+
+            if (chunkCoord != chunkCoordForward)
+                _UpdateChunkInBatch( chunkCoordForward );
+            else if (chunkCoord != chunkCoordBack)
+                _UpdateChunkInBatch( chunkCoordBack );
+        }
+        m_blockUpdates.clear();
+    }
+}
+
+//----------------------------------------------------------------------
+void World::_CalculateChunkVisibility()
+{
+    // Disable all chunks
+    for (auto& pair : m_terrainChunks)
+        pair.second->setActive( false );
+
+    // Calculate which chunks are visible
+    Components::Camera* viewer = SCENE.getMainCamera();
+    auto transform = viewer->getComponent<Components::Transform>();
+
+    I32 currentChunkCoordX = static_cast<I32>( std::floorf( transform->position.x / CHUNK_SIZE ) );
+    I32 currentChunkCoordY = static_cast<I32>( std::floorf( transform->position.z / CHUNK_SIZE) );
+
+    for (I32 ring = 0; ring < CHUNK_VIEW_DISTANCE; ring++)
+    {
+        for (I32 x = -ring; x <= ring; x++)
+        {
+            for (I32 y = -ring; y <= ring; y++)
+            {
+                if ( std::abs(x) == ring || std::abs(y) == ring)
+                {
+                    Math::Vec2Int chunkCoords( currentChunkCoordX + x, currentChunkCoordY + y );
+
+                    if ( m_terrainChunks.find(chunkCoords) != m_terrainChunks.end() )
+                    {
+                        // Chunk already exists, so just enable it
+                        m_terrainChunks[chunkCoords]->setActive( true );
+
+                    }
+                    else
+                    {
+                        // Create new chunk and queue it for generating
+                        auto newChunk = std::make_shared<Chunk>( chunkCoords );
+                        m_terrainChunks[chunkCoords] = newChunk;
+                        m_chunkGenerationList.emplace_back( newChunk );
+                    }
+                }
+            }
+        }
+    }
+}
+
+//----------------------------------------------------------------------
+void World::_PerformRayCasts()
+{
+    if ( not m_raycastRequestQueue.empty() && not m_generating )
+    {
+        while ( not m_raycastRequestQueue.empty() )
+        {
+            auto& req = m_raycastRequestQueue.front();
+
+            ChunkRayCastResult result;
+            if ( _RayCast( req.ray, &result ) )
+                req.callback( result );
+
+            m_raycastRequestQueue.pop();
+        }
+    }
+}
+
+//----------------------------------------------------------------------
+void World::_ExecuteChunkBatchUpdates()
+{
+    if ( not m_chunkUpdateBatchList.empty() && not m_generating )
+    {
+        m_generating = true;
+
+        auto chunkList = m_chunkUpdateBatchList;
+        ASYNC_JOB([=] {
+            std::list<ChunkUpdateComplete> updateCompleteList;
+            for (auto& chunk : chunkList)
+            {
+                auto mesh = _GenerateMesh( chunk->bounds );
+                updateCompleteList.push_back( { chunk, mesh } );
+            }
+            m_chunkUpdateCompleteList.insert( m_chunkUpdateCompleteList.end(), updateCompleteList.begin(), updateCompleteList.end() );
+            m_generating = false;
+        });
+        m_chunkUpdateBatchList.clear();
+    }
+}
+
+//----------------------------------------------------------------------
+void World::_ExecuteChunkUpdates()
+{
+    // Generate new chunk if requested and not currently generating one
+    if ( not m_chunkGenerationList.empty() && not m_generating )
+    {
+        m_generating = true;
+
+        // Can only generate one chunk here, cause if the player changes chunks, those chunks must be rebuild immediately
+        auto nextChunk = m_chunkGenerationList.front();
+        ASYNC_JOB([=] {
+            m_chunkCallback( m_volData, nextChunk );
+            auto mesh = _GenerateMesh( nextChunk->bounds );
+            m_chunkUpdateCompleteList.push_back({ nextChunk, mesh });
+            m_generating = false;
+        });
+
+        m_chunkGenerationList.pop_front();
+    }
+}
+
+//----------------------------------------------------------------------
+void World::_ApplyChunkUpdates()
+{
+    // Update chunk with newly generated data
+    for (auto& chunkGen : m_chunkUpdateCompleteList)
+    {
+        auto mr = chunkGen.chunk->go->getComponent<Components::MeshRenderer>();
+        mr->setMesh( chunkGen.mesh );
+        mr->setMaterial( CHUNK_MATERIAL );
+    }
+    m_chunkUpdateCompleteList.clear();
 }

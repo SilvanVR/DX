@@ -46,7 +46,7 @@ class WorldGeneration : public Components::IComponent
 
 public:
     WorldGeneration(I32 chunkViewDistance = 10) { World::CHUNK_VIEW_DISTANCE = chunkViewDistance; }
-    ~WorldGeneration(){ World::CHUNK_MATERIAL.reset(); }
+    ~WorldGeneration(){ World::Get().shutdown(); }
 
     //----------------------------------------------------------------------
     void init() override
@@ -61,13 +61,13 @@ public:
 
         _SetupShaderAndMaterial();
 
+        World::CHUNK_MATERIAL = m_chunkMaterial;
+        World::Get().setChunkCallback( BIND_THIS_FUNC_2_ARGS( &WorldGeneration::ChunkUpdateCallback ) );
+
         // VISUALIZATION OF PERLIN NOISE ON A FLAT PLANE
         auto texShader = RESOURCES.createShader("TexShader", "/shaders/texVS.hlsl", "/shaders/texPS.hlsl");
         m_noiseMapMaterial = RESOURCES.createMaterial(texShader);
-
         SCENE.createGameObject()->addComponent<Components::MeshRenderer>(Core::Assets::MeshGenerator::CreatePlane(1, Color::GREEN), m_noiseMapMaterial);
-
-        World::Get().setChunkCallback( BIND_THIS_FUNC_2_ARGS( &WorldGeneration::ChunkUpdateCallback ) );
     }
 
     F32 lastScale = 0.0f;
@@ -136,9 +136,8 @@ public:
             LOG("Terrain Height: " + TS(m_terrainHeight));
         }
 
-        World::Get().update((F32)delta.value);
+        World::Get().update( (F32)delta.value );
     }
-
 
 private:
     //----------------------------------------------------------------------
@@ -167,8 +166,6 @@ private:
         m_chunkMaterial->setVec4( "dir", Math::Vec4( 0, -1, 1, 0 ) );
         m_chunkMaterial->setFloat( "intensity", 1.0f );
         m_chunkMaterial->setTexture( "texArray", texArr );
-
-        World::CHUNK_MATERIAL = m_chunkMaterial;
     }
 
     //----------------------------------------------------------------------
@@ -218,7 +215,7 @@ private:
     //----------------------------------------------------------------------
     void ChunkUpdateCallback(PolyVox::LargeVolume<Block>& volume, const ChunkPtr& chunk )
     {
-        DEBUG.drawCube(chunk->bounds, Color::GREEN, 20000);
+        // DEBUG.drawCube(chunk->bounds, Color::GREEN, 20000);
 
         // Noise map must be larger, so it fills the boundary chunks aswell, otherwise the mesh will contain holes
         NoiseMap noiseMap( CHUNK_SIZE + 1, CHUNK_SIZE + 1, m_noiseParams, chunk->position );

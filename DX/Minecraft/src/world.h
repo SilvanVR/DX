@@ -56,7 +56,6 @@ public:
     GameObject*     go;
     Math::Vec2Int   position;
     Math::AABB      bounds;
-    bool            generated = false;
 
     Chunk(const Math::Vec2Int& tilePos)
         : position( tilePos * CHUNK_SIZE )
@@ -87,7 +86,7 @@ public:
     World();
     static World& Get() { static World world; return world; }
 
-    // Requests a raycast being casted into the world.
+    // Requests a raycast being casted into the world. The callback will be called when a block was hit.
     void RayCast(const Physics::Ray& ray, const RaycastCallback& cb) { m_raycastRequestQueue.emplace(ray, cb); }
 
     // Sets a voxel and regenerates the corresponding chunk(s).
@@ -99,9 +98,13 @@ public:
     void setChunkCallback(const ChunkCallback& cb) { m_chunkCallback = cb; }
 
 private:
-    PolyVox::LargeVolume<Block>                 m_volData;          // The voxel volume
-    std::unordered_map<Math::Vec2Int, ChunkPtr> m_terrainChunks;    // Stores the generated terrain chunks
-    std::list<ChunkPtr>                         m_chunkUpdateList;  // Contains which chunk is not up-to-date and should be generated
+    PolyVox::LargeVolume<Block>                 m_volData;              // The voxel volume
+    std::unordered_map<Math::Vec2Int, ChunkPtr> m_terrainChunks;        // Stores the generated terrain chunks
+    std::list<ChunkPtr>                         m_chunkGenerationList;  // Contains chunks which should be generated for the first time
+
+    // This list is similar to above, but is 1. prioritized e.g. gets executed before the list above AND 2. gets executed in a batch
+    // This is required for destroying edge blocks, so several chunks have to be regenerated and replaced at the SAME TIME.
+    std::list<ChunkPtr>                         m_chunkUpdateBatchList; 
 
     //----------------------------------------------------------------------
     struct RayCastRequest
@@ -119,7 +122,7 @@ private:
         ChunkPtr chunk;
         MeshPtr  mesh;
     };
-    std::vector<ChunkUpdateComplete> m_chunkUpdateCompleteList; // Stores the resulting mesh and the chunk to update
+    std::list<ChunkUpdateComplete> m_chunkUpdateCompleteList; // Stores the resulting mesh and the chunk to update
 
     //----------------------------------------------------------------------
     struct BlockUpdate
@@ -138,11 +141,18 @@ private:
 
     friend class WorldGeneration;
     void update(F32 delta);
+    void shutdown();
 
     // Create a mesh which contains the given region
     MeshPtr _GenerateMesh(const Math::AABB& region);
     bool    _RayCast(const Physics::Ray& ray, ChunkRayCastResult* result);
+    void    _UpdateChunkInBatch(const Math::Vec2Int& coords);
 
-    void    _AddChunk(const Math::Vec2Int& coords);
-    void    _CreateChunk(const Math::Vec2Int& coords);
+
+    inline void _ExecuteBlockUpdates();
+    inline void _CalculateChunkVisibility();
+    inline void _PerformRayCasts();
+    inline void _ExecuteChunkBatchUpdates();
+    inline void _ExecuteChunkUpdates();
+    inline void _ApplyChunkUpdates();
 };

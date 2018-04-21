@@ -9,6 +9,9 @@
     const char* gameName = "[RELEASE] Minecraft";
 #endif
 
+#define ACTION_NAME_DIG     "dig"
+#define ACTION_NAME_PLACE   "place"
+
 
 //**********************************************************************
 class DrawFrustum : public Components::IComponent
@@ -126,59 +129,54 @@ public:
 
     void addedToGameObject(GameObject* go) override
     {
+        ACTION_MAPPER.attachMouseEvent(ACTION_NAME_DIG, MouseKey::LButton);
+        //ACTION_MAPPER.attachMouseEvent(ACTION_NAME_PLACE, MouseKey::RButton);
+        ACTION_MAPPER.attachKeyboardEvent(ACTION_NAME_PLACE, Key::E);
         transform = getComponent<Components::Transform>();
     }
 
     void tick(Time::Seconds delta) override
     {
         auto viewerDir = transform->rotation.getForward();
-
         Physics::Ray ray(transform->position, viewerDir * rayDistance);
+
+        // Preview block
         World::Get().RayCast(ray, [](const ChunkRayCastResult& result){
-            if (result.block != Block::Air)
-            {
-                Math::Vec3 blockSize(BLOCK_SIZE * 0.5f);
-                Math::Vec3 min = result.blockCenter - blockSize;
-                Math::Vec3 max = result.blockCenter + blockSize;
-                DEBUG.drawCube(min, max, Color::GREEN, 0);
-            }
+            Math::Vec3 blockSize(BLOCK_SIZE * 0.5f);
+            Math::Vec3 min = result.blockCenter - blockSize;
+            Math::Vec3 max = result.blockCenter + blockSize;
+            DEBUG.drawCube( min, max, Color::GREEN, 0 );
         });
 
         // Remove blocks
-        if ( MOUSE.wasKeyPressed(MouseKey::LButton) )
+        if ( ACTION_MAPPER.wasKeyPressed(ACTION_NAME_DIG) )
         {
             World::Get().RayCast(ray, [=](const ChunkRayCastResult& result) {
-                if (result.block != Block::Air)
-                {
-                    World::Get().SetVoxelAt((I32)result.blockCenter.x, (I32)result.blockCenter.y, (I32)result.blockCenter.z, Block::Air);
-                    //DEBUG.drawSphere(result.hitPoint, 0.1f, Color::RED, 10);
-                    //DEBUG.drawRay(transform->position, ray.getDirection(), Color::BLUE, 10);
-                }
+                World::Get().SetVoxelAt((I32)result.blockCenter.x, (I32)result.blockCenter.y, (I32)result.blockCenter.z, Block::Air);
+                //DEBUG.drawSphere(result.hitPoint, 0.1f, Color::RED, 10);
+                //DEBUG.drawRay(transform->position, ray.getDirection(), Color::BLUE, 10);
             });
         }
 
         // Place block
-        if ( KEYBOARD.wasKeyPressed(Key::E) )
+        if ( ACTION_MAPPER.wasKeyPressed(ACTION_NAME_PLACE) )
         {
             World::Get().RayCast(ray, [=](const ChunkRayCastResult& result) {
-                if (result.block != Block::Air)
-                {
-                    Math::Vec3 hitDir = result.hitPoint - result.blockCenter;
+                Math::Vec3 hitDir = result.hitPoint - result.blockCenter;
 
-                    // Calculate where to place the new block by checking which component has the largest abs.
-                    Math::Vec3 axis(0, 0, hitDir.z);
-                    F32 xAbs = std::abs(hitDir.x);
-                    F32 yAbs = std::abs(hitDir.y);
-                    F32 zAbs = std::abs(hitDir.z);
-                    if (xAbs > yAbs && xAbs > zAbs)
-                        axis = Math::Vec3(hitDir.x, 0, 0);
-                    else if (yAbs > xAbs && yAbs > zAbs)
-                        axis = Math::Vec3(0, hitDir.y, 0);
+                // Calculate where to place the new block by checking which component has the largest abs.
+                Math::Vec3 axis(0, 0, hitDir.z);
+                F32 xAbs = std::abs(hitDir.x);
+                F32 yAbs = std::abs(hitDir.y);
+                F32 zAbs = std::abs(hitDir.z);
+                if (xAbs > yAbs && xAbs > zAbs)
+                    axis = Math::Vec3(hitDir.x, 0, 0);
+                else if (yAbs > xAbs && yAbs > zAbs)
+                    axis = Math::Vec3(0, hitDir.y, 0);
 
-                    // Set world voxel
-                    Math::Vec3 block = result.blockCenter + axis.normalized();
-                    World::Get().SetVoxelAt((I32)block.x, (I32)block.y, (I32)block.z, Block::Sand);
-                }
+                // Set world voxel
+                Math::Vec3 block = result.blockCenter + axis.normalized();
+                World::Get().SetVoxelAt((I32)block.x, (I32)block.y, (I32)block.z, Block::Sand);
             });
         }
     }
@@ -210,7 +208,7 @@ public:
         //go->addComponent<Components::Skybox>(cubemap);
 
         // GAMEOBJECTS
-        I32 chunkViewDistance = 8;
+        I32 chunkViewDistance = 32;
         auto worldGenerator = createGameObject("World Generation")->addComponent<WorldGeneration>(chunkViewDistance);
     }
 
