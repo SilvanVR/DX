@@ -212,7 +212,7 @@ private:
     //----------------------------------------------------------------------
     void ChunkUpdateCallback(PolyVox::LargeVolume<Block>& volume, const ChunkPtr& chunk )
     {
-        // DEBUG.drawCube(chunk->bounds, Color::GREEN, 20000);
+        //DEBUG.drawCube(chunk->bounds, Color::GREEN, 20000);
 
         // Noise map must be larger, so it fills the boundary chunks aswell, otherwise the mesh will contain holes
         NoiseMap noiseMap( CHUNK_SIZE + 1, CHUNK_SIZE + 1, m_noiseParams, chunk->position );

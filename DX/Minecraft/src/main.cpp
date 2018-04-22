@@ -11,7 +11,9 @@
 
 #define ACTION_NAME_DIG     "dig"
 #define ACTION_NAME_PLACE   "place"
+#define ACTION_NAME_JUMP    "jump"
 
+static const F32 GRAVITY = -0.7f;
 
 //**********************************************************************
 class DrawFrustum : public Components::IComponent
@@ -143,6 +145,7 @@ public:
         // Change slot per mouse wheel
         m_curSlot = (m_curSlot + delta) % SLOT_COUNT;
         m_curSlot = m_curSlot < 0 ? 0 : m_curSlot;
+        LOG(toString(), Color::GREEN);
     }
 
     // @Return:
@@ -288,15 +291,21 @@ class PlayerController : public Components::IComponent
     Components::Transform* transform;
     PlayerInventory* inventory;
     U32 curInventoryBlock;
+    F32 fpsMouseSensitivity = 0.3f;
+    F32 speed;
+    F32 playerHeight = 2.0f;
+    F32 jumpPower;
+    F32 playerSize = 0.5f;
 
 public:
-    PlayerController(F32 placeDistance = 10.0f) : rayDistance(placeDistance) {}
+    PlayerController(F32 speed, F32 jumpPower, F32 placeDistance = 10.0f) : speed(speed), jumpPower(jumpPower), rayDistance(placeDistance) {}
 
     void addedToGameObject(GameObject* go) override
     {
         ACTION_MAPPER.attachMouseEvent(ACTION_NAME_DIG, MouseKey::LButton);
         //ACTION_MAPPER.attachMouseEvent(ACTION_NAME_PLACE, MouseKey::RButton);
         ACTION_MAPPER.attachKeyboardEvent(ACTION_NAME_PLACE, Key::E);
+        ACTION_MAPPER.attachKeyboardEvent(ACTION_NAME_JUMP, Key::Space);
         transform = getComponent<Components::Transform>();
         inventory = getComponent<PlayerInventory>();
         ASSERT(inventory && "Inventory Component is NULL!");
@@ -306,9 +315,6 @@ public:
     {
         auto viewerDir = transform->rotation.getForward();
         Physics::Ray ray(transform->position, viewerDir * rayDistance);
-
-        if (KEYBOARD.wasKeyPressed(Key::F))
-            LOG(inventory->toString(), Color::GREEN);
 
         // Preview block
         World::Get().RayCast(ray, [](const ChunkRayCastResult& result) {
@@ -346,15 +352,78 @@ public:
                 else if (yAbs > xAbs && yAbs > zAbs)
                     axis = Math::Vec3(0, hitDir.y, 0);
 
-                // Set world voxel
                 Math::Vec3 newBlockPos = result.blockCenter + axis.normalized();
 
+                // If the block is too close dont allow to place it
+                F32 distanceToPlayer = (newBlockPos - transform->position).magnitude();
+                if (distanceToPlayer < 4.0f*playerSize)
+                    return;
+
+                // Set world voxel
                 Block block = inventory->getCurrentBlock();
                 if (block != Block::Air)
                     World::Get().SetVoxelAt(newBlockPos, block);
                 LOG(inventory->toString(), Color::GREEN);
             });
         }
+
+        _CalculateMovement((F32)delta.value);
+    }
+
+ private:
+    void _CalculateMovement(F32 delta)
+    {
+        static Math::Vec3 playerVelocity;
+
+        // LOOK ROTATION
+        if (MOUSE.isKeyDown(MouseKey::RButton))
+        {
+            auto deltaMouse = MOUSE.getMouseDelta();
+            transform->rotation *= Math::Quat(transform->rotation.getRight(), deltaMouse.y * fpsMouseSensitivity);
+            transform->rotation *= Math::Quat(Math::Vec3::UP, deltaMouse.x * fpsMouseSensitivity);
+        }
+
+        // JUMPING
+        bool isOnGround = (playerVelocity.y == 0.0f);
+        if (isOnGround)
+            if ( ACTION_MAPPER.wasKeyPressed( ACTION_NAME_JUMP ) )
+                playerVelocity.y += Math::Vec3::UP.y * delta * jumpPower;
+
+        // GRAVITY
+        playerVelocity.y += GRAVITY * delta;
+
+        // MOVEMENT
+        F32 realSpeed = speed;
+        if (KEYBOARD.isKeyDown(Key::Shift))
+            realSpeed *= 2.0f;
+
+        Math::Vec3 forward  = transform->rotation.getForward();
+        Math::Vec3 left     = transform->rotation.getLeft();
+
+        Math::Vec3 mov = left * (F32)AXIS_MAPPER.getAxisValue("Horizontal") * delta * realSpeed + 
+                         forward * (F32)AXIS_MAPPER.getAxisValue("Vertical") * delta * realSpeed;
+        playerVelocity.x = mov.x;
+        playerVelocity.z = mov.z;
+
+        // APPLY VELOCITY
+        Math::Vec3 prevPos = transform->position;
+        transform->position += playerVelocity;
+
+        // COLLISION CHECK (X+Z AXIS) - Shoot ray from feet into movement direction
+        Math::Vec3 xzVel(playerVelocity.x, 0.0f, playerVelocity.z);
+        Physics::Ray rayXZ(transform->position + Math::Vec3::DOWN * playerHeight + 0.1f, xzVel.normalized() * playerSize);
+        World::Get().RayCast(rayXZ, [=](const ChunkRayCastResult& result) {
+            transform->position.x = prevPos.x;
+            transform->position.z = prevPos.z;
+            //DEBUG.drawSphere(result.hitPoint, 0.1f, Color::RED, 0, false);
+        });
+
+        // COLLISION CHECK (Y-AXIS)
+        Physics::Ray rayDown(transform->position, Math::Vec3::DOWN * playerHeight);
+        World::Get().RayCast(rayDown, [=](const ChunkRayCastResult& result) {
+            transform->position.y = result.hitPoint.y - rayDown.getDirection().y;
+            playerVelocity.y = 0.0f;
+        });
     }
 };
 
@@ -369,8 +438,9 @@ public:
         // CAMERA
         auto player = createGameObject("player");
         auto cam = player->addComponent<Components::Camera>();
-        player->getComponent<Components::Transform>()->position = Math::Vec3(0,0,-5);
-        player->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 10.0f, 0.3f);
+        player->getComponent<Components::Transform>()->position = Math::Vec3(0, 100, -5);
+        player->getComponent<Components::Transform>()->lookAt({0});
+        //player->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 10.0f, 0.3f);
         //go->addComponent<Minimap>(500.0f, 50.0f);
         player->addComponent<Components::AudioListener>();
         cam->setClearColor(Color::BLUE);
@@ -378,7 +448,9 @@ public:
         U32 blockInventorySize = 64;
         player->addComponent<PlayerInventory>(blockInventorySize);
         F32 placeDistance = 10.0f;
-        player->addComponent<PlayerController>(placeDistance);
+        F32 playerSpeed = 10.0f;
+        F32 jumpPower = 15.0f;
+        player->addComponent<PlayerController>(playerSpeed, jumpPower, placeDistance);
 
         //auto cubemap = ASSETS.getCubemap("/cubemaps/tropical_sunny_day/Left.png", "/cubemaps/tropical_sunny_day/Right.png",
         //    "/cubemaps/tropical_sunny_day/Up.png", "/cubemaps/tropical_sunny_day/Down.png",

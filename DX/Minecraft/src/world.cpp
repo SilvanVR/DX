@@ -211,7 +211,7 @@ void World::_CalculateChunkVisibility()
 //----------------------------------------------------------------------
 void World::_PerformRayCasts()
 {
-    if ( not m_raycastRequestQueue.empty() && not m_generating )
+    if ( not m_raycastRequestQueue.empty() /* && not m_generating */ )
     {
         while ( not m_raycastRequestQueue.empty() )
         {

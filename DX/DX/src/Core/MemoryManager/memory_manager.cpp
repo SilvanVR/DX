@@ -107,7 +107,7 @@ namespace Core { namespace MemoryManagement {
     void MemoryManager::_ReportPossibleMemoryLeak(const Memory::AllocationInfo& lastAllocationInfo, const Memory::AllocationInfo& allocInfo)
     {
         auto bytesAllocated = allocInfo.bytesAllocated - lastAllocationInfo.bytesAllocated;
-        WARN_MEMORY( "<<<< Dynamic Memory Allocation in Game-Loop: Bytes allocated: " + Utils::bytesToString( bytesAllocated ) );
+        //WARN_MEMORY( "<<<< Dynamic Memory Allocation in Game-Loop: Bytes allocated: " + Utils::bytesToString( bytesAllocated ) );
     }
 
 
