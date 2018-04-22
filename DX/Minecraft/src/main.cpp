@@ -119,13 +119,112 @@ public:
     }
 };
 
-class PlayerController : public Components::IComponent
+//**********************************************************************
+class PlayerInventory : public Components::IComponent, public Core::Input::IMouseListener
+{
+    static const I32 SLOT_COUNT = 8;
+    U32 m_maxCountPerItem;
+
+    struct BlockInfo
+    {
+        U32 count;
+        I32 slot;
+    };
+    HashMap<Block, BlockInfo> m_inventory;
+
+    I32     m_curSlot = 0;
+    Block   m_slots[SLOT_COUNT];
+
+public:
+    PlayerInventory(U32 maxCountPerItem = 64) : m_maxCountPerItem(maxCountPerItem) {}
+
+    void OnMouseWheel(I16 delta) override
+    {
+        // Change slot per mouse wheel
+        m_curSlot = (m_curSlot + delta) % SLOT_COUNT;
+        m_curSlot = m_curSlot < 0 ? 0 : m_curSlot;
+    }
+
+    // @Return:
+    //  False, when block can't be added to inventory because its full
+    bool add(Block block) 
+    { 
+        U32 curCount = m_inventory[block].count; // Does it always initialize with 0?
+        if (curCount == m_maxCountPerItem)
+            return false;
+
+        if (curCount == 0)
+        {
+            I32 nextFreeSlot = _NextFreeSlot();
+            if (nextFreeSlot < 0)
+                return false;
+            m_inventory[block].slot = nextFreeSlot;
+            m_slots[nextFreeSlot] = block;
+        }
+
+        m_inventory[block].count++;
+        return true;
+    }
+
+    // @Return:
+    //  False, because the block doesnt exist in the inventory
+    bool remove(Block block)
+    {
+        if (m_inventory.find(block) == m_inventory.end())
+            return false;
+
+        m_inventory[block].count--;
+        if (m_inventory[block].count == 0)
+        {
+            m_slots[m_inventory[block].slot] = Block::Air;
+            m_inventory.erase(block);
+        }
+        return true;
+    }
+
+    // @Return:
+    //  Block count for given block
+    U32 get(Block block) { return m_inventory[block].count; }
+
+    // @Return:
+    //  Block at current slot
+    Block getCurrentBlock()
+    {
+        Block block = m_slots[m_curSlot];
+        if ( not remove( block ) )
+            return Block::Air;
+
+        return block;
+    }
+
+    String toString()
+    {
+        String result = "\n<<<< Inventory >>>>";
+        if (m_inventory.empty()) return result + "\nEmpty!";
+        for (auto& pair : m_inventory)
+            result += "\n" + pair.first.toString() + ": " + TS(pair.second.count) + " ["+ TS(pair.second.slot)+ "]";
+        result += "\nCurrent Slot: " + TS(m_curSlot) + "(" + m_slots[m_curSlot].toString() + ")";
+        return result;
+    }
+
+private:
+    I32 _NextFreeSlot() 
+    {
+        for (I32 i = 0; i < SLOT_COUNT; i++)
+            if (m_slots[i] == Block::Air)
+                return i;
+        return -1;
+    }
+};
+
+//**********************************************************************
+class PlayerActions : public Components::IComponent
 {
     F32 rayDistance;
     Components::Transform* transform;
 
 public:
-    PlayerController(F32 placeDistance = 10.0f) : rayDistance(placeDistance) {}
+    PlayerActions(F32 placeDistance = 10.0f) : rayDistance(placeDistance) {}
 
     void addedToGameObject(GameObject* go) override
     {
@@ -183,6 +282,83 @@ public:
 };
 
 //**********************************************************************
+class PlayerController : public Components::IComponent
+{
+    F32 rayDistance;
+    Components::Transform* transform;
+    PlayerInventory* inventory;
+    U32 curInventoryBlock;
+
+public:
+    PlayerController(F32 placeDistance = 10.0f) : rayDistance(placeDistance) {}
+
+    void addedToGameObject(GameObject* go) override
+    {
+        ACTION_MAPPER.attachMouseEvent(ACTION_NAME_DIG, MouseKey::LButton);
+        //ACTION_MAPPER.attachMouseEvent(ACTION_NAME_PLACE, MouseKey::RButton);
+        ACTION_MAPPER.attachKeyboardEvent(ACTION_NAME_PLACE, Key::E);
+        transform = getComponent<Components::Transform>();
+        inventory = getComponent<PlayerInventory>();
+        ASSERT(inventory && "Inventory Component is NULL!");
+    }
+
+    void tick(Time::Seconds delta) override
+    {
+        auto viewerDir = transform->rotation.getForward();
+        Physics::Ray ray(transform->position, viewerDir * rayDistance);
+
+        if (KEYBOARD.wasKeyPressed(Key::F))
+            LOG(inventory->toString(), Color::GREEN);
+
+        // Preview block
+        World::Get().RayCast(ray, [](const ChunkRayCastResult& result) {
+            Math::Vec3 blockSize(BLOCK_SIZE * 0.5f);
+            Math::Vec3 min = result.blockCenter - blockSize;
+            Math::Vec3 max = result.blockCenter + blockSize;
+            DEBUG.drawCube(min, max, Color::GREEN, 0); // @TODO: Should be replaced with a new gameobject and a custom shader/material
+        });
+
+        // Remove blocks
+        if (ACTION_MAPPER.wasKeyPressed(ACTION_NAME_DIG))
+        {
+            World::Get().RayCast(ray, [=](const ChunkRayCastResult& result) {
+                World::Get().SetVoxelAt(result.blockCenter, Block::Air);
+                inventory->add(result.block);
+                LOG(inventory->toString(), Color::GREEN);
+                //DEBUG.drawSphere(result.hitPoint, 0.1f, Color::RED, 10);
+                //DEBUG.drawRay(transform->position, ray.getDirection(), Color::BLUE, 10);
+            });
+        }
+
+        // Place block
+        if (ACTION_MAPPER.wasKeyPressed(ACTION_NAME_PLACE))
+        {
+            World::Get().RayCast(ray, [=](const ChunkRayCastResult& result) {
+                Math::Vec3 hitDir = result.hitPoint - result.blockCenter;
+
+                // Calculate where to place the new block by checking which component has the largest abs.
+                Math::Vec3 axis(0, 0, hitDir.z);
+                F32 xAbs = std::abs(hitDir.x);
+                F32 yAbs = std::abs(hitDir.y);
+                F32 zAbs = std::abs(hitDir.z);
+                if (xAbs > yAbs && xAbs > zAbs)
+                    axis = Math::Vec3(hitDir.x, 0, 0);
+                else if (yAbs > xAbs && yAbs > zAbs)
+                    axis = Math::Vec3(0, hitDir.y, 0);
+
+                // Set world voxel
+                Math::Vec3 newBlockPos = result.blockCenter + axis.normalized();
+
+                Block block = inventory->getCurrentBlock();
+                if (block != Block::Air)
+                    World::Get().SetVoxelAt(newBlockPos, block);
+                LOG(inventory->toString(), Color::GREEN);
+            });
+        }
+    }
+};
+
+//**********************************************************************
 class MyScene : public IScene
 {
 public:
@@ -191,16 +367,18 @@ public:
     void init() override
     {
         // CAMERA
-        auto go = createGameObject("Camera");
-        auto cam = go->addComponent<Components::Camera>();
-        go->getComponent<Components::Transform>()->position = Math::Vec3(0,0,-5);
-        go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 10.0f, 0.3f);
+        auto player = createGameObject("player");
+        auto cam = player->addComponent<Components::Camera>();
+        player->getComponent<Components::Transform>()->position = Math::Vec3(0,0,-5);
+        player->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 10.0f, 0.3f);
         //go->addComponent<Minimap>(500.0f, 50.0f);
-        go->addComponent<Components::AudioListener>();
+        player->addComponent<Components::AudioListener>();
         cam->setClearColor(Color::BLUE);
 
+        U32 blockInventorySize = 64;
+        player->addComponent<PlayerInventory>(blockInventorySize);
         F32 placeDistance = 10.0f;
-        go->addComponent<PlayerController>(placeDistance);
+        player->addComponent<PlayerController>(placeDistance);
 
         //auto cubemap = ASSETS.getCubemap("/cubemaps/tropical_sunny_day/Left.png", "/cubemaps/tropical_sunny_day/Right.png",
         //    "/cubemaps/tropical_sunny_day/Up.png", "/cubemaps/tropical_sunny_day/Down.png",
@@ -208,7 +386,7 @@ public:
         //go->addComponent<Components::Skybox>(cubemap);
 
         // GAMEOBJECTS
-        I32 chunkViewDistance = 32;
+        I32 chunkViewDistance = 8;
         auto worldGenerator = createGameObject("World Generation")->addComponent<WorldGeneration>(chunkViewDistance);
     }
 

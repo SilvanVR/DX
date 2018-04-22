@@ -25,18 +25,15 @@ struct TerrainType
 class WorldGeneration : public Components::IComponent
 {
     ArrayList<TerrainType>      m_regions;
+    F32                         m_terrainHeight = 30.0f;
 
     MaterialPtr                 m_chunkMaterial;
     MaterialPtr                 m_noiseMapMaterial;
 
-    F32     m_speed             = 10.0f;
-    F32     m_terrainHeight     = 30.0f;
-
-    std::unordered_map<Math::Vec2Int, ChunkPtr> m_terrainChunks;
-
     NoiseMapParams m_noiseParams = {
         50.0f, 2.0f, 0.3f, 4
     };
+    F32 m_speed = 10.0f;
 
     enum class DrawMode
     {

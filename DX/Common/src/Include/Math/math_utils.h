@@ -31,8 +31,8 @@ namespace Math {
                                                  F32 fovAngleYRad, F32 zNear, F32 zFar, F32 aspectRatio);
 
     //----------------------------------------------------------------------
-    template <typename T, typename T2> inline
-    T clamp( T val, T2 min, T2 max )
+    template <typename T, typename T2, typename T3> inline
+    T clamp( T val, T2 min, T3 max )
     {
         if (val < min)
             return min;

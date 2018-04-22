@@ -91,6 +91,7 @@ public:
 
     // Sets a voxel and regenerates the corresponding chunk(s).
     void SetVoxelAt(I32 x, I32 y, I32 z, Block block) { m_blockUpdates.emplace_back(x, y, z, block); }
+    void SetVoxelAt(const Math::Vec3& v, Block block) { m_blockUpdates.emplace_back((I32)v.x, (I32)v.y, (I32)v.z, block); }
 
     // Whenever the viewer reaches a point where a new chunk has to be generated,
     // this callback will be called and should initialize the data e.g. from a noise map.

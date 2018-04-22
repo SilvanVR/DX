@@ -28,9 +28,24 @@ public:
 
     bool operator==(const TBlock& rhs) const { return (m_uMaterial == rhs.m_uMaterial); };
     bool operator!=(const TBlock& rhs) const { return !(*this == rhs); }
+    bool operator<(const TBlock& rhs) const { return m_uMaterial < rhs.m_uMaterial; }
+    bool operator>(const TBlock& rhs) const { return m_uMaterial > rhs.m_uMaterial; }
 
     BlockType getMaterial() const { return m_uMaterial; }
     void setMaterial(BlockType uMaterial) { m_uMaterial = uMaterial; }
+
+    String toString() const {
+        switch (m_uMaterial)
+        {
+        case Air: return "Air";
+        case Sand: return "Sand";
+        case Gravel: return "Gravel";
+        case Dirt: return "Dirt";
+        case Stone: return "Stone";
+        case Snow: return "Snow";
+        }
+        return "UNKNOWN";
+    }
 
 private:
     BlockType m_uMaterial;
