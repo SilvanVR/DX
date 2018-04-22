@@ -25,6 +25,7 @@ namespace OS {
         //  "resolveVirtualPath": Resolve the path into a physical path
         //----------------------------------------------------------------------
         Path(const char* path, bool resolveVirtualPath = true);
+        Path(const String& path, bool resolveVirtualPath = true) : Path(path.c_str()) {}
         ~Path() = default;
 
         //----------------------------------------------------------------------

@@ -73,3 +73,17 @@ public:
         }
     }
 };
+
+class BlockDataBase
+{
+
+
+public:
+
+  /*  AudioClipPtr PlayDigSound(Block block)
+    {
+
+    }
+*/
+
+};

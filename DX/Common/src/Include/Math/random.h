@@ -58,7 +58,7 @@ namespace Math
     //**********************************************************************
 
     //---------------------------------------------------------------------------
-    inline I32 Random::Int( I32 min, I32 max)
+    inline I32 Random::Int( I32 min, I32 max )
     {
         return std::uniform_int_distribution<I32>{ min, max }( engine );
     }

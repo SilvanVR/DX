@@ -211,6 +211,8 @@ void World::_CalculateChunkVisibility()
 //----------------------------------------------------------------------
 void World::_PerformRayCasts()
 {
+    // Program rarely crashes when "m_generating" is uncommented, but otherwise raycasts can be delayed
+    // which causes a stuttering for the raycast physics system right now
     if ( not m_raycastRequestQueue.empty() /* && not m_generating */ )
     {
         while ( not m_raycastRequestQueue.empty() )

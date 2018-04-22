@@ -296,15 +296,19 @@ class PlayerController : public Components::IComponent
     F32 playerHeight = 2.0f;
     F32 jumpPower;
     F32 playerSize = 0.5f;
+    
+    AudioClipPtr digClips[4];
 
 public:
     PlayerController(F32 speed, F32 jumpPower, F32 placeDistance = 10.0f) : speed(speed), jumpPower(jumpPower), rayDistance(placeDistance) {}
 
     void addedToGameObject(GameObject* go) override
     {
+        for(I32 i = 0; i < 4; i++)
+            digClips[i] = ASSETS.getAudioClip(OS::Path("/audio/grass"+TS(i+1)+".wav"));
+
         ACTION_MAPPER.attachMouseEvent(ACTION_NAME_DIG, MouseKey::LButton);
-        //ACTION_MAPPER.attachMouseEvent(ACTION_NAME_PLACE, MouseKey::RButton);
-        ACTION_MAPPER.attachKeyboardEvent(ACTION_NAME_PLACE, Key::E);
+        ACTION_MAPPER.attachMouseEvent(ACTION_NAME_PLACE, MouseKey::RButton);
         ACTION_MAPPER.attachKeyboardEvent(ACTION_NAME_JUMP, Key::Space);
         transform = getComponent<Components::Transform>();
         inventory = getComponent<PlayerInventory>();
@@ -331,6 +335,8 @@ public:
                 World::Get().SetVoxelAt(result.blockCenter, Block::Air);
                 inventory->add(result.block);
                 LOG(inventory->toString(), Color::GREEN);
+
+                digClips[Math::Random::Int(3)]->play();
                 //DEBUG.drawSphere(result.hitPoint, 0.1f, Color::RED, 10);
                 //DEBUG.drawRay(transform->position, ray.getDirection(), Color::BLUE, 10);
             });
@@ -362,8 +368,11 @@ public:
                 // Set world voxel
                 Block block = inventory->getCurrentBlock();
                 if (block != Block::Air)
+                {
+                    digClips[Math::Random::Int(3)]->play();
                     World::Get().SetVoxelAt(newBlockPos, block);
-                LOG(inventory->toString(), Color::GREEN);
+                    LOG(inventory->toString(), Color::GREEN);
+                }
             });
         }
 
@@ -376,12 +385,9 @@ public:
         static Math::Vec3 playerVelocity;
 
         // LOOK ROTATION
-        if (MOUSE.isKeyDown(MouseKey::RButton))
-        {
-            auto deltaMouse = MOUSE.getMouseDelta();
-            transform->rotation *= Math::Quat(transform->rotation.getRight(), deltaMouse.y * fpsMouseSensitivity);
-            transform->rotation *= Math::Quat(Math::Vec3::UP, deltaMouse.x * fpsMouseSensitivity);
-        }
+        auto deltaMouse = MOUSE.getMouseDelta();
+        transform->rotation *= Math::Quat(transform->rotation.getRight(), deltaMouse.y * fpsMouseSensitivity);
+        transform->rotation *= Math::Quat(Math::Vec3::UP, deltaMouse.x * fpsMouseSensitivity);
 
         // JUMPING
         bool isOnGround = (playerVelocity.y == 0.0f);
@@ -430,6 +436,8 @@ public:
 //**********************************************************************
 class MyScene : public IScene
 {
+    Components::FPSCamera* fpsCam;
+    PlayerController* playerController;
 public:
     MyScene() : IScene("MyScene"){}
 
@@ -440,7 +448,8 @@ public:
         auto cam = player->addComponent<Components::Camera>();
         player->getComponent<Components::Transform>()->position = Math::Vec3(0, 100, -5);
         player->getComponent<Components::Transform>()->lookAt({0});
-        //player->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 10.0f, 0.3f);
+        fpsCam = player->addComponent<Components::FPSCamera>(Components::FPSCamera::FPS, 10.0f, 0.3f);
+        fpsCam->setActive(false);
         //go->addComponent<Minimap>(500.0f, 50.0f);
         player->addComponent<Components::AudioListener>();
         cam->setClearColor(Color::BLUE);
@@ -450,21 +459,30 @@ public:
         F32 placeDistance = 10.0f;
         F32 playerSpeed = 10.0f;
         F32 jumpPower = 15.0f;
-        player->addComponent<PlayerController>(playerSpeed, jumpPower, placeDistance);
+        playerController = player->addComponent<PlayerController>(playerSpeed, jumpPower, placeDistance);
 
         //auto cubemap = ASSETS.getCubemap("/cubemaps/tropical_sunny_day/Left.png", "/cubemaps/tropical_sunny_day/Right.png",
         //    "/cubemaps/tropical_sunny_day/Up.png", "/cubemaps/tropical_sunny_day/Down.png",
         //    "/cubemaps/tropical_sunny_day/Front.png", "/cubemaps/tropical_sunny_day/Back.png");
-        //go->addComponent<Components::Skybox>(cubemap);
+        //player->addComponent<Components::Skybox>(cubemap);
 
         // GAMEOBJECTS
         I32 chunkViewDistance = 8;
         auto worldGenerator = createGameObject("World Generation")->addComponent<WorldGeneration>(chunkViewDistance);
     }
 
-    void shutdown() override
+    void tick(Time::Seconds delta) override
     {
+        static bool b = false;
+        if (KEYBOARD.wasKeyPressed(Key::X))
+        {
+            playerController->setActive(b);
+            fpsCam->setActive(!b);
+            b = !b;
+        }
     }
+
+    void shutdown() override {}
 };
 
 class Game : public IGame
@@ -476,6 +494,7 @@ public:
         LOG( "Init game..." );
         OS::VirtualFileSystem::mount("textures", "res/textures");
         OS::VirtualFileSystem::mount("shaders", "res/shaders");
+        OS::VirtualFileSystem::mount("audio", "res/audio");
         gLogger->setSaveToDisk( false );
 
         Locator::getEngineClock().setInterval([] {
@@ -493,6 +512,7 @@ public:
         // This way the music manager will stay alife during the whole program.
         SCENE.createGameObject("MusicManager")->addComponent<MusicManager>(ArrayList<OS::Path>{"/audio/minecraft.wav", "/audio/minecraft2.wav"});
 
+        MOUSE.setFirstPersonMode(true); // Hide the mouse cursor has no effect on a separate thread, so just call it here
         Locator::getSceneManager().PushSceneAsync( new MyScene(), false );
     }
 
@@ -507,6 +527,8 @@ public:
             Locator::getRenderer().setGlobalMaterialActive("NONE");
         if (KEYBOARD.wasKeyPressed(Key::F2))
             Locator::getRenderer().setGlobalMaterialActive("Wireframe");
+        if (KEYBOARD.isKeyDown(Key::Escape))
+            terminate();
     }
 
     //----------------------------------------------------------------------
