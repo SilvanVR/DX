@@ -8,6 +8,7 @@
 
 #include "Ext/StbImage/stb_image.h"
 #include "locator.h"
+#include "Common/string_utils.h"
 
 namespace Core { namespace Assets {
 
@@ -32,7 +33,7 @@ namespace Core { namespace Assets {
     Texture2DPtr AssetManager::getTexture2D( const OS::Path& filePath, bool generateMips )
     {
         // Check if texture was already loaded
-        StringID pathAsID = SID( filePath.c_str() );
+        StringID pathAsID = SID( StringUtils::toLower( filePath.toString() ).c_str() );
         if ( m_textureCache.find( pathAsID ) != m_textureCache.end() )
         {
             auto weakPtr = m_textureCache[pathAsID].texture;
@@ -73,7 +74,7 @@ namespace Core { namespace Assets {
                                          const OS::Path& posZ, const OS::Path& negZ, bool generateMips )
     {
         // Check if cubemap was already loaded (checks only first path)
-        StringID pathAsID = SID( posX.c_str() );
+        StringID pathAsID = SID( StringUtils::toLower( posX.toString() ).c_str() );
         if ( m_cubemapCache.find( pathAsID ) != m_cubemapCache.end() )
         {
             auto weakPtr = m_cubemapCache[pathAsID].cubemap;
@@ -104,7 +105,7 @@ namespace Core { namespace Assets {
     AudioClipPtr AssetManager::getAudioClip( const OS::Path& filePath )
     {
         // Check if audio was already loaded
-        StringID pathAsID = SID( filePath.c_str() );
+        StringID pathAsID = SID( StringUtils::toLower( filePath.toString() ).c_str() );
         if ( m_audioCache.find( pathAsID ) != m_audioCache.end() )
         {
             auto weakPtr = m_audioCache[pathAsID].wavClip;

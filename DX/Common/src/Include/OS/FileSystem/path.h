@@ -36,6 +36,8 @@ namespace OS {
         const char*     c_str()     const { return m_path.c_str(); }
         const String&   toString()  const { return m_path; }
         bool            empty()     const { return m_path.empty(); }
+        bool operator == (const Path& p) { return m_path == p.m_path; }
+        bool operator != (const Path& p) { return m_path != p.m_path; }
 
         //----------------------------------------------------------------------
         // @Return: 

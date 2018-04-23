@@ -151,8 +151,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\noise_map.cpp" />
-    <ClCompile Include="src\world.cpp" />
+    <ClCompile Include="src\World\block_database.cpp" />
+    <ClCompile Include="src\World\Terrain Generator\noise_map.cpp" />
+    <ClCompile Include="src\World\world.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DX\DX.vcxproj">
@@ -160,11 +161,18 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\block.h" />
-    <ClInclude Include="src\noise_map.h" />
+    <ClInclude Include="src\World\block.hpp" />
+    <ClInclude Include="src\World\block_database.h" />
+    <ClInclude Include="src\World\chunk.h" />
     <ClInclude Include="src\ext\stb_perlin.hpp" />
-    <ClInclude Include="src\world.h" />
-    <ClInclude Include="src\world_generator.h" />
+    <ClInclude Include="src\World\noise_map_visualizer.h" />
+    <ClInclude Include="src\World\Terrain Generator\basic_terrain_generator.h" />
+    <ClInclude Include="src\World\Terrain Generator\flat_terrain_generator.h" />
+    <ClInclude Include="src\World\Terrain Generator\noise_map.h" />
+    <ClInclude Include="src\World\Terrain Generator\terrain_generator.h" />
+    <ClInclude Include="src\World\world.h" />
+    <ClInclude Include="src\World\world_constants.h" />
+    <ClInclude Include="src\World\world_generator.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

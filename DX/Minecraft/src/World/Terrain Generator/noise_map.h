@@ -1,5 +1,8 @@
 #pragma once
-#include <DX.h>
+#include "Common/data_types.hpp"
+#include "Common/string.h"
+#include "Common/macros.hpp"
+#include "Math/dxmath_wrapper.h"
 
 struct NoiseMapParams
 {

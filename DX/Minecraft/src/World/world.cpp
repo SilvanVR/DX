@@ -1,5 +1,5 @@
 #include "world.h"
-#include "noise_map.h"
+#include "block_database.h"
 
 #define CHUNK_COORD(x,y) Math::Vec2Int(static_cast<I32>(std::floorf((F32)(x) / CHUNK_SIZE)), static_cast<I32>(std::floorf((F32)(y) / CHUNK_SIZE)))
 
@@ -12,7 +12,10 @@ MaterialPtr World::CHUNK_MATERIAL = nullptr;
 //----------------------------------------------------------------------
 World::World() : m_volData( PolyVox::Region( PolyVox::Vector3DInt32( INT_MIN, INT_MIN, INT_MIN ),
                                              PolyVox::Vector3DInt32( INT_MAX, INT_MAX, INT_MAX ) ) )
-{}
+{
+
+
+}
 
 //----------------------------------------------------------------------
 void World::shutdown()
@@ -108,18 +111,16 @@ MeshPtr CreateMeshForRendering( const PolyVox::SurfaceMesh<PolyVox::PositionMate
 {
     auto chunk = RESOURCES.createMesh();
 
-    ArrayList<Math::Vec3>   vertices;
-    ArrayList<Math::Vec3>   normals;
-    ArrayList<Math::Vec2>   materials;
+    ArrayList<Math::Vec3> vertices;
+    ArrayList<Math::Vec3> normals;
+    ArrayList<Math::Vec2> materials;
     for ( auto& vertex : polyvoxMesh.getVertices() )
     {
         vertices.emplace_back( vertex.getPosition().getX(), vertex.getPosition().getY(), vertex.getPosition().getZ() );
         normals.emplace_back( vertex.getNormal().getX(), vertex.getNormal().getY(), vertex.getNormal().getZ() );
 
-        // Subtract minus 1, so the material range starts at 0 (cause 0 meant, there is no block)
-        // @TODO: GET MATERIAL INDICES FROM A DATABASE
-        U8 material = static_cast<U8>( vertex.getMaterial() + 0.5 ) - 1;
-        materials.emplace_back(Math::Vec2(material, material));
+        U8 material = static_cast<U8>( vertex.getMaterial() );
+        materials.emplace_back( BlockDatabase::GetBlockInfo( Block( material ) ).indices );
     }
 
     chunk->setVertices( vertices );
@@ -198,7 +199,7 @@ void World::_CalculateChunkVisibility()
                     else
                     {
                         // Create new chunk and queue it for generating
-                        auto newChunk = std::make_shared<Chunk>( chunkCoords );
+                        auto newChunk = std::make_shared<Chunk>( &m_volData, chunkCoords );
                         m_terrainChunks[chunkCoords] = newChunk;
                         m_chunkGenerationList.emplace_back( newChunk );
                     }
@@ -261,7 +262,7 @@ void World::_ExecuteChunkUpdates()
         // Can only generate one chunk here, cause if the player changes chunks, those chunks must be rebuild immediately
         auto nextChunk = m_chunkGenerationList.front();
         ASYNC_JOB([=] {
-            m_chunkCallback( m_volData, nextChunk );
+            m_chunkCallback( *nextChunk.get() );
             auto mesh = _GenerateMesh( nextChunk->bounds );
             m_chunkUpdateCompleteList.push_back({ nextChunk, mesh });
             m_generating = false;

@@ -1,7 +1,9 @@
 #include "noise_map.h"
 
 #define STB_PERLIN_IMPLEMENTATION 
-#include "ext/stb_perlin.hpp"
+#include "../../ext/stb_perlin.hpp"
+
+#include "Math/math_utils.h"
 
 NoiseMap::NoiseMap(I32 width, I32 height, const NoiseMapParams& params, Math::Vec2Int offset)
     : m_width(width), m_height(height)

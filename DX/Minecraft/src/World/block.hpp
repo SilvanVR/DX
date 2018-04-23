@@ -5,7 +5,7 @@
     author: S. Hau
     date: April 20, 2018
 **********************************************************************/
-#include <DX.h>
+
 #include "PolyVoxCore/CubicSurfaceExtractorWithNormals.h"
 
 //----------------------------------------------------------------------
@@ -20,10 +20,14 @@ public:
         Gravel,
         Dirt,
         Stone,
-        Snow
+        Snow,
+        Grass,
+        Oak,
+        OakLeaves
     };
 
     TBlock() : m_uMaterial(Block::Air) {}
+    TBlock(Type blockType) : m_uMaterial((BlockType)blockType) { }
     TBlock(BlockType blockType) : m_uMaterial(blockType) { }
 
     bool operator==(const TBlock& rhs) const { return (m_uMaterial == rhs.m_uMaterial); };
@@ -43,6 +47,9 @@ public:
         case Dirt: return "Dirt";
         case Stone: return "Stone";
         case Snow: return "Snow";
+        case Grass: return "Grass";
+        case Oak: return "Oak";
+        case OakLeaves: return "OakLeaves";
         }
         return "UNKNOWN";
     }
@@ -51,9 +58,7 @@ private:
     BlockType m_uMaterial;
 };
 
-
 using Block = TBlock<U8>;
-
 
 //----------------------------------------------------------------------
 template<typename Type>
@@ -72,18 +77,4 @@ public:
             return false;
         }
     }
-};
-
-class BlockDataBase
-{
-
-
-public:
-
-  /*  AudioClipPtr PlayDigSound(Block block)
-    {
-
-    }
-*/
-
 };

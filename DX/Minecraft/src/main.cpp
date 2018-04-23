@@ -10,7 +10,9 @@
 #include <DX.h>
 #define DISPLAY_CONSOLE 1
 
-#include "world_generator.h"
+#include "World/world_generator.h"
+#include "World/Terrain Generator/flat_terrain_generator.h"
+#include "World/Terrain Generator/basic_terrain_generator.h"
 
 #ifdef _DEBUG
     const char* gameName = "[DEBUG] Minecraft";
@@ -142,7 +144,10 @@ public:
         previewBlock = go->getScene()->createGameObject();
 
         // Create material / shader
-        previewBlockMaterial = RESOURCES.createMaterial(RESOURCES.createShader("TexShader", "/shaders/texVS.hlsl", "/shaders/texPS.hlsl"));
+        auto shader = RESOURCES.createShader("TexShader", "/shaders/texVS.hlsl", "/shaders/texPS.hlsl");
+        shader->setDepthStencilState({false});
+        shader->setPriority(100000);
+        previewBlockMaterial = RESOURCES.createMaterial(shader);
         previewBlock->addComponent<Components::MeshRenderer>(Core::Assets::MeshGenerator::CreateCubeUV(), previewBlockMaterial);
 
         // Adjust transform
@@ -248,9 +253,10 @@ private:
         {
             previewBlock->setActive(true);
 
-            auto tex = ASSETS.getTexture2D("/textures/blocks/" + block.toString() + ".png");
+            auto tex = ASSETS.getTexture2D(BlockDatabase::GetBlockInfo(block).topBottom);
             tex->setAnisoLevel(1);
             tex->setFilter(Graphics::TextureFilter::Point);
+       
             previewBlockMaterial->setTexture("tex", tex);
         }
         else
@@ -484,7 +490,7 @@ public:
 
     void init() override
     {
-        // CAMERA
+        // PLAYER
         auto player = createGameObject("player");
         auto cam = player->addComponent<Components::Camera>();
         player->getComponent<Components::Transform>()->position = Math::Vec3(0, 100, -5);
@@ -508,8 +514,11 @@ public:
         //player->addComponent<Components::Skybox>(cubemap);
 
         // GAMEOBJECTS
+        //auto generator = std::make_shared<FlatTerrainGenerator>();
+        auto generator = std::make_shared<BasicTerrainGenerator>();
+
         I32 chunkViewDistance = 8;
-        auto worldGenerator = createGameObject("World Generation")->addComponent<WorldGeneration>(chunkViewDistance);
+        auto worldGenerator = createGameObject("World Generation")->addComponent<WorldGeneration>(generator, chunkViewDistance);
     }
 
     void tick(Time::Seconds delta) override

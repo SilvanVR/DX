@@ -12,12 +12,8 @@
 #include "PolyVoxCore/LargeVolume.h"
 #include "PolyVoxCore/Raycast.h"
 #include "Physics/ray.h"
-#include "block.h"
+#include "chunk.h"
 #include <list>
-
-#define CHUNK_SIZE      16
-#define CHUNK_HEIGHT    64
-#define BLOCK_SIZE      1
 
 inline Math::Vec3               ConvertVector(const PolyVox::Vector3DFloat& v) { return Math::Vec3(v.getX(), v.getY(), v.getZ()); }
 inline Math::Vec3               ConvertVector(const PolyVox::Vector3DInt32& v) { return Math::Vec3((F32)v.getX(), (F32)v.getY(), (F32)v.getZ()); }
@@ -47,34 +43,8 @@ struct ChunkRayCastResult
     Block       block       = Block::Air;
 };
 
-typedef std::function<void(const ChunkRayCastResult&)> RaycastCallback;
-
-//**********************************************************************
-class Chunk
-{
-public:
-    GameObject*     go;
-    Math::Vec2Int   position;
-    Math::AABB      bounds;
-
-    Chunk(const Math::Vec2Int& tilePos)
-        : position( tilePos * CHUNK_SIZE )
-    {
-        Math::Vec3 posV3( (F32)position.x, -CHUNK_HEIGHT, (F32)position.y );
-
-        bounds.getMin() = posV3;
-        bounds.getMax() = bounds.getMin() + Math::Vec3( CHUNK_SIZE, 2 * CHUNK_HEIGHT, CHUNK_SIZE );
-
-        go = SCENE.createGameObject("CHUNK");
-        go->getTransform()->position = posV3;
-        go->addComponent<Components::MeshRenderer>();
-    }
-
-    void setActive(bool b) const { go->setActive( b ); }
-};
-
-using ChunkPtr = std::shared_ptr<Chunk>;
-typedef std::function<void(PolyVox::LargeVolume<Block>&, const ChunkPtr&)> ChunkCallback;
+typedef std::function<void(const ChunkRayCastResult&)>  RaycastCallback;
+typedef std::function<void(Chunk&)>                     ChunkCallback;
 
 //**********************************************************************
 class World
