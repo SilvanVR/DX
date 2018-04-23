@@ -1,3 +1,12 @@
+/**********************************************************************    
+    author: S. Hau
+    date: April, 2018
+
+    This is a fairly simple minecraft clone.
+    Be aware that the code was written fast, so i might did some things
+    which are not very efficient and the code looks not very clean.
+**********************************************************************/
+
 #include <DX.h>
 #define DISPLAY_CONSOLE 1
 
@@ -14,21 +23,6 @@
 #define ACTION_NAME_JUMP    "jump"
 
 static const F32 GRAVITY = -0.7f;
-
-//**********************************************************************
-class DrawFrustum : public Components::IComponent
-{
-public:
-    void addedToGameObject(GameObject* go) override
-    {
-        auto cam = go->getComponent<Components::Camera>();
-        auto mesh = Core::Assets::MeshGenerator::CreateFrustum(Math::Vec3(0), Math::Vec3::UP, Math::Vec3::RIGHT, Math::Vec3::FORWARD,
-            cam->getFOV(), cam->getZNear(), cam->getZFar(), cam->getAspectRatio());
-
-        auto mr = go->addComponent<Components::MeshRenderer>();
-        mr->setMesh(mesh);
-    }
-};
 
 //**********************************************************************
 class Minimap : public Components::IComponent
@@ -137,14 +131,40 @@ class PlayerInventory : public Components::IComponent, public Core::Input::IMous
     I32     m_curSlot = 0;
     Block   m_slots[SLOT_COUNT];
 
+    GameObject* previewBlock;
+    MaterialPtr previewBlockMaterial;
+
 public:
     PlayerInventory(U32 maxCountPerItem = 64) : m_maxCountPerItem(maxCountPerItem) {}
+
+    void addedToGameObject(GameObject* go) override
+    {
+        previewBlock = go->getScene()->createGameObject();
+
+        // Create material / shader
+        previewBlockMaterial = RESOURCES.createMaterial(RESOURCES.createShader("TexShader", "/shaders/texVS.hlsl", "/shaders/texPS.hlsl"));
+        previewBlock->addComponent<Components::MeshRenderer>(Core::Assets::MeshGenerator::CreateCubeUV(), previewBlockMaterial);
+
+        // Adjust transform
+        auto transform = previewBlock->getTransform();
+        transform->scale = { 0.15f };
+        transform->rotation = Math::Quat::FromEulerAngles( 45.0f, 45.0f, 0.0f );
+        transform->position = { 0.35f, -0.3f, 1.0f };
+
+        // Attach block to camera
+        transform->setParent( go->getTransform(), false );
+
+        // Disable at start
+        previewBlock->setActive( false );
+    }
 
     void OnMouseWheel(I16 delta) override
     {
         // Change slot per mouse wheel
         m_curSlot = (m_curSlot + delta) % SLOT_COUNT;
         m_curSlot = m_curSlot < 0 ? 0 : m_curSlot;
+
+        _UpdatePreviewBlock();
         LOG(toString(), Color::GREEN);
     }
 
@@ -163,6 +183,7 @@ public:
                 return false;
             m_inventory[block].slot = nextFreeSlot;
             m_slots[nextFreeSlot] = block;
+            _UpdatePreviewBlock();
         }
 
         m_inventory[block].count++;
@@ -181,6 +202,7 @@ public:
         {
             m_slots[m_inventory[block].slot] = Block::Air;
             m_inventory.erase(block);
+            _UpdatePreviewBlock();
         }
         return true;
     }
@@ -217,6 +239,24 @@ private:
             if (m_slots[i] == Block::Air)
                 return i;
         return -1;
+    }
+
+    void _UpdatePreviewBlock()
+    {
+        Block block = m_slots[m_curSlot];
+        if (block != Block::Air)
+        {
+            previewBlock->setActive(true);
+
+            auto tex = ASSETS.getTexture2D("/textures/blocks/" + block.toString() + ".png");
+            tex->setAnisoLevel(1);
+            tex->setFilter(Graphics::TextureFilter::Point);
+            previewBlockMaterial->setTexture("tex", tex);
+        }
+        else
+        {
+            previewBlock->setActive(false);
+        }
     }
 };
 
@@ -296,7 +336,7 @@ class PlayerController : public Components::IComponent
     F32 playerHeight = 2.0f;
     F32 jumpPower;
     F32 playerSize = 0.5f;
-    
+
     AudioClipPtr digClips[4];
 
 public:
@@ -436,8 +476,9 @@ public:
 //**********************************************************************
 class MyScene : public IScene
 {
-    Components::FPSCamera* fpsCam;
-    PlayerController* playerController;
+    Components::FPSCamera*  fpsCam;
+    PlayerController*       playerController;
+
 public:
     MyScene() : IScene("MyScene"){}
 
@@ -450,7 +491,7 @@ public:
         player->getComponent<Components::Transform>()->lookAt({0});
         fpsCam = player->addComponent<Components::FPSCamera>(Components::FPSCamera::FPS, 10.0f, 0.3f);
         fpsCam->setActive(false);
-        //go->addComponent<Minimap>(500.0f, 50.0f);
+        //player->addComponent<Minimap>(500.0f, 10.0f);
         player->addComponent<Components::AudioListener>();
         cam->setClearColor(Color::BLUE);
 
