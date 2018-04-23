@@ -29,6 +29,7 @@ namespace Core { namespace Resources {
     const static CString SHADER_DEFAULT_NAME    = "DEFAULT";
     const static CString SHADER_WIREFRAME_NAME  = "WIREFRAME";
     const static CString SHADER_ERROR_NAME      = "ERROR";
+    const static CString SHADER_COLOR_NAME      = "COLOR";
 
     //*********************************************************************
     class ResourceManager : public ISubSystem
@@ -122,6 +123,8 @@ namespace Core { namespace Resources {
 
         const MaterialPtr&      getDefaultMaterial() const { return m_defaultMaterial; }
         const ShaderPtr&        getDefaultShader()   const { return m_defaultShader; }
+        const ShaderPtr&        getColorShader() const { return m_colorShader; }
+        const MaterialPtr&      getColorMaterial() const { return m_colorMaterial; }
 
         const Texture2DPtr&     getBlackTexture() const { return m_black; }
         const Texture2DPtr&     getWhiteTexture() const { return m_white; }
@@ -138,9 +141,11 @@ namespace Core { namespace Resources {
         ShaderPtr       m_defaultShader;
         ShaderPtr       m_errorShader;
         ShaderPtr       m_wireframeShader;
+        ShaderPtr       m_colorShader;
 
         MaterialPtr     m_defaultMaterial;
         MaterialPtr     m_wireframeMaterial;
+        MaterialPtr     m_colorMaterial;
 
         Texture2DPtr    m_black;
         Texture2DPtr    m_white;

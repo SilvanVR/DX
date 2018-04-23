@@ -98,8 +98,7 @@ public:
         mesh->setColors(planeColors);
         mesh->setBufferUsage(Graphics::BufferUsage::Frequently);
 
-        mr = go->addComponent<Components::MeshRenderer>();
-        mr->setMesh(mesh);
+        mr = go->addComponent<Components::MeshRenderer>(mesh, RESOURCES.getColorMaterial());
     }
 
     void tick(Time::Seconds delta)
@@ -140,8 +139,7 @@ public:
         transform->rotation = Math::Quat(Math::Vec3::RIGHT, 90);
         transform->position = Math::Vec3(-(width/2.0f), -2.0f, -(height/2.0f));
 
-        mr = go->addComponent<Components::MeshRenderer>();
-        mr->setMesh(mesh);
+        mr = go->addComponent<Components::MeshRenderer>(mesh, RESOURCES.getColorMaterial());
     }
 
     void tick(Time::Seconds delta)
@@ -188,7 +186,7 @@ public:
     void addedToGameObject(GameObject* go) override
     {
         auto mesh = Assets::MeshGenerator::CreateGrid(m_size);
-        go->addComponent<Components::MeshRenderer>(mesh);
+        go->addComponent<Components::MeshRenderer>(mesh, RESOURCES.getColorMaterial());
     }
 
 private:
@@ -247,8 +245,7 @@ public:
         auto mesh = Assets::MeshGenerator::CreateFrustum( Math::Vec3(0), Math::Vec3::UP, Math::Vec3::RIGHT, Math::Vec3::FORWARD, 
                                                           cam->getFOV(), cam->getZNear(), cam->getZFar(), cam->getAspectRatio() );
 
-        auto mr = go->addComponent<Components::MeshRenderer>();
-        mr->setMesh( mesh );
+        auto mr = go->addComponent<Components::MeshRenderer>(mesh, RESOURCES.getColorMaterial());
     }
 };
 
@@ -285,7 +282,7 @@ public:
         sphere->setColors(sphereColors);
 
         go2 = createGameObject("Mesh");
-        go2->addComponent<Components::MeshRenderer>(sphere);
+        go2->addComponent<Components::MeshRenderer>(sphere, RESOURCES.getColorMaterial());
         go2->addComponent<ConstantRotation>(0.0f, 20.0f, 0.0f);
 
         auto& viewport = cam->getViewport();
@@ -385,17 +382,17 @@ public:
         {
             goModel = createGameObject("Test");
             goModel->addComponent<ConstantRotation>(0.0f, 20.0f, 20.0f);
-            auto mr = goModel->addComponent<Components::MeshRenderer>(cube);
+            auto mr = goModel->addComponent<Components::MeshRenderer>(cube, RESOURCES.getColorMaterial());
 
             GameObject* goModel2 = createGameObject("Test");
             goModel2->getComponent<Components::Transform>()->position = {5,0,0};
             goModel2->addComponent<ConstantRotation>(20.0f, 20.0f, 0.0f);
-            mr = goModel2->addComponent<Components::MeshRenderer>(sphere);
+            mr = goModel2->addComponent<Components::MeshRenderer>(sphere, RESOURCES.getColorMaterial());
 
             GameObject* goModel3 = createGameObject("Test");
             goModel3->getComponent<Components::Transform>()->position = { -5,0,0 };
             goModel3->addComponent<ConstantRotation>(0.0f, 0.0f, 20.0f);
-            mr = goModel3->addComponent<Components::MeshRenderer>(plane);
+            mr = goModel3->addComponent<Components::MeshRenderer>(plane, RESOURCES.getColorMaterial());
         }
 
         {
@@ -448,7 +445,7 @@ public:
         for (U32 i = 0; i < m_numObjects; i++)
         {
             auto go = createGameObject("Test");
-            go->addComponent<Components::MeshRenderer>(cube);
+            go->addComponent<Components::MeshRenderer>(cube, RESOURCES.getColorMaterial());
             go->getComponent<Components::Transform>()->position = Math::Random::Vec3(-1,1).normalized() * sqrtf((F32)m_numObjects);
         }
 
@@ -701,6 +698,66 @@ public:
     void shutdown() override { LOG("TexArrayScene Shutdown!", Color::RED); }
 };
 
+class AsyncLoadScene : public IScene
+{
+    MaterialPtr material;
+
+public:
+    AsyncLoadScene() : IScene("AsyncLoadScene") {}
+
+    void init() override
+    {
+        // Camera
+        auto go = createGameObject("Camera");
+        auto cam = go->addComponent<Components::Camera>();
+        go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -10);
+        go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 10.0f, 0.3f);
+
+        auto go3 = createGameObject("Camera2");
+        auto cam2 = go3->addComponent<Components::Camera>();
+        go3->getComponent<Components::Transform>()->position = Math::Vec3(0, 5, -10);
+        go3->addComponent<AutoOrbiting>(10.0f);
+
+        cam2->setClearMode(Components::Camera::EClearMode::NONE);
+        cam2->setZFar(20.0f);
+        cam2->getViewport().width = 0.25f;
+        cam2->getViewport().height = 0.25f;
+
+        go3->addComponent<DrawFrustum>();
+
+        createGameObject("Grid")->addComponent<GridGeneration>(20);
+
+        // SHADER
+        auto texShader = RESOURCES.createShader("TexShader", "/shaders/texVS.hlsl", "/shaders/texPS.hlsl");
+
+        // MATERIAL
+        material = RESOURCES.createMaterial();
+        material->setShader(texShader);
+        material->setTexture(SID("tex0"), ASSETS.getTexture2D("/textures/dirt.jpg"));
+        material->setTexture(SID("tex1"), ASSETS.getTexture2D("/textures/nico.jpg"));
+        material->setFloat(SID("mix"), 0.0f);
+        material->setColor(SID("tintColor"), Color::WHITE);
+
+        // MESH
+        auto mesh = Assets::MeshGenerator::CreateCubeUV();
+        mesh->setColors(cubeColors);
+
+        // GAMEOBJECT
+        auto go2 = createGameObject("Test2");
+        go2->addComponent<Components::MeshRenderer>(mesh, material);
+
+        LOG("AsyncLoadScene initialized!", Color::RED);
+    }
+
+    void tick(Time::Seconds d) override
+    {
+        if (KEYBOARD.wasKeyPressed(Key::L))
+            ASSETS.getTexture2DAsync("/textures/4k.jpg", true, [=](Texture2DPtr tex) { material->setTexture(SID("tex0"), tex); });
+    }
+
+    void shutdown() override { LOG("AsyncLoadScene Shutdown!", Color::RED); }
+};
+
 class TestScene : public IScene
 {
     GameObject* go2;
@@ -755,8 +812,6 @@ public:
 
     void tick(Time::Seconds d) override
     {
-        if (KEYBOARD.wasKeyPressed(Key::L))
-            ASSETS.getTexture2DAsync("/textures/4k.jpg", true, [=](Texture2DPtr tex) { material->setTexture(SID("tex0"), tex); });
     }
 
     void shutdown() override { LOG("TestScene Shutdown!", Color::RED); }

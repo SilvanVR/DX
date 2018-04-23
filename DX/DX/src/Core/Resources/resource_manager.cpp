@@ -270,12 +270,22 @@ namespace Core { namespace Resources {
             m_wireframeShader->compileFromSource( DEFAULT_VERTEX_SHADER_SOURCE, DEFAULT_FRAGMENT_SHADER_SOURCE, "main" );
 
             m_shaders.push_back( m_wireframeShader.get() );
+
+            // Default shader
+            m_colorShader = ShaderPtr( Locator::getRenderer().createShader(), BIND_THIS_FUNC_1_ARGS( &ResourceManager::_DeleteShader ) );
+            m_colorShader->setName( SHADER_COLOR_NAME );
+
+            if ( not m_colorShader->compileFromSource( COLOR_VERTEX_SHADER_SOURCE, COLOR_FRAGMENT_SHADER_SOURCE, "main") )
+                ERROR( "Color shader source didn't compile. This is mandatory!" );
+
+            m_shaders.push_back( m_colorShader.get() );
         }
 
         // MATERIALS
         {
             m_defaultMaterial   = createMaterial( m_defaultShader );
             m_wireframeMaterial = createMaterial( m_wireframeShader );
+            m_colorMaterial = createMaterial( m_colorShader );
 
             Locator::getRenderer().addGlobalMaterial( "Wireframe", m_wireframeMaterial );
         }
