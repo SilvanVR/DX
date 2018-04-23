@@ -40,7 +40,7 @@ struct ChunkRayCastResult
 {
     Math::Vec3  hitPoint    = Math::Vec3(0, 0, 0);
     Math::Vec3  blockCenter = Math::Vec3(0, 0, 0);
-    Block       block       = Block::Air;
+    Block       block       = AIR_BLOCK;
 };
 
 typedef std::function<void(const ChunkRayCastResult&)>  RaycastCallback;

@@ -25,11 +25,11 @@ public:
     {
         //m_regions.push_back(TerrainType{ "Water", 0.3f, Color(0x4286f4), BlockType::Water });
         //m_regions.push_back(TerrainType{ "WaterShallow", 0.4f, Color(0x82cdff), BlockType::Water });
-        m_regions.push_back(TerrainType{ "Sand", 0.3f, Block::Sand });
-        m_regions.push_back(TerrainType{ "Gravel", 0.35f, Block::Gravel });
-        m_regions.push_back(TerrainType{ "Grass", 0.7f, Block::Grass });
-        m_regions.push_back(TerrainType{ "Stone", 0.9f, Block::Stone });
-        m_regions.push_back(TerrainType{ "Snow", 1.0f, Block::Snow });
+        m_regions.push_back(TerrainType{ "Sand", 0.3f, Block("sand") });
+        m_regions.push_back(TerrainType{ "Gravel", 0.35f, Block("gravel") });
+        m_regions.push_back(TerrainType{ "Grass", 0.7f, Block("grass") });
+        m_regions.push_back(TerrainType{ "Stone", 0.8f, Block("stone") });
+        m_regions.push_back(TerrainType{ "Snow", 1.0f, Block("snow") });
     }
 
     void generateTerrainFor(Chunk& chunk) override
@@ -66,6 +66,6 @@ private:
                 return region.block;
 
         ASSERT(false);
-        return Block::Air;
+        return Block("air");
     }
 };

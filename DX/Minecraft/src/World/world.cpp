@@ -69,7 +69,7 @@ bool World::_RayCast( const Physics::Ray& ray, ChunkRayCastResult* result )
     auto cb = [&]( const PolyVox::LargeVolume<Block>::Sampler& sampler ) -> bool
     {
         auto voxel = sampler.getVoxel();
-        if ( voxel == Block::Air )
+        if ( voxel == AIR_BLOCK )
             return true; // Continues raycast
 
         result->block = voxel;
@@ -120,7 +120,7 @@ MeshPtr CreateMeshForRendering( const PolyVox::SurfaceMesh<PolyVox::PositionMate
         normals.emplace_back( vertex.getNormal().getX(), vertex.getNormal().getY(), vertex.getNormal().getZ() );
 
         U8 material = static_cast<U8>( vertex.getMaterial() );
-        materials.emplace_back( BlockDatabase::GetBlockInfo( Block( material ) ).indices );
+        materials.emplace_back( BlockDatabase::Get().getBlockInfo( material ).texIndices );
     }
 
     chunk->setVertices( vertices );

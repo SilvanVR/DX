@@ -7,55 +7,29 @@
 **********************************************************************/
 
 #include "PolyVoxCore/CubicSurfaceExtractorWithNormals.h"
+#include "block_database.h"
+
+#define AIR_BLOCK Block("air")
 
 //----------------------------------------------------------------------
 template <typename Type>
 class TBlock
 {
 public:
-    enum BlockType : Type
-    {
-        Air = 0,
-        Sand,
-        Gravel,
-        Dirt,
-        Stone,
-        Snow,
-        Grass,
-        Oak,
-        OakLeaves
-    };
-
-    TBlock() : m_uMaterial(Block::Air) {}
-    TBlock(Type blockType) : m_uMaterial((BlockType)blockType) { }
-    TBlock(BlockType blockType) : m_uMaterial(blockType) { }
+    TBlock() : m_uMaterial(0) {}
+    TBlock(Type blockType) : m_uMaterial(blockType) { }
+    TBlock(const String& name) : m_uMaterial( (U8)BlockDatabase::Get().getBlockInfo(name).index ) {}
 
     bool operator==(const TBlock& rhs) const { return (m_uMaterial == rhs.m_uMaterial); };
     bool operator!=(const TBlock& rhs) const { return !(*this == rhs); }
     bool operator<(const TBlock& rhs) const { return m_uMaterial < rhs.m_uMaterial; }
     bool operator>(const TBlock& rhs) const { return m_uMaterial > rhs.m_uMaterial; }
 
-    BlockType getMaterial() const { return m_uMaterial; }
-    void setMaterial(BlockType uMaterial) { m_uMaterial = uMaterial; }
-
-    String toString() const {
-        switch (m_uMaterial)
-        {
-        case Air: return "Air";
-        case Sand: return "Sand";
-        case Gravel: return "Gravel";
-        case Dirt: return "Dirt";
-        case Stone: return "Stone";
-        case Snow: return "Snow";
-        case Grass: return "Grass";
-        case Oak: return "Oak";
-        case OakLeaves: return "OakLeaves";
-        }
-        return "UNKNOWN";
-    }
+    Type getMaterial() const { return m_uMaterial; }
+    void setMaterial(Type uMaterial) { m_uMaterial = uMaterial; }
 
 private:
-    BlockType m_uMaterial;
+    Type m_uMaterial;
 };
 
 using Block = TBlock<U8>;

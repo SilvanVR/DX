@@ -48,30 +48,20 @@ private:
     //----------------------------------------------------------------------
     void _SetupShaderAndMaterial()
     {
-        ArrayList<BlockInfo> blockInfos;
-        blockInfos.emplace_back( Block::Dirt, "/textures/blocks/dirt.png");
-        blockInfos.emplace_back( Block::Sand, "/textures/blocks/sand.png");
-        blockInfos.emplace_back( Block::Gravel, "/textures/blocks/gravel.png");
-        blockInfos.emplace_back( Block::Stone, "/textures/blocks/stone.png");
-        blockInfos.emplace_back( Block::Snow, "/textures/blocks/snow.png");
-        blockInfos.emplace_back( Block::Grass, "/textures/blocks/grass_side.png", "/textures/blocks/grass_top.png" );
-        blockInfos.emplace_back( Block::Oak, "/textures/blocks/log_oak.png", "/textures/blocks/log_oak_top.png");
-        blockInfos.emplace_back( Block::OakLeaves, "/textures/blocks/leaves_oak.png");
-
         I32 textureIndex = 0;
-        for (auto& blockInfo : blockInfos)
+        for ( auto& pair : BlockDatabase::Get().getBlockInfos() )
         {
-            blockInfo.indices = (F32)textureIndex++;
+            auto& blockInfo = pair.second;
+
+            blockInfo.texIndices = (F32)textureIndex++;
             m_blockTextures.push_back( ASSETS.getTexture2D( blockInfo.topBottom ) );
 
             // Add sideblock if the block looks different on the side
             if (blockInfo.topBottom != blockInfo.side)
             {
-                blockInfo.indices.y = (F32)textureIndex++;
+                blockInfo.texIndices.y = (F32)textureIndex++;
                 m_blockTextures.push_back( ASSETS.getTexture2D( blockInfo.side ) );
             }
-
-            BlockDatabase::AddBlockInfo( blockInfo );
         }
 
         auto texArr = RESOURCES.createTexture2DArray( m_blockTextures[0]->getWidth(), m_blockTextures[0]->getHeight(),

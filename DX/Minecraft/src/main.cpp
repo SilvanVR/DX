@@ -205,7 +205,7 @@ public:
         m_inventory[block].count--;
         if (m_inventory[block].count == 0)
         {
-            m_slots[m_inventory[block].slot] = Block::Air;
+            m_slots[m_inventory[block].slot] = AIR_BLOCK;
             m_inventory.erase(block);
             _UpdatePreviewBlock();
         }
@@ -222,7 +222,7 @@ public:
     {
         Block block = m_slots[m_curSlot];
         if ( not remove( block ) )
-            return Block::Air;
+            return AIR_BLOCK;
 
         return block;
     }
@@ -232,8 +232,8 @@ public:
         String result = "\n<<<< Inventory >>>>";
         if (m_inventory.empty()) return result + "\nEmpty!";
         for (auto& pair : m_inventory)
-            result += "\n" + pair.first.toString() + ": " + TS(pair.second.count) + " ["+ TS(pair.second.slot)+ "]";
-        result += "\nCurrent Slot: " + TS(m_curSlot) + "(" + m_slots[m_curSlot].toString() + ")";
+            result += "\n" + BlockDatabase::Get().getBlockName(pair.first.getMaterial()) + ": " + TS(pair.second.count) + " ["+ TS(pair.second.slot)+ "]";
+        result += "\nCurrent Slot: " + TS(m_curSlot) + "(" + BlockDatabase::Get().getBlockName(m_slots[m_curSlot].getMaterial()) + ")";
         return result;
     }
 
@@ -241,7 +241,7 @@ private:
     I32 _NextFreeSlot() 
     {
         for (I32 i = 0; i < SLOT_COUNT; i++)
-            if (m_slots[i] == Block::Air)
+            if (m_slots[i] == AIR_BLOCK)
                 return i;
         return -1;
     }
@@ -249,11 +249,11 @@ private:
     void _UpdatePreviewBlock()
     {
         Block block = m_slots[m_curSlot];
-        if (block != Block::Air)
+        if (block != AIR_BLOCK)
         {
             previewBlock->setActive(true);
 
-            auto tex = ASSETS.getTexture2D(BlockDatabase::GetBlockInfo(block).topBottom);
+            auto tex = ASSETS.getTexture2D(BlockDatabase::Get().getBlockInfo(block.getMaterial()).topBottom);
             tex->setAnisoLevel(1);
             tex->setFilter(Graphics::TextureFilter::Point);
        
@@ -262,70 +262,6 @@ private:
         else
         {
             previewBlock->setActive(false);
-        }
-    }
-};
-
-//**********************************************************************
-class PlayerActions : public Components::IComponent
-{
-    F32 rayDistance;
-    Components::Transform* transform;
-
-public:
-    PlayerActions(F32 placeDistance = 10.0f) : rayDistance(placeDistance) {}
-
-    void addedToGameObject(GameObject* go) override
-    {
-        ACTION_MAPPER.attachMouseEvent(ACTION_NAME_DIG, MouseKey::LButton);
-        //ACTION_MAPPER.attachMouseEvent(ACTION_NAME_PLACE, MouseKey::RButton);
-        ACTION_MAPPER.attachKeyboardEvent(ACTION_NAME_PLACE, Key::E);
-        transform = getComponent<Components::Transform>();
-    }
-
-    void tick(Time::Seconds delta) override
-    {
-        auto viewerDir = transform->rotation.getForward();
-        Physics::Ray ray(transform->position, viewerDir * rayDistance);
-
-        // Preview block
-        World::Get().RayCast(ray, [](const ChunkRayCastResult& result){
-            Math::Vec3 blockSize(BLOCK_SIZE * 0.5f);
-            Math::Vec3 min = result.blockCenter - blockSize;
-            Math::Vec3 max = result.blockCenter + blockSize;
-            DEBUG.drawCube( min, max, Color::GREEN, 0 );
-        });
-
-        // Remove blocks
-        if ( ACTION_MAPPER.wasKeyPressed(ACTION_NAME_DIG) )
-        {
-            World::Get().RayCast(ray, [=](const ChunkRayCastResult& result) {
-                World::Get().SetVoxelAt((I32)result.blockCenter.x, (I32)result.blockCenter.y, (I32)result.blockCenter.z, Block::Air);
-                //DEBUG.drawSphere(result.hitPoint, 0.1f, Color::RED, 10);
-                //DEBUG.drawRay(transform->position, ray.getDirection(), Color::BLUE, 10);
-            });
-        }
-
-        // Place block
-        if ( ACTION_MAPPER.wasKeyPressed(ACTION_NAME_PLACE) )
-        {
-            World::Get().RayCast(ray, [=](const ChunkRayCastResult& result) {
-                Math::Vec3 hitDir = result.hitPoint - result.blockCenter;
-
-                // Calculate where to place the new block by checking which component has the largest abs.
-                Math::Vec3 axis(0, 0, hitDir.z);
-                F32 xAbs = std::abs(hitDir.x);
-                F32 yAbs = std::abs(hitDir.y);
-                F32 zAbs = std::abs(hitDir.z);
-                if (xAbs > yAbs && xAbs > zAbs)
-                    axis = Math::Vec3(hitDir.x, 0, 0);
-                else if (yAbs > xAbs && yAbs > zAbs)
-                    axis = Math::Vec3(0, hitDir.y, 0);
-
-                // Set world voxel
-                Math::Vec3 block = result.blockCenter + axis.normalized();
-                World::Get().SetVoxelAt((I32)block.x, (I32)block.y, (I32)block.z, Block::Sand);
-            });
         }
     }
 };
@@ -378,7 +314,7 @@ public:
         if (ACTION_MAPPER.wasKeyPressed(ACTION_NAME_DIG))
         {
             World::Get().RayCast(ray, [=](const ChunkRayCastResult& result) {
-                World::Get().SetVoxelAt(result.blockCenter, Block::Air);
+                World::Get().SetVoxelAt(result.blockCenter, AIR_BLOCK);
                 inventory->add(result.block);
                 LOG(inventory->toString(), Color::GREEN);
 
@@ -413,7 +349,7 @@ public:
 
                 // Set world voxel
                 Block block = inventory->getCurrentBlock();
-                if (block != Block::Air)
+                if (block != AIR_BLOCK)
                 {
                     digClips[Math::Random::Int(3)]->play();
                     World::Get().SetVoxelAt(newBlockPos, block);
