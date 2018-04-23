@@ -64,7 +64,16 @@ namespace Core { namespace Assets {
         //----------------------------------------------------------------------
         AudioClipPtr getAudioClip(const OS::Path& path);
 
+        //----------------------------------------------------------------------
+        // Enable/Disable hot reloading. The asset manager will periodically check
+        // all loaded resource files and reload them if they are outdated. (Note that not all resource types are supported)
+        //----------------------------------------------------------------------
+        void setHotReloading(bool enabled);
+
     private:
+        CallbackID m_hotReloadingCallback = 0;
+        bool m_hotReloading = false;
+
         struct FileInfo
         {
             OS::Path            path;
@@ -101,6 +110,7 @@ namespace Core { namespace Assets {
         inline CubemapPtr _LoadCubemap(const OS::Path& posX, const OS::Path& negX, 
                                        const OS::Path& posY, const OS::Path& negY,
                                        const OS::Path& posZ, const OS::Path& negZ, bool generateMips);
+        void _EnableHotReloading();
 
         //----------------------------------------------------------------------
         AssetManager(const AssetManager& other)                 = delete;

@@ -336,7 +336,6 @@
     <ClCompile Include="src\locator.cpp" />
     <ClCompile Include="src\Core\subsystem_manager.cpp" />
     <ClCompile Include="src\Core\ThreadManager\thread_manager.cpp" />
-    <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Physics\ray.cpp" />
     <ClCompile Include="src\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

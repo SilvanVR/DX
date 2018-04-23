@@ -27,15 +27,15 @@ public:
         auto go2 = createGameObject("Sound");
         auto as = go2->addComponent<Components::AudioSource>(clip, true);
 
-        go2->addComponent<Components::MeshRenderer>(Core::Assets::MeshGenerator::CreateCube(0.5f, Color::BLUE));
+        go2->addComponent<Components::MeshRenderer>(Core::Assets::MeshGenerator::CreateCube(0.5f, Color::BLUE), RESOURCES.getColorMaterial());
 
         auto go3 = createGameObject("Sound");
         go3->getComponent<Components::Transform>()->position = Math::Vec3(50, 0, 0);
         go3->addComponent<Components::AudioSource>(ASSETS.getAudioClip("/audio/doki.wav"));
-        go3->addComponent<Components::MeshRenderer>(Core::Assets::MeshGenerator::CreateCube(0.5f, Color::RED));
+        go3->addComponent<Components::MeshRenderer>(Core::Assets::MeshGenerator::CreateCube(0.5f, Color::RED), RESOURCES.getColorMaterial());
 
         mesh = Core::Assets::MeshGenerator::CreateGrid(100.0f);
-        createGameObject("Grid")->addComponent<Components::MeshRenderer>(mesh);
+        createGameObject("Grid")->addComponent<Components::MeshRenderer>(mesh, RESOURCES.getColorMaterial());
     }
 
     void tick(Time::Seconds delta) override

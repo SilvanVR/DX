@@ -17,25 +17,6 @@ namespace Core { namespace Assets {
     //----------------------------------------------------------------------
     void AssetManager::init()
     {
-        // HOT-RELOADING CALLBACK
-        Locator::getEngineClock().setInterval([this]{
-
-            // Texture reloading
-            for ( auto it = m_textureCache.begin(); it != m_textureCache.end(); )
-            {
-                if ( it->second.texture.expired() )
-                {
-                    // Texture does no longer exist, so remove it from the cache map
-                    it = m_textureCache.erase( it );
-                }
-                else
-                {
-                    it->second.ReloadAsyncIfNotUpToDate();
-                    it++;
-                }
-            }
-
-        }, HOT_RELOAD_INTERVAL_MILLIS);
     }
 
     //----------------------------------------------------------------------
@@ -159,6 +140,16 @@ namespace Core { namespace Assets {
         return audioClip;
     }
 
+    //----------------------------------------------------------------------
+    void AssetManager::setHotReloading( bool enabled ) 
+    { 
+        m_hotReloading = enabled;
+        if (m_hotReloading)
+            _EnableHotReloading();
+        else
+            Locator::getEngineClock().clearCallback( m_hotReloadingCallback );
+    }
+
     //**********************************************************************
     // PRIVATE
     //**********************************************************************
@@ -230,6 +221,30 @@ namespace Core { namespace Assets {
 
         cubemap->apply();
         return cubemap;
+    }
+
+    //----------------------------------------------------------------------
+    void AssetManager::_EnableHotReloading()
+    {
+        // HOT-RELOADING CALLBACK
+        m_hotReloadingCallback = Locator::getEngineClock().setInterval([this]{
+
+            // Texture reloading
+            for ( auto it = m_textureCache.begin(); it != m_textureCache.end(); )
+            {
+                if ( it->second.texture.expired() )
+                {
+                    // Texture does no longer exist, so remove it from the cache map
+                    it = m_textureCache.erase( it );
+                }
+                else
+                {
+                    it->second.ReloadAsyncIfNotUpToDate();
+                    it++;
+                }
+            }
+
+        }, HOT_RELOAD_INTERVAL_MILLIS);
     }
 
     //**********************************************************************
