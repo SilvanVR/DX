@@ -43,7 +43,7 @@ namespace Core { namespace MemoryManagement {
     }
 
     //----------------------------------------------------------------------
-    void MemoryManager::OnTick(Time::Seconds delta)
+    void MemoryManager::OnTick( Time::Seconds delta )
     {
         _BasicLeakDetection();
         //_ContinousAllocationLeakDetection();
@@ -104,10 +104,10 @@ namespace Core { namespace MemoryManagement {
     }
 
     //----------------------------------------------------------------------
-    void MemoryManager::_ReportPossibleMemoryLeak(const Memory::AllocationInfo& lastAllocationInfo, const Memory::AllocationInfo& allocInfo)
+    void MemoryManager::_ReportPossibleMemoryLeak( const Memory::AllocationInfo& lastAllocationInfo, const Memory::AllocationInfo& allocInfo )
     {
         auto bytesAllocated = allocInfo.bytesAllocated - lastAllocationInfo.bytesAllocated;
-        WARN_MEMORY( "<<<< Dynamic Memory Allocation in Game-Loop: Bytes allocated: " + Utils::bytesToString( bytesAllocated ) );
+        //WARN_MEMORY( "<<<< Dynamic Memory Allocation in Game-Loop: Bytes allocated: " + Utils::bytesToString( bytesAllocated ) );
     }
 
 

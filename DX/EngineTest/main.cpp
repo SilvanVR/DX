@@ -726,8 +726,9 @@ public:
 
 class TestScene : public IScene
 {
-    GameObject* go2;
-    MaterialPtr material;
+    GameObject* parent;
+    GameObject* child;
+    GameObject* child2;
 
 public:
     TestScene() : IScene("TestScene") {}
@@ -740,44 +741,59 @@ public:
         go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -10);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 10.0f, 0.3f);
 
-        auto go3 = createGameObject("Camera2");
-        auto cam2 = go3->addComponent<Components::Camera>();
-        go3->getComponent<Components::Transform>()->position = Math::Vec3(0, 5, -10);
-        go3->addComponent<AutoOrbiting>(10.0f);
-
-        cam2->setClearMode(Components::Camera::EClearMode::NONE);
-        cam2->setZFar(20.0f);
-        cam2->getViewport().width  = 0.25f;
-        cam2->getViewport().height = 0.25f;
-
-        go3->addComponent<DrawFrustum>();
-
         createGameObject("Grid")->addComponent<GridGeneration>(20);
 
         // SHADER
         auto texShader = RESOURCES.createShader("TexShader", "/shaders/texVS.hlsl", "/shaders/texPS.hlsl");
 
         // MATERIAL
-        material = RESOURCES.createMaterial();
+        auto material = RESOURCES.createMaterial();
         material->setShader(texShader);
         material->setTexture(SID("tex0"), ASSETS.getTexture2D("/textures/dirt.jpg"));
         material->setTexture(SID("tex1"), ASSETS.getTexture2D("/textures/nico.jpg"));
         material->setFloat(SID("mix"), 0.0f);
-        material->setColor(SID("tintColor"), Color::WHITE);  
+        material->setColor(SID("tintColor"), Color::WHITE);
+
+        // MATERIAL
+        auto material2 = RESOURCES.createMaterial();
+        material2->setShader(texShader);
+        material2->setTexture(SID("tex0"), ASSETS.getTexture2D("/textures/dirt.jpg"));
+        material2->setTexture(SID("tex1"), ASSETS.getTexture2D("/textures/nico.jpg"));
+        material2->setFloat(SID("mix"), 1.0f);
+        material2->setColor(SID("tintColor"), Color::WHITE);
 
         // MESH
         auto mesh = Assets::MeshGenerator::CreateCubeUV();
         mesh->setColors(cubeColors);
 
         // GAMEOBJECT
-        go2 = createGameObject("Test2");
-        go2->addComponent<Components::MeshRenderer>(mesh, material);
+        parent = createGameObject("Test2");
+        parent->addComponent<Components::MeshRenderer>(mesh, material);
+        parent->addComponent<ConstantRotation>(5.0f, 25.0f, 0.0f);
+
+        child = createGameObject("Test3");
+        child->addComponent<Components::MeshRenderer>(mesh, material2);
+        child->getTransform()->position.x = 5;
+        child->getTransform()->position.y = 1;
+
+        child2 = createGameObject("Test4");
+        child2->addComponent<Components::MeshRenderer>(mesh, material2);
+        child2->getTransform()->position.y = 3;
+        child2->getTransform()->position.z = 2;
+
+        parent->getTransform()->addChild(child->getTransform());
+        parent->getTransform()->addChild(child2->getTransform());
 
         LOG("TestScene initialized!", Color::RED);
     }
 
     void tick(Time::Seconds d) override
     {
+        if (KEYBOARD.wasKeyPressed(Key::F))
+            child2->getTransform()->setParent(nullptr);
+
+        if (KEYBOARD.wasKeyPressed(Key::G))
+            child2->getTransform()->setParent(parent->getTransform());
     }
 
     void shutdown() override { LOG("TestScene Shutdown!", Color::RED); }
@@ -819,31 +835,6 @@ public:
         //clock.tick( delta );
         //LOG( TS( clock.getTime().value ) );
         //auto time = clock.getTime();
-
-        static bool inState = false;
-        if (KEYBOARD.wasKeyPressed(Key::Q)) {
-            inState = !inState;
-        }
-        if (inState){
-        }
-
-        if (KEYBOARD.wasKeyPressed(Key::E))
-        {
-            auto g = SCENE.findGameObject("Test");
-            static bool enabled = true;
-            /*enabled = !enabled;
-            g->setActive(enabled);
-            LOG(TS(enabled), Color::BLUE);*/
-        }
-
-        if (KEYBOARD.wasKeyPressed(Key::G))
-            DEBUG.drawLine({ 0,0,0 }, { 10,10,10 }, Color::RED, 2);
-        if (KEYBOARD.wasKeyPressed(Key::H))
-            DEBUG.drawSphere({ 0,5,0 }, 10, Color::BLUE, 5);
-        if (KEYBOARD.wasKeyPressed(Key::F))
-            DEBUG.drawRay({ 5,5,5 }, { 0,100,0 }, Color::GREEN, 2);
-        if (KEYBOARD.wasKeyPressed(Key::F))
-            DEBUG.drawCube({ 5,5,5 }, { 10,10,10 }, Color::VIOLET, 5, false);
 
         if (KEYBOARD.wasKeyPressed(Key::One))
             Locator::getSceneManager().LoadSceneAsync(new VertexGenScene);
