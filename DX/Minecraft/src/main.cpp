@@ -451,7 +451,10 @@ public:
 
         // GAMEOBJECTS
         //auto generator = std::make_shared<FlatTerrainGenerator>();
-        auto generator = std::make_shared<BasicTerrainGenerator>();
+
+        //I32 seed = Math::Random::Int(1,285092);
+        I32 seed = 252536;
+        auto generator = std::make_shared<BasicTerrainGenerator>(seed);
 
         I32 chunkViewDistance = 8;
         auto worldGenerator = createGameObject("World Generation")->addComponent<WorldGeneration>(generator, chunkViewDistance);
@@ -463,6 +466,7 @@ public:
         if (KEYBOARD.wasKeyPressed(Key::X))
         {
             playerController->setActive(b);
+            MOUSE.setFirstPersonMode(b);
             fpsCam->setActive(!b);
             b = !b;
         }
@@ -496,7 +500,7 @@ public:
 
         // Create a gameobject in the default scene with a new component and add new scene onto the stack.
         // This way the music manager will stay alife during the whole program.
-        SCENE.createGameObject("MusicManager")->addComponent<MusicManager>(ArrayList<OS::Path>{"/audio/minecraft.wav", "/audio/minecraft2.wav"});
+        //SCENE.createGameObject("MusicManager")->addComponent<MusicManager>(ArrayList<OS::Path>{"/audio/minecraft.wav", "/audio/minecraft2.wav"});
 
         MOUSE.setFirstPersonMode(true); // Hide the mouse cursor has no effect on a separate thread, so just call it here
         Locator::getSceneManager().PushSceneAsync( new MyScene(), false );

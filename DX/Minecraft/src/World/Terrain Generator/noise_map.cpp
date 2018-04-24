@@ -5,26 +5,20 @@
 
 #include "Math/math_utils.h"
 
-NoiseMap::NoiseMap(I32 width, I32 height, const NoiseMapParams& params, Math::Vec2Int offset)
-    : m_width(width), m_height(height)
+NoiseMap::NoiseMap(I32 seed, const NoiseMapParams& params)
+    : m_seed(seed), m_params(params)
 {
-    m_noiseMap = new F32[m_width * m_height];
+}
 
-    F32 scale = params.scale < 0.0f ? 0.0001f : params.scale;
+F32 NoiseMap::get(I32 x, I32 y, const Math::Vec2Int& offset) const
+{
+    F32 scale = m_params.scale < 0.0f ? 0.0001f : m_params.scale;
 
-    F32 halfWidth = m_width * 0.5f;
-    F32 halfHeight = m_height * 0.5f;
+    F32 sampleX = (m_seed + x + offset.x) / scale;
+    F32 sampleY = (m_seed + y + offset.y) / scale;
 
-    for (I32 y = 0; y < m_height; y++)
-    {
-        for (I32 x = 0; x < m_width; x++)
-        {
-            F32 sampleX = (x - halfWidth + offset.x) / scale;
-            F32 sampleY = (y - halfHeight + offset.y) / scale;
+    F32 noiseValue = stb_perlin_turbulence_noise3(sampleX, sampleY, 0.0f, m_params.lacunarity, m_params.gain, m_params.octaves, 0, 0, 0);
+    ASSERT(noiseValue <= 1.0f);
 
-            F32 noiseValue = stb_perlin_turbulence_noise3(sampleX, sampleY, 0.0f, params.lacunarity, params.gain, params.octaves, 0, 0, 0);
-            ASSERT(noiseValue <= 1.0f);
-            m_noiseMap[x + y * m_width] = Math::clamp(noiseValue, 0.0f, 1.0f);
-        }
-    }
+    return noiseValue;
 }
