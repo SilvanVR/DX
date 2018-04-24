@@ -23,27 +23,28 @@ namespace Core { namespace Config {
     const char* ConfigFile::DEFAULT_CATEGORY_NAME = "Default";
 
     //----------------------------------------------------------------------
-    ConfigFile::ConfigFile(const char* vpath)
+    ConfigFile::ConfigFile(const char* vpath, bool flushOnDeconstruct) 
+        : m_flushOnDeconstruct( flushOnDeconstruct )
     {
         m_configFile = new OS::TextFile( vpath, OS::EFileMode::READ_WRITE );
 
         if ( m_configFile->exists() )
             _Read();
+        else
+            WARN( "ConfigFile: File " + String( vpath ) + " does not exist." );
     }
 
     //----------------------------------------------------------------------
     ConfigFile::~ConfigFile()
     {
-        flush();
+        if (m_flushOnDeconstruct)
+            flush();
         delete m_configFile;
     }
 
-    //----------------------------------------------------------------------
-    ConfigFile::Category& ConfigFile::operator [] ( const char* str)
-    {
-        StringID category = StringID( str );
-        return m_categories[category];
-    }
+    //**********************************************************************
+    // PUBLIC 
+    //**********************************************************************
 
     //----------------------------------------------------------------------
     void ConfigFile::flush()
@@ -83,6 +84,10 @@ namespace Core { namespace Config {
 
         m_configFile->flush();
     }
+
+    //**********************************************************************
+    // PRIVATE 
+    //**********************************************************************
 
     //----------------------------------------------------------------------
     void ConfigFile::_Read()

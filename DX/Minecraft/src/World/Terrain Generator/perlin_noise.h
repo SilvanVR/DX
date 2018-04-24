@@ -4,7 +4,7 @@
 #include "Common/macros.hpp"
 #include "Math/dxmath_wrapper.h"
 
-struct NoiseMapParams
+struct NoiseParams
 {
     F32 scale;
     F32 lacunarity;
@@ -12,15 +12,15 @@ struct NoiseMapParams
     I32 octaves;
 };
 
-class NoiseMap
+class PerlinNoise
 {
 public:
-    NoiseMap(I32 seed, const NoiseMapParams& params);
-    ~NoiseMap() {}
+    PerlinNoise(I32 seed, const NoiseParams& params);
+    ~PerlinNoise() {}
 
     F32 get(I32 x, I32 y, const Math::Vec2Int& offset) const;
 
 private:
-    NoiseMapParams  m_params;
-    I32             m_seed;
+    NoiseParams m_params;
+    I32         m_seed;
 };

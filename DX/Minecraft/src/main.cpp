@@ -5,6 +5,11 @@
     This is a fairly simple minecraft clone.
     Be aware that the code was written fast, so i might did some things
     which are not very efficient and the code looks not very clean.
+
+    Note that the physics are faked with a couple raycasts and therefore
+    arent very accurate (besides there is a little stuttering of the player
+    while new chunks are generated, because raycasts against the world must be done after the next generation
+    of an chunk has been finished. This causes the player to fall for a moment).
 **********************************************************************/
 
 #include <DX.h>
@@ -446,7 +451,7 @@ public:
         auto viewer = SCENE.getMainCamera()->getGameObject()->getTransform();
         transform->position = viewer->position;
 
-        transform->position.y = m_waterLevel + sin(TIME.getTime().value) * 0.2f;
+        transform->position.y = m_waterLevel + sinf((F32)TIME.getTime().value) * 0.2f;
     }
 };
 
@@ -479,32 +484,22 @@ public:
         F32 jumpPower = 15.0f;
         playerController = player->addComponent<PlayerController>(playerSpeed, jumpPower, placeDistance);
 
-        // GAMEOBJECTS
+        // WORLD
         auto world = createGameObject("World");
-        auto cubemap = ASSETS.getCubemap("/cubemaps/tropical_sunny_day/Left.png", "/cubemaps/tropical_sunny_day/Right.png",
-            "/cubemaps/tropical_sunny_day/Up.png", "/cubemaps/tropical_sunny_day/Down.png",
-            "/cubemaps/tropical_sunny_day/Front.png", "/cubemaps/tropical_sunny_day/Back.png");
-        world->addComponent<Components::Skybox>(cubemap);
 
+        //auto cubemap = ASSETS.getCubemap("/cubemaps/tropical_sunny_day/Left.png", "/cubemaps/tropical_sunny_day/Right.png",
+        //    "/cubemaps/tropical_sunny_day/Up.png", "/cubemaps/tropical_sunny_day/Down.png",
+        //    "/cubemaps/tropical_sunny_day/Front.png", "/cubemaps/tropical_sunny_day/Back.png");
+        //world->addComponent<Components::Skybox>(cubemap);
 
-        Core::Config::ConfigFile terrain("res/terrain.ini");
-
-        NoiseMapParams noiseParams;
-        noiseParams.scale       = terrain["NoiseParams"]["scale"];
-        noiseParams.lacunarity  = terrain["NoiseParams"]["lacunarity"];
-        noiseParams.gain        = terrain["NoiseParams"]["gain"];
-        noiseParams.octaves     = terrain["NoiseParams"]["octaves"];
-
-        F32 height = terrain["General"]["height"];
-
-        I32 seed = Math::Random::Int(1,285092);
+        I32 seed = Math::Random::Int(0,285092);
         LOG("Current World Seed: " + TS(seed), Color::RED);
-        auto generator = std::make_shared<BasicTerrainGenerator>(seed, noiseParams, height);
+        auto generator = std::make_shared<BasicTerrainGenerator>(seed);
 
         //auto generator = std::make_shared<FlatTerrainGenerator>();
         I32 chunkViewDistance = 16;
         auto worldGenerator = world->addComponent<WorldGeneration>(generator, chunkViewDistance);
-        world->addComponent<Water>(4);
+        world->addComponent<Water>(4.0f);
     }
 
     void tick(Time::Seconds delta) override

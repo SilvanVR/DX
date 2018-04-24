@@ -17,4 +17,6 @@ BlockDatabase::BlockDatabase()
 
     blockInfos["birch"]         = { blockIndex++, "/textures/blocks/log_birch.png", "/textures/blocks/log_birch_top.png" };
     blockInfos["birch_leaves"]  = { blockIndex++, "/textures/blocks/leaves_birch.png" };
+
+    blockInfos["cactus"]        = { blockIndex++, "/textures/blocks/cactus_side.png", "/textures/blocks/cactus_top.png" };
 }

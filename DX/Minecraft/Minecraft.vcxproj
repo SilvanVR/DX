@@ -152,7 +152,7 @@
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\World\block_database.cpp" />
-    <ClCompile Include="src\World\Terrain Generator\noise_map.cpp" />
+    <ClCompile Include="src\World\Terrain Generator\perlin_noise.cpp" />
     <ClCompile Include="src\World\world.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -168,7 +168,7 @@
     <ClInclude Include="src\World\noise_map_visualizer.h" />
     <ClInclude Include="src\World\Terrain Generator\basic_terrain_generator.h" />
     <ClInclude Include="src\World\Terrain Generator\flat_terrain_generator.h" />
-    <ClInclude Include="src\World\Terrain Generator\noise_map.h" />
+    <ClInclude Include="src\World\Terrain Generator\perlin_noise.h" />
     <ClInclude Include="src\World\Terrain Generator\terrain_generator.h" />
     <ClInclude Include="src\World\world.h" />
     <ClInclude Include="src\World\world_constants.h" />

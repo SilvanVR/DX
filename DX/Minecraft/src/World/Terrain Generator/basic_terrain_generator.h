@@ -1,85 +1,63 @@
 #pragma once
 
 #include "terrain_generator.h"
-#include "noise_map.h"
+#include "perlin_noise.h"
 
 #define BLOCK_OAK_LEAVES    Block("oak_leaves")
 #define BLOCK_OAK           Block("oak")
+#define BLOCK_BIRCH_LEAVES  Block("birch_leaves")
+#define BLOCK_BIRCH         Block("birch")
 #define BLOCK_GRASS         Block("grass")
+
+//----------------------------------------------------------------------
+void _Fill(Chunk& chunk, I32 y, I32 xBegin, I32 xEnd, I32 zBegin, I32 zEnd, Block block)
+{
+    for (I32 x = xBegin; x <= xEnd; ++x)
+        for (I32 z = zBegin; z <= zEnd; ++z)
+            chunk.setVoxelAt(x, y, z, block);
+}
+//----------------------------------------------------------------------
+void _MakeTree(Chunk& chunk, I32 x, I32 y, I32 z, Block log, Block leaves)
+{
+    I32 h = Math::Random::Int(4, 7);
+    I32 leafSize = 2;
+    I32 newY = h + y;
+
+    _Fill(chunk, newY, x - leafSize, x + leafSize, z - leafSize, z + leafSize, leaves);
+    _Fill(chunk, newY - 1, x - leafSize, x + leafSize, z - leafSize, z + leafSize, leaves);
+
+    for (I32 zLeaf = -leafSize + 1; zLeaf <= leafSize - 1; zLeaf++)
+        chunk.setVoxelAt(x, newY + 1, z + zLeaf, leaves);
+
+    for (I32 xLeaf = -leafSize + 1; xLeaf <= leafSize - 1; xLeaf++)
+        chunk.setVoxelAt(x + xLeaf, newY + 1, z, leaves);
+
+    for (I32 yy = y; yy < y + h; yy++)
+        chunk.setVoxelAt(x, yy, z, log);
+}
 
 struct TerrainType
 {
-    String  name;
     F32     height;
     Block   block;
 };
 
-class BasicTerrainGenerator : public TerrainGenerator
+//**********************************************************************
+class Biome
 {
-    NoiseMapParams m_noiseParams = {
-        50.0f, 2.0f, 0.3f, 4
-    };
-
-    F32 m_terrainHeight = 32.0f;
-    ArrayList<TerrainType>  m_regions;
-    I32 m_seed;
-
 public:
-    BasicTerrainGenerator(I32 seed, NoiseMapParams params, F32 height) : m_seed(seed), m_noiseParams(params), m_terrainHeight(height)
-    {
-        //m_regions.push_back(TerrainType{ "Water", 0.3f, Color(0x4286f4), BlockType::Water });
-        m_regions.push_back(TerrainType{ "Sand", 0.1f, Block("sand") });
-        m_regions.push_back(TerrainType{ "Gravel", 0.15f, Block("gravel") });
-        m_regions.push_back(TerrainType{ "Grass", 0.65f, Block("grass") });
-        m_regions.push_back(TerrainType{ "Stone", 0.8f, Block("stone") });
-        m_regions.push_back(TerrainType{ "Snow", 1.0f, Block("snow") });
-    }
+    Biome(I32 seed, NoiseParams params, F32 height) : m_seed(seed), m_noiseParams(params), m_height(height) {}
 
-    void generateTerrainFor(Chunk& chunk) override
-    {
-        //DEBUG.drawCube(chunk.bounds, Color::GREEN, 20000);
+    //virtual Block getBlock(I32 x, I32 y, I32 z, const Math::Vec2Int& pos) = 0;
+    //virtual F32 getHeight(I32 x, I32 z, const Math::Vec2Int& pos) = 0;
+    virtual void generateTerrainFor(Chunk& chunk, I32 x, I32 z) = 0;
 
-        // Noise must be larger, so it fills the boundary chunks aswell, otherwise the mesh will contain holes
-        NoiseMap noiseMap( m_seed, m_noiseParams );
-        for (I32 x = 0; x < CHUNK_SIZE + 1; x++)
-        {
-            for (I32 z = 0; z < CHUNK_SIZE + 1; z++)
-            {
-                F32 noiseValue = noiseMap.get(x, z, chunk.position);
-                I32 curHeight = I32(noiseValue * m_terrainHeight);
+protected:
+    I32                     m_seed;
+    F32                     m_height;
+    NoiseParams             m_noiseParams;
+    ArrayList<TerrainType>  m_regions;
 
-                for (I32 y = -CHUNK_HEIGHT; y < CHUNK_HEIGHT; y++)
-                {
-                    Block block = _GetBlockFromHeight(noiseValue);
-
-                    // Placing trees at chunk edges does not work properly, so just dont add them there :)
-                    bool notAtEdge = x > 2 && x < CHUNK_SIZE - 2 && z > 2 && z < CHUNK_SIZE - 2;
-                    if (y == curHeight && block == BLOCK_GRASS && notAtEdge )
-                    {
-                        if (Math::Random::Int(0,30) == 0)
-                            _MakeOakTree(chunk, x, y, z);
-                    }
-
-                    if (y < curHeight)
-                    {
-                        if (block == Block("grass"))
-                        {
-                            if (y == (curHeight - 1)) // Place grass only on the top layer
-                                chunk.setVoxelAt(x, y, z, block);
-                            else
-                                chunk.setVoxelAt(x, y, z, Block("dirt"));
-                        }
-                        else
-                        {
-                            chunk.setVoxelAt( x, y, z, block );
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-private:
     //----------------------------------------------------------------------
     Block _GetBlockFromHeight(F32 y)
     {
@@ -87,34 +65,225 @@ private:
             if (y <= region.height)
                 return region.block;
 
+        ASSERT(false);
         return Block("air");
     }
+};
 
-    //----------------------------------------------------------------------
-    void _MakeOakTree(Chunk& chunk, I32 x, I32 y, I32 z)
+//**********************************************************************
+class ForestBiome : public Biome
+{
+public:
+    ForestBiome(I32 seed, NoiseParams params, F32 height) : Biome(seed, params, height)
     {
-        I32 h = Math::Random::Int(4, 7);
-        I32 leafSize = 2;
-        I32 newY = h + y;
-
-        _Fill(chunk, newY, x - leafSize, x + leafSize, z - leafSize, z + leafSize, BLOCK_OAK_LEAVES);
-        _Fill(chunk, newY - 1, x - leafSize, x + leafSize, z - leafSize, z + leafSize, BLOCK_OAK_LEAVES);
-
-        for (I32 zLeaf = -leafSize + 1; zLeaf <= leafSize - 1; zLeaf++)
-            chunk.setVoxelAt(x, newY + 1, z + zLeaf, BLOCK_OAK_LEAVES);
-
-        for (I32 xLeaf = -leafSize + 1; xLeaf <= leafSize - 1; xLeaf++)
-            chunk.setVoxelAt(x + xLeaf, newY + 1, z, BLOCK_OAK_LEAVES);
-
-        for (I32 yy = y; yy < y + h; yy++)
-            chunk.setVoxelAt(x, yy, z, BLOCK_OAK);
+        m_regions.push_back(TerrainType{ 0.1f, Block("sand") });
+        m_regions.push_back(TerrainType{ 0.15f, Block("gravel") });
+        m_regions.push_back(TerrainType{ 0.65f, Block("dirt") });
+        m_regions.push_back(TerrainType{ 0.8f, Block("stone") });
+        m_regions.push_back(TerrainType{ 1.0f, Block("snow") });
     }
 
-    //----------------------------------------------------------------------
-    void _Fill(Chunk& chunk, I32 y, I32 xBegin, I32 xEnd, I32 zBegin, I32 zEnd, Block block)
+    void generateTerrainFor(Chunk& chunk, I32 x, I32 z) override
     {
-        for (I32 x = xBegin; x <= xEnd; ++x)
-            for (I32 z = zBegin; z <= zEnd; ++z)
+        PerlinNoise noiseMap(m_seed, m_noiseParams);
+        F32 noiseValue = noiseMap.get(x, z, chunk.position);
+        I32 curHeight = I32(noiseValue * m_height);
+
+        for (I32 y = -CHUNK_HEIGHT; y < CHUNK_HEIGHT; y++)
+        {
+            Block block = _GetBlockFromHeight(noiseValue);
+
+            // Placing trees at chunk edges does not work properly, so just dont add them there :)
+            bool notAtEdge = x > 2 && x < CHUNK_SIZE - 2 && z > 2 && z < CHUNK_SIZE - 2;
+            if (y == curHeight+1 && block == Block("dirt") && notAtEdge )
+            {
+                if (Math::Random::Int(0, 30) == 0)
+                {
+                    if (Math::Random::Int(1) == 0)
+                        _MakeTree(chunk, x, y, z, BLOCK_OAK, BLOCK_OAK_LEAVES);
+                    else
+                        _MakeTree(chunk, x, y, z, BLOCK_BIRCH, BLOCK_BIRCH_LEAVES);
+                }
+            }
+
+            if (y == curHeight)
+            {
+                if (block == Block("dirt")) // Replace top layer dirt by grass
+                    chunk.setVoxelAt(x, y, z, Block("grass"));
+                else
+                    chunk.setVoxelAt(x, y, z, block);
+            }
+            if (y < curHeight)
+            {
                 chunk.setVoxelAt(x, y, z, block);
+            }
+        }
+    }
+};
+
+//**********************************************************************
+class DesertBiome : public Biome
+{
+public:
+    DesertBiome(I32 seed, NoiseParams params, F32 height) : Biome(seed, params, height)
+    {
+        m_regions.push_back(TerrainType{ 1.0f, Block("sand") });
+    }
+
+    void generateTerrainFor(Chunk& chunk, I32 x, I32 z) override
+    {
+        PerlinNoise noiseMap(m_seed, m_noiseParams);
+        F32 noiseValue = noiseMap.get(x, z, chunk.position);
+        I32 curHeight = I32(noiseValue * m_height);
+
+        for (I32 y = -CHUNK_HEIGHT; y < CHUNK_HEIGHT; y++)
+        {
+            // Placing cactus at chunk edges does not work properly, so just dont add them there :)
+            bool notAtEdge = x > 1 && x < CHUNK_SIZE - 1 && z > 1 && z < CHUNK_SIZE - 1;
+            if (y == curHeight && notAtEdge && y > 10.0f)
+            {
+                if (Math::Random::Int(0, 500) == 0)
+                {
+                    I32 cactusHeight = Math::Random::Int(3,5);
+                    for (I32 cacY = y; cacY < y + cactusHeight; cacY++)
+                        chunk.setVoxelAt(x, cacY, z, Block("cactus"));
+                }
+            }
+
+            if (y < curHeight)
+            {
+                Block block = _GetBlockFromHeight(noiseValue);
+                chunk.setVoxelAt(x, y, z, block);
+            }
+        }
+    }
+};
+
+//**********************************************************************
+class HillsBiome : public Biome
+{
+public:
+    HillsBiome(I32 seed, NoiseParams params, F32 height) : Biome(seed, params, height)
+    {
+        m_regions.push_back(TerrainType{ 0.15f, Block("gravel") });
+        m_regions.push_back(TerrainType{ 0.35f, Block("dirt") });
+        m_regions.push_back(TerrainType{ 0.7f, Block("stone") });
+        m_regions.push_back(TerrainType{ 1.0f, Block("snow") });
+    }
+
+    void generateTerrainFor(Chunk& chunk, I32 x, I32 z) override
+    {
+        PerlinNoise noiseMap(m_seed, m_noiseParams);
+        F32 noiseValue = noiseMap.get(x, z, chunk.position);
+        I32 curHeight = I32(noiseValue * m_height);
+
+        for (I32 y = -CHUNK_HEIGHT; y < CHUNK_HEIGHT; y++)
+        {
+            if (y < curHeight)
+            {
+                Block block = _GetBlockFromHeight(noiseValue);
+                chunk.setVoxelAt(x, y, z, block);
+            }
+        }
+    }
+};
+
+//**********************************************************************
+class BasicTerrainGenerator : public TerrainGenerator
+{
+    NoiseParams m_biomeParams;
+    I32 m_seed;
+
+    F32 m_terrainHeight = 50.0f;
+    ArrayList<std::shared_ptr<Biome>> m_biomes;
+
+public:
+    BasicTerrainGenerator(I32 seed) : m_seed(seed)
+    {
+        Core::Config::ConfigFile terrain("res/terrain.ini");
+        m_biomeParams.scale       = terrain["Biomes"]["scale"];
+        m_biomeParams.lacunarity  = terrain["Biomes"]["lacunarity"];
+        m_biomeParams.gain        = terrain["Biomes"]["gain"];
+        m_biomeParams.octaves     = terrain["Biomes"]["octaves"];
+
+        NoiseParams forestParams;
+        forestParams.scale       = terrain["Forest"]["scale"];
+        forestParams.lacunarity  = terrain["Forest"]["lacunarity"];
+        forestParams.gain        = terrain["Forest"]["gain"];
+        forestParams.octaves     = terrain["Forest"]["octaves"];
+        m_biomes.push_back(std::make_shared<ForestBiome>(m_seed, forestParams, terrain["Forest"]["height"]));
+
+        NoiseParams desertParams;
+        desertParams.scale       = terrain["Desert"]["scale"];
+        desertParams.lacunarity  = terrain["Desert"]["lacunarity"];
+        desertParams.gain        = terrain["Desert"]["gain"];
+        desertParams.octaves     = terrain["Desert"]["octaves"];
+        m_biomes.push_back(std::make_shared<DesertBiome>(m_seed, desertParams, terrain["Desert"]["height"]));
+
+        NoiseParams hillParams;
+        hillParams.scale      = terrain["Hills"]["scale"];
+        hillParams.lacunarity = terrain["Hills"]["lacunarity"];
+        hillParams.gain       = terrain["Hills"]["gain"];
+        hillParams.octaves    = terrain["Hills"]["octaves"];
+        m_biomes.push_back(std::make_shared<HillsBiome>(m_seed, hillParams, terrain["Hills"]["height"]));
+    }
+
+    void generateTerrainFor(Chunk& chunk) override
+    {
+        //DEBUG.drawCube(chunk.bounds, Color::GREEN, 20000);
+
+        // Noise must be larger, so it fills the boundary blocks aswell, otherwise the mesh will contain holes
+        PerlinNoise noiseMap( m_seed, m_biomeParams );
+        for (I32 x = -1; x < CHUNK_SIZE + 1; x++)
+        {
+            for (I32 z = -1; z < CHUNK_SIZE + 1; z++)
+            {
+                auto& biome = _GetBiome( x, z, chunk.position );
+                biome.generateTerrainFor(chunk, x, z);
+
+                //F32 noiseValue = noiseMap.get(x, z, chunk.position);
+                //I32 curHeight = I32(noiseValue * m_terrainHeight);
+
+                //for (I32 y = -CHUNK_HEIGHT; y < CHUNK_HEIGHT; y++)
+                //{
+                //    Block block = _GetBlockFromHeight(noiseValue);
+
+                //    // Placing trees at chunk edges does not work properly, so just dont add them there :)
+                //    bool notAtEdge = x > 2 && x < CHUNK_SIZE - 2 && z > 2 && z < CHUNK_SIZE - 2;
+                //    if (y == curHeight+1 && block == BLOCK_GRASS && notAtEdge )
+                //    {
+                //        if (Math::Random::Int(0,30) == 0)
+                //            _MakeOakTree(chunk, x, y, z);
+                //    }
+
+                //    if (y == curHeight)
+                //    {
+                //        if (block == Block("dirt"))
+                //            chunk.setVoxelAt(x, y, z, Block("grass"));
+                //        else
+                //            chunk.setVoxelAt(x, y, z, block);
+                //    }
+                //    else if (y < curHeight)
+                //    {
+                //        chunk.setVoxelAt(x, y, z, block);
+                //    }
+                //}
+            }
+        }
+    }
+
+private:
+    //----------------------------------------------------------------------
+    Biome& _GetBiome(I32 x, I32 z, const Math::Vec2Int& pos)
+    {
+        PerlinNoise noiseMap( m_seed, m_biomeParams );
+
+        F32 noiseValue = noiseMap.get(x, z, pos);
+        F32 steps = 1.0f / m_biomes.size();
+
+        // Every biome is equally likely
+        I32 index = I32(noiseValue / steps);
+        index = Math::clamp(index, 0, m_biomes.size() - 1);
+        return *m_biomes[index].get();
     }
 };

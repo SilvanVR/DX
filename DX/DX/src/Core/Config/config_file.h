@@ -42,7 +42,10 @@ namespace Core { namespace Config {
         class Category
         {
         public:
-            Common::VariantType& operator [] (const char* name) { return m_entries[ SID( name ) ]; }
+            Common::VariantType&        operator [] (const char* name) { return m_entries[ SID( name ) ]; }
+            const Common::VariantType&  operator [] (const char* name) const { return m_entries.at( SID( name ) ); }
+
+            const HashMap<StringID, Common::VariantType>& getEntries() const { return m_entries; }
 
         private:
             friend class ConfigFile;
@@ -52,13 +55,14 @@ namespace Core { namespace Config {
         //----------------------------------------------------------------------
 
     public:
-        ConfigFile(const char* vpath);
+        ConfigFile(const char* vpath, bool flushOnDeconstruct = false);
         ~ConfigFile();
 
         //----------------------------------------------------------------------
         // Return a category object by name.
         //----------------------------------------------------------------------
-        Category& operator [] (const char* category);
+        Category&       operator [] (const char* category) { return m_categories[ SID( category ) ]; }
+        const Category& operator [] (const char* category) const { return m_categories.at( SID( category ) ); }
 
         //----------------------------------------------------------------------
         // Flush whole data immediately to disk.
@@ -67,7 +71,8 @@ namespace Core { namespace Config {
 
     private:
         OS::TextFile*                   m_configFile = nullptr;
-        HashMap<StringID, Category>    m_categories;
+        HashMap<StringID, Category>     m_categories;
+        bool                            m_flushOnDeconstruct = false;
 
         // Read config file from disk
         void _Read();

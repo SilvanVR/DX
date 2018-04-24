@@ -1,16 +1,16 @@
-#include "noise_map.h"
+#include "perlin_noise.h"
 
 #define STB_PERLIN_IMPLEMENTATION 
 #include "../../ext/stb_perlin.hpp"
 
 #include "Math/math_utils.h"
 
-NoiseMap::NoiseMap(I32 seed, const NoiseMapParams& params)
+PerlinNoise::PerlinNoise(I32 seed, const NoiseParams& params)
     : m_seed(seed), m_params(params)
 {
 }
 
-F32 NoiseMap::get(I32 x, I32 y, const Math::Vec2Int& offset) const
+F32 PerlinNoise::get(I32 x, I32 y, const Math::Vec2Int& offset) const
 {
     F32 scale = m_params.scale < 0.0f ? 0.0001f : m_params.scale;
 
