@@ -74,8 +74,6 @@ private:
         texArr->apply();
 
         auto shader = RESOURCES.createShader( "ChunkShader", "/shaders/chunkVS.hlsl", "/shaders/chunkPS.hlsl" );
-        shader->enableAlphaBlending();
-
         auto chunkMaterial = RESOURCES.createMaterial( shader );
         chunkMaterial->setColor( "color", Color::WHITE );
         chunkMaterial->setVec4( "dir", Math::Vec4( 0, -1, 1, 0 ) );

@@ -24,6 +24,7 @@ void World::shutdown()
     m_chunkUpdateCompleteList.clear();
     m_terrainChunks.clear();
     CHUNK_MATERIAL.reset();
+    m_volData.flushAll();
 }
 
 //----------------------------------------------------------------------
@@ -214,7 +215,7 @@ void World::_PerformRayCasts()
 {
     // Program rarely crashes when "m_generating" is uncommented, but otherwise raycasts can be delayed
     // which causes a stuttering for the raycast physics system right now
-    if ( not m_raycastRequestQueue.empty() /* && not m_generating */ )
+    if ( not m_raycastRequestQueue.empty() && not m_generating )
     {
         while ( not m_raycastRequestQueue.empty() )
         {

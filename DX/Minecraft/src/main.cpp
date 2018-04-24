@@ -444,17 +444,27 @@ public:
         F32 jumpPower = 15.0f;
         playerController = player->addComponent<PlayerController>(playerSpeed, jumpPower, placeDistance);
 
-        //auto cubemap = ASSETS.getCubemap("/cubemaps/tropical_sunny_day/Left.png", "/cubemaps/tropical_sunny_day/Right.png",
-        //    "/cubemaps/tropical_sunny_day/Up.png", "/cubemaps/tropical_sunny_day/Down.png",
-        //    "/cubemaps/tropical_sunny_day/Front.png", "/cubemaps/tropical_sunny_day/Back.png");
-        //player->addComponent<Components::Skybox>(cubemap);
+        auto cubemap = ASSETS.getCubemap("/cubemaps/tropical_sunny_day/Left.png", "/cubemaps/tropical_sunny_day/Right.png",
+            "/cubemaps/tropical_sunny_day/Up.png", "/cubemaps/tropical_sunny_day/Down.png",
+            "/cubemaps/tropical_sunny_day/Front.png", "/cubemaps/tropical_sunny_day/Back.png");
+        player->addComponent<Components::Skybox>(cubemap);
 
         // GAMEOBJECTS
         //auto generator = std::make_shared<FlatTerrainGenerator>();
 
+        Core::Config::ConfigFile terrain("res/terrain.ini");
+
+        NoiseMapParams noiseParams;
+        noiseParams.scale       = terrain["NoiseParams"]["scale"];
+        noiseParams.lacunarity  = terrain["NoiseParams"]["lacunarity"];
+        noiseParams.gain        = terrain["NoiseParams"]["gain"];
+        noiseParams.octaves     = terrain["NoiseParams"]["octaves"];
+
+        F32 height = terrain["General"]["height"];
+
         //I32 seed = Math::Random::Int(1,285092);
-        I32 seed = 252536;
-        auto generator = std::make_shared<BasicTerrainGenerator>(seed);
+        I32 seed = 25256;
+        auto generator = std::make_shared<BasicTerrainGenerator>(seed, noiseParams, height);
 
         I32 chunkViewDistance = 8;
         auto worldGenerator = createGameObject("World Generation")->addComponent<WorldGeneration>(generator, chunkViewDistance);
@@ -500,7 +510,7 @@ public:
 
         // Create a gameobject in the default scene with a new component and add new scene onto the stack.
         // This way the music manager will stay alife during the whole program.
-        //SCENE.createGameObject("MusicManager")->addComponent<MusicManager>(ArrayList<OS::Path>{"/audio/minecraft.wav", "/audio/minecraft2.wav"});
+        SCENE.createGameObject("MusicManager")->addComponent<MusicManager>(ArrayList<OS::Path>{"/audio/minecraft.wav", "/audio/minecraft2.wav"});
 
         MOUSE.setFirstPersonMode(true); // Hide the mouse cursor has no effect on a separate thread, so just call it here
         Locator::getSceneManager().PushSceneAsync( new MyScene(), false );
