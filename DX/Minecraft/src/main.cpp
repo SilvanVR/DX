@@ -466,7 +466,7 @@ public:
         I32 seed = 25256;
         auto generator = std::make_shared<BasicTerrainGenerator>(seed, noiseParams, height);
 
-        I32 chunkViewDistance = 8;
+        I32 chunkViewDistance = 16;
         auto worldGenerator = createGameObject("World Generation")->addComponent<WorldGeneration>(generator, chunkViewDistance);
     }
 

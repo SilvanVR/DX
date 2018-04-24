@@ -52,7 +52,9 @@ public:
                 {
                     Block block = _GetBlockFromHeight(noiseValue);
 
-                    if (y == curHeight && block == BLOCK_GRASS && x > 2 && x < CHUNK_SIZE - 2 && z > 2 && z < CHUNK_SIZE - 2)
+                    // Placing trees at chunk edges does not work properly, so just dont add them there :)
+                    bool notAtEdge = x > 2 && x < CHUNK_SIZE - 2 && z > 2 && z < CHUNK_SIZE - 2;
+                    if (y == curHeight && block == BLOCK_GRASS && notAtEdge )
                     {
                         if (Math::Random::Int(0,30) == 0)
                             _MakeOakTree(chunk, x, y, z);
