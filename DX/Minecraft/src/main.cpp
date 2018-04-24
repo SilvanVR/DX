@@ -416,6 +416,41 @@ public:
 };
 
 //**********************************************************************
+class Water : public Components::IComponent
+{
+    F32 m_waterLevel;
+    Components::Transform* transform;
+
+public:
+    Water(F32 waterLevel) : m_waterLevel(waterLevel){}
+
+    void addedToGameObject(GameObject* go) override
+    {
+        auto shader = RESOURCES.createShader("Water", "/shaders/waterVS.hlsl", "/shaders/waterPS.hlsl");
+        shader->enableAlphaBlending();
+        shader->setPriority(5000); // Render after world
+
+        auto mat = RESOURCES.createMaterial(shader);
+        mat->setTexture("tex", ASSETS.getTexture2D("/textures/water.jpg", false));
+        mat->setFloat("opacity", 0.8f);
+
+        auto water = go->getScene()->createGameObject();
+        water->addComponent<Components::MeshRenderer>(Core::Assets::MeshGenerator::CreatePlane(1000.0f), mat);
+        transform = water->getTransform();
+        transform->rotation *= Math::Quat(Math::Vec3::RIGHT, 90);
+    }
+
+    void tick(Time::Seconds delta) override
+    {
+        // Plane moves with the viewer in the X-Z plane.
+        auto viewer = SCENE.getMainCamera()->getGameObject()->getTransform();
+        transform->position = viewer->position;
+
+        transform->position.y = m_waterLevel + sin(TIME.getTime().value) * 0.2f;
+    }
+};
+
+//**********************************************************************
 class MyScene : public IScene
 {
     Components::FPSCamera*  fpsCam;
@@ -444,13 +479,13 @@ public:
         F32 jumpPower = 15.0f;
         playerController = player->addComponent<PlayerController>(playerSpeed, jumpPower, placeDistance);
 
+        // GAMEOBJECTS
+        auto world = createGameObject("World");
         auto cubemap = ASSETS.getCubemap("/cubemaps/tropical_sunny_day/Left.png", "/cubemaps/tropical_sunny_day/Right.png",
             "/cubemaps/tropical_sunny_day/Up.png", "/cubemaps/tropical_sunny_day/Down.png",
             "/cubemaps/tropical_sunny_day/Front.png", "/cubemaps/tropical_sunny_day/Back.png");
-        player->addComponent<Components::Skybox>(cubemap);
+        world->addComponent<Components::Skybox>(cubemap);
 
-        // GAMEOBJECTS
-        //auto generator = std::make_shared<FlatTerrainGenerator>();
 
         Core::Config::ConfigFile terrain("res/terrain.ini");
 
@@ -462,12 +497,14 @@ public:
 
         F32 height = terrain["General"]["height"];
 
-        //I32 seed = Math::Random::Int(1,285092);
-        I32 seed = 25256;
+        I32 seed = Math::Random::Int(1,285092);
+        LOG("Current World Seed: " + TS(seed), Color::RED);
         auto generator = std::make_shared<BasicTerrainGenerator>(seed, noiseParams, height);
 
+        //auto generator = std::make_shared<FlatTerrainGenerator>();
         I32 chunkViewDistance = 16;
-        auto worldGenerator = createGameObject("World Generation")->addComponent<WorldGeneration>(generator, chunkViewDistance);
+        auto worldGenerator = world->addComponent<WorldGeneration>(generator, chunkViewDistance);
+        world->addComponent<Water>(4);
     }
 
     void tick(Time::Seconds delta) override
