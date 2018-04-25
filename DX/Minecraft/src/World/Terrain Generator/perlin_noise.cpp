@@ -18,7 +18,6 @@ F32 PerlinNoise::get(I32 x, I32 y, const Math::Vec2Int& offset) const
     F32 sampleY = (m_seed + y + offset.y) / scale;
 
     F32 noiseValue = stb_perlin_turbulence_noise3(sampleX, sampleY, 0.0f, m_params.lacunarity, m_params.gain, m_params.octaves, 0, 0, 0);
-    ASSERT(noiseValue <= 1.0f);
 
     return noiseValue;
 }

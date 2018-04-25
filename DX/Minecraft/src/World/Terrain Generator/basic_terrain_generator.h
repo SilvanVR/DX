@@ -72,8 +72,6 @@ protected:
         for (auto region : m_regions)
             if (y <= region.height)
                 return region.block;
-
-        ASSERT(false);
         return Block("air");
     }
 };
@@ -86,22 +84,24 @@ public:
     {
         m_regions.push_back(TerrainType{ 0.1f, Block("sand") });
         m_regions.push_back(TerrainType{ 0.12f, Block("gravel") });
-        m_regions.push_back(TerrainType{ 1.0f, Block("dirt") });
+        m_regions.push_back(TerrainType{ 2.0f, Block("dirt") });
     }
 
     void generateTerrainFor(Chunk& chunk, I32 x, I32 height, I32 z) override
     {
-        F32 noiseValue = height / m_elevation;
+        I32 clampedHeight = Math::clamp(height, -CHUNK_HEIGHT, CHUNK_HEIGHT);
+
+        F32 noiseValue = clampedHeight / m_elevation;
         Block block = _GetBlockFromHeight(noiseValue);
 
-        for (I32 y = -CHUNK_HEIGHT; y < height; y++)
+        for (I32 y = -CHUNK_HEIGHT; y < clampedHeight; y++)
             chunk.setVoxelAt(x, y, z, block);
 
         // Replace top layer dirt by grass
         if (block == Block("dirt"))
-            chunk.setVoxelAt(x, height, z, Block("grass"));
+            chunk.setVoxelAt(x, clampedHeight, z, Block("grass"));
         else
-            chunk.setVoxelAt(x, height, z, block);
+            chunk.setVoxelAt(x, clampedHeight, z, block);
 
         // Placing trees at chunk edges does not work properly, so just dont add them there :)
         bool notAtEdge = x > 2 && x < CHUNK_SIZE - 2 && z > 2 && z < CHUNK_SIZE - 2;
@@ -110,9 +110,9 @@ public:
             if (Math::Random::Int(0, 30) == 0)
             {
                 if (Math::Random::Int(1) == 0)
-                    _MakeTree(chunk, x, height + 1, z, BLOCK_OAK, BLOCK_OAK_LEAVES);
+                    _MakeTree(chunk, x, clampedHeight + 1, z, BLOCK_OAK, BLOCK_OAK_LEAVES);
                 else
-                    _MakeTree(chunk, x, height + 1, z, BLOCK_BIRCH, BLOCK_BIRCH_LEAVES);
+                    _MakeTree(chunk, x, clampedHeight + 1, z, BLOCK_BIRCH, BLOCK_BIRCH_LEAVES);
             }
         }
     }
@@ -124,24 +124,26 @@ class DesertBiome : public Biome
 public:
     DesertBiome(I32 seed, NoiseParams params, F32 height) : Biome(seed, params, height)
     {
-        m_regions.push_back(TerrainType{ 1.0f, Block("sand") });
+        m_regions.push_back(TerrainType{ 2.0f, Block("sand") });
     }
 
     void generateTerrainFor(Chunk& chunk, I32 x, I32 height, I32 z) override
     {
-        F32 noiseValue = height / m_elevation;
+        I32 clampedHeight = Math::clamp(height, -CHUNK_HEIGHT, CHUNK_HEIGHT);
+
+        F32 noiseValue = clampedHeight / m_elevation;
         Block block = _GetBlockFromHeight(noiseValue);
-        for (I32 y = -CHUNK_HEIGHT; y < height; y++)
+        for (I32 y = -CHUNK_HEIGHT; y < clampedHeight; y++)
             chunk.setVoxelAt(x, y, z, block);
 
         // Placing cactus at chunk edges does not work properly, so just dont add them there :)
         bool notAtEdge = x > 1 && x < CHUNK_SIZE - 1 && z > 1 && z < CHUNK_SIZE - 1;
-        if (notAtEdge && height > 10.0f)
+        if (notAtEdge && clampedHeight > (WATER_LEVEL + 1))
         {
             if (Math::Random::Int(0, 500) == 0)
             {
                 I32 cactusHeight = Math::Random::Int(3,5);
-                for (I32 cacY = height; cacY < height + cactusHeight; cacY++)
+                for (I32 cacY = clampedHeight; cacY < clampedHeight + cactusHeight; cacY++)
                     chunk.setVoxelAt(x, cacY, z, Block("cactus"));
             }
         }
@@ -156,15 +158,17 @@ public:
     {
         m_regions.push_back(TerrainType{ 0.15f, Block("gravel") });
         m_regions.push_back(TerrainType{ 0.25f, Block("dirt") });
-        m_regions.push_back(TerrainType{ 0.6f, Block("stone") });
-        m_regions.push_back(TerrainType{ 1.0f, Block("snow") });
+        m_regions.push_back(TerrainType{ 0.5f, Block("stone") });
+        m_regions.push_back(TerrainType{ 2.0f, Block("snow") });
     }
 
     void generateTerrainFor(Chunk& chunk, I32 x, I32 height, I32 z) override
     {
-        F32 noiseValue = height / m_elevation;
+        I32 clampedHeight = Math::clamp(height, -CHUNK_HEIGHT, CHUNK_HEIGHT);
+
+        F32 noiseValue = clampedHeight / m_elevation;
         Block block = _GetBlockFromHeight(noiseValue);
-        for (I32 y = -CHUNK_HEIGHT; y < height; y++)
+        for (I32 y = -CHUNK_HEIGHT; y < clampedHeight; y++)
             chunk.setVoxelAt(x, y, z, block);
     }
 };

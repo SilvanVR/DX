@@ -499,7 +499,7 @@ public:
         //auto generator = std::make_shared<FlatTerrainGenerator>();
         I32 chunkViewDistance = 16;
         auto worldGenerator = world->addComponent<WorldGeneration>(generator, chunkViewDistance);
-        world->addComponent<Water>(4.0f);
+        world->addComponent<Water>(WATER_LEVEL);
     }
 
     void tick(Time::Seconds delta) override
