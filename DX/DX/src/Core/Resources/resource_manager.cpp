@@ -300,7 +300,7 @@ namespace Core { namespace Resources {
             m_wireframeMaterial = createMaterial( m_wireframeShader );
             m_colorMaterial = createMaterial( m_colorShader );
 
-            Locator::getRenderer().addGlobalMaterial( "Wireframe", m_wireframeMaterial );
+            Locator::getRenderer().addGlobalMaterial( "Wireframe", m_wireframeMaterial.get() );
         }
 
         // TEXTURES

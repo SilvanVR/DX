@@ -13,7 +13,7 @@
 
 #include "i_render_texture.hpp"
 #include "../D3D11.hpp"
-#include "D3D11IBindableTexture.hpp"
+#include "D3D11IBindableTexture.h"
 
 namespace Graphics { namespace D3D11 {
 
@@ -36,7 +36,7 @@ namespace Graphics { namespace D3D11 {
         //----------------------------------------------------------------------
         // D3D11ITexture Interface
         //----------------------------------------------------------------------
-        void bind(U32 slot) override;
+        void bind(ShaderType shaderType, U32 slot) override;
         ID3D11Texture2D* getD3D11Texture() override { return m_buffers[_PreviousBufferIndex()].pRenderTexture; }
 
     private:

@@ -70,7 +70,7 @@ namespace Graphics { namespace D3D11 {
 
         // Bind textures
         for (auto& texInfo : m_textureCache)
-            texInfo.texture->bind( texInfo.bindSlot );
+            texInfo.texture->bind( texInfo.shaderType, texInfo.bindSlot );
     }
 
     //----------------------------------------------------------------------
@@ -88,30 +88,54 @@ namespace Graphics { namespace D3D11 {
     bool Material::_SetTexture( StringID name, TexturePtr texture )
     {
         auto d3d11Shader = dynamic_cast<Shader*>( m_shader.get() );
-        D3D11::IBindableTexture* d3d11Texture = dynamic_cast<D3D11::IBindableTexture*>( texture.get() );
 
-        I32 bindingSlot = d3d11Shader->getTextureBindingSlot( name );
-        if ( bindingSlot < 0 )
-            return false;
-
-        if ( m_textureMap.count( name ) == 0 )
+        // VERTEX SHADER
+        if ( auto binding = d3d11Shader->getVertexShader()->getTextureBindingInfo( name ) )
         {
-            // Texture slot was set for the first time
-            TextureCache texCache;
-            texCache.bindSlot = bindingSlot;
-            texCache.texture  = d3d11Texture;
+            if ( m_textureMap.find( name ) != m_textureMap.end() )
+            {
+                // Update texture slot
+                for (auto& entry : m_textureCache)
+                    if (entry.bindSlot == binding->slot)
+                        entry.texture = dynamic_cast<D3D11::IBindableTexture*>( texture.get() );
+            }
+            else
+            {
+                // Texture slot was set for the first time
+                TextureCache texCache;
+                texCache.bindSlot = binding->slot;
+                texCache.shaderType = ShaderType::Vertex;
+                texCache.texture  = dynamic_cast<D3D11::IBindableTexture*>( texture.get() );
 
-            m_textureCache.emplace_back( texCache );
+                m_textureCache.emplace_back( texCache );
+            }
+            return true;
         }
-        else
+
+        // PIXEL SHADER
+        if ( auto binding = d3d11Shader->getPixelShader()->getTextureBindingInfo( name ) )
         {
-            // Update texture slot
-            for (auto& entry : m_textureCache )
-                if (entry.bindSlot == bindingSlot)
-                    entry.texture = d3d11Texture;
+            if ( m_textureMap.find( name ) != m_textureMap.end() )
+            {
+                // Update texture slot
+                for (auto& entry : m_textureCache)
+                    if (entry.bindSlot == binding->slot)
+                        entry.texture = dynamic_cast<D3D11::IBindableTexture*>( texture.get() );
+            }
+            else
+            {
+                // Texture slot was set for the first time
+                TextureCache texCache;
+                texCache.bindSlot = binding->slot;
+                texCache.shaderType = ShaderType::Fragment;
+                texCache.texture  = dynamic_cast<D3D11::IBindableTexture*>( texture.get() );
+
+                m_textureCache.emplace_back( texCache );
+            }
+            return true;
         }
 
-        return true;
+        return false;
     }
 
     //**********************************************************************

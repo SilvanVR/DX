@@ -155,6 +155,7 @@
     <ClCompile Include="src\Include\Graphics\D3D11\Pipeline\Shaders\D3D11ShaderBase.cpp" />
     <ClCompile Include="src\Include\Graphics\D3D11\Pipeline\Shaders\D3D11VertexShader.cpp" />
     <ClCompile Include="src\Include\Graphics\D3D11\Resources\D3D11Cubemap.cpp" />
+    <ClCompile Include="src\Include\Graphics\D3D11\Resources\D3D11IBindableTexture.cpp" />
     <ClCompile Include="src\Include\Graphics\D3D11\Resources\D3D11Material.cpp" />
     <ClCompile Include="src\Include\Graphics\D3D11\Resources\D3D11Mesh.cpp" />
     <ClCompile Include="src\Include\Graphics\D3D11\Resources\D3D11RenderTexture.cpp" />
@@ -186,7 +187,7 @@
     <ClInclude Include="src\Include\Graphics\D3D11\Resources\D3D11Mesh.h" />
     <ClInclude Include="src\Include\Graphics\D3D11\Resources\D3D11RenderTexture.h" />
     <ClInclude Include="src\Include\Graphics\D3D11\Resources\D3D11Shader.h" />
-    <ClInclude Include="src\Include\Graphics\D3D11\Resources\D3D11IBindableTexture.hpp" />
+    <ClInclude Include="src\Include\Graphics\D3D11\Resources\D3D11IBindableTexture.h" />
     <ClInclude Include="src\Include\Graphics\D3D11\Resources\D3D11Texture2D.h" />
     <ClInclude Include="src\Include\Graphics\D3D11\Resources\D3D11Texture2DArray.h" />
     <ClInclude Include="src\Include\Graphics\enums.hpp" />

@@ -40,12 +40,6 @@ namespace Graphics { namespace D3D11 {
         const VertexShader* getVertexShader() const { return m_pVertexShader.get(); }
         const PixelShader*  getPixelShader() const { return m_pPixelShader.get(); }
 
-        //----------------------------------------------------------------------
-        // @Return:
-        //  Slot number for a given texture. Returns -1 if texture doesn't exist.
-        //----------------------------------------------------------------------
-        I32 getTextureBindingSlot(StringID name) const;
-
     private:
         std::unique_ptr<VertexShader>   m_pVertexShader = nullptr;
         std::unique_ptr<PixelShader>    m_pPixelShader  = nullptr;

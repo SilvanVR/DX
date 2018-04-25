@@ -24,25 +24,6 @@ namespace Graphics { namespace D3D11 {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    void Cubemap::bind( U32 slot )
-    {
-        if (not m_gpuUpToDate)
-        {
-            _PushToGPU();
-            m_gpuUpToDate = true;
-        }
-
-        if (m_generateMips)
-        {
-            g_pImmediateContext->GenerateMips( m_pTextureView );
-            m_generateMips = false;
-        }
-
-        g_pImmediateContext->PSSetSamplers( slot, 1, &m_pSampleState );
-        g_pImmediateContext->PSSetShaderResources( slot, 1, &m_pTextureView );
-    }
-
-    //----------------------------------------------------------------------
     void Cubemap::create( I32 size, TextureFormat format, bool generateMips )
     {
         ASSERT( size > 0 );

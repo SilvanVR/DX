@@ -20,7 +20,7 @@ namespace Graphics { namespace D3D11 {
     //----------------------------------------------------------------------
     const ConstantBufferInfo* ShaderBase::getConstantBufferInfo( StringID name ) const
     {
-        if ( m_constantBuffers.count( name ) == 0 )
+        if ( m_constantBuffers.find( name ) == m_constantBuffers.end() )
             return nullptr;
 
         return &m_constantBuffers.at( name );
@@ -29,7 +29,7 @@ namespace Graphics { namespace D3D11 {
     //----------------------------------------------------------------------
     const TextureBindingInfo* ShaderBase::getTextureBindingInfo( StringID name ) const
     {
-        if ( m_textures.count( name ) == 0 )
+        if ( m_textures.find( name ) == m_textures.end() )
             return nullptr;
 
         return &m_textures.at( name );
@@ -76,7 +76,7 @@ namespace Graphics { namespace D3D11 {
                 return false;
         else
             WARN_RENDERING( "Shader::recompile(): Recompilation not possible because no filepath exists in this class! "
-                            "Maybe the shader was compiled directly from source?");
+                            "Maybe the shader was compiled directly from source?" );
         return false;
     }
 

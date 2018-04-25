@@ -26,8 +26,9 @@ namespace Graphics {
         virtual ~IShader() {}
 
         //----------------------------------------------------------------------
-        const String& getName() const { return m_name; }
-        void setName(const String& name) { m_name = name; }
+        const String&   getName() const             { return m_name; }
+        U32             getPriority() const         { return m_priority; }
+        void            setName(const String& name) { m_name = name; }
 
         //----------------------------------------------------------------------
         // Try to compile this shader.
@@ -55,6 +56,7 @@ namespace Graphics {
         // Recompile all shaders which are not up to date.
         // @Return:
         //  List of shader paths, which were recompiled.
+        //----------------------------------------------------------------------
         virtual ArrayList<OS::Path> recompile() = 0;
 
         //----------------------------------------------------------------------
@@ -110,13 +112,11 @@ namespace Graphics {
             setBlendState( blendState );
         }
 
-        U32         getPriority()   const { return m_priority; }
-
         //----------------------------------------------------------------------
         // Set the priority for this material. A higher priority means this material
         // will be drawn before others with a lower priority.
         //----------------------------------------------------------------------
-        void        setPriority(U32 newPriority) { m_priority = newPriority; }
+        void setPriority(U32 newPriority) { m_priority = newPriority; }
 
     protected:
         // These are only used when configured correctly

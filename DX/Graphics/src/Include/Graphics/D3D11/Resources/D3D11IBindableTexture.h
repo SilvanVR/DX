@@ -1,11 +1,11 @@
 #pragma once
 /**********************************************************************
-    class: IBindableTexture (D3D11IBindableTexture.hpp)
+    class: IBindableTexture (D3D11IBindableTexture.h)
 
     author: S. Hau
     date: March 30, 2018
 
-    Interface for all textures in d3d11, which can be bound to a shader.
+    Interface for all textures in Direct3D11 which can be bound to a shader.
 **********************************************************************/
 
 #include "enums.hpp"
@@ -21,9 +21,15 @@ namespace Graphics { namespace D3D11 {
         virtual ~IBindableTexture() { SAFE_RELEASE( m_pSampleState ); }
 
         //----------------------------------------------------------------------
-        virtual void bind(U32 slot) = 0;
+        // This functions binds this texture to the given shader at the given slot.
+        // Default implementation is provided, but can be overriden if desired.
+        //----------------------------------------------------------------------
+        virtual void bind(ShaderType shaderType, U32 slot);
 
-        // Virtual because the render texture has more than one texture
+        //----------------------------------------------------------------------
+        // @Return:
+        //  D3D11Texture for this texture. (Virtual cause render-textures needs more than one)
+        //----------------------------------------------------------------------
         virtual ID3D11Texture2D* getD3D11Texture() { return m_pTexture; }
 
     protected:
@@ -36,29 +42,12 @@ namespace Graphics { namespace D3D11 {
         bool                        m_keepPixelsInRAM  = false;
 
         //----------------------------------------------------------------------
-        void _CreateSampler( U32 anisoLevel, TextureFilter filter, TextureAddressMode addressMode )
-        {
-            SAFE_RELEASE( m_pSampleState );
+        void _CreateSampler( U32 anisoLevel, TextureFilter filter, TextureAddressMode addressMode );
 
-            D3D11_SAMPLER_DESC samplerDesc;
-            samplerDesc.Filter = (anisoLevel > 1 ? D3D11_FILTER_ANISOTROPIC : Utility::TranslateFilter( filter ) );
-
-            auto clampMode = Utility::TranslateClampMode( addressMode );
-            samplerDesc.AddressU        = clampMode;
-            samplerDesc.AddressV        = clampMode;
-            samplerDesc.AddressW        = clampMode;
-            samplerDesc.MipLODBias      = 0.0f;
-            samplerDesc.MaxAnisotropy   = anisoLevel;
-            samplerDesc.ComparisonFunc  = D3D11_COMPARISON_NEVER;
-            samplerDesc.BorderColor[0]  = 0.0f;
-            samplerDesc.BorderColor[1]  = 0.0f;
-            samplerDesc.BorderColor[2]  = 0.0f;
-            samplerDesc.BorderColor[3]  = 0.0f;
-            samplerDesc.MinLOD          = 0;
-            samplerDesc.MaxLOD          = D3D11_FLOAT32_MAX;
-
-            HR( g_pDevice->CreateSamplerState( &samplerDesc, &m_pSampleState ) );
-        }
+        //----------------------------------------------------------------------
+        // Pushes the pixel data to the GPU right before binding occurs.
+        //----------------------------------------------------------------------
+        virtual void _PushToGPU() {};
 
     private:
         //----------------------------------------------------------------------

@@ -8,7 +8,7 @@
 
 #include "../../i_material.h"
 #include "../Pipeline/Buffers/D3D11Buffers.h"
-#include "D3D11IBindableTexture.hpp"
+#include "D3D11IBindableTexture.h"
 
 namespace Graphics { namespace D3D11 {
 
@@ -79,6 +79,7 @@ namespace Graphics { namespace D3D11 {
         struct TextureCache
         {
             U32                         bindSlot;
+            ShaderType                  shaderType;
             D3D11::IBindableTexture*    texture;
         };
         ArrayList<TextureCache> m_textureCache;

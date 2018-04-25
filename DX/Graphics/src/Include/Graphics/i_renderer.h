@@ -10,7 +10,6 @@
 
 #include "SubSystem/i_subsystem.hpp"
 #include "OS/Window/window.h"
-#include "i_material.h"
 #include "structs.hpp"
 
 namespace Graphics {
@@ -20,6 +19,7 @@ namespace Graphics {
     class IRenderTexture;
     class CommandBuffer;
     class ITexture2D;
+    class IMaterial;
     class ICubemap;
     class IShader;
     class IMesh;
@@ -70,12 +70,14 @@ namespace Graphics {
 
         //----------------------------------------------------------------------
         // Add a global shader to this renderer. A global shader allows to render
-        // the whole scene with just one shader-setup. To use it call setGlobalMaterialActive(name)
+        // the whole scene with just one shader-setup. To use it call setGlobalMaterialActive(name).
+        // Please hold on the reference of the material you are passing in. The renderer does NOT delete it.
+        // P.S. This is an ugly hack and will be removed in future versions.
         // @Params:
         //  "name": The name of this shader to identify it.
         //  "material": The actual material.
         //----------------------------------------------------------------------
-        void addGlobalMaterial(CString name, MaterialPtr material);
+        void addGlobalMaterial(CString name, IMaterial* material);
 
         //----------------------------------------------------------------------
         // Set a global shader with the given name as active. If a global shader
@@ -98,8 +100,8 @@ namespace Graphics {
         FrameInfo   m_frameInfo = {};
 
         //----------------------------------------------------------------------
-        HashMap<StringID, MaterialPtr>  m_globalMaterials;
-        MaterialPtr                     m_activeGlobalMaterial = nullptr; // If this is not null the scene should be rendered just with this material
+        HashMap<StringID, IMaterial*>   m_globalMaterials;
+        IMaterial*                      m_activeGlobalMaterial = nullptr; // If this is not null the scene should be rendered just with this material
 
         //----------------------------------------------------------------------
         virtual void OnWindowSizeChanged(U16 w, U16 h) = 0;

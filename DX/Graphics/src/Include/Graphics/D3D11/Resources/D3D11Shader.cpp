@@ -191,18 +191,4 @@ namespace Graphics { namespace D3D11 {
         HR( g_pDevice->CreateBlendState( &blendDesc, &m_pBlendState ) );
     }
 
-    //----------------------------------------------------------------------
-    I32 Shader::getTextureBindingSlot( StringID name ) const
-    {
-        auto tex = m_pVertexShader->getTextureBindingInfo( name );
-        if (tex)
-            return tex->slot;
-
-        tex = m_pPixelShader->getTextureBindingInfo( name );
-        if (tex)
-            return tex->slot;
-
-        return -1;
-    }
-
 } } // End namespaces

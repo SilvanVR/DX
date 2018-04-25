@@ -8,7 +8,7 @@
 
 #include "i_texture2d_array.hpp"
 #include "../D3D11.hpp"
-#include "D3D11IBindableTexture.hpp"
+#include "D3D11IBindableTexture.h"
 
 namespace Graphics { namespace D3D11 {
 
@@ -25,11 +25,6 @@ namespace Graphics { namespace D3D11 {
         void create(U32 width, U32 height, U32 depth, TextureFormat format, bool generateMips) override;
         void apply(bool updateMips, bool keepPixelsInRAM) override;
 
-        //----------------------------------------------------------------------
-        // IBindableTexture Interface
-        //----------------------------------------------------------------------
-        void bind(U32 slot) override;
-
     private:
         //----------------------------------------------------------------------
         // ITexture Interface
@@ -39,7 +34,11 @@ namespace Graphics { namespace D3D11 {
         //----------------------------------------------------------------------
         void _CreateTextureArray();
         void _CreateShaderResourveView();
-        void _PushToGPU();
+
+        //----------------------------------------------------------------------
+        // IBindableTexture Interface
+        //----------------------------------------------------------------------
+        void _PushToGPU() override;
 
         //----------------------------------------------------------------------
         Texture2DArray(const Texture2DArray& other)               = delete;

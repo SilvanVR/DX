@@ -7,10 +7,7 @@
 
 **********************************************************************/
 
-
-
 namespace Graphics {
-
 
     //----------------------------------------------------------------------
     IRenderer::IRenderer(OS::Window* window) 
@@ -26,7 +23,7 @@ namespace Graphics {
     //----------------------------------------------------------------------
 
     //----------------------------------------------------------------------
-    void IRenderer::addGlobalMaterial( CString name, MaterialPtr material )
+    void IRenderer::addGlobalMaterial( CString name, IMaterial* material )
     { 
         m_globalMaterials[SID( name )] = material;
     }

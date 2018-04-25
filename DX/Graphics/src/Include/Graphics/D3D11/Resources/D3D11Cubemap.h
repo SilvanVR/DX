@@ -8,7 +8,7 @@
 
 #include "i_cubemap.hpp"
 #include "../D3D11.hpp"
-#include "D3D11IBindableTexture.hpp"
+#include "D3D11IBindableTexture.h"
 
 namespace Graphics { namespace D3D11 {
 
@@ -25,11 +25,6 @@ namespace Graphics { namespace D3D11 {
         void create(I32 size, TextureFormat format, bool generateMips) override;
         void apply(bool updateMips, bool keepPixelsInRAM) override;
 
-        //----------------------------------------------------------------------
-        // IBindableTexture Interface
-        //----------------------------------------------------------------------
-        void bind(U32 slot) override;
-
     private:
         //----------------------------------------------------------------------
         // ITexture Interface
@@ -39,7 +34,11 @@ namespace Graphics { namespace D3D11 {
         //----------------------------------------------------------------------
         void _CreateTexture();
         void _CreateShaderResourceView();
-        void _PushToGPU();
+
+        //----------------------------------------------------------------------
+        // IBindableTexture Interface
+        //----------------------------------------------------------------------
+        void _PushToGPU() override;
 
         //----------------------------------------------------------------------
         Cubemap(const Cubemap& other)               = delete;

@@ -44,13 +44,24 @@ namespace Graphics { namespace D3D11 {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    void RenderTexture::bind( U32 slot )
+    void RenderTexture::bind( ShaderType shaderType, U32 slot )
     {
-        g_pImmediateContext->PSSetSamplers( slot, 1, &m_pSampleState );
-
         // Bind previous rendered buffer
         I32 index = _PreviousBufferIndex();
-        g_pImmediateContext->PSSetShaderResources( slot, 1, &m_buffers[index].pRenderTextureView );
+
+        switch (shaderType)
+        {
+        case ShaderType::Vertex:
+            g_pImmediateContext->VSSetShaderResources( slot, 1, &m_buffers[index].pRenderTextureView );
+            g_pImmediateContext->VSSetSamplers( slot, 1, &m_pSampleState );
+            break;
+        case ShaderType::Fragment:
+            g_pImmediateContext->PSSetShaderResources( slot, 1, &m_buffers[index].pRenderTextureView );
+            g_pImmediateContext->PSSetSamplers( slot, 1, &m_pSampleState );
+            break;
+        default:
+            ASSERT( false );
+        }
     }
 
     //----------------------------------------------------------------------
