@@ -1,7 +1,6 @@
 #include <DX.h>
 #define DISPLAY_CONSOLE 1
 
-
 //**********************************************************************
 class MyScene : public IScene
 {
@@ -34,7 +33,7 @@ public:
         go3->addComponent<Components::AudioSource>(ASSETS.getAudioClip("/audio/doki.wav"));
         go3->addComponent<Components::MeshRenderer>(Core::Assets::MeshGenerator::CreateCube(0.5f, Color::RED), RESOURCES.getColorMaterial());
 
-        mesh = Core::Assets::MeshGenerator::CreateGrid(100.0f);
+        mesh = Core::Assets::MeshGenerator::CreateGrid(100);
         createGameObject("Grid")->addComponent<Components::MeshRenderer>(mesh, RESOURCES.getColorMaterial());
     }
 
@@ -68,13 +67,13 @@ public:
         static F32 volume = 1.0f;
         static F32 speed = 0.5f;
         if (KEYBOARD.isKeyDown(Key::Up))
-            volume += 2 * speed * delta.value;
+            volume += 2 * speed * (F32)delta.value;
         if (KEYBOARD.isKeyDown(Key::Down))
-            volume -= 2 * speed * delta.value;
+            volume -= 2 * speed * (F32)delta.value;
         if (KEYBOARD.isKeyDown(Key::Left))
-            pitch -= speed * delta.value;
+            pitch -= speed * (F32)delta.value;
         if (KEYBOARD.isKeyDown(Key::Right))
-            pitch += speed * delta.value;
+            pitch += speed * (F32)delta.value;
 
         if (clip)
         {
@@ -102,8 +101,8 @@ public:
            LOG( "Time: " + TS( Locator::getEngineClock().getTime().value ) + " FPS: " + TS( Locator::getProfiler().getFPS() ) );
         }, 1000);
 
-        getWindow().setCursor( "../dx/res/internal/cursors/Areo Cursor Red.cur" );
-        getWindow().setIcon( "../dx/res/internal/icon.ico" );
+        getWindow().setCursor( "/cursors/Areo Cursor Red.cur" );
+        getWindow().setIcon( "/internal/icon.ico" );
         Locator::getSceneManager().LoadSceneAsync( new MyScene() );
     }
 
@@ -115,14 +114,13 @@ public:
     //----------------------------------------------------------------------
     void shutdown() override 
     {
-        LOG( "Shutdown game..." );
     }
 };
 
 #ifdef _DEBUG
-    const char* gameName = "[DEBUG] Test Game";
+    const char* gameName = "[DEBUG] Audio Test";
 #else
-    const char* gameName = "[RELEASE] Test Game";
+    const char* gameName = "[RELEASE] Audio Test";
 #endif
 
 #if DISPLAY_CONSOLE

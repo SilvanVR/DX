@@ -15,6 +15,7 @@
 #include "Core/event_names.hpp"
 #include "GameplayLayer/i_scene.h"
 #include "Core/Assets/mesh_generator.h"
+#include "../Resources/default_shaders.hpp"
 
 namespace Core { namespace Debug {
 
@@ -29,10 +30,12 @@ namespace Core { namespace Debug {
         evt.addListener( BIND_THIS_FUNC_0_ARGS( &DebugManager::_OnSceneChanged ) );
 
         // Create both shaders with / withot depth-test
-        m_colorShaderWireframe = RESOURCES.createShader( "DEBUG-DEPTH", "/shaders/colorVS.hlsl", "/shaders/colorPS.hlsl" );
+        m_colorShaderWireframe = RESOURCES.createShader( Resources::COLOR_VERTEX_SHADER_SOURCE, Resources::COLOR_FRAGMENT_SHADER_SOURCE );
+        m_colorShaderWireframe->setName( "DEBUG - DEPTH" );
         m_colorShaderWireframe->setRasterizationState( { Graphics::FillMode::Wireframe, Graphics::CullMode::None } );
 
-        m_colorShaderWireframeNoDepthTest = RESOURCES.createShader( "DEBUG-NO DEPTH", "/shaders/colorVS.hlsl", "/shaders/colorPS.hlsl" );
+        m_colorShaderWireframeNoDepthTest = RESOURCES.createShader( Resources::COLOR_VERTEX_SHADER_SOURCE, Resources::COLOR_FRAGMENT_SHADER_SOURCE );
+        m_colorShaderWireframeNoDepthTest->setName("DEBUG - NO DEPTH");
         m_colorShaderWireframeNoDepthTest->setRasterizationState( { Graphics::FillMode::Wireframe, Graphics::CullMode::None } );
         m_colorShaderWireframeNoDepthTest->setDepthStencilState( { false } );
 

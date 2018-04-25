@@ -118,6 +118,19 @@ namespace Core { namespace Resources {
     }
 
     //----------------------------------------------------------------------
+    ShaderPtr ResourceManager::createShader( const String& vertSrc, const String& fragSrc )
+    {
+        auto shader = Locator::getRenderer().createShader();
+
+        m_shaders.push_back( shader );
+
+        if ( not shader->compileFromSource( vertSrc, fragSrc, "main" ) )
+            return m_errorShader;
+
+        return ShaderPtr( shader, BIND_THIS_FUNC_1_ARGS( &ResourceManager::_DeleteShader ) );
+    }
+
+    //----------------------------------------------------------------------
     Texture2DPtr ResourceManager::createTexture2D( U32 width, U32 height, Graphics::TextureFormat format, bool generateMips )
     {
         auto texture = Locator::getRenderer().createTexture2D();
