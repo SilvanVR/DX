@@ -66,13 +66,8 @@ namespace Components {
 
         // Set view / projection params
         Transform* transform = getGameObject()->getComponent<Components::Transform>();
-
-        DirectX::XMVECTOR s = DirectX::XMVectorSet( 1, 1, 1, 1 ); // Scale doesn't matter
-        DirectX::XMVECTOR r = DirectX::XMLoadFloat4( &transform->rotation );
-        DirectX::XMVECTOR p = DirectX::XMLoadFloat3( &transform->position );
-
-        auto transformation = DirectX::XMMatrixAffineTransformation( s, DirectX::XMQuaternionIdentity(), r, p );
-        auto view = DirectX::XMMatrixInverse( nullptr, transformation );
+        auto modelMatrix = transform->getTransformationMatrix( lerp );
+        auto view = DirectX::XMMatrixInverse( nullptr, modelMatrix );
 
         switch ( m_cameraMode )
         {

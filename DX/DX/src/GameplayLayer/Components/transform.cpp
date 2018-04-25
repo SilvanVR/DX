@@ -6,6 +6,8 @@
     date: December 17, 2017
 **********************************************************************/
 
+#define LERP_TRANSFORM 0
+
 namespace Components {
 
     //**********************************************************************
@@ -72,8 +74,26 @@ namespace Components {
             auto parentMatrix = m_pParent->getTransformationMatrix();
             return DirectX::XMMatrixMultiply( transformationMatrix, parentMatrix );
         }
-
         return transformationMatrix;
+    }
+
+    //----------------------------------------------------------------------
+    DirectX::XMMATRIX Transform::getTransformationMatrix( F32 lerp )
+    {
+        auto modelMatrix = getTransformationMatrix();
+#if LERP_TRANSFORM
+        DirectX::XMVECTOR sCur, rCur, pCur, sPrev, rPrev, pPrev;
+        DirectX::XMMatrixDecompose( &sCur, &rCur, &pCur, modelMatrix );
+        DirectX::XMMatrixDecompose( &sPrev, &rPrev, &pPrev, m_lastModelMatrix );
+
+        auto s = DirectX::XMVectorLerp( sPrev, sCur, lerp );
+        auto p = DirectX::XMVectorLerp( pPrev, pCur, lerp );
+        auto r = DirectX::XMQuaternionSlerp( rPrev, rCur, lerp );
+
+        modelMatrix = DirectX::XMMatrixAffineTransformation( s, DirectX::XMQuaternionIdentity(), r, p );
+        m_lastModelMatrix = modelMatrix;
+#endif
+        return modelMatrix;
     }
 
     //----------------------------------------------------------------------

@@ -66,13 +66,11 @@ namespace Components {
         ASSERT( transform != nullptr );
 
         // Draw submesh with appropriate material
-        auto modelMatrix = transform->getTransformationMatrix();
+        auto modelMatrix = transform->getTransformationMatrix( lerp );
         for (I32 i = 0; i < m_mesh->getSubMeshCount(); i++)
         {
             ASSERT( m_materials[i] != nullptr );
             cmd.drawMesh( m_mesh, m_materials[i], modelMatrix, i );
         }
     }
-
-
 }
