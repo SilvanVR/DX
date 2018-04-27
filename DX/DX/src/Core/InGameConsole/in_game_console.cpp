@@ -164,7 +164,7 @@ namespace Core {
         StringID id = SID( str.c_str() );
         if ( m_commands.count( id ) > 0 )
         {
-            WARN( "InGameConsole::registerCommand(): Command '" + str + "' already exists." );
+            LOG_WARN( "InGameConsole::registerCommand(): Command '" + str + "' already exists." );
             return;
         }
 
@@ -190,7 +190,7 @@ namespace Core {
         }
         else
         {
-            WARN( "InGameConsole::getVariable(): Variable '" + lower + "' does not exist. Use SET_VAR(name,val) before." );
+            LOG_WARN( "InGameConsole::getVariable(): Variable '" + lower + "' does not exist. Use SET_VAR(name,val) before." );
             return Common::VariantType();
         }
     }
@@ -241,7 +241,7 @@ namespace Core {
                 }
                 else
                 {
-                    WARN( "Variable '" + splits[0] + "' does not exist." );
+                    LOG_WARN( "Variable '" + splits[0] + "' does not exist." );
                 }
                 return;
             }

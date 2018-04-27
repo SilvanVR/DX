@@ -19,7 +19,7 @@ namespace Core {
     {
         // Check for Math-Library support
         if ( not DirectX::XMVerifyCPUSupport() )
-            ERROR( "DirectX-Math not supported on this system, but is required!" );
+            LOG_ERROR( "DirectX-Math not supported on this system, but is required!" );
 
         // Set core engine instance in the locator class
         Locator::setCoreEngine( this );

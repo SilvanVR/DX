@@ -263,7 +263,7 @@ namespace Core { namespace Resources {
             m_errorShader = ShaderPtr( Locator::getRenderer().createShader(), BIND_THIS_FUNC_1_ARGS( &ResourceManager::_DeleteShader ) );
             m_errorShader->setName( SHADER_ERROR_NAME );
             if ( not m_errorShader->compileFromSource( ERROR_VERTEX_SHADER_SOURCE, ERROR_FRAGMENT_SHADER_SOURCE, "main" ) )
-                ERROR( "Error shader source didn't compile. This is mandatory!" );
+                LOG_ERROR( "Error shader source didn't compile. This is mandatory!" );
 
             m_shaders.push_back( m_errorShader.get() );
 
@@ -272,7 +272,7 @@ namespace Core { namespace Resources {
             m_defaultShader->setName( SHADER_DEFAULT_NAME );
 
             if ( not m_defaultShader->compileFromSource( DEFAULT_VERTEX_SHADER_SOURCE, DEFAULT_FRAGMENT_SHADER_SOURCE, "main" ) )
-                ERROR( "Default shader source didn't compile. This is mandatory!" );
+                LOG_ERROR( "Default shader source didn't compile. This is mandatory!" );
 
             m_shaders.push_back( m_defaultShader.get() );
 
@@ -289,7 +289,7 @@ namespace Core { namespace Resources {
             m_colorShader->setName( SHADER_COLOR_NAME );
 
             if ( not m_colorShader->compileFromSource( COLOR_VERTEX_SHADER_SOURCE, COLOR_FRAGMENT_SHADER_SOURCE, "main") )
-                ERROR( "Color shader source didn't compile. This is mandatory!" );
+                LOG_ERROR( "Color shader source didn't compile. This is mandatory!" );
 
             m_shaders.push_back( m_colorShader.get() );
         }

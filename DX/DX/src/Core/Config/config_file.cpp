@@ -31,7 +31,7 @@ namespace Core { namespace Config {
         if ( m_configFile->exists() )
             _Read();
         else
-            WARN( "ConfigFile: File " + String( vpath ) + " does not exist." );
+            LOG_WARN( "ConfigFile: File " + String( vpath ) + " does not exist." );
     }
 
     //----------------------------------------------------------------------
@@ -126,7 +126,7 @@ namespace Core { namespace Config {
                 continue;
             }
 
-            WARN( "ConfigFile '" + m_configFile->getFilePath().toString() + "': Could not read line: '" + line + "'" );
+            LOG_WARN( "ConfigFile '" + m_configFile->getFilePath().toString() + "': Could not read line: '" + line + "'" );
         }
     }
 

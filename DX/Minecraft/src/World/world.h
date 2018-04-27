@@ -8,7 +8,6 @@
     Represents the 3d voxel-world. Because PolyVox allows only accessing
     the LargeVolume on one thread every request must be buffered...
 **********************************************************************/
-#include <DX.h>
 #include "PolyVoxCore/LargeVolume.h"
 #include "PolyVoxCore/Raycast.h"
 #include "Physics/ray.h"

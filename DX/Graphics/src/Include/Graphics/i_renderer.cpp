@@ -34,7 +34,7 @@ namespace Graphics {
         StringID id = SID( name );
         if ( m_globalMaterials.count( id ) == 0 )
         {
-            WARN_RENDERING( "setGlobalShader(): Global Shader with name '" + String( name ) + "' does not exist." );
+            LOG_WARN_RENDERING( "setGlobalShader(): Global Shader with name '" + String( name ) + "' does not exist." );
             return;
         }
 

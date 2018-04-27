@@ -16,33 +16,34 @@
 
 #include "null_logger.hpp"
 
-extern Logging::ILogger*        gLogger;
+extern Logging::ILogger*            gLogger;
 
 //----------------------------------------------------------------------
 // Defines
 //----------------------------------------------------------------------
-#define LOG(...)                gLogger->log( Logging::LOG_CHANNEL_DEFAULT, __VA_ARGS__ )
-#define WARN(...)               gLogger->warn( Logging::LOG_CHANNEL_DEFAULT, __VA_ARGS__ )
-#define ERROR(...)              gLogger->error( Logging::LOG_CHANNEL_DEFAULT, __VA_ARGS__ )
+#define LOG(...)                    gLogger->log( Logging::LOG_CHANNEL_DEFAULT, __VA_ARGS__ )
+#define LOG_WARN(...)               gLogger->warn( Logging::LOG_CHANNEL_DEFAULT, __VA_ARGS__ )
+#define LOG_ERROR(...)              gLogger->error( Logging::LOG_CHANNEL_DEFAULT, __VA_ARGS__ )
 
-#define LOG_TEST(...)           gLogger->log( Logging::LOG_CHANNEL_TEST, __VA_ARGS__ )
-#define WARN_TEST(...)          gLogger->warn( Logging::LOG_CHANNEL_TEST, __VA_ARGS__ )
+#define LOG_TEST(...)               gLogger->log( Logging::LOG_CHANNEL_TEST, __VA_ARGS__ )
+#define LOG_WARN_TEST(...)          gLogger->warn( Logging::LOG_CHANNEL_TEST, __VA_ARGS__ )
+#define LOG_ERROR_TEST(...)         gLogger->error( Logging::LOG_CHANNEL_TEST, __VA_ARGS__ )
 
-#define LOG_MEMORY(...)         gLogger->log( Logging::LOG_CHANNEL_MEMORY, __VA_ARGS__ )
-#define WARN_MEMORY(...)        gLogger->warn( Logging::LOG_CHANNEL_MEMORY, __VA_ARGS__ )
-#define ERROR_MEMORY(...)       gLogger->error( Logging::LOG_CHANNEL_MEMORY, __VA_ARGS__ )
+#define LOG_MEMORY(...)             gLogger->log( Logging::LOG_CHANNEL_MEMORY, __VA_ARGS__ )
+#define LOG_WARN_MEMORY(...)        gLogger->warn( Logging::LOG_CHANNEL_MEMORY, __VA_ARGS__ )
+#define LOG_ERROR_MEMORY(...)       gLogger->error( Logging::LOG_CHANNEL_MEMORY, __VA_ARGS__ )
 
-#define LOG_RENDERING(...)      gLogger->log( Logging::LOG_CHANNEL_RENDERING, __VA_ARGS__ )
-#define WARN_RENDERING(...)     gLogger->warn( Logging::LOG_CHANNEL_RENDERING, __VA_ARGS__ )
-#define ERROR_RENDERING(...)    gLogger->error( Logging::LOG_CHANNEL_RENDERING, __VA_ARGS__ )
+#define LOG_RENDERING(...)          gLogger->log( Logging::LOG_CHANNEL_RENDERING, __VA_ARGS__ )
+#define LOG_WARN_RENDERING(...)     gLogger->warn( Logging::LOG_CHANNEL_RENDERING, __VA_ARGS__ )
+#define LOG_ERROR_RENDERING(...)    gLogger->error( Logging::LOG_CHANNEL_RENDERING, __VA_ARGS__ )
 
-#define LOG_PHYSICS(...)        gLogger->log( Logging::LOG_CHANNEL_PHYSICS, __VA_ARGS__ )
-#define WARN_PHYSICS(...)       gLogger->warn( Logging::LOG_CHANNEL_PHYSICS, __VA_ARGS__ )
-#define ERROR_PHYSICS(...)      gLogger->error( Logging::LOG_CHANNEL_PHYSICS, __VA_ARGS__ )
+#define LOG_PHYSICS(...)            gLogger->log( Logging::LOG_CHANNEL_PHYSICS, __VA_ARGS__ )
+#define LOG_WARN_PHYSICS(...)       gLogger->warn( Logging::LOG_CHANNEL_PHYSICS, __VA_ARGS__ )
+#define LOG_ERROR_PHYSICS(...)      gLogger->error( Logging::LOG_CHANNEL_PHYSICS, __VA_ARGS__ )
 
-#define LOG_AUDIO(...)          gLogger->log( Logging::LOG_CHANNEL_AUDIO, __VA_ARGS__ )
-#define WARN_AUDIO(...)         gLogger->warn( Logging::LOG_CHANNEL_AUDIO, __VA_ARGS__ )
-#define ERROR_AUDIO(...)        gLogger->error( Logging::LOG_CHANNEL_AUDIO, __VA_ARGS__ )
+#define LOG_AUDIO(...)              gLogger->log( Logging::LOG_CHANNEL_AUDIO, __VA_ARGS__ )
+#define LOG_WARN_AUDIO(...)         gLogger->warn( Logging::LOG_CHANNEL_AUDIO, __VA_ARGS__ )
+#define LOG_ERROR_AUDIO(...)        gLogger->error( Logging::LOG_CHANNEL_AUDIO, __VA_ARGS__ )
 
 namespace Logging {
 

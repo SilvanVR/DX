@@ -45,7 +45,7 @@ namespace Core { namespace Assets {
         auto texture = _LoadTexture2D( filePath, generateMips );
         if ( not texture )
         {
-            WARN( "LoadTexture(): Texture '" + filePath.toString() + "' could not be loaded. Returning the default texture instead." );
+            LOG_WARN( "LoadTexture(): Texture '" + filePath.toString() + "' could not be loaded. Returning the default texture instead." );
             return RESOURCES.getWhiteTexture();
         }
 
@@ -86,7 +86,7 @@ namespace Core { namespace Assets {
         auto cubemap = _LoadCubemap( posX, negX, posY, negY, posZ, negZ, generateMips );
         if (not cubemap)
         {
-            WARN( "LoadCubemap(): At least one of the specified cubemap faces couldn't be loaded! Positive X-Face path was " +
+            LOG_WARN( "LoadCubemap(): At least one of the specified cubemap faces couldn't be loaded! Positive X-Face path was " +
                    posX.toString() + " .Returning default cubemap instead." );
             return RESOURCES.getDefaultCubemap();
         }
@@ -123,7 +123,7 @@ namespace Core { namespace Assets {
         auto wav = std::make_shared<Audio::WAVClip>();
         if( not wav->load( filePath ) )
         {
-            WARN( "AssetManager::getAudioClip(): Audio clip '" + filePath.toString() + "' could not be loaded. Returning nullptr." );
+            LOG_WARN( "AssetManager::getAudioClip(): Audio clip '" + filePath.toString() + "' could not be loaded. Returning nullptr." );
             return nullptr;
         }
 

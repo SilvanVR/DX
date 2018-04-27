@@ -1,5 +1,4 @@
 #pragma once
-#include <DX.h>
 #include "block.hpp"
 #include "PolyVoxCore/LargeVolume.h"
 #include "world_constants.h"

@@ -59,7 +59,7 @@ namespace Core { namespace MemoryManagement {
     void* _GlobalNewAndDeleteAllocator::allocateDebug( Size size, const char* file, U32 line )
     {
         if (size > (1024 * 1024))
-            WARN ( "Large allocation (>1mb) " + String( file ) + ":" + TS( line ) );
+            LOG_WARN ( "Large allocation (>1mb) " + String( file ) + ":" + TS( line ) );
 
         return allocate( size );
     }

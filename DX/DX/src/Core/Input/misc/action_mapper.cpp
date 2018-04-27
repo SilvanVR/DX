@@ -38,7 +38,7 @@ namespace Core { namespace Input {
         StringID action = SID( name );
         if (m_actionEvents.count(action) == 0)
         {
-            WARN( "ActionMapper::isActionKeyDown(): Action '" + action.toString() + "' does not exist." );
+            LOG_WARN( "ActionMapper::isActionKeyDown(): Action '" + action.toString() + "' does not exist." );
             return false;
         }
 
@@ -51,7 +51,7 @@ namespace Core { namespace Input {
         StringID action = SID( name );
         if (m_actionEvents.count( action ) == 0)
         {
-            WARN( "ActionMapper::wasActionKeyPressed(): Action '" + action.toString() + "' does not exist." );
+            LOG_WARN( "ActionMapper::wasActionKeyPressed(): Action '" + action.toString() + "' does not exist." );
             return false;
         }
 
@@ -64,7 +64,7 @@ namespace Core { namespace Input {
         StringID action = SID( name );
         if (m_actionEvents.count( action ) == 0)
         {
-            WARN( "ActionMapper::wasActionKeyPressed(): Action '" + action.toString() + "' does not exist." );
+            LOG_WARN( "ActionMapper::wasActionKeyPressed(): Action '" + action.toString() + "' does not exist." );
             return false;
         }
 
@@ -92,7 +92,7 @@ namespace Core { namespace Input {
                     action.activeThisTick = m_mouse->isKeyDown( evt.mouseKey );
                     break;
                 default:
-                    WARN( "ActionMapper::_UpdateInternalState: Unknown input device." );
+                    LOG_WARN( "ActionMapper::_UpdateInternalState: Unknown input device." );
                 }
 
                 // Action should be fired. Break out of loop.

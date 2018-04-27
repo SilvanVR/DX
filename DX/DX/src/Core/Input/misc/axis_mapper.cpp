@@ -22,7 +22,7 @@ namespace Core { namespace Input {
         StringID axis = SID( name );
         if ( m_axisMap.count( axis ) == 0 )
         {
-            WARN( "InputManager::getAxis(): Axis name '" + axis.toString() + "' does not exist." );
+            LOG_WARN( "InputManager::getAxis(): Axis name '" + axis.toString() + "' does not exist." );
             return 0.0f;
         }
         return m_axisMap.at( axis ).value;
@@ -110,7 +110,7 @@ namespace Core { namespace Input {
                     key1Down = m_mouse->isKeyDown( evt.mouseKey1 );
                     break;
                 default:
-                    WARN( "AxisMapper::_UpdateInternalState: Unknown input device." );
+                    LOG_WARN( "AxisMapper::_UpdateInternalState: Unknown input device." );
                 }
 
                 if (key0Down)

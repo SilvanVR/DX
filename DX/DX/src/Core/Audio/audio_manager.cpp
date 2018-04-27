@@ -13,17 +13,17 @@ namespace Core { namespace Audio {
     {
         // XAUDIO2
         if ( FAILED( XAudio2Create( &m_pXAudio2, 0, XAUDIO2_DEFAULT_PROCESSOR ) ) )
-            ERROR_AUDIO( "XAudio2Create(): Initialization failed. Audio won't work." );
+            LOG_ERROR_AUDIO( "XAudio2Create(): Initialization failed. Audio won't work." );
 
         if ( FAILED( m_pXAudio2->CreateMasteringVoice( &m_pMasterVoice ) ) )
-            ERROR_AUDIO( "XAudio2(): Could not create a master voice, which is needed for output." );
+            LOG_ERROR_AUDIO( "XAudio2(): Could not create a master voice, which is needed for output." );
 
         // X3DAUDIO
         DWORD dwChannelMask;
         m_pMasterVoice->GetChannelMask( &dwChannelMask );
 
         if ( FAILED( X3DAudioInitialize( dwChannelMask, X3DAUDIO_SPEED_OF_SOUND, m_X3DInstance ) ) )
-            ERROR_AUDIO( "X3DAudioInitialize(): Initialization failed. 3D Audio won't work." );
+            LOG_ERROR_AUDIO( "X3DAudioInitialize(): Initialization failed. 3D Audio won't work." );
 
         m_pMasterVoice->GetVoiceDetails( &m_voiceDetails );
 
@@ -50,7 +50,7 @@ namespace Core { namespace Audio {
         X3DAudioCalculate( m_X3DInstance, &m_listener, &emitter, X3DAUDIO_CALCULATE_MATRIX, &m_DSPSettings );
 
         if ( FAILED( voice->SetOutputMatrix( NULL, sourceChannels, m_voiceDetails.InputChannels, m_DSPSettings.pMatrixCoefficients ) ) )
-            WARN_AUDIO( "AudioManager::update3DVoice(): Failed to set the output matrix for a source voice." );
+            LOG_WARN_AUDIO( "AudioManager::update3DVoice(): Failed to set the output matrix for a source voice." );
     }
 
     //----------------------------------------------------------------------
@@ -63,7 +63,7 @@ namespace Core { namespace Audio {
     void AudioManager::setVolume( F32 volume )
     {
         if ( FAILED( m_pMasterVoice->SetVolume( volume ) ) )
-            WARN_AUDIO( "AudioManager::setVolume(): Could not set the master volume." );
+            LOG_WARN_AUDIO( "AudioManager::setVolume(): Could not set the master volume." );
     }
 
 } } // End namespaces

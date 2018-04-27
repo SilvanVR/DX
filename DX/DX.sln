@@ -37,12 +37,12 @@ Global
 		StaticLib - Release|x86 = StaticLib - Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{696DBD41-D438-4702-AB30-D6D3BF73A44A}.Debug|x64.ActiveCfg = Debug|x64
-		{696DBD41-D438-4702-AB30-D6D3BF73A44A}.Debug|x64.Build.0 = Debug|x64
+		{696DBD41-D438-4702-AB30-D6D3BF73A44A}.Debug|x64.ActiveCfg = StaticLib - Debug|x64
+		{696DBD41-D438-4702-AB30-D6D3BF73A44A}.Debug|x64.Build.0 = StaticLib - Debug|x64
 		{696DBD41-D438-4702-AB30-D6D3BF73A44A}.Debug|x86.ActiveCfg = Debug|Win32
 		{696DBD41-D438-4702-AB30-D6D3BF73A44A}.Debug|x86.Build.0 = Debug|Win32
-		{696DBD41-D438-4702-AB30-D6D3BF73A44A}.Release|x64.ActiveCfg = Release|x64
-		{696DBD41-D438-4702-AB30-D6D3BF73A44A}.Release|x64.Build.0 = Release|x64
+		{696DBD41-D438-4702-AB30-D6D3BF73A44A}.Release|x64.ActiveCfg = StaticLib - Release|x64
+		{696DBD41-D438-4702-AB30-D6D3BF73A44A}.Release|x64.Build.0 = StaticLib - Release|x64
 		{696DBD41-D438-4702-AB30-D6D3BF73A44A}.Release|x86.ActiveCfg = Release|Win32
 		{696DBD41-D438-4702-AB30-D6D3BF73A44A}.Release|x86.Build.0 = Release|Win32
 		{696DBD41-D438-4702-AB30-D6D3BF73A44A}.StaticLib - Debug|x64.ActiveCfg = StaticLib - Debug|x64

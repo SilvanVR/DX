@@ -75,8 +75,8 @@ namespace Graphics { namespace D3D11 {
             else
                 return false;
         else
-            WARN_RENDERING( "Shader::recompile(): Recompilation not possible because no filepath exists in this class! "
-                            "Maybe the shader was compiled directly from source?" );
+            LOG_WARN_RENDERING( "Shader::recompile(): Recompilation not possible because no filepath exists in this class! "
+                                "Maybe the shader was compiled directly from source?" );
         return false;
     }
 
@@ -104,10 +104,10 @@ namespace Graphics { namespace D3D11 {
 
         if ( FAILED( hr ) )
         {
-            WARN_RENDERING( "Failed to compile shader from source '" + source + "'." );
+            LOG_WARN_RENDERING( "Failed to compile shader from source '" + source + "'." );
             if (errorBlob)
             {
-                WARN_RENDERING( (const char*)errorBlob->GetBufferPointer() );
+                LOG_WARN_RENDERING( (const char*)errorBlob->GetBufferPointer() );
                 SAFE_RELEASE( errorBlob );
             }
 
@@ -125,7 +125,7 @@ namespace Graphics { namespace D3D11 {
     {
         if ( not path.exists() )
         {
-             WARN_RENDERING( "Missing shader-file: '" + path.toString() + "'.");
+             LOG_WARN_RENDERING( "Missing shader-file: '" + path.toString() + "'.");
              return false;
         }
 
@@ -137,10 +137,10 @@ namespace Graphics { namespace D3D11 {
 
         if ( FAILED( hr ) )
         {
-            WARN_RENDERING( "Failed to compile shader '" + path.toString() + "'." );
+            LOG_WARN_RENDERING( "Failed to compile shader '" + path.toString() + "'." );
             if (errorBlob)
             {
-                WARN_RENDERING( (const char*)errorBlob->GetBufferPointer() );
+                LOG_WARN_RENDERING( (const char*)errorBlob->GetBufferPointer() );
                 SAFE_RELEASE( errorBlob );
             }
 

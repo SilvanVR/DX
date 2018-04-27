@@ -43,7 +43,7 @@ namespace Components {
         {
         case EClearMode::NONE: break;
         case EClearMode::COLOR: cmd.clearRenderTarget( getClearColor() ); break;
-        default: WARN( "Unknown Clear-Mode in camera!" );
+        default: LOG_WARN( "Unknown Clear-Mode in camera!" );
         }
 
         // Set viewport (Translate to pixel coordinates)
@@ -78,7 +78,7 @@ namespace Components {
             cmd.setCameraOrtho( view, getLeft(), getRight(), getBottom(), getTop(), getZNear(), getZFar() );
             break;
         default:
-            WARN_RENDERING( "UNKNOWN CAMERA MODE" );
+            LOG_WARN_RENDERING( "UNKNOWN CAMERA MODE" );
         }
     }
 

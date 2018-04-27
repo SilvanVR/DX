@@ -156,7 +156,7 @@ namespace OS {
         LPCSTR className = "DXWNDClassName";
         if ( not RegisterWindowClass( hInstance, className ) )
         {
-            ERROR( "Window[Win32]::create(): Failed to register a window class." );
+            LOG_ERROR( "Window[Win32]::create(): Failed to register a window class." );
         }
 
         // Center window
@@ -181,7 +181,7 @@ namespace OS {
 
         if ( not m_hwnd)
         {
-            ERROR( "Window[Win32]::create(): Failed to create a window. " );
+            LOG_ERROR( "Window[Win32]::create(): Failed to create a window. " );
         }
 
         ShowWindow( m_hwnd, SW_SHOW );
@@ -193,7 +193,7 @@ namespace OS {
     {
         if ( not DestroyWindow( m_hwnd ) )
         {
-            ERROR( "Window[Win32]::destroy(): Failed to destroy the window. " );
+            LOG_ERROR( "Window[Win32]::destroy(): Failed to destroy the window. " );
         }
         m_created = false;
     }
@@ -298,7 +298,7 @@ namespace OS {
         HCURSOR cursor = (HCURSOR) LoadImageFromFile( path, IMAGE_CURSOR );
         if (cursor == NULL)
         {
-           WARN( "Window[Win32]::setCursor(): Could not load cursor '" + path.toString() + "'. Wrong Extension? (.cur)." );
+           LOG_WARN( "Window[Win32]::setCursor(): Could not load cursor '" + path.toString() + "'. Wrong Extension? (.cur)." );
            return;
         }
 
@@ -312,7 +312,7 @@ namespace OS {
         HICON icon = (HICON) LoadImageFromFile( path, IMAGE_ICON );
         if (icon == NULL)
         {
-           WARN( "Window[Win32]::setIcon(): Could not load icon '" + path.toString() + "'. Wrong Extension? (.ico)." );
+           LOG_WARN( "Window[Win32]::setIcon(): Could not load icon '" + path.toString() + "'. Wrong Extension? (.ico)." );
            return;
         }
 

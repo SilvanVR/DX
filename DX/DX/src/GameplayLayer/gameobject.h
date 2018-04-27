@@ -121,7 +121,7 @@ T* GameObject::addComponent( Args&&... args )
     Size hash = TypeHash<T>();
     if (m_components.count( hash ) != 0)
     {
-        WARN( "GameObject::addComponent(): Component already exists. Adding the same component to a single gameobject is not allowed." );
+        LOG_WARN( "GameObject::addComponent(): Component already exists. Adding the same component to a single gameobject is not allowed." );
         return nullptr;
     }
 

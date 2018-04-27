@@ -26,7 +26,7 @@ namespace Core { namespace Audio {
         m_wavClip = wavClip;
 
         if ( FAILED( Locator::getAudioManager().getXAudio2()->CreateSourceVoice( &m_pSourceVoice, (WAVEFORMATEX*)&m_wavClip->getDescription() ) ) )
-            WARN_AUDIO( "AudioClip::setWAVClip(): Could not create a source voice for audio clip '" + m_wavClip->getFilePath().toString() + "'" );
+            LOG_WARN_AUDIO( "AudioClip::setWAVClip(): Could not create a source voice for audio clip '" + m_wavClip->getFilePath().toString() + "'" );
 
         _SubmitSourceBuffer();
         m_pSourceVoice->GetVoiceDetails( &m_details );
@@ -43,7 +43,7 @@ namespace Core { namespace Audio {
     void AudioClip::stop()
     {
         if ( FAILED( m_pSourceVoice->Stop() ) )
-            WARN_AUDIO( "Failed to stop audio clip '" + m_wavClip->getFilePath().toString() + "'." );
+            LOG_WARN_AUDIO( "Failed to stop audio clip '" + m_wavClip->getFilePath().toString() + "'." );
         m_pSourceVoice->FlushSourceBuffers();
         _SubmitSourceBuffer();
     }
@@ -52,21 +52,21 @@ namespace Core { namespace Audio {
     void AudioClip::pause()
     {
         if ( FAILED( m_pSourceVoice->Stop() ) )
-            WARN_AUDIO( "Failed to pause audio clip '" + m_wavClip->getFilePath().toString() + "'." );
+            LOG_WARN_AUDIO( "Failed to pause audio clip '" + m_wavClip->getFilePath().toString() + "'." );
     }
 
     //----------------------------------------------------------------------
     void AudioClip::resume()
     {
         if ( FAILED( m_pSourceVoice->Start() ) )
-            WARN_AUDIO( "Failed to resume audio clip '" + m_wavClip->getFilePath().toString() + "'." );
+            LOG_WARN_AUDIO( "Failed to resume audio clip '" + m_wavClip->getFilePath().toString() + "'." );
     }
 
     //----------------------------------------------------------------------
     void AudioClip::setVolume( F32 volume )
     {
         if ( FAILED( m_pSourceVoice->SetVolume( volume ) ) )
-            WARN_AUDIO( "Failed to set volume from audio clip '" + m_wavClip->getFilePath().toString() + "'.");
+            LOG_WARN_AUDIO( "Failed to set volume from audio clip '" + m_wavClip->getFilePath().toString() + "'.");
     }
 
     //----------------------------------------------------------------------
@@ -108,7 +108,7 @@ namespace Core { namespace Audio {
         buffer.LoopCount    = m_isLooping ? XAUDIO2_LOOP_INFINITE : 0;
         
         if ( FAILED( m_pSourceVoice->SubmitSourceBuffer( &buffer ) ) )
-            WARN_AUDIO( "AudioClip: Failed to submit a source buffer. Clip '" + m_wavClip->getFilePath().toString() + "' won't play." );
+            LOG_WARN_AUDIO( "AudioClip: Failed to submit a source buffer. Clip '" + m_wavClip->getFilePath().toString() + "' won't play." );
     }
 
 } } // End namespaces

@@ -14,11 +14,9 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-#undef ERROR
 #include <cwchar>
 
 namespace Logging {
-
 
     //----------------------------------------------------------------------
     void Console::setColor( Color color, Color backgroundColor ) const

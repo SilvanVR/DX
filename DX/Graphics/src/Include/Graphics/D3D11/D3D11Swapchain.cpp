@@ -130,8 +130,8 @@ namespace Graphics { namespace D3D11 {
     {
         if (numSamples > D3D11_MAX_MULTISAMPLE_SAMPLE_COUNT)
         {
-            WARN_RENDERING( "D3D11: #" + TS( numSamples ) + " samples are too high. "
-                            "Max is: " + TS( D3D11_MAX_MULTISAMPLE_SAMPLE_COUNT ) );
+            LOG_WARN_RENDERING( "D3D11: #" + TS( numSamples ) + " samples are too high. "
+                                "Max is: " + TS( D3D11_MAX_MULTISAMPLE_SAMPLE_COUNT ) );
             return false;
         }
 
@@ -139,8 +139,8 @@ namespace Graphics { namespace D3D11 {
         HR( g_pDevice->CheckMultisampleQualityLevels( BACKBUFFER_FORMAT, numSamples, &msaaQualityLevels ) );
         if (msaaQualityLevels == 0)
         {
-            WARN_RENDERING( "D3D11: #" + TS( numSamples ) + " samples are not supported "
-                            "with the current swapchain format." );
+            LOG_WARN_RENDERING( "D3D11: #" + TS( numSamples ) + " samples are not supported "
+                                "with the current swapchain format." );
             return false;
         }
 

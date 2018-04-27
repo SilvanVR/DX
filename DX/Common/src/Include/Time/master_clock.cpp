@@ -66,7 +66,7 @@ namespace Time {
 
         if (m_timers.count( id ) == 0)
         {
-            WARN( "MasterClock::clearCallback(): Given CallbackID #" + TS( id ) + " does not exist." );
+            LOG_WARN( "MasterClock::clearCallback(): Given CallbackID #" + TS( id ) + " does not exist." );
             return;
         }
 

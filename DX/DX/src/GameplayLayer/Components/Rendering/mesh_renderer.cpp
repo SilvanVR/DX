@@ -53,7 +53,7 @@ namespace Components {
     {
         auto transform = go->getComponent<Transform>();
         if ( transform == nullptr )
-            WARN( "MeshRenderer-Component requires a transform for a game-object, but the attached game-object has none!" );
+            LOG_WARN( "MeshRenderer-Component requires a transform for a game-object, but the attached game-object has none!" );
     }
 
     //----------------------------------------------------------------------

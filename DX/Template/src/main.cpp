@@ -1,4 +1,3 @@
-#include <DX.h>
 #define DISPLAY_CONSOLE 1
 
 #ifdef _DEBUG

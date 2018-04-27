@@ -21,6 +21,9 @@
 #include <functional>
 
 #ifdef _WIN32
+    #define NOMINMAX
+    #define WIN32_LEAN_AND_MEAN
+    #include <Windows.h>
     using NativeWindowHandle = HWND;
 #else
     static_assert( "Window class not supported on this plattform!" );

@@ -14,19 +14,18 @@
 #include <unordered_map>
 #include <assert.h>
 #include <cstddef>
-#include <vector>
 #include <memory>
 #include <mutex>
 #include <queue>
 #include <stack>
-#include <map>
 
 #include "pch.hpp"
 
 #ifdef _WIN32
+    #define NOMINMAX
     #include <DirectXMath.h>
     #include <xaudio2.h>
     #include <x3daudio.h>
-    
+
     #pragma comment(lib,"xaudio2.lib")
 #endif

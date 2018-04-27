@@ -6,10 +6,12 @@
     date: April 19, 2018
 **********************************************************************/
 
+#include <algorithm>
+
 namespace Physics
 {
 
-    //----------------------------------------------------------------------
+        //----------------------------------------------------------------------
         Ray::Ray( const Math::Vec3& origin, const Math::Vec3& direction ) 
             : m_origin( origin ), m_direction( direction )
         {

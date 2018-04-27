@@ -86,7 +86,7 @@ namespace Core { namespace Audio {
         auto extension = path.getExtension();
         if ( extension != "wav" )
         {
-            WARN_AUDIO( "WAVClip::load(): Wrong extension '" + extension + "'." );
+            LOG_WARN_AUDIO( "WAVClip::load(): Wrong extension '" + extension + "'." );
             return false;
         }
 

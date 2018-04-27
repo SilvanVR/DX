@@ -27,7 +27,7 @@ namespace Graphics { namespace D3D11 {
             bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
             break;
         }
-        default: ERROR_RENDERING( "IBuffer(): Unknown usage format during buffer creation." );
+        default: LOG_ERROR_RENDERING( "IBuffer(): Unknown usage format during buffer creation." );
         }
         bd.Usage = d3d11Usage;
 

@@ -121,7 +121,7 @@ namespace Graphics {
                     break;
                 }
                 default:
-                    WARN_RENDERING( "Unknown GPU Command in given command buffer!" );
+                    LOG_WARN_RENDERING( "Unknown GPU Command in given command buffer!" );
             }
         }
 
@@ -260,7 +260,7 @@ namespace Graphics {
                                &g_pDevice, &featureLevel, &g_pImmediateContext ) );
 
         if ( featureLevel != featureLevels[0] )
-            WARN_RENDERING( "D3D11Renderer: Latest feature level not supported. Fallback to a later version." );
+            LOG_WARN_RENDERING( "D3D11Renderer: Latest feature level not supported. Fallback to a later version." );
     }
 
     //----------------------------------------------------------------------

@@ -12,7 +12,6 @@
     of an chunk has been finished. This causes the player to fall for a moment).
 **********************************************************************/
 
-#include <DX.h>
 #define DISPLAY_CONSOLE 1
 
 #include "World/world_generator.h"

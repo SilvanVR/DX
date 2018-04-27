@@ -12,17 +12,15 @@
     configure under <Properties> to include that file everywhere.
 **********************************************************************/
 
-#ifdef _WIN32
-    #define NOMINMAX
-    #define WIN32_LEAN_AND_MEAN
-    #include <Windows.h>
-    #undef ERROR
-#endif
-
 #include "Common/data_types.hpp"
 #include "Common/macros.hpp"
 #include "Common/string.h"
 #include "Logging/logging.h"
 #include "Math/dxmath_wrapper.h"
-#include "Math/math_utils.h"
-#include "Math/random.h"
+
+#ifdef  _WIN32
+    #define NOMINMAX
+    #define WIN32_LEAN_AND_MEAN
+    #include <Windows.h>
+    #undef ERROR
+#endif //  _WIN32

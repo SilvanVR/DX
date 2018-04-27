@@ -169,7 +169,7 @@ namespace Graphics { namespace D3D11 {
             nameExists = true;
         }
         if (not nameExists)
-            WARN_RENDERING( "D3D11VertexShader: Semantic name '" + semanticName + "' for shader '" + getFilePath().toString() + "' does not exist.");
+            LOG_WARN_RENDERING( "D3D11VertexShader: Semantic name '" + semanticName + "' for shader '" + getFilePath().toString() + "' does not exist.");
     }
 
 

@@ -13,3 +13,5 @@
 #include "locator.h"
 #include "i_game.hpp"
 #include "OS/FileSystem/virtual_file_system.h"
+#include "Math/math_utils.h"
+#include "Math/random.h"

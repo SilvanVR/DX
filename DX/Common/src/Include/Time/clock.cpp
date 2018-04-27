@@ -81,7 +81,7 @@ namespace Time {
             }
         }
 
-        WARN( "Clock::clearCallback(): Given CallbackID #" + TS( id ) + " does not exist." );
+        LOG_WARN( "Clock::clearCallback(): Given CallbackID #" + TS( id ) + " does not exist." );
     }
 
     //----------------------------------------------------------------------

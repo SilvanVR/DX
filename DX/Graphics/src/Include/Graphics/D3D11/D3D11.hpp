@@ -28,8 +28,8 @@ extern ID3D11DeviceContext*    g_pImmediateContext;
         if ( FAILED( x ) ) { \
             _com_error err( x );\
             LPCTSTR errMsg = err.ErrorMessage();\
-            ERROR_RENDERING( String( "D3D11Renderer: @" ) + __FILE__ + ", line " + TS(__LINE__) + ". "\
-                             "Function: " + #x + ". Reason: " + errMsg );\
+            LOG_ERROR_RENDERING( String( "D3D11Renderer: @" ) + __FILE__ + ", line " + TS(__LINE__) + ". "\
+                                 "Function: " + #x + ". Reason: " + errMsg );\
         }
 #else
     #define HR(x) (x)
