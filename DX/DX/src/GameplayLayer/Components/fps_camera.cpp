@@ -52,7 +52,7 @@ namespace Components {
         m_pTransform->position += left    * (F32)AXIS_MAPPER.getAxisValue( "Horizontal" ) * delta * speed;
         m_pTransform->position += forward * (F32)AXIS_MAPPER.getAxisValue( "Vertical" )   * delta * speed;
         m_pTransform->position += up      * (F32)AXIS_MAPPER.getAxisValue( "Up" )         * delta * speed;
-
+           
         // Rotation with mouse using delta-mouse
         if ( MOUSE.isKeyDown( MouseKey::RButton ) )
         {
