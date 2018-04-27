@@ -17,6 +17,11 @@ namespace Components {
     void FPSCamera::addedToGameObject( GameObject* go )
     {
         m_pTransform = go->getComponent<Components::Transform>();
+
+        // Save start position by setting necessary fields, otherwise the script will lerp to the default values
+        m_desiredDistance = m_pointOfInterest.distance( m_pTransform->position );
+        m_pTransform->lookAt( m_pointOfInterest );
+        _ResetAnglesToCurrentView();
     }
 
     //----------------------------------------------------------------------
@@ -38,16 +43,18 @@ namespace Components {
             }
         }
 
+        if( KEYBOARD.isKeyDown( Key::R ) )
+        {
+            auto lookToCenter = Math::Quat::LookRotation( (m_pointOfInterest - m_pTransform->position), Math::Vec3::UP );
+            auto eulers = lookToCenter.toEulerAngles();
+            m_mousePitchDeg = eulers.x;
+            m_mouseYawDeg = eulers.y;
+        }
+
         switch (m_cameraMode)
         {
         case ECameraMode::FPS:  _UpdateFPSCamera( (F32)delta ); break;
         case ECameraMode::MAYA: _UpdateMayaCamera( (F32)delta ); break;
-        }
-
-        if( KEYBOARD.isKeyDown( Key::R ) )
-        {
-            m_pTransform->lookAt( Math::Vec3(0) );
-            _ResetAnglesToCurrentView();
         }
     }
 
@@ -103,10 +110,10 @@ namespace Components {
 
         // Calculate quaternion from angles and set the desired position
         auto quat = Math::Quat::FromEulerAngles( m_mousePitchDeg, m_mouseYawDeg, 0.0f );
-        m_desiredPosition = quat.getForward() * -m_desiredDistance;
+        Math::Vec3 desiredPosition = quat.getForward() * -m_desiredDistance;
 
         // Smoothly lerp to target position
-        m_pTransform->position = Math::Lerp( m_pTransform->position, m_desiredPosition, 0.2f * m_mouseDamping );
+        m_pTransform->position = Math::Lerp( m_pTransform->position, desiredPosition, 0.2f * m_mouseDamping );
 
         // Make sure we are always looking at the target
         m_pTransform->lookAt( m_pointOfInterest );

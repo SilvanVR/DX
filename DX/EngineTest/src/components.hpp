@@ -173,7 +173,7 @@ public:
 
         t->lookAt(m_center);
 
-        m_curDegrees += m_speed * (F32)delta.value;
+        m_curDegrees += m_speed * (F32)delta;
     }
 };
 
