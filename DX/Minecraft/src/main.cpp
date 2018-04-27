@@ -282,7 +282,8 @@ class PlayerController : public Components::IComponent
     F32 playerHeight = 2.0f;
     F32 jumpPower;
     F32 playerSize = 0.5f;
-
+    F32 mousePitchDeg = 0;
+    F32 mouseYawDeg = 0;
     AudioClipPtr digClips[4];
 
 public:
@@ -299,6 +300,17 @@ public:
         transform = getComponent<Components::Transform>();
         inventory = getComponent<PlayerInventory>();
         ASSERT(inventory && "Inventory Component is NULL!");
+
+        auto eulers = transform->rotation.toEulerAngles();
+        mousePitchDeg = eulers.x;
+        mouseYawDeg = eulers.y;
+    }
+
+    void onActive() override
+    {
+        auto eulers = transform->rotation.toEulerAngles();
+        mousePitchDeg = eulers.x;
+        mouseYawDeg = eulers.y;
     }
 
     void tick(Time::Seconds delta) override
@@ -369,11 +381,16 @@ public:
     void _CalculateMovement(F32 delta)
     {
         static Math::Vec3 playerVelocity;
+        static F32 mouseSensitivity = 0.15f;
 
         // LOOK ROTATION
         auto deltaMouse = MOUSE.getMouseDelta();
-        transform->rotation *= Math::Quat(transform->rotation.getRight(), deltaMouse.y * fpsMouseSensitivity);
-        transform->rotation *= Math::Quat(Math::Vec3::UP, deltaMouse.x * fpsMouseSensitivity);
+        mousePitchDeg += deltaMouse.y * mouseSensitivity;
+        mouseYawDeg += deltaMouse.x * mouseSensitivity;
+
+        // Smoothly lerp to desired rotation
+        Math::Quat desiredRotation = Math::Quat::FromEulerAngles(mousePitchDeg, mouseYawDeg, 0.0f);
+        transform->rotation = Math::Quat::Slerp(transform->rotation, desiredRotation, 0.3f);
 
         // JUMPING
         bool isOnGround = (playerVelocity.y == 0.0f);
@@ -486,10 +503,10 @@ public:
         // WORLD
         auto world = createGameObject("World");
 
-        //auto cubemap = ASSETS.getCubemap("/cubemaps/tropical_sunny_day/Left.png", "/cubemaps/tropical_sunny_day/Right.png",
-        //    "/cubemaps/tropical_sunny_day/Up.png", "/cubemaps/tropical_sunny_day/Down.png",
-        //    "/cubemaps/tropical_sunny_day/Front.png", "/cubemaps/tropical_sunny_day/Back.png");
-        //world->addComponent<Components::Skybox>(cubemap);
+        auto cubemap = ASSETS.getCubemap("/cubemaps/tropical_sunny_day/Left.png", "/cubemaps/tropical_sunny_day/Right.png",
+            "/cubemaps/tropical_sunny_day/Up.png", "/cubemaps/tropical_sunny_day/Down.png",
+            "/cubemaps/tropical_sunny_day/Front.png", "/cubemaps/tropical_sunny_day/Back.png");
+        world->addComponent<Components::Skybox>(cubemap);
 
         I32 seed = Math::Random::Int(0,285092);
         LOG("Current World Seed: " + TS(seed), Color::RED);

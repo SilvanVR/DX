@@ -59,6 +59,7 @@ namespace Components {
         //----------------------------------------------------------------------
         void addedToGameObject(GameObject* go) override;
         void lateTick(Time::Seconds delta) override;
+        void onActive() override;
 
         //----------------------------------------------------------------------
         void _UpdateFPSCamera(F32 delta);

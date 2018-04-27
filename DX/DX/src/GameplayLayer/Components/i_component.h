@@ -27,7 +27,7 @@ namespace Components {
         GameObject*         getGameObject()         { return m_pGameObject; }
         const GameObject*   getGameObject() const   { return m_pGameObject; }
 
-        void                setActive(bool active)  { m_isActive = active; }
+        void                setActive(bool active)  { m_isActive = active; if (m_isActive) onActive(); }
 
         //----------------------------------------------------------------------
         // @Return:
@@ -57,6 +57,9 @@ namespace Components {
         // Called immediately after the component was attached to a gameobject.
         //----------------------------------------------------------------------
         virtual void addedToGameObject(GameObject* go) {}
+
+        // Called when the components becomes active in the scene
+        virtual void onActive() {}
 
     private:
         GameObject* m_pGameObject   = nullptr;

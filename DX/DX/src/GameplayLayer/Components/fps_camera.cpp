@@ -25,6 +25,12 @@ namespace Components {
     }
 
     //----------------------------------------------------------------------
+    void FPSCamera::onActive()
+    {
+        _ResetAnglesToCurrentView();
+    }
+
+    //----------------------------------------------------------------------
     void FPSCamera::lateTick( Time::Seconds delta )
     {
         if ( MOUSE.wasKeyPressed( MouseKey::MButton ) )
