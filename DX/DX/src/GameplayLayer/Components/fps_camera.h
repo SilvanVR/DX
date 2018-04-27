@@ -37,8 +37,8 @@ namespace Components {
         // "speed": How fast the object moves.
         // "mouse-sensitivity": Determines how fast the rotation will be.
         //----------------------------------------------------------------------
-        FPSCamera( ECameraMode cameraMode = ECameraMode::MAYA, F32 fpsSpeed = 10.0f, F32 fpsMouseSensitivity = 0.5f ) 
-            : m_fpsSpeed( fpsSpeed ), m_fpsMouseSensitivity( fpsMouseSensitivity ), m_cameraMode( cameraMode ) {}
+        FPSCamera( ECameraMode cameraMode = ECameraMode::MAYA, F32 fpsSpeed = 10.0f, F32 mouseSensitivity = 0.5f, F32 damping = 1.0f ) 
+            : m_fpsSpeed( fpsSpeed ), m_mouseSensitivity( mouseSensitivity ), m_cameraMode( cameraMode ), m_mouseDamping( damping ) {}
 
         //----------------------------------------------------------------------
         void setCameraMode(ECameraMode newMode){ m_cameraMode = newMode; }
@@ -47,16 +47,25 @@ namespace Components {
         Components::Transform*  m_pTransform            = nullptr;
         Math::Vec3              m_pointOfInterest       = Math::Vec3(0,0,0);
         F32                     m_fpsSpeed              = 1.0f;
-        F32                     m_fpsMouseSensitivity   = 1.0f;
+        F32                     m_mouseSensitivity      = 1.0f;
         ECameraMode             m_cameraMode            = ECameraMode::FPS;
+        Math::Vec3              m_desiredPosition       = Math::Vec3(0,0,0);
+
+        F32                     m_mousePitchDeg         = 0;
+        F32                     m_mouseYawDeg           = 0;
+        F32                     m_mouseDamping          = 1.0f;
+        F32                     m_desiredDistance       = 10.0f;
+
 
         //----------------------------------------------------------------------
         void addedToGameObject(GameObject* go) override;
-        void tick(Time::Seconds delta) override;
+        void lateTick(Time::Seconds delta) override;
 
         //----------------------------------------------------------------------
         void _UpdateFPSCamera(F32 delta);
         void _UpdateMayaCamera(F32 delta);
+
+        inline void _ResetAnglesToCurrentView();
 
         //----------------------------------------------------------------------
         FPSCamera(const FPSCamera& other)               = delete;

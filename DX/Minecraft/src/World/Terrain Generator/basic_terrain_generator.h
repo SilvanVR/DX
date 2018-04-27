@@ -89,7 +89,7 @@ public:
 
     void generateTerrainFor(Chunk& chunk, I32 x, I32 height, I32 z) override
     {
-        I32 clampedHeight = Math::clamp(height, -CHUNK_HEIGHT, CHUNK_HEIGHT);
+        I32 clampedHeight = Math::Clamp(height, -CHUNK_HEIGHT, CHUNK_HEIGHT);
 
         F32 noiseValue = clampedHeight / m_elevation;
         Block block = _GetBlockFromHeight(noiseValue);
@@ -129,7 +129,7 @@ public:
 
     void generateTerrainFor(Chunk& chunk, I32 x, I32 height, I32 z) override
     {
-        I32 clampedHeight = Math::clamp(height, -CHUNK_HEIGHT, CHUNK_HEIGHT);
+        I32 clampedHeight = Math::Clamp(height, -CHUNK_HEIGHT, CHUNK_HEIGHT);
 
         F32 noiseValue = clampedHeight / m_elevation;
         Block block = _GetBlockFromHeight(noiseValue);
@@ -164,7 +164,7 @@ public:
 
     void generateTerrainFor(Chunk& chunk, I32 x, I32 height, I32 z) override
     {
-        I32 clampedHeight = Math::clamp(height, -CHUNK_HEIGHT, CHUNK_HEIGHT);
+        I32 clampedHeight = Math::Clamp(height, -CHUNK_HEIGHT, CHUNK_HEIGHT);
 
         F32 noiseValue = clampedHeight / m_elevation;
         Block block = _GetBlockFromHeight(noiseValue);
@@ -254,7 +254,7 @@ private:
 
         // Every biome is equally likely
         I32 index = I32(noiseValue / steps);
-        index = Math::clamp(index, 0, m_biomes.size() - 1);
+        index = Math::Clamp(index, 0, m_biomes.size() - 1);
         return *m_biomes[index].get();
     }
 };

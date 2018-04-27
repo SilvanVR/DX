@@ -103,7 +103,7 @@ public:
 
             // Smoothly transition between next two tracks
             F32 volume = (F32)((m_tracks[m_curIndex]->getLength() - m_timer) / m_transitionTime).value;
-            volume = Math::clamp( volume, 0.0f, 1.0f );
+            volume = Math::Clamp( volume, 0.0f, 1.0f );
 
             m_tracks[m_curIndex]->setVolume( volume );
             m_tracks[m_nextIndex]->setVolume( 1.0f - volume );

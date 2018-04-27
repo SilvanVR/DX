@@ -32,7 +32,8 @@ namespace Time {
             ~Duration() = default;
 #endif
             //----------------------------------------------------------------------
-            explicit operator F64() const { return value; }
+            template <typename T2>
+            explicit operator T2() const { return static_cast<T2>( value ); }
 
             //----------------------------------------------------------------------
             template <typename T2> void    operator +=  (T2 val)       { value += val; }

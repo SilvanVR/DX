@@ -9,6 +9,7 @@
 #include "GameplayLayer/gameobject.h"
 #include "transform.h"
 #include "locator.h"
+#include "Math/math_utils.h"
 
 namespace Components {
 
@@ -19,19 +20,35 @@ namespace Components {
     }
 
     //----------------------------------------------------------------------
-    void FPSCamera::tick( Time::Seconds delta )
+    void FPSCamera::lateTick( Time::Seconds delta )
     {
         if ( MOUSE.wasKeyPressed( MouseKey::MButton ) )
+        {
             m_cameraMode = (m_cameraMode == ECameraMode::MAYA ? ECameraMode::FPS : ECameraMode::MAYA);
+
+            switch (m_cameraMode)
+            {
+            case ECameraMode::FPS: 
+                break;
+            case ECameraMode::MAYA:
+                m_desiredDistance = m_pointOfInterest.distance( m_pTransform->position );
+                m_pTransform->lookAt( m_pointOfInterest );
+                _ResetAnglesToCurrentView();
+                break;
+            }
+        }
 
         switch (m_cameraMode)
         {
-        case ECameraMode::FPS:  _UpdateFPSCamera( (F32)delta.value ); break;
-        case ECameraMode::MAYA: _UpdateMayaCamera( (F32)delta.value ); break;
+        case ECameraMode::FPS:  _UpdateFPSCamera( (F32)delta ); break;
+        case ECameraMode::MAYA: _UpdateMayaCamera( (F32)delta ); break;
         }
 
         if( KEYBOARD.isKeyDown( Key::R ) )
+        {
             m_pTransform->lookAt( Math::Vec3(0) );
+            _ResetAnglesToCurrentView();
+        }
     }
 
     //**********************************************************************
@@ -52,41 +69,55 @@ namespace Components {
         m_pTransform->position += left    * (F32)AXIS_MAPPER.getAxisValue( "Horizontal" ) * delta * speed;
         m_pTransform->position += forward * (F32)AXIS_MAPPER.getAxisValue( "Vertical" )   * delta * speed;
         m_pTransform->position += up      * (F32)AXIS_MAPPER.getAxisValue( "Up" )         * delta * speed;
-           
+
         // Rotation with mouse using delta-mouse
         if ( MOUSE.isKeyDown( MouseKey::RButton ) )
         {
             auto deltaMouse = MOUSE.getMouseDelta();
-            m_pTransform->rotation *= Math::Quat( m_pTransform->rotation.getRight(), deltaMouse.y * m_fpsMouseSensitivity );
-            m_pTransform->rotation *= Math::Quat( Math::Vec3::UP, deltaMouse.x * m_fpsMouseSensitivity );
+            m_mousePitchDeg += deltaMouse.y * m_mouseSensitivity;
+            m_mouseYawDeg += deltaMouse.x * m_mouseSensitivity;
         } 
 
+        // Smoothly lerp to desired rotation
+        Math::Quat desiredRotation = Math::Quat::FromEulerAngles( m_mousePitchDeg, m_mouseYawDeg, 0.0f );
+        m_pTransform->rotation = Math::Quat::Slerp( m_pTransform->rotation, desiredRotation, 0.1f * m_mouseDamping );
+
+        // Scroll wheel
         m_pTransform->position += m_pTransform->rotation.getForward() * (F32)AXIS_MAPPER.getMouseWheelAxisValue() * delta * 20.0f;
     }
 
     //----------------------------------------------------------------------
     void FPSCamera::_UpdateMayaCamera( F32 delta )
     {
-        F32 distanceToPOI = (m_pTransform->position - m_pointOfInterest).magnitude();
-
         // Standard camera-rotation using delta-mouse
         if ( MOUSE.isKeyDown( MouseKey::RButton ) )
         {
             auto deltaMouse = MOUSE.getMouseDelta();
-
-            // The further away the faster the rotation
-            F32 amt = distanceToPOI * 0.005f;
-            m_pTransform->position += m_pTransform->rotation.getUp() * (F32)deltaMouse.y * amt;
-            m_pTransform->position += m_pTransform->rotation.getLeft() * (F32)deltaMouse.x * amt;
-
-            // Adjust rotation
-            m_pTransform->lookAt( m_pointOfInterest );
-
-            // Adjust distance
-            m_pTransform->position = m_pointOfInterest - (m_pTransform->rotation.getForward() * distanceToPOI);
+            m_mousePitchDeg += deltaMouse.y * m_mouseSensitivity * 2.0f;
+            m_mouseYawDeg   += deltaMouse.x * m_mouseSensitivity * 2.0f;
         }
 
-        m_pTransform->position += m_pTransform->rotation.getForward() * (F32)AXIS_MAPPER.getMouseWheelAxisValue() * delta * distanceToPOI * 2.0f;
+        // Adjust distance if wheel is used. Move faster the farther away from POI
+        F32 distanceToPOI = (m_pTransform->position - m_pointOfInterest).magnitude();
+        m_desiredDistance -= (F32)AXIS_MAPPER.getMouseWheelAxisValue() * delta * distanceToPOI * 2.0f;
+
+        // Calculate quaternion from angles and set the desired position
+        auto quat = Math::Quat::FromEulerAngles( m_mousePitchDeg, m_mouseYawDeg, 0.0f );
+        m_desiredPosition = quat.getForward() * -m_desiredDistance;
+
+        // Smoothly lerp to target position
+        m_pTransform->position = Math::Lerp( m_pTransform->position, m_desiredPosition, 0.2f * m_mouseDamping );
+
+        // Make sure we are always looking at the target
+        m_pTransform->lookAt( m_pointOfInterest );
+    }
+
+    //----------------------------------------------------------------------
+    void FPSCamera::_ResetAnglesToCurrentView()
+    {
+        auto eulers = m_pTransform->rotation.toEulerAngles();
+        m_mousePitchDeg = eulers.x;
+        m_mouseYawDeg   = eulers.y;
     }
 
 

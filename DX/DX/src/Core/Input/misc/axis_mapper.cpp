@@ -10,6 +10,8 @@
 #include "Core/Input/devices/keyboard.h"
 #include "Core/Input/devices/mouse.h"
 
+#include "Math/math_utils.h"
+
 namespace Core { namespace Input {
 
     //----------------------------------------------------------------------
@@ -136,7 +138,7 @@ namespace Core { namespace Input {
     void AxisMapper::_UpdateMouseWheelAxis( F64 delta )
     {
         static F32 acceleration = 50.0f;
-        static F32 deceleration = 10.0f;
+        static F32 damping = 0.15f;
 
         I16 wheelDelta = m_mouse->getWheelDelta();
         if (wheelDelta != 0)
@@ -145,13 +147,7 @@ namespace Core { namespace Input {
         }
         else
         {
-            F64 step = deceleration * delta;
-            if (m_wheelAxis > step)
-                m_wheelAxis -= step;
-            else if (m_wheelAxis < -step)
-                m_wheelAxis += step;
-            else
-                m_wheelAxis = 0;
+            m_wheelAxis = Math::Lerp( m_wheelAxis, 0.0, damping );
         }
     }
 

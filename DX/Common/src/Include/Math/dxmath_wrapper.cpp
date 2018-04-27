@@ -7,6 +7,8 @@
 
 **********************************************************************/
 
+#define _USE_MATH_DEFINES
+#include <math.h> // M_PI
 
 #ifdef _WIN32
 
@@ -120,6 +122,11 @@ namespace Math {
         return x < y ? (x < z ? x : z) : (y < z ? y : z);
     }
 
+    //----------------------------------------------------------------------
+    F32 Vector3F::distance(const Vector3F& v) const
+    {
+        return (*this - v).magnitude();
+    }
 
     //**********************************************************************
     // Vector4F
@@ -192,6 +199,67 @@ namespace Math {
     }
 
     //----------------------------------------------------------------------
+    F32 Quaternion::magnitude() const
+    {
+        return sqrt( x * x + y * y + z * z + w * w );
+    }
+
+    //----------------------------------------------------------------------
+    Quaternion Quaternion::normalized() const
+    {
+        F32 length = this->magnitude();
+        if ( length == 0.0f )
+            return Quaternion(0);
+        return Quaternion( x / length, y / length, z / length, w / length );
+    }
+
+    //----------------------------------------------------------------------
+    Vector4F Quaternion::toAxisAngle() const
+    {
+        XMVECTOR axis;
+        F32 radians;
+
+        XMVECTOR quat = XMLoadFloat4( this );
+        XMQuaternionToAxisAngle( &axis, &radians, quat );
+
+        Vector4F result;
+        XMStoreFloat4( &result, quat );
+        result.w = XMConvertToDegrees( radians );
+
+        return result;
+    }
+
+    //----------------------------------------------------------------------
+    Vector3F Quaternion::toEulerAngles() const
+    {
+        Math::Vec3 eulerAngles;
+
+        F32 test = x*y + z*w;
+        if (test > 0.499f) { // singularity at north pole
+            eulerAngles.x = 0;
+            eulerAngles.y = 2 * atan2f( x, w );
+            eulerAngles.z = F32( M_PI ) / 2;
+        }
+        else if (test < -0.499) { // singularity at south pole
+            eulerAngles.x = 0;
+            eulerAngles.y = -2 * atan2f( x, w );
+            eulerAngles.z = - F32( M_PI ) / 2;
+        }
+        else {
+            F32 sqz = z*z;
+            eulerAngles.x = atan2f( 2 * x*w - 2 * y*z, 1 - 2 * x*x - 2 * sqz );
+            eulerAngles.y = atan2f( 2 * y*w - 2 * x*z, 1 - 2 * y*y - 2 * sqz );
+            eulerAngles.z = asinf( 2 * test );
+        }
+
+        eulerAngles.x = XMConvertToDegrees( eulerAngles.x );
+        eulerAngles.y = XMConvertToDegrees( eulerAngles.y );
+        eulerAngles.z = XMConvertToDegrees( eulerAngles.z );
+
+        return eulerAngles;
+    }
+
+    //----------------------------------------------------------------------
     Quaternion Quaternion::LookRotation( const Vector3F& forward, const Vector3F& up )
     {
         // Code from https://pastebin.com/ubATCxJY
@@ -250,15 +318,36 @@ namespace Math {
         return quaternion;
     }
 
+    ////----------------------------------------------------------------------
+    // Somehow this functions produces weird results. Transfering it back to euler angles produces even weirder results.
+    //Quaternion Quaternion::FromEulerAngles( F32 pitch, F32 yaw, F32 roll )
+    //{
+    //    Quaternion quaternion;
+    //    auto result = XMQuaternionRotationRollPitchYaw( XMConvertToRadians( pitch ), 
+    //                                                    XMConvertToRadians( yaw ), 
+    //                                                    XMConvertToRadians( roll ) );
+    //    XMStoreFloat4( &quaternion, result );
+    //    return quaternion;
+    //}
+
     //----------------------------------------------------------------------
     Quaternion Quaternion::FromEulerAngles( F32 pitch, F32 yaw, F32 roll )
     {
         Quaternion quaternion;
-        auto result = XMQuaternionRotationRollPitchYaw( XMConvertToRadians( pitch ), 
-                                                        XMConvertToRadians( yaw ), 
-                                                        XMConvertToRadians( roll ) );
-        XMStoreFloat4( &quaternion, result );
-        return quaternion;
+        F32 xRad = XMConvertToRadians( pitch );
+        F32 yRad = XMConvertToRadians( yaw );
+        F32 zRad = XMConvertToRadians( roll );
+        
+        F32 c1 = cos( yRad / 2 );
+        F32 s1 = sin( yRad / 2 );
+        F32 c2 = cos( zRad / 2 );
+        F32 s2 = sin( zRad / 2 );
+        F32 c3 = cos( xRad / 2 );
+        F32 s3 = sin( xRad / 2 );
+        F32 c1c2 = c1 * c2;
+        F32 s1s2 = s1 * s2;
+
+        return Quaternion( c1c2*s3 + s1s2 * c3, s1*c2*c3 + c1 * s2*s3, c1*s2*c3 - s1 * c2*s3, c1c2*c3 - s1s2 * s3 ).normalized();
     }
 
     //----------------------------------------------------------------------
@@ -268,18 +357,15 @@ namespace Math {
     }
 
     //----------------------------------------------------------------------
-    F32 Quaternion::magnitude() const
+    Quaternion Quaternion::Slerp( const Quaternion& q1, const Quaternion& q2, F32 t )
     {
-        return sqrt( x * x + y * y + z * z + w * w );
-    }
+        XMVECTOR quat1  = XMLoadFloat4( &q1 );
+        XMVECTOR quat2  = XMLoadFloat4( &q2 );
+        XMVECTOR result = XMQuaternionSlerp( quat1, quat2, t );
 
-    //----------------------------------------------------------------------
-    Quaternion Quaternion::normalized() const
-    {
-        F32 length = this->magnitude();
-        if ( length == 0.0f )
-            return Quaternion(0);
-        return Quaternion( x / length, y / length, z / length, w / length );
+        Quaternion q;
+        XMStoreFloat4( &q, result );
+        return q;
     }
 
 }

@@ -14,14 +14,14 @@ namespace Math {
 
     //----------------------------------------------------------------------
     template <typename T> inline
-    float deg2Rad( const T& val )
+    float Deg2Rad( T val )
     {
         return val * 0.01745329251f;
     }
 
     //----------------------------------------------------------------------
     template <typename T> inline
-    float rad2Deg( const T& val )
+    float Rad2Deg( T val )
     {
         return val * 57.2957795131f;
     }
@@ -32,7 +32,7 @@ namespace Math {
 
     //----------------------------------------------------------------------
     template <typename T, typename T2, typename T3> inline
-    T clamp( T val, T2 min, T3 max )
+    T Clamp( T val, T2 min, T3 max )
     {
         if (val < min)
             return min;
@@ -42,14 +42,21 @@ namespace Math {
     }
 
     //----------------------------------------------------------------------
-    template <typename T>
-    T clampAngle( T angle, T min, T max )
+    template <typename T, typename T2, typename T3> inline
+    T ClampAngle( T angle, T2 min, T3 max )
     {
         if (angle < -360)
             angle += 360;
         if (angle > 360)
             angle -= 360;
         return clamp( angle, min, max );
+    }
+
+    //----------------------------------------------------------------------
+    template <typename T>
+    T Lerp( T a, T b, F32 t)
+    {
+        return a * (1.0f - t) + b * t;
     }
 
 }

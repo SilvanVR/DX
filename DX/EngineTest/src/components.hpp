@@ -168,8 +168,8 @@ public:
         vecXZ.y = 0.0f;
         F32 length = vecXZ.magnitude();
 
-        t->position.x = m_center.x + length * cos( Math::deg2Rad(m_curDegrees) );
-        t->position.z = m_center.z + length * sin( Math::deg2Rad(m_curDegrees) );
+        t->position.x = m_center.x + length * cos( Math::Deg2Rad( m_curDegrees ) );
+        t->position.z = m_center.z + length * sin( Math::Deg2Rad( m_curDegrees ) );
 
         t->lookAt(m_center);
 

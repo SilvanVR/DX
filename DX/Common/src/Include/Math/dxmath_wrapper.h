@@ -97,6 +97,7 @@ namespace Math {
         Vector3F    cross(const Vector3F& v) const;
         F32         maxValue() const;
         F32         minValue() const;
+        F32         distance(const Vector3F& v) const;
 
         String toString() const { return "(" + TS(x) + "," + TS(y) + "," + TS(z) + ")"; }
 
@@ -142,6 +143,10 @@ namespace Math {
 
         F32         magnitude() const;
         Quaternion  normalized() const;
+        Vector3F    toEulerAngles() const;
+
+        // Returns the axis angle representation with the x,y,z as the axis and w as the angle in DEGREES
+        Vector4F    toAxisAngle() const;
 
         Vector3F getForward()   const { return *this * Vector3F::FORWARD; }
         Vector3F getBack()      const { return *this * Vector3F::BACK; }
@@ -153,6 +158,7 @@ namespace Math {
         static Quaternion LookRotation(const Vector3F& forward, const Vector3F& up);
         static Quaternion FromEulerAngles(F32 pitchDegrees, F32 yawDegrees, F32 rollDegrees);
         static Quaternion FromEulerAngles(const Vector3F& eulerAnglesInDegrees);
+        static Quaternion Slerp(const Quaternion& q1, const Quaternion& q2, F32 t);
 
         String toString() const { return "(" + TS(x) + "," + TS(y) + "," + TS(z) + "," + TS(w) + ")"; }
 
