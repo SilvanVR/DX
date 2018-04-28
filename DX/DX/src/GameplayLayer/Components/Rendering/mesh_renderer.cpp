@@ -64,7 +64,7 @@ namespace Components {
         ASSERT( transform != nullptr );
 
         // Draw submesh with appropriate material
-        auto modelMatrix = transform->getTransformationMatrix( lerp );
+        auto modelMatrix = transform->getWorldMatrix( lerp );
         for (I32 i = 0; i < m_mesh->getSubMeshCount(); i++)
         {
             ASSERT( m_materials[i] != nullptr );
@@ -79,7 +79,7 @@ namespace Components {
             return false;
 
         // Cull mesh against frustum by transforming vertices from AABB into clip space
-        auto modelMatrix = getGameObject()->getComponent<Transform>()->getTransformationMatrix();
+        auto& modelMatrix = getComponent<Transform>()->getWorldMatrix();
         auto mvp = modelMatrix * camera.getViewProjectionMatrix();
 
         auto aabbCorners = m_mesh->getBounds().getCorners();

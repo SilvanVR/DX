@@ -18,7 +18,7 @@ namespace Components {
     void Transform::getWorldTransform( Math::Vec3* pos, Math::Vec3* scale, Math::Quat* quat )
     {
         DirectX::XMVECTOR s, r, p;
-        DirectX::XMMatrixDecompose( &s, &r, &p, getTransformationMatrix() );
+        DirectX::XMMatrixDecompose( &s, &r, &p, getWorldMatrix() );
 
         DirectX::XMStoreFloat3( pos, p );
         DirectX::XMStoreFloat3( scale, s );
@@ -29,7 +29,7 @@ namespace Components {
     Math::Vec3 Transform::getWorldPosition() const
     {
         DirectX::XMVECTOR s, r, p;
-        DirectX::XMMatrixDecompose( &s, &r, &p, getTransformationMatrix() );
+        DirectX::XMMatrixDecompose( &s, &r, &p, getWorldMatrix() );
 
         Math::Vec3 worldPos;
         DirectX::XMStoreFloat3( &worldPos, p );
@@ -40,7 +40,7 @@ namespace Components {
     Math::Vec3 Transform::getWorldScale() const
     {
         DirectX::XMVECTOR s, r, p;
-        DirectX::XMMatrixDecompose( &s, &r, &p, getTransformationMatrix() );
+        DirectX::XMMatrixDecompose( &s, &r, &p, getWorldMatrix() );
 
         Math::Vec3 worldScale;
         DirectX::XMStoreFloat3( &worldScale, s );
@@ -51,7 +51,7 @@ namespace Components {
     Math::Quat Transform::getWorldRotation() const
     {
         DirectX::XMVECTOR s, r, p;
-        DirectX::XMMatrixDecompose( &s, &r, &p, getTransformationMatrix() );
+        DirectX::XMMatrixDecompose( &s, &r, &p, getWorldMatrix() );
 
         Math::Quat worldRotation;
         DirectX::XMStoreFloat4( &worldRotation, r );
@@ -66,32 +66,32 @@ namespace Components {
     }
 
     //----------------------------------------------------------------------
-    DirectX::XMMATRIX Transform::getTransformationMatrix() const
+    DirectX::XMMATRIX Transform::getWorldMatrix() const
     {
         auto transformationMatrix = _GetLocalTransformationMatrix();
         if (m_pParent)
         {
-            auto parentMatrix = m_pParent->getTransformationMatrix();
+            auto parentMatrix = m_pParent->getWorldMatrix();
             return DirectX::XMMatrixMultiply( transformationMatrix, parentMatrix );
         }
         return transformationMatrix;
     }
 
     //----------------------------------------------------------------------
-    DirectX::XMMATRIX Transform::getTransformationMatrix( F32 lerp )
+    DirectX::XMMATRIX Transform::getWorldMatrix( F32 lerp )
     {
-        auto modelMatrix = getTransformationMatrix();
+        auto modelMatrix = getWorldMatrix();
 #if LERP_TRANSFORM
         DirectX::XMVECTOR sCur, rCur, pCur, sPrev, rPrev, pPrev;
         DirectX::XMMatrixDecompose( &sCur, &rCur, &pCur, modelMatrix );
-        DirectX::XMMatrixDecompose( &sPrev, &rPrev, &pPrev, m_lastModelMatrix );
+        DirectX::XMMatrixDecompose( &sPrev, &rPrev, &pPrev, m_lastWorldMatrix );
 
         auto s = DirectX::XMVectorLerp( sPrev, sCur, lerp );
         auto p = DirectX::XMVectorLerp( pPrev, pCur, lerp );
         auto r = DirectX::XMQuaternionSlerp( rPrev, rCur, lerp );
 
         modelMatrix = DirectX::XMMatrixAffineTransformation( s, DirectX::XMQuaternionIdentity(), r, p );
-        m_lastModelMatrix = modelMatrix;
+        m_lastWorldMatrix = modelMatrix;
 #endif
         return modelMatrix;
     }
@@ -101,12 +101,12 @@ namespace Components {
     {
         if (keepWorldTransform)
         {
-            auto matrix = getTransformationMatrix();
+            auto matrix = getWorldMatrix();
 
             // If the new parent is valid the current world transform must be transformed into this new parents space in order to get the new world transform
             // This is done by multiplying the current transformation matrix with the new parents inverse.
             if (parent)
-                matrix = DirectX::XMMatrixMultiply( matrix, DirectX::XMMatrixInverse( NULL, parent->getTransformationMatrix() ) );
+                matrix = DirectX::XMMatrixMultiply( matrix, DirectX::XMMatrixInverse( NULL, parent->getWorldMatrix() ) );
 
             DirectX::XMVECTOR s, r, p;
             DirectX::XMMatrixDecompose( &s, &r, &p, matrix );

@@ -47,6 +47,9 @@ namespace Components {
         void recordGraphicsCommands(Graphics::CommandBuffer& cmd, F32 lerp) override;
         bool cull(const Camera& camera) override;
 
+
+        //inline bool _IsVisible(const Camera& camera, const DirectX::XMMATRIX& modelMatrix);
+
         //----------------------------------------------------------------------
         MeshRenderer(const MeshRenderer& other)               = delete;
         MeshRenderer& operator = (const MeshRenderer& other)  = delete;

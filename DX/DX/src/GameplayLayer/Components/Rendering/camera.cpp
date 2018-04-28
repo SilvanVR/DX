@@ -74,7 +74,7 @@ namespace Components {
 
         // Set view / projection params
         Transform* transform = getGameObject()->getComponent<Components::Transform>();
-        auto modelMatrix = transform->getTransformationMatrix( lerp );
+        auto modelMatrix = transform->getWorldMatrix( lerp );
         auto view = DirectX::XMMatrixInverse( nullptr, modelMatrix );
         auto projection = getProjectionMatrix();
         m_viewProjection = view * projection;
@@ -141,6 +141,7 @@ namespace Components {
         case EMode::ORTHOGRAPHIC:
             return DirectX::XMMatrixOrthographicOffCenterLH( m_ortho.left, m_ortho.right, m_ortho.bottom, m_ortho.top, m_zNear, m_zFar );
         }
+        return DirectX::XMMatrixIdentity();
     }
 
     ////----------------------------------------------------------------------

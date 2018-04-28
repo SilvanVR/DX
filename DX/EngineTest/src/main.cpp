@@ -25,28 +25,24 @@ public:
         auto cam = go->addComponent<Components::Camera>();
         go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -10);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 10.0f, 0.3f, 1.0f);
-//        go->addComponent<DrawFrustum>();
+        go->addComponent<DrawFrustum>();
 
-        //auto go3 = createGameObject("Camera2");
-        //auto cam2 = go3->addComponent<Components::Camera>();
-        //go3->getComponent<Components::Transform>()->position = Math::Vec3(0, 5, -10);
-        //go3->addComponent<AutoOrbiting>(10.0f);
-        //cam2->setClearMode(Components::Camera::EClearMode::NONE);
-        //cam2->setZFar(20.0f);
-        //cam2->getViewport().width = 0.25f;
-        //cam2->getViewport().height = 0.25f;
-        //go3->addComponent<DrawFrustum>();
-
+        auto go3 = createGameObject("Camera2");
+        auto cam2 = go3->addComponent<Components::Camera>();
+        go3->getComponent<Components::Transform>()->position = Math::Vec3(0, 5, -10);
+        go3->addComponent<AutoOrbiting>(10.0f);
+        cam2->setClearMode(Components::Camera::EClearMode::NONE);
+        cam2->setZFar(20.0f);
+        cam2->getViewport().width = 0.25f;
+        cam2->getViewport().height = 0.25f;
+        go3->addComponent<DrawFrustum>();
 
         createGameObject("Grid")->addComponent<GridGeneration>(20);
 
+        auto mesh = Core::Assets::MeshGenerator::CreateCube(1);
+        mesh->setColors(cubeColors);
+
         //auto shader = RESOURCES.createShader("test", "/shaders/testVS.hlsl", "/shaders/testPS.hlsl");
-
-        auto mesh = Core::Assets::MeshGenerator::CreateUVSphere(10,10, Color::RED);
-        //mesh->setColors(cubeColors);
-
-        //DEBUG.drawCube(mesh->getBounds(), Color::GREEN, 1000, false);
-
         //auto material = RESOURCES.createMaterial(shader);
         //material->setTexture("tex", ASSETS.getTexture2D("/textures/checker.jpg"));
 
