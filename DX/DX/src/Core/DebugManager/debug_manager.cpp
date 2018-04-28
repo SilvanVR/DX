@@ -154,10 +154,10 @@ namespace Core { namespace Debug {
 
     //----------------------------------------------------------------------
     void DebugManager::drawFrustum( const Math::Vec3& pos, const Math::Vec3& up, const Math::Vec3& right, const Math::Vec3& forward, 
-                                    F32 fovAngleYRad, F32 zNear, F32 zFar, F32 aspectRatio,
+                                    F32 fovAngleYDeg, F32 zNear, F32 zFar, F32 aspectRatio,
                                     Color color, Time::Seconds duration, bool depthTest )
     {        
-        auto mesh = Assets::MeshGenerator::CreateFrustum( pos, up, right, forward, fovAngleYRad, zNear, zFar, aspectRatio, color );
+        auto mesh = Assets::MeshGenerator::CreateFrustum( pos, up, right, forward, fovAngleYDeg, zNear, zFar, aspectRatio, color );
         _AddMesh( mesh, duration, depthTest );
     }
 

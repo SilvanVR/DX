@@ -76,31 +76,31 @@ namespace Components {
         Transform* transform = getGameObject()->getComponent<Components::Transform>();
         auto modelMatrix = transform->getTransformationMatrix( lerp );
         auto view = DirectX::XMMatrixInverse( nullptr, modelMatrix );
+        auto projection = getProjectionMatrix();
+        m_viewProjection = view * projection;
 
         switch ( m_cameraMode )
         {
         case Camera::PERSPECTIVE:
-            m_commandBuffer.setCameraPerspective( view, getFOV(), getZNear(), getZFar() );
-            break;
+            m_commandBuffer.setCameraPerspective( view, getFOV(), getZNear(), getZFar() ); break;
         case Camera::ORTHOGRAPHIC:
-            m_commandBuffer.setCameraOrtho( view, getLeft(), getRight(), getBottom(), getTop(), getZNear(), getZFar() );
-            break;
+            m_commandBuffer.setCameraOrtho( view, getLeft(), getRight(), getBottom(), getTop(), getZNear(), getZFar() ); break;
         default:
             LOG_WARN_RENDERING( "UNKNOWN CAMERA MODE" );
         }
 
-        // Do viewfrustum culling with every renderer component
+        // Record commands for every rendering component
         for ( auto& renderer : rendererComponents )
         {
             if ( not renderer->isActive() )
                 continue;
+
+            // Check if component is visible and if layer matches
             bool isVisible = renderer->cull( *this );
-            bool layerMatch = (m_cullingMask & renderer->getGameObject()->getLayers()).isAnyBitSet();
+            bool layerMatch = ( m_cullingMask & renderer->getGameObject()->getLayers() ).isAnyBitSet();
             if (isVisible && layerMatch)
                 renderer->recordGraphicsCommands( m_commandBuffer, lerp );
         }
-
-        auto corners = Math::CalculateFrustumCorners( transform->position, transform->rotation, m_fov, m_zNear, m_zFar, getAspectRatio() );
 
         return m_commandBuffer;
     }
@@ -132,16 +132,28 @@ namespace Components {
     //**********************************************************************
 
     //----------------------------------------------------------------------
+    DirectX::XMMATRIX Camera::getProjectionMatrix() const
+    {
+        switch (m_cameraMode)
+        {
+        case EMode::PERSPECTIVE:
+            return DirectX::XMMatrixPerspectiveFovLH( DirectX::XMConvertToRadians( m_fov ), getAspectRatio(), m_zNear, m_zFar );
+        case EMode::ORTHOGRAPHIC:
+            return DirectX::XMMatrixOrthographicOffCenterLH( m_ortho.left, m_ortho.right, m_ortho.bottom, m_ortho.top, m_zNear, m_zFar );
+        }
+    }
+
+    ////----------------------------------------------------------------------
     //void Camera::_UpdateProjectionMatrix()
     //{
     //    switch (m_cameraMode)
     //    {
-    //        case EMode::PERSPECTIVE:
-    //            m_projection = DirectX::XMMatrixPerspectiveFovLH( DirectX::XMConvertToRadians( m_fov ), getAspecRatio(), m_zNear, m_zFar );
-    //            break;
-    //        case EMode::ORTHOGRAPHIC:
-    //            m_projection = DirectX::XMMatrixOrthographicOffCenterLH( m_left, m_right, m_bottom, m_top, m_zNear, m_zFar );
-    //            break;
+    //    case EMode::PERSPECTIVE:
+    //        m_projection = DirectX::XMMatrixPerspectiveFovLH( DirectX::XMConvertToRadians( m_fov ), getAspectRatio(), m_zNear, m_zFar );
+    //        break;
+    //    case EMode::ORTHOGRAPHIC:
+    //        m_projection = DirectX::XMMatrixOrthographicOffCenterLH( m_ortho.left, m_ortho.right, m_ortho.bottom, m_ortho.top, m_zNear, m_zFar );
+    //        break;
     //    }
     //}
 

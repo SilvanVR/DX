@@ -31,7 +31,7 @@ VertexOut main(VertexIn vin)
 	
 	// Little trick which places the object very close to the far-plane
 	OUT.PosH = clipPos.xyww;
-	OUT.PosH.z -= 0.00001;
+	OUT.PosH.z *= 0.999999;
 	
     return OUT;
 }

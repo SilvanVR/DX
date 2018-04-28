@@ -73,7 +73,7 @@ namespace Core { namespace Assets {
         // Generates a new perspective frustum mesh (Lines only).
         //----------------------------------------------------------------------
         static MeshPtr CreateFrustum(const Math::Vec3& pos, const Math::Vec3& up, const Math::Vec3& right, const Math::Vec3& forward,
-                                     F32 fovAngleYRad, F32 zNear, F32 zFar, F32 aspectRatio, Color color = Color::WHITE);
+                                     F32 fovAngleYDeg, F32 zNear, F32 zFar, F32 aspectRatio, Color color = Color::WHITE);
 
     private:
         //----------------------------------------------------------------------

@@ -13,6 +13,7 @@
 **********************************************************************/
 
 #define DISPLAY_CONSOLE         1
+#define CHUNKS_VIEW_DISTANCE    16
 
 #include "World/world_generator.h"
 #include "World/Terrain Generator/flat_terrain_generator.h"
@@ -513,8 +514,7 @@ public:
         auto generator = std::make_shared<BasicTerrainGenerator>(seed);
 
         //auto generator = std::make_shared<FlatTerrainGenerator>();
-        I32 chunkViewDistance = 16;
-        auto worldGenerator = world->addComponent<WorldGeneration>(generator, chunkViewDistance);
+        auto worldGenerator = world->addComponent<WorldGeneration>(generator, CHUNKS_VIEW_DISTANCE);
         world->addComponent<Water>(WATER_LEVEL);
     }
 

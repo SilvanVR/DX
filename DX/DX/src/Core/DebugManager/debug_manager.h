@@ -45,7 +45,7 @@ namespace Core { namespace Debug {
         // Draws a frustum in wireframe.
         //----------------------------------------------------------------------
         void drawFrustum(const Math::Vec3& pos, const Math::Vec3& up, const Math::Vec3& right, const Math::Vec3& forward,
-                         F32 fovAngleYRad, F32 zNear, F32 zFar, F32 aspectRatio,
+                         F32 fovAngleYDeg, F32 zNear, F32 zFar, F32 aspectRatio,
                          Color color, Time::Seconds duration, bool depthTest = true);
 
     private:

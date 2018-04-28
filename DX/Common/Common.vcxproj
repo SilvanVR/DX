@@ -207,6 +207,7 @@
     <ClCompile Include="src\Include\Logging\Console\console.cpp" />
     <ClCompile Include="src\Include\Logging\Console\console_win.cpp" />
     <ClCompile Include="src\Include\Logging\console_logger.cpp" />
+    <ClCompile Include="src\Include\Math\aabb.cpp" />
     <ClCompile Include="src\Include\Math\dxmath_wrapper.cpp" />
     <ClCompile Include="src\Include\Math\math_utils.cpp" />
     <ClCompile Include="src\Include\Memory\Allocators\iallocator.cpp" />

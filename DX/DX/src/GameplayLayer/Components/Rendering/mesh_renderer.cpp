@@ -78,12 +78,34 @@ namespace Components {
         if ( m_mesh == nullptr )
             return false;
 
-        // Cull mesh against camera
-        const auto& aabb = m_mesh->getBounds();
-        auto transform = getGameObject()->getComponent<Transform>();
+        // Cull mesh against frustum by transforming vertices from AABB into clip space
+        auto modelMatrix = getGameObject()->getComponent<Transform>()->getTransformationMatrix();
+        auto mvp = modelMatrix * camera.getViewProjectionMatrix();
 
+        auto aabbCorners = m_mesh->getBounds().getCorners();
 
+        std::array<DirectX::XMVECTOR, 8> cornersClipSpace;
+        for (I32 i = 0; i < cornersClipSpace.size(); i++)
+        {
+            auto corner = DirectX::XMVectorSet( aabbCorners[i].x, aabbCorners[i].y, aabbCorners[i].z, 1.0f );
+            cornersClipSpace[i] = DirectX::XMVector4Transform( corner, mvp );
+        }
 
+        I32 c1 = 0, c2 = 0, c3 = 0, c4 = 0, c5 = 0, c6 = 0;
+        for (I32 i = 0; i < cornersClipSpace.size(); i++)
+        {
+            Math::Vec4 cornerClipSpace;
+            DirectX::XMStoreFloat4( &cornerClipSpace, cornersClipSpace[i] );
+            if (cornerClipSpace.x < -cornerClipSpace.w) c1++;
+            if (cornerClipSpace.x >  cornerClipSpace.w) c2++;
+            if (cornerClipSpace.y < -cornerClipSpace.w) c3++;
+            if (cornerClipSpace.y >  cornerClipSpace.w) c4++;
+            if (cornerClipSpace.z < -cornerClipSpace.w) c5++;
+            if (cornerClipSpace.z >  cornerClipSpace.w) c6++;
+        }
+
+        if (c1 == 8 || c2 == 8 || c3 == 8 || c4 == 8 || c5 == 8 || c6 == 8)
+            return false;
 
         return true;
     }

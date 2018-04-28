@@ -33,8 +33,8 @@ namespace Components {
         m_skyboxMaterial->setTexture( SID( "Cubemap" ), m_cubemap );
         m_skyboxMaterial->setColor( SID( "tintColor" ), Color::WHITE );
 
-        // Create skybox mesh
-        m_skyboxMesh = Core::Assets::MeshGenerator::CreateCube();
+        // Create skybox mesh (make it as large as possible so it wont get culled)
+        m_skyboxMesh = Core::Assets::MeshGenerator::CreateCube(100000);
 
         // Create gameobject which renders the skybox
         auto mr = m_gameObject->addComponent<Components::MeshRenderer>();

@@ -388,9 +388,9 @@ namespace Core { namespace Assets {
     }
 
     MeshPtr MeshGenerator::CreateFrustum( const Math::Vec3& pos, const Math::Vec3& up, const Math::Vec3& right, const Math::Vec3& forward,
-                                          F32 fovAngleYRad, F32 zNear, F32 zFar, F32 aspectRatio, Color color )
+                                          F32 fovAngleYDeg, F32 zNear, F32 zFar, F32 aspectRatio, Color color )
     {
-        auto frustumCorners = Math::CalculateFrustumCorners( pos, up, right, forward, fovAngleYRad, zNear, zFar, aspectRatio );
+        auto frustumCorners = Math::CalculateFrustumCorners( pos, up, right, forward, fovAngleYDeg, zNear, zFar, aspectRatio );
         ArrayList<Math::Vec3> vertices( frustumCorners.begin(), frustumCorners.end() );
 
         enum corner {

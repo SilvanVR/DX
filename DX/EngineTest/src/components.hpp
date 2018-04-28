@@ -184,7 +184,7 @@ public:
     {
         auto cam = go->getComponent<Components::Camera>();
         auto mesh = Assets::MeshGenerator::CreateFrustum( Math::Vec3(0), Math::Vec3::UP, Math::Vec3::RIGHT, Math::Vec3::FORWARD, 
-                                                          cam->getFOV(), cam->getZNear(), cam->getZFar(), cam->getAspectRatio() );
+                                                          cam->getFOV(), cam->getZNear(), cam->getZFar(), cam->getAspectRatio(), Color::GREEN );
 
         auto mr = go->addComponent<Components::MeshRenderer>(mesh, RESOURCES.getColorMaterial());
     }
