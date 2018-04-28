@@ -40,8 +40,12 @@ namespace Components {
         // IComponent Interface
         //----------------------------------------------------------------------
         void addedToGameObject(GameObject* go) override;
-        void recordGraphicsCommands(Graphics::CommandBuffer& cmd, F32 lerp) override;
 
+        //----------------------------------------------------------------------
+        // IRendererComponent Interface
+        //----------------------------------------------------------------------
+        void recordGraphicsCommands(Graphics::CommandBuffer& cmd, F32 lerp) override;
+        bool cull(const Camera& camera) override;
 
         //----------------------------------------------------------------------
         MeshRenderer(const MeshRenderer& other)               = delete;

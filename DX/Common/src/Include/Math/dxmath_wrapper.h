@@ -98,6 +98,8 @@ namespace Math {
         F32         maxValue() const;
         F32         minValue() const;
         F32         distance(const Vector3F& v) const;
+        Vector3F    minVec(const Vector3F& v) const;
+        Vector3F    maxVec(const Vector3F& v) const;
 
         String toString() const { return "(" + TS(x) + "," + TS(y) + "," + TS(z) + ")"; }
 

@@ -28,15 +28,18 @@ public:
 
         createGameObject("Grid")->addComponent<GridGeneration>(20);
 
-        auto shader = RESOURCES.createShader("test", "/shaders/testVS.hlsl", "/shaders/testPS.hlsl");
+        //auto shader = RESOURCES.createShader("test", "/shaders/testVS.hlsl", "/shaders/testPS.hlsl");
 
-        auto mesh = Core::Assets::MeshGenerator::CreatePlane(1.0f);
-        mesh->setColors(planeColors);
+        auto mesh = Core::Assets::MeshGenerator::CreateUVSphere(10,10, Color::RED);
+        //mesh->setColors(cubeColors);
 
-        auto material = RESOURCES.createMaterial(shader);
-        material->setTexture("tex", ASSETS.getTexture2D("/textures/checker.jpg"));
+        auto b = mesh->getBounds();
+        DEBUG.drawCube(mesh->getBounds(), Color::GREEN, 1000, false);
 
-        createGameObject("Obj")->addComponent<Components::MeshRenderer>(mesh, material);
+        //auto material = RESOURCES.createMaterial(shader);
+        //material->setTexture("tex", ASSETS.getTexture2D("/textures/checker.jpg"));
+
+        createGameObject("Obj")->addComponent<Components::MeshRenderer>(mesh, RESOURCES.getColorMaterial());
 
         LOG("TestScene initialized!", Color::RED);
     }

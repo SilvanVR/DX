@@ -282,6 +282,8 @@ void World::_ApplyChunkUpdates()
         auto mr = chunkGen.chunk->go->getComponent<Components::MeshRenderer>();
         mr->setMesh( chunkGen.mesh );
         mr->setMaterial( CHUNK_MATERIAL );
+
+        //chunkGen.chunk->drawBoundingBox();
     }
     m_chunkUpdateCompleteList.clear();
 }

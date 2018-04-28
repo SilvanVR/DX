@@ -179,8 +179,10 @@ namespace Core { namespace Debug {
     //----------------------------------------------------------------------
     void DebugManager::_OnSceneChanged()
     {
-        m_currentMeshes.clear();
-        _UpdateCommandBuffer();
+        // Problem with this: If the scene gets loaded on a different thread and this scene has a 
+        // drawing request in his init methods it deletes those meshes immediately
+        //m_currentMeshes.clear();
+        //_UpdateCommandBuffer();
 
         // Re-Add the command buffer to the new cameras in the scene
         for ( auto& cam : SCENE.getComponentManager().getCameras() )

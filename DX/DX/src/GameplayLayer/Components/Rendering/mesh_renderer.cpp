@@ -8,8 +8,9 @@
 
 #include "GameplayLayer/gameobject.h"
 #include "Graphics/command_buffer.h"
-#include "GameplayLayer/Components/transform.h"
+#include "../transform.h"
 #include "locator.h"
+#include "camera.h"
 
 namespace Components {
 
@@ -72,5 +73,12 @@ namespace Components {
             ASSERT( m_materials[i] != nullptr );
             cmd.drawMesh( m_mesh, m_materials[i], modelMatrix, i );
         }
+    }
+
+    //----------------------------------------------------------------------
+    bool MeshRenderer::cull( const Camera& camera )
+    {
+        // Cull mesh against camera
+        return true;
     }
 }

@@ -163,6 +163,7 @@
     <ClCompile Include="src\Include\Graphics\D3D11\Resources\D3D11Texture2D.cpp" />
     <ClCompile Include="src\Include\Graphics\D3D11\Resources\D3D11Texture2DArray.cpp" />
     <ClCompile Include="src\Include\Graphics\i_material.cpp" />
+    <ClCompile Include="src\Include\Graphics\i_mesh.cpp" />
     <ClCompile Include="src\Include\Graphics\i_renderer.cpp" />
     <ClCompile Include="src\Include\Graphics\Utils\utils.cpp" />
     <ClCompile Include="src\stdafx.cpp">

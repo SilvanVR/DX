@@ -28,6 +28,14 @@ public:
     void setActive(bool b) const { go->setActive( b ); }
     void setVoxelAt(I32 x, I32 y, I32 z, Block block) { volume->setVoxelAt(position.x + x, y, position.y + z, block); }
     void setVoxelAt(const Math::Vec3& v, Block block) { setVoxelAt((I32)v.x, (I32)v.y, (I32)v.z, block); }
+
+    void drawBoundingBox()
+    {
+        auto bounds = go->getComponent<Components::MeshRenderer>()->getMesh()->getBounds();
+        bounds.getMin() += Math::Vec3(position.x, -CHUNK_HEIGHT, position.y);
+        bounds.getMax() += Math::Vec3(position.x, -CHUNK_HEIGHT, position.y);
+        DEBUG.drawCube(bounds, Color::GREEN, 10000, true);
+    }
 };
 
 using ChunkPtr = std::shared_ptr<Chunk>;

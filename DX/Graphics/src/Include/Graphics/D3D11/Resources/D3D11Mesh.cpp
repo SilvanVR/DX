@@ -45,7 +45,7 @@ namespace Graphics { namespace D3D11 {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    void Mesh::clear()
+    void Mesh::_Clear()
     {
         SAFE_DELETE( m_pVertexBuffer );
         SAFE_DELETE( m_pColorBuffer );
@@ -53,165 +53,67 @@ namespace Graphics { namespace D3D11 {
         SAFE_DELETE( m_pNormalBuffer );
         for (auto& indexBuffer : m_pIndexBuffers)
             SAFE_DELETE( indexBuffer );
-
-        m_vertices.clear();
-        m_vertexColors.clear();
-        m_uvs0.clear();
-        m_normals.clear();
         m_pIndexBuffers.clear();
-        m_subMeshes.clear();
     }
 
     //----------------------------------------------------------------------
-    void Mesh::setVertices( const ArrayList<Math::Vec3>& vertices )
+    void Mesh::_CreateVertexBuffer( const ArrayList<Math::Vec3>& vertices )
     {
-#if _DEBUG
-        if (m_pVertexBuffer != nullptr)
-            ASSERT( (m_vertices.size() == vertices.size() &&
-                    "IMesh::setVertices(): The amount of vertices given must be the number of vertices already present! "
-                    "Otherwise call clear() before, so the gpu buffer will be recreated.") );
-#endif
-        m_vertices = vertices;
-        if (m_pVertexBuffer == nullptr)
-        {
-            m_pVertexBuffer = new VertexBuffer( m_vertices.data(), getVertexCount() * sizeof( Math::Vec3 ), m_bufferUsage );
-        }
-        else
-        {
-            ASSERT( not isImmutable() && "Mesh is immutable! It can't be updated. "
-                "Either change the buffer usage via setBufferUsage() or call clear() to reset the whole mesh." );
-            m_queuedBufferUpdates.push( { MeshBufferType::Vertex } );
-        }
+        ASSERT( m_pVertexBuffer == nullptr );
+        m_pVertexBuffer = new VertexBuffer( m_vertices.data(), getVertexCount() * sizeof( Math::Vec3 ), m_bufferUsage );
     }
 
     //----------------------------------------------------------------------
-    void Mesh::setIndices( const ArrayList<U32>& indices, U32 subMeshIndex, MeshTopology topology, U32 baseVertex )
+    void Mesh::_CreateIndexBuffer( const SubMesh& subMesh, I32 index )
     {
-#if _DEBUG
-        if ( !m_subMeshes.empty() )
+        switch (subMesh.indexFormat )
         {
-            if ( subMeshIndex < m_pIndexBuffers.size() )
+            case IndexFormat::U16:
             {
-                ASSERT( m_subMeshes[subMeshIndex].indices.size() == indices.size() &&
-                        "IMesh::setTriangles(): The amount of indices given must be the number of indices already present for the given submesh! "
-                        "Otherwise call clear() before, so the gpu buffer will be recreated." );
+                ArrayList<U16> indicesU16;
+                for ( auto& index : subMesh.indices )
+                    indicesU16.push_back( index );
+                auto pIndexBuffer = new D3D11::IndexBuffer( indicesU16.data(), getIndexCount( index ) * sizeof( U16 ), m_bufferUsage );
+                m_pIndexBuffers.push_back( pIndexBuffer );
+                break;
             }
-            else // Check if subMeshIndex is valid
+            case IndexFormat::U32:
             {
-                String errorMessage = "The submesh index is invalid. It must be in in ascending order."
-                                      " The next index would be: " + TS( m_pIndexBuffers.size() );
-                ASSERT( subMeshIndex == m_pIndexBuffers.size() && "Invalid submesh index." );
+                auto pIndexBuffer = new D3D11::IndexBuffer( subMesh.indices.data(), getIndexCount( index ) * sizeof( U32 ), m_bufferUsage );
+                m_pIndexBuffers.push_back( pIndexBuffer );
+                break;
             }
         }
-#endif
-        if ( not hasSubMesh( subMeshIndex ) )
-        {
-            auto& sm = AddSubMesh( indices, topology, baseVertex );
-
-            switch ( sm.indexFormat )
-            {
-                case IndexFormat::U16:
-                {
-                    ArrayList<U16> indicesU16;
-                    for ( auto& index : sm.indices )
-                        indicesU16.push_back( index );
-                    auto pIndexBuffer = new D3D11::IndexBuffer( indicesU16.data(), getIndexCount( subMeshIndex ) * sizeof( U16 ), m_bufferUsage );
-                    m_pIndexBuffers.push_back( pIndexBuffer );
-                    break;
-                }
-                case IndexFormat::U32:
-                {
-                    auto pIndexBuffer = new D3D11::IndexBuffer( sm.indices.data(), getIndexCount( subMeshIndex ) * sizeof( U32 ), m_bufferUsage );
-                    m_pIndexBuffers.push_back( pIndexBuffer );
-                    break;
-                }
-            }
-        }
-        else
-        {
-            ASSERT( not isImmutable() && "Mesh is immutable! It can't be updated. "
-                "Either change the buffer usage via setBufferUsage() or call clear() to reset the whole mesh." );
-
-            auto& sm = m_subMeshes[subMeshIndex];
-            sm.indices      = indices;
-            sm.baseVertex   = baseVertex;
-
-            m_queuedBufferUpdates.push( { MeshBufferType::Index, subMeshIndex } );
-        }
     }
 
     //----------------------------------------------------------------------
-    void Mesh::setColors( const ArrayList<Color>& colors )
+    void Mesh::_CreateColorBuffer( const ArrayList<Color>& colors )
     {
-        if (m_pColorBuffer != nullptr)
-            ASSERT( m_vertexColors.size() == colors.size() &&
-                "IMesh::setColors(): The amount of colors given must be the number of colors already present! "
-                "Otherwise call clear() before, so the gpu buffer will be recreated.");
-
-        m_vertexColors = colors;
-        if (m_pColorBuffer == nullptr)
+        ASSERT( m_pColorBuffer == nullptr );
+        ArrayList<F32> colorsNormalized( m_vertexColors.size() * 4 );
+        for (U32 i = 0; i < m_vertexColors.size(); i++)
         {
-            ArrayList<F32> colorsNormalized( m_vertexColors.size() * 4 );
-            for (U32 i = 0; i < m_vertexColors.size(); i++)
-            {
-                auto normalized = m_vertexColors[i].normalized();
-                colorsNormalized[i * 4 + 0] = normalized[0];
-                colorsNormalized[i * 4 + 1] = normalized[1];
-                colorsNormalized[i * 4 + 2] = normalized[2];
-                colorsNormalized[i * 4 + 3] = normalized[3];
-            }
-            m_pColorBuffer = new VertexBuffer( colorsNormalized.data(), static_cast<U32>( colorsNormalized.size() ) * sizeof( F32 ), m_bufferUsage );
+            auto normalized = m_vertexColors[i].normalized();
+            colorsNormalized[i * 4 + 0] = normalized[0];
+            colorsNormalized[i * 4 + 1] = normalized[1];
+            colorsNormalized[i * 4 + 2] = normalized[2];
+            colorsNormalized[i * 4 + 3] = normalized[3];
         }
-        else
-        {
-            ASSERT( not isImmutable() && "Mesh is immutable! It can't be updated. "
-                "Either change the buffer usage via setBufferUsage() or call clear() to reset the whole mesh." );
-            m_queuedBufferUpdates.push( { MeshBufferType::Color } );
-        }
+        m_pColorBuffer = new VertexBuffer( colorsNormalized.data(), static_cast<U32>( colorsNormalized.size() ) * sizeof( F32 ), m_bufferUsage );
     }
 
     //----------------------------------------------------------------------
-    void Mesh::setUVs( const ArrayList<Math::Vec2>& uvs )
+    void Mesh::_CreateUVBuffer( const ArrayList<Math::Vec2>& uvs )
     {
-#if _DEBUG
-        if (m_pUVBuffer != nullptr)
-            ASSERT( (m_uvs0.size() == m_uvs0.size() &&
-                "IMesh::setUVs(): The amount of uvs given must be the number of uvs already present! "
-                "Otherwise call clear() before, so the gpu buffer will be recreated.") );
-#endif
-        m_uvs0 = uvs;
-        if (m_pUVBuffer == nullptr)
-        {
-            m_pUVBuffer = new VertexBuffer( m_uvs0.data(), getVertexCount() * sizeof( Math::Vec2 ), m_bufferUsage );
-        }
-        else
-        {
-            ASSERT( not isImmutable() && "Mesh is immutable! It can't be updated. "
-                "Either change the buffer usage via setBufferUsage() or call clear() to reset the whole mesh." );
-            m_queuedBufferUpdates.push( { MeshBufferType::TexCoord } );
-        }
+        ASSERT( m_pUVBuffer == nullptr );
+        m_pUVBuffer = new VertexBuffer( m_uvs0.data(), getVertexCount() * sizeof( Math::Vec2 ), m_bufferUsage );
     }
 
     //----------------------------------------------------------------------
-    void Mesh::setNormals(const ArrayList<Math::Vec3>& normals)
+    void Mesh::_CreateNormalBuffer( const ArrayList<Math::Vec3>& normals )
     {
-#if _DEBUG
-        if (m_pNormalBuffer != nullptr)
-            ASSERT((m_normals.size() == normals.size() &&
-                "IMesh::setNormals(): The amount of normals given must be the number of normals already present! "
-                "Otherwise call clear() before, so the gpu buffer will be recreated."));
-#endif
-        m_normals = normals;
-        if (m_pNormalBuffer == nullptr)
-        {
-            m_pNormalBuffer = new VertexBuffer( normals.data(), getVertexCount() * sizeof( Math::Vec3 ), m_bufferUsage );
-        }
-        else
-        {
-            ASSERT( not isImmutable() && "Mesh is immutable! It can't be updated. "
-                   "Either change the buffer usage via setBufferUsage() or call clear() to reset the whole mesh.");
-            m_queuedBufferUpdates.push({ MeshBufferType::Normal });
-        }
+        ASSERT( m_pNormalBuffer == nullptr );
+        m_pNormalBuffer = new VertexBuffer( normals.data(), getVertexCount() * sizeof( Math::Vec3 ), m_bufferUsage );
     }
 
     //**********************************************************************
@@ -227,7 +129,6 @@ namespace Graphics { namespace D3D11 {
     //----------------------------------------------------------------------
     void Mesh::_UpdateIndexBuffer( U32 index )
     {
-        // Update index-buffer
         Size indexSize = 0;
         switch ( getIndexFormat( index ) )
         {
@@ -271,28 +172,28 @@ namespace Graphics { namespace D3D11 {
         if (m_pVertexBuffer)
         {
             SAFE_DELETE( m_pVertexBuffer );
-            setVertices( m_vertices );
+            _CreateVertexBuffer( m_vertices );
         }
 
         // Recreate color buffer
         if (m_pColorBuffer)
         {
             SAFE_DELETE( m_pColorBuffer );
-            setColors( m_vertexColors );
+            _CreateColorBuffer( m_vertexColors );
         }
 
         // Recreate uv buffer
         if (m_pColorBuffer)
         {
             SAFE_DELETE( m_pUVBuffer );
-            setUVs( m_uvs0 );
+            _CreateUVBuffer( m_uvs0 );
         }
 
         // Recreate normal buffer
         if (m_pNormalBuffer)
         {
             SAFE_DELETE( m_pNormalBuffer );
-            setNormals( m_normals );
+            _CreateNormalBuffer( m_normals );
         }
 
         // Recreate index buffers
@@ -300,10 +201,8 @@ namespace Graphics { namespace D3D11 {
             SAFE_DELETE( indexBuffer );
         m_pIndexBuffers.clear();
 
-        auto subMeshes = m_subMeshes;
-        m_subMeshes.clear();
-        for (U32 i = 0; i < subMeshes.size(); i++)
-            setIndices( subMeshes[i].indices, i, subMeshes[i].topology, subMeshes[i].baseVertex );
+        for (U32 i = 0; i < m_subMeshes.size(); i++)
+            _CreateIndexBuffer( m_subMeshes[i], i );
     }
 
     //----------------------------------------------------------------------

@@ -13,6 +13,7 @@
 
 #include "enums.hpp"
 #include "vertex_layout.hpp"
+#include "Math/aabb.h"
 
 namespace Graphics {
 
@@ -30,14 +31,14 @@ namespace Graphics {
         // calling setVertices() when you want to dynamically generate a mesh
         // every frame with different amounts of vertices.
         //----------------------------------------------------------------------
-        virtual void clear() = 0;
+        void clear();
 
         //----------------------------------------------------------------------
         // Sets the vertices for this mesh. If a vertex buffer was not created,
         // it will be created to fit the amount of data given. Otherwise, the gpu
         // buffer will just be updated. Note that this is a slow operation.
         //----------------------------------------------------------------------
-        virtual void setVertices(const ArrayList<Math::Vec3>& vertices) = 0;
+        void setVertices(const ArrayList<Math::Vec3>& vertices);
 
         //----------------------------------------------------------------------
         // Set the index-buffer for this mesh. Note that this is a slow operation.
@@ -47,25 +48,25 @@ namespace Graphics {
         // "topology": MeshTopology used for rendering.
         // "baseVertex": Vertex-Offset added to vertex-buffer.
         //----------------------------------------------------------------------
-        virtual void setIndices(const ArrayList<U32>& indices, U32 subMesh = 0, 
-                                MeshTopology topology = MeshTopology::Triangles, U32 baseVertex = 0) = 0;
+        void setIndices(const ArrayList<U32>& indices, U32 subMesh = 0, 
+                        MeshTopology topology = MeshTopology::Triangles, U32 baseVertex = 0);
 
         //----------------------------------------------------------------------
         // Set the color-buffer for this mesh.
         //----------------------------------------------------------------------
-        virtual void setColors(const ArrayList<Color>& colors) = 0;
+        void setColors(const ArrayList<Color>& colors);
 
         //----------------------------------------------------------------------
         // Set the uv-buffer for this mesh.
         //----------------------------------------------------------------------
-        virtual void setUVs(const ArrayList<Math::Vec2>& uvs) = 0;
+        void setUVs(const ArrayList<Math::Vec2>& uvs);
 
         //----------------------------------------------------------------------
         // Sets the normals for this mesh. If a normal buffer was not created,
         // it will be created to fit the amount of data given. Otherwise, the gpu
         // buffer will just be updated. Note that this is a slow operation.
         //----------------------------------------------------------------------
-        virtual void setNormals(const ArrayList<Math::Vec3>& normals) = 0;
+        void setNormals(const ArrayList<Math::Vec3>& normals);
 
         //----------------------------------------------------------------------
         // @Return: Buffer usage, which determines if it can be updated or not.
@@ -92,6 +93,7 @@ namespace Graphics {
         U32                             getBaseVertex(U32 subMesh)   const { return m_subMeshes[subMesh].baseVertex; }
         bool                            hasSubMesh(U32 subMesh)      const { return subMesh < getSubMeshCount(); }
         MeshTopology                    getMeshTopology(U32 subMesh) const { return m_subMeshes[subMesh].topology; }
+        const Math::AABB&               getBounds()                  const { return m_bounds; }
 
     protected:
         ArrayList<Math::Vec3>   m_vertices;
@@ -99,6 +101,7 @@ namespace Graphics {
         ArrayList<Math::Vec2>   m_uvs0;
         ArrayList<Math::Vec3>   m_normals;
         BufferUsage             m_bufferUsage = BufferUsage::Immutable;
+        Math::AABB              m_bounds;
 
         struct SubMesh
         {
@@ -109,10 +112,42 @@ namespace Graphics {
         };
         ArrayList<SubMesh>      m_subMeshes;
 
+        // Buffer updates are queued. This way its safe to update buffers on different threads.
+        enum class MeshBufferType
+        {
+            Vertex,
+            Color,
+            TexCoord,
+            Normal,
+            Index
+        };
+        struct BufferUpdateInformation
+        {
+            MeshBufferType  type;
+            U32             index = 0; // Only used for some types e.g. submesh index for index-buffer updates
+        };
+        std::queue<BufferUpdateInformation> m_queuedBufferUpdates;
+
         //----------------------------------------------------------------------
         // Recreate all existing buffers. Called when the buffer-usage changes.
         //----------------------------------------------------------------------
         virtual void _RecreateBuffers() = 0;
+
+        //----------------------------------------------------------------------
+        // Overrides for an API dependant mesh class
+        //----------------------------------------------------------------------
+        virtual void _Clear() = 0;
+        virtual void _CreateVertexBuffer(const ArrayList<Math::Vec3>& vertices) = 0;
+        virtual void _CreateIndexBuffer(const SubMesh& subMesh, I32 index) = 0;
+        virtual void _CreateColorBuffer(const ArrayList<Color>& colors) = 0;
+        virtual void _CreateUVBuffer(const ArrayList<Math::Vec2>& uvs) = 0;
+        virtual void _CreateNormalBuffer(const ArrayList<Math::Vec3>& normals) = 0;
+
+    private:
+        //----------------------------------------------------------------------
+        // Binds this mesh to the pipeline. Subsequent drawcalls render this mesh.
+        //----------------------------------------------------------------------
+        virtual void bind(const VertexLayout& vertLayout, U32 subMesh = 0) = 0;
 
         //----------------------------------------------------------------------
         // Add a new submesh to the list of submeshes. The appropriate index-
@@ -120,25 +155,12 @@ namespace Graphics {
         // @Return:
         // The newly created submesh struct.
         //----------------------------------------------------------------------
-        SubMesh& AddSubMesh( const ArrayList<U32>& indices, MeshTopology topology, U32 baseVertex )
-        {
-            SubMesh sm;
-            sm.indices      = indices;
-            sm.baseVertex   = baseVertex;
-            sm.topology     = topology;
+        SubMesh& _AddSubMesh( const ArrayList<U32>& indices, MeshTopology topology, U32 baseVertex );
 
-            if ( indices.size() > 65535 )
-                sm.indexFormat = IndexFormat::U32;
-
-            m_subMeshes.push_back( std::move( sm ) );
-            return m_subMeshes.back();
-        }
-
-    private:
         //----------------------------------------------------------------------
-        // Binds this mesh to the pipeline. Subsequent drawcalls render this mesh.
+        // Recalculate the AABB for this mesh
         //----------------------------------------------------------------------
-        virtual void bind(const VertexLayout& vertLayout, U32 subMesh = 0) = 0;
+        void _RecalculateBounds();
 
         //----------------------------------------------------------------------
         IMesh(const IMesh& other)               = delete;

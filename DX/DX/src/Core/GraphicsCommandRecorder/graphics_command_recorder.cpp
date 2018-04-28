@@ -50,9 +50,10 @@ namespace Core {
             {
                 if ( not renderer->isActive() )
                     continue;
-                //bool isVisible = renderer->Cull(camera);
+                bool isVisible = renderer->cull( *cam );
                 //bool layerMatch = camera->layerMask & renderer->getLayerMask();
                 //if (isVisible && layerMatch)
+                if (isVisible)
                      renderer->recordGraphicsCommands( cmd, lerp );
             }
 

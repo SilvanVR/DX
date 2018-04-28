@@ -12,7 +12,7 @@
     of an chunk has been finished. This causes the player to fall for a moment).
 **********************************************************************/
 
-#define DISPLAY_CONSOLE 1
+#define DISPLAY_CONSOLE         1
 
 #include "World/world_generator.h"
 #include "World/Terrain Generator/flat_terrain_generator.h"

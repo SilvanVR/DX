@@ -123,9 +123,29 @@ namespace Math {
     }
 
     //----------------------------------------------------------------------
-    F32 Vector3F::distance(const Vector3F& v) const
+    F32 Vector3F::distance( const Vector3F& v ) const
     {
         return (*this - v).magnitude();
+    }
+
+    //----------------------------------------------------------------------
+    Vector3F Vector3F::minVec( const Vector3F& v ) const
+    {
+        F32 x, y, z;
+        this->x < v.x ? x = this->x : x = v.x;
+        this->y < v.y ? y = this->y : y = v.y;
+        this->z < v.z ? z = this->z : z = v.z;
+        return Vector3F( x, y, z );
+    }
+    
+    //----------------------------------------------------------------------
+    Vector3F Vector3F::maxVec( const Vector3F& v ) const
+    {
+        F32 x, y, z;
+        this->x > v.x ? x = this->x : x = v.x;
+        this->y > v.y ? y = this->y : y = v.y;
+        this->z > v.z ? z = this->z : z = v.z;
+        return Vector3F( x, y, z );
     }
 
     //**********************************************************************

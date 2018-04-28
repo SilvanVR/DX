@@ -12,6 +12,8 @@
 
 namespace Components {
 
+    class Camera;
+
     //**********************************************************************
     class IRenderComponent : public IComponent
     {
@@ -21,6 +23,7 @@ namespace Components {
 
         //----------------------------------------------------------------------
         virtual void recordGraphicsCommands(Graphics::CommandBuffer& cmd, F32 lerp) {}
+        virtual bool cull(const Camera& camera) { return true; }
 
     private:
         //----------------------------------------------------------------------
