@@ -30,38 +30,19 @@ namespace Core {
     {
         auto& graphicsEngine = Locator::getRenderer();
 
-        // Fetch all renderer components e.g. model-renderer
+        // Fetch all renderer components
         auto& renderers = scene.getComponentManager().getRenderer();
 
         // Create rendering commands for each camera and submit them to the graphics-engine
-        auto& cameras = scene.getComponentManager().getCameras();
-
-        for (auto& cam : cameras)
+        for (auto& cam : scene.getComponentManager().getCameras())
         {
-            auto& cmd = cam->getCommandBuffer();
+            auto& cmd = cam->recordGraphicsCommands( lerp, renderers );
 
-            cmd.reset();
-
-            // Record where to render, view- & projection, viewport
-            cam->recordGraphicsCommands( cmd, lerp );
-
-            // Do viewfrustum culling with every renderer component
-            for (auto& renderer : renderers)
-            {
-                if ( not renderer->isActive() )
-                    continue;
-                bool isVisible = renderer->cull( *cam );
-                //bool layerMatch = camera->layerMask & renderer->getLayerMask();
-                //if (isVisible && layerMatch)
-                if (isVisible)
-                     renderer->recordGraphicsCommands( cmd, lerp );
-            }
-
-            // Execute rendering commands
+            // Execute rendering commands from this camera
             graphicsEngine.dispatch( cmd );
 
-            // Execute additional cmds
-            for (auto& camCMD : cam->getAdditionalCommandBuffers() )
+            // Execute additional attached command buffers
+            for ( auto& camCMD : cam->getAdditionalCommandBuffers() )
                 graphicsEngine.dispatch( *camCMD );
         }
     }

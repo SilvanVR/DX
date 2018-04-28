@@ -14,13 +14,13 @@ namespace Math {
     std::array<Vec3, 8> CalculateFrustumCorners( const Vec3& pos, const Vec3& up, const Vec3& right, const Vec3& forward,
                                                  F32 fovAngleYRad, F32 zNear, F32 zFar, F32 aspectRatio )
     {
-        F32 halfTanFOV      = std::tanf( fovAngleYRad );
+        F32 halfTanFOV  = std::tanf( fovAngleYRad );
 
-        F32 nearHeight      = 2.0f * halfTanFOV * zNear;
-        F32 nearWidth       = nearHeight * aspectRatio;
+        F32 nearHeight  = 2.0f * halfTanFOV * zNear;
+        F32 nearWidth   = nearHeight * aspectRatio;
 
-        F32 farHeight       = 2.0f * halfTanFOV * zFar;
-        F32 farWidth        = farHeight * aspectRatio;
+        F32 farHeight   = 2.0f * halfTanFOV * zFar;
+        F32 farWidth    = farHeight * aspectRatio;
 
         auto nearCenter = pos + forward * zNear;
         auto farCenter  = pos + forward * zFar;
@@ -54,6 +54,12 @@ namespace Math {
         };
 
         return vertices;
+    }
+
+    //----------------------------------------------------------------------
+    std::array<Vec3, 8> CalculateFrustumCorners(const Vec3& pos, const Quat& rot, F32 fovAngleYRad, F32 zNear, F32 zFar, F32 aspectRatio)
+    {
+        return CalculateFrustumCorners( pos, rot.getUp(), rot.getRight(), rot.getForward(), fovAngleYRad, zNear, zFar, aspectRatio );
     }
 
 }

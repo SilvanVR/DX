@@ -26,6 +26,7 @@ namespace Components {
         virtual bool cull(const Camera& camera) { return true; }
 
     private:
+
         //----------------------------------------------------------------------
         IRenderComponent(const IRenderComponent& other)               = delete;
         IRenderComponent& operator = (const IRenderComponent& other)  = delete;

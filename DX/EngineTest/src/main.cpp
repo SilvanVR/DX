@@ -25,7 +25,6 @@ public:
         auto cam = go->addComponent<Components::Camera>();
         go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -10);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 10.0f, 0.3f, 1.0f);
-
         createGameObject("Grid")->addComponent<GridGeneration>(20);
 
         //auto shader = RESOURCES.createShader("test", "/shaders/testVS.hlsl", "/shaders/testPS.hlsl");
@@ -33,13 +32,14 @@ public:
         auto mesh = Core::Assets::MeshGenerator::CreateUVSphere(10,10, Color::RED);
         //mesh->setColors(cubeColors);
 
-        auto b = mesh->getBounds();
-        DEBUG.drawCube(mesh->getBounds(), Color::GREEN, 1000, false);
+        //auto b = mesh->getBounds();
+        //DEBUG.drawCube(mesh->getBounds(), Color::GREEN, 1000, false);
 
         //auto material = RESOURCES.createMaterial(shader);
         //material->setTexture("tex", ASSETS.getTexture2D("/textures/checker.jpg"));
 
-        createGameObject("Obj")->addComponent<Components::MeshRenderer>(mesh, RESOURCES.getColorMaterial());
+        auto go2 = createGameObject("Obj");
+        go2->addComponent<Components::MeshRenderer>(mesh, RESOURCES.getColorMaterial());
 
         LOG("TestScene initialized!", Color::RED);
     }

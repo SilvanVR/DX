@@ -16,6 +16,8 @@ namespace Core { class GraphicsCommandRecorder; }
 
 namespace Components {
 
+    class IRenderComponent;
+
     //**********************************************************************
     class Camera : public IComponent
     {
@@ -47,6 +49,7 @@ namespace Components {
         void setOrthoParams         (F32 left, F32 right, F32 bottom, F32 top, F32 zNear, F32 zFar);
         void setPerspectiveParams   (F32 fovAngleYInDegree, F32 zNear, F32 zFar);
         void setViewport            (const Graphics::ViewportRect& viewport) { m_viewport = viewport; }
+        void setCullingMask         (U32 layers)                { m_cullingMask.unsetAnyBit(); m_cullingMask.setBits( layers ); }
 
         //----------------------------------------------------------------------
         bool                            isRenderingToScreen()   const { return m_renderTarget == nullptr; }
@@ -62,6 +65,7 @@ namespace Components {
         F32                             getBottom()             const { return m_ortho.bottom; }
         EClearMode                      getClearMode()          const { return m_clearMode; }
         F32                             getAspectRatio()        const;
+        Common::BitMask                 getLayerMask()          const { return m_cullingMask; }
 
         //----------------------------------------------------------------------
         // @Return
@@ -126,7 +130,7 @@ namespace Components {
         RenderTexturePtr m_renderTarget = nullptr;
 
         // Which layer this camera renders
-        //Common::BitMask               m_layerMask;
+        Common::BitMask         m_cullingMask;
 
         // Contains commands to render one frame into the rendertarget
         Graphics::CommandBuffer m_commandBuffer;
@@ -136,9 +140,10 @@ namespace Components {
 
         //----------------------------------------------------------------------
         friend class Core::GraphicsCommandRecorder;
-        void recordGraphicsCommands(Graphics::CommandBuffer& cmd, F32 lerp);
-        Graphics::CommandBuffer& getCommandBuffer() { return m_commandBuffer; }
+        Graphics::CommandBuffer& recordGraphicsCommands(F32 lerp, const ArrayList<IRenderComponent*>& rendererComponents);
         ArrayList<Graphics::CommandBuffer*>& getAdditionalCommandBuffers() { return m_additionalCommandBuffers; }
+
+
 
         //----------------------------------------------------------------------
         Camera(const Camera& other)               = delete;

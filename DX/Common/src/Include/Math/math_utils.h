@@ -9,6 +9,7 @@
 **********************************************************************/
 
 #include "dxmath_wrapper.h"
+#include <array>
 
 namespace Math {
 
@@ -27,8 +28,9 @@ namespace Math {
     }
 
     //----------------------------------------------------------------------
-    std::array<Vec3, 8> CalculateFrustumCorners( const Vec3& pos, const Vec3& up, const Vec3& right, const Vec3& forward,
-                                                 F32 fovAngleYRad, F32 zNear, F32 zFar, F32 aspectRatio );
+    std::array<Vec3, 8> CalculateFrustumCorners(const Vec3& pos, const Vec3& up, const Vec3& right, const Vec3& forward,
+                                                F32 fovAngleYRad, F32 zNear, F32 zFar, F32 aspectRatio);
+    std::array<Vec3, 8> CalculateFrustumCorners(const Vec3& pos, const Quat& rot, F32 fovAngleYRad, F32 zNear, F32 zFar, F32 aspectRatio);
 
     //----------------------------------------------------------------------
     template <typename T, typename T2, typename T3> inline

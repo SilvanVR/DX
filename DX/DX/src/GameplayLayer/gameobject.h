@@ -22,10 +22,12 @@ public:
     ~GameObject();
 
     //----------------------------------------------------------------------
-    inline const StringID      getName()       const   { return m_name; }
-    inline IScene*             getScene()              { return m_attachedScene; }
-    inline bool                isActive()      const   { return m_isActive; }
-    inline void                setActive(bool active)  { m_isActive = active; }
+    inline const StringID           getName()       const   { return m_name; }
+    inline bool                     isActive()      const   { return m_isActive; }
+    inline const Common::BitMask    getLayers()     const   { return m_layerMask; }
+    inline IScene*                  getScene()              { return m_attachedScene; }
+    inline void                     setActive(bool active)  { m_isActive = active; }
+    inline void                     setLayer(U32 newLayer)  { m_layerMask.unsetAnyBit(); m_layerMask.setBits(newLayer); }
 
     // <---------------------- COMPONENT STUFF ---------------------------->
     template<typename T> T*   getComponent();
@@ -36,9 +38,10 @@ public:
     Components::Transform* getTransform() { return getComponent<Components::Transform>(); }
 
 private:
-    StringID m_name;
-    IScene*  m_attachedScene = nullptr;
-    bool     m_isActive = true;
+    StringID            m_name;
+    IScene*             m_attachedScene = nullptr;
+    bool                m_isActive = true;
+    Common::BitMask     m_layerMask = Common::BitMask(1);
 
     std::unordered_map<Hash, Components::IComponent*> m_components;
 

@@ -9,12 +9,16 @@
 #include "GameplayLayer/Components/transform.h"
 #include "GameplayLayer/gameobject.h"
 #include "Graphics/command_buffer.h"
+#include "i_render_component.hpp"
+#include "Math/math_utils.h"
 #include "locator.h"
+#include "Core/layer_defines.hpp"
 
 namespace Components {
 
     //----------------------------------------------------------------------
     Camera::Camera( F32 fovAngleYInDegree, F32 zNear, F32 zFar )
+        : m_cullingMask( LAYER_ALL )
     {
         m_cameraMode = EMode::PERSPECTIVE;
         setPerspectiveParams( fovAngleYInDegree, zNear, zFar );
@@ -22,6 +26,7 @@ namespace Components {
 
     //----------------------------------------------------------------------
     Camera::Camera( F32 left, F32 right, F32 bottom, F32 top, F32 zNear, F32 zFar )
+        : m_cullingMask( LAYER_ALL )
     {
         m_cameraMode = EMode::ORTHOGRAPHIC;
         setOrthoParams( left, right, bottom, top, zNear, zFar );
@@ -33,16 +38,19 @@ namespace Components {
     }
 
     //----------------------------------------------------------------------
-    void Camera::recordGraphicsCommands( Graphics::CommandBuffer& cmd, F32 lerp )
+    Graphics::CommandBuffer& Camera::recordGraphicsCommands( F32 lerp, const ArrayList<IRenderComponent*>& rendererComponents )
     {
+        // Reset command buffer
+        m_commandBuffer.reset();
+
         // Set render target
-        cmd.setRenderTarget( getRenderTarget() );
+        m_commandBuffer.setRenderTarget( getRenderTarget() );
 
         // Clear render target if desired
         switch (m_clearMode)
         {
         case EClearMode::NONE: break;
-        case EClearMode::COLOR: cmd.clearRenderTarget( getClearColor() ); break;
+        case EClearMode::COLOR: m_commandBuffer.clearRenderTarget( getClearColor() ); break;
         default: LOG_WARN( "Unknown Clear-Mode in camera!" );
         }
 
@@ -62,7 +70,7 @@ namespace Components {
             screenRect.width    = m_viewport.width    * m_renderTarget->getWidth();
             screenRect.height   = m_viewport.height   * m_renderTarget->getHeight();
         }
-        cmd.setViewport( screenRect );
+        m_commandBuffer.setViewport( screenRect );
 
         // Set view / projection params
         Transform* transform = getGameObject()->getComponent<Components::Transform>();
@@ -72,14 +80,29 @@ namespace Components {
         switch ( m_cameraMode )
         {
         case Camera::PERSPECTIVE:
-            cmd.setCameraPerspective( view, getFOV(), getZNear(), getZFar() );
+            m_commandBuffer.setCameraPerspective( view, getFOV(), getZNear(), getZFar() );
             break;
         case Camera::ORTHOGRAPHIC:
-            cmd.setCameraOrtho( view, getLeft(), getRight(), getBottom(), getTop(), getZNear(), getZFar() );
+            m_commandBuffer.setCameraOrtho( view, getLeft(), getRight(), getBottom(), getTop(), getZNear(), getZFar() );
             break;
         default:
             LOG_WARN_RENDERING( "UNKNOWN CAMERA MODE" );
         }
+
+        // Do viewfrustum culling with every renderer component
+        for ( auto& renderer : rendererComponents )
+        {
+            if ( not renderer->isActive() )
+                continue;
+            bool isVisible = renderer->cull( *this );
+            bool layerMatch = (m_cullingMask & renderer->getGameObject()->getLayers()).isAnyBitSet();
+            if (isVisible && layerMatch)
+                renderer->recordGraphicsCommands( m_commandBuffer, lerp );
+        }
+
+        auto corners = Math::CalculateFrustumCorners( transform->position, transform->rotation, m_fov, m_zNear, m_zFar, getAspectRatio() );
+
+        return m_commandBuffer;
     }
 
     //**********************************************************************

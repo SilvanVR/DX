@@ -24,16 +24,16 @@ namespace Components {
         virtual ~IComponent() {}
 
         //----------------------------------------------------------------------
-        GameObject*         getGameObject()         { return m_pGameObject; }
-        const GameObject*   getGameObject() const   { return m_pGameObject; }
+        inline GameObject*         getGameObject()         { return m_pGameObject; }
+        inline const GameObject*   getGameObject() const   { return m_pGameObject; }
 
-        void                setActive(bool active)  { m_isActive = active; if (m_isActive) onActive(); }
+        inline void                setActive(bool active)  { m_isActive = active; if (m_isActive) onActive(); }
 
         //----------------------------------------------------------------------
         // @Return:
-        // Whether this component is active. (P.S. if the attached gameobject is not active this returns also false!)
+        //  Whether this component is active. (P.S. if the attached gameobject is not active this returns also false!)
         //----------------------------------------------------------------------
-        bool                isActive()      const;
+        bool                        isActive()      const;
 
         //----------------------------------------------------------------------
         // @Return:

@@ -353,6 +353,7 @@
     <ClInclude Include="src\Core\Audio\audio_clip.h" />
     <ClInclude Include="src\Core\Audio\audio_manager.h" />
     <ClInclude Include="src\Core\Audio\wav_clip.h" />
+    <ClInclude Include="src\Core\layer_defines.hpp" />
     <ClInclude Include="src\Core\DebugManager\debug_manager.h" />
     <ClInclude Include="src\Core\event_names.hpp" />
     <ClInclude Include="src\Core\Resources\default_shaders.hpp" />

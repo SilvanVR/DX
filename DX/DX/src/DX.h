@@ -15,3 +15,4 @@
 #include "OS/FileSystem/virtual_file_system.h"
 #include "Math/math_utils.h"
 #include "Math/random.h"
+#include "Core/layer_defines.hpp"

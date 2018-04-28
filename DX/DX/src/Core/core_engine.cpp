@@ -51,7 +51,7 @@ namespace Core {
     //----------------------------------------------------------------------
     void CoreEngine::subscribe( ISubSystem* subSystem, bool insertFront )
     { 
-        if(insertFront)
+        if (insertFront)
             m_subscribers.insert( m_subscribers.begin(), subSystem );
         else
             m_subscribers.push_back( subSystem ); 

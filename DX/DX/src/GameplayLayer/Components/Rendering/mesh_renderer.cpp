@@ -60,9 +60,6 @@ namespace Components {
     //----------------------------------------------------------------------
     void MeshRenderer::recordGraphicsCommands( Graphics::CommandBuffer& cmd, F32 lerp )
     {
-        if ( m_mesh == nullptr )
-            return;
-
         auto transform = getGameObject()->getComponent<Transform>();
         ASSERT( transform != nullptr );
 
@@ -78,7 +75,16 @@ namespace Components {
     //----------------------------------------------------------------------
     bool MeshRenderer::cull( const Camera& camera )
     {
+        if ( m_mesh == nullptr )
+            return false;
+
         // Cull mesh against camera
+        const auto& aabb = m_mesh->getBounds();
+        auto transform = getGameObject()->getComponent<Transform>();
+
+
+
+
         return true;
     }
 }
