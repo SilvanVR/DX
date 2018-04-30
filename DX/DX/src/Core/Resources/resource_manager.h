@@ -63,6 +63,7 @@ namespace Core { namespace Resources {
         //----------------------------------------------------------------------
         ShaderPtr createShader(CString name, const OS::Path& vertPath, const OS::Path& fragPath);
         ShaderPtr createShader(const String& vertSrc, const String& fragSrc);
+        ShaderPtr createShader();
 
         //----------------------------------------------------------------------
         // Creates a new 2d texture
@@ -125,6 +126,7 @@ namespace Core { namespace Resources {
         const MaterialPtr&      getDefaultMaterial() const { return m_defaultMaterial; }
         const ShaderPtr&        getDefaultShader()   const { return m_defaultShader; }
         const ShaderPtr&        getColorShader() const { return m_colorShader; }
+        const ShaderPtr&        getErrorShader() const { return m_errorShader; }
         const MaterialPtr&      getColorMaterial() const { return m_colorMaterial; }
 
         const Texture2DPtr&     getBlackTexture() const { return m_black; }

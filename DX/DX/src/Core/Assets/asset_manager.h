@@ -16,6 +16,7 @@
 #include "Graphics/i_texture2d.hpp"
 #include "Graphics/i_cubemap.hpp"
 #include "Core/Audio/audio_clip.h"
+#include "Graphics/i_shader.hpp"
 
 namespace Core { namespace Assets {
 
@@ -25,6 +26,7 @@ namespace Core { namespace Assets {
         using WeakTexture2DPtr  = std::weak_ptr<Graphics::Texture2D>;
         using WeakCubemapPtr    = std::weak_ptr<Graphics::Cubemap>;
         using WeakWavClipPtr    = std::weak_ptr<Audio::WAVClip>;
+        using WeakShaderPtr     = std::weak_ptr<Graphics::Shader>;
 
     public:
         AssetManager() = default;
@@ -65,6 +67,13 @@ namespace Core { namespace Assets {
         AudioClipPtr getAudioClip(const OS::Path& path);
 
         //----------------------------------------------------------------------
+        // Creates a new shader object. Will be loaded only if not already in memory.
+        // @Params:
+        //  "path": Path to the shader file.
+        //----------------------------------------------------------------------
+        ShaderPtr getShader(const OS::Path& path);
+
+        //----------------------------------------------------------------------
         // Enable/Disable hot reloading. The asset manager will periodically check
         // all loaded resource files and reload them if they are outdated. (Note that not all resource types are supported)
         //----------------------------------------------------------------------
@@ -100,16 +109,24 @@ namespace Core { namespace Assets {
             // No reloading supported for audio
         };
 
+        struct ShaderAssetInfo : public FileInfo
+        {
+            WeakShaderPtr shader;
+            void ReloadAsyncIfNotUpToDate();
+        };
+
         // Lists of all loaded resources. Stores weak-ptrs, which means that the resource might be already unloaded.
         HashMap<StringID, TextureAssetInfo>     m_textureCache;
         HashMap<StringID, CubemapAssetInfo>     m_cubemapCache;
         HashMap<StringID, AudioClipAssetInfo>   m_audioCache;
+        HashMap<StringID, ShaderAssetInfo>      m_shaderCache;
 
         //----------------------------------------------------------------------
         inline Texture2DPtr _LoadTexture2D(const OS::Path& filePath, bool generateMips);
         inline CubemapPtr _LoadCubemap(const OS::Path& posX, const OS::Path& negX, 
                                        const OS::Path& posY, const OS::Path& negY,
                                        const OS::Path& posZ, const OS::Path& negZ, bool generateMips);
+        inline ShaderPtr _LoadShader(const OS::Path& filePath);
         void _EnableHotReloading();
 
         //----------------------------------------------------------------------

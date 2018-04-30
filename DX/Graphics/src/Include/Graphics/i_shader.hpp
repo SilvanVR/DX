@@ -53,6 +53,19 @@ namespace Graphics {
         virtual bool compileFromSource(const String& vertSrc, const String& fragSrc, CString entryPoint) = 0;
 
         //----------------------------------------------------------------------
+        // Try to compile one shader.
+        // @Params:
+        //  "src": Source of the shader in ASCII.
+        //  "entryPoint": Entry point of the shader.
+        // @Return:
+        //  True, if compilation was successful, otherwise false and prints what went wrong.
+        //----------------------------------------------------------------------
+        virtual bool compileVertexShaderFromSource(const String& src, CString entryPoint) = 0;
+        virtual bool compileFragmentShaderFromSource(const String& src, CString entryPoint) = 0;
+        //virtual bool compileGeometryShaderFromSource(const String& src, CString entryPoint) = 0;
+        //virtual bool compileTessellationShaderFromSource(const String& src, CString entryPoint) = 0;
+
+        //----------------------------------------------------------------------
         // Recompile all shaders which are not up to date.
         // @Return:
         //  List of shader paths, which were recompiled.

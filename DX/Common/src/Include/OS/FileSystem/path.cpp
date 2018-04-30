@@ -37,6 +37,13 @@ namespace OS {
     }
 
     //----------------------------------------------------------------------
+    String Path::getFileName() const
+    {
+        Size dotPosition = ( m_path.find_last_of( "." ) + 1 );
+       // return m_path.substr( dotPosition, (m_path.size() - dotPosition) );
+    }
+
+    //----------------------------------------------------------------------
     OS::SystemTime Path::getLastWrittenFileTime() const
     {
         ASSERT( exists() );

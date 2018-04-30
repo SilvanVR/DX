@@ -36,6 +36,7 @@ namespace StringUtils {
     //   Empty string ("") if not.
     //----------------------------------------------------------------------
     String substringBetween(const String& str, const char first, const char second);
+    String substringBetweenWithBounds(const String& str, const char first, const char second);
 
     //----------------------------------------------------------------------
     // Split a string by the given delimiter.
@@ -58,6 +59,7 @@ namespace StringUtils {
         bool    eof()           const { return (m_readPos == String::npos); }
         bool    failed()        const { return m_failed; }
         char    peekNextChar();
+        String  nextLine();
 
         //----------------------------------------------------------------------
         template <typename T>

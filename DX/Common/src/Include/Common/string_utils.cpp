@@ -51,12 +51,31 @@ namespace StringUtils {
 
         if (firstOccurrence != String::npos)
         {
-            Size secondOccurence = str.find_first_of( second, firstOccurrence );
+            Size secondOccurence = str.find_first_of( second, firstOccurrence + 1 );
 
             if (secondOccurence != String::npos)
             {
                 Size numChars = ( secondOccurence - firstOccurrence ) - 1;
                 return str.substr(firstOccurrence + 1, numChars);
+            }
+        }
+
+        return "";
+    }
+
+    //----------------------------------------------------------------------
+    String substringBetweenWithBounds( const String& str, const char first, const char second )
+    {
+        Size firstOccurrence = str.find_first_of( first );
+
+        if (firstOccurrence != String::npos)
+        {
+            Size secondOccurence = str.find_first_of( second, firstOccurrence + 1 );
+
+            if (secondOccurence != String::npos)
+            {
+                Size numChars = (secondOccurence - firstOccurrence) + 1;
+                return str.substr( firstOccurrence, numChars );
             }
         }
 
@@ -121,6 +140,26 @@ namespace StringUtils {
             return ' ';
 
         return m_str[nextCharPos];
+    }
+
+    //----------------------------------------------------------------------
+    String IStringStream::nextLine()
+    {
+        Size nextNewLine = m_str.find_first_of( "\n", m_readPos );
+
+        if (nextNewLine != String::npos)
+        {
+            String line = m_str.substr( m_readPos, (nextNewLine - m_readPos) );
+
+            m_readPos = nextNewLine + 1;
+            nextNewLine = m_str.find_first_of( "\n", m_readPos );
+            if (nextNewLine == String::npos)
+                m_readPos = String::npos;
+
+            return line;
+        }
+
+        return "";
     }
 
     //----------------------------------------------------------------------

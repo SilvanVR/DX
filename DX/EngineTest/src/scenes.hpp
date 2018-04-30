@@ -572,3 +572,46 @@ public:
 
     void shutdown() override { LOG("SceneGraphScene Shutdown!", Color::RED); }
 };
+
+
+class MultiCamera : public IScene
+{
+public:
+    MultiCamera() : IScene("MultiCamera") {}
+
+    void init() override
+    {
+        // Camera
+        auto go = createGameObject("Camera");
+        auto cam = go->addComponent<Components::Camera>();
+        go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -10);
+        go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 10.0f, 0.3f, 1.0f);
+        go->addComponent<DrawFrustum>();
+
+        auto go3 = createGameObject("Camera2");
+        auto cam2 = go3->addComponent<Components::Camera>();
+        go3->getComponent<Components::Transform>()->position = Math::Vec3(0, 5, -10);
+        go3->addComponent<AutoOrbiting>(10.0f);
+        cam2->setClearMode(Components::Camera::EClearMode::NONE);
+        cam2->setZFar(20.0f);
+        cam2->getViewport().width = 0.25f;
+        cam2->getViewport().height = 0.25f;
+        go3->addComponent<DrawFrustum>();
+
+        createGameObject("Grid")->addComponent<GridGeneration>(20);
+
+        auto mesh = Core::Assets::MeshGenerator::CreateCube(1);
+        mesh->setColors(cubeColors);
+
+        auto go2 = createGameObject("Obj");
+        go2->addComponent<Components::MeshRenderer>(mesh, RESOURCES.getColorMaterial());
+
+        LOG("TestScene initialized!", Color::RED);
+    }
+
+    void tick(Time::Seconds d) override
+    {
+    }
+
+    void shutdown() override { LOG("MultiCamera Shutdown!", Color::RED); }
+};

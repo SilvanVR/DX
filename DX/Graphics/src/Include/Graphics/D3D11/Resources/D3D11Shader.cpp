@@ -31,7 +31,8 @@ namespace Graphics { namespace D3D11 {
     void Shader::bind()
     {
         m_pVertexShader->bind();
-        m_pPixelShader->bind();
+        if (m_pPixelShader)
+            m_pPixelShader->bind();
 
         g_pImmediateContext->OMSetDepthStencilState( m_pDepthStencilState, 0 );
         g_pImmediateContext->RSSetState( m_pRSState );
@@ -60,16 +61,27 @@ namespace Graphics { namespace D3D11 {
     //----------------------------------------------------------------------
     bool Shader::compileFromSource( const String& vertSrc, const String& fragSrc, CString entryPoint )
     {
-        m_pVertexShader.reset( new D3D11::VertexShader() );
-        m_pPixelShader.reset( new D3D11::PixelShader() );
-
         bool success = true;
-        if ( not m_pVertexShader->compileFromSource( vertSrc, entryPoint ) )
+        if ( not compileVertexShaderFromSource( vertSrc, entryPoint ) )
             success = false;
-        if ( not m_pPixelShader->compileFromSource( fragSrc, entryPoint ) )
+        if ( not compileFragmentShaderFromSource( fragSrc, entryPoint ) )
             success = false;
 
         return success;
+    }
+
+    //----------------------------------------------------------------------
+    bool Shader::compileVertexShaderFromSource( const String& src, CString entryPoint )
+    {
+        m_pVertexShader.reset( new D3D11::VertexShader() );
+        return m_pVertexShader->compileFromSource( src, entryPoint );
+    }
+
+    //----------------------------------------------------------------------
+    bool Shader::compileFragmentShaderFromSource( const String& src, CString entryPoint )
+    {
+        m_pPixelShader.reset( new D3D11::PixelShader() );
+        return m_pPixelShader->compileFromSource( src, entryPoint );
     }
 
     //----------------------------------------------------------------------

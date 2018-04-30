@@ -9,6 +9,9 @@
 #include "Ext/StbImage/stb_image.h"
 #include "locator.h"
 #include "Common/string_utils.h"
+#include "OS/FileSystem/file.h"
+#include "Common/string_utils.h"
+#include <sstream>
 
 namespace Core { namespace Assets {
 
@@ -142,6 +145,36 @@ namespace Core { namespace Assets {
     }
 
     //----------------------------------------------------------------------
+    ShaderPtr AssetManager::getShader( const OS::Path& filePath )
+    {
+        // Check if shader was already loaded
+        StringID pathAsID = SID( StringUtils::toLower( filePath.toString() ).c_str() );
+        if ( m_shaderCache.find( pathAsID ) != m_shaderCache.end() )
+        {
+            auto weakPtr = m_shaderCache[pathAsID].shader;
+            if ( not weakPtr.expired() )
+                return ShaderPtr( weakPtr );
+        }
+
+        // Try loading shader
+        auto shader = _LoadShader( filePath );
+        if ( not shader )
+        {
+            LOG_WARN( "LoadShader(): Shader '" + filePath.toString() + "' could not be loaded. Returning the error shader instead." );
+            return RESOURCES.getErrorShader();
+        }
+
+        ShaderAssetInfo shaderInfo;
+        shaderInfo.shader      = shader;
+        shaderInfo.path        = filePath;
+        shaderInfo.timeAtLoad  = filePath.getLastWrittenFileTime();
+
+        m_shaderCache[pathAsID] = shaderInfo;
+
+        return shader;
+    }
+
+    //----------------------------------------------------------------------
     void AssetManager::setHotReloading( bool enabled ) 
     { 
         m_hotReloading = enabled;
@@ -224,6 +257,101 @@ namespace Core { namespace Assets {
         return cubemap;
     }
 
+    ShaderPtr AssetManager::_LoadShader( const OS::Path& filePath )
+    {
+        LOG( "AssetManager: Loading Shader '" + filePath.toString() + "'", LOG_COLOR );
+
+        OS::File file( filePath, OS::EFileMode::READ );
+        if ( not file.exists() )
+            return nullptr;
+
+        enum class ShaderType
+        {
+            NONE = 0, VERTEX = 1, FRAGMENT = 2, GEOMETRY = 3, TESSELLATION = 4, NUM_SHADER_TYPES = 5
+        } type = ShaderType::NONE;
+
+        // Split file line by line into different strings and handle includes
+        std::array<String, (I32)ShaderType::NUM_SHADER_TYPES> shaderSources;
+        while ( not file.eof() )
+        {
+            String line = file.readLine();
+            if ( line.find( "#shader" ) != String::npos )
+            {
+                if ( line.find( "vertex" ) != String::npos )
+                    type = ShaderType::VERTEX;
+                else if ( line.find( "fragment" ) != String::npos )
+                    type = ShaderType::FRAGMENT;
+                else if ( line.find( "geometry" ) != String::npos )
+                    type = ShaderType::GEOMETRY;
+                else if ( line.find( "tessellation" ) != String::npos )
+                    type = ShaderType::TESSELLATION;
+            }
+            else if ( auto pos = line.find( "#include" ) != String::npos )
+            {
+                auto includeFilePath = StringUtils::substringBetween( line, '\"', '\"' );
+                OS::File includeFile( filePath.getDirectoryPath() + includeFilePath );
+                if ( not includeFile.exists() )
+                    LOG_WARN( "Could not include file '" + includeFilePath + "' in shader-file '" + filePath.toString() + "'." );
+                else
+                    shaderSources[(I32)type].append( includeFile.readAll() );
+            }
+            else
+            {
+                shaderSources[(I32)type].append( line + '\n' );
+            }
+        }
+
+        auto shader = RESOURCES.createShader();
+        shader->setName(filePath.getFileName());
+
+        // Compile each shader
+        bool success = false;
+        for (I32 i = 1; i < shaderSources.size(); i++)
+        {
+            if ( not shaderSources[i].empty() )
+            {
+                switch ((ShaderType)i)
+                {
+                case ShaderType::VERTEX: 
+                    if ( not shader->compileVertexShaderFromSource( shaderSources[i], "main" ) )
+                        return nullptr;
+                    break;
+                case ShaderType::FRAGMENT: 
+                    if ( not shader->compileFragmentShaderFromSource( shaderSources[i], "main" ) )
+                        return nullptr;
+                    break;
+                case ShaderType::GEOMETRY:
+                case ShaderType::TESSELLATION:
+                    ASSERT("Shadertype not supported yet!");
+                }
+            }
+        }
+
+        // Parse & set pipeline states
+        StringUtils::IStringStream ss(shaderSources[0]);
+        while ( not ss.eof() )
+        {
+            String line = StringUtils::toLower( ss.nextLine() );
+            StringUtils::IStringStream ssLine(line);
+
+            if (line.find("cull") != String::npos)
+            {
+                if (line.find("front") != String::npos)
+                {
+                    //shader->setDepthStencilState();
+                }
+            }
+
+            String word;
+            while (ssLine >> word)
+            {
+                //LOG(word);
+            }
+        }
+
+        return shader;
+    }
+
     //----------------------------------------------------------------------
     void AssetManager::_EnableHotReloading()
     {
@@ -237,6 +365,21 @@ namespace Core { namespace Assets {
                 {
                     // Texture does no longer exist, so remove it from the cache map
                     it = m_textureCache.erase( it );
+                }
+                else
+                {
+                    it->second.ReloadAsyncIfNotUpToDate();
+                    it++;
+                }
+            }
+
+            // Shader reloading
+            for (auto it = m_shaderCache.begin(); it != m_shaderCache.end(); )
+            {
+                if ( it->second.shader.expired() )
+                {
+                    // Shader does no longer exist, so remove it from the cache map
+                    it = m_shaderCache.erase( it );
                 }
                 else
                 {
@@ -270,6 +413,31 @@ namespace Core { namespace Assets {
                         tex->setPixels( pixels );
                         tex->apply();
                         stbi_image_free( pixels );
+                    });
+
+                    timeAtLoad = currentFileTime;
+                }
+            }
+            catch (...) {
+                // Do nothing here. This means simply the file could not be opened, because another app has not yet closed the handle
+            }
+        }
+    }
+
+    //----------------------------------------------------------------------
+    void AssetManager::ShaderAssetInfo::ReloadAsyncIfNotUpToDate()
+    {
+        if ( auto sh = shader.lock() )
+        {
+            try {
+                auto currentFileTime = path.getLastWrittenFileTime();
+
+                if (timeAtLoad != currentFileTime)
+                {
+                    // Reload shader on a separate thread
+                    LOG( "Reloading shader: " + path.toString(), LOG_COLOR );
+                    ASYNC_JOB([=] {
+                        // @TODO
                     });
 
                     timeAtLoad = currentFileTime;

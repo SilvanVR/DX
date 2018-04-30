@@ -60,6 +60,12 @@ namespace OS {
 
         //----------------------------------------------------------------------
         // @Return:
+        //  The file name from the path. Example: "test.png" => "test"
+        //----------------------------------------------------------------------
+        String getFileName() const;
+
+        //----------------------------------------------------------------------
+        // @Return:
         //  The system-time when the file was last modified.
         //----------------------------------------------------------------------
         OS::SystemTime getLastWrittenFileTime() const;
