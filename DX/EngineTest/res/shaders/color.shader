@@ -1,9 +1,11 @@
-// Pipeline States
-#Cull 		Front
-#Zwrite 	On
-#Ztest 		Less
-#Blend 		SrcAlpha OneMinusSrcAlpha
-#Priority 	1000
+// ----------------------------------------------
+#Fill			Solid
+#Cull 			Back
+#ZWrite 		On
+#ZTest 			Less
+#Blend 			SrcAlpha OneMinusSrcAlpha
+#Priority 		1000
+#AlphaToMask 	Off
 
 // ----------------------------------------------
 #shader vertex

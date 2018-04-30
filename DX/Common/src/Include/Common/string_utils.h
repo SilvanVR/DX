@@ -92,7 +92,7 @@ namespace StringUtils {
             if (!m_failed)
                 return static_cast<T>( valAsFloat );
 
-            return 0;
+            return std::numeric_limits<T>::max();
         }
 
         //----------------------------------------------------------------------
@@ -107,7 +107,7 @@ namespace StringUtils {
             if ( !m_failed )
                 return static_cast<T>( valAsIntegral );
 
-            return 0;
+            return std::numeric_limits<T>::max();
         }
 
         //----------------------------------------------------------------------

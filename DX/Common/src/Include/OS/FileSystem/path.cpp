@@ -26,7 +26,7 @@ namespace OS {
     //----------------------------------------------------------------------
     String Path::getExtension() const
     {
-        Size dotPosition = ( m_path.find_last_of( "." ) + 1 );
+        Size dotPosition = m_path.find_last_of( "." ) + 1;
         return m_path.substr( dotPosition, ( m_path.size() - dotPosition ) );
     }
 
@@ -39,8 +39,11 @@ namespace OS {
     //----------------------------------------------------------------------
     String Path::getFileName() const
     {
-        Size dotPosition = ( m_path.find_last_of( "." ) + 1 );
-       // return m_path.substr( dotPosition, (m_path.size() - dotPosition) );
+        Size dotPosition = m_path.find_last_of( "." );
+        Size slashPosition = m_path.find_last_of( "/\\" ) + 1;
+        ASSERT( dotPosition > slashPosition );
+
+        return m_path.substr( slashPosition, (dotPosition - slashPosition) );
     }
 
     //----------------------------------------------------------------------

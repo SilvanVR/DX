@@ -8,10 +8,7 @@
 
 #include "Ext/StbImage/stb_image.h"
 #include "locator.h"
-#include "Common/string_utils.h"
-#include "OS/FileSystem/file.h"
-#include "Common/string_utils.h"
-#include <sstream>
+#include "shader_parser.hpp"
 
 namespace Core { namespace Assets {
 
@@ -257,100 +254,26 @@ namespace Core { namespace Assets {
         return cubemap;
     }
 
+    //----------------------------------------------------------------------
     ShaderPtr AssetManager::_LoadShader( const OS::Path& filePath )
     {
         LOG( "AssetManager: Loading Shader '" + filePath.toString() + "'", LOG_COLOR );
 
-        OS::File file( filePath, OS::EFileMode::READ );
-        if ( not file.exists() )
-            return nullptr;
+        //OS::File file( filePath, OS::EFileMode::READ );
+        //if ( not file.exists() )
+        //    return nullptr;
 
-        enum class ShaderType
-        {
-            NONE = 0, VERTEX = 1, FRAGMENT = 2, GEOMETRY = 3, TESSELLATION = 4, NUM_SHADER_TYPES = 5
-        } type = ShaderType::NONE;
-
-        // Split file line by line into different strings and handle includes
-        std::array<String, (I32)ShaderType::NUM_SHADER_TYPES> shaderSources;
-        while ( not file.eof() )
-        {
-            String line = file.readLine();
-            if ( line.find( "#shader" ) != String::npos )
-            {
-                if ( line.find( "vertex" ) != String::npos )
-                    type = ShaderType::VERTEX;
-                else if ( line.find( "fragment" ) != String::npos )
-                    type = ShaderType::FRAGMENT;
-                else if ( line.find( "geometry" ) != String::npos )
-                    type = ShaderType::GEOMETRY;
-                else if ( line.find( "tessellation" ) != String::npos )
-                    type = ShaderType::TESSELLATION;
-            }
-            else if ( auto pos = line.find( "#include" ) != String::npos )
-            {
-                auto includeFilePath = StringUtils::substringBetween( line, '\"', '\"' );
-                OS::File includeFile( filePath.getDirectoryPath() + includeFilePath );
-                if ( not includeFile.exists() )
-                    LOG_WARN( "Could not include file '" + includeFilePath + "' in shader-file '" + filePath.toString() + "'." );
-                else
-                    shaderSources[(I32)type].append( includeFile.readAll() );
-            }
-            else
-            {
-                shaderSources[(I32)type].append( line + '\n' );
-            }
-        }
-
+        // Create shader object
         auto shader = RESOURCES.createShader();
-        shader->setName(filePath.getFileName());
+        shader->setName( filePath.getFileName() );
 
-        // Compile each shader
-        bool success = false;
-        for (I32 i = 1; i < shaderSources.size(); i++)
-        {
-            if ( not shaderSources[i].empty() )
-            {
-                switch ((ShaderType)i)
-                {
-                case ShaderType::VERTEX: 
-                    if ( not shader->compileVertexShaderFromSource( shaderSources[i], "main" ) )
-                        return nullptr;
-                    break;
-                case ShaderType::FRAGMENT: 
-                    if ( not shader->compileFragmentShaderFromSource( shaderSources[i], "main" ) )
-                        return nullptr;
-                    break;
-                case ShaderType::GEOMETRY:
-                case ShaderType::TESSELLATION:
-                    ASSERT("Shadertype not supported yet!");
-                }
-            }
-        }
+        if ( ShaderParser::LoadShader(shader, filePath) )
+            return shader;
 
-        // Parse & set pipeline states
-        StringUtils::IStringStream ss(shaderSources[0]);
-        while ( not ss.eof() )
-        {
-            String line = StringUtils::toLower( ss.nextLine() );
-            StringUtils::IStringStream ssLine(line);
-
-            if (line.find("cull") != String::npos)
-            {
-                if (line.find("front") != String::npos)
-                {
-                    //shader->setDepthStencilState();
-                }
-            }
-
-            String word;
-            while (ssLine >> word)
-            {
-                //LOG(word);
-            }
-        }
-
-        return shader;
+        return nullptr;
     }
+
+
 
     //----------------------------------------------------------------------
     void AssetManager::_EnableHotReloading()
@@ -436,6 +359,9 @@ namespace Core { namespace Assets {
                 {
                     // Reload shader on a separate thread
                     LOG( "Reloading shader: " + path.toString(), LOG_COLOR );
+                    ShaderParser::LoadShader( sh, path );
+
+
                     ASYNC_JOB([=] {
                         // @TODO
                     });

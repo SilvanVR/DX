@@ -73,15 +73,29 @@ namespace Graphics { namespace D3D11 {
     //----------------------------------------------------------------------
     bool Shader::compileVertexShaderFromSource( const String& src, CString entryPoint )
     {
-        m_pVertexShader.reset( new D3D11::VertexShader() );
-        return m_pVertexShader->compileFromSource( src, entryPoint );
+        auto vertShader = new D3D11::VertexShader();
+        if ( not vertShader->compileFromSource( src, entryPoint ) )
+        {
+            delete vertShader;
+            return false;
+        }
+
+        m_pVertexShader.reset( vertShader );
+        return true;
     }
 
     //----------------------------------------------------------------------
     bool Shader::compileFragmentShaderFromSource( const String& src, CString entryPoint )
     {
-        m_pPixelShader.reset( new D3D11::PixelShader() );
-        return m_pPixelShader->compileFromSource( src, entryPoint );
+        auto pixelShader = new D3D11::PixelShader();
+        if ( not pixelShader->compileFromSource( src, entryPoint ) )
+        {
+            delete pixelShader;
+            return false;
+        }
+
+        m_pPixelShader.reset( pixelShader );
+        return true;
     }
 
     //----------------------------------------------------------------------

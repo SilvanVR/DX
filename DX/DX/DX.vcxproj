@@ -350,6 +350,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Core\Assets\asset_manager.h" />
+    <ClInclude Include="src\Core\Assets\shader_parser.hpp" />
     <ClInclude Include="src\Core\Audio\audio_clip.h" />
     <ClInclude Include="src\Core\Audio\audio_manager.h" />
     <ClInclude Include="src\Core\Audio\wav_clip.h" />

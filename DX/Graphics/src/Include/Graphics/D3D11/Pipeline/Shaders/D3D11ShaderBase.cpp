@@ -104,7 +104,7 @@ namespace Graphics { namespace D3D11 {
 
         if ( FAILED( hr ) )
         {
-            LOG_WARN_RENDERING( "Failed to compile shader from source '" + source + "'." );
+            LOG_WARN_RENDERING( "Failed to compile shader from source:\n" + source );
             if (errorBlob)
             {
                 LOG_WARN_RENDERING( (const char*)errorBlob->GetBufferPointer() );

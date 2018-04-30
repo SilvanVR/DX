@@ -60,7 +60,7 @@ namespace OS {
 
         //----------------------------------------------------------------------
         // @Return:
-        //  The file name from the path. Example: "test.png" => "test"
+        //  The file name from the path. Example: "res/test.png" => "test"
         //----------------------------------------------------------------------
         String getFileName() const;
 
