@@ -14,11 +14,12 @@ namespace Graphics {
 
     enum class ShaderType
     {
-        Unknown,
+        Unknown = -1,
         Vertex,
         Fragment,
         Geometry,
-        Tessellation
+        Tessellation,
+        NUM_SHADER_TYPES
     };
 
     // Available index-formats for an index buffer

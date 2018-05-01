@@ -9,6 +9,32 @@
 #include "Graphics/i_shader.hpp"
 #include "OS/FileSystem/file.h"
 #include "Common/string_utils.h"
+#include "Core/Resources/resource_manager.h"
+
+#define SHADER_NAME                     "#shader"
+#define VERTEX_SHADER                   "vertex"
+#define FRAGMENT_SHADER                 "fragment"
+#define GEOMETRY_SHADER                 "geometry"
+#define TESSELLATION_SHADER             "tessellation"
+
+#define RASTERIZATION_CULL              "#cull"
+#define RASTERIZATION_CULL_FRONT        "front"
+#define RASTERIZATION_CULL_BACK         "back"
+#define RASTERIZATION_CULL_NONE         "none"
+#define RASTERIZATION_FILL              "#fill"
+#define RASTERIZATION_FILL_SOLID        "solid"
+#define RASTERIZATION_FILL_WIREFRAME    "wireframe"
+
+#define DEPTH_STENCIL_ZWRITE            "#zwrite"
+#define DEPTH_STENCIL_ZTEST             "#ztest"
+
+#define BLEND                           "#blend"
+#define BLEND_ALPHA_TO_MASK             "#alphatomask"
+
+#define SHADER_PRIORITY                 "#priority"
+
+#define NUM_SHADER_TYPES                (I32)Graphics::ShaderType::NUM_SHADER_TYPES
+#define INCLUDE_NAME                    "#include"
 
 namespace Core { namespace Assets {
 
@@ -16,163 +42,64 @@ namespace Core { namespace Assets {
     class ShaderParser
     {
     public:
-        static bool LoadShader( ShaderPtr shader, const OS::Path& filePath )
+        //----------------------------------------------------------------------
+        // Updates the given shader from the given file.
+        // @Return:
+        //  Same shader object as the input.
+        // @Throws:
+        //  std::runtime_error if something went wrong.
+        //----------------------------------------------------------------------
+        static ShaderPtr LoadShader( ShaderPtr shader, const OS::Path& filePath )
         {
-            OS::File file( filePath, OS::EFileMode::READ );
-            if ( not file.exists() )
-                return false;
+            if ( filePath.getExtension() != "shader" )
+                throw std::runtime_error( "File has wrong extension. Must be '.shader'." );
 
-            shader->setName( filePath.getFileName() );
-
-            enum class ShaderType
-            {
-                NONE = 0, VERTEX = 1, FRAGMENT = 2, GEOMETRY = 3, TESSELLATION = 4, NUM_SHADER_TYPES = 5
-            } type = ShaderType::NONE;
-
-            // Parse file
-            std::array<String, (I32)ShaderType::NUM_SHADER_TYPES> shaderSources;
-            while ( not file.eof() )
-            {
-                String line = file.readLine();
-                if ( line.find( "#shader" ) != String::npos )
-                {
-                    if ( line.find( "vertex" ) != String::npos )
-                        type = ShaderType::VERTEX;
-                    else if ( line.find( "fragment" ) != String::npos )
-                        type = ShaderType::FRAGMENT;
-                    else if ( line.find( "geometry" ) != String::npos )
-                        type = ShaderType::GEOMETRY;
-                    else if ( line.find( "tessellation" ) != String::npos )
-                        type = ShaderType::TESSELLATION;
-                }
-                else if ( line.find( "#include" ) != String::npos )
-                {
-                    auto includeFilePath = StringUtils::substringBetween( line, '\"', '\"' );
-                    OS::File includeFile( filePath.getDirectoryPath() + includeFilePath );
-                    if ( not includeFile.exists() )
-                        LOG_WARN( "Could not include file '" + includeFilePath + "' in shader-file '" + filePath.toString() + "'." );
-                    else
-                        shaderSources[(I32)type].append( includeFile.readAll() );
-                }
-                else
-                {
-                    shaderSources[(I32)type].append( line + '\n' );
-                }
-            }
+            // Parse shader file
+            std::array<String, NUM_SHADER_TYPES> shaderSources = _SplitShaderFile( filePath );
 
             // Compile each shader
             for (I32 i = 1; i < shaderSources.size(); i++)
             {
                 if ( not shaderSources[i].empty() )
                 {
-                    switch ((ShaderType)i)
+                    switch ((Graphics::ShaderType)(i-1))
                     {
-                    case ShaderType::VERTEX: 
+                    case Graphics::ShaderType::Vertex:
                         if ( not shader->compileVertexShaderFromSource( shaderSources[i], "main" ) )
-                            return false;
+                            throw std::runtime_error( "Vertex shader compilation failed." );
                         break;
-                    case ShaderType::FRAGMENT: 
+                    case Graphics::ShaderType::Fragment:
                         if ( not shader->compileFragmentShaderFromSource( shaderSources[i], "main" ) )
-                            return false;
+                            throw std::runtime_error( "Fragment shader compilation failed." );
                         break;
-                    case ShaderType::GEOMETRY:
-                    case ShaderType::TESSELLATION:
+                    case Graphics::ShaderType::Geometry:
+                    case Graphics::ShaderType::Tessellation:
                         ASSERT( "Shadertype not supported yet!" );
                     }
                 }
             }
 
             // Parse & set pipeline states
-            Graphics::RasterizationState    rzState;
-            Graphics::DepthStencilState     dsState;
-            Graphics::BlendState            bsState;
+            _SetRasterizationState( shader, shaderSources[0], filePath );
+            _SetDepthStencilState(shader, shaderSources[0], filePath);
+            _SetBlendState( shader, shaderSources[0], filePath );
+            _SetShaderPriority( shader, shaderSources[0], filePath );
 
-            StringUtils::IStringStream ss(shaderSources[0]);
-            while ( not ss.eof() )
-            {
-                String line = StringUtils::toLower( ss.nextLine() );
+            return shader;
+        }
 
-                // Cull mode
-                if ( line.find("cull") != String::npos )
-                {
-                    if (line.find("front") != String::npos)     rzState.cullMode = Graphics::CullMode::Front;
-                    else if (line.find("back") != String::npos) rzState.cullMode = Graphics::CullMode::Back;
-                    else if (line.find("none") != String::npos) rzState.cullMode = Graphics::CullMode::None;
-                    else LOG_WARN( "Could not read cull mode in shader '" + filePath.toString() + "'." );
-                }
-                // Fill mode
-                else if ( line.find("fill") != String::npos )
-                {
-                    if (line.find("solid") != String::npos)             rzState.fillMode = Graphics::FillMode::Solid;
-                    else if (line.find("wireframe") != String::npos)    rzState.fillMode = Graphics::FillMode::Wireframe;
-                    else LOG_WARN( "Could not read fill mode in shader '" + filePath.toString() + "'." );
-                }
-                // ZWrite
-                else if ( line.find("zwrite") != String::npos )
-                {
-                    if (line.find("on") != String::npos)        dsState.depthEnable = true;
-                    else if (line.find("off") != String::npos)  dsState.depthEnable = false;
-                    else LOG_WARN( "Could not read zwrite in shader '" + filePath.toString() + "'." );
-                }
-                // ZTest
-                else if ( line.find("ztest") != String::npos )
-                {
-                    if (line.find("never") != String::npos)             dsState.depthFunc = Graphics::ComparisonFunc::Never;
-                    else if (line.find("less") != String::npos)         dsState.depthFunc = Graphics::ComparisonFunc::Less;
-                    else if (line.find("equal") != String::npos)        dsState.depthFunc = Graphics::ComparisonFunc::Equal;
-                    else if (line.find("lessequal") != String::npos)    dsState.depthFunc = Graphics::ComparisonFunc::LessEqual;
-                    else if (line.find("greater") != String::npos)      dsState.depthFunc = Graphics::ComparisonFunc::Greater;
-                    else if (line.find("notequal") != String::npos)     dsState.depthFunc = Graphics::ComparisonFunc::NotEqual;
-                    else if (line.find("greaterequal") != String::npos) dsState.depthFunc = Graphics::ComparisonFunc::GreaterEqual;
-                    else if (line.find("always") != String::npos)       dsState.depthFunc = Graphics::ComparisonFunc::Always;
-                    else LOG_WARN( "Could not read ztest in shader '" + filePath.toString() + "'." );
-                }
-                // Priority
-                else if ( auto pos = line.find("priority") != String::npos )
-                {
-                    StringUtils::IStringStream ssLine( line.substr( pos + String( "priority" ).size() ) );
-                    I32 priority;
-                    ssLine >> priority;
-
-                    if ( priority == std::numeric_limits<I32>::max() )
-                        LOG_WARN( "Could not read priority in shader '" + filePath.toString() + "'." );
-                    else 
-                        shader->setPriority( priority );
-                }
-                // BlendState
-                else if ( auto pos = line.find("blend") != String::npos )
-                {
-                    StringUtils::IStringStream ssLine( line.substr( pos + String( "blend" ).size() ) );
-
-                    String srcBlend, dstBlend;
-                    ssLine >> srcBlend;
-                    ssLine >> dstBlend;
-
-                    if ( not srcBlend.empty() && not dstBlend.empty() )
-                    {
-                        bsState.blendStates[0].blendEnable = true;
-                        bsState.blendStates[0].srcBlend = _ReadBlend(srcBlend);
-                        bsState.blendStates[0].destBlend = _ReadBlend(dstBlend);
-                    }
-                    else
-                    {
-                        LOG_WARN( "Could not blend mode in shader '" + filePath.toString() + "'." );
-                    }
-                }
-                // AlphaToMask
-                else if (line.find("alphatomask") != String::npos)
-                {
-                    if (line.find("on") != String::npos)        bsState.alphaToCoverage = true;
-                    else if (line.find("off") != String::npos)  bsState.alphaToCoverage = false;
-                    else LOG_WARN( "Could not read AlphaToMask in shader '" + filePath.toString() + "'." );
-                }
-            }
-
-            shader->setDepthStencilState( dsState );
-            shader->setRasterizationState( rzState );
-            shader->setBlendState( bsState );
-
-            return true;
+        //----------------------------------------------------------------------
+        // Tries to load a custom shader file format from the given file.
+        // @Return:
+        //  A new shader object if everything was successful. 
+        // @Throws:
+        //  std::runtime_error if something went wrong.
+        //----------------------------------------------------------------------
+        static ShaderPtr LoadShader( const OS::Path& filePath )
+        {
+            auto shader = RESOURCES.createShader();
+            shader->setName( filePath.getFileName() );
+            return LoadShader( shader, filePath );
         }
 
     private:
@@ -190,6 +117,182 @@ namespace Core { namespace Assets {
             else if (blend == "oneminusdstalpha")   return Graphics::Blend::InvDestAlpha;
             else return Graphics::Blend::One;
         }
+
+        //----------------------------------------------------------------------
+        static inline std::array<String, NUM_SHADER_TYPES> _SplitShaderFile( const OS::Path& filePath )
+        {
+            OS::File file( filePath, OS::EFileMode::READ );
+            if ( not file.exists() )
+                throw std::runtime_error( "File does not exist or could not be opened" );
+
+            Graphics::ShaderType type = Graphics::ShaderType::Unknown;
+            std::array<String, NUM_SHADER_TYPES> shaderSources;
+            while ( not file.eof() )
+            {
+                String line = file.readLine();
+                if (line.find( SHADER_NAME ) != String::npos)
+                {
+                    if (line.find( VERTEX_SHADER ) != String::npos)
+                        type = Graphics::ShaderType::Vertex;
+                    else if (line.find( FRAGMENT_SHADER ) != String::npos)
+                        type = Graphics::ShaderType::Fragment;
+                    else if (line.find( GEOMETRY_SHADER ) != String::npos)
+                        type = Graphics::ShaderType::Geometry;
+                    else if (line.find( TESSELLATION_SHADER ) != String::npos)
+                        type = Graphics::ShaderType::Tessellation;
+                }
+                else if ( line.find( INCLUDE_NAME ) != String::npos)
+                {
+                    auto includeFilePath = StringUtils::substringBetween( line, '\"', '\"' );
+                    OS::File includeFile( filePath.getDirectoryPath() + includeFilePath );
+                    if ( not includeFile.exists() )
+                        LOG_WARN( "Could not include file '" + includeFilePath + "' in shader-file '" + filePath.toString() + "'." );
+                    else
+                        shaderSources[(I32)type + 1].append( includeFile.readAll() );
+                }
+                else
+                {
+                    shaderSources[(I32)type + 1].append( line + '\n' );
+                }
+            }
+
+            return shaderSources;
+        }
+
+        //----------------------------------------------------------------------
+        static inline void _SetRasterizationState( ShaderPtr shader, const String& src, const OS::Path& filePath )
+        {
+            Graphics::RasterizationState rzState;
+
+            StringUtils::IStringStream ss( src );
+            while ( not ss.eof() )
+            {
+                String line = StringUtils::toLower( ss.nextLine() );
+
+                // Cull mode
+                if ( line.find( RASTERIZATION_CULL ) != String::npos )
+                {
+                    if (line.find( RASTERIZATION_CULL_FRONT ) != String::npos)     rzState.cullMode = Graphics::CullMode::Front;
+                    else if (line.find( RASTERIZATION_CULL_BACK ) != String::npos) rzState.cullMode = Graphics::CullMode::Back;
+                    else if (line.find( RASTERIZATION_CULL_NONE ) != String::npos) rzState.cullMode = Graphics::CullMode::None;
+                    else LOG_WARN( "Could not read cull mode in shader '" + filePath.toString() + "'." );
+                }
+                // Fill mode
+                else if ( line.find( RASTERIZATION_FILL ) != String::npos )
+                {
+                    if (line.find( RASTERIZATION_FILL_SOLID ) != String::npos)          rzState.fillMode = Graphics::FillMode::Solid;
+                    else if (line.find( RASTERIZATION_FILL_WIREFRAME ) != String::npos) rzState.fillMode = Graphics::FillMode::Wireframe;
+                    else LOG_WARN( "Could not read fill mode in shader '" + filePath.toString() + "'." );
+                }
+            }
+
+            shader->setRasterizationState( rzState );
+        }
+
+        //----------------------------------------------------------------------
+        static inline void _SetDepthStencilState( ShaderPtr shader, const String& src, const OS::Path& filePath )
+        {
+            Graphics::DepthStencilState dsState;
+
+            StringUtils::IStringStream ss( src );
+            while ( not ss.eof() )
+            {
+                String line = StringUtils::toLower( ss.nextLine() );
+
+                // ZWrite
+                if ( line.find( DEPTH_STENCIL_ZWRITE ) != String::npos )
+                {
+                    if (line.find("on") != String::npos)        dsState.depthEnable = true;
+                    else if (line.find("off") != String::npos)  dsState.depthEnable = false;
+                    else LOG_WARN( "Could not read zwrite in shader '" + filePath.toString() + "'." );
+                }
+                // ZTest
+                else if ( line.find( DEPTH_STENCIL_ZTEST ) != String::npos )
+                {
+                    if (line.find("never") != String::npos)             dsState.depthFunc = Graphics::ComparisonFunc::Never;
+                    else if (line.find("less") != String::npos)         dsState.depthFunc = Graphics::ComparisonFunc::Less;
+                    else if (line.find("equal") != String::npos)        dsState.depthFunc = Graphics::ComparisonFunc::Equal;
+                    else if (line.find("lessequal") != String::npos)    dsState.depthFunc = Graphics::ComparisonFunc::LessEqual;
+                    else if (line.find("greater") != String::npos)      dsState.depthFunc = Graphics::ComparisonFunc::Greater;
+                    else if (line.find("notequal") != String::npos)     dsState.depthFunc = Graphics::ComparisonFunc::NotEqual;
+                    else if (line.find("greaterequal") != String::npos) dsState.depthFunc = Graphics::ComparisonFunc::GreaterEqual;
+                    else if (line.find("always") != String::npos)       dsState.depthFunc = Graphics::ComparisonFunc::Always;
+                    else LOG_WARN( "Could not read ztest in shader '" + filePath.toString() + "'." );
+                }
+            }
+
+            shader->setDepthStencilState( dsState );
+        }
+
+        //----------------------------------------------------------------------
+        static inline void _SetBlendState( ShaderPtr shader, const String& src, const OS::Path& filePath )
+        {
+            bool found = false;
+            Graphics::BlendState bsState;
+
+            StringUtils::IStringStream ss( src );
+            while ( not ss.eof() )
+            {
+                String line = StringUtils::toLower( ss.nextLine() );
+
+                // BlendState
+                if ( auto pos = line.find( BLEND ) != String::npos )
+                {
+                    StringUtils::IStringStream ssLine( line.substr( pos + String( BLEND ).size() ) );
+
+                    String srcBlend, dstBlend;
+                    ssLine >> srcBlend;
+                    ssLine >> dstBlend;
+
+                    if ( not srcBlend.empty() && not dstBlend.empty() )
+                    {
+                        found = true;
+                        bsState.blendStates[0].blendEnable = true;
+                        bsState.blendStates[0].srcBlend = _ReadBlend( srcBlend );
+                        bsState.blendStates[0].destBlend = _ReadBlend( dstBlend );
+                    }
+                    else
+                    {
+                        LOG_WARN( "Could not read blend mode in shader '" + filePath.toString() + "'." );
+                    }
+                }
+                // AlphaToMask
+                else if (line.find( BLEND_ALPHA_TO_MASK ) != String::npos)
+                {
+                    found = true;
+                    if (line.find("on") != String::npos)        bsState.alphaToCoverage = true;
+                    else if (line.find("off") != String::npos)  bsState.alphaToCoverage = false;
+                    else LOG_WARN( "Could not read AlphaToMask in shader '" + filePath.toString() + "'." );
+                }
+            }
+
+            if (found)
+                shader->setBlendState( bsState );
+        }
+
+        //----------------------------------------------------------------------
+        static inline void _SetShaderPriority(ShaderPtr shader, const String& src, const OS::Path& filePath)
+        {
+            StringUtils::IStringStream ss( src );
+            while ( not ss.eof() )
+            {
+                String line = StringUtils::toLower( ss.nextLine() );
+
+                // Priority
+                if ( auto pos = line.find( SHADER_PRIORITY ) != String::npos )
+                {
+                    StringUtils::IStringStream ssLine( line.substr( pos + String( SHADER_PRIORITY ).size() ) );
+                    I32 priority;
+                    ssLine >> priority;
+
+                    if ( priority == std::numeric_limits<I32>::max() )
+                        LOG_WARN( "Could not read priority in shader '" + filePath.toString() + "'." );
+                    else 
+                        shader->setPriority( priority );
+                }
+            }
+        }
+
 
     };
 

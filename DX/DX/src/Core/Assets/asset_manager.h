@@ -94,7 +94,7 @@ namespace Core { namespace Assets {
             WeakTexture2DPtr    texture;
 
             // Reloads the texture on a separate thread if not up to date.
-            void ReloadAsyncIfNotUpToDate();
+            void ReloadIfNotUpToDate();
         };
 
         struct CubemapAssetInfo : public FileInfo
@@ -112,7 +112,7 @@ namespace Core { namespace Assets {
         struct ShaderAssetInfo : public FileInfo
         {
             WeakShaderPtr shader;
-            void ReloadAsyncIfNotUpToDate();
+            void ReloadIfNotUpToDate();
         };
 
         // Lists of all loaded resources. Stores weak-ptrs, which means that the resource might be already unloaded.
@@ -126,7 +126,6 @@ namespace Core { namespace Assets {
         inline CubemapPtr _LoadCubemap(const OS::Path& posX, const OS::Path& negX, 
                                        const OS::Path& posY, const OS::Path& negY,
                                        const OS::Path& posZ, const OS::Path& negZ, bool generateMips);
-        inline ShaderPtr _LoadShader(const OS::Path& filePath);
         void _EnableHotReloading();
 
         //----------------------------------------------------------------------

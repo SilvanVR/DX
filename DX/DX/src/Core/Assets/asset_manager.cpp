@@ -154,21 +154,26 @@ namespace Core { namespace Assets {
         }
 
         // Try loading shader
-        auto shader = _LoadShader( filePath );
-        if ( not shader )
+        LOG( "AssetManager: Loading Shader '" + filePath.toString() + "'", LOG_COLOR );
+        try 
         {
-            LOG_WARN( "LoadShader(): Shader '" + filePath.toString() + "' could not be loaded. Returning the error shader instead." );
+            auto shader = ShaderParser::LoadShader( filePath );
+
+            ShaderAssetInfo shaderInfo;
+            shaderInfo.shader      = shader;
+            shaderInfo.path        = filePath;
+            shaderInfo.timeAtLoad  = filePath.getLastWrittenFileTime();
+
+            m_shaderCache[pathAsID] = shaderInfo;
+
+            return shader;
+        }
+        catch (const std::runtime_error& e) 
+        {
+            LOG_WARN( "LoadShader(): Shader '" + filePath.toString() + "' could not be loaded. Reason: " 
+                      + e.what() +  " Returning the error shader instead." );
             return RESOURCES.getErrorShader();
         }
-
-        ShaderAssetInfo shaderInfo;
-        shaderInfo.shader      = shader;
-        shaderInfo.path        = filePath;
-        shaderInfo.timeAtLoad  = filePath.getLastWrittenFileTime();
-
-        m_shaderCache[pathAsID] = shaderInfo;
-
-        return shader;
     }
 
     //----------------------------------------------------------------------
@@ -255,27 +260,6 @@ namespace Core { namespace Assets {
     }
 
     //----------------------------------------------------------------------
-    ShaderPtr AssetManager::_LoadShader( const OS::Path& filePath )
-    {
-        LOG( "AssetManager: Loading Shader '" + filePath.toString() + "'", LOG_COLOR );
-
-        //OS::File file( filePath, OS::EFileMode::READ );
-        //if ( not file.exists() )
-        //    return nullptr;
-
-        // Create shader object
-        auto shader = RESOURCES.createShader();
-        shader->setName( filePath.getFileName() );
-
-        if ( ShaderParser::LoadShader(shader, filePath) )
-            return shader;
-
-        return nullptr;
-    }
-
-
-
-    //----------------------------------------------------------------------
     void AssetManager::_EnableHotReloading()
     {
         // HOT-RELOADING CALLBACK
@@ -291,7 +275,7 @@ namespace Core { namespace Assets {
                 }
                 else
                 {
-                    it->second.ReloadAsyncIfNotUpToDate();
+                    it->second.ReloadIfNotUpToDate();
                     it++;
                 }
             }
@@ -306,7 +290,7 @@ namespace Core { namespace Assets {
                 }
                 else
                 {
-                    it->second.ReloadAsyncIfNotUpToDate();
+                    it->second.ReloadIfNotUpToDate();
                     it++;
                 }
             }
@@ -319,7 +303,7 @@ namespace Core { namespace Assets {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    void AssetManager::TextureAssetInfo::ReloadAsyncIfNotUpToDate()
+    void AssetManager::TextureAssetInfo::ReloadIfNotUpToDate()
     {
         if ( auto tex = texture.lock() )
         {
@@ -348,7 +332,7 @@ namespace Core { namespace Assets {
     }
 
     //----------------------------------------------------------------------
-    void AssetManager::ShaderAssetInfo::ReloadAsyncIfNotUpToDate()
+    void AssetManager::ShaderAssetInfo::ReloadIfNotUpToDate()
     {
         if ( auto sh = shader.lock() )
         {
@@ -357,14 +341,12 @@ namespace Core { namespace Assets {
 
                 if (timeAtLoad != currentFileTime)
                 {
-                    // Reload shader on a separate thread
                     LOG( "Reloading shader: " + path.toString(), LOG_COLOR );
-                    ShaderParser::LoadShader( sh, path );
-
-
-                    ASYNC_JOB([=] {
-                        // @TODO
-                    });
+                    try{
+                        ShaderParser::LoadShader( sh, path );
+                    } catch(std::runtime_error e){ 
+                        LOG_WARN( String("Failed to recompile shader. Reason: ") + e.what() );
+                    }
 
                     timeAtLoad = currentFileTime;
                 }

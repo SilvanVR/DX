@@ -14,8 +14,6 @@ public:
 
     void init() override
     {
-        using namespace std::chrono_literals;
-        std::this_thread::sleep_for(1s);
         go = createGameObject("Camera");
         cam = go->addComponent<Components::Camera>();
         go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -10);
