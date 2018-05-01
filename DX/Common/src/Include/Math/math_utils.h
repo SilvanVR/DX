@@ -55,10 +55,10 @@ namespace Math {
     }
 
     //----------------------------------------------------------------------
-    template <typename T>
-    T Lerp( T a, T b, F32 t)
+    template <typename T, typename T2>
+    T Lerp( T a, T b, T2 t)
     {
-        return a * (1.0f - t) + b * t;
+        return a * (static_cast<T2>(1) - t) + b * t;
     }
 
 }

@@ -34,11 +34,12 @@ namespace Components {
         //----------------------------------------------------------------------
         // Constructor for the FPS-Mode.
         // @Params:
-        // "speed": How fast the object moves.
-        // "mouse-sensitivity": Determines how fast the rotation will be.
+        // "speed": How fast the camera moves.
+        // "mouse-sensitivity": Determines how fast the rotation will be
+        // "damping": How fast the mouse rotation slows down
         //----------------------------------------------------------------------
-        FPSCamera( ECameraMode cameraMode = ECameraMode::MAYA, F32 fpsSpeed = 10.0f, F32 mouseSensitivity = 0.5f, F32 damping = 1.0f ) 
-            : m_fpsSpeed( fpsSpeed ), m_mouseSensitivity( mouseSensitivity * 0.5f ), m_cameraMode( cameraMode ), m_mouseDamping( damping ) {}
+        FPSCamera( ECameraMode cameraMode = ECameraMode::MAYA, F32 fpsSpeed = 0.6f, F32 mouseSensitivity = 0.3f, F32 mouseDamping = 1.0f ) 
+            : m_fpsSpeed( fpsSpeed ), m_mouseSensitivity( mouseSensitivity * 0.5f ), m_cameraMode( cameraMode ), m_mouseDamping( mouseDamping ) {}
 
         //----------------------------------------------------------------------
         void setCameraMode(ECameraMode newMode){ m_cameraMode = newMode; }

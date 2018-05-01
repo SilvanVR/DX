@@ -17,7 +17,7 @@ public:
         go = createGameObject("Camera");
         cam = go->addComponent<Components::Camera>();
         go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -10);
-        go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 10.0f, 0.3f);
+        go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA);
         cam->setCameraMode(Components::Camera::ORTHOGRAPHIC);
         F32 size = 5.0f;
         cam->setOrthoParams(-size, size, -size, size, 0.1f, 100.0f);
@@ -104,7 +104,7 @@ public:
         auto go = createGameObject("Camera");
         auto cam = go->addComponent<Components::Camera>();
         go->getComponent<Components::Transform>()->position = Math::Vec3(0,10,-25);
-        //go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 10.0f, 0.3f);
+        //go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA);
         go->addComponent<AutoOrbiting>(15.0f);
 
         auto worldGO = createGameObject("World");
@@ -181,7 +181,7 @@ public:
         auto go = createGameObject("Camera");
         auto cam = go->addComponent<Components::Camera>();
         go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -10);
-        go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 10.0f, 0.3f);
+        go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA);
 
         // MESH
         auto cube = Assets::MeshGenerator::CreateCube(1.0f);
@@ -228,7 +228,7 @@ public:
         auto go = createGameObject("Camera");
         auto cam = go->addComponent<Components::Camera>();
         go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -10);
-        go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 10.0f, 0.3f);
+        go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA);
         //go->addComponent<AutoOrbiting>(10.0f);
 
         auto cubemap = ASSETS.getCubemap("/cubemaps/tropical_sunny_day/Left.png", "/cubemaps/tropical_sunny_day/Right.png",
@@ -258,7 +258,7 @@ public:
         plane->setColors(planeColors);
 
         // SHADER
-        auto texShader = RESOURCES.createShader( "TexShader", "/shaders/texVS.hlsl", "/shaders/texPS.hlsl");
+        auto texShader = ASSETS.getShader( "/shaders/texture.shader" );
 
         // TEXTURES
         tex = RESOURCES.createTexture2D(4, 4, Graphics::TextureFormat::RGBA32);
@@ -335,7 +335,7 @@ public:
         auto go = createGameObject("Camera");
         auto cam = go->addComponent<Components::Camera>();
         go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -10);
-        go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 10.0f, 0.3f);
+        go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA);
         //go->addComponent<AutoOrbiting>(10.0f);
         //go->addComponent<Components::Skybox>(cubemap);
 
@@ -346,14 +346,12 @@ public:
         auto sphere = Assets::MeshGenerator::CreateCubeUV();
 
         // SHADER
-        auto texShader = RESOURCES.createShader("Skybox", "/shaders/skyboxVS.hlsl", "/shaders/skyboxPS.hlsl");
-        texShader->setRasterizationState({ Graphics::FillMode::Solid, Graphics::CullMode::None });
+        auto texShader = ASSETS.getShader( "/shaders/skybox.shader" );
 
         // MATERIAL
         auto material = RESOURCES.createMaterial();
         material->setShader(texShader);
         material->setTexture(SID("Cubemap"), RESOURCES.getDefaultCubemap());
-        material->setColor(SID("tintColor"), Color::WHITE);
 
         // GAMEOBJECT
         auto go2 = createGameObject("Test2");
@@ -379,7 +377,7 @@ public:
         auto go = createGameObject("Camera");
         auto cam = go->addComponent<Components::Camera>();
         go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -10);
-        go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 10.0f, 0.3f);
+        go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA);
         //go->addComponent<Components::Skybox>(cubemap);
 
         createGameObject("Grid")->addComponent<GridGeneration>(20);
@@ -388,7 +386,7 @@ public:
         auto plane = Assets::MeshGenerator::CreatePlane();
 
         // SHADER
-        auto texShader = RESOURCES.createShader("TextureArray", "/shaders/arrayTexVS.hlsl", "/shaders/arrayTexPS.hlsl");
+        auto texShader = ASSETS.getShader( "/shaders/textureArray.shader" );
 
         // TEXTURES
         Color cols[] = { Color::RED, Color::BLUE, Color::GREEN };
@@ -449,7 +447,7 @@ public:
         auto go = createGameObject("Camera");
         auto cam = go->addComponent<Components::Camera>();
         go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -10);
-        go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 10.0f, 0.3f);
+        go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA);
 
         auto go3 = createGameObject("Camera2");
         auto cam2 = go3->addComponent<Components::Camera>();
@@ -466,7 +464,7 @@ public:
         createGameObject("Grid")->addComponent<GridGeneration>(20);
 
         // SHADER
-        auto texShader = RESOURCES.createShader("TexShader", "/shaders/texVS.hlsl", "/shaders/texPS.hlsl");
+        auto texShader = ASSETS.getShader( "/shaders/texture.shader" );
 
         // MATERIAL
         material = RESOURCES.createMaterial();
@@ -511,12 +509,12 @@ public:
         auto go = createGameObject("Camera");
         auto cam = go->addComponent<Components::Camera>();
         go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -10);
-        go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 10.0f, 0.3f);
+        go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA);
 
         createGameObject("Grid")->addComponent<GridGeneration>(20);
 
         // SHADER
-        auto texShader = RESOURCES.createShader("TexShader", "/shaders/texVS.hlsl", "/shaders/texPS.hlsl");
+        auto texShader = ASSETS.getShader("/shaders/texture.shader");
 
         // MATERIAL
         auto material = RESOURCES.createMaterial();

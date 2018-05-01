@@ -202,14 +202,15 @@ namespace Core { namespace Assets {
                 // ZWrite
                 if ( line.find( DEPTH_STENCIL_ZWRITE ) != String::npos )
                 {
-                    if (line.find("on") != String::npos)        dsState.depthEnable = true;
-                    else if (line.find("off") != String::npos)  dsState.depthEnable = false;
+                    if (line.find("on") != String::npos)        dsState.depthWrite = true;
+                    else if (line.find("off") != String::npos)  dsState.depthWrite = false;
                     else LOG_WARN( "Could not read zwrite in shader '" + filePath.toString() + "'." );
                 }
                 // ZTest
                 else if ( line.find( DEPTH_STENCIL_ZTEST ) != String::npos )
                 {
-                    if (line.find("never") != String::npos)             dsState.depthFunc = Graphics::ComparisonFunc::Never;
+                    if (line.find("off") != String::npos)               dsState.depthEnable = false;
+                    else if (line.find("never") != String::npos)        dsState.depthFunc = Graphics::ComparisonFunc::Never;
                     else if (line.find("less") != String::npos)         dsState.depthFunc = Graphics::ComparisonFunc::Less;
                     else if (line.find("equal") != String::npos)        dsState.depthFunc = Graphics::ComparisonFunc::Equal;
                     else if (line.find("lessequal") != String::npos)    dsState.depthFunc = Graphics::ComparisonFunc::LessEqual;

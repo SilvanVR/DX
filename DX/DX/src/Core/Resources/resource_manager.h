@@ -61,7 +61,7 @@ namespace Core { namespace Resources {
         //----------------------------------------------------------------------
         // Creates a new shader
         //----------------------------------------------------------------------
-        ShaderPtr createShader(CString name, const OS::Path& vertPath, const OS::Path& fragPath);
+        //ShaderPtr createShader(CString name, const OS::Path& vertPath, const OS::Path& fragPath);
         ShaderPtr createShader(const String& vertSrc, const String& fragSrc);
         ShaderPtr createShader();
 

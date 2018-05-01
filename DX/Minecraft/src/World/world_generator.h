@@ -73,7 +73,7 @@ private:
             texArr->setPixels( i, m_blockTextures[i] );
         texArr->apply();
 
-        auto shader = RESOURCES.createShader( "ChunkShader", "/shaders/chunkVS.hlsl", "/shaders/chunkPS.hlsl" );
+        auto shader = ASSETS.getShader( "/shaders/chunk.shader" );
         auto chunkMaterial = RESOURCES.createMaterial( shader );
         chunkMaterial->setColor( "color", Color::WHITE );
         chunkMaterial->setVec4( "dir", Math::Vec4( 0, -1, 1, 0 ) );

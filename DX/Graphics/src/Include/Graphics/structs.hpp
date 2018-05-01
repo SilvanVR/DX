@@ -34,6 +34,7 @@ namespace Graphics {
     struct DepthStencilState
     {
         bool            depthEnable = true;
+        bool            depthWrite  = true;
         ComparisonFunc  depthFunc   = ComparisonFunc::Less;
     };
 

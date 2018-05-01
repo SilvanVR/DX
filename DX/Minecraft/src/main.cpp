@@ -149,9 +149,8 @@ public:
         previewBlock = go->getScene()->createGameObject();
 
         // Create material / shader
-        auto shader = RESOURCES.createShader("TexShader", "/shaders/texVS.hlsl", "/shaders/texPS.hlsl");
-        shader->setDepthStencilState({false});
-        shader->setPriority(100000);
+        auto shader = ASSETS.getShader("/shaders/previewBlock.shader");
+
         previewBlockMaterial = RESOURCES.createMaterial(shader);
         previewBlock->addComponent<Components::MeshRenderer>(Core::Assets::MeshGenerator::CreateCubeUV(), previewBlockMaterial);
 
@@ -410,8 +409,8 @@ public:
         Math::Vec3 forward  = transform->rotation.getForward();
         Math::Vec3 left     = transform->rotation.getLeft();
 
-        Math::Vec3 mov = left * (F32)AXIS_MAPPER.getAxisValue("Horizontal") * delta * realSpeed + 
-                         forward * (F32)AXIS_MAPPER.getAxisValue("Vertical") * delta * realSpeed;
+        Math::Vec3 mov = left * (F32)AXIS_MAPPER.getAxisValue("Horizontal") * realSpeed + 
+                         forward * (F32)AXIS_MAPPER.getAxisValue("Vertical") * realSpeed;
         playerVelocity.x = mov.x;
         playerVelocity.z = mov.z;
 
@@ -448,11 +447,7 @@ public:
 
     void addedToGameObject(GameObject* go) override
     {
-        auto shader = RESOURCES.createShader("Water", "/shaders/waterVS.hlsl", "/shaders/waterPS.hlsl");
-        shader->enableAlphaBlending();
-        shader->setPriority(5000); // Render after world
-
-        auto mat = RESOURCES.createMaterial(shader);
+        auto mat = RESOURCES.createMaterial( ASSETS.getShader("/shaders/water.shader") );
         mat->setTexture("tex", ASSETS.getTexture2D("/textures/water.jpg", false));
         mat->setFloat("opacity", 0.8f);
 
@@ -488,16 +483,21 @@ public:
         auto cam = player->addComponent<Components::Camera>();
         player->getComponent<Components::Transform>()->position = Math::Vec3(0, 100, -5);
         player->getComponent<Components::Transform>()->lookAt({0});
-        fpsCam = player->addComponent<Components::FPSCamera>(Components::FPSCamera::FPS, 10.0f, 0.3f);
+        fpsCam = player->addComponent<Components::FPSCamera>(Components::FPSCamera::FPS);
         fpsCam->setActive(false);
         //player->addComponent<Minimap>(500.0f, 10.0f);
         player->addComponent<Components::AudioListener>();
         cam->setClearColor(Color::BLUE);
 
+        F64 acceleration = 4.0;
+        F64 damping = 10.0;
+        AXIS_MAPPER.updateAxis("Vertical", acceleration, damping);
+        AXIS_MAPPER.updateAxis("Horizontal", acceleration, damping);
+
         U32 blockInventorySize = 64;
         player->addComponent<PlayerInventory>(blockInventorySize);
         F32 placeDistance = 10.0f;
-        F32 playerSpeed = 10.0f;
+        F32 playerSpeed = 0.2f;
         F32 jumpPower = 15.0f;
         playerController = player->addComponent<PlayerController>(playerSpeed, jumpPower, placeDistance);
 
@@ -555,6 +555,9 @@ public:
 
         getWindow().setCursor( "../dx/res/internal/cursors/Areo Cursor Red.cur" );
         getWindow().setIcon( "../dx/res/internal/icon.ico" );
+
+        // Enable shader reloading
+        ASSETS.setHotReloading(true);
 
         // Create a gameobject in the default scene with a new component and add new scene onto the stack.
         // This way the music manager will stay alife during the whole program.

@@ -1,3 +1,10 @@
+// ----------------------------------------------
+#Fill			Solid
+#Cull 			Front
+#Priority 		10000
+
+// ----------------------------------------------
+#shader vertex
 
 cbuffer cbPerCamera
 {
@@ -34,4 +41,23 @@ VertexOut main(VertexIn vin)
 	OUT.PosH.z *= 0.999999;
 	
     return OUT;
+}
+
+// ----------------------------------------------
+#shader fragment
+
+struct FragmentIn
+{
+    float4 PosH : SV_POSITION;
+	float3 tex : TEXCOORD0;
+};
+
+TextureCube<float4> Cubemap;
+SamplerState sampler0;
+
+float4 main(FragmentIn fin) : SV_Target
+{
+	float4 textureColor = Cubemap.Sample(sampler0, normalize(fin.tex));
+	
+	return textureColor;
 }

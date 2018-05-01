@@ -34,17 +34,18 @@ namespace Core { namespace Input {
         ~AxisMapper() = default;
 
         //----------------------------------------------------------------------
-        // Return the axis value for the corresponding axis.
+        // Return the axis value for the corresponding axis. Note that the axes 
+        // are already multiplied with delta, so dont do it again.
         // @Param:
         //  "name": The name of the registered axis.
         // @Return:
-        //  The value of the registered axis.
+        //  The value of the registered axis (frame-rate independant).
         //----------------------------------------------------------------------
         F64 getAxisValue(const char* name) const;
 
         //----------------------------------------------------------------------
         // @Return:
-        //  The value of the wheel axis.
+        //  The value of the wheel axis (frame-rate independant).
         //----------------------------------------------------------------------
         F64 getMouseWheelAxisValue() const { return m_wheelAxis; }
 
@@ -57,11 +58,17 @@ namespace Core { namespace Input {
         //  "name": The name of the new axis.
         //  "key0": This key increases the axis value.
         //  "key1": This key decreases the axis value.
-        //  "speed":  How fast the bounds are reached.
+        //  "acceleration": How fast the bounds are reached.
+        //  "damping": How fast the axis value will jump back to 0.
         //----------------------------------------------------------------------
-        void registerAxis(const char* name, Key key0, Key key1, F64 speed = 1.0f);
-        void registerAxis(const char* name, MouseKey key0, MouseKey key1, F64 speed = 1.0f);
+        void registerAxis(const char* name, Key key0, Key key1, F64 acceleration = 1.0f, F64 damping = 1.0f);
+        void registerAxis(const char* name, MouseKey key0, MouseKey key1, F64 acceleration = 1.0f, F64 damping = 1.0f);
         void unregisterAxis(const char* name);
+
+        //----------------------------------------------------------------------
+        // Updates an existing axis. Issues a warning if axis does not exist.
+        //----------------------------------------------------------------------
+        void updateAxis(const char* name, F64 acceleration, F64 damping);
 
         // Should be called once per tick. Checks if actions should be fired.
         void _UpdateInternalState(F64 delta);
@@ -90,7 +97,8 @@ namespace Core { namespace Input {
         struct Axis
         {
             F64 value = 0.0;
-            F64 speed = 1.0;
+            F64 acceleration = 1.0;
+            F64 damping = 1.0;
 
             ArrayList<AxisEvent> events;
         };

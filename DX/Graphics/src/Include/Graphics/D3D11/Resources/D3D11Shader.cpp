@@ -186,7 +186,7 @@ namespace Graphics { namespace D3D11 {
         D3D11_DEPTH_STENCIL_DESC depthStencilStateDesc = {};
 
         depthStencilStateDesc.DepthEnable       = dsState.depthEnable;
-        depthStencilStateDesc.DepthWriteMask    = D3D11_DEPTH_WRITE_MASK_ALL;
+        depthStencilStateDesc.DepthWriteMask    = dsState.depthWrite ? D3D11_DEPTH_WRITE_MASK_ALL : D3D11_DEPTH_WRITE_MASK_ZERO;
         depthStencilStateDesc.DepthFunc         = Utility::TranslateComparisonFunc( dsState.depthFunc );
 
         HR( g_pDevice->CreateDepthStencilState( &depthStencilStateDesc, &m_pDepthStencilState) );

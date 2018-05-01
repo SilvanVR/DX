@@ -31,14 +31,15 @@ namespace Core { namespace Input {
     }
 
     //----------------------------------------------------------------------
-    void AxisMapper::registerAxis( const char* name, Key key0, Key key1, F64 speed )
+    void AxisMapper::registerAxis( const char* name, Key key0, Key key1, F64 acceleration, F64 damping )
     {
         StringID axisName = SID( name );
         if ( m_axisMap.count( axisName ) == 0 )
         {
             // Register new axis
             Axis axis;
-            axis.speed = speed;
+            axis.acceleration = acceleration;
+            axis.damping = damping;
             axis.events.push_back( { EInputDevice::Keyboard, key0, key1 } );
 
             m_axisMap[ axisName ] = axis;
@@ -51,14 +52,15 @@ namespace Core { namespace Input {
     }
 
     //----------------------------------------------------------------------
-    void AxisMapper::registerAxis( const char* name, MouseKey key0, MouseKey key1, F64 speed )
+    void AxisMapper::registerAxis( const char* name, MouseKey key0, MouseKey key1, F64 acceleration, F64 damping )
     {
         StringID axisName = SID( name );
         if ( m_axisMap.count( axisName ) == 0 )
         {
             // Register new axis
             Axis axis;
-            axis.speed = speed;
+            axis.acceleration = acceleration;
+            axis.damping = damping;
             axis.events.push_back( { EInputDevice::Mouse, key0, key1 } );
 
             m_axisMap[ axisName ] = axis;
@@ -75,6 +77,20 @@ namespace Core { namespace Input {
     {
         StringID axisName = SID( name );
         m_axisMap.erase( m_axisMap.find( axisName ) );
+    }
+
+    //----------------------------------------------------------------------
+    void AxisMapper::updateAxis( const char* name, F64 acceleration, F64 damping )
+    {
+        StringID axisName = SID( name );
+        if ( m_axisMap.find( axisName ) == m_axisMap.end() )
+        {
+            LOG_WARN( "AxisMapper::updateAxis(): Given axis name '" + String(name) + "' does not exist." );
+            return;
+        }
+
+        m_axisMap[axisName].acceleration = acceleration;
+        m_axisMap[axisName].damping = damping;
     }
 
     //**********************************************************************
@@ -94,7 +110,6 @@ namespace Core { namespace Input {
         for (auto& pair : m_axisMap)
         {
             Axis&   axis        = pair.second;
-            F64     step        = (axis.speed * delta);
             bool    triggered   = false;
 
             for (auto& evt : axis.events)
@@ -112,25 +127,25 @@ namespace Core { namespace Input {
                     key1Down = m_mouse->isKeyDown( evt.mouseKey1 );
                     break;
                 default:
-                    LOG_WARN( "AxisMapper::_UpdateInternalState: Unknown input device." );
+                    LOG_WARN( "AxisMapper::_UpdateInternalState(): Unknown input device." );
                 }
 
                 if (key0Down)
                 {
-                    axis.value = approach( axis.value, AXIS_MAX, step );
+                    axis.value = Math::Lerp( axis.value, AXIS_MAX, axis.acceleration * delta );
                     triggered = true;
                 }
 
                 if (key1Down)
                 {
-                    axis.value = approach( axis.value, AXIS_MIN, step );
+                    axis.value = Math::Lerp( axis.value, AXIS_MIN, axis.acceleration * delta );
                     triggered = true;
                 }
             }
 
             // Approach 0 as long no event was triggered this tick
             if ( not triggered )
-                axis.value = approach( axis.value, 0.0, step );
+                axis.value = Math::Lerp( axis.value, 0.0, axis.damping * delta );
         }
     }
 

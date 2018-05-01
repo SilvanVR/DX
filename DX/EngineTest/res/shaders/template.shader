@@ -1,4 +1,13 @@
 // ----------------------------------------------
+#Fill			Solid
+#Cull 			Back
+#ZWrite 		On
+#ZTest 			Less
+#Blend 			SrcAlpha OneMinusSrcAlpha
+#Priority 		1000
+#AlphaToMask 	Off
+
+// ----------------------------------------------
 #shader vertex
 
 cbuffer cbPerCamera

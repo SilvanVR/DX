@@ -25,9 +25,11 @@ namespace Core { namespace Input {
         m_axisMapper   = new AxisMapper( m_keyboard, m_mouse );
 
         // Register some default axes
-        m_axisMapper->registerAxis( "Vertical", Key::W, Key::S, 5.0f );
-        m_axisMapper->registerAxis( "Horizontal", Key::A, Key::D, 5.0f );
-        m_axisMapper->registerAxis( "Up", Key::Space, Key::Shift, 5.0f);
+        F64 acceleration = 4.0;
+        F64 damping = 5.0;
+        m_axisMapper->registerAxis( "Vertical", Key::W, Key::S, acceleration, damping );
+        m_axisMapper->registerAxis( "Horizontal", Key::A, Key::D, acceleration, damping );
+        m_axisMapper->registerAxis( "Up", Key::Space, Key::Shift, acceleration, damping );
     }
 
     //----------------------------------------------------------------------

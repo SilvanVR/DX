@@ -1,4 +1,13 @@
 // ----------------------------------------------
+#Fill			Solid
+#Cull 			Back
+#ZWrite 		On
+#ZTest 			Less
+#Blend 			SrcAlpha OneMinusSrcAlpha
+#Priority 		1000
+#AlphaToMask 	Off
+
+// ----------------------------------------------
 #shader vertex
 
 cbuffer cbPerCamera
@@ -14,13 +23,13 @@ cbuffer cbPerObject
 struct VertexIn
 {
     float3 PosL : POSITION;
-    float4 Color : COLOR;
+	float2 tex : TEXCOORD0;
 };
 
 struct VertexOut
 {
     float4 PosH : SV_POSITION;
-    float4 Color : COLOR;
+    float2 tex : TEXCOORD0;
 };
 
 VertexOut main(VertexIn vin)
@@ -29,21 +38,31 @@ VertexOut main(VertexIn vin)
 
     float4x4 mvp = mul(gViewProj, gWorld);
     OUT.PosH = mul(mvp, float4(vin.PosL, 1.0f));
-    OUT.Color = vin.Color;
-
+	OUT.tex = vin.tex;
+	
     return OUT;
 }
 
 // ----------------------------------------------
 #shader fragment
 
+
+cbuffer cbPerMaterial
+{
+	int texIndex;
+};
+
 struct FragmentIn
 {
     float4 PosH : SV_POSITION;
-    float4 Color : COLOR;
+	float2 tex : TEXCOORD0;
 };
+
+Texture2DArray texArray;
+SamplerState sampler0;
 
 float4 main(FragmentIn fin) : SV_Target
 {
-    return fin.Color;
+	float4 textureColor = texArray.Sample(sampler0, float3(fin.tex,texIndex));	
+	return textureColor;
 }
