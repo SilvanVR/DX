@@ -113,6 +113,7 @@ namespace Components {
         // Adjust distance if wheel is used. Move faster the farther away from POI
         F32 distanceToPOI = (m_pTransform->position - m_pointOfInterest).magnitude();
         m_desiredDistance -= (F32)AXIS_MAPPER.getMouseWheelAxisValue() * distanceToPOI * 0.05f;
+        m_desiredDistance = m_desiredDistance < 0.1f ? 0.1f : m_desiredDistance;
 
         // Calculate quaternion from angles and set the desired position
         auto quat = Math::Quat::FromEulerAngles( m_mousePitchDeg, m_mouseYawDeg, 0.0f );

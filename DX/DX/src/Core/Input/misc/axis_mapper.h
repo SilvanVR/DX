@@ -116,26 +116,4 @@ namespace Core { namespace Input {
         AxisMapper& operator = (AxisMapper&& other)      = delete;
     };
 
-    //----------------------------------------------------------------------
-    // Approach a given value to the target in step units.
-    // @Params:
-    //  "cur": The current value
-    //  "target": The target value (goal)
-    //  "step": The step rate
-    // @Return:
-    //  The new value.
-    //----------------------------------------------------------------------
-    template <typename T>
-    T approach( T cur, T target, T step )
-    {
-        T diff = (target - cur);
-
-        if ( diff > step )
-            return cur + step;
-        if ( diff < -step )
-            return cur - step;
-
-        return target;
-    }
-
 } } // end namespaces

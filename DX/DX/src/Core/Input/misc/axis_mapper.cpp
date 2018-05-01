@@ -153,7 +153,7 @@ namespace Core { namespace Input {
     void AxisMapper::_UpdateMouseWheelAxis( F64 delta )
     {
         static F32 acceleration = 50.0f;
-        static F32 damping = 0.15f;
+        static F32 damping = 7.0f;
 
         I16 wheelDelta = m_mouse->getWheelDelta();
         if (wheelDelta != 0)
@@ -162,7 +162,7 @@ namespace Core { namespace Input {
         }
         else
         {
-            m_wheelAxis = Math::Lerp( m_wheelAxis, 0.0, damping );
+            m_wheelAxis = Math::Lerp( m_wheelAxis, 0.0, damping * delta );
         }
     }
 
