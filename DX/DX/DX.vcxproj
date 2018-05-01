@@ -350,6 +350,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Core\Assets\asset_manager.h" />
+    <ClInclude Include="src\Core\Assets\material_parser.hpp" />
     <ClInclude Include="src\Core\Assets\shader_parser.hpp" />
     <ClInclude Include="src\Core\Audio\audio_clip.h" />
     <ClInclude Include="src\Core\Audio\audio_manager.h" />
@@ -359,6 +360,7 @@
     <ClInclude Include="src\Core\event_names.hpp" />
     <ClInclude Include="src\Core\Resources\default_shaders.hpp" />
     <ClInclude Include="src\Core\Assets\mesh_generator.h" />
+    <ClInclude Include="src\Ext\JSON\json.hpp" />
     <ClInclude Include="src\Ext\StbImage\stb_image.h" />
     <ClInclude Include="src\Core\GraphicsCommandRecorder\graphics_command_recorder.h" />
     <ClInclude Include="src\Core\InGameConsole\in_game_console.h" />

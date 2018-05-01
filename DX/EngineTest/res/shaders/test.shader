@@ -14,13 +14,13 @@ cbuffer cbPerObject
 struct VertexIn
 {
     float3 PosL : POSITION;
-    float4 Color : COLOR;
+	float2 tex : TEXCOORD0;
 };
 
 struct VertexOut
 {
     float4 PosH : SV_POSITION;
-    float4 Color : COLOR;
+    float2 tex : TEXCOORD0;
 };
 
 VertexOut main(VertexIn vin)
@@ -29,8 +29,8 @@ VertexOut main(VertexIn vin)
 
     float4x4 mvp = mul(gViewProj, gWorld);
     OUT.PosH = mul(mvp, float4(vin.PosL, 1.0f));
-    OUT.Color = vin.Color;
-
+	OUT.tex = vin.tex;
+	
     return OUT;
 }
 
@@ -45,10 +45,14 @@ cbuffer cbPerMaterial
 struct FragmentIn
 {
     float4 PosH : SV_POSITION;
-    float4 Color : COLOR;
+	float2 tex : TEXCOORD0;
 };
+
+Texture2D tex;
+SamplerState sampler0;
 
 float4 main(FragmentIn fin) : SV_Target
 {
-    return fin.Color * color;
+	float4 textureColor = tex.Sample(sampler0, fin.tex);
+	return textureColor * color;
 }

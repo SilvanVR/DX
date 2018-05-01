@@ -18,6 +18,7 @@ namespace Graphics { namespace D3D11 {
         StringID    name;
         U32         offset = 0;
         Size        size = 0;
+        DataType    type = DataType::Unknown;;
     };
 
     // Contains information about an buffer in a shader
@@ -32,7 +33,8 @@ namespace Graphics { namespace D3D11 {
     struct TextureBindingInfo
     {
         StringID    name;
-        U32         slot;
+        U32         slot = 0;
+        DataType    type = DataType::Unknown;;
     };
 
     //**********************************************************************
@@ -48,9 +50,10 @@ namespace Graphics { namespace D3D11 {
         virtual bool compileFromSource(const String& shaderSource, CString entryPoint) = 0;
 
         //----------------------------------------------------------------------
-        const OS::Path& getFilePath()   const { return m_filePath; }
-        CString         getEntryPoint() const { return m_entryPoint.c_str(); }
-        bool            recompile();
+        const OS::Path&                                 getFilePath()   const { return m_filePath; }
+        CString                                         getEntryPoint() const { return m_entryPoint.c_str(); }
+        bool                                            recompile();
+        const HashMap<StringID, TextureBindingInfo>&    getTextureBindingInfos() const { return m_textures; }
 
         //----------------------------------------------------------------------
         // @Return:
@@ -116,6 +119,7 @@ namespace Graphics { namespace D3D11 {
         void _ShaderReflection(ID3DBlob* pShaderBlob);
         void _ReflectResources(const D3D11_SHADER_DESC& shaderDesc);
         void _ReflectConstantBuffer(ID3D11ShaderReflectionConstantBuffer* cb, U32 bindSlot);
+        DataType _GetDataType(ID3D11ShaderReflectionVariable* var);
 
         //----------------------------------------------------------------------
         ShaderBase(const ShaderBase& other)               = delete;

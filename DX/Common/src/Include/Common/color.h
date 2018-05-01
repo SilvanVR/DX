@@ -35,6 +35,13 @@ public:
     explicit Color(U32 color);
 
     //----------------------------------------------------------------------
+    // Constructs a new color from a hexadecimal representation.
+    // 0xFF0000 = RED, 0x000000FF = ALPHA set to 1
+    // This constructor is independent of the underlying format (BGRA or RGBA).
+    //----------------------------------------------------------------------
+    explicit Color(const String& hex);
+
+    //----------------------------------------------------------------------
     // Return the greatest of the three R-G-B components (Alpha excluded).
     // @Return:
     //  Value representing the largest component. Range: [0 - 255]
@@ -79,6 +86,9 @@ public:
     // Linearly interpolate between color a and b.
     //----------------------------------------------------------------------
     static Color Lerp(Color a, Color b, F32 lerp);
+
+private:
+    F32 _HexToRGB(const String& hex);
 
 public:
     static Color WHITE;

@@ -77,8 +77,36 @@ namespace Graphics { namespace D3D11 {
     void Material::_ChangedShader()
     {
         m_textureCache.clear();
+        _UpdateTypeMap();
         _CreateConstantBuffers();
     }
+
+    //----------------------------------------------------------------------
+    void Material::_UpdateTypeMap()
+    {
+        // Query all datatypes from shaders and add it to the typemap
+        auto d3d11Shader = reinterpret_cast<Shader*>( m_shader.get() );
+        if ( auto cb = d3d11Shader->getVertexShader()->getMaterialBufferInfo() )
+        {
+            for (auto& mem : cb->members)
+                m_typeMap[mem.name] = mem.type;
+        }
+
+        if ( auto cb = d3d11Shader->getPixelShader()->getMaterialBufferInfo() )
+        {
+            for (auto& mem : cb->members)
+                m_typeMap[mem.name] = mem.type;
+        }
+
+        auto texBindings = d3d11Shader->getVertexShader()->getTextureBindingInfos();
+        for (auto& pair : texBindings)
+            m_typeMap[pair.first] = pair.second.type;
+
+        texBindings = d3d11Shader->getPixelShader()->getTextureBindingInfos();
+        for (auto& pair : texBindings)
+            m_typeMap[pair.first] = pair.second.type;
+    }
+
 
     //**********************************************************************
     // PUBLIC
@@ -152,7 +180,7 @@ namespace Graphics { namespace D3D11 {
             m_materialDataVS.resize( static_cast<U32>( cb->sizeInBytes ), cb->slot );
 
         // Create buffer for pixel shader
-        if ( auto  cb = d3d11Shader->getPixelShader()->getMaterialBufferInfo() )
+        if ( auto cb = d3d11Shader->getPixelShader()->getMaterialBufferInfo() )
             m_materialDataPS.resize( static_cast<U32>( cb->sizeInBytes ), cb->slot );
     }
  

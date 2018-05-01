@@ -43,3 +43,24 @@ using HashMap = std::map<T, T2>;
 
 template <typename T>
 using ArrayList = std::vector<T>;
+
+enum class DataType
+{
+    Unknown = -1,
+    Boolean,
+    Char,
+    Float,
+    Int,
+    Double,
+    Vec2,
+    Vec3,
+    Vec4,
+    Matrix,
+    Color,
+    String,
+    Texture1D,
+    Texture2D,
+    Texture3D,
+    TextureCubemap,
+    Struct
+};

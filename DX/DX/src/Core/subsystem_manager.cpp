@@ -177,12 +177,13 @@ namespace Core
         OS::VirtualFileSystem::mount( "internal", "../DX/res/internal" );
         OS::VirtualFileSystem::mount( "cursors",  "../DX/res/internal/cursors" );
 
-        OS::VirtualFileSystem::mount( "logs",     "res/logs" );
-        OS::VirtualFileSystem::mount( "textures", "res/textures" );
-        OS::VirtualFileSystem::mount( "cubemaps", "res/textures/cubemaps" );
-        OS::VirtualFileSystem::mount( "shaders",  "res/shaders" );
-        OS::VirtualFileSystem::mount( "models",   "res/models" );
-        OS::VirtualFileSystem::mount( "audio",    "res/audio" );
+        OS::VirtualFileSystem::mount( "logs",      "res/logs" );
+        OS::VirtualFileSystem::mount( "textures",  "res/textures" );
+        OS::VirtualFileSystem::mount( "cubemaps",  "res/textures/cubemaps" );
+        OS::VirtualFileSystem::mount( "shaders",   "res/shaders" );
+        OS::VirtualFileSystem::mount( "models",    "res/models" );
+        OS::VirtualFileSystem::mount( "audio",     "res/audio" );
+        OS::VirtualFileSystem::mount( "materials", "res/materials" );
     }
 
     //----------------------------------------------------------------------

@@ -7,6 +7,19 @@
 **********************************************************************/
 
 namespace Graphics {
+
+    //----------------------------------------------------------------------
+    void IMaterial::setShader( ShaderPtr shader )
+    { 
+        m_shader = shader; 
+        m_typeMap.clear();
+        m_intMap.clear();
+        m_floatMap.clear();
+        m_vec4Map.clear();
+        m_matrixMap.clear();
+        m_textureMap.clear();
+        _ChangedShader(); 
+    }
     
     //**********************************************************************
     // MATERIAL PARAMETERS - GET
@@ -15,7 +28,7 @@ namespace Graphics {
     //----------------------------------------------------------------------
     I32 IMaterial::getInt( StringID name ) const 
     { 
-        if ( m_intMap.count( name ) > 0)
+        if ( m_intMap.find( name ) != m_intMap.end() )
             return m_intMap.at( name );
 
         LOG_WARN_RENDERING( "Material::getInt(): Name '" + name.toString() + "' does not exist in shader '" + m_shader->getName() + "'" );
@@ -25,7 +38,7 @@ namespace Graphics {
     //----------------------------------------------------------------------
     F32 IMaterial::getFloat( StringID name ) const 
     { 
-        if ( m_floatMap.count( name ) > 0)
+        if ( m_floatMap.find( name ) != m_floatMap.end() )
             return m_floatMap.at( name );
 
         LOG_WARN_RENDERING( "Material::getFloat(): Name '" + name.toString() + "' does not exist in shader '" + m_shader->getName() + "'" );
@@ -35,7 +48,7 @@ namespace Graphics {
     //----------------------------------------------------------------------
     Math::Vec4 IMaterial::getVec4( StringID name ) const
     {
-        if ( m_vec4Map.count( name ) > 0 )
+        if ( m_vec4Map.find( name ) != m_vec4Map.end() )
             return m_vec4Map.at( name );
 
         LOG_WARN_RENDERING( "Material::getVec4(): Name '" + name.toString() + "' does not exist in shader '" + m_shader->getName() + "'" );
@@ -45,7 +58,7 @@ namespace Graphics {
     //----------------------------------------------------------------------
     DirectX::XMMATRIX IMaterial::getMatrix( StringID name ) const
     {
-        if ( m_matrixMap.count( name ) > 0 )
+        if ( m_matrixMap.find( name ) != m_matrixMap.end() )
             return m_matrixMap.at( name );
 
         LOG_WARN_RENDERING( "Material::getMatrix(): Name '" + name.toString() + "' does not exist in shader '" + m_shader->getName() + "'" );
@@ -55,7 +68,7 @@ namespace Graphics {
     //----------------------------------------------------------------------
     Color IMaterial::getColor( StringID name ) const
     {
-        if ( m_vec4Map.count( name ) > 0 )
+        if ( m_vec4Map.find( name ) != m_vec4Map.end() )
         {
             Math::Vec4 colorAsVec = m_vec4Map.at( name );
             return Color( (Byte) (colorAsVec.x * 255.0f), (Byte) (colorAsVec.y * 255.0f), (Byte) (colorAsVec.z * 255.0f), (Byte) (colorAsVec.w * 255.0f) );
@@ -68,11 +81,20 @@ namespace Graphics {
     //----------------------------------------------------------------------
     TexturePtr IMaterial::getTexture( StringID name ) const
     {
-        if ( m_textureMap.count( name ) > 0 )
+        if ( m_textureMap.find( name ) != m_textureMap.end() )
             return m_textureMap.at( name );
 
         LOG_WARN_RENDERING( "Material::getTexture(): Name '" + name.toString() + "' does not exist in shader '" + m_shader->getName() + "'" );
         return nullptr;
+    }
+
+    //----------------------------------------------------------------------
+    DataType IMaterial::getDataType( StringID name )  const
+    {
+        if ( m_typeMap.find( name ) != m_typeMap.end() )
+            return m_typeMap.at( name );
+
+        return DataType::Unknown;
     }
 
     //**********************************************************************

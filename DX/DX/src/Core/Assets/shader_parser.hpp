@@ -43,13 +43,26 @@ namespace Core { namespace Assets {
     {
     public:
         //----------------------------------------------------------------------
-        // Updates the given shader from the given file.
+        // Tries to load a custom shader file format from the given file.
         // @Return:
-        //  Same shader object as the input.
+        //  A new shader object if everything was successful. 
         // @Throws:
         //  std::runtime_error if something went wrong.
         //----------------------------------------------------------------------
-        static ShaderPtr LoadShader( ShaderPtr shader, const OS::Path& filePath )
+        static ShaderPtr LoadShader( const OS::Path& filePath )
+        {
+            auto shader = RESOURCES.createShader();
+            UpdateShader( shader, filePath );
+            shader->setName( filePath.getFileName() );
+            return shader;
+        }
+
+        //----------------------------------------------------------------------
+        // Updates the given shader from the given file.
+        // @Throws:
+        //  std::runtime_error if something went wrong.
+        //----------------------------------------------------------------------
+        static void UpdateShader( ShaderPtr shader, const OS::Path& filePath )
         {
             if ( filePath.getExtension() != "shader" )
                 throw std::runtime_error( "File has wrong extension. Must be '.shader'." );
@@ -81,25 +94,9 @@ namespace Core { namespace Assets {
 
             // Parse & set pipeline states
             _SetRasterizationState( shader, shaderSources[0], filePath );
-            _SetDepthStencilState(shader, shaderSources[0], filePath);
+            _SetDepthStencilState( shader, shaderSources[0], filePath );
             _SetBlendState( shader, shaderSources[0], filePath );
             _SetShaderPriority( shader, shaderSources[0], filePath );
-
-            return shader;
-        }
-
-        //----------------------------------------------------------------------
-        // Tries to load a custom shader file format from the given file.
-        // @Return:
-        //  A new shader object if everything was successful. 
-        // @Throws:
-        //  std::runtime_error if something went wrong.
-        //----------------------------------------------------------------------
-        static ShaderPtr LoadShader( const OS::Path& filePath )
-        {
-            auto shader = RESOURCES.createShader();
-            shader->setName( filePath.getFileName() );
-            return LoadShader( shader, filePath );
         }
 
     private:
@@ -123,7 +120,7 @@ namespace Core { namespace Assets {
         {
             OS::File file( filePath, OS::EFileMode::READ );
             if ( not file.exists() )
-                throw std::runtime_error( "File does not exist or could not be opened" );
+                throw std::runtime_error( "File does not exist or could not be opened." );
 
             Graphics::ShaderType type = Graphics::ShaderType::Unknown;
             std::array<String, NUM_SHADER_TYPES> shaderSources;

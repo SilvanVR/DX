@@ -28,19 +28,18 @@ public:
 
         createGameObject("Grid")->addComponent<GridGeneration>(20);
 
-        auto mesh = Core::Assets::MeshGenerator::CreateCube(1);
+        auto mesh = Core::Assets::MeshGenerator::CreateCubeUV(1);
         mesh->setColors(cubeColors);
 
-        auto shader = ASSETS.getShader("/shaders/color.shader");
+        auto mat = ASSETS.getMaterial("/materials/basic.material");
 
-        auto material = RESOURCES.createMaterial(shader);
+        //auto shader = ASSETS.getShader("/shaders/color.shader");
+        //auto material = RESOURCES.createMaterial(shader);
         //material->setTexture("tex", ASSETS.getTexture2D("/textures/checker.jpg"));
 
         auto go2 = createGameObject("Obj");
-        go2->addComponent<Components::MeshRenderer>(mesh, material);
+        go2->addComponent<Components::MeshRenderer>(mesh, mat);
 
-
-        ASSETS.setHotReloading(true);
 
         LOG("TestScene initialized!", Color::RED);
     }
@@ -78,6 +77,8 @@ public:
             String newTitle = String(gameName) + " | Time: " + TS(TIME.getTime().value) + " | Delta: " + TS(delta) + "ms (" + TS(fps) + " FPS)";
             Locator::getWindow().setTitle(newTitle.c_str());
         }, 1000);
+
+        ASSETS.setHotReloading(true);
 
         Locator::getSceneManager().LoadSceneAsync(new TestScene());
     }

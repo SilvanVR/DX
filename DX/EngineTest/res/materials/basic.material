@@ -1,0 +1,13 @@
+{
+
+"shader" : "test",
+"color" : "#FFFFFF",
+"tex" : "nico.jpg",
+"Cubemap" : { "posX" : "tropical_sunny_day/Left.png",
+			  "negX" : "tropical_sunny_day/Right.png",
+              "posY" : "tropical_sunny_day/Up.png",
+			  "negY" : "tropical_sunny_day/Down.png",
+			  "posZ" : "tropical_sunny_day/Front.png",
+			  "negZ" : "tropical_sunny_day/Back.png" } 
+
+}

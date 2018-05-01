@@ -17,6 +17,7 @@
 #include "Graphics/i_cubemap.hpp"
 #include "Core/Audio/audio_clip.h"
 #include "Graphics/i_shader.hpp"
+#include "Graphics/i_material.h"
 
 namespace Core { namespace Assets {
 
@@ -27,6 +28,7 @@ namespace Core { namespace Assets {
         using WeakCubemapPtr    = std::weak_ptr<Graphics::Cubemap>;
         using WeakWavClipPtr    = std::weak_ptr<Audio::WAVClip>;
         using WeakShaderPtr     = std::weak_ptr<Graphics::Shader>;
+        using WeakMaterialPtr   = std::weak_ptr<Graphics::IMaterial>;
 
     public:
         AssetManager() = default;
@@ -74,6 +76,13 @@ namespace Core { namespace Assets {
         ShaderPtr getShader(const OS::Path& path);
 
         //----------------------------------------------------------------------
+        // Creates a new material object. Will be loaded only if not already in memory.
+        // @Params:
+        //  "path": Path to the material file.
+        //----------------------------------------------------------------------
+        MaterialPtr getMaterial(const OS::Path& path);
+
+        //----------------------------------------------------------------------
         // Enable/Disable hot reloading. The asset manager will periodically check
         // all loaded resource files and reload them if they are outdated. (Note that not all resource types are supported)
         //----------------------------------------------------------------------
@@ -115,11 +124,18 @@ namespace Core { namespace Assets {
             void ReloadIfNotUpToDate();
         };
 
+        struct MaterialAssetInfo : public FileInfo
+        {
+            WeakMaterialPtr material;
+            void ReloadIfNotUpToDate();
+        };
+
         // Lists of all loaded resources. Stores weak-ptrs, which means that the resource might be already unloaded.
         HashMap<StringID, TextureAssetInfo>     m_textureCache;
         HashMap<StringID, CubemapAssetInfo>     m_cubemapCache;
         HashMap<StringID, AudioClipAssetInfo>   m_audioCache;
         HashMap<StringID, ShaderAssetInfo>      m_shaderCache;
+        HashMap<StringID, MaterialAssetInfo>    m_materialCache;
 
         //----------------------------------------------------------------------
         inline Texture2DPtr _LoadTexture2D(const OS::Path& filePath, bool generateMips);

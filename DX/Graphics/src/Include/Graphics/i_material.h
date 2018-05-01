@@ -23,21 +23,31 @@ namespace Graphics {
         virtual ~IMaterial() {}
 
         //----------------------------------------------------------------------
-        void        setShader(ShaderPtr shader) { m_shader = shader; _ChangedShader(); }
-
-        //----------------------------------------------------------------------
-        ShaderPtr   getShader()     const { return m_shader; }
+        ShaderPtr       getShader() const { return m_shader; }
+        const String&   getName()   const { return m_name; }
+        void            setShader(ShaderPtr shader);
+        void            setName(const String& name) { m_name = name; }
 
         //**********************************************************************
         // MATERIAL PARAMETERS
         //**********************************************************************
         //----------------------------------------------------------------------
-        I32                                 getInt(StringID name)       const;
-        F32                                 getFloat(StringID name)     const;
-        Math::Vec4                          getVec4(StringID name)      const;
-        DirectX::XMMATRIX                   getMatrix(StringID name)    const;
-        Color                               getColor(StringID name)     const;
-        TexturePtr                          getTexture(StringID name)   const;
+        I32                 getInt(StringID name)       const;
+        F32                 getFloat(StringID name)     const;
+        Math::Vec4          getVec4(StringID name)      const;
+        DirectX::XMMATRIX   getMatrix(StringID name)    const;
+        Color               getColor(StringID name)     const;
+        TexturePtr          getTexture(StringID name)   const;
+        DataType            getDataType(StringID name)  const;
+
+        //----------------------------------------------------------------------
+        I32                 getInt(CString name)       const { return getInt(SID(name)); }
+        F32                 getFloat(CString name)     const { return getFloat(SID(name)); }
+        Math::Vec4          getVec4(CString name)      const { return getVec4(SID(name)); }
+        DirectX::XMMATRIX   getMatrix(CString name)    const { return getMatrix(SID(name)); }
+        Color               getColor(CString name)     const { return getColor(SID(name)); }
+        TexturePtr          getTexture(CString name)   const { return getTexture(SID(name)); }
+        DataType            getDataType(CString name)  const { return getDataType(SID(name)); }
 
         //----------------------------------------------------------------------
         void setInt(StringID name, I32 val);
@@ -55,7 +65,8 @@ namespace Graphics {
         inline void setTexture(CString name, TexturePtr tex)                { setTexture(SID(name), tex); }
 
     protected:
-        ShaderPtr m_shader = nullptr;
+        ShaderPtr   m_shader = nullptr;
+        String      m_name = "NO NAME";
 
         // Data maps
         HashMap<StringID, I32>                          m_intMap;
@@ -63,6 +74,9 @@ namespace Graphics {
         HashMap<StringID, Math::Vec4>                   m_vec4Map;
         HashMap<StringID, DirectX::XMMATRIX>            m_matrixMap;
         HashMap<StringID, TexturePtr>                   m_textureMap;
+
+        // Stores which property exist along his type
+        HashMap<StringID, DataType>                     m_typeMap;
 
         // Each API should decide themselves how to efficiently update their data
         // @Return:

@@ -9,6 +9,7 @@
 #include "Ext/StbImage/stb_image.h"
 #include "locator.h"
 #include "shader_parser.hpp"
+#include "material_parser.hpp"
 
 namespace Core { namespace Assets {
 
@@ -170,9 +171,44 @@ namespace Core { namespace Assets {
         }
         catch (const std::runtime_error& e) 
         {
-            LOG_WARN( "LoadShader(): Shader '" + filePath.toString() + "' could not be loaded. Reason: " 
+            LOG_WARN( "AssetManager::getShader(): Shader '" + filePath.toString() + "' could not be loaded. Reason: " 
                       + e.what() +  " Returning the error shader instead." );
             return RESOURCES.getErrorShader();
+        }
+    }
+
+    //----------------------------------------------------------------------
+    MaterialPtr AssetManager::getMaterial( const OS::Path& filePath )
+    {
+        // Check if material was already loaded
+        StringID pathAsID = SID( StringUtils::toLower( filePath.toString() ).c_str() );
+        if ( m_shaderCache.find( pathAsID ) != m_shaderCache.end() )
+        {
+            auto weakPtr = m_materialCache[pathAsID].material;
+            if ( not weakPtr.expired() )
+                return MaterialPtr( weakPtr );
+        }
+
+        // Try loading shader
+        LOG( "AssetManager: Loading Material '" + filePath.toString() + "'", LOG_COLOR );
+        try 
+        {
+            MaterialPtr material = MaterialParser::LoadMaterial( filePath );
+
+            MaterialAssetInfo materialInfo;
+            materialInfo.material    = material;
+            materialInfo.path        = filePath;
+            materialInfo.timeAtLoad  = filePath.getLastWrittenFileTime();
+
+            m_materialCache[pathAsID] = materialInfo;
+
+            return material;
+        }
+        catch ( const std::runtime_error& e )
+        {
+            LOG_WARN( "AssetManager::getMaterial(): Material '" + filePath.toString() + "' could not be loaded. Reason: " 
+                      + e.what() +  " Returning the default material instead." );
+            return RESOURCES.getDefaultMaterial();
         }
     }
 
@@ -281,12 +317,27 @@ namespace Core { namespace Assets {
             }
 
             // Shader reloading
-            for (auto it = m_shaderCache.begin(); it != m_shaderCache.end(); )
+            for ( auto it = m_shaderCache.begin(); it != m_shaderCache.end(); )
             {
                 if ( it->second.shader.expired() )
                 {
                     // Shader does no longer exist, so remove it from the cache map
                     it = m_shaderCache.erase( it );
+                }
+                else
+                {
+                    it->second.ReloadIfNotUpToDate();
+                    it++;
+                }
+            }
+
+            // Material reloading
+            for ( auto it = m_materialCache.begin(); it != m_materialCache.end(); )
+            {
+                if ( it->second.material.expired() )
+                {
+                    // Material does no longer exist, so remove it from the cache map
+                    it = m_materialCache.erase( it );
                 }
                 else
                 {
@@ -342,11 +393,40 @@ namespace Core { namespace Assets {
                 if (timeAtLoad != currentFileTime)
                 {
                     LOG( "Reloading shader: " + path.toString(), LOG_COLOR );
-                    try{
-                        ShaderParser::LoadShader( sh, path );
-                    } catch(std::runtime_error e){ 
-                        LOG_WARN( String("Failed to recompile shader. Reason: ") + e.what() );
+                    try {
+                        ShaderParser::UpdateShader( sh, path );
+                    } catch(std::runtime_error e) { 
+                        LOG_WARN( String( "Failed to reload shader. Reason: " ) + e.what() );
                     }
+
+                    timeAtLoad = currentFileTime;
+                }
+            }
+            catch (...) {
+                // Do nothing here. This means simply the file could not be opened, because another app has not yet closed the handle
+            }
+        }
+    }
+
+    //----------------------------------------------------------------------
+    void AssetManager::MaterialAssetInfo::ReloadIfNotUpToDate()
+    {
+        if ( auto mat = material.lock() )
+        {
+            try {
+                auto currentFileTime = path.getLastWrittenFileTime();
+
+                if (timeAtLoad != currentFileTime)
+                {
+                    LOG( "Reloading material: " + path.toString(), LOG_COLOR );
+                    ASYNC_JOB([=] {
+                        try {
+                            MaterialParser::UpdateMaterial( mat, path );
+                        }
+                        catch (const std::runtime_error& e) {
+                            LOG_WARN( String( "Failed to reload material. Reason: " ) + e.what() );
+                        }
+                    });
 
                     timeAtLoad = currentFileTime;
                 }

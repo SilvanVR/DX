@@ -148,7 +148,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="src\Include\Common\async_resource_ptr.hpp" />
     <ClInclude Include="src\Include\Events\event.hpp" />
     <ClInclude Include="src\Include\Events\event_dispatcher.h" />
     <ClInclude Include="src\Include\Math\aabb.h" />

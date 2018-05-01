@@ -191,6 +191,20 @@ namespace Graphics { namespace D3D11 {
             {
                 TextureBindingInfo texInfo;
                 texInfo.slot = bindDesc.BindPoint;
+
+                switch (bindDesc.Dimension)
+                {
+                case D3D11_SRV_DIMENSION_TEXTURE1DARRAY:
+                case D3D11_SRV_DIMENSION_TEXTURE1D:         texInfo.type = DataType::Texture1D; break;
+                case D3D11_SRV_DIMENSION_TEXTURE2DARRAY:
+                case D3D11_SRV_DIMENSION_TEXTURE2DMSARRAY:
+                case D3D11_SRV_DIMENSION_TEXTURE2D:         texInfo.type = DataType::Texture2D; break;
+                case D3D11_SRV_DIMENSION_TEXTURE3D:         texInfo.type = DataType::Texture3D; break;
+                case D3D11_SRV_DIMENSION_TEXTURECUBEARRAY:
+                case D3D11_SRV_DIMENSION_TEXTURECUBE:       texInfo.type = DataType::TextureCubemap; break;
+                }
+                ASSERT(texInfo.type != DataType::Unknown && "Could not deduce texture type.");
+
                 m_textures[ SID( bindDesc.Name ) ] = texInfo;
                 break;
             }
@@ -215,18 +229,62 @@ namespace Graphics { namespace D3D11 {
             D3D11_SHADER_VARIABLE_DESC varDesc;
             HR( var->GetDesc( &varDesc ) );
 
-            // If type information is needed
-            //auto type = var->GetType();
-            //D3D11_SHADER_TYPE_DESC typeDesc;
-            //HR( type->GetDesc( &typeDesc ) );
-
             ConstantBufferMemberInfo info = {};
             info.name   = SID( varDesc.Name );
             info.offset = varDesc.StartOffset;
             info.size   = varDesc.Size;
+            info.type   = _GetDataType( var );
             bufferInfo.members.emplace_back( info );
         }
         m_constantBuffers[ SID( bufferDesc.Name ) ] = bufferInfo;
+    }
+
+    //----------------------------------------------------------------------
+    DataType ShaderBase::_GetDataType( ID3D11ShaderReflectionVariable* var )
+    {
+        auto type = var->GetType();
+        D3D11_SHADER_TYPE_DESC typeDesc;
+        HR( type->GetDesc( &typeDesc ) );
+
+        switch (typeDesc.Class)
+        {
+        case D3D10_SHADER_VARIABLE_CLASS::D3D10_SVC_SCALAR:
+        {
+            switch (typeDesc.Type)
+            {
+            case D3D10_SHADER_VARIABLE_TYPE::D3D10_SVT_BOOL:        return DataType::Boolean;
+            case D3D10_SHADER_VARIABLE_TYPE::D3D10_SVT_INT:         return DataType::Int;
+            case D3D10_SHADER_VARIABLE_TYPE::D3D10_SVT_FLOAT:       return DataType::Float;
+            case D3D10_SHADER_VARIABLE_TYPE::D3D11_SVT_DOUBLE:      return DataType::Double;
+            }
+            break;
+        }
+        case D3D10_SHADER_VARIABLE_CLASS::D3D10_SVC_OBJECT:
+        {
+            switch (typeDesc.Type)
+            {
+            case D3D10_SHADER_VARIABLE_TYPE::D3D10_SVT_TEXTURE1D:   return DataType::Texture1D;
+            case D3D10_SHADER_VARIABLE_TYPE::D3D10_SVT_TEXTURE2D:   return DataType::Texture2D;
+            case D3D10_SHADER_VARIABLE_TYPE::D3D10_SVT_TEXTURE3D:   return DataType::Texture3D;
+            case D3D10_SHADER_VARIABLE_TYPE::D3D10_SVT_TEXTURECUBE: return DataType::TextureCubemap;
+            }
+        }
+        case D3D10_SHADER_VARIABLE_CLASS::D3D10_SVC_VECTOR:
+        {
+            if (typeDesc.Columns == 2 || typeDesc.Rows == 2)        return DataType::Vec2;
+            else if(typeDesc.Columns == 3 || typeDesc.Rows == 3)    return DataType::Vec3;
+            else if(typeDesc.Columns == 4 || typeDesc.Rows == 4)    return DataType::Vec4;
+            break;
+        }
+        case D3D10_SHADER_VARIABLE_CLASS::D3D10_SVC_STRUCT:
+            return DataType::Struct;
+        case D3D10_SHADER_VARIABLE_CLASS::D3D10_SVC_MATRIX_ROWS:
+        case D3D10_SHADER_VARIABLE_CLASS::D3D10_SVC_MATRIX_COLUMNS:
+            return DataType::Matrix;
+        }
+
+        ASSERT( false && "Variable type could not be deduced." );
+        return DataType::Unknown;
     }
 
 

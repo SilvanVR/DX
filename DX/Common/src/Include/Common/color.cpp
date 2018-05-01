@@ -61,6 +61,23 @@ Color::Color( U32 color )
 }
 
 //---------------------------------------------------------------------------
+Color::Color( const String& hex )
+{
+    if (hex[0] != '#' || (hex.size() != 7 && hex.size() != 9))
+    {
+        // String is not a valid hex number
+        *this = Color::WHITE;
+    }
+    else
+    {
+        setRed(   (Byte)_HexToRGB( hex.substr( 1, 2 ) ) );
+        setGreen( (Byte)_HexToRGB( hex.substr( 3, 2 ) ) );
+        setBlue(  (Byte)_HexToRGB( hex.substr( 5, 2 ) ) );
+        hex.size() != 9 ? setAlpha( 255 ) : setAlpha( (Byte)_HexToRGB( hex.substr( 7, 2 ) ) );
+    }
+}
+
+//---------------------------------------------------------------------------
 Color::Color( Byte r, Byte g, Byte b, Byte a )
 {
     setRGBA( r, g, b, a );
@@ -169,6 +186,10 @@ String Color::toString( bool includeAlpha ) const
     return result;
 }
 
+//**********************************************************************
+// PUBLIC - STATIC
+//**********************************************************************
+
 //---------------------------------------------------------------------------
 Color Color::Lerp( Color a, Color b, F32 lerp )
 {
@@ -176,4 +197,26 @@ Color Color::Lerp( Color a, Color b, F32 lerp )
                  Byte( a.getGreen()   * (1.0f - lerp) + b.getGreen()  * lerp + 0.5f ) ,
                  Byte( a.getBlue()    * (1.0f - lerp) + b.getBlue()   * lerp + 0.5f ) ,
                  Byte( a.getAlpha()   * (1.0f - lerp) + b.getAlpha()  * lerp + 0.5f ) );
+}
+
+//**********************************************************************
+// PRIVATE
+//**********************************************************************
+
+//---------------------------------------------------------------------------
+F32 Color::_HexToRGB( const String& hex )
+{
+    F32 dec = 0;
+    for (I32 charIndex = 0; charIndex < hex.size(); charIndex++)
+    {
+        char c = hex[charIndex];
+
+        if (c >= 48 && c <= 57)
+            c -= 48;
+        else if (c >= 65 && c <= 70)
+            c -= 55;
+
+        dec += c * powf( 16.0f, ( ( (F32)hex.size() - charIndex ) - 1) );
+    }
+    return dec;
 }

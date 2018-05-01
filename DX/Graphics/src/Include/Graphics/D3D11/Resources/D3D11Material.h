@@ -93,6 +93,7 @@ namespace Graphics { namespace D3D11 {
         //----------------------------------------------------------------------
         void _CreateConstantBuffers();
         bool _UpdateConstantBuffer(StringID name, const void* pData, Size sizeInBytes);
+        void _UpdateTypeMap();
 
         //----------------------------------------------------------------------
         Material(const Material& other)               = delete;

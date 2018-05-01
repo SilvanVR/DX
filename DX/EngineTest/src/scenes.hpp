@@ -343,7 +343,7 @@ public:
         grid->addComponent<GridGeneration>(20);
 
         // MESH
-        auto sphere = Assets::MeshGenerator::CreateCubeUV();
+        auto sphere = Assets::MeshGenerator::CreateCubeUV(1000.0f);
 
         // SHADER
         auto texShader = ASSETS.getShader( "/shaders/skybox.shader" );
