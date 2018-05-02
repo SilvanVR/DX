@@ -33,6 +33,8 @@ namespace Graphics { namespace D3D11 {
         bool                isUpToDate() override;
         ArrayList<OS::Path> getShaderPaths() const override;
         const VertexLayout& getVertexLayout() const override;
+        DataType            getDataTypeOfProperty(StringID name) const override;
+        DataType            getDataTypeOfMaterialProperty(StringID name) const override;
 
         void setRasterizationState(const RasterizationState& rzState) override;
         void setDepthStencilState(const DepthStencilState& dsState) override;

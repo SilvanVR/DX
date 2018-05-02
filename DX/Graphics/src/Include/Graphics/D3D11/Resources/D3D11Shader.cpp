@@ -143,6 +143,46 @@ namespace Graphics { namespace D3D11 {
         return m_pVertexShader->getVertexLayout(); 
     }
 
+    //----------------------------------------------------------------------
+    DataType Shader::getDataTypeOfProperty( StringID name ) const
+    {
+        // Query each shader for the given property
+        DataType type1 = m_pVertexShader->getDataTypeOfProperty( name );
+        DataType type2 = m_pPixelShader->getDataTypeOfProperty( name );
+
+        // Issue a warning if property does exist in more than one shader
+        if (type1 != DataType::Unknown && type2 != DataType::Unknown)
+            LOG_WARN_RENDERING( "Shader::getDataTypeOfProperty(): Property name '" + name.toString() + "' exists in more than one shader." );
+
+        if (type1 != DataType::Unknown)
+            return type1;
+        else if (type2 != DataType::Unknown)
+            return type2;
+
+        // Not found
+        return DataType::Unknown;
+    }
+
+    //----------------------------------------------------------------------
+    DataType Shader::getDataTypeOfMaterialProperty( StringID name ) const
+    {
+        // Query each shader for the given property
+        DataType type1 = m_pVertexShader->getDataTypeOfMaterialProperty( name );
+        DataType type2 = m_pPixelShader->getDataTypeOfMaterialProperty( name );
+
+        // Issue a warning if property does exist in more than one shader
+        if (type1 != DataType::Unknown && type2 != DataType::Unknown)
+            LOG_WARN_RENDERING( "Shader::getDataTypeOfMaterialProperty(): Property name '" + name.toString() + "' exists in more than one shader." );
+
+        if (type1 != DataType::Unknown)
+            return type1;
+        else if (type2 != DataType::Unknown)
+            return type2;
+
+        // Not found
+        return DataType::Unknown;
+    }
+
     //**********************************************************************
     // PRIVATE
     //**********************************************************************

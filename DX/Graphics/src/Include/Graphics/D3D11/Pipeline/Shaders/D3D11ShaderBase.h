@@ -54,6 +54,7 @@ namespace Graphics { namespace D3D11 {
         CString                                         getEntryPoint() const { return m_entryPoint.c_str(); }
         bool                                            recompile();
         const HashMap<StringID, TextureBindingInfo>&    getTextureBindingInfos() const { return m_textures; }
+        const HashMap<StringID, ConstantBufferInfo>&    getConstantBufferBindings() const { return m_constantBuffers; }
 
         //----------------------------------------------------------------------
         // @Return:
@@ -80,6 +81,18 @@ namespace Graphics { namespace D3D11 {
         //  texture info with name "name". Nullptr if not existent.
         //----------------------------------------------------------------------
         const TextureBindingInfo*   getTextureBindingInfo(StringID name) const;
+
+        //----------------------------------------------------------------------
+        // @Return:
+        //  Datatype of a given property name. Unknown if property does not exist.
+        //----------------------------------------------------------------------
+        DataType getDataTypeOfProperty(StringID name);
+
+        //----------------------------------------------------------------------
+        // @Return:
+        //  Datatype of a given property name. Unknown if property does not exist.
+        //----------------------------------------------------------------------
+        DataType getDataTypeOfMaterialProperty(StringID name);
 
     protected:
         ID3DBlob*                               m_pShaderBlob           = nullptr;

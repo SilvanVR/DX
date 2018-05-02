@@ -15,6 +15,8 @@
 
 class TestScene : public IScene
 {
+    MaterialPtr mat;
+
 public:
     TestScene() : IScene("TestScene") {}
 
@@ -31,8 +33,10 @@ public:
         auto mesh = Core::Assets::MeshGenerator::CreateCubeUV();
         mesh->setColors(cubeColors);
 
+        mat = ASSETS.getMaterial("/materials/texture.material");
+
         auto go2 = createGameObject("Obj");
-        go2->addComponent<Components::MeshRenderer>(mesh, ASSETS.getMaterial("/materials/texture.material"));
+        go2->addComponent<Components::MeshRenderer>(mesh, mat);
 
 
         LOG("TestScene initialized!", Color::RED);
@@ -40,6 +44,7 @@ public:
 
     void tick(Time::Seconds d) override
     {
+        mat->setFloat("mix", (sin(TIME.getTime().value * (F64)d * 50) + 1) * 0.5f);
     }
 
     void shutdown() override { LOG("TestScene Shutdown!", Color::RED); }

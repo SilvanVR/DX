@@ -80,6 +80,66 @@ namespace Graphics { namespace D3D11 {
         return false;
     }
 
+    //----------------------------------------------------------------------
+    DataType ShaderBase::getDataTypeOfProperty( StringID name )
+    {
+        // Check constant buffers first
+        DataType type1 = DataType::Unknown;
+        for ( auto& cb : m_constantBuffers )
+            for ( auto& member : cb.second.members )
+                if (member.name == name)
+                    type1 = member.type;
+
+        // Check textures second
+        DataType type2 = DataType::Unknown;
+        for (auto& pair : m_textures)
+            if (pair.first == name)
+                type2 = pair.second.type;
+
+        // Issue a warning if property does exist as a buffer member and a texture
+        if (type1 != DataType::Unknown && type2 != DataType::Unknown)
+            LOG_WARN_RENDERING( "ShaderBase::getDataTypeOfProperty(): Property name '" + name.toString() + "' exists as a texture and a buffer member. "
+                                "This can lead to problems. Please rename one of it." );
+
+        if (type1 != DataType::Unknown)
+            return type1;
+        else if (type2 != DataType::Unknown)
+            return type2;
+
+        return DataType::Unknown;
+    }
+
+    //----------------------------------------------------------------------
+    DataType ShaderBase::getDataTypeOfMaterialProperty( StringID name )
+    {
+        // Check constant buffers first
+        DataType type1 = DataType::Unknown;
+        if ( auto materialBuffer = getMaterialBufferInfo() )
+        {
+            for ( auto& member : materialBuffer->members )
+                if (member.name == name)
+                    type1 = member.type;
+        }
+
+        // Check textures second
+        DataType type2 = DataType::Unknown;
+        for (auto& pair : m_textures)
+            if (pair.first == name)
+                type2 = pair.second.type;
+
+        // Issue a warning if property does exist as a buffer member and a texture
+        if (type1 != DataType::Unknown && type2 != DataType::Unknown)
+            LOG_WARN_RENDERING( "ShaderBase::getDataTypeOfMaterialProperty(): Property name '" + name.toString() + "' exists as a texture and a buffer member. "
+                                "This can lead to problems. Please rename one of it." );
+
+        if (type1 != DataType::Unknown)
+            return type1;
+        else if (type2 != DataType::Unknown)
+            return type2;
+
+        return DataType::Unknown;
+    }
+
     //**********************************************************************
     // PRIVATE
     //**********************************************************************

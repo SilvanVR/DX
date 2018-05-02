@@ -62,7 +62,7 @@ namespace Graphics {
         inline void setVec4(CString name, const Math::Vec4& vec)            { setVec4(SID(name), vec); }
         inline void setMatrix(CString name, const DirectX::XMMATRIX& matrix){ setMatrix(SID(name), matrix); }
         inline void setColor(CString name, Color color)                     { setColor(SID(name), color); }
-        inline void setTexture(CString name, const TexturePtr& tex)                { setTexture(SID(name), tex); }
+        inline void setTexture(CString name, const TexturePtr& tex)         { setTexture(SID(name), tex); }
 
     protected:
         ShaderPtr   m_shader = nullptr;
@@ -75,22 +75,22 @@ namespace Graphics {
         HashMap<StringID, DirectX::XMMATRIX>            m_matrixMap;
         HashMap<StringID, TexturePtr>                   m_textureMap;
 
-        // Stores which property exist along his type
-        HashMap<StringID, DataType>                     m_typeMap;
 
         // Each API should decide themselves how to efficiently update their data
-        // @Return:
-        //  True, if the uniform/resource exists in the materials shader.
-        virtual bool _SetInt(StringID name, I32 val) = 0;
-        virtual bool _SetFloat(StringID name, F32 val) = 0;
-        virtual bool _SetVec4(StringID name, const Math::Vec4& vec) = 0;
-        virtual bool _SetMatrix(StringID name, const DirectX::XMMATRIX& matrix) = 0;
-        virtual bool _SetTexture(StringID name, TexturePtr texture) = 0;
+        virtual void _SetInt(StringID name, I32 val) = 0;
+        virtual void _SetFloat(StringID name, F32 val) = 0;
+        virtual void _SetVec4(StringID name, const Math::Vec4& vec) = 0;
+        virtual void _SetMatrix(StringID name, const DirectX::XMMATRIX& matrix) = 0;
+        virtual void _SetTexture(StringID name, const TexturePtr& texture) = 0;
 
     private:
         //----------------------------------------------------------------------
         friend class D3D11Renderer;
         virtual void bind() = 0;
+
+        //----------------------------------------------------------------------
+        // This function should recreate the necessary buffers
+        //----------------------------------------------------------------------
         virtual void _ChangedShader() = 0;
 
         //----------------------------------------------------------------------

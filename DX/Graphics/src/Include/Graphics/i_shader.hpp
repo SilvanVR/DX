@@ -66,7 +66,7 @@ namespace Graphics {
         //virtual bool compileTessellationShaderFromSource(const String& src, CString entryPoint) = 0;
 
         //----------------------------------------------------------------------
-        // Recompile all shaders which are not up to date.
+        // Recompile all shaders which are not up to date. Does nothing if shader was compiled from source.
         // @Return:
         //  List of shader paths, which were recompiled.
         //----------------------------------------------------------------------
@@ -92,9 +92,22 @@ namespace Graphics {
         virtual void setBlendState(const BlendState& bState ) = 0;
 
         //----------------------------------------------------------------------
-        // Return the vertex layout from the attached vertex-shader.
+        // @Return:
+        //  The vertex layout from the attached vertex-shader.
         //----------------------------------------------------------------------
         virtual const VertexLayout& getVertexLayout() const = 0;
+
+        //----------------------------------------------------------------------
+        // @Return:
+        //  The datatype of a property in this shader. Unknown if property does not exist.
+        //----------------------------------------------------------------------
+        virtual DataType getDataTypeOfProperty(StringID name) const = 0;
+
+        //----------------------------------------------------------------------
+        // @Return:
+        //  The datatype of a material property in this shader. Unknown if property does not exist.
+        //----------------------------------------------------------------------
+        virtual DataType getDataTypeOfMaterialProperty(StringID name) const = 0;
 
         //----------------------------------------------------------------------
         // @Return:
@@ -110,7 +123,7 @@ namespace Graphics {
         //----------------------------------------------------------------------
         // Convenvience function for enabling the standard alpha blending
         //----------------------------------------------------------------------
-        void enableAlphaBlending( bool alphaToCoverage = false )
+        void enableAlphaBlending(bool alphaToCoverage = false)
         {
             Graphics::BlendState blendState;
             blendState.alphaToCoverage = alphaToCoverage;
@@ -131,14 +144,17 @@ namespace Graphics {
         //----------------------------------------------------------------------
         void setPriority(U32 newPriority) { m_priority = newPriority; }
 
+        //----------------------------------------------------------------------
+        // @Return:
+        //  True if the property exists and is considered to be part of the material.
+        //----------------------------------------------------------------------
+        bool hasMaterialProperty(StringID name) { return getDataTypeOfMaterialProperty( name ) != DataType::Unknown; }
+
     protected:
-        // These are only used when configured correctly
+        // These are only used when blending is enabled
         std::array<F32, 4>  m_blendFactors  = { 1.0f, 1.0f, 1.0f, 1.0f };
         String              m_name          = "NO NAME";
         U32                 m_priority      = DEFAULT_PRIORITY;
-
-        // Stores which property exist along his type
-        //HashMap<StringID, DataType> m_typeMap;
 
     private:
         //----------------------------------------------------------------------

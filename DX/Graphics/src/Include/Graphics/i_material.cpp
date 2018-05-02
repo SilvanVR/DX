@@ -15,8 +15,7 @@ namespace Graphics {
         if (m_shader == shader)
             return;
 
-        m_shader = shader; 
-        m_typeMap.clear();
+        m_shader = shader;
         m_intMap.clear();
         m_floatMap.clear();
         m_vec4Map.clear();
@@ -95,10 +94,10 @@ namespace Graphics {
     //----------------------------------------------------------------------
     DataType IMaterial::getDataType( StringID name ) const
     {
-        if ( m_typeMap.find( name ) != m_typeMap.end() )
-            return m_typeMap.at( name );
+        if (m_shader == nullptr)
+            return DataType::Unknown;
 
-        return DataType::Unknown;
+        return m_shader->getDataTypeOfMaterialProperty( name );
     }
 
     //**********************************************************************
@@ -108,57 +107,81 @@ namespace Graphics {
     //----------------------------------------------------------------------
     void IMaterial::setInt( StringID name, I32 val )
     { 
-        if ( _SetInt( name, val ) )
-            m_intMap[ name ] = val;
-        else
+        if ( not m_shader->hasMaterialProperty( name ) )
+        {
             LOG_WARN_RENDERING( "Material::setInt(): Name '" + name.toString() + "' does not exist in shader '" + m_shader->getName() + "'" );
+            return;
+        }
+
+        m_intMap[ name ] = val;
+        _SetInt( name, val ); 
     }
 
     //----------------------------------------------------------------------
     void IMaterial::setFloat( StringID name, F32 val )
     { 
-        if ( _SetFloat( name, val ) )
-            m_floatMap[ name ] = val;
-        else
+        if ( not m_shader->hasMaterialProperty( name ) )
+        {
             LOG_WARN_RENDERING( "Material::setFloat(): Name '" + name.toString() + "' does not exist in shader '" + m_shader->getName() + "'" );
+            return;
+        }
+
+        m_floatMap[ name ] = val;
+        _SetFloat( name, val );
     }
 
     //----------------------------------------------------------------------
     void IMaterial::setVec4( StringID name, const Math::Vec4& vec )
     { 
-        if ( _SetVec4( name, vec ) )
-            m_vec4Map[ name ] = vec; 
-        else
+        if ( not m_shader->hasMaterialProperty( name ) )
+        {
             LOG_WARN_RENDERING( "Material::setVec4(): Name '" + name.toString() + "' does not exist in shader '" + m_shader->getName() + "'" );
+            return;
+        }
+
+        m_vec4Map[ name ] = vec;
+        _SetVec4( name, vec );
     }
 
     //----------------------------------------------------------------------
     void IMaterial::setMatrix( StringID name, const DirectX::XMMATRIX& matrix )
     { 
-        if ( _SetMatrix( name, matrix ) )
-            m_matrixMap[ name ] = matrix;
-        else
+        if ( not m_shader->hasMaterialProperty( name ) )
+        {
             LOG_WARN_RENDERING( "Material::setMatrix(): Name '" + name.toString() + "' does not exist in shader '" + m_shader->getName() + "'" );
+            return;
+        }
+
+        m_matrixMap[ name ] = matrix;
+        _SetMatrix( name, matrix ); 
     }
 
     //----------------------------------------------------------------------
     void IMaterial::setColor( StringID name, Color color )
     { 
+        if ( not m_shader->hasMaterialProperty( name ) )
+        {
+            LOG_WARN_RENDERING( "Material::setColor(): Name '" + name.toString() + "' does not exist in shader '" + m_shader->getName() + "'" );
+            return;
+        }
+
         auto normalized = color.normalized();
         Math::Vec4 colorAsVec( normalized[0], normalized[1], normalized[2], normalized[3] );
-        if ( _SetVec4( name, colorAsVec ) )
-            m_vec4Map[ name ] = colorAsVec;
-        else
-            LOG_WARN_RENDERING( "Material::setColor(): Name '" + name.toString() + "' does not exist in shader '" + m_shader->getName() + "'" );
+        m_vec4Map[ name ] = colorAsVec;
+        _SetVec4( name, colorAsVec );
     }
 
     //----------------------------------------------------------------------
     void IMaterial::setTexture( StringID name, const TexturePtr& texture )
     { 
-        if ( _SetTexture( name, texture ) )
-            m_textureMap[ name ] = texture;
-        else
+        if ( not m_shader->hasMaterialProperty( name ) )
+        {
             LOG_WARN_RENDERING( "Material::setTexture(): Name '" + name.toString() + "' does not exist in shader '" + m_shader->getName() + "'" );
+            return;
+        }
+
+        m_textureMap[ name ] = texture;
+        _SetTexture( name, texture );
     }
 
 } // End namespaces

@@ -77,93 +77,57 @@ namespace Graphics { namespace D3D11 {
     void Material::_ChangedShader()
     {
         m_textureCache.clear();
-        _UpdateTypeMap();
         _CreateConstantBuffers();
     }
-
-    //----------------------------------------------------------------------
-    void Material::_UpdateTypeMap()
-    {
-        // Query all datatypes from shaders and add it to the typemap
-        auto d3d11Shader = reinterpret_cast<Shader*>( m_shader.get() );
-        if ( auto cb = d3d11Shader->getVertexShader()->getMaterialBufferInfo() )
-        {
-            for (auto& mem : cb->members)
-                m_typeMap[mem.name] = mem.type;
-        }
-
-        if ( auto cb = d3d11Shader->getPixelShader()->getMaterialBufferInfo() )
-        {
-            for (auto& mem : cb->members)
-                m_typeMap[mem.name] = mem.type;
-        }
-
-        auto texBindings = d3d11Shader->getVertexShader()->getTextureBindingInfos();
-        for (auto& pair : texBindings)
-            m_typeMap[pair.first] = pair.second.type;
-
-        texBindings = d3d11Shader->getPixelShader()->getTextureBindingInfos();
-        for (auto& pair : texBindings)
-            m_typeMap[pair.first] = pair.second.type;
-    }
-
 
     //**********************************************************************
     // PUBLIC
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    bool Material::_SetTexture( StringID name, TexturePtr texture )
+    void Material::_SetTexture( StringID name, const TexturePtr& texture )
     {
         auto d3d11Shader = dynamic_cast<Shader*>( m_shader.get() );
 
         // VERTEX SHADER
         if ( auto binding = d3d11Shader->getVertexShader()->getTextureBindingInfo( name ) )
         {
-            if ( m_textureMap.find( name ) != m_textureMap.end() )
-            {
-                // Update texture slot
-                for (auto& entry : m_textureCache)
-                    if (entry.bindSlot == binding->slot)
-                        entry.texture = dynamic_cast<D3D11::IBindableTexture*>( texture.get() );
-            }
-            else
-            {
-                // Texture slot was set for the first time
-                TextureCache texCache;
-                texCache.bindSlot = binding->slot;
-                texCache.shaderType = ShaderType::Vertex;
-                texCache.texture  = dynamic_cast<D3D11::IBindableTexture*>( texture.get() );
+            // Update texture slot if possible
+            for (auto& entry : m_textureCache)
+                if (entry.bindSlot == binding->slot)
+                {
+                    entry.texture = dynamic_cast<D3D11::IBindableTexture*>( texture.get() );
+                    return;
+                }
 
-                m_textureCache.emplace_back( texCache );
-            }
-            return true;
+            // Texture slot was set for the first time
+            TextureCache texCache;
+            texCache.bindSlot = binding->slot;
+            texCache.shaderType = ShaderType::Vertex;
+            texCache.texture = dynamic_cast<D3D11::IBindableTexture*>( texture.get() );
+
+            m_textureCache.emplace_back( texCache );
         }
 
         // PIXEL SHADER
         if ( auto binding = d3d11Shader->getPixelShader()->getTextureBindingInfo( name ) )
         {
-            if ( m_textureMap.find( name ) != m_textureMap.end() )
-            {
-                // Update texture slot
-                for (auto& entry : m_textureCache)
-                    if (entry.bindSlot == binding->slot)
-                        entry.texture = dynamic_cast<D3D11::IBindableTexture*>( texture.get() );
-            }
-            else
-            {
-                // Texture slot was set for the first time
-                TextureCache texCache;
-                texCache.bindSlot = binding->slot;
-                texCache.shaderType = ShaderType::Fragment;
-                texCache.texture  = dynamic_cast<D3D11::IBindableTexture*>( texture.get() );
+            // Update texture slot if possible
+            for (auto& entry : m_textureCache)
+                if (entry.bindSlot == binding->slot)
+                {
+                    entry.texture = dynamic_cast<D3D11::IBindableTexture*>( texture.get() );
+                    return;
+                }
+      
+            // Texture slot was set for the first time
+            TextureCache texCache;
+            texCache.bindSlot = binding->slot;
+            texCache.shaderType = ShaderType::Fragment;
+            texCache.texture = dynamic_cast<D3D11::IBindableTexture*>( texture.get() );
 
-                m_textureCache.emplace_back( texCache );
-            }
-            return true;
+            m_textureCache.emplace_back( texCache );
         }
-
-        return false;
     }
 
     //**********************************************************************
@@ -185,20 +149,17 @@ namespace Graphics { namespace D3D11 {
     }
  
     //----------------------------------------------------------------------
-    bool Material::_UpdateConstantBuffer( StringID name, const void* pData, Size sizeInBytes )
+    void Material::_UpdateConstantBuffer( StringID name, const void* pData, Size sizeInBytes )
     {
         auto d3d11Shader = reinterpret_cast<Shader*>( m_shader.get() );
-        
+
         // Check if uniform is in vertex-shader
         if ( auto cb = d3d11Shader->getVertexShader()->getMaterialBufferInfo() )
         {
             for (auto& mem : cb->members)
             {
                 if (mem.name == name)
-                {
                     m_materialDataVS.push( mem.offset, pData, sizeInBytes );
-                    return true;
-                }
             }
         }
 
@@ -208,14 +169,9 @@ namespace Graphics { namespace D3D11 {
             for (auto& mem : cb->members)
             {
                 if (mem.name == name)
-                {
                     m_materialDataPS.push( mem.offset, pData, sizeInBytes );
-                    return true;
-                }
             }
         }
-
-        return false;
     }
 
 } } // End namespaces

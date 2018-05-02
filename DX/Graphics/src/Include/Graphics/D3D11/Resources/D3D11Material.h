@@ -64,11 +64,11 @@ namespace Graphics { namespace D3D11 {
         //----------------------------------------------------------------------
         // IMaterial Interface
         //----------------------------------------------------------------------
-        bool _SetInt(StringID name, I32 val)                            override { return _UpdateConstantBuffer( name, &val, sizeof( val ) ); }
-        bool _SetFloat(StringID name, F32 val)                          override { return _UpdateConstantBuffer( name, &val, sizeof( val ) ); }
-        bool _SetVec4(StringID name, const Math::Vec4& vec)             override { return _UpdateConstantBuffer( name, &vec, sizeof( vec ) ); }
-        bool _SetMatrix(StringID name, const DirectX::XMMATRIX& matrix) override { return _UpdateConstantBuffer( name, &matrix, sizeof( matrix ) ); }
-        bool _SetTexture(StringID name, TexturePtr texture) override;
+        void _SetInt(StringID name, I32 val)                            override { _UpdateConstantBuffer(name, &val, sizeof(val)); }
+        void _SetFloat(StringID name, F32 val)                          override { _UpdateConstantBuffer(name, &val, sizeof(val)); }
+        void _SetVec4(StringID name, const Math::Vec4& vec)             override { _UpdateConstantBuffer(name, &vec, sizeof(vec)); }
+        void _SetMatrix(StringID name, const DirectX::XMMATRIX& matrix) override { _UpdateConstantBuffer(name, &matrix, sizeof(matrix)); }
+        void _SetTexture(StringID name, const TexturePtr& texture) override;
 
     private:
         // Contains the material data in a contiguous block of memory. Will be empty if not used for a shader.
@@ -92,8 +92,7 @@ namespace Graphics { namespace D3D11 {
 
         //----------------------------------------------------------------------
         void _CreateConstantBuffers();
-        bool _UpdateConstantBuffer(StringID name, const void* pData, Size sizeInBytes);
-        void _UpdateTypeMap();
+        void _UpdateConstantBuffer(StringID name, const void* pData, Size sizeInBytes);
 
         //----------------------------------------------------------------------
         Material(const Material& other)               = delete;
