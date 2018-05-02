@@ -28,7 +28,7 @@ namespace Core { namespace Resources {
 
     const static CString SHADER_DEFAULT_NAME    = "DEFAULT";
     const static CString SHADER_WIREFRAME_NAME  = "WIREFRAME";
-    const static CString SHADER_ERROR_NAME      = "LOG_ERROR";
+    const static CString SHADER_ERROR_NAME      = "ERROR";
     const static CString SHADER_COLOR_NAME      = "COLOR";
 
     //*********************************************************************

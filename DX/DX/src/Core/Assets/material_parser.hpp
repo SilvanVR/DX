@@ -43,8 +43,6 @@ namespace Core { namespace Assets {
         static void UpdateMaterial( MaterialPtr material, const OS::Path& filePath )
         {
             OS::File file( filePath );
-            if ( not file.exists() )
-                throw std::runtime_error( "File does not exist or couldn't be opened." );
 
             JSON json;
             try {
@@ -62,7 +60,7 @@ namespace Core { namespace Assets {
 
                 // Set shader. Will be loaded if not already loaded.
                 material->setShader( ASSETS.getShader( path ) );
-                json.erase("shader");
+                json.erase( "shader" );
             }
 
             // Now parse all fields and set material data

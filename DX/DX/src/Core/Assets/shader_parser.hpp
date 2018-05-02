@@ -119,8 +119,6 @@ namespace Core { namespace Assets {
         static inline std::array<String, NUM_SHADER_TYPES> _SplitShaderFile( const OS::Path& filePath )
         {
             OS::File file( filePath, OS::EFileMode::READ );
-            if ( not file.exists() )
-                throw std::runtime_error( "File does not exist or could not be opened." );
 
             Graphics::ShaderType type = Graphics::ShaderType::Unknown;
             std::array<String, NUM_SHADER_TYPES> shaderSources;
@@ -141,11 +139,14 @@ namespace Core { namespace Assets {
                 else if ( line.find( INCLUDE_NAME ) != String::npos)
                 {
                     auto includeFilePath = StringUtils::substringBetween( line, '\"', '\"' );
-                    OS::File includeFile( filePath.getDirectoryPath() + includeFilePath );
-                    if ( not includeFile.exists() )
-                        LOG_WARN( "Could not include file '" + includeFilePath + "' in shader-file '" + filePath.toString() + "'." );
-                    else
+                    try
+                    {
+                        OS::File includeFile( filePath.getDirectoryPath() + includeFilePath );
                         shaderSources[(I32)type + 1].append( includeFile.readAll() );
+                    }
+                    catch (const std::runtime_error& e) {
+                        LOG_WARN( "Could not include file '" + includeFilePath + "' in shader-file '" + filePath.toString() + "'. Reason: " + e.what() );
+                    }
                 }
                 else
                 {

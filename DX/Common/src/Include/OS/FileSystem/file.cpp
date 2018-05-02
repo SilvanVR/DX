@@ -32,13 +32,10 @@ namespace OS {
 
     //----------------------------------------------------------------------
     File::File( const Path& path, EFileMode mode, bool binary )
-        : m_filePath( path ), m_exists( _FileExists( m_filePath.c_str() ) ),
+        : m_filePath( path ),
           m_binary( binary ), m_mode( mode )
     {
-        if (m_exists)
-        {
-            _OpenFile( m_mode, m_binary );
-        }
+        open( path, mode );
     }
 
     //----------------------------------------------------------------------
@@ -51,7 +48,7 @@ namespace OS {
     }
 
     //----------------------------------------------------------------------
-    bool File::open( const Path& path, EFileMode mode)
+    void File::open( const Path& path, EFileMode mode)
     {
         ASSERT( not m_exists && "File was already opened!" );
 
@@ -59,7 +56,11 @@ namespace OS {
         m_exists    = _FileExists( m_filePath.c_str() );
         m_mode      = mode;
 
-        return _OpenFile( m_mode, m_binary );
+        if ( not m_exists )
+            throw std::runtime_error( "File '" + path.toString() + "' could not be opened, because it doesn't exist." );
+
+        if ( not _OpenFile( m_mode, m_binary ) )
+            throw std::runtime_error( "File '" + path.toString() + "' could not be opened due to unknown reasons." );
     }
 
     //----------------------------------------------------------------------

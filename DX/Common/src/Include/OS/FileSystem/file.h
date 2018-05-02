@@ -49,6 +49,8 @@ namespace OS {
         // @Params:
         //  "path": Virtual path or Physical path on disk.
         //  "append": Whether add new contents directly to the end of the file.
+        // @Throws:
+        //  std::runtime_error() whether the file could be opened or not.
         //----------------------------------------------------------------------
         explicit File(const Path& path, EFileMode mode = EFileMode::READ_WRITE, bool binary = false);
         virtual ~File();
@@ -57,10 +59,10 @@ namespace OS {
         // @Params:
         //  "path": Virtual path or Physical path on disk.
         //  "append": Whether add new contents directly to the end of the file.
-        // @Return:
-        //  "Whether opening the file succeeded or not.
+        // @Throws:
+        //  std::runtime_error() whether the file could be opened or not.
         //----------------------------------------------------------------------
-        bool open(const Path& path, EFileMode mode = EFileMode::READ_WRITE);
+        void open(const Path& path, EFileMode mode = EFileMode::READ_WRITE);
 
         //----------------------------------------------------------------------
         // Close the file manually
