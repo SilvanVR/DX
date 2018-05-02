@@ -1,6 +1,6 @@
 {
 
-"shader" : "color",
+"shader" : "test",
 "color" : "#FFFFFF",
 "tex" : "nico.jpg",
 "Cubemap" : { "posX" : "tropical_sunny_day/Left.png",

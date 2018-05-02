@@ -17,7 +17,7 @@ public:
         go = createGameObject("Camera");
         cam = go->addComponent<Components::Camera>();
         go->getComponent<Components::Transform>()->position = Math::Vec3(0,0,-10);
-        go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 10.0f, 0.3f);
+        go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA);
         go->addComponent<Components::AudioListener>();
 
         clip = ASSETS.getAudioClip( "/audio/doki.wav" );
