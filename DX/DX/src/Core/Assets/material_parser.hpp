@@ -44,6 +44,7 @@ namespace Core { namespace Assets {
         {
             OS::File file( filePath );
 
+            // Parse json file
             JSON json;
             try {
                 json = JSON::parse( file.readAll() );
@@ -55,11 +56,9 @@ namespace Core { namespace Assets {
             auto shader = json.find( "shader" );
             if ( shader != json.end() )
             {
-                String shaderName = shader.value();
-                OS::Path path( "/shaders/" + shaderName + ".shader" );
-
                 // Set shader. Will be loaded if not already loaded.
-                material->setShader( ASSETS.getShader( path ) );
+                String shaderPath = shader.value();
+                material->setShader( ASSETS.getShader( shaderPath ) );
                 json.erase( "shader" );
             }
 
@@ -107,7 +106,7 @@ namespace Core { namespace Assets {
                             material->setColor( propName.c_str(), Color( hex ) );
                         }
                     } catch (...) { // Parsing was unsuccessful
-                        LOG_WARN( "MaterialParser: Could not parse parameter '" + propName + "' as a vec4. Please ensure that it is a valid vec4 or a color in hex format." );
+                        LOG_WARN( "MaterialParser: Could not parse parameter '" + propName + "' as a vec4 or color. Please ensure that it is a valid vec4 or color in hex format." );
                     }
                     break;
                 }
@@ -116,7 +115,7 @@ namespace Core { namespace Assets {
                     try
                     {
                         String path = it.value();
-                        material->setTexture( propName.c_str(), ASSETS.getTexture2D( "/textures/" + path ) );
+                        material->setTexture( propName.c_str(), ASSETS.getTexture2D( path ) );
                     } catch (...) { // Parsing was unsuccessful
                         LOG_WARN( "MaterialParser: Could not parse string for parameter '" + propName + "' (Tex2D). Please ensure that its a valid string." );
                     }
@@ -128,16 +127,16 @@ namespace Core { namespace Assets {
                     {
                         auto paths = it.value();
 
-                        OS::Path posX = "/cubemaps/" + paths["posX"].get<String>();
-                        OS::Path negX = "/cubemaps/" + paths["negX"].get<String>();
-                        OS::Path posY = "/cubemaps/" + paths["posY"].get<String>();
-                        OS::Path negY = "/cubemaps/" + paths["negY"].get<String>();
-                        OS::Path posZ = "/cubemaps/" + paths["posZ"].get<String>();
-                        OS::Path negZ = "/cubemaps/" + paths["negZ"].get<String>();
+                        OS::Path posX = paths["posX"].get<String>();
+                        OS::Path negX = paths["negX"].get<String>();
+                        OS::Path posY = paths["posY"].get<String>();
+                        OS::Path negY = paths["negY"].get<String>();
+                        OS::Path posZ = paths["posZ"].get<String>();
+                        OS::Path negZ = paths["negZ"].get<String>();
                         material->setTexture( propName.c_str(), ASSETS.getCubemap( posX, negX, posY, negY, posZ, negZ ) );
                     }
                     catch (...) { // Parsing was unsuccessful
-                        LOG_WARN("MaterialParser: Could not parse strings for parameter '" + propName + "' (Cubemap). Please ensure that they are valid strings.");
+                        LOG_WARN( "MaterialParser: Could not parse strings for parameter '" + propName + "' (Cubemap). Please ensure that they are valid strings." );
                     }
                     break;
                 }
@@ -163,24 +162,24 @@ namespace Core { namespace Assets {
         {
             Math::Vec4 result;
       
-            if (value.find("x") != value.end())
+            if ( value.find("x") != value.end() )
                 result.x = value["x"];
-            else if (value.find("r") != value.end())
+            else if ( value.find("r") != value.end() )
                 result.x = value["r"];
 
-            if (value.find("y") != value.end())
+            if ( value.find("y") != value.end() )
                 result.y = value["y"];
-            else if (value.find("g") != value.end())
+            else if ( value.find("g") != value.end() )
                 result.y = value["g"];
 
-            if (value.find("z") != value.end())
+            if ( value.find("z") != value.end() )
                 result.z = value["z"];
-            else if (value.find("b") != value.end())
+            else if ( value.find("b") != value.end() )
                 result.z = value["b"];
 
-            if (value.find("w") != value.end())
+            if ( value.find("w") != value.end() )
                 result.w = value["w"];
-            else if (value.find("a") != value.end())
+            else if ( value.find("a") != value.end() )
                 result.w = value["a"];
 
             return result;

@@ -1,13 +1,13 @@
 {
 
-"shader" : "test",
+"shader" : "/shaders/test.shader",
 "color" : "#FFFFFF",
-"tex" : "nico.jpg",
-"Cubemap" : { "posX" : "tropical_sunny_day/Left.png",
-			  "negX" : "tropical_sunny_day/Right.png",
-              "posY" : "tropical_sunny_day/Up.png",
-			  "negY" : "tropical_sunny_day/Down.png",
-			  "posZ" : "tropical_sunny_day/Front.png",
-			  "negZ" : "tropical_sunny_day/Back.png" }  
+"tex" : "/textures/nico.jpg",
+"Cubemap" : { "posX" : "/cubemaps/tropical_sunny_day/Left.png",
+			  "negX" : "/cubemaps/tropical_sunny_day/Right.png",
+              "posY" : "/cubemaps/tropical_sunny_day/Up.png",
+			  "negY" : "/cubemaps/tropical_sunny_day/Down.png",
+			  "posZ" : "/cubemaps/tropical_sunny_day/Front.png",
+			  "negZ" : "/cubemaps/tropical_sunny_day/Back.png" }
 
 }
