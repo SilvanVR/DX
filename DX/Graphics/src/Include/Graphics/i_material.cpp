@@ -9,8 +9,12 @@
 namespace Graphics {
 
     //----------------------------------------------------------------------
-    void IMaterial::setShader( ShaderPtr shader )
+    void IMaterial::setShader( const ShaderPtr& shader )
     { 
+        ASSERT( shader );
+        if (m_shader == shader)
+            return;
+
         m_shader = shader; 
         m_typeMap.clear();
         m_intMap.clear();
@@ -89,7 +93,7 @@ namespace Graphics {
     }
 
     //----------------------------------------------------------------------
-    DataType IMaterial::getDataType( StringID name )  const
+    DataType IMaterial::getDataType( StringID name ) const
     {
         if ( m_typeMap.find( name ) != m_typeMap.end() )
             return m_typeMap.at( name );
@@ -149,7 +153,7 @@ namespace Graphics {
     }
 
     //----------------------------------------------------------------------
-    void IMaterial::setTexture( StringID name, TexturePtr texture )
+    void IMaterial::setTexture( StringID name, const TexturePtr& texture )
     { 
         if ( _SetTexture( name, texture ) )
             m_textureMap[ name ] = texture;

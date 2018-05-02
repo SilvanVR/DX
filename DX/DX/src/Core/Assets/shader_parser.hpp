@@ -61,7 +61,7 @@ namespace Core { namespace Assets {
         // @Throws:
         //  std::runtime_error if something went wrong.
         //----------------------------------------------------------------------
-        static void UpdateShader( ShaderPtr shader, const OS::Path& filePath )
+        static void UpdateShader( const ShaderPtr& shader, const OS::Path& filePath )
         {
             if ( filePath.getExtension() != "shader" )
                 throw std::runtime_error( "File has wrong extension. Must be '.shader'." );

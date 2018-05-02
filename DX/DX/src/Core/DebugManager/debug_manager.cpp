@@ -30,14 +30,16 @@ namespace Core { namespace Debug {
         evt.addListener( BIND_THIS_FUNC_0_ARGS( &DebugManager::_OnSceneChanged ) );
 
         // Create both shaders with / withot depth-test
-        m_colorShaderWireframe = RESOURCES.createShader( Resources::COLOR_VERTEX_SHADER_SOURCE, Resources::COLOR_FRAGMENT_SHADER_SOURCE );
+        m_colorShaderWireframe = RESOURCES.createShader();
         m_colorShaderWireframe->setName( "DEBUG - DEPTH" );
         m_colorShaderWireframe->setRasterizationState( { Graphics::FillMode::Wireframe, Graphics::CullMode::None } );
+        m_colorShaderWireframe->compileFromSource( Resources::COLOR_VERTEX_SHADER_SOURCE, Resources::COLOR_FRAGMENT_SHADER_SOURCE, "main" );
 
-        m_colorShaderWireframeNoDepthTest = RESOURCES.createShader( Resources::COLOR_VERTEX_SHADER_SOURCE, Resources::COLOR_FRAGMENT_SHADER_SOURCE );
+        m_colorShaderWireframeNoDepthTest = RESOURCES.createShader();
         m_colorShaderWireframeNoDepthTest->setName("DEBUG - NO DEPTH");
         m_colorShaderWireframeNoDepthTest->setRasterizationState( { Graphics::FillMode::Wireframe, Graphics::CullMode::None } );
         m_colorShaderWireframeNoDepthTest->setDepthStencilState( { false } );
+        m_colorShaderWireframeNoDepthTest->compileFromSource( Resources::COLOR_VERTEX_SHADER_SOURCE, Resources::COLOR_FRAGMENT_SHADER_SOURCE, "main" );
 
         // Create material from both shaders
         m_colorMaterial = RESOURCES.createMaterial( m_colorShaderWireframe );

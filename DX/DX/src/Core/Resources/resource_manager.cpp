@@ -23,27 +23,6 @@ namespace Core { namespace Resources {
     void ResourceManager::init()
     {
         _CreateDefaultAssets();
-
-        // HOT-RELOADING CALLBACK
-        Locator::getEngineClock().setInterval([this]{
-
-            // Shader reloading
-            for (auto& shader : m_shaders)
-            {
-                if ( not shader->isUpToDate() )
-                {
-                    auto shaderPaths = shader->recompile();
-
-                    if ( not shaderPaths.empty() )
-                    {
-                        LOG( "ResourceManager: Successfully recompiled shader:", Color::YELLOW );
-                        for ( auto& shaderPath : shaderPaths )
-                            LOG( shaderPath.toString(), Color::YELLOW );
-                    }
-                }
-            }
-
-        }, HOT_RELOAD_INTERVAL_MILLIS);
     }
 
     //----------------------------------------------------------------------
@@ -53,10 +32,16 @@ namespace Core { namespace Resources {
         m_defaultShader.reset();
         m_errorShader.reset();
         m_wireframeShader.reset();
+        m_colorShader.reset();
+
         m_defaultMaterial.reset();
         m_wireframeMaterial.reset();
+        m_colorMaterial.reset();
+
         m_black.reset();
         m_white.reset();
+
+        m_defaultCubemap.reset();
     }
 
     //**********************************************************************
@@ -93,7 +78,7 @@ namespace Core { namespace Resources {
     }
 
     //----------------------------------------------------------------------
-    MaterialPtr ResourceManager::createMaterial( ShaderPtr shader )
+    MaterialPtr ResourceManager::createMaterial( const ShaderPtr& shader )
     {
         auto material = Locator::getRenderer().createMaterial();
         material->setShader( shader ? shader : m_defaultShader );
@@ -117,18 +102,18 @@ namespace Core { namespace Resources {
     //    return ShaderPtr( shader, BIND_THIS_FUNC_1_ARGS( &ResourceManager::_DeleteShader ) );
     //}
 
-    //----------------------------------------------------------------------
-    ShaderPtr ResourceManager::createShader( const String& vertSrc, const String& fragSrc )
-    {
-        auto shader = Locator::getRenderer().createShader();
+    ////----------------------------------------------------------------------
+    //ShaderPtr ResourceManager::createShader( const String& vertSrc, const String& fragSrc )
+    //{
+    //    auto shader = Locator::getRenderer().createShader();
 
-        m_shaders.push_back( shader );
+    //    m_shaders.push_back( shader );
 
-        if ( not shader->compileFromSource( vertSrc, fragSrc, "main" ) )
-            return m_errorShader;
+    //    if ( not shader->compileFromSource( vertSrc, fragSrc, "main" ) )
+    //        return m_errorShader;
 
-        return ShaderPtr( shader, BIND_THIS_FUNC_1_ARGS( &ResourceManager::_DeleteShader ) );
-    }
+    //    return ShaderPtr( shader, BIND_THIS_FUNC_1_ARGS( &ResourceManager::_DeleteShader ) );
+    //}
 
     //----------------------------------------------------------------------
     ShaderPtr ResourceManager::createShader()

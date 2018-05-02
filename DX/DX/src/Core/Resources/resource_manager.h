@@ -56,13 +56,13 @@ namespace Core { namespace Resources {
         // @Params:
         //  "shader": Shader to use for this material. If null default shader will be applied.
         //----------------------------------------------------------------------
-        MaterialPtr createMaterial(ShaderPtr shader = nullptr);
+        MaterialPtr createMaterial(const ShaderPtr& shader = nullptr);
 
         //----------------------------------------------------------------------
         // Creates a new shader
         //----------------------------------------------------------------------
         //ShaderPtr createShader(CString name, const OS::Path& vertPath, const OS::Path& fragPath);
-        ShaderPtr createShader(const String& vertSrc, const String& fragSrc);
+        //ShaderPtr createShader(const String& vertSrc, const String& fragSrc);
         ShaderPtr createShader();
 
         //----------------------------------------------------------------------

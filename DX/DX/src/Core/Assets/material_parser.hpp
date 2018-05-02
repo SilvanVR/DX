@@ -39,7 +39,7 @@ namespace Core { namespace Assets {
         // @Throws:
         //  std::runtime_error if something went wrong.
         //----------------------------------------------------------------------
-        static void UpdateMaterial( MaterialPtr material, const OS::Path& filePath )
+        static void UpdateMaterial( const MaterialPtr& material, const OS::Path& filePath )
         {
             OS::File file( filePath );
 
@@ -57,9 +57,7 @@ namespace Core { namespace Assets {
             {
                 // Set shader. Will be loaded if not already loaded.
                 String shaderPath = shader.value();
-                auto shader = ASSETS.getShader( shaderPath );
-                if (material->getShader() != shader) // No need of setting the shader from the material if it already has it
-                    material->setShader( shader );
+                material->setShader( ASSETS.getShader( shaderPath ) );
                 json.erase( "shader" );
             }
 

@@ -43,6 +43,7 @@ namespace Core { namespace Assets {
         }
 
         // Try loading texture
+        LOG( "AssetManager: Loading Texture '" + filePath.toString() + "'", LOG_COLOR );
         auto texture = _LoadTexture2D( filePath, generateMips );
         if ( not texture )
         {
@@ -84,6 +85,7 @@ namespace Core { namespace Assets {
         }
 
         // Try loading cubemap
+        LOG( "AssetManager: Loading 6 Cubemap Faces '" + posX.toString() + "' (Positive X-Face) etc.", LOG_COLOR );
         auto cubemap = _LoadCubemap( posX, negX, posY, negY, posZ, negZ, generateMips );
         if (not cubemap)
         {
@@ -229,8 +231,6 @@ namespace Core { namespace Assets {
     //----------------------------------------------------------------------
     Texture2DPtr AssetManager::_LoadTexture2D( const OS::Path& filePath, bool generateMips )
     {
-        LOG( "AssetManager: Loading Texture '" + filePath.toString() + "'", LOG_COLOR );
-
         I32 width, height, bpp;
         auto pixels = stbi_load( filePath.c_str(), &width, &height, &bpp, 4 );
 
@@ -253,8 +253,6 @@ namespace Core { namespace Assets {
                                            const OS::Path& posY, const OS::Path& negY,
                                            const OS::Path& posZ, const OS::Path& negZ, bool generateMips )
     {
-        LOG( "AssetManager: Loading 6 Cubemap Faces '" + posX.toString() + "' (Positive X-Face) etc.", LOG_COLOR );
-
         I32 width, height, bpp;
         auto posXPixels = stbi_load( posX.c_str(), &width, &height, &bpp, 4 );
         auto negXPixels = stbi_load( negX.c_str(), &width, &height, &bpp, 4 );

@@ -137,6 +137,9 @@ namespace Graphics {
         String              m_name          = "NO NAME";
         U32                 m_priority      = DEFAULT_PRIORITY;
 
+        // Stores which property exist along his type
+        //HashMap<StringID, DataType> m_typeMap;
+
     private:
         //----------------------------------------------------------------------
         friend class D3D11Renderer;
