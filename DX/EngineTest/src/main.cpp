@@ -28,17 +28,11 @@ public:
 
         createGameObject("Grid")->addComponent<GridGeneration>(20);
 
-        auto mesh = Core::Assets::MeshGenerator::CreateCubeUV(1);
+        auto mesh = Core::Assets::MeshGenerator::CreateCubeUV();
         mesh->setColors(cubeColors);
 
-        auto mat = ASSETS.getMaterial("/materials/basic.material");
-
-        //auto shader = ASSETS.getShader("/shaders/color.shader");
-        //auto material = RESOURCES.createMaterial(shader);
-        //material->setTexture("tex", ASSETS.getTexture2D("/textures/checker.jpg"));
-
         auto go2 = createGameObject("Obj");
-        go2->addComponent<Components::MeshRenderer>(mesh, mat);
+        go2->addComponent<Components::MeshRenderer>(mesh, ASSETS.getMaterial("/materials/texture.material"));
 
 
         LOG("TestScene initialized!", Color::RED);

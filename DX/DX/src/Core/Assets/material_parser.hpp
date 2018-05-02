@@ -8,7 +8,6 @@
 
 #include "Graphics/i_material.h"
 #include "OS/FileSystem/file.h"
-#include "Common/string_utils.h"
 #include "Ext/JSON/json.hpp"
 #include "locator.h"
 
@@ -58,7 +57,9 @@ namespace Core { namespace Assets {
             {
                 // Set shader. Will be loaded if not already loaded.
                 String shaderPath = shader.value();
-                material->setShader( ASSETS.getShader( shaderPath ) );
+                auto shader = ASSETS.getShader( shaderPath );
+                if (material->getShader() != shader) // No need of setting the shader from the material if it already has it
+                    material->setShader( shader );
                 json.erase( "shader" );
             }
 

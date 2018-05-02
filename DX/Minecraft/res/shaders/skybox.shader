@@ -1,20 +1,12 @@
 // ----------------------------------------------
 #Fill			Solid
 #Cull 			Front
-#Priority 		10000
+#Priority 		5000
 
 // ----------------------------------------------
 #shader vertex
 
-cbuffer cbPerCamera
-{
-    float4x4 gViewProj;
-};
-
-cbuffer cbPerObject
-{
-    float4x4 gWorld;
-};
+#include "includes/engine.inc"
 
 struct VertexIn
 {
@@ -32,9 +24,8 @@ VertexOut main(VertexIn vin)
     VertexOut OUT;
 	
 	OUT.tex = vin.PosL;
-	
-    float4x4 mvp = mul(gViewProj, gWorld);
-    float4 clipPos = mul(mvp, float4(vin.PosL, 0.0f));
+
+    float4 clipPos = TO_CLIP_SPACE( float4(vin.PosL, 0.0f) );
 	
 	// Little trick which places the object very close to the far-plane
 	OUT.PosH = clipPos.xyww;

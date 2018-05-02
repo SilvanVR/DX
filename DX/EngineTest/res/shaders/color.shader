@@ -1,15 +1,7 @@
 // ----------------------------------------------
 #shader vertex
 
-cbuffer cbPerCamera
-{
-    float4x4 gViewProj;
-};
-
-cbuffer cbPerObject
-{
-    float4x4 gWorld;
-};
+#include "includes/engine.inc"
 
 struct VertexIn
 {
@@ -27,8 +19,7 @@ VertexOut main(VertexIn vin)
 {
     VertexOut OUT;
 
-    float4x4 mvp = mul(gViewProj, gWorld);
-    OUT.PosH = mul(mvp, float4(vin.PosL, 1.0f));
+    OUT.PosH = TO_CLIP_SPACE(vin.PosL);
     OUT.Color = vin.Color;
 
     return OUT;

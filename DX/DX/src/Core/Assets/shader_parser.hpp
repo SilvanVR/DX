@@ -9,7 +9,6 @@
 #include "Graphics/i_shader.hpp"
 #include "OS/FileSystem/file.h"
 #include "Common/string_utils.h"
-#include "Core/Resources/resource_manager.h"
 
 #define SHADER_NAME                     "#shader"
 #define VERTEX_SHADER                   "vertex"

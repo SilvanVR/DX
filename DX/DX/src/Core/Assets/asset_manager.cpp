@@ -182,7 +182,7 @@ namespace Core { namespace Assets {
     {
         // Check if material was already loaded
         StringID pathAsID = SID( StringUtils::toLower( filePath.toString() ).c_str() );
-        if ( m_shaderCache.find( pathAsID ) != m_shaderCache.end() )
+        if ( m_materialCache.find( pathAsID ) != m_materialCache.end() )
         {
             auto weakPtr = m_materialCache[pathAsID].material;
             if ( not weakPtr.expired() )

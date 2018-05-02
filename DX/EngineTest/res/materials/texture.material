@@ -1,6 +1,9 @@
-"basic" :
 {
-  "diffuse" : "G:/models/floor_textures/tiles/tile_tile_0069_01_tiled_s.jpg",
-  "uvScale" : 20,
-  "color" : { "r": 1, "g" : 1, "b": 1 }
+
+"shader" : "/shaders/texture.shader",
+"tintColor" : "#FFFFFF",
+"tex0" : "/textures/nico.jpg",
+"tex1" : "/textures/checker.jpg",
+"mix" : 0.5
+
 }
