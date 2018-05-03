@@ -1,7 +1,7 @@
 // ----------------------------------------------
 #Fill			Solid
 #Cull 			Front
-#Priority 		10000
+#Queue 			Background
 
 // ----------------------------------------------
 #shader vertex

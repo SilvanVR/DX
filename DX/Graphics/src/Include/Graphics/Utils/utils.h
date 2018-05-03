@@ -14,6 +14,13 @@ namespace Graphics {
     // @Return:
     //  Byte-Count for the given texture format.
     //----------------------------------------------------------------------
-    U32 ByteCountFromTextureFormat( TextureFormat format );
+    U32 ByteCountFromTextureFormat(TextureFormat format);
+
+    //----------------------------------------------------------------------
+    // Converts a string back to a render-queue integer
+    // @Return:
+    //  Render-Queue which represents the given string. -1 if string is not predefined renderqueue.
+    //----------------------------------------------------------------------
+    I32 StringToRenderQueue(const String& str);
 
 }

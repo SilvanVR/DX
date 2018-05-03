@@ -125,17 +125,17 @@ namespace Graphics {
             }
         }
 
-        // Sort shaders by priority
+        // Sort shaders
         auto comp = [](const MaterialPtr& a, const MaterialPtr& b) {
-            return a->getShader()->getPriority() < b->getShader()->getPriority();
+            return a->getShader()->getRenderQueue() < b->getShader()->getRenderQueue();
         };
-        ArrayList<MaterialPtr> sortedByPriority;
+        ArrayList<MaterialPtr> sortedShaders;
         for (auto& pair : sortedMaterials)
-            sortedByPriority.push_back(pair.first);
-        std::sort(sortedByPriority.begin(), sortedByPriority.end(), comp);
+            sortedShaders.push_back(pair.first);
+        std::sort(sortedShaders.begin(), sortedShaders.end(), comp);
 
         // Now render by material
-        for (auto& material : sortedByPriority)
+        for (auto& material : sortedShaders)
         {
             // Bind materials
             ShaderPtr shader = nullptr;

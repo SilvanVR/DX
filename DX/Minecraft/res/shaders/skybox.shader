@@ -1,7 +1,8 @@
 // ----------------------------------------------
 #Fill			Solid
 #Cull 			Front
-#Priority 		5000
+#ZTest			Off
+#Queue 			Background
 
 // ----------------------------------------------
 #shader vertex

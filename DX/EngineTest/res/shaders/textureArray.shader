@@ -4,7 +4,7 @@
 #ZWrite 		On
 #ZTest 			Less
 #Blend 			SrcAlpha OneMinusSrcAlpha
-#Priority 		1000
+#Priority 		Geometry
 #AlphaToMask 	Off
 
 // ----------------------------------------------

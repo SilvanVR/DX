@@ -137,6 +137,7 @@ class PlayerInventory : public Components::IComponent, public Core::Input::IMous
 
     I32     m_curSlot = 0;
     Block   m_slots[SLOT_COUNT];
+    bool    m_previewBlockEnabled = true;
 
     GameObject* previewBlock;
     MaterialPtr previewBlockMaterial;
@@ -241,6 +242,8 @@ public:
         return result;
     }
 
+    void setPreviewBlockEnabled(bool enabled){ m_previewBlockEnabled = enabled; _UpdatePreviewBlock(); }
+
 private:
     I32 _NextFreeSlot() 
     {
@@ -253,7 +256,7 @@ private:
     void _UpdatePreviewBlock()
     {
         Block block = m_slots[m_curSlot];
-        if (block != AIR_BLOCK)
+        if (block != AIR_BLOCK && m_previewBlockEnabled)
         {
             previewBlock->setActive(true);
 
@@ -472,6 +475,7 @@ class MyScene : public IScene
 {
     Components::FPSCamera*  fpsCam;
     PlayerController*       playerController;
+    PlayerInventory*        playerInventory;
 
 public:
     MyScene() : IScene("MyScene"){}
@@ -495,7 +499,7 @@ public:
         AXIS_MAPPER.updateAxis("Horizontal", acceleration, damping);
 
         U32 blockInventorySize = 64;
-        player->addComponent<PlayerInventory>(blockInventorySize);
+        playerInventory = player->addComponent<PlayerInventory>(blockInventorySize);
         F32 placeDistance = 10.0f;
         F32 playerSpeed = 0.2f;
         F32 jumpPower = 15.0f;
@@ -524,6 +528,7 @@ public:
         if (KEYBOARD.wasKeyPressed(Key::X))
         {
             playerController->setActive(b);
+            playerInventory->setPreviewBlockEnabled(b);
             MOUSE.setFirstPersonMode(b);
             fpsCam->setActive(!b);
             b = !b;

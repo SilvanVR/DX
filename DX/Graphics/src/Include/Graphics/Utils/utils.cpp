@@ -6,10 +6,12 @@
     date: March 31, 2018
 **********************************************************************/
 
+#include "../i_shader.hpp"
+
 namespace Graphics {
 
     //----------------------------------------------------------------------
-    U32 ByteCountFromTextureFormat(TextureFormat format)
+    U32 ByteCountFromTextureFormat( TextureFormat format )
     {
         switch (format)
         {
@@ -37,6 +39,16 @@ namespace Graphics {
         ASSERT( false );
         };
         return 0;
+    }
+
+    //----------------------------------------------------------------------
+    I32 StringToRenderQueue( const String& str )
+    {
+        if (str == "background")        return (I32)RenderQueue::Background;
+        else if (str == "geometry")     return (I32)RenderQueue::Geometry;
+        else if (str == "transparent")  return (I32)RenderQueue::Transparent;
+        else if (str == "overlay")      return (I32)RenderQueue::Overlay;
+        else return -1;
     }
 
 }

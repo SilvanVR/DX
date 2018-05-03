@@ -17,17 +17,29 @@
 namespace Graphics {
 
     //**********************************************************************
+    // Shaders with a renderqueue <= 1000 will be rendered front to back, >= 1000 back to front.
+    enum class RenderQueue : I32
+    {
+        // --------- FRONT TO BACK ------------
+        Background          = 0,
+        Geometry            = 1000,
+        AlphaTest           = 2000,
+        // --------- BACK TO FRONT -------------
+        BackToFrontBoundary = 3000,
+        Transparent         = 4000,
+        Overlay             = 5000
+    };
+
+    //**********************************************************************
     class IShader
     {
     public:
-        static const U32 DEFAULT_PRIORITY = 1000;
-
         IShader() = default;
         virtual ~IShader() {}
 
         //----------------------------------------------------------------------
         const String&   getName() const             { return m_name; }
-        U32             getPriority() const         { return m_priority; }
+        I32             getRenderQueue() const      { return m_renderQueue; }
         void            setName(const String& name) { m_name = name; }
 
         //----------------------------------------------------------------------
@@ -139,10 +151,9 @@ namespace Graphics {
         }
 
         //----------------------------------------------------------------------
-        // Set the priority for this material. A higher priority means this material
-        // will be drawn before others with a lower priority.
+        // Set the renderqueue for this shader.
         //----------------------------------------------------------------------
-        void setPriority(U32 newPriority) { m_priority = newPriority; }
+        void setRenderQueue(I32 renderQueue) { m_renderQueue = renderQueue; }
 
         //----------------------------------------------------------------------
         // @Return:
@@ -154,7 +165,7 @@ namespace Graphics {
         // These are only used when blending is enabled
         std::array<F32, 4>  m_blendFactors  = { 1.0f, 1.0f, 1.0f, 1.0f };
         String              m_name          = "NO NAME";
-        U32                 m_priority      = DEFAULT_PRIORITY;
+        I32                 m_renderQueue   = (I32)RenderQueue::Geometry;
 
     private:
         //----------------------------------------------------------------------

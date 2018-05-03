@@ -30,7 +30,7 @@
 #define BLEND                           "#blend"
 #define BLEND_ALPHA_TO_MASK             "#alphatomask"
 
-#define SHADER_PRIORITY                 "#priority"
+#define SHADER_QUEUE                    "#queue"
 
 #define NUM_SHADER_TYPES                (I32)Graphics::ShaderType::NUM_SHADER_TYPES
 #define INCLUDE_NAME                    "#include"
@@ -124,7 +124,7 @@ namespace Core { namespace Assets {
             while ( not file.eof() )
             {
                 String line = file.readLine();
-                if (line.find( SHADER_NAME ) != String::npos)
+                if ( line.find( SHADER_NAME ) != String::npos )
                 {
                     if (line.find( VERTEX_SHADER ) != String::npos)
                         type = Graphics::ShaderType::Vertex;
@@ -234,7 +234,8 @@ namespace Core { namespace Assets {
                 String line = StringUtils::toLower( ss.nextLine() );
 
                 // BlendState
-                if ( auto pos = line.find( BLEND ) != String::npos )
+                auto pos = line.find( BLEND );
+                if ( pos != String::npos )
                 {
                     StringUtils::IStringStream ssLine( line.substr( pos + String( BLEND ).size() ) );
 
@@ -269,7 +270,7 @@ namespace Core { namespace Assets {
         }
 
         //----------------------------------------------------------------------
-        static inline void _SetShaderPriority(ShaderPtr shader, const String& src, const OS::Path& filePath)
+        static inline void _SetShaderPriority( ShaderPtr shader, const String& src, const OS::Path& filePath )
         {
             StringUtils::IStringStream ss( src );
             while ( not ss.eof() )
@@ -277,16 +278,26 @@ namespace Core { namespace Assets {
                 String line = StringUtils::toLower( ss.nextLine() );
 
                 // Priority
-                if ( auto pos = line.find( SHADER_PRIORITY ) != String::npos )
+                auto pos = line.find( SHADER_QUEUE );
+                if ( pos != String::npos )
                 {
-                    StringUtils::IStringStream ssLine( line.substr( pos + String( SHADER_PRIORITY ).size() ) );
-                    I32 priority;
-                    ssLine >> priority;
+                    StringUtils::IStringStream ssLine( line.substr( pos + String( SHADER_QUEUE ).size() ) );
 
-                    if ( priority == std::numeric_limits<I32>::max() )
-                        LOG_WARN( "Could not read priority in shader '" + filePath.toString() + "'." );
-                    else 
-                        shader->setPriority( priority );
+                    I32 queue;
+                    if ( ssLine >> queue )
+                        shader->setRenderQueue( queue );
+                    else
+                    {
+                        StringUtils::IStringStream ssLine2( line.substr( pos + String( SHADER_QUEUE ).size() ) );
+                        String queueAsString;
+                        ssLine2 >> queueAsString;
+
+                        queue = Graphics::StringToRenderQueue( StringUtils::toLower( queueAsString ) );
+                        if ( queue != -1 && not ssLine2.failed() )
+                            shader->setRenderQueue( queue );
+                        else
+                            LOG_WARN( "Could not read queue in shader '" + filePath.toString() + "'." );
+                    }
                 }
             }
         }

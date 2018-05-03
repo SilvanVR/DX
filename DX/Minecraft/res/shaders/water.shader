@@ -1,7 +1,7 @@
 // ----------------------------------------------
 #Fill			Solid
 #Blend 			SrcAlpha OneMinusSrcAlpha
-#Priority 		5000
+#Queue 			Transparent
 
 // ----------------------------------------------
 #shader vertex
