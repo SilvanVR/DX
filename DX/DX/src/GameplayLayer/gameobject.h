@@ -4,14 +4,19 @@
 
     author: S. Hau
     date: December 17, 2017
-
-    @TODO:
-     - allow copying of gameobjects
 **********************************************************************/
 
 #include "Components/i_component.h"
 #include "Components/transform.h"
 #include "Logging/logging.h"
+
+//----------------------------------------------------------------------
+template<typename T>
+Hash TypeHash()
+{
+    static Hash hash = typeid(T).hash_code();
+    return hash;
+}
 
 class IScene;
 
@@ -35,7 +40,10 @@ public:
     template<typename T> bool removeComponent(T* comp);
     template<typename T, typename... Args> T* addComponent(Args&&... args);
 
-    Components::Transform* getTransform() { return getComponent<Components::Transform>(); }
+    //----------------------------------------------------------------------
+    // Retrieve the transform component directly. This is faster than using getComponent<T>()
+    //----------------------------------------------------------------------
+    inline Components::Transform* getTransform(){ return reinterpret_cast<Components::Transform*>(m_components[TypeHash<Components::Transform>()]); }
 
 private:
     StringID            m_name;
@@ -66,14 +74,6 @@ private:
     GameObject& operator = (GameObject&& other)       = delete;
 };
 
-//----------------------------------------------------------------------
-template<typename T>
-Hash TypeHash()
-{
-    static Hash hash = typeid(T).hash_code();
-    return hash;
-}
-
 //**********************************************************************
 // TEMPLATE - PUBLIC
 //**********************************************************************
@@ -85,10 +85,11 @@ template<typename T>
 T* GameObject::getComponent()
 {
     Size hash = TypeHash<T>();
-    if (m_components.count( hash ) == 0)
+    if ( m_components.find( hash ) == m_components.end() )
         return nullptr;
 
-    return dynamic_cast<T*>( m_components[hash] );
+    // Since we know the component exist a reinterpret cast suffice (instead of a more costly dynamic cast)
+    return reinterpret_cast<T*>( m_components[hash] );
 }
 
 //----------------------------------------------------------------------
@@ -111,7 +112,7 @@ bool GameObject::removeComponent()
 template <typename T>
 bool GameObject::removeComponent( T* comp )
 {
-    removeComponent<T>();
+    return removeComponent<T>();
 }
 
 //----------------------------------------------------------------------

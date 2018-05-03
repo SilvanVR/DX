@@ -79,7 +79,7 @@ public:
 
         ASSETS.setHotReloading(true);
 
-        Locator::getSceneManager().LoadSceneAsync(new TestScene());
+        Locator::getSceneManager().LoadSceneAsync(new ManyObjectsScene(10000));
     }
 
     //----------------------------------------------------------------------

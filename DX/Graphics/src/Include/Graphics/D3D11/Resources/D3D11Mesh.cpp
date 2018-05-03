@@ -216,6 +216,7 @@ namespace Graphics { namespace D3D11 {
         case MeshTopology::Points:          dxTopology = D3D11_PRIMITIVE_TOPOLOGY_POINTLIST; break;
         case MeshTopology::Triangles:       dxTopology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST; break;
         case MeshTopology::TriangleStrip:   dxTopology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP; break;
+        default: LOG_WARN_RENDERING( "Mesh::_SetTopology(): Unknown topology type." );
         }
         g_pImmediateContext->IASetPrimitiveTopology( dxTopology );
     }
@@ -223,44 +224,53 @@ namespace Graphics { namespace D3D11 {
     //----------------------------------------------------------------------
     void Mesh::_BindVertexBuffer( const VertexLayout& vertLayout, U32 subMesh )
     {
+        #define MAX_BUFFERS 8
         auto& vertexDescription = vertLayout.getLayoutDescription();
 
-        ArrayList<ID3D11Buffer*> pBuffers;
-        ArrayList<U32>           strides;
-        ArrayList<U32>           offsets;
+        ASSERT( vertexDescription.size() <= MAX_BUFFERS );
+
+        ID3D11Buffer* pBuffers[MAX_BUFFERS];
+        U32 strides[MAX_BUFFERS];
+        U32 offsets[MAX_BUFFERS];
+        U32 bufferIndex = 0;
+
         for ( auto& binding : vertexDescription )
         {
             switch (binding.type)
             {
             case InputLayoutType::POSITION:
             {
-                pBuffers.emplace_back( m_pVertexBuffer->getBuffer() );
-                strides.emplace_back( static_cast<U32>( sizeof( Math::Vec3 ) ) );
-                offsets.emplace_back( 0 );
+                pBuffers[bufferIndex] = m_pVertexBuffer->getBuffer();
+                strides[bufferIndex] = static_cast<U32>( sizeof( Math::Vec3 ) );
+                offsets[bufferIndex] = 0;
+                bufferIndex++;
                 break;
             }
             case InputLayoutType::COLOR:
             {
                 ASSERT( m_pColorBuffer && "Shader requires a color-buffer, but mesh has none!" );
-                pBuffers.emplace_back( m_pColorBuffer->getBuffer() );
-                strides.emplace_back( static_cast<U32>( sizeof( F32 ) * 4 ) );
-                offsets.emplace_back( 0 );
+                pBuffers[bufferIndex] = m_pColorBuffer->getBuffer();
+                strides[bufferIndex] = static_cast<U32>( sizeof( F32 ) * 4 );
+                offsets[bufferIndex] = 0;
+                bufferIndex++;
                 break;
             }
             case InputLayoutType::TEXCOORD0:
             {
                 ASSERT( m_pUVBuffer && "Shader requires a uv-buffer, but mesh has none!" );
-                pBuffers.emplace_back( m_pUVBuffer->getBuffer() );
-                strides.emplace_back( static_cast<U32>( sizeof( Math::Vec2 ) ) );
-                offsets.emplace_back( 0 );
+                pBuffers[bufferIndex] = m_pUVBuffer->getBuffer();
+                strides[bufferIndex] = static_cast<U32>( sizeof( Math::Vec2 ) );
+                offsets[bufferIndex] = 0;
+                bufferIndex++;
                 break;
             }
             case InputLayoutType::NORMAL:
             {
                 ASSERT( m_pNormalBuffer && "Shader requires a normal-buffer, but mesh has none!");
-                pBuffers.emplace_back( m_pNormalBuffer->getBuffer() );
-                strides.emplace_back( static_cast<U32>( sizeof( Math::Vec3 ) ) );
-                offsets.emplace_back( 0 );
+                pBuffers[bufferIndex] = m_pNormalBuffer->getBuffer();
+                strides[bufferIndex] = static_cast<U32>( sizeof( Math::Vec3 ) );
+                offsets[bufferIndex] = 0;
+                bufferIndex++;
                 break;
             }
             default:
@@ -269,7 +279,7 @@ namespace Graphics { namespace D3D11 {
         }
 
         // Bind vertex buffers
-        g_pImmediateContext->IASetVertexBuffers( 0, static_cast<U32>( pBuffers.size() ), pBuffers.data(), strides.data(), offsets.data() );
+        g_pImmediateContext->IASetVertexBuffers( 0, bufferIndex, pBuffers, strides, offsets );
     }
 
     //----------------------------------------------------------------------

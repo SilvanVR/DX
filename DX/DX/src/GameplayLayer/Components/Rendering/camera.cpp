@@ -6,7 +6,6 @@
     date: March 4, 2018
 **********************************************************************/
 
-#include "GameplayLayer/Components/transform.h"
 #include "GameplayLayer/gameobject.h"
 #include "Graphics/command_buffer.h"
 #include "i_render_component.hpp"
@@ -73,7 +72,7 @@ namespace Components {
         m_commandBuffer.setViewport( screenRect );
 
         // Set view / projection params
-        Transform* transform = getGameObject()->getComponent<Components::Transform>();
+        Transform* transform = getGameObject()->getTransform();
         auto modelMatrix = transform->getWorldMatrix( lerp );
         auto view = DirectX::XMMatrixInverse( nullptr, modelMatrix );
         auto projection = getProjectionMatrix();

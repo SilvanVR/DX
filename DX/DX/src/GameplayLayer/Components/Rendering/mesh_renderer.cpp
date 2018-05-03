@@ -60,7 +60,7 @@ namespace Components {
     //----------------------------------------------------------------------
     void MeshRenderer::recordGraphicsCommands( Graphics::CommandBuffer& cmd, F32 lerp )
     {
-        auto transform = getGameObject()->getComponent<Transform>();
+        auto transform = getGameObject()->getTransform();
         ASSERT( transform != nullptr );
 
         // Draw submesh with appropriate material
@@ -79,7 +79,7 @@ namespace Components {
             return false;
 
         // Cull mesh against frustum by transforming vertices from AABB into clip space
-        auto& modelMatrix = getComponent<Transform>()->getWorldMatrix();
+        auto& modelMatrix = getGameObject()->getTransform()->getWorldMatrix();
         auto mvp = modelMatrix * camera.getViewProjectionMatrix();
 
         auto aabbCorners = m_mesh->getBounds().getCorners();

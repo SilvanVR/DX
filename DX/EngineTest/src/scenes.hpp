@@ -180,7 +180,7 @@ public:
     {
         auto go = createGameObject("Camera");
         auto cam = go->addComponent<Components::Camera>();
-        go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -10);
+        go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -500);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA);
 
         // MESH
