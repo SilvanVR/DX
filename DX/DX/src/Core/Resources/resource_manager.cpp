@@ -89,33 +89,6 @@ namespace Core { namespace Resources {
     }
 
     //----------------------------------------------------------------------
-    //ShaderPtr ResourceManager::createShader( CString name, const OS::Path& vertPath, const OS::Path& fragPath )
-    //{
-    //    auto shader = Locator::getRenderer().createShader();
-    //    shader->setName( name );
-
-    //    m_shaders.push_back( shader );
-
-    //    if ( not shader->compileFromFile( vertPath, fragPath, "main" ) )
-    //        return m_errorShader;
-
-    //    return ShaderPtr( shader, BIND_THIS_FUNC_1_ARGS( &ResourceManager::_DeleteShader ) );
-    //}
-
-    ////----------------------------------------------------------------------
-    //ShaderPtr ResourceManager::createShader( const String& vertSrc, const String& fragSrc )
-    //{
-    //    auto shader = Locator::getRenderer().createShader();
-
-    //    m_shaders.push_back( shader );
-
-    //    if ( not shader->compileFromSource( vertSrc, fragSrc, "main" ) )
-    //        return m_errorShader;
-
-    //    return ShaderPtr( shader, BIND_THIS_FUNC_1_ARGS( &ResourceManager::_DeleteShader ) );
-    //}
-
-    //----------------------------------------------------------------------
     ShaderPtr ResourceManager::createShader()
     {
         auto shader = Locator::getRenderer().createShader();

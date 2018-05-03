@@ -36,10 +36,14 @@ namespace Core { namespace Assets {
 
         //----------------------------------------------------------------------
         // Updates the given material from the given file.
+        // @Params:
+        //  "material": The material object
+        //  "filePath": Path to the material file
+        //  "enforceApplyShader": If true the shader will be set regardless whether the material has this shader already applied (This is necessary for shder reloading to recreate all material buffers)
         // @Throws:
         //  std::runtime_error if something went wrong.
         //----------------------------------------------------------------------
-        static void UpdateMaterial( const MaterialPtr& material, const OS::Path& filePath )
+        static void UpdateMaterial( const MaterialPtr& material, const OS::Path& filePath, bool enforceApplyShader = false )
         {
             OS::File file( filePath );
 
@@ -57,7 +61,9 @@ namespace Core { namespace Assets {
             {
                 // Set shader. Will be loaded if not already loaded.
                 String shaderPath = shader.value();
-                material->setShader( ASSETS.getShader( shaderPath ) );
+                auto shader = ASSETS.getShader( shaderPath );
+                if ( material->getShader() != shader || enforceApplyShader )
+                    material->setShader( shader );
                 json.erase( "shader" );
             }
 
@@ -76,7 +82,8 @@ namespace Core { namespace Assets {
                     {
                         material->setInt( propName.c_str(), it.value() );
                     } catch (...) { // Parsing was unsuccessful
-                        LOG_WARN( "MaterialParser: Could not parse parameter '" + propName + "' as an int. Please ensure that it is a valid int." );
+                        LOG_WARN( "MaterialParser: Could not parse parameter '" + propName + "' as an int for material '" + filePath.toString() +"'. "
+                                  "Please ensure that it is a valid int." );
                     }
                     break;
                 }
@@ -86,7 +93,8 @@ namespace Core { namespace Assets {
                     {
                         material->setFloat( propName.c_str(), it.value() );
                     } catch (...) { // Parsing was unsuccessful
-                        LOG_WARN( "MaterialParser: Could not parse parameter '" + propName + "' as an float. Please ensure that it is a valid float." );
+                        LOG_WARN( "MaterialParser: Could not parse parameter '" + propName + "' as an float for material '" + filePath.toString() + "'. "
+                                  "Please ensure that it is a valid float." );
                     }
                     break;
                 }
@@ -105,7 +113,8 @@ namespace Core { namespace Assets {
                             material->setColor( propName.c_str(), Color( hex ) );
                         }
                     } catch (...) { // Parsing was unsuccessful
-                        LOG_WARN( "MaterialParser: Could not parse parameter '" + propName + "' as a vec4 or color. Please ensure that it is a valid vec4 or color in hex format." );
+                        LOG_WARN( "MaterialParser: Could not parse parameter '" + propName + "' as a vec4 or color for material '" + filePath.toString() + "'. "
+                                  "Please ensure that it is a valid vec4 or color in hex format." );
                     }
                     break;
                 }
@@ -116,7 +125,8 @@ namespace Core { namespace Assets {
                         String path = it.value();
                         material->setTexture( propName.c_str(), ASSETS.getTexture2D( path ) );
                     } catch (...) { // Parsing was unsuccessful
-                        LOG_WARN( "MaterialParser: Could not parse string for parameter '" + propName + "' (Tex2D). Please ensure that its a valid string." );
+                        LOG_WARN( "MaterialParser: Could not parse string for parameter '" + propName + "' (Tex2D) for material '" + filePath.toString() + "'. "
+                                  "Please ensure that its a valid string." );
                     }
                     break;
                 }
@@ -135,7 +145,8 @@ namespace Core { namespace Assets {
                         material->setTexture( propName.c_str(), ASSETS.getCubemap( posX, negX, posY, negY, posZ, negZ ) );
                     }
                     catch (...) { // Parsing was unsuccessful
-                        LOG_WARN( "MaterialParser: Could not parse strings for parameter '" + propName + "' (Cubemap). Please ensure that they are valid strings." );
+                        LOG_WARN( "MaterialParser: Could not parse strings for parameter '" + propName + "' (Cubemap) for material '" + filePath.toString() + "'. "
+                                  "Please ensure that they are valid strings." );
                     }
                     break;
                 }
@@ -150,7 +161,8 @@ namespace Core { namespace Assets {
                 case DataType::Texture3D:
                     LOG_WARN( "MaterialParser: Material type of parameter '" + propName + "' is not supported" ); break;
                 default:
-                    LOG_WARN( "MaterialParser: Material parameter '" + propName + "' does not exist in shader '" + material->getShader()->getName() + "'" );
+                    LOG_WARN( "MaterialParser: Parameter '" + propName + "' does not exist in shader '" + material->getShader()->getName() + "'"
+                              " for material '" + filePath.toString() + "'");
                 }
 
             }

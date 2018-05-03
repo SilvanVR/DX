@@ -121,7 +121,7 @@ namespace Core { namespace Assets {
         struct ShaderAssetInfo : public FileInfo
         {
             WeakShaderPtr shader;
-            void ReloadIfNotUpToDate();
+            void ReloadIfNotUpToDate(const AssetManager& am);
         };
 
         struct MaterialAssetInfo : public FileInfo

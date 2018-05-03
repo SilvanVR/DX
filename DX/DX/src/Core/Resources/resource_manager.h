@@ -61,8 +61,6 @@ namespace Core { namespace Resources {
         //----------------------------------------------------------------------
         // Creates a new shader
         //----------------------------------------------------------------------
-        //ShaderPtr createShader(CString name, const OS::Path& vertPath, const OS::Path& fragPath);
-        //ShaderPtr createShader(const String& vertSrc, const String& fragSrc);
         ShaderPtr createShader();
 
         //----------------------------------------------------------------------
@@ -122,6 +120,12 @@ namespace Core { namespace Resources {
         U32 getShaderCount()    const { return static_cast<U32>( m_shaders.size() ); }
         U32 getMaterialCount()  const { return static_cast<U32>( m_materials.size() ); }
         U32 getTextureCount()   const { return static_cast<U32>( m_textures.size() ); }
+
+        const ArrayList<Graphics::Mesh*>&       getMeshes() const { return m_meshes; }
+        const ArrayList<Graphics::Shader*>&     getShaders() const { return m_shaders; }
+        const ArrayList<Graphics::Material*>&   getMaterials() const { return m_materials; }
+        const ArrayList<Graphics::Texture*>&    getTextures() const { return m_textures; }
+        const ArrayList<Audio::AudioClip*>&     getAudioClips() const { return m_audioClips; }
 
         const MaterialPtr&      getDefaultMaterial() const { return m_defaultMaterial; }
         const ShaderPtr&        getDefaultShader()   const { return m_defaultShader; }

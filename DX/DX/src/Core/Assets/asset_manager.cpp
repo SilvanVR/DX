@@ -324,7 +324,7 @@ namespace Core { namespace Assets {
                 }
                 else
                 {
-                    it->second.ReloadIfNotUpToDate();
+                    it->second.ReloadIfNotUpToDate( *this );
                     it++;
                 }
             }
@@ -381,7 +381,7 @@ namespace Core { namespace Assets {
     }
 
     //----------------------------------------------------------------------
-    void AssetManager::ShaderAssetInfo::ReloadIfNotUpToDate()
+    void AssetManager::ShaderAssetInfo::ReloadIfNotUpToDate(const AssetManager& sm)
     {
         if ( auto sh = shader.lock() )
         {
@@ -393,7 +393,17 @@ namespace Core { namespace Assets {
                     LOG( "Reloading shader: " + path.toString(), LOG_COLOR );
                     try {
                         ShaderParser::UpdateShader( sh, path );
-                    } catch(std::runtime_error e) { 
+
+                        // Reload every material which has this shader applied
+                        for (auto& pair : sm.m_materialCache)
+                            if ( auto mat = pair.second.material.lock() )
+                                if (mat->getShader() == sh)
+                                {
+                                    LOG( "Reloading material: " + path.toString(), LOG_COLOR );
+                                    MaterialParser::UpdateMaterial( mat, pair.second.path, true );
+                                }
+
+                    } catch(const std::runtime_error& e) { 
                         LOG_WARN( String( "Failed to reload shader. Reason: " ) + e.what() );
                     }
 

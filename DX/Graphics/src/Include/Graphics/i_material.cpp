@@ -12,8 +12,6 @@ namespace Graphics {
     void IMaterial::setShader( const ShaderPtr& shader )
     { 
         ASSERT( shader );
-        if (m_shader == shader)
-            return;
 
         m_shader = shader;
         m_intMap.clear();
