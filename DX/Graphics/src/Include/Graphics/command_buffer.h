@@ -24,12 +24,17 @@ namespace Graphics {
         ~CommandBuffer() = default;
 
         //----------------------------------------------------------------------
+        // Add all commands from the given cmd into this one
+        //----------------------------------------------------------------------
+        void merge(const CommandBuffer& cmd);
+
+        //----------------------------------------------------------------------
         // Clears all commands in this command buffer.
         //----------------------------------------------------------------------
         void reset();
 
         // <------------------------ GPU COMMANDS ----------------------------->
-        const ArrayList<std::unique_ptr<GPUCommandBase>>& getGPUCommands() const { return m_gpuCommands; }
+        const ArrayList<std::shared_ptr<GPUCommandBase>>& getGPUCommands() const { return m_gpuCommands; }
         void drawMesh(MeshPtr mesh, MaterialPtr material, const DirectX::XMMATRIX& modelMatrix, I32 subMeshIndex);
         void setRenderTarget(RenderTexturePtr renderTarget);
         void clearRenderTarget(const Color& clearColor);
@@ -41,7 +46,7 @@ namespace Graphics {
 
 
     private:
-        ArrayList<std::unique_ptr<GPUCommandBase>> m_gpuCommands;
+        ArrayList<std::shared_ptr<GPUCommandBase>> m_gpuCommands;
 
         //----------------------------------------------------------------------
         CommandBuffer(const CommandBuffer& other)               = delete;

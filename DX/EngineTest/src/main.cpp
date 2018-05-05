@@ -30,21 +30,30 @@ public:
 
         createGameObject("Grid")->addComponent<GridGeneration>(20);
 
-        auto mesh = Core::Assets::MeshGenerator::CreateCubeUV();
-        mesh->setColors(cubeColors);
+        auto plane = Core::Assets::MeshGenerator::CreatePlane();
+        //mesh->setColors(cubeColors);
 
-        mat = ASSETS.getMaterial("/materials/texture.material");
+        mat = ASSETS.getMaterial("/materials/transparent.material");
 
         auto go2 = createGameObject("Obj");
-        go2->addComponent<Components::MeshRenderer>(mesh, mat);
+        go2->addComponent<Components::MeshRenderer>(plane, mat);
 
+        auto go3 = createGameObject("Obj");
+        go3->addComponent<Components::MeshRenderer>(plane, mat);
+        go3->getTransform()->position.z = 3;
+
+        auto go4 = createGameObject("Obj");
+        go4->addComponent<Components::MeshRenderer>(plane, mat);
+        go4->getTransform()->position.z = -3;
+
+        DEBUG.drawCube({ -1,-1,-1 }, { 1,1,1 }, Color::RED, 20000, false );
 
         LOG("TestScene initialized!", Color::RED);
     }
 
     void tick(Time::Seconds d) override
     {
-        mat->setFloat("mix", (sin(TIME.getTime().value * (F64)d * 50) + 1) * 0.5f);
+       // mat->setFloat("mix", (sin(TIME.getTime().value * (F64)d * 50) + 1) * 0.5f);
     }
 
     void shutdown() override { LOG("TestScene Shutdown!", Color::RED); }

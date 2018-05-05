@@ -7,7 +7,7 @@
 // ----------------------------------------------
 #shader vertex
 
-#include "includes/engine.inc"
+#include "includes/engineVS.hlsl"
 
 struct VertexIn
 {

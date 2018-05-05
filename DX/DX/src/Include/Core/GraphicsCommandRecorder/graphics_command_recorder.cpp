@@ -8,10 +8,7 @@
 
 #include "Core/locator.h"
 #include "GameplayLayer/i_scene.h"
-#include "GameplayLayer/gameobject.h"
-#include "Graphics/command_buffer.h"
 #include "GameplayLayer/Components/Rendering/camera.h"
-#include "GameplayLayer/Components/Rendering/i_render_component.hpp"
 
 namespace Core {
 
@@ -33,17 +30,13 @@ namespace Core {
         // Fetch all renderer components
         auto& renderers = scene.getComponentManager().getRenderer();
 
-        // Create rendering commands for each camera and submit them to the graphics-engine
+        // Create rendering commands for each camera and submit them to the rendering engine
         for (auto& cam : scene.getComponentManager().getCameras())
         {
             auto& cmd = cam->recordGraphicsCommands( lerp, renderers );
 
-            // Execute rendering commands from this camera
+            // Send command buffer to rendering engine for execution
             graphicsEngine.dispatch( cmd );
-
-            // Execute additional attached command buffers
-            for ( auto& camCMD : cam->getAdditionalCommandBuffers() )
-                graphicsEngine.dispatch( *camCMD );
         }
     }
 

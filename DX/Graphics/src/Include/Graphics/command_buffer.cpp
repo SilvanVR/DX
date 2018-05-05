@@ -15,6 +15,13 @@ namespace Graphics {
     }
 
     //----------------------------------------------------------------------
+    void CommandBuffer::merge( const CommandBuffer& cmd )
+    {
+        auto& commands = cmd.getGPUCommands();
+        m_gpuCommands.insert( m_gpuCommands.end(), commands.begin(), commands.end() );
+    }
+
+    //----------------------------------------------------------------------
     void CommandBuffer::reset()
     {
         m_gpuCommands.clear();

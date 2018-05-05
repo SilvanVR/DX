@@ -89,6 +89,7 @@ namespace Components {
         }
 
         // Record commands for every rendering component
+        Graphics::CommandBuffer tmpBuffer;
         for ( auto& renderer : rendererComponents )
         {
             if ( not renderer->isActive() )
@@ -98,8 +99,20 @@ namespace Components {
             bool isVisible = renderer->cull( *this );
             bool layerMatch = ( m_cullingMask & renderer->getGameObject()->getLayers() ).isAnyBitSet();
             if (isVisible && layerMatch)
-                renderer->recordGraphicsCommands( m_commandBuffer, lerp );
+                renderer->recordGraphicsCommands( tmpBuffer, lerp );
         }
+
+        // Sort rendering commands by material and renderqueue
+        for (auto& command : tmpBuffer.getGPUCommands())
+        {
+        }
+
+        //std::map<MaterialPtr, ArrayList<Graphics::GPUC_DrawMesh*>> sortedMaterials;
+
+
+        m_commandBuffer.merge( tmpBuffer );
+        for (auto& additionalCmd : m_additionalCommandBuffers)
+            m_commandBuffer.merge( *additionalCmd );
 
         return m_commandBuffer;
     }

@@ -79,7 +79,7 @@ namespace Components {
             return false;
 
         // Cull mesh against frustum by transforming vertices from AABB into clip space
-        auto& modelMatrix = getGameObject()->getTransform()->getWorldMatrix();
+        auto modelMatrix = getGameObject()->getTransform()->getWorldMatrix();
         auto mvp = modelMatrix * camera.getViewProjectionMatrix();
 
         auto aabbCorners = m_mesh->getBounds().getCorners();

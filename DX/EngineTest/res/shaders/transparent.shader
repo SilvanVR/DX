@@ -1,10 +1,9 @@
 // ----------------------------------------------
 #Fill			Solid
-#Cull 			Back
-#ZWrite 		On
-#ZTest 			Less
+#Cull 			None
+#ZWrite 		Off
 #Blend 			SrcAlpha OneMinusSrcAlpha
-#Priority 		Geometry
+#Queue 			Transparent
 #AlphaToMask 	Off
 
 // ----------------------------------------------
@@ -39,8 +38,7 @@ VertexOut main(VertexIn vin)
 
 cbuffer cbPerMaterial
 {
-	float4 tintColor;
-	float mix;
+	float opacity;
 };
 
 struct FragmentIn
@@ -49,17 +47,11 @@ struct FragmentIn
 	float2 tex : TEXCOORD0;
 };
 
-Texture2D tex0;
+Texture2D tex;
 SamplerState sampler0;
-
-Texture2D tex1;
-SamplerState sampler1;
 
 float4 main(FragmentIn fin) : SV_Target
 {
-	float4 textureColor = tex0.Sample(sampler0, fin.tex);
-	float4 textureColor2 = tex1.Sample(sampler1, fin.tex);
-	
-	float4 combined = lerp(textureColor, textureColor2, mix);
-	return combined * tintColor;
+	float4 textureColor = tex.Sample(sampler0, fin.tex);
+	return float4(textureColor.rgb, opacity);
 }
