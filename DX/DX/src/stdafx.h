@@ -19,10 +19,17 @@
 #include <queue>
 #include <stack>
 
-#include "pch.hpp"
+#include "Common/data_types.hpp"
+#include "Common/macros.hpp"
+#include "Common/string.h"
+#include "Logging/logging.h"
+#include "Math/dxmath_wrapper.h"
 
 #ifdef _WIN32
     #define NOMINMAX
+    #define WIN32_LEAN_AND_MEAN
+    #include <Windows.h>
+    #undef ERROR
     #include <DirectXMath.h>
     #include <xaudio2.h>
     #include <x3daudio.h>

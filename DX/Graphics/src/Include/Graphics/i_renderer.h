@@ -8,7 +8,7 @@
     Interface for a renderer subsystem.
 **********************************************************************/
 
-#include "SubSystem/i_subsystem.hpp"
+#include "Common/i_subsystem.hpp"
 #include "OS/Window/window.h"
 #include "structs.hpp"
 

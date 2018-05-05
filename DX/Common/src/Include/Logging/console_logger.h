@@ -11,7 +11,7 @@
 
 #include "i_logger.hpp"
 #include "Console/console.h"
-#include "DataStructures/byte_array.hpp"
+#include "Common/DataStructures/byte_array.hpp"
 
 namespace Logging  {
 

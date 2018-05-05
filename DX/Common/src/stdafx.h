@@ -16,4 +16,13 @@
 #include <mutex>
 #include <queue>
 
-#include "pch.hpp"
+#include "Common/data_types.hpp"
+#include "Common/macros.hpp"
+#include "Common/string.h"
+
+#ifdef  _WIN32
+#define NOMINMAX
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
+#undef ERROR
+#endif //  _WIN32

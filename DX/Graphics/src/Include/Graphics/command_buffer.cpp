@@ -18,7 +18,6 @@ namespace Graphics {
     void CommandBuffer::reset()
     {
         m_gpuCommands.clear();
-        m_gpuCommands.reserve( COMMAND_BUFFER_INITIAL_CAPACITY );
     }
 
     //----------------------------------------------------------------------
@@ -60,7 +59,7 @@ namespace Graphics {
     //----------------------------------------------------------------------
     void CommandBuffer::copyTexture( ITexture* srcTex, ITexture* dstTex )
     {
-        m_gpuCommands.push_back( std::make_unique<GPUC_CopyTexture>( srcTex, 0, 0, dstTex, 0, 0 ) );
+        copyTexture( srcTex, 0, 0, dstTex, 0, 0 );
     }
 
     //----------------------------------------------------------------------

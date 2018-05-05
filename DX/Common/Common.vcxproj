@@ -153,11 +153,10 @@
     <ClInclude Include="src\Include\Math\aabb.h" />
     <ClInclude Include="src\Include\Math\dxmath_wrapper.h" />
     <ClInclude Include="src\Include\Math\math_utils.h" />
-    <ClInclude Include="src\Include\pch.hpp" />
     <ClInclude Include="src\Include\Common\data_types.hpp" />
     <ClInclude Include="src\Include\Common\macros.hpp" />
     <ClInclude Include="src\Include\Common\string.h" />
-    <ClInclude Include="src\Include\DataStructures\byte_array.hpp" />
+    <ClInclude Include="src\Include\Common\DataStructures\byte_array.hpp" />
     <ClInclude Include="src\Include\Logging\logging.h" />
     <ClInclude Include="src\Include\Logging\Console\console.h" />
     <ClInclude Include="src\Include\Logging\console_logger.h" />
@@ -173,7 +172,6 @@
     <ClInclude Include="src\Include\Memory\Allocators\universal_allocator_defragmented.hpp" />
     <ClInclude Include="src\Include\Memory\memory_structs.h" />
     <ClInclude Include="src\Include\Common\color.h" />
-    <ClInclude Include="src\Include\Common\Introspection\introspection.h" />
     <ClInclude Include="src\Include\Common\variant_type.h" />
     <ClInclude Include="src\Include\OS\FileSystem\file.h" />
     <ClInclude Include="src\Include\OS\FileSystem\file_system.h" />
@@ -189,7 +187,7 @@
     <ClInclude Include="src\Include\OS\Window\window.h" />
     <ClInclude Include="src\Include\Math\random.h" />
     <ClInclude Include="src\stdafx.h" />
-    <ClInclude Include="src\Include\SubSystem\i_subsystem.hpp" />
+    <ClInclude Include="src\Include\Common\i_subsystem.hpp" />
     <ClInclude Include="src\Include\Time\clock.h" />
     <ClInclude Include="src\Include\Time\durations.h" />
     <ClInclude Include="src\Include\Time\master_clock.h" />

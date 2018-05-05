@@ -10,6 +10,7 @@
 **********************************************************************/
 
 #include "OS/PlatformTimer/platform_timer.h"
+#include "Logging/logging.h"
 
 namespace Time {
 

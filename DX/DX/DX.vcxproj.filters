@@ -18,115 +18,115 @@
     <ClCompile Include="src\stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Core\subsystem_manager.cpp">
+    <ClCompile Include="src\Include\Core\Assets\asset_manager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Core\Config\config_file.cpp">
+    <ClCompile Include="src\Include\Core\Assets\mesh_generator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Core\Config\configuration_manager.cpp">
+    <ClCompile Include="src\Include\Core\Audio\audio_clip.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Core\ThreadManager\thread_manager.cpp">
+    <ClCompile Include="src\Include\Core\Audio\audio_manager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Core\core_engine.cpp">
+    <ClCompile Include="src\Include\Core\Audio\wav_clip.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\locator.cpp">
+    <ClCompile Include="src\Include\Core\Config\config_file.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Core\Profiling\profiler.cpp">
+    <ClCompile Include="src\Include\Core\Config\configuration_manager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Core\Input\input_manager.cpp">
+    <ClCompile Include="src\Include\Core\DebugManager\debug_manager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Core\Input\listener\input_listener.cpp">
+    <ClCompile Include="src\Include\Core\GraphicsCommandRecorder\graphics_command_recorder.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Core\Input\devices\mouse.cpp">
+    <ClCompile Include="src\Include\Core\InGameConsole\in_game_console.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Core\Input\devices\keyboard.cpp">
+    <ClCompile Include="src\Include\Core\Input\devices\keyboard.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Core\Input\misc\action_mapper.cpp">
+    <ClCompile Include="src\Include\Core\Input\devices\mouse.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Core\Input\misc\axis_mapper.cpp">
+    <ClCompile Include="src\Include\Core\Input\listener\input_listener.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Core\InGameConsole\in_game_console.cpp">
+    <ClCompile Include="src\Include\Core\Input\misc\action_mapper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\GameplayLayer\gameobject.cpp">
+    <ClCompile Include="src\Include\Core\Input\misc\axis_mapper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\GameplayLayer\Components\i_component.cpp">
+    <ClCompile Include="src\Include\Core\Input\input_manager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Core\SceneManager\scene_manager.cpp">
+    <ClCompile Include="src\Include\Core\MemoryManager\memory_manager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\GameplayLayer\i_scene.cpp">
+    <ClCompile Include="src\Include\Core\MemoryManager\memory_tracker.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Core\Resources\resource_manager.cpp">
+    <ClCompile Include="src\Include\Core\Profiling\profiler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Core\GraphicsCommandRecorder\graphics_command_recorder.cpp">
+    <ClCompile Include="src\Include\Core\Resources\resource_manager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Core\MemoryManager\memory_manager.cpp">
+    <ClCompile Include="src\Include\Core\SceneManager\scene_manager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Core\MemoryManager\memory_tracker.cpp">
+    <ClCompile Include="src\Include\Core\ThreadManager\thread_manager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\GameplayLayer\Components\transform.cpp">
+    <ClCompile Include="src\Include\Core\core_engine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\GameplayLayer\Components\Rendering\camera.cpp">
+    <ClCompile Include="src\Include\Core\subsystem_manager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\GameplayLayer\Components\fps_camera.cpp">
+    <ClCompile Include="src\Include\Ext\StbImage\stb_image.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\GameplayLayer\Components\Rendering\mesh_renderer.cpp">
+    <ClCompile Include="src\Include\GameplayLayer\Components\Rendering\camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Ext\StbImage\stb_image.cpp">
+    <ClCompile Include="src\Include\GameplayLayer\Components\Rendering\mesh_renderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\GameplayLayer\Components\skybox.cpp">
+    <ClCompile Include="src\Include\GameplayLayer\Components\audio_listener.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Core\DebugManager\debug_manager.cpp">
+    <ClCompile Include="src\Include\GameplayLayer\Components\audio_source.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Core\Assets\asset_manager.cpp">
+    <ClCompile Include="src\Include\GameplayLayer\Components\fps_camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Core\Assets\mesh_generator.cpp">
+    <ClCompile Include="src\Include\GameplayLayer\Components\i_component.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Core\Audio\audio_manager.cpp">
+    <ClCompile Include="src\Include\GameplayLayer\Components\skybox.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Core\Audio\audio_clip.cpp">
+    <ClCompile Include="src\Include\GameplayLayer\Components\transform.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\GameplayLayer\Components\audio_listener.cpp">
+    <ClCompile Include="src\Include\GameplayLayer\gameobject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\GameplayLayer\Components\audio_source.cpp">
+    <ClCompile Include="src\Include\GameplayLayer\i_scene.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Core\Audio\wav_clip.cpp">
+    <ClCompile Include="src\Include\Physics\ray.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Physics\ray.cpp">
+    <ClCompile Include="src\Include\Core\locator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -134,154 +134,154 @@
     <ClInclude Include="src\stdafx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\subsystem_manager.h">
+    <ClInclude Include="src\Include\Core\Assets\asset_manager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\Config\config_file.h">
+    <ClInclude Include="src\Include\Core\Assets\material_parser.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\Config\configuration_manager.h">
+    <ClInclude Include="src\Include\Core\Assets\mesh_generator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\ThreadManager\thread_manager.h">
+    <ClInclude Include="src\Include\Core\Assets\shader_parser.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\core_engine.h">
+    <ClInclude Include="src\Include\Core\Audio\audio_clip.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\DX.h">
+    <ClInclude Include="src\Include\Core\Audio\audio_manager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\locator.h">
+    <ClInclude Include="src\Include\Core\Audio\wav_clip.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\Profiling\profiler.h">
+    <ClInclude Include="src\Include\Core\Config\config_file.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\Input\input_manager.h">
+    <ClInclude Include="src\Include\Core\Config\configuration_manager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\Input\listener\input_listener.h">
+    <ClInclude Include="src\Include\Core\DebugManager\debug_manager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\Input\devices\mouse.h">
+    <ClInclude Include="src\Include\Core\GraphicsCommandRecorder\graphics_command_recorder.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\Input\devices\keyboard.h">
+    <ClInclude Include="src\Include\Core\InGameConsole\i_in_game_console.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\Input\misc\action_mapper.h">
+    <ClInclude Include="src\Include\Core\InGameConsole\in_game_console.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\Input\misc\axis_mapper.h">
+    <ClInclude Include="src\Include\Core\Input\devices\keyboard.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\InGameConsole\in_game_console.h">
+    <ClInclude Include="src\Include\Core\Input\devices\mouse.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\InGameConsole\i_in_game_console.hpp">
+    <ClInclude Include="src\Include\Core\Input\listener\input_listener.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\Input\e_input_devices.hpp">
+    <ClInclude Include="src\Include\Core\Input\misc\action_mapper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\GameplayLayer\gameobject.h">
+    <ClInclude Include="src\Include\Core\Input\misc\axis_mapper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\GameplayLayer\Components\i_component.h">
+    <ClInclude Include="src\Include\Core\Input\e_input_devices.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\SceneManager\scene_manager.h">
+    <ClInclude Include="src\Include\Core\Input\input_manager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\GameplayLayer\i_scene.h">
+    <ClInclude Include="src\Include\Core\MemoryManager\memory.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\Resources\resource_manager.h">
+    <ClInclude Include="src\Include\Core\MemoryManager\memory_manager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\GraphicsCommandRecorder\graphics_command_recorder.h">
+    <ClInclude Include="src\Include\Core\MemoryManager\memory_tracker.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\MemoryManager\memory_manager.h">
+    <ClInclude Include="src\Include\Core\Profiling\profiler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\MemoryManager\memory_tracker.h">
+    <ClInclude Include="src\Include\Core\Resources\default_shaders.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\MemoryManager\memory.hpp">
+    <ClInclude Include="src\Include\Core\Resources\resource_manager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\GameplayLayer\Components\transform.h">
+    <ClInclude Include="src\Include\Core\SceneManager\scene_manager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\GameplayLayer\Components\Rendering\camera.h">
+    <ClInclude Include="src\Include\Core\ThreadManager\thread_manager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\GameplayLayer\Components\fps_camera.h">
+    <ClInclude Include="src\Include\Core\core_engine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\GameplayLayer\Components\component_manager.h">
+    <ClInclude Include="src\Include\Core\event_names.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\i_game.hpp">
+    <ClInclude Include="src\Include\Core\layer_defines.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\GameplayLayer\Components\Rendering\i_render_component.hpp">
+    <ClInclude Include="src\Include\Core\subsystem_manager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\GameplayLayer\Components\Rendering\mesh_renderer.h">
+    <ClInclude Include="src\Include\Ext\JSON\json.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Ext\StbImage\stb_image.h">
+    <ClInclude Include="src\Include\Ext\StbImage\stb_image.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\Resources\default_shaders.hpp">
+    <ClInclude Include="src\Include\GameplayLayer\Components\Rendering\camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\GameplayLayer\Components\skybox.h">
+    <ClInclude Include="src\Include\GameplayLayer\Components\Rendering\i_render_component.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\event_names.hpp">
+    <ClInclude Include="src\Include\GameplayLayer\Components\Rendering\mesh_renderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\DebugManager\debug_manager.h">
+    <ClInclude Include="src\Include\GameplayLayer\Components\audio_listener.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\Assets\asset_manager.h">
+    <ClInclude Include="src\Include\GameplayLayer\Components\audio_source.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\Assets\mesh_generator.h">
+    <ClInclude Include="src\Include\GameplayLayer\Components\component_manager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\Audio\audio_manager.h">
+    <ClInclude Include="src\Include\GameplayLayer\Components\fps_camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\Audio\audio_clip.h">
+    <ClInclude Include="src\Include\GameplayLayer\Components\i_component.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\GameplayLayer\Components\audio_listener.h">
+    <ClInclude Include="src\Include\GameplayLayer\Components\skybox.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\GameplayLayer\Components\audio_source.h">
+    <ClInclude Include="src\Include\GameplayLayer\Components\transform.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\Audio\wav_clip.h">
+    <ClInclude Include="src\Include\GameplayLayer\gameobject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Physics\ray.h">
+    <ClInclude Include="src\Include\GameplayLayer\i_scene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\layer_defines.hpp">
+    <ClInclude Include="src\Include\Physics\ray.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\Assets\shader_parser.hpp">
+    <ClInclude Include="src\Include\DX.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Ext\JSON\json.hpp">
+    <ClInclude Include="src\Include\GameplayLayer\i_game.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\Assets\material_parser.hpp">
+    <ClInclude Include="src\Include\Core\locator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
