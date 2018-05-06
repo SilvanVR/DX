@@ -35,6 +35,7 @@ namespace Graphics {
 
         // <------------------------ GPU COMMANDS ----------------------------->
         const ArrayList<std::shared_ptr<GPUCommandBase>>& getGPUCommands() const { return m_gpuCommands; }
+        ArrayList<std::shared_ptr<GPUCommandBase>>& getGPUCommands() { return m_gpuCommands; }
         void drawMesh(MeshPtr mesh, MaterialPtr material, const DirectX::XMMATRIX& modelMatrix, I32 subMeshIndex);
         void setRenderTarget(RenderTexturePtr renderTarget);
         void clearRenderTarget(const Color& clearColor);

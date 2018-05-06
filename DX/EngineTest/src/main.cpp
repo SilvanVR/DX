@@ -36,7 +36,7 @@ public:
         mat = ASSETS.getMaterial("/materials/transparent.material");
 
         auto go2 = createGameObject("Obj");
-        go2->addComponent<Components::MeshRenderer>(plane, mat);
+        go2->addComponent<Components::MeshRenderer>(plane, ASSETS.getMaterial("/materials/transparent.material"));
 
         auto go3 = createGameObject("Obj");
         go3->addComponent<Components::MeshRenderer>(plane, mat);
@@ -46,7 +46,6 @@ public:
         go4->addComponent<Components::MeshRenderer>(plane, mat);
         go4->getTransform()->position.z = -3;
 
-        DEBUG.drawCube({ -1,-1,-1 }, { 1,1,1 }, Color::RED, 20000, false );
 
         LOG("TestScene initialized!", Color::RED);
     }
@@ -112,6 +111,8 @@ public:
             Locator::getSceneManager().LoadSceneAsync(new TexArrayScene());
         if (KEYBOARD.wasKeyPressed(Key::Seven))
             Locator::getSceneManager().LoadSceneAsync(new MultiCamera());
+        if (KEYBOARD.wasKeyPressed(Key::Eight))
+            Locator::getSceneManager().LoadSceneAsync(new TransparencyScene());
         if (KEYBOARD.wasKeyPressed(Key::Zero))
             Locator::getSceneManager().LoadSceneAsync(new TestScene());
 

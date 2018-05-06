@@ -611,3 +611,39 @@ public:
 
     void shutdown() override { LOG("MultiCamera Shutdown!", Color::RED); }
 };
+
+
+class TransparencyScene : public IScene
+{
+public:
+    TransparencyScene() : IScene("TransparencyScene") {}
+
+    void init() override
+    {
+        // Camera
+        auto go = createGameObject("Camera");
+        auto cam = go->addComponent<Components::Camera>();
+        go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -10);
+        go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA);
+
+        createGameObject("Grid")->addComponent<GridGeneration>(20);
+
+        auto plane = Core::Assets::MeshGenerator::CreatePlane();
+        auto mat = ASSETS.getMaterial("/materials/transparent.material");
+
+        auto go2 = createGameObject("Obj");
+        go2->addComponent<Components::MeshRenderer>(plane, mat);
+
+        auto go3 = createGameObject("Obj");
+        go3->addComponent<Components::MeshRenderer>(plane, mat);
+        go3->getTransform()->position.z = 3;
+
+        auto go4 = createGameObject("Obj");
+        go4->addComponent<Components::MeshRenderer>(plane, mat);
+        go4->getTransform()->position.z = -3;
+
+        LOG("TransparencyScene initialized!", Color::RED);
+    }
+
+    void shutdown() override { LOG("TransparencyScene Shutdown!", Color::RED); }
+};

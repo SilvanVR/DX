@@ -30,6 +30,21 @@ namespace Graphics {
     //----------------------------------------------------------------------
     void CommandBuffer::drawMesh( MeshPtr mesh, MaterialPtr material, const DirectX::XMMATRIX& modelMatrix, I32 subMeshIndex )
     {
+        //// Insert drawing command sorted by the material shaders renderqueue
+        //for (auto it = m_gpuCommands.begin(); it != m_gpuCommands.end(); it++)
+        //{
+        //    if ((*it)->getType() == Graphics::GPUCommand::DRAW_MESH)
+        //    {
+        //        auto c = reinterpret_cast<GPUC_DrawMesh*>( (*it).get() );
+
+        //        if ( material->getShader()->getRenderQueue() <= c->material->getShader()->getRenderQueue() )
+        //        {
+        //            m_gpuCommands.insert( it, std::make_unique<GPUC_DrawMesh>( mesh, material, modelMatrix, subMeshIndex) );
+        //            return;
+        //        }
+        //    }
+        //}
+
         m_gpuCommands.push_back( std::make_unique<GPUC_DrawMesh>( mesh, material, modelMatrix, subMeshIndex ) );
     }
 

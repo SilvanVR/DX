@@ -2,6 +2,6 @@
 
 "shader" : "/shaders/transparent.shader",
 "tex" : "/textures/nico.jpg",
-"opacity" : 0.9
+"opacity" : 0.5
 
 }

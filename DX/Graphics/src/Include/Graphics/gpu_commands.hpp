@@ -73,7 +73,7 @@ namespace Graphics {
             : GPUCommandBase( GPUCommand::CLEAR_RENDER_TARGET ), 
             clearColor( clearColor ) {}
 
-        Color                       clearColor;
+        Color clearColor;
     };
 
     //**********************************************************************
@@ -84,9 +84,7 @@ namespace Graphics {
             view( view ), fov( fov ), zNear( zNear ), zFar( zFar ) {}
 
         DirectX::XMMATRIX   view;
-        F32                 fov;
-        F32                 zNear;
-        F32                 zFar;
+        F32                 fov, zNear, zFar;
     };
 
     //**********************************************************************
@@ -97,12 +95,7 @@ namespace Graphics {
             view( view ), left( left ), right( right ), bottom( bottom ), top( top ), zNear( zNear ), zFar( zFar ) {}
 
         DirectX::XMMATRIX view;
-        F32 left;
-        F32 right;
-        F32 bottom;
-        F32 top;
-        F32 zNear;
-        F32 zFar;
+        F32 left, right, bottom, top, zNear, zFar;
     };
 
     //**********************************************************************

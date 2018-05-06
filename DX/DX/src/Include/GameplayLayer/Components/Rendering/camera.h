@@ -152,6 +152,11 @@ namespace Components {
         ArrayList<Graphics::CommandBuffer*>& getAdditionalCommandBuffers() { return m_additionalCommandBuffers; }
 
         //----------------------------------------------------------------------
+        // Sorts all rendering commands from the given command buffer by material, renderqueue and camera distance
+        //----------------------------------------------------------------------
+        inline void _SortRenderCommands(const Graphics::CommandBuffer& cmd, const Math::Vec3& position);
+
+        //----------------------------------------------------------------------
         Camera(const Camera& other)               = delete;
         Camera& operator = (const Camera& other)  = delete;
         Camera(Camera&& other)                    = delete;

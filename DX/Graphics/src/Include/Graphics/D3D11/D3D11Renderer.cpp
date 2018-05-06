@@ -20,12 +20,14 @@ using namespace DirectX;
 
 namespace Graphics {
 
+    #define CAMERA_BUFFER_BIND_ID 0
+    #define OBJECT_BUFFER_BIND_ID 1
+
     D3D11::ConstantBuffer*  pConstantBufferObject = nullptr;
     D3D11::ConstantBuffer*  pConstantBufferCamera = nullptr;
-    //@ADD: Per frame cb
 
     //----------------------------------------------------------------------
-    IRenderTexture* D3D11Renderer::s_currentRenderTarget = nullptr;
+    IRenderTexture*     D3D11Renderer::s_currentRenderTarget = nullptr;
 
     //**********************************************************************
     // INIT STUFF
@@ -40,6 +42,10 @@ namespace Graphics {
             // Buffers
             pConstantBufferCamera = new D3D11::ConstantBuffer( sizeof(XMMATRIX), BufferUsage::Frequently );
             pConstantBufferObject = new D3D11::ConstantBuffer( sizeof(XMMATRIX), BufferUsage::Frequently );
+
+            // Bind Camera + Object Constant buffers
+            pConstantBufferCamera->bindToVertexShader( CAMERA_BUFFER_BIND_ID );
+            pConstantBufferObject->bindToVertexShader( OBJECT_BUFFER_BIND_ID );
         }
     }
 
@@ -54,13 +60,6 @@ namespace Graphics {
     //----------------------------------------------------------------------
     void D3D11Renderer::dispatch( const CommandBuffer& cmd )
     {
-        // Bind Camera + Object Constant buffers
-        pConstantBufferCamera->bindToVertexShader(0);
-        pConstantBufferObject->bindToVertexShader(1);
-
-        // Just sort drawcalls quickly by material
-        std::map<MaterialPtr, ArrayList<GPUC_DrawMesh*>> sortedMaterials;
-
         auto& commands = cmd.getGPUCommands();
         for ( auto& command : commands )
         {
@@ -99,7 +98,7 @@ namespace Graphics {
                 case GPUCommand::DRAW_MESH:
                 {
                     GPUC_DrawMesh& c = *reinterpret_cast<GPUC_DrawMesh*>( command.get() );
-                    sortedMaterials[c.material].push_back( &c );
+                    _DrawMesh( c.mesh.get(), c.material.get(), c.modelMatrix, c.subMeshIndex );
                     break;
                 }
                 case GPUCommand::COPY_TEXTURE:
@@ -115,53 +114,6 @@ namespace Graphics {
                 }
                 default:
                     LOG_WARN_RENDERING( "Unknown GPU Command in given command buffer!" );
-            }
-        }
-
-        // Sort shaders
-        auto comp = [](const MaterialPtr& a, const MaterialPtr& b) {
-            return a->getShader()->getRenderQueue() < b->getShader()->getRenderQueue();
-        };
-        ArrayList<MaterialPtr> sortedShaders;
-        for (auto& pair : sortedMaterials)
-            sortedShaders.push_back(pair.first);
-        std::sort(sortedShaders.begin(), sortedShaders.end(), comp);
-
-        // Now render by material
-        for (auto& material : sortedShaders)
-        {
-            // Bind materials
-            ShaderPtr shader = nullptr;
-            if (m_activeGlobalMaterial)
-            {
-                shader = m_activeGlobalMaterial->getShader();
-                shader->bind();
-                m_activeGlobalMaterial->bind();
-            }
-            else 
-            {
-                shader = material->getShader();
-                shader->bind();
-                material->bind();
-            }
-
-            // Perform draw calls
-            for (auto& drawCall : sortedMaterials[material])
-            {
-                m_frameInfo.drawCalls++;
-                m_frameInfo.numVertices += drawCall->mesh->getVertexCount();
-                for (auto i = 0; i < drawCall->mesh->getSubMeshCount(); i++)
-                    m_frameInfo.numTriangles += drawCall->mesh->getIndexCount(i) / 3;
-
-                // Update per object buffer
-                pConstantBufferObject->update( &drawCall->modelMatrix, sizeof( DirectX::XMMATRIX ) );
-
-                // Bind buffers
-                auto mesh = reinterpret_cast<D3D11::Mesh*>( drawCall->mesh.get() );
-                mesh->bind( shader->getVertexLayout(), drawCall->subMeshIndex );
-
-                // Submit draw call
-                g_pImmediateContext->DrawIndexed( mesh->getIndexCount( drawCall->subMeshIndex ), 0, mesh->getBaseVertex( drawCall->subMeshIndex ) );
             }
         }
     }
@@ -343,6 +295,57 @@ namespace Graphics {
         vp.Height   = viewport.height;
         vp.MaxDepth = 1.0f;
         g_pImmediateContext->RSSetViewports( 1, &vp );
+    }
+
+    //----------------------------------------------------------------------
+    void D3D11Renderer::_DrawMesh( IMesh* mesh, IMaterial* material, const DirectX::XMMATRIX& modelMatrix, U32 subMeshIndex )
+    {
+        static Shader*      currentBoundShader = nullptr;
+        static Material*    currentBoundMaterial = nullptr;
+
+        m_frameInfo.drawCalls++;
+        m_frameInfo.numVertices += mesh->getVertexCount();
+        for (auto i = 0; i < mesh->getSubMeshCount(); i++)
+            m_frameInfo.numTriangles += mesh->getIndexCount(i) / 3;
+
+        Shader* shader = currentBoundShader;
+        if (m_activeGlobalMaterial)
+        {
+            if (m_activeGlobalMaterial != currentBoundMaterial)
+            {
+                shader = m_activeGlobalMaterial->getShader().get();
+                shader->bind();
+                currentBoundShader = m_activeGlobalMaterial->getShader().get();
+                currentBoundMaterial = m_activeGlobalMaterial;
+            }
+        }
+        else
+        {
+            // Bind shader if not already bound
+            if ( material->getShader().get() != currentBoundShader )
+            {
+                shader = material->getShader().get();
+                shader->bind();
+                currentBoundShader = material->getShader().get();
+            }
+
+            // Bind material if not already bound
+            if ( material != currentBoundMaterial )
+            {
+                material->bind();
+                currentBoundMaterial = material;
+            }
+        }
+
+        // Update per object buffer
+        pConstantBufferObject->update( &modelMatrix, sizeof( DirectX::XMMATRIX ) );
+
+        // Bind mesh
+        auto d3d11Mesh = reinterpret_cast<D3D11::Mesh*>( mesh );
+        d3d11Mesh->bind( shader->getVertexLayout(), subMeshIndex );
+
+        // Submit draw call
+        g_pImmediateContext->DrawIndexed( mesh->getIndexCount( subMeshIndex ), 0, mesh->getBaseVertex( subMeshIndex ) );
     }
 
 
