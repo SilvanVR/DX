@@ -38,8 +38,9 @@ namespace Components {
         //----------------------------------------------------------------------
         // @Return:
         // Component from attached gameobject. Nullptr if not found.
+        // PS. THIS CAUSES A CIRCULAR COMPILER DEPENDENCY (Solving this is kinda annoying and takes some time though)
         //----------------------------------------------------------------------
-        template<typename T> inline T* getComponent() { return m_pGameObject->getComponent<T>(); }
+        //template<typename T> inline T* getComponent() { return m_pGameObject->getComponent<T>(); }
 
     protected:
         //----------------------------------------------------------------------

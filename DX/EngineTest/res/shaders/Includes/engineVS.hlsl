@@ -1,21 +1,26 @@
-cbuffer cbPerCamera
+cbuffer cbPerCamera : register( b0 )
 {
     float4x4 gViewProj;
 };
 
-cbuffer cbPerObject
+cbuffer cbPerObject : register( b1 )
 {
     float4x4 gWorld;
 };
 
-float4 TO_CLIP_SPACE(float3 vert)
+cbuffer cbBufferGlobal : register( b2 )
 {
-	float4x4 mvp = mul(gViewProj, gWorld);
-    return mul(mvp, float4(vert,1));
-}
+    float time;
+};
+
 
 float4 TO_CLIP_SPACE(float4 vert)
 {
-	float4x4 mvp = mul(gViewProj, gWorld);
-    return mul(mvp, vert);
+	float4x4 mvp = mul( gViewProj, gWorld );
+    return mul( mvp, vert );
+}
+
+float4 TO_CLIP_SPACE(float3 vert)
+{
+    return TO_CLIP_SPACE( float4( vert, 1 ) );
 }

@@ -31,7 +31,7 @@ namespace Components {
     //----------------------------------------------------------------------
     void AudioListener::_UpdateListener()
     {
-        auto transform = getComponent<Components::Transform>();
+        auto transform = getGameObject()->getComponent<Components::Transform>();
 
         X3DAUDIO_LISTENER listener = {};
         listener.OrientFront    = transform->rotation.getForward();

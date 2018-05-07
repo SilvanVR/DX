@@ -91,4 +91,37 @@ namespace Graphics {
         m_gpuCommands.push_back( std::make_unique<GPUC_CopyTexture>( srcTex, srcElement, srcMip, dstTex, dstElement, dstMip ) );
     }
 
+    //----------------------------------------------------------------------
+    void CommandBuffer::setGlobalFloat( StringID name, F32 value )
+    {
+        m_gpuCommands.push_back( std::make_unique<GPUC_SetGlobalFloat>( name, value ) );
+    }
+
+    //----------------------------------------------------------------------
+    void CommandBuffer::setGlobalInt( StringID name, I32 value )
+    {
+        m_gpuCommands.push_back( std::make_unique<GPUC_SetGlobalInt>( name, value ) );
+    }
+
+    //----------------------------------------------------------------------
+    void CommandBuffer::setGlobalVector4( StringID name, const Math::Vec4& vec4 )
+    {
+        m_gpuCommands.push_back( std::make_unique<GPUC_SetGlobalVector>( name, vec4 ) );
+    }
+
+    //----------------------------------------------------------------------
+    void CommandBuffer::setGlobalColor( StringID name, Color color )
+    {
+        auto normalized = color.normalized();
+        Math::Vec4 vec( normalized[0], normalized[1], normalized[2], normalized[3] );
+        setGlobalVector4( name, vec );
+    }
+
+    //----------------------------------------------------------------------
+    void CommandBuffer::setGlobalMatrix( StringID name, const DirectX::XMMATRIX& matrix )
+    {
+        m_gpuCommands.push_back( std::make_unique<GPUC_SetGlobalMatrix>( name, matrix ) );
+    }
+
+
 } // End namespaces

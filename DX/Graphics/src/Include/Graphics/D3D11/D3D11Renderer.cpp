@@ -22,12 +22,14 @@ namespace Graphics {
 
     #define CAMERA_BUFFER_BIND_ID 0
     #define OBJECT_BUFFER_BIND_ID 1
+    #define GLOBAL_BUFFER_BIND_ID 2
 
     D3D11::ConstantBuffer*  pConstantBufferObject = nullptr;
     D3D11::ConstantBuffer*  pConstantBufferCamera = nullptr;
+    D3D11::ConstantBuffer*  pConstantBufferGlobal = nullptr;
 
     //----------------------------------------------------------------------
-    IRenderTexture*     D3D11Renderer::s_currentRenderTarget = nullptr;
+    IRenderTexture* D3D11Renderer::s_currentRenderTarget = nullptr;
 
     //**********************************************************************
     // INIT STUFF
@@ -42,16 +44,20 @@ namespace Graphics {
             // Buffers
             pConstantBufferCamera = new D3D11::ConstantBuffer( sizeof(XMMATRIX), BufferUsage::Frequently );
             pConstantBufferObject = new D3D11::ConstantBuffer( sizeof(XMMATRIX), BufferUsage::Frequently );
+            pConstantBufferGlobal = new D3D11::ConstantBuffer( sizeof(XMMATRIX), BufferUsage::Frequently );
 
-            // Bind Camera + Object Constant buffers
+            // Bind Buffers
             pConstantBufferCamera->bindToVertexShader( CAMERA_BUFFER_BIND_ID );
             pConstantBufferObject->bindToVertexShader( OBJECT_BUFFER_BIND_ID );
+            pConstantBufferGlobal->bindToVertexShader( GLOBAL_BUFFER_BIND_ID );
+            pConstantBufferGlobal->bindToPixelShader( GLOBAL_BUFFER_BIND_ID );
         }
     }
 
     //----------------------------------------------------------------------
     void D3D11Renderer::shutdown()
     {
+        SAFE_DELETE( pConstantBufferGlobal );
         SAFE_DELETE( pConstantBufferCamera );
         SAFE_DELETE( pConstantBufferObject );
         _DeinitD3D11();
@@ -110,6 +116,26 @@ namespace Graphics {
                     D3D11::IBindableTexture* srcTex = dynamic_cast<D3D11::IBindableTexture*>( c.srcTex );
                     g_pImmediateContext->CopySubresourceRegion( dstTex->getD3D11Texture(), dstElement, 0, 0, 0, 
                                                                 srcTex->getD3D11Texture(), srcElement, NULL );
+                    break;
+                }
+                case GPUCommand::SET_GLOBAL_FLOAT:
+                {
+                    GPUC_SetGlobalFloat& c = *reinterpret_cast<GPUC_SetGlobalFloat*>( command.get() );
+                    F32 val = c.value;
+                    StringID name = c.name;
+
+                    // Update global buffer
+                    pConstantBufferGlobal->update( &val, sizeof(F32) );
+                    break;
+                }
+                case GPUCommand::SET_GLOBAL_VECTOR:
+                {
+                    GPUC_SetGlobalVector& c = *reinterpret_cast<GPUC_SetGlobalVector*>(command.get());
+                    auto vec = c.vec;
+                    StringID name = c.name;
+
+                    // Update global buffer
+                    //pConstantBufferGlobal->update(&val, sizeof(F32));
                     break;
                 }
                 default:

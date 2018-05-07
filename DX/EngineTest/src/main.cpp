@@ -30,29 +30,19 @@ public:
 
         createGameObject("Grid")->addComponent<GridGeneration>(20);
 
-        auto plane = Core::Assets::MeshGenerator::CreatePlane();
+        auto mesh = Core::Assets::MeshGenerator::CreatePlane();
         //mesh->setColors(cubeColors);
 
-        mat = ASSETS.getMaterial("/materials/transparent.material");
+        mat = ASSETS.getMaterial("/materials/globalTest.material");
 
         auto go2 = createGameObject("Obj");
-        go2->addComponent<Components::MeshRenderer>(plane, ASSETS.getMaterial("/materials/transparent.material"));
-
-        auto go3 = createGameObject("Obj");
-        go3->addComponent<Components::MeshRenderer>(plane, mat);
-        go3->getTransform()->position.z = 3;
-
-        auto go4 = createGameObject("Obj");
-        go4->addComponent<Components::MeshRenderer>(plane, mat);
-        go4->getTransform()->position.z = -3;
-
+        go2->addComponent<Components::MeshRenderer>(mesh, mat);
 
         LOG("TestScene initialized!", Color::RED);
     }
 
     void tick(Time::Seconds d) override
     {
-       // mat->setFloat("mix", (sin(TIME.getTime().value * (F64)d * 50) + 1) * 0.5f);
     }
 
     void shutdown() override { LOG("TestScene Shutdown!", Color::RED); }
@@ -66,6 +56,8 @@ class Game : public IGame
 {
     const F64 duration = 1000;
     Time::Clock clock;
+
+    Graphics::CommandBuffer globalBufferCommands;
 
 public:
     Game() : clock( duration ) {}
@@ -96,6 +88,12 @@ public:
         //clock.tick( delta );
         //LOG( TS( clock.getTime().value ) );
         //auto time = clock.getTime();
+
+        globalBufferCommands.reset();
+        globalBufferCommands.setGlobalFloat( SID("time"), (F32)TIME.getTime().value );
+        globalBufferCommands.setGlobalColor(SID("ambient"), Color::RED);
+        Locator::getRenderer().dispatch(globalBufferCommands);
+
 
         if (KEYBOARD.wasKeyPressed(Key::One))
             Locator::getSceneManager().LoadSceneAsync(new VertexGenScene);

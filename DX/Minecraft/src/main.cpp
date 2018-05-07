@@ -300,8 +300,8 @@ public:
         ACTION_MAPPER.attachMouseEvent(ACTION_NAME_DIG, MouseKey::LButton);
         ACTION_MAPPER.attachMouseEvent(ACTION_NAME_PLACE, MouseKey::RButton);
         ACTION_MAPPER.attachKeyboardEvent(ACTION_NAME_JUMP, Key::Space);
-        transform = getComponent<Components::Transform>();
-        inventory = getComponent<PlayerInventory>();
+        transform = getGameObject()->getComponent<Components::Transform>();
+        inventory = getGameObject()->getComponent<PlayerInventory>();
         ASSERT(inventory && "Inventory Component is NULL!");
 
         auto eulers = transform->rotation.toEulerAngles();

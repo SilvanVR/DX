@@ -12,6 +12,10 @@
 
 namespace Graphics { namespace D3D11 {
 
+    // Get the latest profile for the specified Shader type.
+    template<class ShaderCompilerClass>
+    String GetLatestProfile();
+
     // Contains infos about one specific member in a shader buffer
     struct ConstantBufferMemberInfo
     {
@@ -141,10 +145,6 @@ namespace Graphics { namespace D3D11 {
         ShaderBase& operator = (ShaderBase&& other)       = delete;
     };
 
-    
-    // Get the latest profile for the specified Shader type.
-    template<class ShaderCompilerClass>
-    String GetLatestProfile();
 
     //----------------------------------------------------------------------
     template<> inline

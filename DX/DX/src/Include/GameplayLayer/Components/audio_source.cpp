@@ -43,7 +43,7 @@ namespace Components {
     //----------------------------------------------------------------------
     void AudioSource::_Update3DSettings()
     {
-        auto transform = getComponent<Components::Transform>();
+        auto transform = getGameObject()->getComponent<Components::Transform>();
 
         X3DAUDIO_EMITTER emitter = {};
         emitter.ChannelCount        = INPUTCHANNELS;

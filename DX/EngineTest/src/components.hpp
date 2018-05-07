@@ -37,7 +37,7 @@ public:
 
     void tick( Time::Seconds delta ) override
     {
-        auto t = getComponent<Components::Transform>();
+        auto t = getGameObject()->getComponent<Components::Transform>();
         t->rotation = Math::Quat::FromEulerAngles( m_curDegrees );
         m_curDegrees += m_speeds * (F32)delta.value;
     }
@@ -112,12 +112,12 @@ public:
             i++;
         }
 
-        auto newColors = mesh->getColors();
+        ArrayList<Color> newColors = mesh->getColors();
         for (auto& color : newColors)
             color.setBlue((Byte)((sin(TIME.getTime().value) + 1) / 2 * 255));
 
         mesh->setVertices(newVertices);
-        mesh->setColors(newColors);
+        //mesh->setColors(newColors);
     }
 
 private:
@@ -162,7 +162,7 @@ public:
 
     void tick(Time::Seconds delta) override
     {
-        auto t = getComponent<Components::Transform>();
+        auto t = getGameObject()->getComponent<Components::Transform>();
 
         Math::Vec3 vecXZ = t->position;
         vecXZ.y = 0.0f;
