@@ -206,9 +206,6 @@
     <ClInclude Include="src\Include\Core\Profiling\profiler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Include\Core\Resources\default_shaders.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\Include\Core\Resources\resource_manager.h">
       <Filter>Header Files</Filter>
     </ClInclude>

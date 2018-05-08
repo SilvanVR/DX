@@ -90,8 +90,8 @@ public:
         //auto time = clock.getTime();
 
         globalBufferCommands.reset();
-        globalBufferCommands.setGlobalFloat( SID("time"), (F32)TIME.getTime().value );
-        globalBufferCommands.setGlobalColor(SID("ambient"), Color::RED);
+        globalBufferCommands.setGlobalColor(SID("gColor"), Color::RED);
+        globalBufferCommands.setGlobalFloat( SID("gTime"), (F32)TIME.getTime().value );
         Locator::getRenderer().dispatch(globalBufferCommands);
 
 

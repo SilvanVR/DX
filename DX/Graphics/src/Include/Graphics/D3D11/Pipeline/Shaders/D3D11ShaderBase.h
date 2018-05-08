@@ -22,7 +22,10 @@ namespace Graphics { namespace D3D11 {
         StringID    name;
         U32         offset = 0;
         Size        size = 0;
-        DataType    type = DataType::Unknown;;
+        DataType    type = DataType::Unknown;
+
+        bool operator==(const ConstantBufferMemberInfo& c) { return name == c.name && offset == c.offset && size == c.size && type == c.type; }
+        bool operator!=(const ConstantBufferMemberInfo& c) { return !(*this == c); }
     };
 
     // Contains information about an buffer in a shader
@@ -31,6 +34,9 @@ namespace Graphics { namespace D3D11 {
         U32                                 slot = 0;
         Size                                sizeInBytes = 0;
         ArrayList<ConstantBufferMemberInfo> members;
+
+        bool operator==(const ConstantBufferInfo& c);
+        bool operator!=(const ConstantBufferInfo& c) { return !(*this == c); }
     };
 
     // Contains information about bound resources

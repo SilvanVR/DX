@@ -358,7 +358,6 @@
     <ClInclude Include="src\Include\Core\layer_defines.hpp" />
     <ClInclude Include="src\Include\Core\DebugManager\debug_manager.h" />
     <ClInclude Include="src\Include\Core\event_names.hpp" />
-    <ClInclude Include="src\Include\Core\Resources\default_shaders.hpp" />
     <ClInclude Include="src\Include\Core\Assets\mesh_generator.h" />
     <ClInclude Include="src\Include\Ext\JSON\json.hpp" />
     <ClInclude Include="src\Include\Ext\StbImage\stb_image.h" />

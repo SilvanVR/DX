@@ -1,6 +1,7 @@
 cbuffer cbBufferGlobal : register( b2 )
-{
-    float time;
+{	
+	float4 gColor;
+    float gTime;
 };
 
 

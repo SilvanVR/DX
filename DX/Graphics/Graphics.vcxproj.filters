@@ -191,5 +191,8 @@
     <ClInclude Include="src\Include\Graphics\D3D11\Resources\D3D11IBindableTexture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Include\Graphics\default_shaders.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

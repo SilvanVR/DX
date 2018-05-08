@@ -1,6 +1,6 @@
 #pragma once
 /**********************************************************************
-    class: None (default_shader.hpp)
+    class: None (default_shaders.hpp)
 
     author: S. Hau
     date: March 24, 2018
@@ -8,19 +8,19 @@
     Contains the default shaders in an ASCII text format.
 **********************************************************************/
 
-#define D3D11
+#define API_D3D11
 
-namespace Core { namespace Resources {
+namespace Graphics { 
 
-#ifdef D3D11
+#ifdef API_D3D11
 
     const String ERROR_VERTEX_SHADER_SOURCE = "     \
-    cbuffer cbPerCamera                             \
+    cbuffer cbPerCamera : register( b0 )            \
     {                                               \
         float4x4 gViewProj;                         \
     };                                              \
                                                     \
-    cbuffer cbPerObject                             \
+    cbuffer cbPerObject : register( b1 )            \
     {                                               \
         float4x4 gWorld;                            \
     };                                              \
@@ -56,36 +56,7 @@ namespace Core { namespace Resources {
         return float4(1,0,1,1);                     \
     }";
 
-    const String DEFAULT_VERTEX_SHADER_SOURCE =  "  \
-    cbuffer cbPerCamera                             \
-    {                                               \
-        float4x4 gViewProj;                         \
-    };                                              \
-                                                    \
-    cbuffer cbPerObject                             \
-    {                                               \
-        float4x4 gWorld;                            \
-    };                                              \
-                                                    \
-    struct VertexIn                                 \
-    {                                               \
-        float3 PosL : POSITION;                     \
-    };                                              \
-                                                    \
-    struct VertexOut                                \
-    {                                               \
-        float4 PosH : SV_POSITION;                  \
-    };                                              \
-                                                    \
-    VertexOut main(VertexIn vin)                    \
-    {                                               \
-        VertexOut OUT;                              \
-                                                    \
-        float4x4 mvp = mul(gViewProj, gWorld);      \
-        OUT.PosH = mul(mvp, float4(vin.PosL, 1.0f));\
-                                                    \
-        return OUT;                                 \
-    }";
+    const String DEFAULT_VERTEX_SHADER_SOURCE = ERROR_VERTEX_SHADER_SOURCE;
 
     const String DEFAULT_FRAGMENT_SHADER_SOURCE = " \
     struct FragmentIn                               \
@@ -99,12 +70,12 @@ namespace Core { namespace Resources {
     }";
 
     const String COLOR_VERTEX_SHADER_SOURCE =    "  \
-    cbuffer cbPerCamera                             \
+    cbuffer cbPerCamera : register( b0 )            \
     {                                               \
         float4x4 gViewProj;                         \
     };                                              \
                                                     \
-    cbuffer cbPerObject                             \
+    cbuffer cbPerObject : register( b1 )            \
     {                                               \
         float4x4 gWorld;                            \
     };                                              \
@@ -149,5 +120,4 @@ namespace Core { namespace Resources {
 #endif
 
 
-
-} }
+}

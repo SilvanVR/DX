@@ -27,8 +27,8 @@ VertexOut main(VertexIn vin)
 {
     VertexOut OUT;
 
-	float si = (sin(time) + 1) * 0.5;
-	float3 newPos =  vin.PosL + float3(0,0,sin(time));
+	float si = (sin(gTime) + 1) * 0.5;
+	float3 newPos =  vin.PosL + float3(0,0,sin(gTime));
     OUT.PosH = TO_CLIP_SPACE(vin.PosL);
 	OUT.tex = vin.tex;
 	
@@ -63,7 +63,7 @@ float4 main(FragmentIn fin) : SV_Target
 	float4 textureColor = tex0.Sample(sampler0, fin.tex);
 	float4 textureColor2 = tex1.Sample(sampler1, fin.tex);
 	
-	float si = (sin(time) + 1) * 0.5;
+	float si = (sin(gTime) + 1) * 0.5;
 	float4 combined = lerp(textureColor, textureColor2, mix);
-	return combined * tintColor * si;
+	return combined * si;
 }

@@ -92,7 +92,10 @@ namespace Logging {
         _LOG( ELogType::ERROR, channel, msg, logLevel, LOGTYPE_COLOR_ERROR );
 
         if (m_dumpToDisk)
+        {
+            printf_s( "Written log to %s\n", m_logFilePath.c_str() );
             _DumpToDisk();
+        }
 
         #ifdef _WIN32
             system( "pause" );
@@ -135,7 +138,7 @@ namespace Logging {
     //----------------------------------------------------------------------
     void ConsoleLogger::_DumpToDisk()
     {
-        static OS::TextFile logFile( m_logFilePath.c_str() );
+        static OS::TextFile logFile( m_logFilePath.c_str(), OS::EFileMode::WRITE );
 
         logFile.write( m_messageBuffer.data(), m_messageBuffer.size() );
         logFile.flush();

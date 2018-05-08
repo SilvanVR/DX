@@ -48,7 +48,7 @@ namespace OS {
     }
 
     //----------------------------------------------------------------------
-    void File::open( const Path& path, EFileMode mode)
+    void File::open( const Path& path, EFileMode mode )
     {
         ASSERT( not m_exists && "File was already opened!" );
 
@@ -56,7 +56,7 @@ namespace OS {
         m_exists    = _FileExists( m_filePath.c_str() );
         m_mode      = mode;
 
-        if ( not m_exists )
+        if ( not m_exists && (mode == EFileMode::READ) )
             throw std::runtime_error( "File '" + path.toString() + "' could not be opened, because it doesn't exist." );
 
         if ( not _OpenFile( m_mode, m_binary ) )

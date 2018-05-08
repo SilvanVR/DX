@@ -129,12 +129,12 @@ namespace Graphics { namespace D3D11 {
             inputLayoutDesc.push_back( elementDesc );
         }
 
-        // Vertex layout should never be empty
-        ASSERT( not m_vertexLayout.isEmpty() );
-
-        // Create Input Layout
-        HR( g_pDevice->CreateInputLayout( inputLayoutDesc.data(), (U32)inputLayoutDesc.size(), 
-                                          m_pShaderBlob->GetBufferPointer(), m_pShaderBlob->GetBufferSize(), &m_pInputLayout) );
+        if ( not m_vertexLayout.isEmpty() )
+        {
+            // Create Input Layout
+            HR( g_pDevice->CreateInputLayout( inputLayoutDesc.data(), (U32)inputLayoutDesc.size(), 
+                                              m_pShaderBlob->GetBufferPointer(), m_pShaderBlob->GetBufferSize(), &m_pInputLayout) );
+        }
     }
 
     //----------------------------------------------------------------------

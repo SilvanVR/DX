@@ -159,7 +159,7 @@ namespace Graphics { namespace D3D11 {
     {
         SAFE_RELEASE( m_pShaderBlob );
         ID3DBlob* errorBlob = nullptr;
-        HRESULT hr = D3DCompile( source.c_str(), source.size(), NULL, NULL, NULL, 
+        HRESULT hr = D3DCompile( source.c_str(), source.size(), NULL, NULL, D3D_COMPILE_STANDARD_FILE_INCLUDE,
                                  m_entryPoint.c_str(), profile, GetCompileFlags(), 0, &m_pShaderBlob, &errorBlob );
 
         if ( FAILED( hr ) )
@@ -263,7 +263,7 @@ namespace Graphics { namespace D3D11 {
                 case D3D11_SRV_DIMENSION_TEXTURECUBEARRAY:
                 case D3D11_SRV_DIMENSION_TEXTURECUBE:       texInfo.type = DataType::TextureCubemap; break;
                 }
-                ASSERT(texInfo.type != DataType::Unknown && "Could not deduce texture type.");
+                ASSERT( texInfo.type != DataType::Unknown && "Could not deduce texture type." );
 
                 m_textures[ SID( bindDesc.Name ) ] = texInfo;
                 break;
@@ -347,6 +347,21 @@ namespace Graphics { namespace D3D11 {
         return DataType::Unknown;
     }
 
+    //----------------------------------------------------------------------
+    bool ConstantBufferInfo::operator==( const ConstantBufferInfo& c )
+    {
+        if ( (slot != c.slot) && (sizeInBytes != c.sizeInBytes) )
+            return false;
+
+        if ( members.size() != c.members.size() )
+            return false;
+
+        for (I32 i = 0; i < members.size(); i++)
+            if ( members[i] != c.members[i] )
+                return false;
+
+        return true; 
+    }
 
 
 } } // End namespaces

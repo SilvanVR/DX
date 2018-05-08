@@ -68,6 +68,8 @@ namespace Graphics {
 
         void _ReportLiveObjects();
 
+        void _SetupConstantBuffers(const OS::Path& vertexPath, const OS::Path& fragPath);
+
         //----------------------------------------------------------------------
         // IRenderer Interface
         //----------------------------------------------------------------------

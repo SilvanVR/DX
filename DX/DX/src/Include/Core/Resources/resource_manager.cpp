@@ -11,7 +11,7 @@
 **********************************************************************/
 
 #include "Core/locator.h"
-#include "default_shaders.hpp"
+#include "Graphics/default_shaders.hpp"
 
 #define PRINT_DELETES 0
 
@@ -230,7 +230,7 @@ namespace Core { namespace Resources {
             // Error shader
             m_errorShader = ShaderPtr( Locator::getRenderer().createShader(), BIND_THIS_FUNC_1_ARGS( &ResourceManager::_DeleteShader ) );
             m_errorShader->setName( SHADER_ERROR_NAME );
-            if ( not m_errorShader->compileFromSource( ERROR_VERTEX_SHADER_SOURCE, ERROR_FRAGMENT_SHADER_SOURCE, "main" ) )
+            if ( not m_errorShader->compileFromSource( Graphics::ERROR_VERTEX_SHADER_SOURCE, Graphics::ERROR_FRAGMENT_SHADER_SOURCE, "main" ) )
                 LOG_ERROR( "Error shader source didn't compile. This is mandatory!" );
 
             m_shaders.push_back( m_errorShader.get() );
@@ -239,7 +239,7 @@ namespace Core { namespace Resources {
             m_defaultShader = ShaderPtr( Locator::getRenderer().createShader(), BIND_THIS_FUNC_1_ARGS( &ResourceManager::_DeleteShader ) );
             m_defaultShader->setName( SHADER_DEFAULT_NAME );
 
-            if ( not m_defaultShader->compileFromSource( DEFAULT_VERTEX_SHADER_SOURCE, DEFAULT_FRAGMENT_SHADER_SOURCE, "main" ) )
+            if ( not m_defaultShader->compileFromSource( Graphics::DEFAULT_VERTEX_SHADER_SOURCE, Graphics::DEFAULT_FRAGMENT_SHADER_SOURCE, "main" ) )
                 LOG_ERROR( "Default shader source didn't compile. This is mandatory!" );
 
             m_shaders.push_back( m_defaultShader.get() );
@@ -248,7 +248,7 @@ namespace Core { namespace Resources {
             m_wireframeShader = ShaderPtr( Locator::getRenderer().createShader(), BIND_THIS_FUNC_1_ARGS( &ResourceManager::_DeleteShader ) );
             m_wireframeShader->setName( SHADER_WIREFRAME_NAME );
             m_wireframeShader->setRasterizationState( { Graphics::FillMode::Wireframe } );
-            m_wireframeShader->compileFromSource( DEFAULT_VERTEX_SHADER_SOURCE, DEFAULT_FRAGMENT_SHADER_SOURCE, "main" );
+            m_wireframeShader->compileFromSource( Graphics::DEFAULT_VERTEX_SHADER_SOURCE, Graphics::DEFAULT_FRAGMENT_SHADER_SOURCE, "main" );
 
             m_shaders.push_back( m_wireframeShader.get() );
 
@@ -256,7 +256,7 @@ namespace Core { namespace Resources {
             m_colorShader = ShaderPtr( Locator::getRenderer().createShader(), BIND_THIS_FUNC_1_ARGS( &ResourceManager::_DeleteShader ) );
             m_colorShader->setName( SHADER_COLOR_NAME );
 
-            if ( not m_colorShader->compileFromSource( COLOR_VERTEX_SHADER_SOURCE, COLOR_FRAGMENT_SHADER_SOURCE, "main") )
+            if ( not m_colorShader->compileFromSource( Graphics::COLOR_VERTEX_SHADER_SOURCE, Graphics::COLOR_FRAGMENT_SHADER_SOURCE, "main") )
                 LOG_ERROR( "Color shader source didn't compile. This is mandatory!" );
 
             m_shaders.push_back( m_colorShader.get() );

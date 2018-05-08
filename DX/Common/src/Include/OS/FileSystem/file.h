@@ -86,7 +86,7 @@ namespace OS {
         void read(const char* str, Args&&... args)
         {
             _READ_FUNC_BEGIN();
-            int numMatches = fscanf( m_file, str, args... );
+            int numMatches = fscanf_s( m_file, str, args... );
             ASSERT( ( numMatches == sizeof...(Args) ) && "Scanf could not read valid data for every argument!" );
             _READ_FUNC_END();
         }
