@@ -10,3 +10,5 @@
 #define SEMANTIC_COLOR          "COLOR"
 #define SEMANTIC_TEXCOORD       "TEXCOORD"
 #define SEMANTIC_NORMAL         "NORMAL"
+
+#define MATERIAL_NAME           "material"

@@ -35,11 +35,53 @@ namespace Graphics {
 
     static D3D11::ConstantBuffer*  pConstantBufferObject = nullptr;
     static D3D11::ConstantBuffer*  pConstantBufferCamera = nullptr;
-    static D3D11::ConstantBuffer*  pConstantBufferGlobal = nullptr;
 
-    static D3D11::ConstantBufferInfo globalBufferInfo;
     static D3D11::ConstantBufferInfo cameraBufferInfo;
     static D3D11::ConstantBufferInfo objectBufferInfo;
+
+    namespace D3D11 {
+
+        class MappedConstantBuffer
+        {
+        public:
+            MappedConstantBuffer(const ConstantBufferInfo& bufferInfo, BufferUsage usage) : m_bufferInfo(bufferInfo)
+            {
+                m_bufferData.resize( bufferInfo.sizeInBytes );
+                m_buffer = new ConstantBuffer( (U32)bufferInfo.sizeInBytes, usage );
+            }
+            ~MappedConstantBuffer() { SAFE_DELETE( m_buffer ); }
+
+            bool update(StringID name, const void* data)
+            {
+                for (auto& member : m_bufferInfo.members)
+                    if (member.name == name)
+                    {
+                        memcpy( &m_bufferData[member.offset], data, member.size );
+                        m_gpuUpToDate = false;
+                        return true;
+                    }
+                return false;
+            }
+
+            void flush()
+            {
+                if ( not m_gpuUpToDate )
+                    m_buffer->update( m_bufferData.data(), m_bufferData.size() );
+            }
+
+            bool                    gpuIsUpToDate() const { return m_gpuUpToDate; }
+            const ConstantBuffer*   getBuffer()     const { return m_buffer; }
+
+        private:
+            ConstantBufferInfo  m_bufferInfo;
+            ArrayList<Byte>     m_bufferData;
+            ConstantBuffer*     m_buffer = nullptr;
+            bool                m_gpuUpToDate = false;
+        };
+
+    }
+
+    static D3D11::MappedConstantBuffer* pGlobalConstantBuffer;
 
     //----------------------------------------------------------------------
     IRenderTexture* D3D11Renderer::s_currentRenderTarget = nullptr;
@@ -61,7 +103,7 @@ namespace Graphics {
     //----------------------------------------------------------------------
     void D3D11Renderer::shutdown()
     {
-        SAFE_DELETE( pConstantBufferGlobal );
+        SAFE_DELETE( pGlobalConstantBuffer );
         SAFE_DELETE( pConstantBufferCamera );
         SAFE_DELETE( pConstantBufferObject );
         _DeinitD3D11();
@@ -125,26 +167,20 @@ namespace Graphics {
                 case GPUCommand::SET_GLOBAL_FLOAT:
                 {
                     GPUC_SetGlobalFloat& c = *reinterpret_cast<GPUC_SetGlobalFloat*>( command.get() );
-                    for (auto& member : globalBufferInfo.members)
-                    {
-                        if (member.name == c.name)
-                            pConstantBufferGlobal->update( &c.value, member.size, member.offset);
-                    }
+                    pGlobalConstantBuffer->update( c.name, &c.value);
                     break;
                 }
                 case GPUCommand::SET_GLOBAL_VECTOR:
                 {
-                    GPUC_SetGlobalVector& c = *reinterpret_cast<GPUC_SetGlobalVector*>(command.get());
-                    for (auto& member : globalBufferInfo.members)
-                    {
-                        if (member.name == c.name)
-                            pConstantBufferGlobal->update( &c.vec, member.size, member.offset );
-                    }
+                    GPUC_SetGlobalVector& c = *reinterpret_cast<GPUC_SetGlobalVector*>( command.get() );
+                    pGlobalConstantBuffer->update( c.name, &c.vec );
                     break;
                 }
                 default:
                     LOG_WARN_RENDERING( "Unknown GPU Command in given command buffer!" );
             }
+
+            pGlobalConstantBuffer->flush();
         }
     }
 
@@ -381,6 +417,8 @@ namespace Graphics {
     //----------------------------------------------------------------------
     void D3D11Renderer::_SetupConstantBuffers( const OS::Path& vertexShaderPath, const OS::Path& fragmentShaderPath )
     {
+        D3D11::ConstantBufferInfo globalBufferInfo;
+
         D3D11::Shader pFakeShader;
         try {
             OS::TextFile vertexShaderFile( vertexShaderPath, OS::EFileMode::READ );
@@ -471,9 +509,9 @@ namespace Graphics {
 
             if (globalBufferInfo.sizeInBytes != 0)
             {
-                pConstantBufferGlobal = new D3D11::ConstantBuffer( (U32)globalBufferInfo.sizeInBytes, BufferUsage::Frequently );
-                pConstantBufferGlobal->bindToVertexShader( GLOBAL_BUFFER_BIND_ID );
-                pConstantBufferGlobal->bindToPixelShader( GLOBAL_BUFFER_BIND_ID );
+                pGlobalConstantBuffer = new D3D11::MappedConstantBuffer( globalBufferInfo, BufferUsage::Frequently );
+                pGlobalConstantBuffer->getBuffer()->bindToVertexShader( GLOBAL_BUFFER_BIND_ID );
+                pGlobalConstantBuffer->getBuffer()->bindToPixelShader( GLOBAL_BUFFER_BIND_ID );
             }
         }
     }

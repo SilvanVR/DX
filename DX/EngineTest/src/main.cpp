@@ -57,7 +57,7 @@ class Game : public IGame
     const F64 duration = 1000;
     Time::Clock clock;
 
-    Graphics::CommandBuffer globalBufferCommands;
+
 
 public:
     Game() : clock( duration ) {}
@@ -89,8 +89,8 @@ public:
         //LOG( TS( clock.getTime().value ) );
         //auto time = clock.getTime();
 
-        globalBufferCommands.reset();
-        globalBufferCommands.setGlobalColor(SID("gColor"), Color::RED);
+        Graphics::CommandBuffer globalBufferCommands;
+        globalBufferCommands.setGlobalColor( SID("gColor"), Color::RED );
         globalBufferCommands.setGlobalFloat( SID("gTime"), (F32)TIME.getTime().value );
         Locator::getRenderer().dispatch(globalBufferCommands);
 

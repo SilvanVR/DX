@@ -25,7 +25,7 @@ namespace Graphics { namespace D3D11 {
         // "sizeInBytes": Size of the given data.
         // "offset": Offset in bytes from the beginning of this buffer.
         //----------------------------------------------------------------------
-        void update(const void* pData, Size sizeInBytes, U32 offset = 0);
+        void update(const void* pData, Size sizeInBytes);
 
 
         //----------------------------------------------------------------------

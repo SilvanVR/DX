@@ -54,9 +54,9 @@ namespace Graphics { namespace D3D11 {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    void IBuffer::update( const void* pData, Size sizeInBytes, U32 offset )
+    void IBuffer::update( const void* pData, Size sizeInBytes )
     {
-        ASSERT( not isImmutable() );
+        ASSERT( not isImmutable() && sizeInBytes <= m_size );
 
         switch (m_usage)
         {
@@ -69,12 +69,12 @@ namespace Graphics { namespace D3D11 {
         {
             D3D11_MAPPED_SUBRESOURCE mappedResource = {};
             g_pImmediateContext->Map( m_pBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource );
-            memcpy( (Byte*)mappedResource.pData + offset, pData, sizeInBytes );
+            memcpy( mappedResource.pData, pData, sizeInBytes );
             g_pImmediateContext->Unmap( m_pBuffer, 0 );
             break;
         }
         default:
-            ASSERT(false);
+            ASSERT( false && "Invalid buffer usage" );
         }
     }
 

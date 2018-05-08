@@ -43,7 +43,6 @@ VertexOut main(VertexIn vin)
 cbuffer cbPerMaterial
 {
 	float4 tintColor;
-	float mix;
 };
 
 struct FragmentIn
@@ -55,15 +54,11 @@ struct FragmentIn
 Texture2D tex0;
 SamplerState sampler0;
 
-Texture2D tex1;
-SamplerState sampler1;
 
 float4 main(FragmentIn fin) : SV_Target
 {
 	float4 textureColor = tex0.Sample(sampler0, fin.tex);
-	float4 textureColor2 = tex1.Sample(sampler1, fin.tex);
 	
 	float si = (sin(gTime) + 1) * 0.5;
-	float4 combined = lerp(textureColor, textureColor2, mix);
-	return combined * si;
+	return textureColor * si;
 }
