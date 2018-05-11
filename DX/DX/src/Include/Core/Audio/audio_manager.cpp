@@ -13,17 +13,23 @@ namespace Core { namespace Audio {
     {
         // XAUDIO2
         if ( FAILED( XAudio2Create( &m_pXAudio2, 0, XAUDIO2_DEFAULT_PROCESSOR ) ) )
-            LOG_ERROR_AUDIO( "XAudio2Create(): Initialization failed. Audio won't work." );
+        {
+            LOG_WARN_AUDIO( "XAudio2Create(): Initialization failed. Audio won't work." );
+            return;
+        }
 
         if ( FAILED( m_pXAudio2->CreateMasteringVoice( &m_pMasterVoice ) ) )
-            LOG_ERROR_AUDIO( "XAudio2(): Could not create a master voice, which is needed for output." );
+        {
+            LOG_WARN_AUDIO( "XAudio2(): Could not create a master voice, which is needed for output." );
+            return;
+        }
 
         // X3DAUDIO
         DWORD dwChannelMask;
         m_pMasterVoice->GetChannelMask( &dwChannelMask );
 
         if ( FAILED( X3DAudioInitialize( dwChannelMask, X3DAUDIO_SPEED_OF_SOUND, m_X3DInstance ) ) )
-            LOG_ERROR_AUDIO( "X3DAudioInitialize(): Initialization failed. 3D Audio won't work." );
+            LOG_WARN_AUDIO( "X3DAudioInitialize(): Initialization failed. 3D Audio won't work." );
 
         m_pMasterVoice->GetVoiceDetails( &m_voiceDetails );
 
@@ -36,8 +42,10 @@ namespace Core { namespace Audio {
     //----------------------------------------------------------------------
     void AudioManager::shutdown()
     {
-        m_pMasterVoice->DestroyVoice();
-        m_pXAudio2->StopEngine();
+        if (m_pMasterVoice)
+            m_pMasterVoice->DestroyVoice();
+        if (m_pXAudio2)
+            m_pXAudio2->StopEngine();
     }
 
     //**********************************************************************

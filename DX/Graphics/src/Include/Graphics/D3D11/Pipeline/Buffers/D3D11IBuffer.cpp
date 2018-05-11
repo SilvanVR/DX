@@ -16,20 +16,18 @@ namespace Graphics { namespace D3D11 {
         bd.ByteWidth    = size;
         bd.BindFlags    = bindFlags;
 
-        D3D11_USAGE d3d11Usage;
         switch (m_usage)
         {
-        case BufferUsage::Immutable:    d3d11Usage = D3D11_USAGE_IMMUTABLE; break;
-        case BufferUsage::LongLived:    d3d11Usage = D3D11_USAGE_DEFAULT;   break;
+        case BufferUsage::Immutable:    bd.Usage = D3D11_USAGE_IMMUTABLE; break;
+        case BufferUsage::LongLived:    bd.Usage = D3D11_USAGE_DEFAULT;   break;
         case BufferUsage::Frequently:
         {
-            d3d11Usage = D3D11_USAGE_DYNAMIC;
+            bd.Usage = D3D11_USAGE_DYNAMIC;
             bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
             break;
         }
         default: LOG_ERROR_RENDERING( "IBuffer(): Unknown usage format during buffer creation." );
         }
-        bd.Usage = d3d11Usage;
 
         if (pData != nullptr)
         {

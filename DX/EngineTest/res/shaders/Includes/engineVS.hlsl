@@ -15,8 +15,7 @@ cbuffer cbPerObject : register(b1)
 
 cbuffer cbBufferGlobal : register(b2)
 {
-	float4 gColor;
-    float gTime;
+	float gTime;
 };
 
 //----------------------------------------------------------------------

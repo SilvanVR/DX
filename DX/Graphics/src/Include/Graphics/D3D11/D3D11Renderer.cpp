@@ -39,48 +39,6 @@ namespace Graphics {
     static D3D11::ConstantBufferInfo cameraBufferInfo;
     static D3D11::ConstantBufferInfo objectBufferInfo;
 
-    namespace D3D11 {
-
-        class MappedConstantBuffer
-        {
-        public:
-            MappedConstantBuffer(const ConstantBufferInfo& bufferInfo, BufferUsage usage) : m_bufferInfo(bufferInfo)
-            {
-                m_bufferData.resize( bufferInfo.sizeInBytes );
-                m_buffer = new ConstantBuffer( (U32)bufferInfo.sizeInBytes, usage );
-            }
-            ~MappedConstantBuffer() { SAFE_DELETE( m_buffer ); }
-
-            bool update(StringID name, const void* data)
-            {
-                for (auto& member : m_bufferInfo.members)
-                    if (member.name == name)
-                    {
-                        memcpy( &m_bufferData[member.offset], data, member.size );
-                        m_gpuUpToDate = false;
-                        return true;
-                    }
-                return false;
-            }
-
-            void flush()
-            {
-                if ( not m_gpuUpToDate )
-                    m_buffer->update( m_bufferData.data(), m_bufferData.size() );
-            }
-
-            bool                    gpuIsUpToDate() const { return m_gpuUpToDate; }
-            const ConstantBuffer*   getBuffer()     const { return m_buffer; }
-
-        private:
-            ConstantBufferInfo  m_bufferInfo;
-            ArrayList<Byte>     m_bufferData;
-            ConstantBuffer*     m_buffer = nullptr;
-            bool                m_gpuUpToDate = false;
-        };
-
-    }
-
     static D3D11::MappedConstantBuffer* pGlobalConstantBuffer;
 
     //----------------------------------------------------------------------
@@ -167,20 +125,23 @@ namespace Graphics {
                 case GPUCommand::SET_GLOBAL_FLOAT:
                 {
                     GPUC_SetGlobalFloat& c = *reinterpret_cast<GPUC_SetGlobalFloat*>( command.get() );
-                    pGlobalConstantBuffer->update( c.name, &c.value);
+                    if ( not pGlobalConstantBuffer->update( c.name, &c.value) )
+                        LOG_WARN_RENDERING( "Global-Float '" + c.name.toString() + "' does not exist. Did you spell it correctly?" );
                     break;
                 }
                 case GPUCommand::SET_GLOBAL_VECTOR:
                 {
                     GPUC_SetGlobalVector& c = *reinterpret_cast<GPUC_SetGlobalVector*>( command.get() );
-                    pGlobalConstantBuffer->update( c.name, &c.vec );
+                    if ( not pGlobalConstantBuffer->update( c.name, &c.vec ) )
+                        LOG_WARN_RENDERING( "Global-Vec4 '" + c.name.toString() + "' does not exist. Did you spell it correctly?" );
                     break;
                 }
                 default:
                     LOG_WARN_RENDERING( "Unknown GPU Command in given command buffer!" );
             }
 
-            pGlobalConstantBuffer->flush();
+            if (pGlobalConstantBuffer)
+                pGlobalConstantBuffer->flush();
         }
     }
 
@@ -510,8 +471,8 @@ namespace Graphics {
             if (globalBufferInfo.sizeInBytes != 0)
             {
                 pGlobalConstantBuffer = new D3D11::MappedConstantBuffer( globalBufferInfo, BufferUsage::Frequently );
-                pGlobalConstantBuffer->getBuffer()->bindToVertexShader( GLOBAL_BUFFER_BIND_ID );
-                pGlobalConstantBuffer->getBuffer()->bindToPixelShader( GLOBAL_BUFFER_BIND_ID );
+                pGlobalConstantBuffer->bind( ShaderType::Vertex );
+                pGlobalConstantBuffer->bind( ShaderType::Fragment );
             }
         }
     }

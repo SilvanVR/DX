@@ -43,6 +43,7 @@ public:
 
     void tick(Time::Seconds d) override
     {
+        mat->setFloat("test", (F32)TIME.getTime());
     }
 
     void shutdown() override { LOG("TestScene Shutdown!", Color::RED); }
@@ -56,8 +57,6 @@ class Game : public IGame
 {
     const F64 duration = 1000;
     Time::Clock clock;
-
-
 
 public:
     Game() : clock( duration ) {}
@@ -90,8 +89,8 @@ public:
         //auto time = clock.getTime();
 
         Graphics::CommandBuffer globalBufferCommands;
-        globalBufferCommands.setGlobalColor( SID("gColor"), Color::RED );
-        globalBufferCommands.setGlobalFloat( SID("gTime"), (F32)TIME.getTime().value );
+        //globalBufferCommands.setGlobalColor( SID("gColor"), Math::Random::Color() );
+        //globalBufferCommands.setGlobalFloat( SID("gTime"), (F32)TIME.getTime() );
         Locator::getRenderer().dispatch(globalBufferCommands);
 
 

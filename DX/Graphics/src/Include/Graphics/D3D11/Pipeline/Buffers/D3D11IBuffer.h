@@ -23,10 +23,8 @@ namespace Graphics { namespace D3D11 {
         // @Params:
         // "pData": Data to be copied into the buffer.
         // "sizeInBytes": Size of the given data.
-        // "offset": Offset in bytes from the beginning of this buffer.
         //----------------------------------------------------------------------
         void update(const void* pData, Size sizeInBytes);
-
 
         //----------------------------------------------------------------------
         U32             getSize()           const { return m_size; }
