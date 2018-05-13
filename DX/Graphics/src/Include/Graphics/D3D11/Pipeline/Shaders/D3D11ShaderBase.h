@@ -6,7 +6,8 @@
     date: March 17, 2018
 **********************************************************************/
 
-#include "../../D3D11.hpp"
+#include "D3D11/D3D11.hpp"
+#include "D3D11/D3D11ConstantBufferManager.h"
 #include "OS/FileSystem/path.h"
 #include <d3dcompiler.h>
 
@@ -15,37 +16,6 @@ namespace Graphics { namespace D3D11 {
     // Get the latest profile for the specified Shader type.
     template<class ShaderCompilerClass>
     String GetLatestProfile();
-
-    // Contains infos about one specific member in a shader buffer
-    struct ConstantBufferMemberInfo
-    {
-        StringID    name;
-        U32         offset = 0;
-        Size        size = 0;
-        DataType    type = DataType::Unknown;
-
-        bool operator==(const ConstantBufferMemberInfo& c) { return name == c.name && offset == c.offset && size == c.size && type == c.type; }
-        bool operator!=(const ConstantBufferMemberInfo& c) { return !(*this == c); }
-    };
-
-    // Contains information about an buffer in a shader
-    struct ConstantBufferInfo
-    {
-        U32                                 slot = 0;
-        Size                                sizeInBytes = 0;
-        ArrayList<ConstantBufferMemberInfo> members;
-
-        bool operator==(const ConstantBufferInfo& c);
-        bool operator!=(const ConstantBufferInfo& c) { return !(*this == c); }
-    };
-
-    // Contains information about bound resources
-    struct TextureBindingInfo
-    {
-        StringID    name;
-        U32         slot = 0;
-        DataType    type = DataType::Unknown;;
-    };
 
     //**********************************************************************
     class ShaderBase

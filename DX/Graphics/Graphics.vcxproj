@@ -94,6 +94,7 @@
       <AdditionalIncludeDirectories>$(ProjectDir)src\Include\Graphics;$(ProjectDir)src;$(SolutionDir)Common\src\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -105,6 +106,7 @@
       <AdditionalIncludeDirectories>$(ProjectDir)src\Include\Graphics;$(ProjectDir)src;$(SolutionDir)Common\src\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -118,6 +120,7 @@
       <AdditionalIncludeDirectories>$(ProjectDir)src\Include\Graphics;$(ProjectDir)src;$(SolutionDir)Common\src\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -137,6 +140,7 @@
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -145,12 +149,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\Include\Graphics\command_buffer.cpp" />
+    <ClCompile Include="src\Include\Graphics\D3D11\D3D11ConstantBufferManager.cpp" />
     <ClCompile Include="src\Include\Graphics\D3D11\D3D11Globals.cpp" />
     <ClCompile Include="src\Include\Graphics\D3D11\D3D11Renderer.cpp" />
     <ClCompile Include="src\Include\Graphics\D3D11\D3D11Swapchain.cpp" />
     <ClCompile Include="src\Include\Graphics\D3D11\D3D11Utility.cpp" />
     <ClCompile Include="src\Include\Graphics\D3D11\Pipeline\Buffers\D3D11Buffers.cpp" />
     <ClCompile Include="src\Include\Graphics\D3D11\Pipeline\Buffers\D3D11IBuffer.cpp" />
+    <ClCompile Include="src\Include\Graphics\D3D11\Pipeline\Buffers\D3D11MappedConstantBuffer.cpp" />
     <ClCompile Include="src\Include\Graphics\D3D11\Pipeline\Shaders\D3D11PixelShader.cpp" />
     <ClCompile Include="src\Include\Graphics\D3D11\Pipeline\Shaders\D3D11ShaderBase.cpp" />
     <ClCompile Include="src\Include\Graphics\D3D11\Pipeline\Shaders\D3D11VertexShader.cpp" />
@@ -176,11 +182,14 @@
   <ItemGroup>
     <ClInclude Include="src\Include\Graphics\command_buffer.h" />
     <ClInclude Include="src\Include\Graphics\D3D11\D3D11.hpp" />
+    <ClInclude Include="src\Include\Graphics\D3D11\D3D11ConstantBufferManager.h" />
     <ClInclude Include="src\Include\Graphics\D3D11\D3D11Defines.hpp" />
     <ClInclude Include="src\Include\Graphics\D3D11\D3D11Globals.h" />
     <ClInclude Include="src\Include\Graphics\D3D11\D3D11Renderer.h" />
+    <ClInclude Include="src\Include\Graphics\D3D11\D3D11Structs.hpp" />
     <ClInclude Include="src\Include\Graphics\D3D11\D3D11Swapchain.h" />
     <ClInclude Include="src\Include\Graphics\D3D11\D3D11Utility.h" />
+    <ClInclude Include="src\Include\Graphics\D3D11\Pipeline\Buffers\D3D11MappedConstantBuffer.h" />
     <ClInclude Include="src\Include\Graphics\D3D11\Pipeline\Shaders\D3D11ShaderBase.h" />
     <ClInclude Include="src\Include\Graphics\D3D11\Pipeline\Shaders\D3D11VertexShader.h" />
     <ClInclude Include="src\Include\Graphics\D3D11\Resources\D3D11Cubemap.h" />

@@ -60,6 +60,6 @@ float4 main(FragmentIn fin) : SV_Target
 {
 	float4 textureColor = tex0.Sample(sampler0, fin.tex);
 	
-	float si = (sin(test) + 1) * 0.5;
+	float si = (sin(gTime) + 1) * 0.5;
 	return textureColor * si;
 }

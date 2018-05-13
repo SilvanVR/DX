@@ -17,18 +17,14 @@
 
 namespace Graphics { namespace D3D11 {
 
-    //**********************************************************************
-    // MATERIAL
-    //**********************************************************************
-
     //----------------------------------------------------------------------
     void Material::bind()
     {
         // Bind constant buffers
-        if ( m_materialDataVS.hasBuffer() )
-            m_materialDataVS.bind( ShaderType::Vertex );
-        if ( m_materialDataPS.hasBuffer() )
-            m_materialDataPS.bind( ShaderType::Fragment );
+        if ( m_materialDataVS )
+            m_materialDataVS->bind( ShaderType::Vertex );
+        if ( m_materialDataPS )
+            m_materialDataPS->bind( ShaderType::Fragment );
 
         // Bind textures
         for (auto& texInfo : m_textureCache)
@@ -39,6 +35,7 @@ namespace Graphics { namespace D3D11 {
     void Material::_ChangedShader()
     {
         m_textureCache.clear();
+        _DestroyConstantBuffers();
         _CreateConstantBuffers();
     }
 
@@ -103,11 +100,11 @@ namespace Graphics { namespace D3D11 {
 
         // Create buffer for vertex shader
         if ( auto cb = d3d11Shader->getVertexShader()->getMaterialBufferInfo() )
-            m_materialDataVS.resize( *cb, BufferUsage::LongLived );
+            m_materialDataVS = new MappedConstantBuffer( *cb, BufferUsage::LongLived );
 
         // Create buffer for pixel shader
         if ( auto cb = d3d11Shader->getPixelShader()->getMaterialBufferInfo() )
-            m_materialDataPS.resize( *cb, BufferUsage::LongLived );
+            m_materialDataPS = new MappedConstantBuffer( *cb, BufferUsage::LongLived );
     }
  
     //----------------------------------------------------------------------
@@ -116,8 +113,15 @@ namespace Graphics { namespace D3D11 {
         // Because the super material class issues if the uniform does not exist,
         // i dont have to do it here. The update call on the corresponding mapped buffer
         // will do nothing if the name does not exist.
-        m_materialDataVS.update( name, pData );
-        m_materialDataPS.update( name, pData );
+        if (m_materialDataVS) m_materialDataVS->update( name, pData );
+        if (m_materialDataPS) m_materialDataPS->update( name, pData );
+    }
+
+    //----------------------------------------------------------------------
+    void Material::_DestroyConstantBuffers()
+    {
+        SAFE_DELETE( m_materialDataVS );
+        SAFE_DELETE( m_materialDataPS );
     }
 
 } } // End namespaces

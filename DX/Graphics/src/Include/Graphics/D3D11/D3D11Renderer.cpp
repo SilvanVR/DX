@@ -10,36 +10,19 @@
 #include "Resources/D3D11Mesh.h"
 #include "Resources/D3D11Material.h"
 #include "Resources/D3D11Shader.h"
-#include "Pipeline/Buffers/D3D11Buffers.h"
 #include "Resources/D3D11Texture2D.h"
 #include "Resources/D3D11RenderTexture.h"
 #include "Resources/D3D11Cubemap.h"
 #include "Resources/D3D11Texture2DArray.h"
+#include "D3D11ConstantBufferManager.h"
 
-#include "OS/FileSystem/file.h"
-#include "Pipeline/Shaders/D3D11VertexShader.h"
-#include "Pipeline/Shaders/D3D11PixelShader.h"
-#include "Common/string_utils.h"
-    
 using namespace DirectX;
 
 namespace Graphics {
 
-    #define CAMERA_BUFFER_BIND_ID 0
-    #define OBJECT_BUFFER_BIND_ID 1
-    #define GLOBAL_BUFFER_BIND_ID 2
-
-    #define GLOBAL_BUFFER_KEYWORD "global"
-    #define OBJECT_BUFFER_KEYWORD "object"
-    #define CAMERA_BUFFER_KEYWORD "camera"
-
-    static D3D11::ConstantBuffer*  pConstantBufferObject = nullptr;
-    static D3D11::ConstantBuffer*  pConstantBufferCamera = nullptr;
-
-    static D3D11::ConstantBufferInfo cameraBufferInfo;
-    static D3D11::ConstantBufferInfo objectBufferInfo;
-
-    static D3D11::MappedConstantBuffer* pGlobalConstantBuffer;
+    #define GLOBAL_BUFFER D3D11::ConstantBufferManager::getGlobalBuffer()
+    #define OBJECT_BUFFER D3D11::ConstantBufferManager::getObjectBuffer()
+    #define CAMERA_BUFFER D3D11::ConstantBufferManager::getCameraBuffer()
 
     //----------------------------------------------------------------------
     IRenderTexture* D3D11Renderer::s_currentRenderTarget = nullptr;
@@ -52,18 +35,12 @@ namespace Graphics {
     void D3D11Renderer::init()
     {
         _InitD3D11();
-
-        OS::Path vertexShaderPath = "/shaders/includes/fakeVS.hlsl";
-        OS::Path fragmentShaderPath = "/shaders/includes/fakePS.hlsl";
-        _SetupConstantBuffers( vertexShaderPath, fragmentShaderPath );
     }
 
     //----------------------------------------------------------------------
     void D3D11Renderer::shutdown()
     {
-        SAFE_DELETE( pGlobalConstantBuffer );
-        SAFE_DELETE( pConstantBufferCamera );
-        SAFE_DELETE( pConstantBufferObject );
+        D3D11::ConstantBufferManager::Destroy();
         _DeinitD3D11();
     }
 
@@ -125,23 +102,45 @@ namespace Graphics {
                 case GPUCommand::SET_GLOBAL_FLOAT:
                 {
                     GPUC_SetGlobalFloat& c = *reinterpret_cast<GPUC_SetGlobalFloat*>( command.get() );
-                    if ( not pGlobalConstantBuffer->update( c.name, &c.value) )
+                    if ( not D3D11::ConstantBufferManager::hasGlobalBuffer() )
+                        return;
+                    if ( not GLOBAL_BUFFER.update( c.name, &c.value) )
                         LOG_WARN_RENDERING( "Global-Float '" + c.name.toString() + "' does not exist. Did you spell it correctly?" );
                     break;
                 }
                 case GPUCommand::SET_GLOBAL_VECTOR:
                 {
                     GPUC_SetGlobalVector& c = *reinterpret_cast<GPUC_SetGlobalVector*>( command.get() );
-                    if ( not pGlobalConstantBuffer->update( c.name, &c.vec ) )
+                    if ( not D3D11::ConstantBufferManager::hasGlobalBuffer() )
+                        return;
+                    if ( not GLOBAL_BUFFER.update( c.name, &c.vec ) )
                         LOG_WARN_RENDERING( "Global-Vec4 '" + c.name.toString() + "' does not exist. Did you spell it correctly?" );
                     break;
                 }
+                case GPUCommand::SET_GLOBAL_INT:
+                {
+                    GPUC_SetGlobalInt& c = *reinterpret_cast<GPUC_SetGlobalInt*>( command.get() );             
+                    if ( not D3D11::ConstantBufferManager::hasGlobalBuffer() )
+                        return;
+                    if ( not GLOBAL_BUFFER.update( c.name, &c.value ) )
+                        LOG_WARN_RENDERING( "Global-Int '" + c.name.toString() + "' does not exist. Did you spell it correctly?" );
+                    break;
+                }
+                case GPUCommand::SET_GLOBAL_MATRIX:
+                {
+                    GPUC_SetGlobalMatrix& c = *reinterpret_cast<GPUC_SetGlobalMatrix*>( command.get() );
+                    if ( not D3D11::ConstantBufferManager::hasGlobalBuffer() )
+                        return;
+                    if ( not GLOBAL_BUFFER.update( c.name, &c.matrix ) )
+                        LOG_WARN_RENDERING( "Global-Matrix '" + c.name.toString() + "' does not exist. Did you spell it correctly?" );
+                    break;
+                }
                 default:
-                    LOG_WARN_RENDERING( "Unknown GPU Command in given command buffer!" );
+                    LOG_WARN_RENDERING( "Unknown GPU Command in a given command buffer!" );
             }
 
-            if (pGlobalConstantBuffer)
-                pGlobalConstantBuffer->flush();
+            if ( D3D11::ConstantBufferManager::hasGlobalBuffer() )
+                GLOBAL_BUFFER.flush(); // This is one frame delayed, but it's not a big deal. The other option would be sort the commands first/execute them in correct order.
         }
     }
 
@@ -300,7 +299,7 @@ namespace Graphics {
         XMMATRIX proj = XMMatrixPerspectiveFovLH( XMConvertToRadians( fov ), ar, zNear, zFar );
         XMMATRIX viewProj = view * proj;
 
-        pConstantBufferCamera->update( &viewProj, sizeof( XMMATRIX ) );
+        CAMERA_BUFFER.update( &viewProj, sizeof( XMMATRIX ) );
     }
 
     //----------------------------------------------------------------------
@@ -309,7 +308,7 @@ namespace Graphics {
         XMMATRIX proj = XMMatrixOrthographicOffCenterLH( left, right, bottom, top, zNear, zFar );
         XMMATRIX viewProj = view * proj;
 
-        pConstantBufferCamera->update( &viewProj, sizeof( XMMATRIX ) );
+        CAMERA_BUFFER.update( &viewProj, sizeof( XMMATRIX ) );
     }
 
     //----------------------------------------------------------------------
@@ -365,7 +364,7 @@ namespace Graphics {
         }
 
         // Update per object buffer
-        pConstantBufferObject->update( &modelMatrix, sizeof( DirectX::XMMATRIX ) );
+        OBJECT_BUFFER.update( &modelMatrix, sizeof( DirectX::XMMATRIX ) );
 
         // Bind mesh
         auto d3d11Mesh = reinterpret_cast<D3D11::Mesh*>( mesh );
@@ -373,108 +372,6 @@ namespace Graphics {
 
         // Submit draw call
         g_pImmediateContext->DrawIndexed( mesh->getIndexCount( subMeshIndex ), 0, mesh->getBaseVertex( subMeshIndex ) );
-    }
-
-    //----------------------------------------------------------------------
-    void D3D11Renderer::_SetupConstantBuffers( const OS::Path& vertexShaderPath, const OS::Path& fragmentShaderPath )
-    {
-        D3D11::ConstantBufferInfo globalBufferInfo;
-
-        D3D11::Shader pFakeShader;
-        try {
-            OS::TextFile vertexShaderFile( vertexShaderPath, OS::EFileMode::READ );
-            OS::TextFile fragmentShaderFile( fragmentShaderPath, OS::EFileMode::READ );
-
-            if ( not pFakeShader.compileFromSource( vertexShaderFile.readAll(), fragmentShaderFile.readAll(), "main" ) )
-                LOG_WARN_RENDERING( "Failed to compile the fakeVS and/or fakePS file(s). They are mandatory in order to setup the correct constant buffers." );
-            else 
-            {
-                // Retrieve buffer information from vertex shader
-                for ( auto& pair : pFakeShader.getVertexShader()->getConstantBufferBindings() )
-                {
-                    String cbName = StringUtils::toLower( pair.first.toString() );
-                    if ( cbName.find( GLOBAL_BUFFER_KEYWORD ) != String::npos )
-                        globalBufferInfo = pair.second;
-                    else if ( cbName.find( OBJECT_BUFFER_KEYWORD ) != String::npos )
-                        objectBufferInfo = pair.second;
-                    else if ( cbName.find( CAMERA_BUFFER_KEYWORD ) != String::npos )
-                        cameraBufferInfo = pair.second;
-                }
-
-                // Retrieve buffer information from pixel shader
-                for ( auto& pair : pFakeShader.getPixelShader()->getConstantBufferBindings() )
-                {
-                    String cbName = StringUtils::toLower( pair.first.toString() );
-                    if ( cbName.find( GLOBAL_BUFFER_KEYWORD ) != String::npos )
-                    {
-                        if (globalBufferInfo.sizeInBytes == 0)
-                        {
-                            globalBufferInfo = pair.second;
-                        }
-                        else
-                        {
-                            // Check that both buffers are the same, because they should
-                            if ( globalBufferInfo != pair.second)
-                                LOG_WARN_RENDERING( "Global buffer in engineVS and enginePS are different! This might cause severe bugs. Please ensure they are the same." );
-                        }
-                    }
-                    else if ( cbName.find( CAMERA_BUFFER_KEYWORD ) != String::npos )
-                    {
-                        if (globalBufferInfo.sizeInBytes == 0)
-                        {
-                            cameraBufferInfo = pair.second;
-                        }
-                        else
-                        {
-                            // Check that both buffers are the same, because they should
-                            if ( cameraBufferInfo != pair.second )
-                                LOG_WARN_RENDERING( "Camera buffer in engineVS and enginePS are different! This might cause severe bugs. Please ensure they are the same." );
-                        }
-                    }
-                }
-
-                // Check if the global binding slot is correct
-                if (globalBufferInfo.sizeInBytes != 0)
-                    if (globalBufferInfo.slot != GLOBAL_BUFFER_BIND_ID)
-                        LOG_WARN_RENDERING( "engineVS.hlsl: Binding slot from global buffer must be " + TS( GLOBAL_BUFFER_BIND_ID ) + " but is " + TS( globalBufferInfo.slot ) );
-
-                // Check if an camera buffer could be found and if so, if the slot is correct
-                if (cameraBufferInfo.sizeInBytes == 0)
-                    LOG_WARN_RENDERING( "Could not find a camera buffer in engineVS/enginePS.hlsl. The corresponding buffer name MUST contain 'camera'" );
-                else
-                    if (cameraBufferInfo.slot != CAMERA_BUFFER_BIND_ID)
-                        LOG_WARN_RENDERING( "engineVS.hlsl: Binding slot from camera buffer must be " + TS( CAMERA_BUFFER_BIND_ID ) + " but is " + TS( cameraBufferInfo.slot ) );
-
-                // Check if an object buffer could be found and if so, if the slot is correct
-                if (objectBufferInfo.sizeInBytes == 0)
-                    LOG_WARN_RENDERING( "Could not find a object buffer in engineVS/enginePS.hlsl. The corresponding buffer name MUST contain 'object'" );
-                else
-                    if (objectBufferInfo.slot != OBJECT_BUFFER_BIND_ID)
-                        LOG_WARN_RENDERING( "engineVS.hlsl: Binding slot from object buffer must be " + TS( OBJECT_BUFFER_BIND_ID ) + " but is " + TS( objectBufferInfo.slot ) );
-
-            }
-        }
-        catch (const std::runtime_error& e) {
-            LOG_WARN_RENDERING( String( "Failed to open the fakeVS and/or fakePS file(s). They are mandatory in order to setup the correct constant buffers. "
-                                        "Reason: " ) + e.what() );
-        }
-
-        {
-            // Buffers
-            pConstantBufferCamera = new D3D11::ConstantBuffer( sizeof(XMMATRIX), BufferUsage::Frequently );
-            pConstantBufferObject = new D3D11::ConstantBuffer( sizeof(XMMATRIX), BufferUsage::Frequently );
-
-            // Bind Buffers
-            pConstantBufferCamera->bindToVertexShader( CAMERA_BUFFER_BIND_ID );
-            pConstantBufferObject->bindToVertexShader( OBJECT_BUFFER_BIND_ID );
-
-            if (globalBufferInfo.sizeInBytes != 0)
-            {
-                pGlobalConstantBuffer = new D3D11::MappedConstantBuffer( globalBufferInfo, BufferUsage::Frequently );
-                pGlobalConstantBuffer->bind( ShaderType::Vertex );
-                pGlobalConstantBuffer->bind( ShaderType::Fragment );
-            }
-        }
     }
 
 } // End namespaces

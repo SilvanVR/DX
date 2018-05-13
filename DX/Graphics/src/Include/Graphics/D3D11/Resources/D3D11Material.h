@@ -7,7 +7,7 @@
 **********************************************************************/
 
 #include "../../i_material.h"
-#include "../Pipeline/Buffers/D3D11Buffers.h"
+#include "../Pipeline/Buffers/D3D11MappedConstantBuffer.h"
 #include "D3D11IBindableTexture.h"
 
 namespace Graphics { namespace D3D11 {
@@ -17,7 +17,7 @@ namespace Graphics { namespace D3D11 {
     {
     public:
         Material() = default;
-        ~Material() = default;
+        ~Material() { _DestroyConstantBuffers(); }
 
         //----------------------------------------------------------------------
         // IMaterial Interface
@@ -30,8 +30,8 @@ namespace Graphics { namespace D3D11 {
 
     private:
         // Contains the material data in a contiguous block of memory. Will be empty if not used for a shader.
-        MappedConstantBuffer m_materialDataVS;
-        MappedConstantBuffer m_materialDataPS;
+        MappedConstantBuffer* m_materialDataVS = nullptr;
+        MappedConstantBuffer* m_materialDataPS = nullptr;
 
         // Stores texture as a d3d11 texture and the bindslot
         struct TextureCache
@@ -49,6 +49,7 @@ namespace Graphics { namespace D3D11 {
         void _ChangedShader() override;
 
         //----------------------------------------------------------------------
+        void _DestroyConstantBuffers();
         void _CreateConstantBuffers();
         void _UpdateConstantBuffer(StringID name, const void* pData);
 

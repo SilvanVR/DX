@@ -7,7 +7,7 @@
 **********************************************************************/
 
 #include "Common/string_utils.h"
-#include "../../D3D11Defines.hpp"
+#include "D3D11/D3D11Defines.hpp"
 
 namespace Graphics { namespace D3D11 {
 
@@ -223,6 +223,9 @@ namespace Graphics { namespace D3D11 {
         HR( m_pShaderReflection->GetDesc( &shaderDesc ) );
 
         _ReflectResources( shaderDesc );
+
+        // Add constant buffers to the manager, which creates real buffers for it depending on specific keywords
+        ConstantBufferManager::ReflectConstantBuffers( m_constantBuffers );
     }
 
     //----------------------------------------------------------------------
@@ -343,22 +346,6 @@ namespace Graphics { namespace D3D11 {
 
         ASSERT( false && "Variable type could not be deduced." );
         return DataType::Unknown;
-    }
-
-    //----------------------------------------------------------------------
-    bool ConstantBufferInfo::operator==( const ConstantBufferInfo& c )
-    {
-        if ( (slot != c.slot) && (sizeInBytes != c.sizeInBytes) )
-            return false;
-
-        if ( members.size() != c.members.size() )
-            return false;
-
-        for (I32 i = 0; i < members.size(); i++)
-            if ( members[i] != c.members[i] )
-                return false;
-
-        return true; 
     }
 
 
