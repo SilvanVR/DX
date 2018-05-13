@@ -12,7 +12,7 @@
 #include "Graphics/command_buffer.h"
 #include "Graphics/i_render_texture.hpp"
 
-namespace Core { class GraphicsCommandRecorder; }
+namespace Core { class CoreEngine; }
 
 namespace Components {
 
@@ -147,9 +147,8 @@ namespace Components {
         //void _UpdateProjectionMatrix();
 
         //----------------------------------------------------------------------
-        friend class Core::GraphicsCommandRecorder;
+        friend class Core::CoreEngine;
         Graphics::CommandBuffer& recordGraphicsCommands(F32 lerp, const ArrayList<IRenderComponent*>& rendererComponents);
-        ArrayList<Graphics::CommandBuffer*>& getAdditionalCommandBuffers() { return m_additionalCommandBuffers; }
 
         //----------------------------------------------------------------------
         // Sorts all rendering commands from the given command buffer by material, renderqueue and camera distance

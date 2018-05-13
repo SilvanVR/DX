@@ -60,6 +60,11 @@ namespace Graphics {
         virtual void setVSync(bool enabled) = 0;
 
         //----------------------------------------------------------------------
+        // Notifies the graphics engine that the window size has changed.
+        //----------------------------------------------------------------------
+        virtual void OnWindowSizeChanged(U16 w, U16 h) = 0;
+
+        //----------------------------------------------------------------------
         virtual IMesh*              createMesh() = 0;
         virtual IMaterial*          createMaterial() = 0;
         virtual IShader*            createShader() = 0;
@@ -92,7 +97,6 @@ namespace Graphics {
         //  Global information about the last rendered frame.
         //----------------------------------------------------------------------
         const FrameInfo& getLastFrameInfo() const { return m_frameInfo; }
-
         void resetFrameInfo() { m_frameInfo = {}; }
 
     protected:
@@ -102,9 +106,6 @@ namespace Graphics {
         //----------------------------------------------------------------------
         HashMap<StringID, IMaterial*>   m_globalMaterials;
         IMaterial*                      m_activeGlobalMaterial = nullptr; // If this is not null the scene should be rendered just with this material
-
-        //----------------------------------------------------------------------
-        virtual void OnWindowSizeChanged(U16 w, U16 h) = 0;
     };
 
 } // End namespaces

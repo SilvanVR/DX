@@ -310,7 +310,6 @@
     <ClCompile Include="src\Include\Core\Config\configuration_manager.cpp" />
     <ClCompile Include="src\Include\Core\Config\config_file.cpp" />
     <ClCompile Include="src\Include\Core\core_engine.cpp" />
-    <ClCompile Include="src\Include\Core\GraphicsCommandRecorder\graphics_command_recorder.cpp" />
     <ClCompile Include="src\Include\Core\InGameConsole\in_game_console.cpp" />
     <ClCompile Include="src\Include\Core\Input\devices\keyboard.cpp" />
     <ClCompile Include="src\Include\Core\Input\input_manager.cpp" />
@@ -361,7 +360,6 @@
     <ClInclude Include="src\Include\Core\Assets\mesh_generator.h" />
     <ClInclude Include="src\Include\Ext\JSON\json.hpp" />
     <ClInclude Include="src\Include\Ext\StbImage\stb_image.h" />
-    <ClInclude Include="src\Include\Core\GraphicsCommandRecorder\graphics_command_recorder.h" />
     <ClInclude Include="src\Include\Core\InGameConsole\in_game_console.h" />
     <ClInclude Include="src\Include\Core\InGameConsole\i_in_game_console.hpp" />
     <ClInclude Include="src\Include\Core\Input\e_input_devices.hpp" />

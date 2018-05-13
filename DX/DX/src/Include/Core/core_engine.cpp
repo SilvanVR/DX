@@ -11,6 +11,8 @@
 
 #include "Core/locator.h"
 #include "Logging/logging.h"
+#include "GameplayLayer/i_scene.h"
+#include "GameplayLayer/Components/Rendering/camera.h"
 
 namespace Core {
 
@@ -24,8 +26,9 @@ namespace Core {
         // Set core engine instance in the locator class
         Locator::setCoreEngine( this );
 
-        // Create Window
+        // Create Window & Attach window resize event
         m_window.create( title, width, height );
+        m_window.setCallbackSizeChanged( BIND_THIS_FUNC_2_ARGS( &CoreEngine::_OnWindowSizeChanged ) );
 
         // Provide engine clock and window to the locator class
         Locator::provide( &m_engineClock );
@@ -33,9 +36,6 @@ namespace Core {
 
         // Initialize all subsystems
         m_subSystemManager.init();
-
-        // Initialize graphics recorder AFTER all subsystems
-        m_graphicsCommandRecorder.init();
 
         // Call virtual init function for game class
         init();
@@ -92,15 +92,7 @@ namespace Core {
             {
                 // Render as fast as possible with interpolated state
                 F64 lerp = (F64)(gameTickAccumulator / TICK_RATE_IN_SECONDS);
-                //ASSERT( lerp <= 1.0 );
-
-                Locator::getRenderer().resetFrameInfo();
-
-                // Records rendering commands for the current scene and dispatches them to the renderer
-                m_graphicsCommandRecorder.dispatch( SCENE, (F32)lerp );
-
-                // Present backbuffer to screen
-                Locator::getRenderer().present();
+                _Render( (F32)lerp );
             }
 
             m_window.processOSMessages();
@@ -109,15 +101,35 @@ namespace Core {
         _Shutdown();
     }
 
+    //----------------------------------------------------------------------
+    void CoreEngine::_Render( F32 lerp )
+    {
+        auto& graphicsEngine = Locator::getRenderer();
+
+        // Records rendering commands for the current scene and dispatches them to the renderer
+        graphicsEngine.resetFrameInfo();
+
+        // Fetch all renderer components
+        auto& renderers = SCENE.getComponentManager().getRenderer();
+
+        // Create rendering commands for each camera and submit them to the rendering engine
+        for ( auto& cam : SCENE.getComponentManager().getCameras() )
+        {
+            auto& cmd = cam->recordGraphicsCommands( lerp, renderers );
+
+            // Send command buffer to rendering engine for execution
+            graphicsEngine.dispatch(cmd);
+        }
+
+        // Present backbuffer to screen
+        graphicsEngine.present();
+    }
 
     //----------------------------------------------------------------------
     void CoreEngine::_Shutdown()
     {
         // Deinitialize game class
         shutdown();
-
-        // Deinitialize graphics recorder
-        m_graphicsCommandRecorder.shutdown();
 
         LOG(" ~ Goodbye! ~ ", Color::GREEN);
 
@@ -143,5 +155,10 @@ namespace Core {
         }
     }
 
+    //----------------------------------------------------------------------
+    void CoreEngine::_OnWindowSizeChanged( U16 w, U16 h )
+    {
+        Locator::getRenderer().OnWindowSizeChanged( w, h );
+    }
 
 } // end namespaces

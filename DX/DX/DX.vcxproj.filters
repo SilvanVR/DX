@@ -42,9 +42,6 @@
     <ClCompile Include="src\Include\Core\DebugManager\debug_manager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Include\Core\GraphicsCommandRecorder\graphics_command_recorder.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\Include\Core\InGameConsole\in_game_console.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -162,9 +159,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Include\Core\DebugManager\debug_manager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Include\Core\GraphicsCommandRecorder\graphics_command_recorder.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Include\Core\InGameConsole\i_in_game_console.hpp">

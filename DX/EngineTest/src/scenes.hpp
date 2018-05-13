@@ -602,11 +602,7 @@ public:
         auto go2 = createGameObject("Obj");
         go2->addComponent<Components::MeshRenderer>(mesh, RESOURCES.getColorMaterial());
 
-        LOG("TestScene initialized!", Color::RED);
-    }
-
-    void tick(Time::Seconds d) override
-    {
+        LOG("MultiCamera initialized!", Color::RED);
     }
 
     void shutdown() override { LOG("MultiCamera Shutdown!", Color::RED); }

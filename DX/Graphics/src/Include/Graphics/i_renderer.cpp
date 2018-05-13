@@ -16,7 +16,6 @@ namespace Graphics {
         : m_window( window )
     { 
         ASSERT( window != nullptr );
-        m_window->setCallbackSizeChanged( BIND_THIS_FUNC_2_ARGS( &IRenderer::OnWindowSizeChanged ) );
         addGlobalMaterial( "NONE", nullptr );
     }
 
