@@ -103,7 +103,7 @@ namespace Graphics {
                 {
                     GPUC_SetGlobalFloat& c = *reinterpret_cast<GPUC_SetGlobalFloat*>( command.get() );
                     if ( not D3D11::ConstantBufferManager::hasGlobalBuffer() )
-                        return;
+                        break;
                     if ( not GLOBAL_BUFFER.update( c.name, &c.value) )
                         LOG_WARN_RENDERING( "Global-Float '" + c.name.toString() + "' does not exist. Did you spell it correctly?" );
                     break;
@@ -112,7 +112,7 @@ namespace Graphics {
                 {
                     GPUC_SetGlobalVector& c = *reinterpret_cast<GPUC_SetGlobalVector*>( command.get() );
                     if ( not D3D11::ConstantBufferManager::hasGlobalBuffer() )
-                        return;
+                        break;
                     if ( not GLOBAL_BUFFER.update( c.name, &c.vec ) )
                         LOG_WARN_RENDERING( "Global-Vec4 '" + c.name.toString() + "' does not exist. Did you spell it correctly?" );
                     break;
@@ -121,7 +121,7 @@ namespace Graphics {
                 {
                     GPUC_SetGlobalInt& c = *reinterpret_cast<GPUC_SetGlobalInt*>( command.get() );             
                     if ( not D3D11::ConstantBufferManager::hasGlobalBuffer() )
-                        return;
+                        break;
                     if ( not GLOBAL_BUFFER.update( c.name, &c.value ) )
                         LOG_WARN_RENDERING( "Global-Int '" + c.name.toString() + "' does not exist. Did you spell it correctly?" );
                     break;
@@ -130,7 +130,7 @@ namespace Graphics {
                 {
                     GPUC_SetGlobalMatrix& c = *reinterpret_cast<GPUC_SetGlobalMatrix*>( command.get() );
                     if ( not D3D11::ConstantBufferManager::hasGlobalBuffer() )
-                        return;
+                        break;
                     if ( not GLOBAL_BUFFER.update( c.name, &c.matrix ) )
                         LOG_WARN_RENDERING( "Global-Matrix '" + c.name.toString() + "' does not exist. Did you spell it correctly?" );
                     break;
@@ -138,9 +138,6 @@ namespace Graphics {
                 default:
                     LOG_WARN_RENDERING( "Unknown GPU Command in a given command buffer!" );
             }
-
-            if ( D3D11::ConstantBufferManager::hasGlobalBuffer() )
-                GLOBAL_BUFFER.flush(); // This is one frame delayed, but it's not a big deal. The other option would be sort the commands first/execute them in correct order.
         }
     }
 
@@ -329,10 +326,15 @@ namespace Graphics {
         static Shader*      currentBoundShader = nullptr;
         static Material*    currentBoundMaterial = nullptr;
 
+        // Measuring per frame data
         m_frameInfo.drawCalls++;
         m_frameInfo.numVertices += mesh->getVertexCount();
         for (auto i = 0; i < mesh->getSubMeshCount(); i++)
             m_frameInfo.numTriangles += mesh->getIndexCount(i) / 3;
+
+        // Update global buffer if necessary
+        if ( D3D11::ConstantBufferManager::hasGlobalBuffer() )
+            GLOBAL_BUFFER.flush();
 
         Shader* shader = currentBoundShader;
         if (m_activeGlobalMaterial)

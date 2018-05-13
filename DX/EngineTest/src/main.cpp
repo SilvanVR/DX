@@ -88,11 +88,6 @@ public:
         //LOG( TS( clock.getTime().value ) );
         //auto time = clock.getTime();
 
-        Graphics::CommandBuffer globalBufferCommands;
-        globalBufferCommands.setGlobalFloat( SID("gTime"), (F32)TIME.getTime() );
-        Locator::getRenderer().dispatch(globalBufferCommands);
-
-
         if (KEYBOARD.wasKeyPressed(Key::One))
             Locator::getSceneManager().LoadSceneAsync(new VertexGenScene);
         if (KEYBOARD.wasKeyPressed(Key::Two))

@@ -106,6 +106,11 @@ namespace Core {
     {
         auto& graphicsEngine = Locator::getRenderer();
 
+        // Update global buffer on gpu
+        Graphics::CommandBuffer globalBufferCommands;
+        globalBufferCommands.setGlobalFloat( SID("gTime"), (F32)TIME.getTime() );
+        Locator::getRenderer().dispatch( globalBufferCommands );
+
         // Records rendering commands for the current scene and dispatches them to the renderer
         graphicsEngine.resetFrameInfo();
 
