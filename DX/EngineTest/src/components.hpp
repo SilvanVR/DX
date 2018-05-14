@@ -189,3 +189,49 @@ public:
         auto mr = go->addComponent<Components::MeshRenderer>(mesh, RESOURCES.getColorMaterial());
     }
 };
+
+
+// Visualizes the normals from the mesh in the attached mesh renderer
+class VisualizeNormals : public Components::IComponent
+{
+    F32 m_length;
+    Color m_color;
+
+public:
+    VisualizeNormals(F32 length, Color color)
+        : m_length(length), m_color(color) {}
+
+    void addedToGameObject(GameObject* go) override
+    {
+        auto mr = getGameObject()->getComponent<Components::MeshRenderer>();
+        ASSERT(mr != nullptr);
+
+        auto mesh = mr->getMesh();
+        auto& meshNormals = mesh->getNormals();
+        auto& meshVertices = mesh->getVertices();
+
+        ArrayList<Math::Vec3> vertices;
+        ArrayList<U32> indices;
+        U32 index = 0;
+        for (I32 i = 0; i < meshNormals.size(); i++)
+        {
+            auto start = meshVertices[i];
+            auto end = start + meshNormals[i] * m_length;
+
+            vertices.emplace_back(start);
+            vertices.emplace_back(end);
+
+            indices.push_back(index++);
+            indices.push_back(index++);
+        }
+
+        auto normalMesh = RESOURCES.createMesh();
+        normalMesh->setVertices(vertices);
+        normalMesh->setIndices(indices, 0, Graphics::MeshTopology::Lines);
+        normalMesh->setColors(ArrayList<Color>(vertices.size(), m_color));
+
+        auto normalGO = go->getScene()->createGameObject( "NormalsVisualizer" );
+        normalGO->getTransform()->setParent( go->getTransform() );
+        normalGO->addComponent<Components::MeshRenderer>( normalMesh, RESOURCES.getColorMaterial() );
+    }
+};

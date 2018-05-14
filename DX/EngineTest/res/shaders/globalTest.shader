@@ -14,23 +14,24 @@
 struct VertexIn
 {
     float3 PosL : POSITION;
-	float2 tex : TEXCOORD0;
+	//float2 tex : TEXCOORD0;
+	float3 normal : NORMAL;
 };
 
 struct VertexOut
 {
     float4 PosH : SV_POSITION;
-    float2 tex : TEXCOORD0;
+    //float2 tex : TEXCOORD0;
+	float3 normal : NORMAL;
 };
 
 VertexOut main(VertexIn vin)
 {
     VertexOut OUT;
 
-	//float si = (sin(gTime) + 1) * 0.5;
-	//float3 newPos = vin.PosL + float3(0,0,sin(gTime));
     OUT.PosH = TO_CLIP_SPACE(vin.PosL);
-	OUT.tex = vin.tex;
+	//OUT.tex = vin.tex;
+	OUT.normal = vin.normal;
 	
     return OUT;
 }
@@ -43,23 +44,25 @@ VertexOut main(VertexIn vin)
 cbuffer cbPerMaterial
 {
 	float test;
-	float4 tintColor;
 };
 
 struct FragmentIn
 {
     float4 PosH : SV_POSITION;
-	float2 tex : TEXCOORD0;
+	//float2 tex : TEXCOORD0;
+	float3 normal : NORMAL;
 };
 
-Texture2D tex0;
-SamplerState sampler0;
-
+//Texture2D tex0;
+//SamplerState sampler0;
 
 float4 main(FragmentIn fin) : SV_Target
 {
-	float4 textureColor = tex0.Sample(sampler0, fin.tex);
+	//float4 textureColor = tex0.Sample(sampler0, fin.tex);
 	
-	float si = (sin(gTime) + 1) * 0.5;
-	return textureColor * si * tintColor;
+	float4 normal = float4(fin.normal, 1);
+	
+	return normal;
+	
+	//return textureColor;
 }

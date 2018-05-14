@@ -94,6 +94,7 @@ namespace Math {
 
         F32         magnitude() const;
         Vector3F    normalized() const;
+        void        normalize();
         Vector3F    cross(const Vector3F& v) const;
         F32         maxValue() const;
         F32         minValue() const;

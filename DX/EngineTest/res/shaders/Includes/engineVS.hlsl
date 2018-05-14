@@ -1,5 +1,5 @@
 // Buffer keywords: (If the name of the buffer contains one of the strings then...) 
-// "global": Per frame constant buffer. Should contain things like time.
+// "global": Per frame constant buffer.
 // "object": Per object constant buffer.
 // "camera": Per camera constant buffer.
 

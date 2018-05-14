@@ -30,13 +30,15 @@ public:
 
         createGameObject("Grid")->addComponent<GridGeneration>(20);
 
-        auto mesh = Core::Assets::MeshGenerator::CreatePlane();
+        auto mesh = Core::Assets::MeshGenerator::CreateCube(0.5f);
+        mesh->recalculateNormals();
         //mesh->setColors(cubeColors);
 
         mat = ASSETS.getMaterial("/materials/globalTest.material");
-
         auto go2 = createGameObject("Obj");
         go2->addComponent<Components::MeshRenderer>(mesh, mat);
+        go2->addComponent<VisualizeNormals>(0.5f, Color::WHITE);
+        //go2->addComponent<ConstantRotation>(0.0f, 15.0f, 0.0f);
 
         LOG("TestScene initialized!", Color::RED);
     }

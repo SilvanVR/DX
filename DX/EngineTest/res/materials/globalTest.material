@@ -1,7 +1,6 @@
 {
 
 "shader" : "/shaders/globalTest.shader",
-"tintColor" : "#FFFFFF",
-"tex0" : "/textures/nico.jpg"
+"tex0" : "/textures/dirt.jpg"
 
 }

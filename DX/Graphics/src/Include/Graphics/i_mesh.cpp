@@ -6,6 +6,8 @@
     date: March 30, 2018
 **********************************************************************/
 
+#include "Logging/logging.h"
+
 namespace Graphics {
 
     //----------------------------------------------------------------------
@@ -16,7 +18,7 @@ namespace Graphics {
     void IMesh::clear()
     {
         m_vertices.clear();
-        m_vertexColors.clear();
+        m_colors.clear();
         m_uvs0.clear();
         m_normals.clear();
         m_subMeshes.clear();
@@ -79,16 +81,16 @@ namespace Graphics {
     //----------------------------------------------------------------------
     void IMesh::setColors( const ArrayList<Color>& colors )
     {
-        bool hasBuffer = not m_vertexColors.empty();
+        bool hasBuffer = not m_colors.empty();
 
-        m_vertexColors = colors;
+        m_colors = colors;
         if ( not hasBuffer )
         {
-            _CreateColorBuffer( m_vertexColors );
+            _CreateColorBuffer( m_colors );
         }
         else
         {
-            ASSERT( (m_vertexColors.size() == colors.size() &&
+            ASSERT( (m_colors.size() == colors.size() &&
                     "IMesh::setColors(): The amount of colors given must be the number of colors already present! "
                     "Otherwise call clear() before, so the gpu buffer will be recreated.") );
             ASSERT( not isImmutable() && "Mesh is immutable! It can't be updated. "
@@ -137,6 +139,48 @@ namespace Graphics {
                     "Either change the buffer usage via setBufferUsage() or call clear() to reset the whole mesh." );
             m_queuedBufferUpdates.push({ MeshBufferType::Normal });
         }
+    }
+
+    //----------------------------------------------------------------------
+    void IMesh::recalculateNormals()
+    {
+        ArrayList<Math::Vec3> normals( m_vertices.size(), Math::Vec3( 0.0f ) );
+
+
+        // Calcualte normals
+        for (auto& subMesh : m_subMeshes)
+        {
+            if (subMesh.topology != MeshTopology::Triangles)
+            {
+                LOG_WARN_RENDERING( "IMesh::recalculateNormals(): Normal recalculation not supported for this (sub)mesh topology!" );
+                continue;
+            }
+
+            for (I32 i = 0; i < subMesh.indices.size(); i = i + 3)
+            {
+                U32 index0 = subMesh.indices[ i + 0 ];
+                U32 index1 = subMesh.indices[ i + 1 ];
+                U32 index2 = subMesh.indices[ i + 2 ];
+
+                auto vert0 = m_vertices[ index0 ];
+                auto vert1 = m_vertices[ index1 ];
+                auto vert2 = m_vertices[ index2 ];
+
+                auto edge0 = vert1 - vert0;
+                auto edge1 = vert2 - vert0;
+
+                auto normal = edge0.cross( edge1 );
+
+                normals[ index0 ] += normal;
+                normals[ index1 ] += normal;
+                normals[ index2 ] += normal;
+            }
+        }
+
+        for (I32 i = 0; i < normals.size(); i++)
+            normals[i].normalize();
+
+        setNormals( normals );
     }
 
     //----------------------------------------------------------------------

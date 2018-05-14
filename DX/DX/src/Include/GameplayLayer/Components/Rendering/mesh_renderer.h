@@ -37,18 +37,10 @@ namespace Components {
         ArrayList<MaterialPtr>  m_materials;
 
         //----------------------------------------------------------------------
-        // IComponent Interface
-        //----------------------------------------------------------------------
-        void addedToGameObject(GameObject* go) override;
-
-        //----------------------------------------------------------------------
         // IRendererComponent Interface
         //----------------------------------------------------------------------
         void recordGraphicsCommands(Graphics::CommandBuffer& cmd, F32 lerp) override;
         bool cull(const Camera& camera) override;
-
-
-        //inline bool _IsVisible(const Camera& camera, const DirectX::XMMATRIX& modelMatrix);
 
         //----------------------------------------------------------------------
         MeshRenderer(const MeshRenderer& other)               = delete;

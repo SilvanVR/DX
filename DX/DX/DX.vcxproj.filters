@@ -126,6 +126,9 @@
     <ClCompile Include="src\Include\Core\locator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Include\GameplayLayer\Components\Rendering\directional_light.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\stdafx.h">
@@ -273,6 +276,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Include\Core\locator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Include\GameplayLayer\Components\Rendering\directional_light.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

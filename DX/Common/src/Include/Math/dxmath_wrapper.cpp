@@ -101,8 +101,20 @@ namespace Math {
         F32 length = this->magnitude();
         if ( length == 0.0f )
             return Vector3F(0);
-        return *this / magnitude();
+        return *this / length;
     }
+
+    //----------------------------------------------------------------------
+    void Vector3F::normalize()
+    {
+        F32 length = this->magnitude();
+        if ( length == 0.0f )
+            return;
+        x /= length; 
+        y /= length; 
+        z /= length;
+    }
+
 
     //----------------------------------------------------------------------
     Vector3F Vector3F::cross( const Vector3F& v ) const

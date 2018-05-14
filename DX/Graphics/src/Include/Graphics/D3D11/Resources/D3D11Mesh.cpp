@@ -90,10 +90,10 @@ namespace Graphics { namespace D3D11 {
     void Mesh::_CreateColorBuffer( const ArrayList<Color>& colors )
     {
         ASSERT( m_pColorBuffer == nullptr );
-        ArrayList<F32> colorsNormalized( m_vertexColors.size() * 4 );
-        for (U32 i = 0; i < m_vertexColors.size(); i++)
+        ArrayList<F32> colorsNormalized( m_colors.size() * 4 );
+        for (U32 i = 0; i < m_colors.size(); i++)
         {
-            auto normalized = m_vertexColors[i].normalized();
+            auto normalized = m_colors[i].normalized();
             colorsNormalized[i * 4 + 0] = normalized[0];
             colorsNormalized[i * 4 + 1] = normalized[1];
             colorsNormalized[i * 4 + 2] = normalized[2];
@@ -147,10 +147,10 @@ namespace Graphics { namespace D3D11 {
     //----------------------------------------------------------------------
     void Mesh::_UpdateColorBuffer()
     {
-        ArrayList<F32> colorsNormalized( m_vertexColors.size() * 4 );
-        for (U32 i = 0; i < m_vertexColors.size(); i++)
+        ArrayList<F32> colorsNormalized( m_colors.size() * 4 );
+        for (U32 i = 0; i < m_colors.size(); i++)
         {
-            auto normalized = m_vertexColors[i].normalized();
+            auto normalized = m_colors[i].normalized();
             colorsNormalized[i * 4 + 0] = normalized[0];
             colorsNormalized[i * 4 + 1] = normalized[1];
             colorsNormalized[i * 4 + 2] = normalized[2];
@@ -179,7 +179,7 @@ namespace Graphics { namespace D3D11 {
         if (m_pColorBuffer)
         {
             SAFE_DELETE( m_pColorBuffer );
-            _CreateColorBuffer( m_vertexColors );
+            _CreateColorBuffer( m_colors );
         }
 
         // Recreate uv buffer

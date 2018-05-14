@@ -80,9 +80,15 @@ namespace Graphics {
         void        setBufferUsage(BufferUsage usage) { m_bufferUsage = usage; _RecreateBuffers(); }
 
         //----------------------------------------------------------------------
+        // Recalculates the normals from the vertices
+        //----------------------------------------------------------------------
+        void recalculateNormals();
+
+        //----------------------------------------------------------------------
         const ArrayList<Math::Vec3>&    getVertices()       const { return m_vertices; }
-        const ArrayList<Color>&         getColors()         const { return m_vertexColors; }
+        const ArrayList<Color>&         getColors()         const { return m_colors; }
         const ArrayList<Math::Vec2>&    getUVs0()           const { return m_uvs0; }
+        const ArrayList<Math::Vec3>&    getNormals()        const { return m_normals; }
         U32                             getVertexCount()    const { return static_cast<U32>( m_vertices.size() ); }
         U16                             getSubMeshCount()   const { return static_cast<U32>( m_subMeshes.size() ); }
         bool                            isImmutable()       const { return m_bufferUsage == BufferUsage::Immutable; }
@@ -97,7 +103,7 @@ namespace Graphics {
 
     protected:
         ArrayList<Math::Vec3>   m_vertices;
-        ArrayList<Color>        m_vertexColors;
+        ArrayList<Color>        m_colors;
         ArrayList<Math::Vec2>   m_uvs0;
         ArrayList<Math::Vec3>   m_normals;
         BufferUsage             m_bufferUsage = BufferUsage::Immutable;

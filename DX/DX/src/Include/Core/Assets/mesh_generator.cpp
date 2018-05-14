@@ -29,7 +29,7 @@ namespace Core { namespace Assets {
             Math::Vec3(size, -size,  size)
         };
         ArrayList<U32> indices = {
-            0, 1, 2, 0, 2, 3,
+            0, 1, 3, 3, 1, 2,
             4, 6, 5, 4, 7, 6,
             4, 5, 1, 4, 1, 0,
             3, 2, 6, 3, 6, 7,
