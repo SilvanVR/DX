@@ -12,6 +12,7 @@
 #ifdef _WIN32
 
 #include <DirectXMath.h>
+#include <array>
 
 namespace Math {
 
@@ -121,6 +122,7 @@ namespace Math {
     public:
         Vector4F(F32 value = 0);
         Vector4F(F32 x, F32 y, F32 z, F32 w);
+        Vector4F(const std::array<F32, 4>& arr);
 
         Vector4F    operator +      (const Vector4F& v) const { return Vector4F( x + v.x, y + v.y, z + v.z, w + v.w ); }
         Vector4F    operator -      (const Vector4F& v) const { return Vector4F( x - v.x, y - v.y, z - v.z, w - v.w ); }
@@ -158,7 +160,7 @@ namespace Math {
         Vector3F getUp()        const { return *this * Vector3F::UP; }
         Vector3F getDown()      const { return *this * Vector3F::DOWN; }
 
-        static Quaternion LookRotation(const Vector3F& forward, const Vector3F& up);
+        static Quaternion LookRotation(const Vector3F& forward, const Vector3F& up = Math::Vector3F::UP);
         static Quaternion FromEulerAngles(F32 pitchDegrees, F32 yawDegrees, F32 rollDegrees);
         static Quaternion FromEulerAngles(const Vector3F& eulerAnglesInDegrees);
         static Quaternion Slerp(const Quaternion& q1, const Quaternion& q2, F32 t);

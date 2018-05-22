@@ -22,6 +22,8 @@
 #include "Components/audio_listener.h"
 #include "Components/audio_source.h"
 #include "Components/Rendering/directional_light.h"
+#include "Components/Rendering/point_light.h"
+#include "Components/Rendering/spot_light.h"
 
 class IGame : public Core::CoreEngine
 {

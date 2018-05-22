@@ -16,6 +16,7 @@
 #define GLOBAL_BUFFER_KEYWORD "global"
 #define OBJECT_BUFFER_KEYWORD "object"
 #define CAMERA_BUFFER_KEYWORD "camera"
+#define LIGHT_BUFFER_KEYWORD  "light"
 
 namespace Graphics { namespace D3D11 {
 
@@ -24,13 +25,15 @@ namespace Graphics { namespace D3D11 {
     {
     public:
         //----------------------------------------------------------------------
-        inline static MappedConstantBuffer& getObjectBuffer() { return *s_pConstantBufferObject; }
-        inline static MappedConstantBuffer& getCameraBuffer() { return *s_pConstantBufferCamera; }
-        inline static MappedConstantBuffer& getGlobalBuffer() { return *s_pConstantBufferGlobal; }
+        inline static MappedConstantBuffer& getObjectBuffer() { return *s_pBufferObject; }
+        inline static MappedConstantBuffer& getCameraBuffer() { return *s_pBufferCamera; }
+        inline static MappedConstantBuffer& getGlobalBuffer() { return *s_pBufferGlobal; }
+        inline static MappedConstantBuffer& getLightBuffer()  { return *s_pBufferLights; }
 
-        inline static bool hasObjectBuffer() { return s_pConstantBufferObject != nullptr; }
-        inline static bool hasCameraBuffer() { return s_pConstantBufferCamera != nullptr; }
-        inline static bool hasGlobalBuffer() { return s_pConstantBufferGlobal != nullptr; }
+        inline static bool hasObjectBuffer() { return s_pBufferObject != nullptr; }
+        inline static bool hasCameraBuffer() { return s_pBufferCamera != nullptr; }
+        inline static bool hasGlobalBuffer() { return s_pBufferGlobal != nullptr; }
+        inline static bool hasLightBuffer()  { return s_pBufferLights != nullptr; }
 
         //----------------------------------------------------------------------
         static void ReflectConstantBuffers(const HashMap<StringID, ConstantBufferInfo>& constantBuffers);
@@ -39,9 +42,10 @@ namespace Graphics { namespace D3D11 {
         static void Destroy();
 
     private:
-        static MappedConstantBuffer* s_pConstantBufferGlobal;
-        static MappedConstantBuffer* s_pConstantBufferObject;
-        static MappedConstantBuffer* s_pConstantBufferCamera;
+        static MappedConstantBuffer* s_pBufferGlobal;
+        static MappedConstantBuffer* s_pBufferObject;
+        static MappedConstantBuffer* s_pBufferCamera;
+        static MappedConstantBuffer* s_pBufferLights;
 
         //----------------------------------------------------------------------
         ConstantBufferManager()                                                 = delete;

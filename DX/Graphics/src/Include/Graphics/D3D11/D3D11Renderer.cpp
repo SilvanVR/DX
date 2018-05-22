@@ -15,6 +15,9 @@
 #include "Resources/D3D11Cubemap.h"
 #include "Resources/D3D11Texture2DArray.h"
 #include "D3D11ConstantBufferManager.h"
+#include "Lighting/directional_light.h"
+#include "Lighting/point_light.h"
+#include "Lighting/spot_light.h"
 
 using namespace DirectX;
 
@@ -23,9 +26,16 @@ namespace Graphics {
     #define GLOBAL_BUFFER D3D11::ConstantBufferManager::getGlobalBuffer()
     #define OBJECT_BUFFER D3D11::ConstantBufferManager::getObjectBuffer()
     #define CAMERA_BUFFER D3D11::ConstantBufferManager::getCameraBuffer()
+    #define LIGHT_BUFFER  D3D11::ConstantBufferManager::getLightBuffer()
+
+    #define LIGHT_COUNT_NAME    "lightCount"
+    #define MAX_LIGHTS          16
 
     //----------------------------------------------------------------------
     IRenderTexture* D3D11Renderer::s_currentRenderTarget = nullptr;
+
+    static I32          s_lightCount = 0;
+    static const Light* s_lights[MAX_LIGHTS];
 
     //**********************************************************************
     // INIT STUFF
@@ -48,91 +58,109 @@ namespace Graphics {
     void D3D11Renderer::dispatch( const CommandBuffer& cmd )
     {
         auto& commands = cmd.getGPUCommands();
+
         for ( auto& command : commands )
         {
             switch ( command->getType() )
             {
                 case GPUCommand::SET_RENDER_TARGET:
                 {
-                    GPUC_SetRenderTarget& c = *reinterpret_cast<GPUC_SetRenderTarget*>( command.get() );
-                    _SetRenderTarget( c.renderTarget.get() );
+                    s_lightCount = 0;
+                    auto& cmd = *reinterpret_cast<GPUC_SetRenderTarget*>( command.get() );
+                    _SetRenderTarget( cmd.renderTarget.get() );
                     break;
                 }
                 case GPUCommand::CLEAR_RENDER_TARGET:
                 {
-                    GPUC_ClearRenderTarget& c = *reinterpret_cast<GPUC_ClearRenderTarget*>( command.get() );
-                    _ClearRenderTarget( c.clearColor );
+                    auto& cmd = *reinterpret_cast<GPUC_ClearRenderTarget*>( command.get() );
+                    _ClearRenderTarget( cmd.clearColor );
                     break;
                 }
                 case GPUCommand::SET_VIEWPORT:
                 {
-                    GPUC_SetViewport& c = *reinterpret_cast<GPUC_SetViewport*>( command.get() );
-                    _SetViewport( c.viewport );
+                    auto& cmd = *reinterpret_cast<GPUC_SetViewport*>( command.get() );
+                    _SetViewport( cmd.viewport );
                     break;
                 }
                 case GPUCommand::SET_CAMERA_PERSPECTIVE:
                 {
-                    GPUC_SetCameraPerspective& c = *reinterpret_cast<GPUC_SetCameraPerspective*>( command.get() );
-                    _SetCameraPerspective( c.view, c.fov, c.zNear, c.zFar );
+                    auto& cmd = *reinterpret_cast<GPUC_SetCameraPerspective*>( command.get() );
+                    _SetCameraPerspective( cmd.view, cmd.fov, cmd.zNear, cmd.zFar );
                     break;
                 }
                 case GPUCommand::SET_CAMERA_ORTHO:
                 {
-                    GPUC_SetCameraOrtho& c = *reinterpret_cast<GPUC_SetCameraOrtho*>( command.get() );
-                    _SetCameraOrtho( c.view, c.left, c.right, c.bottom, c.top, c.zNear, c.zFar );
+                    auto& cmd = *reinterpret_cast<GPUC_SetCameraOrtho*>( command.get() );
+                    _SetCameraOrtho( cmd.view, cmd.left, cmd.right, cmd.bottom, cmd.top, cmd.zNear, cmd.zFar );
                     break;
                 }
                 case GPUCommand::DRAW_MESH:
                 {
-                    GPUC_DrawMesh& c = *reinterpret_cast<GPUC_DrawMesh*>( command.get() );
-                    _DrawMesh( c.mesh.get(), c.material.get(), c.modelMatrix, c.subMeshIndex );
+                    auto& cmd = *reinterpret_cast<GPUC_DrawMesh*>( command.get() );
+                    _DrawMesh( cmd.mesh.get(), cmd.material.get(), cmd.modelMatrix, cmd.subMeshIndex );
                     break;
                 }
                 case GPUCommand::COPY_TEXTURE:
                 {
-                    GPUC_CopyTexture& c = *reinterpret_cast<GPUC_CopyTexture*>( command.get() );
-                    U32 dstElement = D3D11CalcSubresource( c.dstMip, c.dstElement, c.dstTex->getMipCount() );
-                    U32 srcElement = D3D11CalcSubresource( c.srcMip, c.srcElement, c.srcTex->getMipCount() );
-                    D3D11::IBindableTexture* dstTex = dynamic_cast<D3D11::IBindableTexture*>( c.dstTex );
-                    D3D11::IBindableTexture* srcTex = dynamic_cast<D3D11::IBindableTexture*>( c.srcTex );
+                    auto& cmd = *reinterpret_cast<GPUC_CopyTexture*>( command.get() );
+                    U32 dstElement = D3D11CalcSubresource( cmd.dstMip, cmd.dstElement, cmd.dstTex->getMipCount() );
+                    U32 srcElement = D3D11CalcSubresource( cmd.srcMip, cmd.srcElement, cmd.srcTex->getMipCount() );
+                    D3D11::IBindableTexture* dstTex = reinterpret_cast<D3D11::IBindableTexture*>( cmd.dstTex );
+                    D3D11::IBindableTexture* srcTex = reinterpret_cast<D3D11::IBindableTexture*>( cmd.srcTex );
                     g_pImmediateContext->CopySubresourceRegion( dstTex->getD3D11Texture(), dstElement, 0, 0, 0, 
                                                                 srcTex->getD3D11Texture(), srcElement, NULL );
                     break;
                 }
                 case GPUCommand::SET_GLOBAL_FLOAT:
                 {
-                    GPUC_SetGlobalFloat& c = *reinterpret_cast<GPUC_SetGlobalFloat*>( command.get() );
+                    auto& cmd = *reinterpret_cast<GPUC_SetGlobalFloat*>( command.get() );
                     if ( not D3D11::ConstantBufferManager::hasGlobalBuffer() )
                         break;
-                    if ( not GLOBAL_BUFFER.update( c.name, &c.value) )
-                        LOG_WARN_RENDERING( "Global-Float '" + c.name.toString() + "' does not exist. Did you spell it correctly?" );
+                    if ( not GLOBAL_BUFFER.update( cmd.name, &cmd.value) )
+                        LOG_WARN_RENDERING( "Global-Float '" + cmd.name.toString() + "' does not exist. Did you spell it correctly?" );
                     break;
                 }
                 case GPUCommand::SET_GLOBAL_VECTOR:
                 {
-                    GPUC_SetGlobalVector& c = *reinterpret_cast<GPUC_SetGlobalVector*>( command.get() );
+                    auto& cmd = *reinterpret_cast<GPUC_SetGlobalVector*>( command.get() );
                     if ( not D3D11::ConstantBufferManager::hasGlobalBuffer() )
                         break;
-                    if ( not GLOBAL_BUFFER.update( c.name, &c.vec ) )
-                        LOG_WARN_RENDERING( "Global-Vec4 '" + c.name.toString() + "' does not exist. Did you spell it correctly?" );
+                    if ( not GLOBAL_BUFFER.update( cmd.name, &cmd.vec ) )
+                        LOG_WARN_RENDERING( "Global-Vec4 '" + cmd.name.toString() + "' does not exist. Did you spell it correctly?" );
                     break;
                 }
                 case GPUCommand::SET_GLOBAL_INT:
                 {
-                    GPUC_SetGlobalInt& c = *reinterpret_cast<GPUC_SetGlobalInt*>( command.get() );             
+                    auto& cmd = *reinterpret_cast<GPUC_SetGlobalInt*>( command.get() );
                     if ( not D3D11::ConstantBufferManager::hasGlobalBuffer() )
                         break;
-                    if ( not GLOBAL_BUFFER.update( c.name, &c.value ) )
-                        LOG_WARN_RENDERING( "Global-Int '" + c.name.toString() + "' does not exist. Did you spell it correctly?" );
+                    if ( not GLOBAL_BUFFER.update( cmd.name, &cmd.value ) )
+                        LOG_WARN_RENDERING( "Global-Int '" + cmd.name.toString() + "' does not exist. Did you spell it correctly?" );
                     break;
                 }
                 case GPUCommand::SET_GLOBAL_MATRIX:
                 {
-                    GPUC_SetGlobalMatrix& c = *reinterpret_cast<GPUC_SetGlobalMatrix*>( command.get() );
+                    auto& cmd = *reinterpret_cast<GPUC_SetGlobalMatrix*>( command.get() );
                     if ( not D3D11::ConstantBufferManager::hasGlobalBuffer() )
                         break;
-                    if ( not GLOBAL_BUFFER.update( c.name, &c.matrix ) )
-                        LOG_WARN_RENDERING( "Global-Matrix '" + c.name.toString() + "' does not exist. Did you spell it correctly?" );
+                    if ( not GLOBAL_BUFFER.update( cmd.name, &cmd.matrix ) )
+                        LOG_WARN_RENDERING( "Global-Matrix '" + cmd.name.toString() + "' does not exist. Did you spell it correctly?" );
+                    break;
+                }
+                case GPUCommand::DRAW_LIGHT:
+                {
+                    auto& cmd = *reinterpret_cast<GPUC_DrawLight*>( command.get() );
+                    if (s_lightCount < MAX_LIGHTS)
+                    {
+                        // Add light to list and update light count
+                        s_lights[s_lightCount++] = cmd.light;
+                        if ( D3D11::ConstantBufferManager::hasLightBuffer() )
+                            LIGHT_BUFFER.invalidate();
+                    }
+                    else
+                    {
+                        LOG_WARN_RENDERING( "Too many lights! Only " + TS( MAX_LIGHTS ) + " lights will be rendered." );
+                    }
                     break;
                 }
                 default:
@@ -336,6 +364,10 @@ namespace Graphics {
         if ( D3D11::ConstantBufferManager::hasGlobalBuffer() )
             GLOBAL_BUFFER.flush();
 
+        // Update light buffer if necessary
+        if ( D3D11::ConstantBufferManager::hasLightBuffer() )
+            _FlushLightBuffer();
+
         Shader* shader = currentBoundShader;
         if (m_activeGlobalMaterial)
         {
@@ -374,6 +406,77 @@ namespace Graphics {
 
         // Submit draw call
         g_pImmediateContext->DrawIndexed( mesh->getIndexCount( subMeshIndex ), 0, mesh->getBaseVertex( subMeshIndex ) );
+    }
+
+    //----------------------------------------------------------------------
+    void D3D11Renderer::_FlushLightBuffer()
+    {
+        if ( s_lightCount == 0 || LIGHT_BUFFER.gpuIsUpToDate() )
+            return;
+
+        // Update light count
+        static StringID lightCountName = SID( LIGHT_COUNT_NAME );
+        if ( not LIGHT_BUFFER.update( lightCountName, &s_lightCount ) )
+            LOG_ERROR_RENDERING( "Failed to update light-count. Something is horribly broken! Fix this!" );
+
+        struct Light
+        {
+            Math::Vec3  position;               // 12 bytes
+            I32         lightType;              // 4 bytes
+            Math::Vec3  direction;              // 12 bytes
+            F32         intensity;              // 4 bytes
+            Math::Vec4  color;                  // 16 bytes
+            F32         spotAngle;              // 4 bytes
+            F32         constantAttenuation;    // 4 bytes
+            F32         linearAttenuation;      // 4 bytes
+            F32         quadraticAttenuation;   // 4 bytes
+        } lights[MAX_LIGHTS];
+
+        // Update light array
+        for (I32 i = 0; i < s_lightCount; i++)
+        {
+            lights[i].color     = s_lights[i]->getColor().normalized();
+            lights[i].intensity = s_lights[i]->getIntensity();
+            lights[i].lightType = (I32)s_lights[i]->getLightType();
+
+            switch ( s_lights[i]->getLightType() )
+            {
+            case LightType::Directional:
+            {
+                auto dirLight = reinterpret_cast<const DirectionalLight*>( s_lights[i] );
+                lights[i].direction = dirLight->getDirection();
+                break;
+            }
+            case LightType::Point:
+            {
+                auto pointLight = reinterpret_cast<const PointLight*>( s_lights[i] );
+                lights[i].position              = pointLight->getPosition();
+                lights[i].constantAttenuation   = pointLight->getConstantAttenuation();
+                lights[i].linearAttenuation     = pointLight->getLinearAttenuation();
+                lights[i].quadraticAttenuation  = pointLight->getQuadraticAttenuation();
+                break;
+            }
+            case LightType::Spot:
+            {
+                auto spotLight = reinterpret_cast<const SpotLight*>( s_lights[i] );
+                lights[i].position              = spotLight->getPosition();
+                lights[i].constantAttenuation   = spotLight->getConstantAttenuation();
+                lights[i].linearAttenuation     = spotLight->getLinearAttenuation();
+                lights[i].quadraticAttenuation  = spotLight->getQuadraticAttenuation();
+                lights[i].spotAngle             = spotLight->getAngle();
+                break;
+            }
+            default:
+                ASSERT( false && "Unknown light type!" );
+            }
+        }
+
+        // Update gpu buffer
+        static StringID lightName = SID( "lights" );
+        if ( not LIGHT_BUFFER.update( lightName, &lights ) )
+            LOG_ERROR_RENDERING( "Failed to update light-buffer. Something is horribly broken! Fix this!" );
+
+        LIGHT_BUFFER.flush();
     }
 
 } // End namespaces

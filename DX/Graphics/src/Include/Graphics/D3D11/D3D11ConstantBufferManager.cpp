@@ -11,16 +11,18 @@
 namespace Graphics { namespace D3D11 {
 
     //----------------------------------------------------------------------
-    MappedConstantBuffer* ConstantBufferManager::s_pConstantBufferGlobal = nullptr;
-    MappedConstantBuffer* ConstantBufferManager::s_pConstantBufferObject = nullptr;
-    MappedConstantBuffer* ConstantBufferManager::s_pConstantBufferCamera = nullptr;
+    MappedConstantBuffer* ConstantBufferManager::s_pBufferGlobal = nullptr;
+    MappedConstantBuffer* ConstantBufferManager::s_pBufferObject = nullptr;
+    MappedConstantBuffer* ConstantBufferManager::s_pBufferCamera = nullptr;
+    MappedConstantBuffer* ConstantBufferManager::s_pBufferLights = nullptr;
 
     //----------------------------------------------------------------------
     void ConstantBufferManager::Destroy()
     {
-        SAFE_DELETE( s_pConstantBufferCamera );
-        SAFE_DELETE( s_pConstantBufferObject );
-        SAFE_DELETE( s_pConstantBufferGlobal );
+        SAFE_DELETE( s_pBufferCamera );
+        SAFE_DELETE( s_pBufferObject );
+        SAFE_DELETE( s_pBufferGlobal );
+        SAFE_DELETE( s_pBufferLights );
     }
 
     //----------------------------------------------------------------------
@@ -32,48 +34,63 @@ namespace Graphics { namespace D3D11 {
 
             if (lower.find( GLOBAL_BUFFER_KEYWORD ) != String::npos)
             {
-                if (s_pConstantBufferGlobal == nullptr)
+                if (s_pBufferGlobal == nullptr)
                 {
-                    s_pConstantBufferGlobal = new MappedConstantBuffer( bufferInfo, BufferUsage::Frequently );
-                    s_pConstantBufferGlobal->bind( ShaderType::Vertex );
-                    s_pConstantBufferGlobal->bind( ShaderType::Fragment );
+                    s_pBufferGlobal = new MappedConstantBuffer( bufferInfo, BufferUsage::Frequently );
+                    s_pBufferGlobal->bind( ShaderType::Vertex );
+                    s_pBufferGlobal->bind( ShaderType::Fragment );
                 }
                 else
                 {
                     // Check that constant buffer matches the other one
-                    if ( s_pConstantBufferGlobal->getBufferInfo() != bufferInfo )
+                    if ( s_pBufferGlobal->getBufferInfo() != bufferInfo )
                         LOG_WARN_RENDERING( "Global buffer mismatch in recent compiled shader. This might cause errors during shading. "
                                             "Please ensure that every global buffer has the exact same layout and binding slot." );
                 }
             }
             else if (lower.find( OBJECT_BUFFER_KEYWORD ) != String::npos)
             {
-                if (s_pConstantBufferObject == nullptr)
+                if (s_pBufferObject == nullptr)
                 {
-                    s_pConstantBufferObject = new MappedConstantBuffer( bufferInfo, BufferUsage::Frequently );
-                    s_pConstantBufferObject->bind( ShaderType::Vertex );
+                    s_pBufferObject = new MappedConstantBuffer( bufferInfo, BufferUsage::Frequently );
+                    s_pBufferObject->bind( ShaderType::Vertex );
                 }
                 else
                 {
                     // Check that constant buffer matches the other one
-                    if ( s_pConstantBufferObject->getBufferInfo() != bufferInfo )
+                    if ( s_pBufferObject->getBufferInfo() != bufferInfo )
                         LOG_WARN_RENDERING( "Object buffer mismatch in recent compiled shader. This might cause errors during shading. "
                                             "Please ensure that every object buffer has the exact same layout and binding slot." );
                 }
             }
             else if (lower.find( CAMERA_BUFFER_KEYWORD ) != String::npos)
             {
-                if (s_pConstantBufferCamera == nullptr)
+                if (s_pBufferCamera == nullptr)
                 {
-                    s_pConstantBufferCamera = new MappedConstantBuffer( bufferInfo, BufferUsage::Frequently );
-                    s_pConstantBufferCamera->bind( ShaderType::Vertex );
+                    s_pBufferCamera = new MappedConstantBuffer( bufferInfo, BufferUsage::Frequently );
+                    s_pBufferCamera->bind( ShaderType::Vertex );
                 }
                 else
                 {
                     // Check that constant buffer matches the other one
-                    if ( s_pConstantBufferCamera->getBufferInfo() != bufferInfo )
+                    if ( s_pBufferCamera->getBufferInfo() != bufferInfo )
                         LOG_WARN_RENDERING( "Camera buffer mismatch in recent compiled shader. This might cause errors during shading. "
                                             "Please ensure that every camera buffer has the exact same layout and binding slot." );
+                }
+            }
+            else if (lower.find( LIGHT_BUFFER_KEYWORD ) != String::npos)
+            {
+                if (s_pBufferLights == nullptr)
+                {
+                    s_pBufferLights = new MappedConstantBuffer( bufferInfo, BufferUsage::Frequently );
+                    s_pBufferLights->bind( ShaderType::Fragment );
+                }
+                else
+                {
+                    // Check that constant buffer matches the other one
+                    if ( s_pBufferLights->getBufferInfo() != bufferInfo )
+                        LOG_WARN_RENDERING( "Light buffer mismatch in recent compiled shader. This might cause errors during shading. "
+                                            "Please ensure that every light buffer has the exact same layout and binding slot." );
                 }
             }
             else

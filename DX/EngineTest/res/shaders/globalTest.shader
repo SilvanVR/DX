@@ -62,7 +62,8 @@ float4 main(FragmentIn fin) : SV_Target
 	
 	float4 normal = float4(fin.normal, 1);
 	
-	return normal;
+	//return normal;
+	return APPLY_LIGHTING(fin.normal);  
 	
 	//return textureColor;
 }

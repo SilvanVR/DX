@@ -13,6 +13,7 @@
 #include "i_mesh.h"
 #include "i_material.h"
 #include "i_render_texture.hpp"
+#include "Lighting/light.h"
 
 namespace Graphics {
 
@@ -27,7 +28,8 @@ namespace Graphics {
         SET_VIEWPORT,
         CLEAR_RENDER_TARGET,
         COPY_TEXTURE,
-        SET_GLOBAL_FLOAT, SET_GLOBAL_INT, SET_GLOBAL_VECTOR, SET_GLOBAL_MATRIX
+        SET_GLOBAL_FLOAT, SET_GLOBAL_INT, SET_GLOBAL_VECTOR, SET_GLOBAL_MATRIX,
+        DRAW_LIGHT
     };
 
     //**********************************************************************
@@ -165,4 +167,15 @@ namespace Graphics {
         StringID name;
         DirectX::XMMATRIX matrix;
     };
+
+    //**********************************************************************
+    struct GPUC_DrawLight : public GPUCommandBase
+    {
+        GPUC_DrawLight(const Light* light)
+            : GPUCommandBase( GPUCommand::DRAW_LIGHT ),
+            light( light ) {}
+
+        const Light* light;
+    };
+
 } // End namespaces

@@ -204,7 +204,7 @@ public:
     void addedToGameObject(GameObject* go) override
     {
         auto mr = getGameObject()->getComponent<Components::MeshRenderer>();
-        ASSERT(mr != nullptr);
+        ASSERT(mr != nullptr && "VisualizeNormals requires a mesh renderer component attached to it!");
 
         auto mesh = mr->getMesh();
         auto& meshNormals = mesh->getNormals();

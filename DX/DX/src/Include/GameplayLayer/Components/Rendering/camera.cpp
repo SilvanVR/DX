@@ -174,7 +174,7 @@ namespace Components {
     //----------------------------------------------------------------------
     void Camera::_SortRenderCommands( const Graphics::CommandBuffer& cmd, const Math::Vec3& position )
     {
-        // Sort rendering commands by material
+        // Sort rendering commands by material, which are sorted by their renderqueue
         std::map<MaterialPtr, ArrayList<std::shared_ptr<Graphics::GPUC_DrawMesh>>, RenderQueueSort> sortByMaterials;
         for (auto& command : cmd.getGPUCommands())
         {
@@ -186,6 +186,14 @@ namespace Components {
                 sortByMaterials[c->material].push_back( c );
                 break;
             }
+            case Graphics::GPUCommand::DRAW_LIGHT:
+            {
+                // Add command immediately
+                m_commandBuffer.getGPUCommands().push_back( command );
+                break;
+            }
+            default:
+                ASSERT(false && "Unknown command, must be added here");
             }
         }
 

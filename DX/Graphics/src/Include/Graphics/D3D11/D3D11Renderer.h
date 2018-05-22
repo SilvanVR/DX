@@ -68,6 +68,8 @@ namespace Graphics {
 
         void _ReportLiveObjects();
 
+        void _FlushLightBuffer();
+
         //----------------------------------------------------------------------
         // IRenderer Interface
         //----------------------------------------------------------------------

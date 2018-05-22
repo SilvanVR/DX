@@ -49,6 +49,7 @@ namespace Graphics {
         void setGlobalVector4(StringID name, const Math::Vec4& vec4);
         void setGlobalColor(StringID name, Color color);
         void setGlobalMatrix(StringID name, const DirectX::XMMATRIX& matrix);
+        void drawLight(const Light* light);
 
     private:
         ArrayList<std::shared_ptr<GPUCommandBase>> m_gpuCommands;

@@ -2,6 +2,7 @@
 // "global": Per frame constant buffer.
 // "object": Per object constant buffer.
 // "camera": Per camera constant buffer.
+// "light": Per light constant buffer.
 
 cbuffer cbPerCamera : register(b0)
 {

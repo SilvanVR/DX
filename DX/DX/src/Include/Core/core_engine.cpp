@@ -123,7 +123,7 @@ namespace Core {
             auto& cmd = cam->recordGraphicsCommands( lerp, renderers );
 
             // Send command buffer to rendering engine for execution
-            graphicsEngine.dispatch(cmd);
+            graphicsEngine.dispatch( cmd );
         }
 
         // Present backbuffer to screen

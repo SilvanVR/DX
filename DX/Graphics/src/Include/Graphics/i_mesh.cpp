@@ -146,8 +146,7 @@ namespace Graphics {
     {
         ArrayList<Math::Vec3> normals( m_vertices.size(), Math::Vec3( 0.0f ) );
 
-
-        // Calcualte normals
+        // Calculate normals
         for (auto& subMesh : m_subMeshes)
         {
             if (subMesh.topology != MeshTopology::Triangles)
@@ -156,7 +155,7 @@ namespace Graphics {
                 continue;
             }
 
-            for (I32 i = 0; i < subMesh.indices.size(); i = i + 3)
+            for (I32 i = 0; i < subMesh.indices.size(); i += 3)
             {
                 U32 index0 = subMesh.indices[ i + 0 ];
                 U32 index1 = subMesh.indices[ i + 1 ];
