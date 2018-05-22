@@ -19,13 +19,13 @@ namespace Components {
     {
     public:
         //----------------------------------------------------------------------
-        SpotLight(F32 intensity = 1.0f, Color color = Color::WHITE);
+        SpotLight(F32 intensity = 1.0f, Color color = Color::WHITE, F32 spotAngleInDegrees = 45.0f);
 
         //----------------------------------------------------------------------
         F32                                 getIntensity()      const { return m_spotLight.getIntensity(); }
         Color                               getColor()          const { return m_spotLight.getColor(); }
         const Graphics::LightAttenuation&   getAttenuation()    const { return m_spotLight.getAttenuation(); }
-        F32                                 getAngle()          const { return m_spotLight.getAngle(); }
+        F32                                 getAngle()          const { return Math::Rad2Deg( m_spotLight.getAngle() ); }
 
         //----------------------------------------------------------------------
         void setIntensity   (F32 intensity)                             { m_spotLight.setIntensity(intensity); }

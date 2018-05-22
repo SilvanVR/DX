@@ -16,13 +16,13 @@ namespace Graphics
     class SpotLight : public PointLight
     {
     public:
-        SpotLight(F32 intensity, Color color, const Math::Vec3& position = { 0, 0, 0 }, F32 angle = 90.0f, const Math::Vec3& direction = { 0, 0, 1 })
-            : PointLight( LightType::Spot, intensity, color, position ), m_angle( Math::Deg2Rad( angle ) ), m_direction( direction ) {}
+        SpotLight(F32 intensity, Color color, const Math::Vec3& position = { 0, 0, 0 }, F32 angleInDeg = 90.0f, const Math::Vec3& direction = { 0, 0, 1 })
+            : PointLight( LightType::Spot, intensity, color, position ), m_angle( Math::Deg2Rad( angleInDeg ) ), m_direction( direction ) {}
         ~SpotLight() = default;
 
         //----------------------------------------------------------------------
-        inline F32                  getAngle()      const { return Math::Rad2Deg( m_angle ); }
-        inline const Math::Vec3&    getDirection()  const { return m_direction; }
+        inline F32                  getAngle()          const { return m_angle; }
+        inline const Math::Vec3&    getDirection()      const { return m_direction; }
 
         //----------------------------------------------------------------------
         inline void setAngle    (F32 angleInDegree)             { m_angle = Math::Deg2Rad( angleInDegree ); }

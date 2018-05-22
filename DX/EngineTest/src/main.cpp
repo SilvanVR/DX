@@ -16,6 +16,7 @@
 class TestScene : public IScene
 {
     MaterialPtr mat;
+    Components::SpotLight* spot;
 
 public:
     TestScene() : IScene("TestScene") {}
@@ -27,6 +28,8 @@ public:
         auto cam = go->addComponent<Components::Camera>();
         go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -10);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA);
+
+        spot = go->addComponent<Components::SpotLight>(2.0f, Color::RED, 25.0f);
 
         createGameObject("Grid")->addComponent<GridGeneration>(20);
 
@@ -56,22 +59,22 @@ public:
             }
         }
 
-        auto sun = createGameObject("Sun");
-        sun->addComponent<Components::DirectionalLight>(1.0f, Color::WHITE);
-        sun->getTransform()->rotation = Math::Quat::LookRotation(Math::Vec3{ 0, -1, 1 });
-        sun->addComponent<ConstantRotation>(0.0f, 45.0f, 0.0f);
+        //auto sun = createGameObject("Sun");
+        //sun->addComponent<Components::DirectionalLight>(1.0f, Color::WHITE);
+        //sun->getTransform()->rotation = Math::Quat::LookRotation(Math::Vec3{ 0, -1, 1 });
+        //sun->addComponent<ConstantRotation>(0.0f, 45.0f, 0.0f);
 
         //auto sun2 = createGameObject("Sun2");
         //sun2->addComponent<Components::DirectionalLight>(1.0f, Color::GREEN);
         //sun2->getTransform()->rotation = Math::Quat::LookRotation(Math::Vec3{ 0, -1, -1 });
         //sun2->addComponent<ConstantRotation>(15.0f, -45.0f, 0.0f);
 
-   /*     auto pl = createGameObject("PointLight");
-        pl->addComponent<Components::PointLight>(1.0f, Color::GREEN);
-        pl->getTransform()->position = {0, 2, 0};*/
+        //auto pl = createGameObject("PointLight");
+        //pl->addComponent<Components::PointLight>(1.0f, Color::GREEN);
+        //pl->getTransform()->position = {0, 2, 0};
 
         //auto sl = createGameObject("SpotLight");
-        //auto spotLight = sl->addComponent<Components::SpotLight>(1.0f, Color::WHITE);  
+        //spot = sl->addComponent<Components::SpotLight>(2.0f, Color::WHITE);
         //sl->getTransform()->position = { 0, 0, 0 };
         //sl->getTransform()->rotation = Math::Quat::LookRotation(Math::Vec3(0,0,1));
 
@@ -81,6 +84,16 @@ public:
     void tick(Time::Seconds d) override
     {
         //mat->setFloat("test", (F32)TIME.getTime());
+        if (KEYBOARD.isKeyDown(Key::Up))
+        {
+            spot->setAngle(spot->getAngle() + 10.0f * (F32)d);
+            LOG(TS(spot->getAngle()));
+        }
+        if (KEYBOARD.isKeyDown(Key::Down))
+        {
+            spot->setAngle(spot->getAngle() - 10.0f * (F32)d);
+            LOG(TS(spot->getAngle()));
+        }
     }
 
     void shutdown() override { LOG("TestScene Shutdown!", Color::RED); }

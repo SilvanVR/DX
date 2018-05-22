@@ -122,12 +122,15 @@ float4 DoSpotLight( Light light, float3 V, float3 P, float3 N )
 }
 
 //----------------------------------------------------------------------
-float4 APPLY_LIGHTING(float3 N)
+// Applies lighting to a given fragment.
+// @Params:
+//  "P": The position of the fragment in world space
+//  "N": The normal of the fragment in world space
+//----------------------------------------------------------------------
+float4 APPLY_LIGHTING(float3 P, float3 N)
 { 
-	//float3 V = normalize( EyePosition - P ).xyz;
-	
-	float3 V = float3(0,0,-1);
-	float3 P = float3(0,0,0);
+	float3 EyePosition = float3(0,0,-10);
+	float3 V = normalize( EyePosition - P ).xyz;
 	
 	float4 totalLight = { 0, 0, 0, 1 };
 	
