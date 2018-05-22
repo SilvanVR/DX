@@ -8,6 +8,7 @@
 #define DIRECTIONAL_LIGHT 	0
 #define POINT_LIGHT 		1
 #define SPOT_LIGHT 			2
+#define SPECULAR_POWER		64
 
 cbuffer cbBufferGlobal : register(b2)
 {	
@@ -56,7 +57,7 @@ float4 DoSpecular( Light light, float3 V, float3 L, float3 N )
     float3 H = normalize( L + V );
     float NdotH = max( 0, dot( N, H ) );
  
-    return light.color * pow( NdotH, 64 ) * light.intensity;
+    return light.color * pow( NdotH, SPECULAR_POWER ) * light.intensity;
 }
 
 //----------------------------------------------------------------------
@@ -75,7 +76,7 @@ float4 DoDirectionalLight( Light light, float3 V, float3 N )
     float4 diffuse = DoDiffuse( light, L, N );
     float4 specular = DoSpecular( light, V, L, N );
  
-    return diffuse;// + specular;
+    return diffuse + specular;
 }
 
 //----------------------------------------------------------------------
@@ -92,7 +93,7 @@ float4 DoPointLight( Light light, float3 V, float3 P, float3 N )
     float4 diffuse = DoDiffuse( light, L, N ) * attenuation;
     float4 specular = DoSpecular( light, V, L, N ) * attenuation;
  
-    return diffuse;// + specular;
+    return diffuse + specular;
 }
 
 //----------------------------------------------------------------------
@@ -118,7 +119,7 @@ float4 DoSpotLight( Light light, float3 V, float3 P, float3 N )
     float4 diffuse = DoDiffuse( light, L, N ) * attenuation * spotIntensity;
     float4 specular = DoSpecular( light, V, L, N ) * attenuation * spotIntensity;
  
-    return diffuse;// + specular;
+    return diffuse + specular;
 }
 
 //----------------------------------------------------------------------

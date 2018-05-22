@@ -69,6 +69,7 @@ namespace Graphics { namespace D3D11 {
                 {
                     s_pBufferCamera = new MappedConstantBuffer( bufferInfo, BufferUsage::Frequently );
                     s_pBufferCamera->bind( ShaderType::Vertex );
+                    s_pBufferCamera->bind( ShaderType::Fragment );
                 }
                 else
                 {
