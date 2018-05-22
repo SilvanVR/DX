@@ -14,6 +14,7 @@
 
 namespace Graphics {
 
+    class Camera;
     namespace D3D11 { class RenderTexture; }
 
     //**********************************************************************
@@ -58,6 +59,7 @@ namespace Graphics {
         inline void _SetCameraOrtho(const DirectX::XMMATRIX& view, F32 left, F32 right, F32 bottom, F32 top, F32 zNear, F32 zFar);
         inline void _SetViewport(const ViewportRect& viewport);
         inline void _DrawMesh(IMesh* mesh, IMaterial* mat, const DirectX::XMMATRIX& model, U32 subMeshIndex);
+        inline void _SetCamera(Camera* camera);
 
         //----------------------------------------------------------------------
         void _InitD3D11();

@@ -148,6 +148,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Include\Graphics\camera.cpp" />
     <ClCompile Include="src\Include\Graphics\command_buffer.cpp" />
     <ClCompile Include="src\Include\Graphics\D3D11\D3D11ConstantBufferManager.cpp" />
     <ClCompile Include="src\Include\Graphics\D3D11\D3D11Globals.cpp" />
@@ -180,6 +181,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Include\Graphics\camera.h" />
     <ClInclude Include="src\Include\Graphics\command_buffer.h" />
     <ClInclude Include="src\Include\Graphics\D3D11\D3D11.hpp" />
     <ClInclude Include="src\Include\Graphics\D3D11\D3D11ConstantBufferManager.h" />

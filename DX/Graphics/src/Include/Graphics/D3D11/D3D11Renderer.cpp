@@ -63,35 +63,10 @@ namespace Graphics {
         {
             switch ( command->getType() )
             {
-                case GPUCommand::SET_RENDER_TARGET:
+                case GPUCommand::SET_CAMERA:
                 {
-                    s_lightCount = 0;
-                    auto& cmd = *reinterpret_cast<GPUC_SetRenderTarget*>( command.get() );
-                    _SetRenderTarget( cmd.renderTarget.get() );
-                    break;
-                }
-                case GPUCommand::CLEAR_RENDER_TARGET:
-                {
-                    auto& cmd = *reinterpret_cast<GPUC_ClearRenderTarget*>( command.get() );
-                    _ClearRenderTarget( cmd.clearColor );
-                    break;
-                }
-                case GPUCommand::SET_VIEWPORT:
-                {
-                    auto& cmd = *reinterpret_cast<GPUC_SetViewport*>( command.get() );
-                    _SetViewport( cmd.viewport );
-                    break;
-                }
-                case GPUCommand::SET_CAMERA_PERSPECTIVE:
-                {
-                    auto& cmd = *reinterpret_cast<GPUC_SetCameraPerspective*>( command.get() );
-                    _SetCameraPerspective( cmd.view, cmd.fov, cmd.zNear, cmd.zFar );
-                    break;
-                }
-                case GPUCommand::SET_CAMERA_ORTHO:
-                {
-                    auto& cmd = *reinterpret_cast<GPUC_SetCameraOrtho*>( command.get() );
-                    _SetCameraOrtho( cmd.view, cmd.left, cmd.right, cmd.bottom, cmd.top, cmd.zNear, cmd.zFar );
+                    auto& cmd = *reinterpret_cast<GPUC_SetCamera*>( command.get() );
+                    _SetCamera( cmd.camera );
                     break;
                 }
                 case GPUCommand::DRAW_MESH:
@@ -262,8 +237,8 @@ namespace Graphics {
     //----------------------------------------------------------------------
     void D3D11Renderer::_CreateSwapchain( U32 numSamples )
     {
-        auto windowSize = m_window->getSize();
-        m_pSwapchain = new D3D11::Swapchain( m_window->getHWND(), windowSize.x, windowSize.y, numSamples );
+        auto windowSize = s_window->getSize();
+        m_pSwapchain = new D3D11::Swapchain( s_window->getHWND(), windowSize.x, windowSize.y, numSamples );
     }
 
     //----------------------------------------------------------------------
@@ -278,6 +253,51 @@ namespace Graphics {
     //**********************************************************************
     // PRIVATE - COMMANDS
     //**********************************************************************
+
+    //----------------------------------------------------------------------
+    void D3D11Renderer::_SetCamera( Camera* camera )
+    {
+        s_lightCount = 0;
+
+        auto renderTarget = camera->getRenderTarget().get();
+        _SetRenderTarget( camera->getRenderTarget().get() );
+
+        switch ( camera->getClearMode() )
+        {
+        case CameraClearMode::None: break;
+        case CameraClearMode::Color: _ClearRenderTarget( camera->getClearColor() ); break;
+        default: LOG_WARN_RENDERING( "Unknown Clear-Mode in camera!" );
+        }
+
+        // Set viewport (Translate to pixel coordinates)
+        Graphics::ViewportRect screenRect;
+        auto viewport = camera->getViewport();
+        if ( camera->isRenderingToScreen() )
+        {
+            screenRect.topLeftX = viewport.topLeftX * s_window->getWidth();
+            screenRect.topLeftY = viewport.topLeftY * s_window->getHeight();
+            screenRect.width    = viewport.width    * s_window->getWidth();
+            screenRect.height   = viewport.height   * s_window->getHeight();
+        }
+        else
+        {
+            screenRect.topLeftX = viewport.topLeftX * renderTarget->getWidth();
+            screenRect.topLeftY = viewport.topLeftY * renderTarget->getHeight();
+            screenRect.width    = viewport.width    * renderTarget->getWidth();
+            screenRect.height   = viewport.height   * renderTarget->getHeight();
+        }
+        _SetViewport( screenRect );
+
+        switch ( camera->getCameraMode() )
+        {
+        case CameraMode::Perspective:
+            _SetCameraPerspective( camera->getViewMatrix(), camera->getFOV(), camera->getZNear(), camera->getZFar() ); break;
+        case CameraMode::Orthographic:
+            _SetCameraOrtho( camera->getViewMatrix(), camera->getLeft(), camera->getRight(), camera->getBottom(), camera->getTop(), camera->getZNear(), camera->getZFar() ); break;
+        default:
+            LOG_WARN_RENDERING( "UNKNOWN CAMERA MODE" );
+        }
+    }
 
     //----------------------------------------------------------------------
     void D3D11Renderer::_SetRenderTarget( IRenderTexture* renderTarget )

@@ -4,7 +4,7 @@
 // "camera": Per camera constant buffer.
 // "light": Per light constant buffer.
 
-#define MAX_LIGHTS 16
+#define MAX_LIGHTS 			16
 #define DIRECTIONAL_LIGHT 	0
 #define POINT_LIGHT 		1
 #define SPOT_LIGHT 			2

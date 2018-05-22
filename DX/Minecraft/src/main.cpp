@@ -46,8 +46,8 @@ public:
     {
         auto minimapCamGo = go->getScene()->createGameObject();
         auto cam = minimapCamGo->addComponent<Components::Camera>();
-        cam->setClearMode(Components::Camera::EClearMode::NONE);
-        cam->setCameraMode(Components::Camera::EMode::ORTHOGRAPHIC);
+        cam->setClearMode(Graphics::CameraClearMode::None);
+        cam->setCameraMode(Graphics::CameraMode::Orthographic);
         cam->setOrthoParams(-m_size, m_size,-m_size, m_size,0,1000);
         cam->getViewport().height = 0.3f;
         cam->getViewport().width = 0.3f;

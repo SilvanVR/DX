@@ -34,33 +34,9 @@ namespace Graphics {
     }
 
     //----------------------------------------------------------------------
-    void CommandBuffer::setRenderTarget( RenderTexturePtr renderTarget )
+    void CommandBuffer::setCamera( Camera* camera )
     {
-        m_gpuCommands.push_back( std::make_unique<GPUC_SetRenderTarget>( renderTarget ) );
-    }
-
-    //----------------------------------------------------------------------
-    void CommandBuffer::clearRenderTarget( const Color& clearColor )
-    {
-        m_gpuCommands.push_back( std::make_unique<GPUC_ClearRenderTarget>( clearColor ) );
-    }
-
-    //----------------------------------------------------------------------
-    void CommandBuffer::setCameraPerspective( const DirectX::XMMATRIX& view, F32 fov, F32 zNear, F32 zFar )
-    {
-        m_gpuCommands.push_back( std::make_unique<GPUC_SetCameraPerspective>( view, fov, zNear, zFar ) );
-    }
-
-    //----------------------------------------------------------------------
-    void CommandBuffer::setCameraOrtho( const DirectX::XMMATRIX& view, F32 left, F32 right, F32 bottom, F32 top, F32 zNear, F32 zFar )
-    {
-        m_gpuCommands.push_back( std::make_unique<GPUC_SetCameraOrtho>( view, left, right, bottom, top, zNear, zFar ) );
-    }
-
-    //----------------------------------------------------------------------
-    void CommandBuffer::setViewport( const Graphics::ViewportRect& viewport )
-    {
-        m_gpuCommands.push_back( std::make_unique<GPUC_SetViewport>( viewport ) );
+        m_gpuCommands.push_back( std::make_unique<GPUC_SetCamera>( camera ) );
     }
 
     //----------------------------------------------------------------------

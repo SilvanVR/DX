@@ -4,17 +4,18 @@
 
     author: S. Hau
     date: November 28, 2017
-
 **********************************************************************/
 
 #include "Logging/logging.h"
 
 namespace Graphics {
 
+    OS::Window* IRenderer::s_window = nullptr;
+
     //----------------------------------------------------------------------
-    IRenderer::IRenderer(OS::Window* window) 
-        : m_window( window )
+    IRenderer::IRenderer( OS::Window* window )
     { 
+        s_window = window;
         ASSERT( window != nullptr );
         addGlobalMaterial( "NONE", nullptr );
     }

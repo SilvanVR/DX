@@ -14,6 +14,7 @@
 #include "i_material.h"
 #include "i_render_texture.hpp"
 #include "Lighting/light.h"
+#include "camera.h"
 
 namespace Graphics {
 
@@ -22,11 +23,7 @@ namespace Graphics {
     {
         UNKNOWN,
         DRAW_MESH,
-        SET_RENDER_TARGET,
-        SET_CAMERA_PERSPECTIVE,
-        SET_CAMERA_ORTHO,
-        SET_VIEWPORT,
-        CLEAR_RENDER_TARGET,
+        SET_CAMERA,
         COPY_TEXTURE,
         SET_GLOBAL_FLOAT, SET_GLOBAL_INT, SET_GLOBAL_VECTOR, SET_GLOBAL_MATRIX,
         DRAW_LIGHT
@@ -60,55 +57,13 @@ namespace Graphics {
     };
 
     //**********************************************************************
-    struct GPUC_SetRenderTarget : public GPUCommandBase
+    struct GPUC_SetCamera : public GPUCommandBase
     {
-        GPUC_SetRenderTarget( RenderTexturePtr renderTarget )
-            : GPUCommandBase( GPUCommand::SET_RENDER_TARGET ), 
-            renderTarget( renderTarget ) {}
+        GPUC_SetCamera( Camera* camera )
+            : GPUCommandBase( GPUCommand::SET_CAMERA ), 
+            camera( camera ) {}
 
-        RenderTexturePtr renderTarget;
-    };
-
-    //**********************************************************************
-    struct GPUC_ClearRenderTarget : public GPUCommandBase
-    {
-        GPUC_ClearRenderTarget( const Color& clearColor )
-            : GPUCommandBase( GPUCommand::CLEAR_RENDER_TARGET ), 
-            clearColor( clearColor ) {}
-
-        Color clearColor;
-    };
-
-    //**********************************************************************
-    struct GPUC_SetCameraPerspective : public GPUCommandBase
-    {
-        GPUC_SetCameraPerspective( const DirectX::XMMATRIX& view, F32 fov, F32 zNear, F32 zFar ) 
-            : GPUCommandBase( GPUCommand::SET_CAMERA_PERSPECTIVE ), 
-            view( view ), fov( fov ), zNear( zNear ), zFar( zFar ) {}
-
-        DirectX::XMMATRIX   view;
-        F32                 fov, zNear, zFar;
-    };
-
-    //**********************************************************************
-    struct GPUC_SetCameraOrtho : public GPUCommandBase
-    {
-        GPUC_SetCameraOrtho( const DirectX::XMMATRIX& view, F32 left, F32 right, F32 bottom, F32 top, F32 zNear, F32 zFar )
-            : GPUCommandBase( GPUCommand::SET_CAMERA_ORTHO ), 
-            view( view ), left( left ), right( right ), bottom( bottom ), top( top ), zNear( zNear ), zFar( zFar ) {}
-
-        DirectX::XMMATRIX view;
-        F32 left, right, bottom, top, zNear, zFar;
-    };
-
-    //**********************************************************************
-    struct GPUC_SetViewport : public GPUCommandBase
-    {
-        GPUC_SetViewport(const Graphics::ViewportRect& viewport)
-            : GPUCommandBase(GPUCommand::SET_VIEWPORT),
-              viewport( viewport ) {}
-
-        Graphics::ViewportRect viewport;
+        Camera* camera;
     };
 
     //**********************************************************************

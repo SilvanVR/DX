@@ -37,11 +37,7 @@ namespace Graphics {
         const ArrayList<std::shared_ptr<GPUCommandBase>>& getGPUCommands() const { return m_gpuCommands; }
         ArrayList<std::shared_ptr<GPUCommandBase>>& getGPUCommands() { return m_gpuCommands; }
         void drawMesh(MeshPtr mesh, MaterialPtr material, const DirectX::XMMATRIX& modelMatrix, I32 subMeshIndex);
-        void setRenderTarget(RenderTexturePtr renderTarget);
-        void clearRenderTarget(const Color& clearColor);
-        void setCameraPerspective(const DirectX::XMMATRIX& view, F32 fov, F32 zNear, F32 zFar);
-        void setCameraOrtho(const DirectX::XMMATRIX& view, F32 left, F32 right, F32 bottom, F32 top, F32 zNear, F32 zFar);
-        void setViewport(const Graphics::ViewportRect& viewport);
+        void setCamera(Camera* camera);
         void copyTexture(ITexture* srcTex, ITexture* dstTex);
         void copyTexture(ITexture* srcTex, I32 srcElement, I32 srcMip, ITexture* dstTex, I32 dstElement, I32 dstMip);
         void setGlobalFloat(StringID name, F32 value);

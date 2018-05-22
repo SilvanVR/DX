@@ -42,6 +42,9 @@ namespace Graphics {
         virtual ~IRenderer() {}
 
         //----------------------------------------------------------------------
+        static OS::Window* GetWindow() { return s_window; }
+
+        //----------------------------------------------------------------------
         // Dispatches the given command buffer for execution on the gpu.
         //----------------------------------------------------------------------
         virtual void dispatch( const CommandBuffer& cmd ) = 0;
@@ -100,8 +103,8 @@ namespace Graphics {
         void resetFrameInfo() { m_frameInfo = {}; }
 
     protected:
-        OS::Window* m_window = nullptr;
-        FrameInfo   m_frameInfo = {};
+        static OS::Window* s_window;
+        FrameInfo m_frameInfo = {};
 
         //----------------------------------------------------------------------
         HashMap<StringID, IMaterial*>   m_globalMaterials;
