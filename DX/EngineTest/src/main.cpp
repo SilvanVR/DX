@@ -56,10 +56,10 @@ public:
             }
         }
 
-        //auto sun = createGameObject("Sun");
-        //sun->addComponent<Components::DirectionalLight>(1.0f, Color::RED);
-        //sun->getTransform()->rotation = Math::Quat::LookRotation(Math::Vec3{ 0, -1, 1 });
-        //sun->addComponent<ConstantRotation>(0.0f, 45.0f, 0.0f);
+        auto sun = createGameObject("Sun");
+        sun->addComponent<Components::DirectionalLight>(1.0f, Color::WHITE);
+        sun->getTransform()->rotation = Math::Quat::LookRotation(Math::Vec3{ 0, -1, 1 });
+        sun->addComponent<ConstantRotation>(0.0f, 45.0f, 0.0f);
 
         //auto sun2 = createGameObject("Sun2");
         //sun2->addComponent<Components::DirectionalLight>(1.0f, Color::GREEN);
@@ -70,10 +70,10 @@ public:
         pl->addComponent<Components::PointLight>(1.0f, Color::GREEN);
         pl->getTransform()->position = {0, 2, 0};*/
 
-        auto sl = createGameObject("SpotLight");
-        sl->addComponent<Components::SpotLight>(1.0f, Color::GREEN);
-        sl->getTransform()->position = { 0, 2, 0 };
-        sl->getTransform()->rotation = Math::Quat::LookRotation(Math::Vec3(0,0,1));
+        //auto sl = createGameObject("SpotLight");
+        //auto spotLight = sl->addComponent<Components::SpotLight>(1.0f, Color::WHITE);  
+        //sl->getTransform()->position = { 0, 0, 0 };
+        //sl->getTransform()->rotation = Math::Quat::LookRotation(Math::Vec3(0,0,1));
 
         LOG("TestScene initialized!", Color::RED);
     }

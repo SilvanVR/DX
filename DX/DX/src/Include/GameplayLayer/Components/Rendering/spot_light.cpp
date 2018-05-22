@@ -24,10 +24,7 @@ namespace Components {
         ASSERT( transform != nullptr );
 
         m_spotLight.setPosition( transform->position );
-
-
-        //m_spotLight.setAngle();
-
+        m_spotLight.setDirection( transform->rotation.getForward() );
 
         cmd.drawLight( &m_spotLight );
     }

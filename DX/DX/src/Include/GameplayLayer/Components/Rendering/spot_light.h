@@ -25,11 +25,13 @@ namespace Components {
         F32                                 getIntensity()      const { return m_spotLight.getIntensity(); }
         Color                               getColor()          const { return m_spotLight.getColor(); }
         const Graphics::LightAttenuation&   getAttenuation()    const { return m_spotLight.getAttenuation(); }
+        F32                                 getAngle()          const { return m_spotLight.getAngle(); }
 
         //----------------------------------------------------------------------
         void setIntensity   (F32 intensity)                             { m_spotLight.setIntensity(intensity); }
         void setColor       (Color color)                               { m_spotLight.setColor(color); }
         void setAttenuation (F32 constant, F32 linear, F32 quadratic)   { m_spotLight.setAttenuation(constant, linear, quadratic); }
+        void setAngle       (F32 angle)                                 { m_spotLight.setAngle(angle); }
 
     private:
         Graphics::SpotLight m_spotLight;

@@ -98,14 +98,27 @@ float4 DoPointLight( Light light, float3 V, float3 P, float3 N )
 //----------------------------------------------------------------------
 // SPOT LIGHT
 //----------------------------------------------------------------------
-
-
-
-//----------------------------------------------------------------------
-float3 APPLY_LIGHTING(float4 P, float3 N)
+float DoSpotCone( Light light, float3 L )
 {
-	// Loop over each light in buffer and calculate lighting
-    return float3(1, 0, 0);
+    float minCos = cos( light.spotAngle );
+    float maxCos = ( minCos + 1.0f ) / 2.0f;
+    float cosAngle = dot( light.direction, -L );
+    return smoothstep( minCos, maxCos, cosAngle ); 
+}
+
+float4 DoSpotLight( Light light, float3 V, float3 P, float3 N )
+{
+    float3 L = (light.position - P);
+    float distance = length( L );
+    L = L / distance;
+ 
+    float attenuation = DoAttenuation( light, distance );
+    float spotIntensity = DoSpotCone( light, L );
+ 
+    float4 diffuse = DoDiffuse( light, L, N ) * attenuation * spotIntensity;
+    float4 specular = DoSpecular( light, V, L, N ) * attenuation * spotIntensity;
+ 
+    return diffuse;// + specular;
 }
 
 //----------------------------------------------------------------------
@@ -131,6 +144,11 @@ float4 APPLY_LIGHTING(float3 N)
 		case POINT_LIGHT:
             {
                 totalLight += DoPointLight( lights[i], V, P, N );
+            }
+            break;
+		case SPOT_LIGHT:
+            {
+                totalLight += DoSpotLight( lights[i], V, P, N );
             }
             break;
         }

@@ -464,6 +464,7 @@ namespace Graphics {
                 lights[i].linearAttenuation     = spotLight->getLinearAttenuation();
                 lights[i].quadraticAttenuation  = spotLight->getQuadraticAttenuation();
                 lights[i].spotAngle             = spotLight->getAngle();
+                lights[i].direction             = spotLight->getDirection();
                 break;
             }
             default:
