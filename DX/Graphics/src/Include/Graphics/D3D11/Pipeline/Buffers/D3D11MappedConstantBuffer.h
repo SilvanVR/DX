@@ -52,11 +52,6 @@ namespace Graphics { namespace D3D11 {
         //----------------------------------------------------------------------
         void bind(ShaderType shaderType);
 
-        //----------------------------------------------------------------------
-        // Marks the gpu buffer as no longer up-to-date.
-        //----------------------------------------------------------------------
-        void invalidate() { m_gpuUpToDate = false; }
-
     private:
         ConstantBufferInfo  m_bufferInfo;
         Byte*               m_CPUBuffer     = nullptr;

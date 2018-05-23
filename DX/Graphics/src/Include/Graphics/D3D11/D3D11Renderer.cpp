@@ -43,6 +43,7 @@ namespace Graphics {
 
         I32          lightCount = 0;
         const Light* lights[MAX_LIGHTS];
+        bool         lightsUpdated = false;
     } renderContext;
 
     //**********************************************************************
@@ -137,8 +138,7 @@ namespace Graphics {
                     {
                         // Add light to list and update light count
                         renderContext.lights[renderContext.lightCount++] = cmd.light;
-                        if ( D3D11::ConstantBufferManager::hasLightBuffer() )
-                            LIGHT_BUFFER.invalidate();
+                        renderContext.lightsUpdated = true;
                     }
                     else
                     {
@@ -389,7 +389,7 @@ namespace Graphics {
     //----------------------------------------------------------------------
     void D3D11Renderer::_FlushLightBuffer()
     {
-        if ( renderContext.lightCount == 0 || LIGHT_BUFFER.gpuIsUpToDate() )
+        if ( renderContext.lightCount == 0 || not renderContext.lightsUpdated )
             return;
 
         // Update light count

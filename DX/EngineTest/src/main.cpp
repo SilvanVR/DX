@@ -91,6 +91,10 @@ public:
             spot->setAngle(spot->getAngle() - 10.0f * (F32)d);
             LOG(TS(spot->getAngle()));
         }
+
+        if (KEYBOARD.wasKeyPressed(Key::F))
+            spot->setActive(!spot->isActive());
+
     }
 
     void shutdown() override { LOG("TestScene Shutdown!", Color::RED); }
