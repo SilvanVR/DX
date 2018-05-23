@@ -77,7 +77,14 @@ namespace Graphics { namespace D3D11 {
     {
         g_pImmediateContext->ClearRenderTargetView( m_buffers[m_index].pRenderTargetView, color.normalized().data() );
         if (m_depth > 0)
-            g_pImmediateContext->ClearDepthStencilView( m_buffers[m_index].pDepthStencilView, (D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL), 1.0f, 0 );
+            g_pImmediateContext->ClearDepthStencilView( m_buffers[m_index].pDepthStencilView, (D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL), depth, stencil);
+    }
+
+    //----------------------------------------------------------------------
+    void RenderTexture::clearDepthStencil( F32 depth, U8 stencil )
+    {
+        ASSERT( m_depth > 0 && "Render-Texture has no depth-buffer! Can't clear it!" );
+        g_pImmediateContext->ClearDepthStencilView( m_buffers[m_index].pDepthStencilView, (D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL), depth, stencil );
     }
 
     //**********************************************************************

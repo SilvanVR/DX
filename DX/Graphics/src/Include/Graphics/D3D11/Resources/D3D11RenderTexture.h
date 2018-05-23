@@ -31,6 +31,7 @@ namespace Graphics { namespace D3D11 {
         //----------------------------------------------------------------------
         void create(U32 width, U32 height, U32 depth, TextureFormat format) override;
         void clear(Color color, F32 depth, U8 stencil) override;
+        void clearDepthStencil(F32 depth, U8 stencil) override;
         void bindForRendering() override;
 
         //----------------------------------------------------------------------

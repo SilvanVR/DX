@@ -26,6 +26,11 @@ namespace Graphics
         virtual void clear(Color color, F32 depth, U8 stencil) = 0;
 
         //----------------------------------------------------------------------
+        // Clears the texture with the given depth and stencil data.
+        //----------------------------------------------------------------------
+        virtual void clearDepthStencil(F32 depth, U8 stencil) = 0;
+
+        //----------------------------------------------------------------------
         // Creates a new render texture.
         // @Params:
         //  "width": Width in pixels.

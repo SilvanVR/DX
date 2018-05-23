@@ -18,6 +18,7 @@ namespace Graphics {
     cbuffer cbPerCamera : register( b0 )            \
     {                                               \
         float4x4 gViewProj;                         \
+	    float3 gCameraPos;                          \
     };                                              \
                                                     \
     cbuffer cbPerObject : register( b1 )            \
@@ -73,6 +74,7 @@ namespace Graphics {
     cbuffer cbPerCamera : register( b0 )            \
     {                                               \
         float4x4 gViewProj;                         \
+	    float3 gCameraPos;                          \
     };                                              \
                                                     \
     cbuffer cbPerObject : register( b1 )            \

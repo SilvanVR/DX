@@ -15,7 +15,8 @@ namespace Graphics {
     enum class CameraClearMode
     {
         None,
-        Color
+        Color,
+        Depth
     };
 
     //----------------------------------------------------------------------
@@ -45,33 +46,33 @@ namespace Graphics {
         void setViewport            (const Graphics::ViewportRect& viewport) { m_viewport = viewport; }
 
         //----------------------------------------------------------------------
-        bool                            isRenderingToScreen()   const { return m_renderTarget == nullptr; }
-        const CameraMode&               getCameraMode()         const { return m_cameraMode; }
-        F32                             getZNear()              const { return m_zNear; }
-        F32                             getZFar()               const { return m_zFar; }
-        F32                             getFOV()                const { return m_fov; }
-        bool                            isOrthographic()        const { return m_cameraMode == CameraMode::Orthographic; }
-        const Color&                    getClearColor()         const { return m_clearColor; }
-        F32                             getLeft()               const { return m_ortho.left; }
-        F32                             getRight()              const { return m_ortho.right; }
-        F32                             getTop()                const { return m_ortho.top; }
-        F32                             getBottom()             const { return m_ortho.bottom; }
-        CameraClearMode                 getClearMode()          const { return m_clearMode; }
-        F32                             getAspectRatio()        const;
+        inline bool                    isRenderingToScreen()   const { return m_renderTarget == nullptr; }
+        inline const CameraMode&       getCameraMode()         const { return m_cameraMode; }
+        inline F32                     getZNear()              const { return m_zNear; }
+        inline F32                     getZFar()               const { return m_zFar; }
+        inline F32                     getFOV()                const { return m_fov; }
+        inline bool                    isOrthographic()        const { return m_cameraMode == CameraMode::Orthographic; }
+        inline const Color&            getClearColor()         const { return m_clearColor; }
+        inline F32                     getLeft()               const { return m_ortho.left; }
+        inline F32                     getRight()              const { return m_ortho.right; }
+        inline F32                     getTop()                const { return m_ortho.top; }
+        inline F32                     getBottom()             const { return m_ortho.bottom; }
+        inline CameraClearMode         getClearMode()          const { return m_clearMode; }
+        inline F32                     getAspectRatio()        const;
 
         //----------------------------------------------------------------------
         // @Return
         // Returns the viewport in which this camera renders.
         // Note that the viewport is in normalized coordinates [0-1].
         //----------------------------------------------------------------------
-        const Graphics::ViewportRect&   getViewport()           const { return m_viewport; }
-        Graphics::ViewportRect&         getViewport()                 { return m_viewport; }
+        inline const Graphics::ViewportRect& getViewport()           const { return m_viewport; }
+        inline Graphics::ViewportRect&       getViewport()                 { return m_viewport; }
 
         //----------------------------------------------------------------------
         // @Return:
         //  Target texture in which this camera renders. Nullptr if rendering to screen.
         //----------------------------------------------------------------------
-        RenderTexturePtr                getRenderTarget() { return m_renderTarget; }
+        inline RenderTexturePtr getRenderTarget() { return m_renderTarget; }
 
         //----------------------------------------------------------------------
         // Set the render target in which this camera renders. Nullptr means the camera should

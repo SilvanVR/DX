@@ -68,25 +68,21 @@ namespace Components {
         RenderTexturePtr                getRenderTarget() { return m_camera.getRenderTarget(); }
 
         //----------------------------------------------------------------------
-        // Set the render target in which this camera renders. Nullptr means the camera should
-        // render to the screen. The viewport will be adapted to cover the whole texture.
+        // Set the render target in which this camera renders. Nullptr means the camera should render to the screen. 
         //----------------------------------------------------------------------
         void setRenderTarget(RenderTexturePtr renderTarget) { m_camera.setRenderTarget(renderTarget); }
 
         //----------------------------------------------------------------------
-        // Add additional command buffer to this camera
+        // Add an additional command buffer to this camera
         //----------------------------------------------------------------------
         void addCommandBuffer(Graphics::CommandBuffer* cmd) { m_additionalCommandBuffers.push_back(cmd); }
 
-        //----------------------------------------------------------------------
-        // Remove a command buffer from this camera
         //----------------------------------------------------------------------
         void removeCommandBuffer(Graphics::CommandBuffer* cmd) { m_additionalCommandBuffers.erase( std::remove( m_additionalCommandBuffers.begin(), m_additionalCommandBuffers.end(), cmd ) ); }
 
         //----------------------------------------------------------------------
         DirectX::XMMATRIX getProjectionMatrix()       const { return m_camera.getProjectionMatrix(); }
         DirectX::XMMATRIX getViewProjectionMatrix()   const { return m_camera.getViewProjectionMatrix(); }
-
 
     private:
         Graphics::Camera        m_camera;

@@ -55,8 +55,8 @@ namespace Components {
                 renderer->recordGraphicsCommands( tmpBuffer, lerp );
         }
 
-        for (auto& additionalCmd : m_additionalCommandBuffers)
-            tmpBuffer.merge(*additionalCmd);
+        for ( auto& additionalCmd : m_additionalCommandBuffers )
+            tmpBuffer.merge( *additionalCmd );
 
         _SortRenderCommands( tmpBuffer, transform->position );
 

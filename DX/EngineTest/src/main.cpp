@@ -33,36 +33,38 @@ public:
 
         createGameObject("Grid")->addComponent<GridGeneration>(20);
 
-        auto mesh = Core::Assets::MeshGenerator::CreateUVSphere(20,20);
-        //auto mesh = Core::Assets::MeshGenerator::CreateCubeUV(1);
-        mesh->recalculateNormals();
+        auto mesh = Core::Assets::MeshGenerator::CreatePlane(1);
+        //mesh->recalculateNormals();
         //mesh->setColors(cubeColors);
 
         mat = ASSETS.getMaterial("/materials/globalTest.material");
         auto go2 = createGameObject("Obj");
         go2->addComponent<Components::MeshRenderer>(mesh, mat);
         go2->addComponent<VisualizeNormals>(0.1f, Color::WHITE);
+        go2->getTransform()->rotation *= Math::Quat(Math::Vec3::RIGHT, 90);
+        go2->getTransform()->scale = {10,10,10};
         //go2->addComponent<ConstantRotation>(0.0f, 15.0f, 0.0f);
 
-        I32 loop = 2;
-        F32 distance = 3.0f;
-        for (I32 x = -loop; x <= loop; x++)
-        {
-            for (I32 y = -loop; y <= loop; y++)
-            {
-                for (I32 z = -loop; z <= loop; z++)
-                {
-                    auto gameobject = createGameObject("Obj");
-                    gameobject->addComponent<Components::MeshRenderer>(mesh, mat);
-                    gameobject->getTransform()->position = Math::Vec3(x * distance, y * distance, z * distance);
-                }
-            }
-        }
+        //I32 loop = 2;
+        //F32 distance = 3.0f;
+        //for (I32 x = -loop; x <= loop; x++)
+        //{
+        //    for (I32 y = -loop; y <= loop; y++)
+        //    {
+        //        for (I32 z = -loop; z <= loop; z++)
+        //        {
+        //            auto gameobject = createGameObject("Obj");
+        //            gameobject->addComponent<Components::MeshRenderer>(mesh, mat);
+        //            gameobject->getTransform()->position = Math::Vec3(x * distance, y * distance, z * distance);
+        //            gameobject->getTransform()->rotation *= Math::Quat(Math::Vec3::RIGHT, 90);
+        //        }
+        //    }
+        //}
 
-        auto sun = createGameObject("Sun");
-        sun->addComponent<Components::DirectionalLight>(1.0f, Color::WHITE);
-        sun->getTransform()->rotation = Math::Quat::LookRotation(Math::Vec3{ 0, -1, 1 });
-        sun->addComponent<ConstantRotation>(0.0f, 45.0f, 0.0f);
+        //auto sun = createGameObject("Sun");
+        //sun->addComponent<Components::DirectionalLight>(1.0f, Color::WHITE);
+        //sun->getTransform()->rotation = Math::Quat::LookRotation(Math::Vec3{ 0, -1, 1 });
+        //sun->addComponent<ConstantRotation>(0.0f, 45.0f, 0.0f);
 
         //auto sun2 = createGameObject("Sun2");
         //sun2->addComponent<Components::DirectionalLight>(1.0f, Color::GREEN);
@@ -72,11 +74,6 @@ public:
         auto pl = createGameObject("PointLight");
         pl->addComponent<Components::PointLight>(1.0f, Color::GREEN);
         pl->getTransform()->position = {0, 2, 0};
-
-        //auto sl = createGameObject("SpotLight");
-        //spot = sl->addComponent<Components::SpotLight>(2.0f, Color::WHITE);
-        //sl->getTransform()->position = { 0, 0, 0 };
-        //sl->getTransform()->rotation = Math::Quat::LookRotation(Math::Vec3(0,0,1));
 
         LOG("TestScene initialized!", Color::RED);
     }

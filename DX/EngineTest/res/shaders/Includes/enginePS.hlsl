@@ -10,9 +10,16 @@
 #define SPOT_LIGHT 			2
 #define SPECULAR_POWER		64
 
+cbuffer cbPerCamera : register(b0)
+{
+    float4x4 gViewProj;
+	float3 gCameraPos;
+};
+
 cbuffer cbBufferGlobal : register(b2)
 {	
 	float gTime;
+	float gAmbient;
 };
 
 struct Light
@@ -126,11 +133,11 @@ float4 DoSpotLight( Light light, float3 V, float3 P, float3 N )
 // Applies lighting to a given fragment.
 // @Params:
 //  "P": The position of the fragment in world space
-//  "N": The normal of the fragment in world space
+//  "N": The normalized normal of the fragment in world space
 //----------------------------------------------------------------------
-float4 APPLY_LIGHTING(float3 P, float3 N)
+float4 APPLY_LIGHTING( float3 P, float3 N )
 { 
-	float3 EyePosition = float3(0,0,-10);
+	float3 EyePosition = gCameraPos;
 	float3 V = normalize( EyePosition - P ).xyz;
 	
 	float4 totalLight = { 0, 0, 0, 1 };
@@ -141,21 +148,29 @@ float4 APPLY_LIGHTING(float3 P, float3 N)
         switch( lights[i].lightType )
         {
         case DIRECTIONAL_LIGHT:
-            {
-                totalLight += DoDirectionalLight( lights[i], V, N );
-            }
+            totalLight += DoDirectionalLight( lights[i], V, N );
             break;
 		case POINT_LIGHT:
-            {
-                totalLight += DoPointLight( lights[i], V, P, N );
-            }
+            totalLight += DoPointLight( lights[i], V, P, N );
             break;
 		case SPOT_LIGHT:
-            {
-                totalLight += DoSpotLight( lights[i], V, P, N );
-            }
+            totalLight += DoSpotLight( lights[i], V, P, N );
             break;
         }
 	}
+	
 	return totalLight;
+}
+
+//----------------------------------------------------------------------
+// Applies lighting to a given fragment.
+// @Params:
+//  "fragColor": The color of the fragment which will receive the lighting
+//  "P": The position of the fragment in world space
+//  "N": The normalized normal of the fragment in world space
+//----------------------------------------------------------------------
+float4 APPLY_LIGHTING( float4 fragColor, float3 P, float3 N )
+{ 
+	float4 lighting = APPLY_LIGHTING(P, N);		
+	return fragColor * gAmbient + fragColor * lighting; 
 }

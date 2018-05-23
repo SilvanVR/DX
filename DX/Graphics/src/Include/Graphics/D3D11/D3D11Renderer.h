@@ -23,7 +23,6 @@ namespace Graphics {
     class D3D11Renderer : public IRenderer
     {
         static const U8 INITIAL_MSAA_SAMPLES = 4;
-        static IRenderTexture* s_currentRenderTarget;
 
     public:
         D3D11Renderer(OS::Window* window) : IRenderer( window ) {}
@@ -46,20 +45,13 @@ namespace Graphics {
         ICubemap*           createCubemap() override;
         ITexture2DArray*    createTexture2DArray() override;
 
-        static IRenderTexture* getCurrentRenderTarget() { return s_currentRenderTarget; }
-
     private:
         D3D11::Swapchain*   m_pSwapchain    = nullptr;
         bool                m_vsync         = false;
 
         //----------------------------------------------------------------------
-        inline void _SetRenderTarget(IRenderTexture* renderTarget);
-        inline void _ClearRenderTarget(const Color& clearColor);
-        inline void _SetCameraPerspective(const DirectX::XMMATRIX& view, F32 fov, F32 zNear, F32 zFar);
-        inline void _SetCameraOrtho(const DirectX::XMMATRIX& view, F32 left, F32 right, F32 bottom, F32 top, F32 zNear, F32 zFar);
-        inline void _SetViewport(const ViewportRect& viewport);
-        inline void _DrawMesh(IMesh* mesh, IMaterial* mat, const DirectX::XMMATRIX& model, U32 subMeshIndex);
         inline void _SetCamera(Camera* camera);
+        inline void _DrawMesh(IMesh* mesh, IMaterial* mat, const DirectX::XMMATRIX& model, U32 subMeshIndex);
 
         //----------------------------------------------------------------------
         void _InitD3D11();

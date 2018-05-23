@@ -40,6 +40,10 @@ namespace Graphics { namespace D3D11 {
         SAFE_RELEASE( m_pSwapChain );
     }
 
+    //**********************************************************************
+    // PUBLIC
+    //**********************************************************************    
+
     //----------------------------------------------------------------------
     void Swapchain::recreate( U16 width, U16 height )
     {
@@ -52,10 +56,22 @@ namespace Graphics { namespace D3D11 {
     }
 
     //----------------------------------------------------------------------
+    void Swapchain::bind()
+    {
+        g_pImmediateContext->OMSetRenderTargets( 1, &m_pRenderTargetView, m_pDepthStencilView );
+    }
+
+    //----------------------------------------------------------------------
     void Swapchain::clear( Color color, F32 depth, U8 stencil )
     {
         g_pImmediateContext->ClearRenderTargetView( m_pRenderTargetView, color.normalized().data() );
-        g_pImmediateContext->ClearDepthStencilView( m_pDepthStencilView, (D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL), 1.0f, 0 );
+        g_pImmediateContext->ClearDepthStencilView( m_pDepthStencilView, (D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL), depth, stencil );
+    }
+
+    //----------------------------------------------------------------------
+    void Swapchain::clearDepthStencil( F32 depth, U8 stencil )
+    {
+        g_pImmediateContext->ClearDepthStencilView( m_pDepthStencilView, (D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL), depth, stencil );
     }
 
     //----------------------------------------------------------------------
@@ -63,6 +79,10 @@ namespace Graphics { namespace D3D11 {
     {
         HR( m_pSwapChain->Present( vsync ? 1 : 0, NULL ) );
     }
+
+    //**********************************************************************
+    // PRIVATE
+    //**********************************************************************
 
     //----------------------------------------------------------------------
     void Swapchain::_CreateD3D11Swapchain( HWND hwnd, U16 width, U16 height )

@@ -22,6 +22,11 @@ namespace Graphics { namespace D3D11 {
         ID3D11DepthStencilView* getDepthStencilView() { return m_pDepthStencilView; }
 
         //----------------------------------------------------------------------
+        // Bind the color + depth attachment to the output merger.
+        //----------------------------------------------------------------------
+        void bind();
+
+        //----------------------------------------------------------------------
         // Simply recreates the swapchain buffers with the new width and height.
         //----------------------------------------------------------------------
         void recreate(U16 width, U16 height);
@@ -37,6 +42,11 @@ namespace Graphics { namespace D3D11 {
         // Clears the backbuffer with the given color, depth and stencil data.
         //----------------------------------------------------------------------
         void clear(Color color, F32 depth, U8 stencil);
+
+        //----------------------------------------------------------------------
+        // Clears the backbuffer with the given depth and stencil data.
+        //----------------------------------------------------------------------
+        void clearDepthStencil(F32 depth, U8 stencil);
 
         //----------------------------------------------------------------------
         // @Return: True if the given MSAA samples are supported for this swapchain.

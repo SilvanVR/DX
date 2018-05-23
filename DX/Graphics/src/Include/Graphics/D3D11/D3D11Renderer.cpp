@@ -29,13 +29,21 @@ namespace Graphics {
     #define LIGHT_BUFFER  D3D11::ConstantBufferManager::getLightBuffer()
 
     #define LIGHT_COUNT_NAME    "lightCount"
+    #define CAM_VIEW_PROJ_NAME  "gViewProj"
+    #define CAM_POS_NAME        "gCameraPos"
     #define MAX_LIGHTS          16
 
     //----------------------------------------------------------------------
-    IRenderTexture* D3D11Renderer::s_currentRenderTarget = nullptr;
+    struct RenderContext
+    {
+        Camera*      camera     = nullptr;
 
-    static I32          s_lightCount = 0;
-    static const Light* s_lights[MAX_LIGHTS];
+        Shader*      shader     = nullptr;
+        Material*    material   = nullptr;
+
+        I32          lightCount = 0;
+        const Light* lights[MAX_LIGHTS];
+    } renderContext;
 
     //**********************************************************************
     // INIT STUFF
@@ -125,10 +133,10 @@ namespace Graphics {
                 case GPUCommand::DRAW_LIGHT:
                 {
                     auto& cmd = *reinterpret_cast<GPUC_DrawLight*>( command.get() );
-                    if (s_lightCount < MAX_LIGHTS)
+                    if ( renderContext.lightCount < MAX_LIGHTS )
                     {
                         // Add light to list and update light count
-                        s_lights[s_lightCount++] = cmd.light;
+                        renderContext.lights[renderContext.lightCount++] = cmd.light;
                         if ( D3D11::ConstantBufferManager::hasLightBuffer() )
                             LIGHT_BUFFER.invalidate();
                     }
@@ -257,123 +265,73 @@ namespace Graphics {
     //----------------------------------------------------------------------
     void D3D11Renderer::_SetCamera( Camera* camera )
     {
-        s_lightCount = 0;
+        renderContext.camera = camera;
+        renderContext.lightCount = 0;
 
-        auto renderTarget = camera->getRenderTarget().get();
-        _SetRenderTarget( camera->getRenderTarget().get() );
-
-        switch ( camera->getClearMode() )
+        // Set rendertarget
+        auto renderTarget = camera->getRenderTarget();
+        if ( renderTarget == nullptr )
         {
-        case CameraClearMode::None: break;
-        case CameraClearMode::Color: _ClearRenderTarget( camera->getClearColor() ); break;
-        default: LOG_WARN_RENDERING( "Unknown Clear-Mode in camera!" );
-        }
-
-        // Set viewport (Translate to pixel coordinates)
-        Graphics::ViewportRect screenRect;
-        auto viewport = camera->getViewport();
-        if ( camera->isRenderingToScreen() )
-        {
-            screenRect.topLeftX = viewport.topLeftX * s_window->getWidth();
-            screenRect.topLeftY = viewport.topLeftY * s_window->getHeight();
-            screenRect.width    = viewport.width    * s_window->getWidth();
-            screenRect.height   = viewport.height   * s_window->getHeight();
-        }
-        else
-        {
-            screenRect.topLeftX = viewport.topLeftX * renderTarget->getWidth();
-            screenRect.topLeftY = viewport.topLeftY * renderTarget->getHeight();
-            screenRect.width    = viewport.width    * renderTarget->getWidth();
-            screenRect.height   = viewport.height   * renderTarget->getHeight();
-        }
-        _SetViewport( screenRect );
-
-        switch ( camera->getCameraMode() )
-        {
-        case CameraMode::Perspective:
-            _SetCameraPerspective( camera->getViewMatrix(), camera->getFOV(), camera->getZNear(), camera->getZFar() ); break;
-        case CameraMode::Orthographic:
-            _SetCameraOrtho( camera->getViewMatrix(), camera->getLeft(), camera->getRight(), camera->getBottom(), camera->getTop(), camera->getZNear(), camera->getZFar() ); break;
-        default:
-            LOG_WARN_RENDERING( "UNKNOWN CAMERA MODE" );
-        }
-    }
-
-    //----------------------------------------------------------------------
-    void D3D11Renderer::_SetRenderTarget( IRenderTexture* renderTarget )
-    {
-        s_currentRenderTarget = renderTarget;
-
-        if (s_currentRenderTarget == nullptr)
-        {
-            auto renderTargetView = m_pSwapchain->getRenderTargetView();
-            auto depthStencilView = m_pSwapchain->getDepthStencilView();
-            g_pImmediateContext->OMSetRenderTargets( 1, &renderTargetView, depthStencilView );
+            m_pSwapchain->bind();
         }
         else
         {
             // Unbind all shader resources, because the render target might be used as a srv
             ID3D11ShaderResourceView* resourceViews[16] = {};
             g_pImmediateContext->PSSetShaderResources( 0, 16, resourceViews );
-
             renderTarget->bindForRendering();
         }
-    }
 
-    //----------------------------------------------------------------------
-    void D3D11Renderer::_ClearRenderTarget( const Color& clearColor )
-    {
-        if (s_currentRenderTarget == nullptr)
+        // Clear rendertarget
+        switch ( camera->getClearMode() )
         {
-            m_pSwapchain->clear( clearColor, 1.0f, 0 );
+        case CameraClearMode::None: break;
+        case CameraClearMode::Color:
+            renderTarget == nullptr ? m_pSwapchain->clear( camera->getClearColor(), 1.0f, 0 ) : renderTarget->clear( camera->getClearColor(), 1.0f, 0 );
+            break;
+        case CameraClearMode::Depth:
+            renderTarget == nullptr ? m_pSwapchain->clearDepthStencil( 1.0f, 0 ) : renderTarget->clearDepthStencil( 1.0f, 0 );
+            break;
+        default: LOG_WARN_RENDERING( "Unknown Clear-Mode in camera!" );
+        }
+
+        // Set viewport (Translate to pixel coordinates first)
+        D3D11_VIEWPORT vp = {};
+        auto viewport = camera->getViewport();
+        if ( renderTarget == nullptr )
+        {
+            vp.TopLeftX = viewport.topLeftX * s_window->getWidth();
+            vp.TopLeftY = viewport.topLeftY * s_window->getHeight();
+            vp.Width    = viewport.width    * s_window->getWidth();
+            vp.Height   = viewport.height   * s_window->getHeight();
+            vp.MaxDepth = 1.0f;
         }
         else
         {
-            s_currentRenderTarget->clear( clearColor, 1.0f, 0 );
+            vp.TopLeftX = viewport.topLeftX * renderTarget->getWidth();
+            vp.TopLeftY = viewport.topLeftY * renderTarget->getHeight();
+            vp.Width    = viewport.width    * renderTarget->getWidth();
+            vp.Height   = viewport.height   * renderTarget->getHeight();
+            vp.MaxDepth = 1.0f;
         }
-    }
-
-    //----------------------------------------------------------------------
-    void D3D11Renderer::_SetCameraPerspective( const DirectX::XMMATRIX& view, F32 fov, F32 zNear, F32 zFar )
-    {
-        U32 numViewports = 1;
-        D3D11_VIEWPORT viewport;
-        g_pImmediateContext->RSGetViewports( &numViewports, &viewport);
-
-        F32 ar = viewport.Width / viewport.Height;
-        XMMATRIX proj = XMMatrixPerspectiveFovLH( XMConvertToRadians( fov ), ar, zNear, zFar );
-        XMMATRIX viewProj = view * proj;
-
-        CAMERA_BUFFER.update( &viewProj, sizeof( XMMATRIX ) );
-    }
-
-    //----------------------------------------------------------------------
-    void D3D11Renderer::_SetCameraOrtho( const DirectX::XMMATRIX& view, F32 left, F32 right, F32 bottom, F32 top, F32 zNear, F32 zFar )
-    {
-        XMMATRIX proj = XMMatrixOrthographicOffCenterLH( left, right, bottom, top, zNear, zFar );
-        XMMATRIX viewProj = view * proj;
-
-        CAMERA_BUFFER.update( &viewProj, sizeof( XMMATRIX ) );
-    }
-
-    //----------------------------------------------------------------------
-    void D3D11Renderer::_SetViewport( const ViewportRect& viewport )
-    {
-        D3D11_VIEWPORT vp = {};
-        vp.TopLeftX = viewport.topLeftX;
-        vp.TopLeftY = viewport.topLeftY;
-        vp.Width    = viewport.width;
-        vp.Height   = viewport.height;
-        vp.MaxDepth = 1.0f;
         g_pImmediateContext->RSSetViewports( 1, &vp );
+
+        // Update camera buffer
+        static StringID viewProjName = SID( CAM_VIEW_PROJ_NAME );
+        XMMATRIX viewProj = camera->getViewMatrix() * camera->getProjectionMatrix();
+        CAMERA_BUFFER.update( viewProjName, &viewProj );
+
+        static StringID camPosName = SID( CAM_POS_NAME );
+        auto modelMatrix = DirectX::XMMatrixInverse( nullptr, camera->getViewMatrix() );        
+        auto translation = modelMatrix.r[3];
+        CAMERA_BUFFER.update( camPosName, &translation );
+
+        CAMERA_BUFFER.flush();
     }
 
     //----------------------------------------------------------------------
     void D3D11Renderer::_DrawMesh( IMesh* mesh, IMaterial* material, const DirectX::XMMATRIX& modelMatrix, U32 subMeshIndex )
     {
-        static Shader*      currentBoundShader = nullptr;
-        static Material*    currentBoundMaterial = nullptr;
-
         // Measuring per frame data
         m_frameInfo.drawCalls++;
         m_frameInfo.numVertices += mesh->getVertexCount();
@@ -388,32 +346,32 @@ namespace Graphics {
         if ( D3D11::ConstantBufferManager::hasLightBuffer() )
             _FlushLightBuffer();
 
-        Shader* shader = currentBoundShader;
+        Shader* shader = renderContext.shader;
         if (m_activeGlobalMaterial)
         {
-            if (m_activeGlobalMaterial != currentBoundMaterial)
+            if (m_activeGlobalMaterial != renderContext.material)
             {
                 shader = m_activeGlobalMaterial->getShader().get();
                 shader->bind();
-                currentBoundShader = m_activeGlobalMaterial->getShader().get();
-                currentBoundMaterial = m_activeGlobalMaterial;
+                renderContext.shader = m_activeGlobalMaterial->getShader().get();
+                renderContext.material = m_activeGlobalMaterial;
             }
         }
         else
         {
             // Bind shader if not already bound
-            if ( material->getShader().get() != currentBoundShader )
+            if ( material->getShader().get() != renderContext.shader )
             {
                 shader = material->getShader().get();
                 shader->bind();
-                currentBoundShader = material->getShader().get();
+                renderContext.shader = material->getShader().get();
             }
 
             // Bind material if not already bound
-            if ( material != currentBoundMaterial )
+            if ( material != renderContext.material )
             {
                 material->bind();
-                currentBoundMaterial = material;
+                renderContext.material = material;
             }
         }
 
@@ -431,45 +389,49 @@ namespace Graphics {
     //----------------------------------------------------------------------
     void D3D11Renderer::_FlushLightBuffer()
     {
-        if ( s_lightCount == 0 || LIGHT_BUFFER.gpuIsUpToDate() )
+        if ( renderContext.lightCount == 0 || LIGHT_BUFFER.gpuIsUpToDate() )
             return;
 
         // Update light count
         static StringID lightCountName = SID( LIGHT_COUNT_NAME );
-        if ( not LIGHT_BUFFER.update( lightCountName, &s_lightCount ) )
+        if ( not LIGHT_BUFFER.update( lightCountName, &renderContext.lightCount ) )
             LOG_ERROR_RENDERING( "Failed to update light-count. Something is horribly broken! Fix this!" );
 
         struct Light
         {
             Math::Vec3  position;               // 12 bytes
             I32         lightType;              // 4 bytes
+            //----------------------------------- (16 byte boundary)
             Math::Vec3  direction;              // 12 bytes
             F32         intensity;              // 4 bytes
+            //----------------------------------- (16 byte boundary)
             Math::Vec4  color;                  // 16 bytes
+            //----------------------------------- (16 byte boundary)
             F32         spotAngle;              // 4 bytes
             F32         constantAttenuation;    // 4 bytes
             F32         linearAttenuation;      // 4 bytes
             F32         quadraticAttenuation;   // 4 bytes
+            //----------------------------------- (16 byte boundary)
         } lights[MAX_LIGHTS];
 
         // Update light array
-        for (I32 i = 0; i < s_lightCount; i++)
+        for (I32 i = 0; i < renderContext.lightCount; i++)
         {
-            lights[i].color     = s_lights[i]->getColor().normalized();
-            lights[i].intensity = s_lights[i]->getIntensity();
-            lights[i].lightType = (I32)s_lights[i]->getLightType();
+            lights[i].color     = renderContext.lights[i]->getColor().normalized();
+            lights[i].intensity = renderContext.lights[i]->getIntensity();
+            lights[i].lightType = (I32)renderContext.lights[i]->getLightType();
 
-            switch ( s_lights[i]->getLightType() )
+            switch ( renderContext.lights[i]->getLightType() )
             {
             case LightType::Directional:
             {
-                auto dirLight = reinterpret_cast<const DirectionalLight*>( s_lights[i] );
+                auto dirLight = reinterpret_cast<const DirectionalLight*>( renderContext.lights[i] );
                 lights[i].direction = dirLight->getDirection();
                 break;
             }
             case LightType::Point:
             {
-                auto pointLight = reinterpret_cast<const PointLight*>( s_lights[i] );
+                auto pointLight = reinterpret_cast<const PointLight*>( renderContext.lights[i] );
                 lights[i].position              = pointLight->getPosition();
                 lights[i].constantAttenuation   = pointLight->getConstantAttenuation();
                 lights[i].linearAttenuation     = pointLight->getLinearAttenuation();
@@ -478,7 +440,7 @@ namespace Graphics {
             }
             case LightType::Spot:
             {
-                auto spotLight = reinterpret_cast<const SpotLight*>( s_lights[i] );
+                auto spotLight = reinterpret_cast<const SpotLight*>( renderContext.lights[i] );
                 lights[i].position              = spotLight->getPosition();
                 lights[i].constantAttenuation   = spotLight->getConstantAttenuation();
                 lights[i].linearAttenuation     = spotLight->getLinearAttenuation();
