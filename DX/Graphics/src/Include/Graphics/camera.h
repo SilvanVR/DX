@@ -35,15 +35,15 @@ namespace Graphics {
         ~Camera() = default;
 
         //----------------------------------------------------------------------
-        void setCameraMode          (CameraMode mode)        { m_cameraMode = mode; }
-        void setZNear               (F32 zNear)                 { m_zNear = zNear; }
-        void setZFar                (F32 zFar)                  { m_zFar = zFar; }
-        void setFOV                 (F32 fovAngleYInDegree)     { m_fov = fovAngleYInDegree; }
-        void setClearColor          (const Color& clearColor)   { m_clearColor = clearColor; }
-        void setClearMode           (CameraClearMode clearMode)      { m_clearMode = clearMode; }
-        void setOrthoParams         (F32 left, F32 right, F32 bottom, F32 top, F32 zNear, F32 zFar);
-        void setPerspectiveParams   (F32 fovAngleYInDegree, F32 zNear, F32 zFar);
-        void setViewport            (const Graphics::ViewportRect& viewport) { m_viewport = viewport; }
+        inline void setCameraMode          (CameraMode mode)                        { m_cameraMode = mode; }
+        inline void setZNear               (F32 zNear)                              { m_zNear = zNear; }
+        inline void setZFar                (F32 zFar)                               { m_zFar = zFar; }
+        inline void setFOV                 (F32 fovAngleYInDegree)                  { m_fov = fovAngleYInDegree; }
+        inline void setClearColor          (const Color& clearColor)                { m_clearColor = clearColor; }
+        inline void setClearMode           (CameraClearMode clearMode)              { m_clearMode = clearMode; }
+        inline void setViewport            (const Graphics::ViewportRect& viewport) { m_viewport = viewport; }
+        inline void setOrthoParams         (F32 left, F32 right, F32 bottom, F32 top, F32 zNear, F32 zFar);
+        inline void setPerspectiveParams   (F32 fovAngleYInDegree, F32 zNear, F32 zFar);
 
         //----------------------------------------------------------------------
         inline bool                    isRenderingToScreen()   const { return m_renderTarget == nullptr; }
@@ -75,18 +75,22 @@ namespace Graphics {
         inline RenderTexturePtr getRenderTarget() { return m_renderTarget; }
 
         //----------------------------------------------------------------------
-        // Set the render target in which this camera renders. Nullptr means the camera should
-        // render to the screen. The viewport will be adapted to cover the whole texture.
+        // Set the render target in which this camera renders. Nullptr means the camera should render to the screen.
         //----------------------------------------------------------------------
         void setRenderTarget(RenderTexturePtr renderTarget) { m_renderTarget = renderTarget; }
 
         //----------------------------------------------------------------------
-        //const DirectX::XMMATRIX& getProjectionMatrix() const { return m_projection; }
-        DirectX::XMMATRIX   getProjectionMatrix() const;
-        DirectX::XMMATRIX   getViewProjectionMatrix() const { return m_viewMatrix * getProjectionMatrix(); }
+        inline const DirectX::XMMATRIX& getProjectionMatrix()      const { return m_projection; }
+        inline const DirectX::XMMATRIX& getViewProjectionMatrix()  const { return m_viewProjection; }
+        inline const DirectX::XMMATRIX& getViewMatrix()            const { return m_view; }
+        inline const DirectX::XMMATRIX& getModelMatrix()           const { return m_model; }
 
-        void setViewMatrix(const DirectX::XMMATRIX& view) { m_viewMatrix = view; }
-        const DirectX::XMMATRIX& getViewMatrix() const { return m_viewMatrix; }
+        //----------------------------------------------------------------------
+        // Set the model matrix for this camera.
+        // This function also calculates the view + projection and view-projection matrix.
+        // This function should be called once per frame.
+        //----------------------------------------------------------------------
+        void setModelMatrix(const DirectX::XMMATRIX& model);
 
     private:
         CameraMode m_cameraMode = CameraMode::Perspective;
@@ -117,10 +121,13 @@ namespace Graphics {
         RenderTexturePtr        m_renderTarget = nullptr;
 
         // Matrices
-        DirectX::XMMATRIX       m_viewMatrix;
+        DirectX::XMMATRIX       m_model;
+        DirectX::XMMATRIX       m_view;
+        DirectX::XMMATRIX       m_projection;
+        DirectX::XMMATRIX       m_viewProjection;
 
         //----------------------------------------------------------------------
-        //void _UpdateProjectionMatrix();
+        void _UpdateProjectionMatrix();
 
         //----------------------------------------------------------------------
         Camera(const Camera& other)               = delete;

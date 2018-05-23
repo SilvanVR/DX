@@ -39,12 +39,12 @@ VertexOut main(VertexIn vin)
 }
 
 // ----------------------------------------------
-#shader fragment
+#shader fragment  
 
 #include "includes/enginePS.hlsl"
 
 cbuffer cbPerMaterial
-{
+{ 
 	float test;
 };
 

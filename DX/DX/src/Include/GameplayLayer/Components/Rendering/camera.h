@@ -34,10 +34,6 @@ namespace Components {
         bool                            isOrthographic()        const { return getCameraMode() == Graphics::CameraMode::Orthographic; }
         const Color&                    getClearColor()         const { return m_camera.getClearColor(); }
         const Graphics::CameraClearMode getClearMode()          const { return m_camera.getClearMode(); }
-        F32                             getLeft()               const { return m_camera.getLeft(); }
-        F32                             getRight()              const { return m_camera.getRight(); }
-        F32                             getTop()                const { return m_camera.getTop(); }
-        F32                             getBottom()             const { return m_camera.getBottom(); }
         F32                             getAspectRatio()        const { return m_camera.getAspectRatio(); }
         Common::BitMask                 getLayerMask()          const { return m_cullingMask; }
 
@@ -78,7 +74,7 @@ namespace Components {
         void addCommandBuffer(Graphics::CommandBuffer* cmd) { m_additionalCommandBuffers.push_back(cmd); }
 
         //----------------------------------------------------------------------
-        void removeCommandBuffer(Graphics::CommandBuffer* cmd) { m_additionalCommandBuffers.erase( std::remove( m_additionalCommandBuffers.begin(), m_additionalCommandBuffers.end(), cmd ) ); }
+        void removeCommandBuffer(Graphics::CommandBuffer* cmd) { m_additionalCommandBuffers.erase(std::remove(m_additionalCommandBuffers.begin(), m_additionalCommandBuffers.end(), cmd)); }
 
         //----------------------------------------------------------------------
         DirectX::XMMATRIX getProjectionMatrix()       const { return m_camera.getProjectionMatrix(); }

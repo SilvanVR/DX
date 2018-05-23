@@ -29,6 +29,7 @@ namespace Graphics {
     #define LIGHT_BUFFER  D3D11::ConstantBufferManager::getLightBuffer()
 
     #define LIGHT_COUNT_NAME    "lightCount"
+    #define LIGHT_BUFFER_NAME   "lights"
     #define CAM_VIEW_PROJ_NAME  "gViewProj"
     #define CAM_POS_NAME        "gCameraPos"
     #define MAX_LIGHTS          16
@@ -36,14 +37,14 @@ namespace Graphics {
     //----------------------------------------------------------------------
     struct RenderContext
     {
-        Camera*      camera     = nullptr;
+        Camera*      camera     = nullptr;  // Current camera
 
-        Shader*      shader     = nullptr;
-        Material*    material   = nullptr;
+        Shader*      shader     = nullptr;  // Current bound shader
+        Material*    material   = nullptr;  // Current bound material
 
         I32          lightCount = 0;
         const Light* lights[MAX_LIGHTS];
-        bool         lightsUpdated = false;
+        bool         lightsUpdated = false; // Set to true whenever a new light has been added
     } renderContext;
 
     //**********************************************************************
@@ -319,12 +320,14 @@ namespace Graphics {
         // Update camera buffer
         static StringID viewProjName = SID( CAM_VIEW_PROJ_NAME );
         XMMATRIX viewProj = camera->getViewMatrix() * camera->getProjectionMatrix();
-        CAMERA_BUFFER.update( viewProjName, &viewProj );
+        if ( not CAMERA_BUFFER.update( viewProjName, &viewProj ) )
+            LOG_ERROR_RENDERING( "D3D11: Could not update the view-projection matrix in the camera buffer!" );
 
         static StringID camPosName = SID( CAM_POS_NAME );
-        auto modelMatrix = DirectX::XMMatrixInverse( nullptr, camera->getViewMatrix() );        
+        auto modelMatrix = camera->getModelMatrix();
         auto translation = modelMatrix.r[3];
-        CAMERA_BUFFER.update( camPosName, &translation );
+        if ( not CAMERA_BUFFER.update( camPosName, &translation ) )
+            LOG_ERROR_RENDERING( "D3D11: Could not update the camera buffer. Fix this!" );
 
         CAMERA_BUFFER.flush();
     }
@@ -389,8 +392,9 @@ namespace Graphics {
     //----------------------------------------------------------------------
     void D3D11Renderer::_FlushLightBuffer()
     {
-        if ( renderContext.lightCount == 0 || not renderContext.lightsUpdated )
+        if ( not renderContext.lightsUpdated )
             return;
+        renderContext.lightsUpdated = false;
 
         // Update light count
         static StringID lightCountName = SID( LIGHT_COUNT_NAME );
@@ -455,8 +459,8 @@ namespace Graphics {
         }
 
         // Update gpu buffer
-        static StringID lightName = SID( "lights" );
-        if ( not LIGHT_BUFFER.update( lightName, &lights ) )
+        static StringID lightBufferName = SID( LIGHT_BUFFER_NAME );
+        if ( not LIGHT_BUFFER.update( lightBufferName, &lights ) )
             LOG_ERROR_RENDERING( "Failed to update light-buffer. Something is horribly broken! Fix this!" );
 
         LIGHT_BUFFER.flush();

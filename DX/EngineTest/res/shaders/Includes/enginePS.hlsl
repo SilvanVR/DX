@@ -130,15 +130,14 @@ float4 DoSpotLight( Light light, float3 V, float3 P, float3 N )
 }
 
 //----------------------------------------------------------------------
-// Applies lighting to a given fragment.
+// Calculates the lighting contribution for all lights in the light buffer.
 // @Params:
 //  "P": The position of the fragment in world space
 //  "N": The normalized normal of the fragment in world space
 //----------------------------------------------------------------------
 float4 APPLY_LIGHTING( float3 P, float3 N )
 { 
-	float3 EyePosition = gCameraPos;
-	float3 V = normalize( EyePosition - P ).xyz;
+	float3 V = normalize( gCameraPos - P ).xyz;
 	
 	float4 totalLight = { 0, 0, 0, 1 };
 	
@@ -153,7 +152,7 @@ float4 APPLY_LIGHTING( float3 P, float3 N )
 		case POINT_LIGHT:
             totalLight += DoPointLight( lights[i], V, P, N );
             break;
-		case SPOT_LIGHT:
+		case SPOT_LIGHT:		
             totalLight += DoSpotLight( lights[i], V, P, N );
             break;
         }
@@ -171,6 +170,6 @@ float4 APPLY_LIGHTING( float3 P, float3 N )
 //----------------------------------------------------------------------
 float4 APPLY_LIGHTING( float4 fragColor, float3 P, float3 N )
 { 
-	float4 lighting = APPLY_LIGHTING(P, N);		
+	float4 lighting = APPLY_LIGHTING( P, N );		
 	return fragColor * gAmbient + fragColor * lighting; 
 }

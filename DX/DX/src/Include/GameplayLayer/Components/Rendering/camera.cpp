@@ -29,17 +29,16 @@ namespace Components {
     //----------------------------------------------------------------------
     Graphics::CommandBuffer& Camera::recordGraphicsCommands( F32 lerp, const ArrayList<IRenderComponent*>& rendererComponents )
     {
+        // Set view matrix from the camera
+        auto transform = getGameObject()->getTransform();
+        auto modelMatrix = transform->getWorldMatrix( lerp );
+        m_camera.setModelMatrix( modelMatrix );
+
         // Reset command buffer
         m_commandBuffer.reset();
 
         // Set camera
         m_commandBuffer.setCamera( &m_camera );
-
-        // Set view matrix from the camera
-        auto transform = getGameObject()->getTransform();
-        auto modelMatrix = transform->getWorldMatrix( lerp );
-        auto view = DirectX::XMMatrixInverse( nullptr, modelMatrix );
-        m_camera.setViewMatrix( view );
 
         // Record commands for every rendering component
         Graphics::CommandBuffer tmpBuffer;

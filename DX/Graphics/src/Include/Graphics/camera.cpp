@@ -7,7 +7,6 @@
 **********************************************************************/
 
 #include "command_buffer.h"
-#include "Math/math_utils.h"
 #include "i_renderer.h"
 
 namespace Graphics {
@@ -48,36 +47,33 @@ namespace Graphics {
         return isRenderingToScreen() ? IRenderer::GetWindow()->getAspectRatio() : m_renderTarget->getAspectRatio();
     }
 
+    //----------------------------------------------------------------------
+    void Camera::setModelMatrix( const DirectX::XMMATRIX& model )
+    { 
+        m_model = model; 
+        m_view = DirectX::XMMatrixInverse( nullptr, m_model );
+        _UpdateProjectionMatrix();
+        m_viewProjection = m_view * m_projection;
+    }
+
     //**********************************************************************
     // PRIVATE
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    DirectX::XMMATRIX Camera::getProjectionMatrix() const
+    void Camera::_UpdateProjectionMatrix()
     {
         switch (m_cameraMode)
         {
         case CameraMode::Perspective:
-            return DirectX::XMMatrixPerspectiveFovLH( DirectX::XMConvertToRadians( m_fov ), getAspectRatio(), m_zNear, m_zFar );
+            m_projection = DirectX::XMMatrixPerspectiveFovLH( DirectX::XMConvertToRadians( m_fov ), getAspectRatio(), m_zNear, m_zFar );
+            break;
         case CameraMode::Orthographic:
-            return DirectX::XMMatrixOrthographicOffCenterLH( m_ortho.left, m_ortho.right, m_ortho.bottom, m_ortho.top, m_zNear, m_zFar );
+            m_projection = DirectX::XMMatrixOrthographicOffCenterLH( m_ortho.left, m_ortho.right, m_ortho.bottom, m_ortho.top, m_zNear, m_zFar );
+            break;
+        default:
+            ASSERT( false && "Invalid camera mode" );
         }
-        ASSERT( false && "Invalid camera mode" );
-        return DirectX::XMMatrixIdentity();
     }
-
-    ////----------------------------------------------------------------------
-    //void Camera::_UpdateProjectionMatrix()
-    //{
-    //    switch (m_cameraMode)
-    //    {
-    //    case EMode::PERSPECTIVE:
-    //        m_projection = DirectX::XMMatrixPerspectiveFovLH( DirectX::XMConvertToRadians( m_fov ), getAspectRatio(), m_zNear, m_zFar );
-    //        break;
-    //    case EMode::ORTHOGRAPHIC:
-    //        m_projection = DirectX::XMMatrixOrthographicOffCenterLH( m_ortho.left, m_ortho.right, m_ortho.bottom, m_ortho.top, m_zNear, m_zFar );
-    //        break;
-    //    }
-    //}
 
 }
