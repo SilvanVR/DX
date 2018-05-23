@@ -7,7 +7,7 @@
 // ----------------------------------------------
 #shader vertex
 
-#include "includes/engine.inc"
+#include "includes/engineVS.hlsl"
 
 struct VertexIn
 {
@@ -36,7 +36,9 @@ VertexOut main(VertexIn vin)
 }
 
 // ----------------------------------------------
-#shader fragment
+#shader fragmentf
+
+#include "includes/enginePS.hlsl"
 
 struct FragmentIn
 {
@@ -51,5 +53,20 @@ float4 main(FragmentIn fin) : SV_Target
 {
 	float4 textureColor = Cubemap.Sample(sampler0, normalize(fin.tex));
 	
-	return textureColor;
+	// This is a quick hack to let the directional light influence the skybox
+	float3 V = float3(0,0,0);
+	float3 N = float3(0,1,0);
+	
+	float4 totalLight = { 0, 0, 0, 1 };	
+	for (int i = 0; i < lightCount; i++)
+	{
+        switch( lights[i].lightType )
+        {
+        case DIRECTIONAL_LIGHT:
+            totalLight += DoDirectionalLight( lights[i], V, N );
+            break;
+        }
+	}
+	
+	return textureColor * gAmbient + textureColor * totalLight;
 }

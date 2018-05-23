@@ -23,8 +23,7 @@ namespace Components {
         m_skyboxShader = ASSETS.getShader( "/shaders/skybox.shader" );
 
         // Create skybox material
-        m_skyboxMaterial = RESOURCES.createMaterial();
-        m_skyboxMaterial->setShader( m_skyboxShader );
+        m_skyboxMaterial = RESOURCES.createMaterial( m_skyboxShader );
         m_skyboxMaterial->setTexture( SID( "Cubemap" ), m_cubemap );
 
         // Create skybox mesh (make it as large as possible so it wont get culled)

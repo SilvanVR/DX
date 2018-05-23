@@ -23,8 +23,7 @@ namespace Components {
         m_billboardShader = ASSETS.getShader( "/shaders/billboard.shader" );
 
         // Create billboard material
-        m_billboardMaterial = RESOURCES.createMaterial();
-        m_billboardMaterial->setShader( m_billboardShader );
+        m_billboardMaterial = RESOURCES.createMaterial( m_billboardShader );
         m_billboardMaterial->setTexture( "tex", m_billboardTexture );
 
         // Create billboard mesh

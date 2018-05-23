@@ -158,7 +158,9 @@ namespace Core { namespace Assets {
             Math::Vec2( 0.0f, 1.0f )
         };
 
-        return RESOURCES.createMesh( vertices, indices, uvs );
+        auto mesh = RESOURCES.createMesh( vertices, indices, uvs );
+        mesh->recalculateNormals();
+        return mesh;
     }
 
     MeshPtr MeshGenerator::CreatePlane( F32 xSize, F32 ySize )

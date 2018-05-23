@@ -36,11 +36,6 @@ public:
     //----------------------------------------------------------------------
     void tick(Time::Seconds delta) override
     {
-        //static F64 yaw = 0;
-        //yaw += 45.0 * delta.value;
-        //auto fw = Math::Quat::FromEulerAngles({ 0, (F32)yaw, 0}).getForward();
-        //m_chunkMaterial->setVec4("dir", Math::Vec4(fw.x, -fw.y, fw.z, 0));
-
         World::Get().update( (F32)delta.value );
     }
 
@@ -75,9 +70,6 @@ private:
 
         auto shader = ASSETS.getShader( "/shaders/chunk.shader" );
         auto chunkMaterial = RESOURCES.createMaterial( shader );
-        chunkMaterial->setColor( "color", Color::WHITE );
-        chunkMaterial->setVec4( "dir", Math::Vec4( 0, -1, 1, 0 ) );
-        chunkMaterial->setFloat( "intensity", 1.0f );
         chunkMaterial->setTexture( "texArray", texArr );
 
         World::CHUNK_MATERIAL = chunkMaterial;

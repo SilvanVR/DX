@@ -1,7 +1,7 @@
 // ----------------------------------------------
 #shader vertex
 
-#include "includes/engine.inc"
+#include "includes/engineVS.hlsl"
 
 struct VertexIn
 {
@@ -15,17 +15,17 @@ struct VertexOut
     float4 PosH : SV_POSITION;
 	float3 Normal : NORMAL;
 	float2 Material : MATERIAL;
-	float4 WorldPos : POSITION;
+	float3 WorldPos : POSITION;
 };
 
 VertexOut main(VertexIn vin)
 {
     VertexOut OUT;
-
-    OUT.PosH = TO_CLIP_SPACE(vin.PosL);
-	OUT.Normal = normalize(vin.Normal);
-	OUT.Material = vin.Material;
-	OUT.WorldPos = mul(gWorld, float4(vin.PosL, 1.0f));
+	
+	OUT.WorldPos 	= TO_WORLD_SPACE( vin.PosL );
+    OUT.PosH 		= TO_CLIP_SPACE( vin.PosL );
+	OUT.Normal 		= TRANSFORM_NORMAL( vin.Normal );
+	OUT.Material 	= vin.Material;
 	
     return OUT;
 }
@@ -33,19 +33,14 @@ VertexOut main(VertexIn vin)
 // ----------------------------------------------
 #shader fragment
 
-cbuffer cbPerMaterial
-{
-	float4 	dir;
-	float4 	color;
-	float 	intensity;
-};
+#include "includes/enginePS.hlsl"
 
 struct FragmentIn
 {
     float4 PosH : SV_POSITION;
 	float3 Normal : NORMAL;
 	float2 Material : MATERIAL; // X Coord contains side-block, Y Top/Bottom block
-	float4 WorldPos : POSITION;
+	float3 WorldPos : POSITION;
 };
 
 Texture2DArray texArray;
@@ -64,13 +59,5 @@ float4 main(FragmentIn fin) : SV_Target
 	
 	float4 textureColor = texArray.Sample(sampler0, uvw);
 	
-	// Phong Lighting
-	float3 l = normalize(-dir.xyz);	
-	float nDotL = dot(fin.Normal, l);
-	
-	float ambient = 0.4f;
-	float3 diffuse = color.rgb * saturate(nDotL) * intensity;
-	
-	float3 finalColor = textureColor.rgb * ambient + textureColor.rgb * diffuse;
-	return float4(finalColor, textureColor.a);
+	return APPLY_LIGHTING( textureColor, fin.WorldPos, fin.Normal );
 }

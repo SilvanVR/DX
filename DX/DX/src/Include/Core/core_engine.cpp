@@ -109,7 +109,7 @@ namespace Core {
         // Update global buffer on gpu
         Graphics::CommandBuffer globalBufferCommands;
         globalBufferCommands.setGlobalFloat( SID("gTime"), (F32)TIME.getTime() );
-        globalBufferCommands.setGlobalFloat( SID("gAmbient"), 0.4f );
+        globalBufferCommands.setGlobalFloat( SID("gAmbient"), 0.2f );
         Locator::getRenderer().dispatch( globalBufferCommands );
 
         // Records rendering commands for the current scene and dispatches them to the renderer
