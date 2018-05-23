@@ -23,8 +23,8 @@ namespace Components {
         auto transform = getGameObject()->getTransform();
         ASSERT( transform != nullptr );
 
-        m_spotLight.setPosition( transform->position );
-        m_spotLight.setDirection( transform->rotation.getForward() );
+        m_spotLight.setPosition( transform->getWorldPosition());
+        m_spotLight.setDirection( transform->getWorldRotation().getForward() );
 
         cmd.drawLight( &m_spotLight );
     }

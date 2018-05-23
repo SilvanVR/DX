@@ -223,7 +223,7 @@ namespace OS {
     //----------------------------------------------------------------------
     bool File::_OpenFile( EFileMode mode, bool binary )
     { 
-        String cmode = "  ";
+        String cmode = "";
 
         switch ( mode )
         {
@@ -238,6 +238,8 @@ namespace OS {
         m_file = fopen( m_filePath.c_str(), cmode.c_str() );
         if (m_file != nullptr)
             m_writeCursorPos = ftell( m_file );
+        else
+            throw std::runtime_error( "File '" + m_filePath.toString() + "' could not be opened/created due to unknown reasons." );
 
         _PeekNextCharAndSetEOF();
 

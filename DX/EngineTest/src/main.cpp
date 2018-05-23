@@ -45,7 +45,7 @@ public:
         go2->getTransform()->scale = {10,10,10};
         //go2->addComponent<ConstantRotation>(0.0f, 15.0f, 0.0f);
 
-        I32 loop = 2;
+ /*       I32 loop = 2;
         F32 distance = 3.0f;
         for (I32 x = -loop; x <= loop; x++)
         {
@@ -59,7 +59,7 @@ public:
                     gameobject->getTransform()->rotation *= Math::Quat(Math::Vec3::RIGHT, 90);
                 }
             }
-        }
+        }*/
 
         //I32 loop = 2;
         //F32 distance = 3.0f;
@@ -85,7 +85,9 @@ public:
 
         auto pl = createGameObject("PointLight");
         pl->addComponent<Components::PointLight>(2.0f, Color::GREEN);
-        pl->getTransform()->position = {0, 1, 0};
+        pl->getTransform()->position = {3, 1, 0};
+        pl->addComponent<Components::Billboard>(ASSETS.getTexture2D("/textures/pointLight.png"), 0.3f);
+        pl->addComponent<AutoOrbiting>(20.0f);
 
         LOG("TestScene initialized!", Color::RED);
     }

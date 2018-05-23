@@ -109,7 +109,8 @@ namespace Core { namespace Profiling {
         String str = "<<< Last Frame Info >>>\n"
             "Drawcalls: " + TS( frameInfo.drawCalls ) + "\n"
             "Vertices: " + TS( frameInfo.numVertices ) + "\n"
-            "Triangles: " + TS( frameInfo.numTriangles );
+            "Triangles: " + TS( frameInfo.numTriangles ) + "\n"
+            "Lights: " + TS( frameInfo.numLights );
         LOG( str, LOGCOLOR );
     }
 

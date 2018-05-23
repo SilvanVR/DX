@@ -135,6 +135,9 @@
     <ClCompile Include="src\Include\GameplayLayer\Components\Rendering\spot_light.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Include\GameplayLayer\Components\billboard.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\stdafx.h">
@@ -291,6 +294,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Include\GameplayLayer\Components\Rendering\spot_light.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Include\GameplayLayer\Components\billboard.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

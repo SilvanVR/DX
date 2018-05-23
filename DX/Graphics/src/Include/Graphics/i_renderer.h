@@ -30,6 +30,7 @@ namespace Graphics {
         U32 drawCalls;
         U32 numVertices;
         U32 numTriangles;
+        U32 numLights;
     };
 
     //**********************************************************************

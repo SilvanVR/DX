@@ -396,6 +396,8 @@ namespace Graphics {
             return;
         renderContext.lightsUpdated = false;
 
+        m_frameInfo.numLights = renderContext.lightCount;
+
         // Update light count
         static StringID lightCountName = SID( LIGHT_COUNT_NAME );
         if ( not LIGHT_BUFFER.update( lightCountName, &renderContext.lightCount ) )

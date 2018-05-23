@@ -161,14 +161,13 @@ namespace Core { namespace Assets {
         return RESOURCES.createMesh( vertices, indices, uvs );
     }
 
-    //----------------------------------------------------------------------
-    MeshPtr MeshGenerator::CreatePlane( F32 size )
+    MeshPtr MeshGenerator::CreatePlane( F32 xSize, F32 ySize )
     {
         ArrayList<Math::Vec3> vertices = {
-            Math::Vec3( -size, -size, 0.0f ),
-            Math::Vec3( -size,  size, 0.0f ),
-            Math::Vec3(  size,  size, 0.0f ),
-            Math::Vec3(  size, -size, 0.0f )
+            Math::Vec3( -xSize, -ySize, 0.0f ),
+            Math::Vec3( -xSize,  ySize, 0.0f ),
+            Math::Vec3(  xSize,  ySize, 0.0f ),
+            Math::Vec3(  xSize, -ySize, 0.0f )
         };
         ArrayList<U32> indices = {
             0, 1, 2, 0, 2, 3

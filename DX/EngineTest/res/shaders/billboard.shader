@@ -1,10 +1,10 @@
 // ----------------------------------------------
 #Fill			Solid
-#Cull 			Back
+#Cull 			None
 #ZWrite 		On
 #ZTest 			Less
 #Blend 			SrcAlpha OneMinusSrcAlpha
-#Queue 			Geometry
+#Queue 			Transparent
 
 // ----------------------------------------------
 #shader vertex
@@ -15,52 +15,43 @@ struct VertexIn
 {
     float3 PosL : POSITION;
 	float2 tex : TEXCOORD0;
-	float3 normal : NORMAL;
 };
 
 struct VertexOut
 {
     float4 PosH : SV_POSITION;
-    float2 Tex : TEXCOORD0;
-	float3 Normal : NORMAL;
-	float3 WorldPos : POSITION;
+    float2 tex : TEXCOORD0;
 };
 
 VertexOut main(VertexIn vin)
 {
     VertexOut OUT;
-
-	OUT.WorldPos 	= TO_WORLD_SPACE( vin.PosL );
-    OUT.PosH 		= TO_CLIP_SPACE( vin.PosL );
-	OUT.Tex 		= vin.tex;
-	OUT.Normal 		= TRANSFORM_NORMAL( vin.normal );
+	
+    OUT.PosH = TO_CLIP_SPACE(vin.PosL);
+	OUT.tex = vin.tex;
 	
     return OUT;
 }
 
 // ----------------------------------------------
-#shader fragment  
-
-#include "includes/enginePS.hlsl"
+#shader fragment
 
 cbuffer cbPerMaterial
-{ 
-	float test;
+{
+	float4 tintColor;
 };
 
 struct FragmentIn
 {
     float4 PosH : SV_POSITION;
-	float2 Tex : TEXCOORD0;
-	float3 Normal : NORMAL;
-	float3 WorldPos : POSITION;
+	float2 tex : TEXCOORD0;
 };
 
-Texture2D tex0;
+Texture2D tex;
 SamplerState sampler0;
 
 float4 main(FragmentIn fin) : SV_Target
 {
-	float4 textureColor = tex0.Sample(sampler0, fin.Tex);
-	return APPLY_LIGHTING( textureColor, fin.WorldPos, fin.Normal ); 
+	float4 textureColor = tex.Sample(sampler0, fin.tex);
+	return textureColor;
 }

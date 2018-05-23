@@ -34,10 +34,19 @@ namespace Core { namespace Assets {
         //----------------------------------------------------------------------
         // Generates a new plane mesh in the X/Y Plane with 4 vertices.
         // @Params:
+        // "xSize": The size of the plane in the X direction.
+        // "ySize": The size of the plane in the Y direction.
+        // "color" [opt]: The vertex-color for each vertex.
+        //----------------------------------------------------------------------
+        static MeshPtr CreatePlane(F32 xSize, F32 ySize);
+
+        //----------------------------------------------------------------------
+        // Generates a new plane mesh in the X/Y Plane with 4 vertices.
+        // @Params:
         // "size": The size of the plane.
         // "color" [opt]: The vertex-color for each vertex.
         //----------------------------------------------------------------------
-        static MeshPtr CreatePlane(F32 size = 1.0f);
+        static MeshPtr CreatePlane(F32 size = 1.0f) { return CreatePlane(size, size); }
         static MeshPtr CreatePlane(F32 size, Color color);
 
         //----------------------------------------------------------------------
