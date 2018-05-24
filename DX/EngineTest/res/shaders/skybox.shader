@@ -38,6 +38,8 @@ VertexOut main(VertexIn vin)
 // ----------------------------------------------
 #shader fragment
 
+#include "includes/enginePS.hlsl"
+
 struct FragmentIn
 {
     float4 PosH : SV_POSITION;

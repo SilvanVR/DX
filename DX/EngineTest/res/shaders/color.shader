@@ -28,6 +28,8 @@ VertexOut main(VertexIn vin)
 // ----------------------------------------------
 #shader fragment
 
+#include "includes/enginePS.hlsl"
+
 cbuffer cbPerMaterial
 {
 	float4 color;
