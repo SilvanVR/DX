@@ -12,8 +12,8 @@
 namespace Components {
 
     //----------------------------------------------------------------------
-    SpotLight::SpotLight( F32 intensity, Color color, F32 spotAngleInDegrees )
-        : m_spotLight( intensity, color, { 0, 1, 0 }, spotAngleInDegrees, { 0, 0, 1 } )
+    SpotLight::SpotLight( F32 intensity, Color color, F32 spotAngleInDegrees, F32 range )
+        : m_spotLight( intensity, color, { 0, 1, 0 }, spotAngleInDegrees, { 0, 0, 1 }, range )
     {
     }
 

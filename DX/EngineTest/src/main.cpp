@@ -17,6 +17,7 @@ class TestScene : public IScene
 {
     MaterialPtr mat;
     Components::SpotLight* spot;
+    Components::PointLight* point;
 
 public:
     TestScene() : IScene("TestScene") {}
@@ -84,7 +85,7 @@ public:
         //sun2->addComponent<ConstantRotation>(15.0f, -45.0f, 0.0f);
 
         auto pl = createGameObject("PointLight");
-        pl->addComponent<Components::PointLight>(2.0f, Color::GREEN);
+        point = pl->addComponent<Components::PointLight>(2.0f, Color::GREEN);
         pl->getTransform()->position = {3, 1, 0};
         pl->addComponent<Components::Billboard>(ASSETS.getTexture2D("/textures/pointLight.png"), 0.3f);
         pl->addComponent<AutoOrbiting>(20.0f);
@@ -106,6 +107,17 @@ public:
             LOG(TS(spot->getAngle()));
         }
 
+        if (KEYBOARD.isKeyDown(Key::Left))
+        {
+            spot->setRange(spot->getRange() - 10.0f * (F32)d);
+            LOG(TS(spot->getRange()));
+        }
+        if (KEYBOARD.isKeyDown(Key::Right))
+        {
+            spot->setRange(spot->getRange() + 10.0f * (F32)d);
+            LOG(TS(spot->getRange()));
+        }
+
         if (KEYBOARD.wasKeyPressed(Key::F))
             spot->setActive(!spot->isActive());
 
@@ -117,8 +129,6 @@ public:
 //----------------------------------------------------------------------
 // GAME
 //----------------------------------------------------------------------
-
-#include "OS/FileSystem/file.h"
 
 class Game : public IGame
 {

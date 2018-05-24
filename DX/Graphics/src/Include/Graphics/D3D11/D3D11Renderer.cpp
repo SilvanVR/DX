@@ -414,9 +414,8 @@ namespace Graphics {
             Math::Vec4  color;                  // 16 bytes
             //----------------------------------- (16 byte boundary)
             F32         spotAngle;              // 4 bytes
-            F32         constantAttenuation;    // 4 bytes
-            F32         linearAttenuation;      // 4 bytes
-            F32         quadraticAttenuation;   // 4 bytes
+            F32         range;                  // 4 bytes
+            Math::Vec2  PADDING;                // 8 bytes
             //----------------------------------- (16 byte boundary)
         } lights[MAX_LIGHTS];
 
@@ -438,21 +437,17 @@ namespace Graphics {
             case LightType::Point:
             {
                 auto pointLight = reinterpret_cast<const PointLight*>( renderContext.lights[i] );
-                lights[i].position              = pointLight->getPosition();
-                lights[i].constantAttenuation   = pointLight->getConstantAttenuation();
-                lights[i].linearAttenuation     = pointLight->getLinearAttenuation();
-                lights[i].quadraticAttenuation  = pointLight->getQuadraticAttenuation();
+                lights[i].position  = pointLight->getPosition();
+                lights[i].range     = pointLight->getRange();
                 break;
             }
             case LightType::Spot:
             {
                 auto spotLight = reinterpret_cast<const SpotLight*>( renderContext.lights[i] );
-                lights[i].position              = spotLight->getPosition();
-                lights[i].constantAttenuation   = spotLight->getConstantAttenuation();
-                lights[i].linearAttenuation     = spotLight->getLinearAttenuation();
-                lights[i].quadraticAttenuation  = spotLight->getQuadraticAttenuation();
-                lights[i].spotAngle             = spotLight->getAngle();
-                lights[i].direction             = spotLight->getDirection();
+                lights[i].position  = spotLight->getPosition();
+                lights[i].range     = spotLight->getRange();
+                lights[i].spotAngle = spotLight->getAngle();
+                lights[i].direction = spotLight->getDirection();
                 break;
             }
             default:

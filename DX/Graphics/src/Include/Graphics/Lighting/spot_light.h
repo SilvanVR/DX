@@ -16,8 +16,8 @@ namespace Graphics
     class SpotLight : public PointLight
     {
     public:
-        SpotLight(F32 intensity, Color color, const Math::Vec3& position = { 0, 0, 0 }, F32 angleInDeg = 90.0f, const Math::Vec3& direction = { 0, 0, 1 })
-            : PointLight( LightType::Spot, intensity, color, position ), m_angle( Math::Deg2Rad( angleInDeg ) ), m_direction( direction ) {}
+        SpotLight(F32 intensity, Color color, const Math::Vec3& position = { 0, 0, 0 }, F32 angleInDeg = 90.0f, const Math::Vec3& direction = { 0, 0, 1 }, F32 range = 10.0f)
+            : PointLight( LightType::Spot, intensity, color, position, range ), m_angle( Math::Deg2Rad( angleInDeg ) ), m_direction( direction ) {}
         ~SpotLight() = default;
 
         //----------------------------------------------------------------------

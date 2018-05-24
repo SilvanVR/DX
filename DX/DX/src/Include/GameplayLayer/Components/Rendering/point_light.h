@@ -22,14 +22,14 @@ namespace Components {
         PointLight(F32 intensity = 1.0f, Color color = Color::WHITE);
 
         //----------------------------------------------------------------------
-        F32                                 getIntensity()      const { return m_pointLight.getIntensity(); }
-        Color                               getColor()          const { return m_pointLight.getColor(); }
-        const Graphics::LightAttenuation&   getAttenuation()    const { return m_pointLight.getAttenuation(); }
+        F32   getIntensity() const { return m_pointLight.getIntensity(); }
+        Color getColor()     const { return m_pointLight.getColor(); }
+        F32   getRange()     const { return m_pointLight.getRange(); }
 
         //----------------------------------------------------------------------
-        void setIntensity   (F32 intensity)                             { m_pointLight.setIntensity(intensity); }
-        void setColor       (Color color)                               { m_pointLight.setColor(color); }
-        void setAttenuation (F32 constant, F32 linear, F32 quadratic)   { m_pointLight.setAttenuation(constant, linear, quadratic); }
+        void setIntensity   (F32 intensity) { m_pointLight.setIntensity(intensity); }
+        void setColor       (Color color)   { m_pointLight.setColor(color); }
+        void setRange       (F32 range)     { m_pointLight.setRange(range); }
 
     private:
         Graphics::PointLight m_pointLight;
