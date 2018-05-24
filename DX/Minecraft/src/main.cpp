@@ -509,7 +509,7 @@ public:
         fpsCam->setActive(false);
         //player->addComponent<Minimap>(500.0f, 10.0f);
         player->addComponent<Components::AudioListener>();
-        lamp = player->addComponent<Components::SpotLight>(2.0f, Color::WHITE, 25.0f);
+        lamp = player->addComponent<Components::SpotLight>(2.0f, Color::WHITE, 25.0f, 20.0f);
         lamp->setActive(false);
         cam->setClearColor(Color::BLUE);
 

@@ -33,9 +33,8 @@ struct Light
     float4      color;                  // 16 bytes
     //----------------------------------- (16 byte boundary)
     float       spotAngle;              // 4 bytes
-    float       constantAttenuation;    // 4 bytes
-    float       linearAttenuation;      // 4 bytes
-    float       quadraticAttenuation;   // 4 bytes
+    float       range;					// 4 bytes
+	float2		PADDING;				// 8 bytes	
     //----------------------------------- (16 byte boundary)
 };  // Total:                           // 80 bytes (4 * 16)
  
@@ -70,7 +69,7 @@ float4 DoSpecular( Light light, float3 V, float3 L, float3 N )
 //----------------------------------------------------------------------
 float DoAttenuation( Light light, float d )
 {
-    return 1.0f / ( light.constantAttenuation + light.linearAttenuation * d + light.quadraticAttenuation * d * d );
+    return max(0, 1 - smoothstep(0, light.range, d) );
 }
 
 //----------------------------------------------------------------------
@@ -83,7 +82,7 @@ float4 DoDirectionalLight( Light light, float3 V, float3 N )
     float4 diffuse = DoDiffuse( light, L, N );
     float4 specular = DoSpecular( light, V, L, N );
  
-    return diffuse;// + specular;
+    return diffuse + specular;
 }
 
 //----------------------------------------------------------------------
