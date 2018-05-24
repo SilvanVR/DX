@@ -8,6 +8,7 @@
 
 #include "Graphics/command_buffer.h"
 #include "GameplayLayer/gameobject.h"
+#include "camera.h"
 
 namespace Components {
 
@@ -16,6 +17,10 @@ namespace Components {
         : m_pointLight( intensity, color )
     {
     }
+
+    //**********************************************************************
+    // PUBLIC
+    //**********************************************************************
 
     //----------------------------------------------------------------------
     void PointLight::recordGraphicsCommands( Graphics::CommandBuffer& cmd, F32 lerp )
@@ -31,29 +36,8 @@ namespace Components {
     //----------------------------------------------------------------------
     bool PointLight::cull( const Camera& camera ) 
     { 
-        //@TODO:
-        return true; 
+        return camera.cull( getGameObject()->getTransform()->getWorldPosition(), getRange() );
     }
-
-    //// Calculate the range this light can affect
-    //void PointLight::calculateRange()
-    //{
-    //    static const float MIN_LIGHT_STRENGTH = 256.0f / 1.0f;
-
-    //    Vec3f& attenuation = getAttenuation();
-
-    //    // Calculate the max range the light can affect
-    //    float exponent = getExponent() + 0.01f;
-    //    float linear = getLinear();
-    //    float constant = getConstant();
-
-    //    float c = constant - MIN_LIGHT_STRENGTH * getIntensity() * getColor().getMax();
-
-    //    range = static_cast<float>((-linear + sqrt(linear * linear - 4 * exponent * c) / (2 * exponent)));
-
-    //    // Set scale for the light-volume
-    //    getTransform().scale = Vec3f(range, range, range);
-    //}
 
 
 } // End namespaces

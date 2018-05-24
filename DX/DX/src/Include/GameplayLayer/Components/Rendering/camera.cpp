@@ -29,10 +29,11 @@ namespace Components {
     //----------------------------------------------------------------------
     Graphics::CommandBuffer& Camera::recordGraphicsCommands( F32 lerp, const ArrayList<IRenderComponent*>& rendererComponents )
     {
-        // Set view matrix from the camera
+        // Update camera 
         auto transform = getGameObject()->getTransform();
         auto modelMatrix = transform->getWorldMatrix( lerp );
         m_camera.setModelMatrix( modelMatrix );
+        _UpdateCullingPlanes( m_camera.getViewProjectionMatrix() );
 
         // Reset command buffer
         m_commandBuffer.reset();
@@ -65,6 +66,50 @@ namespace Components {
     //**********************************************************************
     // PUBLIC
     //**********************************************************************
+
+    //----------------------------------------------------------------------
+    bool Camera::cull( const Math::AABB& aabb, const DirectX::XMMATRIX& modelMatrix ) const
+    {
+        // Cull against frustum by transforming vertices from AABB into clip space
+        auto mvp = modelMatrix * getViewProjectionMatrix();
+        auto aabbCorners = aabb.getCorners();
+
+        std::array<DirectX::XMVECTOR, 8> cornersClipSpace;
+        for (I32 i = 0; i < cornersClipSpace.size(); i++)
+        {
+            auto corner = DirectX::XMVectorSet( aabbCorners[i].x, aabbCorners[i].y, aabbCorners[i].z, 1.0f );
+            cornersClipSpace[i] = DirectX::XMVector4Transform( corner, mvp );
+        }
+
+        I32 c1 = 0, c2 = 0, c3 = 0, c4 = 0, c5 = 0, c6 = 0;
+        for (I32 i = 0; i < cornersClipSpace.size(); i++)
+        {
+            Math::Vec4 cornerClipSpace;
+            DirectX::XMStoreFloat4( &cornerClipSpace, cornersClipSpace[i] );
+            if (cornerClipSpace.x < -cornerClipSpace.w) c1++;
+            if (cornerClipSpace.x >  cornerClipSpace.w) c2++;
+            if (cornerClipSpace.y < -cornerClipSpace.w) c3++;
+            if (cornerClipSpace.y >  cornerClipSpace.w) c4++;
+            if (cornerClipSpace.z < -cornerClipSpace.w) c5++;
+            if (cornerClipSpace.z >  cornerClipSpace.w) c6++;
+        }
+
+        if (c1 == 8 || c2 == 8 || c3 == 8 || c4 == 8 || c5 == 8 || c6 == 8)
+            return false;
+
+        return true;
+    }
+
+    //----------------------------------------------------------------------
+    bool Camera::cull( const Math::Vec3& pos, F32 radius ) const
+    {
+        for ( U32 i = 0; i < m_planes.size(); i++ )
+        {
+            if ( (m_planes[i].x * pos.x) + (m_planes[i].y * pos.y) + (m_planes[i].z * pos.z) + m_planes[i].w <= -radius )
+                return false;
+        }
+        return true;
+    }
 
     //**********************************************************************
     // PRIVATE
@@ -142,6 +187,52 @@ namespace Components {
         // Add drawcalls to command buffer
         for (auto& drawCall : transparentDrawcalls)
             m_commandBuffer.getGPUCommands().push_back( drawCall );
+    }
+
+    //----------------------------------------------------------------------
+    void Camera::_UpdateCullingPlanes( const DirectX::XMMATRIX& viewProjection )
+    {
+        Math::Vec4 row0, row1, row2, row3;
+        DirectX::XMStoreFloat4( &row0, viewProjection.r[0] );
+        DirectX::XMStoreFloat4( &row1, viewProjection.r[1] );
+        DirectX::XMStoreFloat4( &row2, viewProjection.r[2] );
+        DirectX::XMStoreFloat4( &row3, viewProjection.r[3] );
+
+        m_planes[LEFT].x = row0.w + row0.x;
+        m_planes[LEFT].y = row1.w + row1.x;
+        m_planes[LEFT].z = row2.w + row2.x;
+        m_planes[LEFT].w = row3.w + row3.x;
+
+        m_planes[RIGHT].x = row0.w - row0.x;
+        m_planes[RIGHT].y = row1.w - row1.x;
+        m_planes[RIGHT].z = row2.w - row2.x;
+        m_planes[RIGHT].w = row3.w - row3.x;
+
+        m_planes[TOP].x = row0.w - row0.y;
+        m_planes[TOP].y = row1.w - row1.y;
+        m_planes[TOP].z = row2.w - row2.y;
+        m_planes[TOP].w = row3.w - row3.y;
+
+        m_planes[BOTTOM].x = row0.w + row0.y;
+        m_planes[BOTTOM].y = row1.w + row1.y;
+        m_planes[BOTTOM].z = row2.w + row2.y;
+        m_planes[BOTTOM].w = row3.w + row3.y;
+
+        m_planes[BACK].x = row0.w + row0.z;
+        m_planes[BACK].y = row1.w + row1.z;
+        m_planes[BACK].z = row2.w + row2.z;
+        m_planes[BACK].w = row3.w + row3.z;
+
+        m_planes[FRONT].x = row0.w - row0.z;
+        m_planes[FRONT].y = row1.w - row1.z;
+        m_planes[FRONT].z = row2.w - row2.z;
+        m_planes[FRONT].w = row3.w - row3.z;
+
+        for ( U32 i = 0; i < m_planes.size(); i++ )
+        {
+            F32 length = sqrtf( m_planes[i].x * m_planes[i].x + m_planes[i].y * m_planes[i].y + m_planes[i].z * m_planes[i].z );
+            m_planes[i] /= length;
+        }
     }
 
 }

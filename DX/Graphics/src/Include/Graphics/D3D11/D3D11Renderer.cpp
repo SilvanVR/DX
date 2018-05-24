@@ -268,6 +268,7 @@ namespace Graphics {
     {
         renderContext.camera = camera;
         renderContext.lightCount = 0;
+        renderContext.lightsUpdated = true;
 
         // Set rendertarget
         auto renderTarget = camera->getRenderTarget();

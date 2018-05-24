@@ -26,16 +26,18 @@ namespace Components {
         ~Camera() = default;
 
         //----------------------------------------------------------------------
-        bool                            isRenderingToScreen()   const { return m_camera.isRenderingToScreen(); }
-        const Graphics::CameraMode      getCameraMode()         const { return m_camera.getCameraMode(); }
-        F32                             getZNear()              const { return m_camera.getZNear(); }
-        F32                             getZFar()               const { return m_camera.getZFar(); }
-        F32                             getFOV()                const { return m_camera.getFOV(); }
-        bool                            isOrthographic()        const { return getCameraMode() == Graphics::CameraMode::Orthographic; }
-        const Color&                    getClearColor()         const { return m_camera.getClearColor(); }
-        const Graphics::CameraClearMode getClearMode()          const { return m_camera.getClearMode(); }
-        F32                             getAspectRatio()        const { return m_camera.getAspectRatio(); }
-        Common::BitMask                 getLayerMask()          const { return m_cullingMask; }
+        bool                            isRenderingToScreen()       const { return m_camera.isRenderingToScreen(); }
+        const Graphics::CameraMode      getCameraMode()             const { return m_camera.getCameraMode(); }
+        F32                             getZNear()                  const { return m_camera.getZNear(); }
+        F32                             getZFar()                   const { return m_camera.getZFar(); }
+        F32                             getFOV()                    const { return m_camera.getFOV(); }
+        bool                            isOrthographic()            const { return getCameraMode() == Graphics::CameraMode::Orthographic; }
+        const Color&                    getClearColor()             const { return m_camera.getClearColor(); }
+        const Graphics::CameraClearMode getClearMode()              const { return m_camera.getClearMode(); }
+        F32                             getAspectRatio()            const { return m_camera.getAspectRatio(); }
+        Common::BitMask                 getCullingMask()            const { return m_cullingMask; }
+        const DirectX::XMMATRIX&        getProjectionMatrix()       const { return m_camera.getProjectionMatrix(); }
+        const DirectX::XMMATRIX&        getViewProjectionMatrix()   const { return m_camera.getViewProjectionMatrix(); }
 
         //----------------------------------------------------------------------
         void setCameraMode          (Graphics::CameraMode mode)                                     { m_camera.setCameraMode(mode); }
@@ -77,17 +79,31 @@ namespace Components {
         void removeCommandBuffer(Graphics::CommandBuffer* cmd) { m_additionalCommandBuffers.erase(std::remove(m_additionalCommandBuffers.begin(), m_additionalCommandBuffers.end(), cmd)); }
 
         //----------------------------------------------------------------------
-        DirectX::XMMATRIX getProjectionMatrix()       const { return m_camera.getProjectionMatrix(); }
-        DirectX::XMMATRIX getViewProjectionMatrix()   const { return m_camera.getViewProjectionMatrix(); }
+        // Cull the aabb with the given world matrix against this camera frustum.
+        // @Return:
+        //  True, when visible.
+        //----------------------------------------------------------------------
+        bool cull(const Math::AABB& aabb, const DirectX::XMMATRIX& modelMatrix) const;
+
+        //----------------------------------------------------------------------
+        // Cull the given sphere against this camera frustum.
+        // @Return:
+        //  True, when visible.
+        //----------------------------------------------------------------------
+        bool cull(const Math::Vec3& pos, F32 radius) const;
 
     private:
-        Graphics::Camera        m_camera;
+        Graphics::Camera            m_camera;
 
         // Which layer the camera should render
-        Common::BitMask         m_cullingMask;
+        Common::BitMask             m_cullingMask;
+
+        // Culling planes
+        enum side { LEFT = 0, RIGHT = 1, TOP = 2, BOTTOM = 3, BACK = 4, FRONT = 5 };
+        std::array<Math::Vec4, 6>   m_planes;
 
         // Contains commands to render one frame by one camera
-        Graphics::CommandBuffer m_commandBuffer;
+        Graphics::CommandBuffer     m_commandBuffer;
 
         // Additional attached command buffer
         ArrayList<Graphics::CommandBuffer*> m_additionalCommandBuffers;
@@ -100,6 +116,9 @@ namespace Components {
         // Sorts all rendering commands from the given command buffer by material, renderqueue and camera distance
         //----------------------------------------------------------------------
         inline void _SortRenderCommands(const Graphics::CommandBuffer& cmd, const Math::Vec3& position);
+
+        //----------------------------------------------------------------------
+        void _UpdateCullingPlanes(const DirectX::XMMATRIX& viewProjection);
 
         //----------------------------------------------------------------------
         Camera(const Camera& other)               = delete;

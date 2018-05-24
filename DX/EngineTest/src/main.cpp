@@ -71,6 +71,7 @@ public:
         //        auto gameobject = createGameObject("Obj");
         //        gameobject->addComponent<Components::PointLight>( 2.0f, Math::Random::Color() );
         //        gameobject->getTransform()->position = Math::Vec3(x * distance, 1.0f, z * distance);
+        //        gameobject->addComponent<Components::Billboard>(ASSETS.getTexture2D("/textures/pointLight.png"), 0.3f);
         //    }
         //}
 

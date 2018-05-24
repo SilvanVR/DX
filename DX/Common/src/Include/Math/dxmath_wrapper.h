@@ -128,6 +128,8 @@ namespace Math {
         Vector4F    operator -      (const Vector4F& v) const { return Vector4F( x - v.x, y - v.y, z - v.z, w - v.w ); }
         Vector4F&   operator +=     (const Vector4F& v) { x += v.x, y += v.y; z += v.z; w += v.w; return *this; }
         Vector4F&   operator -=     (const Vector4F& v) { x -= v.x, y -= v.y; z -= v.z; w -= v.w; return *this; }
+        Vector4F&   operator *=     (F32 s) { x *= s; y *= s; z *= s; w *= s; return *this; }
+        Vector4F&   operator /=     (F32 s) { x /= s; y /= s; z /= s; w /= s; return *this; }
 
         bool        operator == (const Vector4F& v) const { return x == v.x && y == v.y && z == v.z && w == v.w; }
         bool        operator != (const Vector4F& v) const { return !(*this == v); }

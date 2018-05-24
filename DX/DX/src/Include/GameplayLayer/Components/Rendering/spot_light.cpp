@@ -8,6 +8,7 @@
 
 #include "Graphics/command_buffer.h"
 #include "GameplayLayer/gameobject.h"
+#include "camera.h"
 
 namespace Components {
 
@@ -16,6 +17,10 @@ namespace Components {
         : m_spotLight( intensity, color, { 0, 1, 0 }, spotAngleInDegrees, { 0, 0, 1 }, range )
     {
     }
+
+    //**********************************************************************
+    // PUBLIC
+    //**********************************************************************
 
     //----------------------------------------------------------------------
     void SpotLight::recordGraphicsCommands( Graphics::CommandBuffer& cmd, F32 lerp )
@@ -32,8 +37,7 @@ namespace Components {
     //----------------------------------------------------------------------
     bool SpotLight::cull( const Camera& camera )
     { 
-        //@TODO:
-        return true; 
+        return camera.cull( getGameObject()->getTransform()->getWorldPosition(), getRange() );
     }
 
 
