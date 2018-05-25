@@ -50,7 +50,6 @@ public:
         for (I32 x = -loop; x <= loop; x++)
         {
             F32 roughness = (1.0f / (2.0f*loop + 1.0f)) * (x+loop);
-            LOG(TS(roughness));
             for (I32 y = -loop; y <= loop; y++)
             {
                 auto gameobject = createGameObject("Obj");
@@ -76,7 +75,7 @@ public:
         pl->addComponent<Components::Billboard>(ASSETS.getTexture2D("/textures/pointLight.png"), 0.3f);
         pl->addComponent<AutoOrbiting>(20.0f);
         
-        F32 intensity = 20.0f;
+        F32 intensity = 2.0f;
         auto pl2 = createGameObject("PointLight");
         pl2->addComponent<Components::PointLight>(intensity, Color::WHITE);
         pl2->getTransform()->position = { -5, 3, -3 };

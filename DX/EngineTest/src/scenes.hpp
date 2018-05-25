@@ -665,7 +665,7 @@ public:
 
         auto mesh = Core::Assets::MeshGenerator::CreatePlane(1.0f);
 
-        auto mat = ASSETS.getMaterial("/materials/globalTest.material");
+        auto mat = ASSETS.getMaterial("/materials/phong.material");
         auto go2 = createGameObject("Obj");
         go2->addComponent<Components::MeshRenderer>(mesh, mat);
         go2->addComponent<VisualizeNormals>(0.1f, Color::WHITE);

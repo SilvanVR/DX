@@ -41,7 +41,8 @@ VertexOut main(VertexIn vin)
 // ----------------------------------------------
 #shader fragment    
 
-#include "includes/engine_pbrPS.hlsl"
+#include "includes/enginePS.hlsl"
+#include "includes/pbr.hlsl"
 
 cbuffer cbPerMaterial
 { 
@@ -65,5 +66,6 @@ SamplerState sampler0;
 float4 main(FragmentIn fin) : SV_Target
 {
 	//float4 textureColor = albedo.Sample(sampler0, fin.Tex);
-	return APPLY_LIGHTING( color, fin.WorldPos, fin.Normal, roughness, metallic ); 
+	float4 result = APPLY_LIGHTING( color, fin.WorldPos, fin.Normal, roughness, metallic );
+	return result; 
 }

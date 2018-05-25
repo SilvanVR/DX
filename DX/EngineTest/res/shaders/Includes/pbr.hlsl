@@ -1,71 +1,6 @@
-// Buffer keywords: (If the name of the buffer contains one of the strings then...) 
-// "global": Per frame constant buffer.
-// "object": Per object constant buffer.
-// "camera": Per camera constant buffer.
-// "light": Per light constant buffer.
-
-#define MAX_LIGHTS 			16
-#define DIRECTIONAL_LIGHT 	0
-#define POINT_LIGHT 		1
-#define SPOT_LIGHT 			2
-#define SPECULAR_POWER		64
-#define PI					3.14159265359
-
-cbuffer cbPerCamera : register(b0)
-{
-    float4x4 gViewProj;
-	float3 gCameraPos;
-};
-
-cbuffer cbBufferGlobal : register(b2)
-{	
-	float gTime;
-	float gAmbient;
-};
-
-struct Light
-{
-    float3      position;               // 16 bytes
-	int         lightType;              // 4 bytes
-    //----------------------------------- (16 byte boundary)
-    float3      direction;              // 12 bytes
-	float 		intensity;				// 4 bytes
-    //----------------------------------- (16 byte boundary)
-    float4      color;                  // 16 bytes
-    //----------------------------------- (16 byte boundary)
-    float       spotAngle;              // 4 bytes
-    float       range;					// 4 bytes
-	float2		PADDING;				// 8 bytes	
-    //----------------------------------- (16 byte boundary)
-};  // Total:                           // 80 bytes (4 * 16)
- 
-
-cbuffer cbBufferLights : register(b3)
-{
-	Light 	lights[MAX_LIGHTS];
-	int 	lightCount;
-};
-
 //----------------------------------------------------------------------
-// LIGHTING
+// LIGHTING - PBR
 //----------------------------------------------------------------------
-
-//----------------------------------------------------------------------
-float4 DoDiffuse( Light light, float3 L, float3 N )
-{
-    float NdotL = max( 0, dot( N, L ) );
-    return light.color * NdotL * light.intensity;
-}
-
-//----------------------------------------------------------------------
-float4 DoSpecular( Light light, float3 V, float3 L, float3 N )
-{ 
-    // Blinn-Phong lighting
-    float3 H = normalize( L + V );
-    float NdotH = max( 0, dot( N, H ) );
- 
-    return light.color * pow( NdotH, SPECULAR_POWER ) * light.intensity;
-}
 
 //----------------------------------------------------------------------
 float DoAttenuation( Light light, float d )
@@ -119,7 +54,7 @@ float GeometrySmith( float3 N, float3 V, float3 L, float roughness )
 }
 
 //----------------------------------------------------------------------
-float3 calcLight( Light light, float3 radiance, float3 albedo, float3 V, float3 P, float3 N, float roughness, float metallic )
+float3 CalcLight( Light light, float3 radiance, float3 albedo, float3 V, float3 P, float3 N, float roughness, float metallic )
 {	
 	float3 F0 = float3( 0.04, 0.04, 0.04 ); 
 	F0      = lerp( F0, albedo, metallic );
@@ -146,14 +81,13 @@ float3 calcLight( Light light, float3 radiance, float3 albedo, float3 V, float3 
 	return Lo;  
 }
 
-
 //----------------------------------------------------------------------
 // DIRECTIONAL LIGHT
 //----------------------------------------------------------------------
 float3 DoDirectionalLight( Light light, float3 albedo, float3 V, float3 P, float3 N, float roughness, float metallic )
 {
     float3 radiance = light.color.rgb * light.intensity;
-    return calcLight( light, radiance, albedo, V, P, N, roughness, metallic );
+    return CalcLight( light, radiance, albedo, V, P, N, roughness, metallic );
 }
 
 //----------------------------------------------------------------------
@@ -164,7 +98,7 @@ float3 DoPointLight( Light light, float3 albedo, float3 V, float3 P, float3 N, f
     float distance  = length( light.position - P );
     float3 radiance = light.color.rgb * DoAttenuation( light, distance ) * light.intensity; 
  
-    return calcLight( light, radiance, albedo, V, P, N, roughness, metallic );
+    return CalcLight( light, radiance, albedo, V, P, N, roughness, metallic );
 }
 
 //----------------------------------------------------------------------
@@ -184,7 +118,7 @@ float3 DoSpotLight(  Light light, float3 albedo, float3 V, float3 P, float3 N, f
 	float distance  = length( light.position - P );
     float3 radiance = light.color.rgb * DoAttenuation( light, distance ) * light.intensity * DoSpotCone( light, L ); 
  
-    return calcLight( light, radiance, albedo, V, P, N, roughness, metallic );
+    return CalcLight( light, radiance, albedo, V, P, N, roughness, metallic );
 }
 
 //----------------------------------------------------------------------
@@ -222,8 +156,10 @@ float4 APPLY_LIGHTING( float4 fragColor, float3 P, float3 normal, float roughnes
 	
 	float3 ambient = fragColor.rgb * gAmbient;
 	float3 color = ambient + fragColor.rgb * Lo;
+	
+	// Reinhard tonemapping
 	color = color / (color + float3(1,1,1));
 	color = pow( color, float3(1.0/2.2,1.0/2.2,1.0/2.2) ); 
 	
-	return float4(color,1); 
+	return float4( color, 1 ); 
 }

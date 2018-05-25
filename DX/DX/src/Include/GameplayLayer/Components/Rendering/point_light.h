@@ -19,7 +19,7 @@ namespace Components {
     {
     public:
         //----------------------------------------------------------------------
-        PointLight(F32 intensity = 1.0f, Color color = Color::WHITE);
+        PointLight(F32 intensity = 1.0f, Color color = Color::WHITE, F32 range = 10.0f);
 
         //----------------------------------------------------------------------
         F32   getIntensity() const { return m_pointLight.getIntensity(); }

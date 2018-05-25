@@ -42,11 +42,7 @@ VertexOut main(VertexIn vin)
 #shader fragment  
 
 #include "includes/enginePS.hlsl"
-
-cbuffer cbPerMaterial
-{ 
-	float test;
-};
+#include "includes/blinn_phong.hlsl"
 
 struct FragmentIn
 {
@@ -56,11 +52,11 @@ struct FragmentIn
 	float3 WorldPos : POSITION;
 };
 
-Texture2D tex0;
+Texture2D albedo;
 SamplerState sampler0;
 
 float4 main(FragmentIn fin) : SV_Target
 {
-	float4 textureColor = tex0.Sample(sampler0, fin.Tex);
+	float4 textureColor = albedo.Sample(sampler0, fin.Tex);
 	return APPLY_LIGHTING( textureColor, fin.WorldPos, fin.Normal ); 
 }

@@ -13,8 +13,8 @@
 namespace Components {
 
     //----------------------------------------------------------------------
-    PointLight::PointLight( F32 intensity, Color color )
-        : m_pointLight( intensity, color )
+    PointLight::PointLight( F32 intensity, Color color, F32 range )
+        : m_pointLight( intensity, color, {}, range )
     {
     }
 
