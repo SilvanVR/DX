@@ -78,6 +78,17 @@ namespace Graphics {
         virtual ITexture2DArray*    createTexture2DArray() = 0;
 
         //----------------------------------------------------------------------
+        // Update the global buffer.
+        // @Return:
+        //  False, if the uniform with "name" or a global buffer does not exist.
+        //----------------------------------------------------------------------
+        virtual bool setGlobalFloat(StringID name, F32 value) = 0;
+        virtual bool setGlobalInt(StringID name, I32 value) = 0;
+        virtual bool setGlobalVector4(StringID name, const Math::Vec4& vec4) = 0;
+        virtual bool setGlobalColor(StringID name, Color color) = 0;
+        virtual bool setGlobalMatrix(StringID name, const DirectX::XMMATRIX& matrix) = 0;
+
+        //----------------------------------------------------------------------
         // Add a global shader to this renderer. A global shader allows to render
         // the whole scene with just one shader-setup. To use it call setGlobalMaterialActive(name).
         // Please hold on the reference of the material you are passing in. The renderer does NOT delete it.

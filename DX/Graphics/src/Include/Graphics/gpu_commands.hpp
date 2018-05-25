@@ -78,51 +78,6 @@ namespace Graphics {
         I32         srcElement, dstElement, srcMip, dstMip;
     };
 
-
-    //**********************************************************************
-    struct GPUC_SetGlobalFloat : public GPUCommandBase
-    {
-        GPUC_SetGlobalFloat(StringID name, F32 value)
-            : GPUCommandBase( GPUCommand::SET_GLOBAL_FLOAT ),
-            name( name ), value( value ) {}
-
-        StringID    name;
-        F32         value;
-    };
-
-    //**********************************************************************
-    struct GPUC_SetGlobalInt : public GPUCommandBase
-    {
-        GPUC_SetGlobalInt(StringID name, I32 value)
-            : GPUCommandBase( GPUCommand::SET_GLOBAL_INT ),
-            name( name ), value( value ) {}
-
-        StringID    name;
-        I32         value;
-    };
-
-    //**********************************************************************
-    struct GPUC_SetGlobalVector : public GPUCommandBase
-    {
-        GPUC_SetGlobalVector(StringID name, const Math::Vec4& vec)
-            : GPUCommandBase( GPUCommand::SET_GLOBAL_VECTOR ),
-            name( name ), vec( vec ) {}
-
-        StringID    name;
-        Math::Vec4  vec;
-    };
-
-    //**********************************************************************
-    struct GPUC_SetGlobalMatrix : public GPUCommandBase
-    {
-        GPUC_SetGlobalMatrix(StringID name, const DirectX::XMMATRIX& mat)
-            : GPUCommandBase( GPUCommand::SET_GLOBAL_MATRIX ),
-            name( name ), matrix( mat ) {}
-
-        StringID name;
-        DirectX::XMMATRIX matrix;
-    };
-
     //**********************************************************************
     struct GPUC_DrawLight : public GPUCommandBase
     {

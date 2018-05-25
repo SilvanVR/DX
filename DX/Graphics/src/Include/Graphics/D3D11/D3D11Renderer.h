@@ -45,6 +45,12 @@ namespace Graphics {
         ICubemap*           createCubemap() override;
         ITexture2DArray*    createTexture2DArray() override;
 
+        bool setGlobalFloat(StringID name, F32 value) override;
+        bool setGlobalInt(StringID name, I32 value) override;
+        bool setGlobalVector4(StringID name, const Math::Vec4& vec4) override;
+        bool setGlobalColor(StringID name, Color color) override;
+        bool setGlobalMatrix(StringID name, const DirectX::XMMATRIX& matrix) override;
+
     private:
         D3D11::Swapchain*   m_pSwapchain    = nullptr;
         bool                m_vsync         = false;
@@ -63,6 +69,8 @@ namespace Graphics {
         void _ReportLiveObjects();
 
         void _FlushLightBuffer();
+
+        void _CreateGlobalBuffer();
 
         //----------------------------------------------------------------------
         // IRenderer Interface

@@ -644,12 +644,12 @@ public:
     void shutdown() override { LOG("TransparencyScene Shutdown!", Color::RED); }
 };
 
-class Lighting : public IScene
+class BlinnPhongLightingScene : public IScene
 {
     Components::SpotLight* spot;
 
 public:
-    Lighting() : IScene("Lighting") {}
+    BlinnPhongLightingScene() : IScene("BlinnPhongLightingScene") {}
 
     void init() override
     {
@@ -711,7 +711,7 @@ public:
         pl->addComponent<Components::Billboard>(ASSETS.getTexture2D("/textures/pointLight.png"), 0.3f);
         pl->addComponent<AutoOrbiting>(20.0f);
 
-        LOG("LightingScene initialized!", Color::RED);
+        LOG("BlinnPhongLightingScene initialized!", Color::RED);
     }
 
     void tick(Time::Seconds d) override
@@ -742,5 +742,5 @@ public:
             spot->setActive(!spot->isActive());
     }
 
-    void shutdown() override { LOG("Lighting Shutdown!", Color::RED); }
+    void shutdown() override { LOG("BlinnPhongLightingScene Shutdown!", Color::RED); }
 };

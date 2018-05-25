@@ -18,6 +18,8 @@
 #include "Lighting/directional_light.h"
 #include "Lighting/point_light.h"
 #include "Lighting/spot_light.h"
+#include "OS/FileSystem/file.h"
+#include "default_shaders.hpp"
 
 using namespace DirectX;
 
@@ -55,6 +57,7 @@ namespace Graphics {
     void D3D11Renderer::init()
     {
         _InitD3D11();
+        _CreateGlobalBuffer();
     }
 
     //----------------------------------------------------------------------
@@ -94,42 +97,6 @@ namespace Graphics {
                     D3D11::IBindableTexture* srcTex = reinterpret_cast<D3D11::IBindableTexture*>( cmd.srcTex );
                     g_pImmediateContext->CopySubresourceRegion( dstTex->getD3D11Texture(), dstElement, 0, 0, 0, 
                                                                 srcTex->getD3D11Texture(), srcElement, NULL );
-                    break;
-                }
-                case GPUCommand::SET_GLOBAL_FLOAT:
-                {
-                    auto& cmd = *reinterpret_cast<GPUC_SetGlobalFloat*>( command.get() );
-                    if ( not D3D11::ConstantBufferManager::hasGlobalBuffer() )
-                        break;
-                    if ( not GLOBAL_BUFFER.update( cmd.name, &cmd.value) )
-                        LOG_WARN_RENDERING( "Global-Float '" + cmd.name.toString() + "' does not exist. Did you spell it correctly?" );
-                    break;
-                }
-                case GPUCommand::SET_GLOBAL_VECTOR:
-                {
-                    auto& cmd = *reinterpret_cast<GPUC_SetGlobalVector*>( command.get() );
-                    if ( not D3D11::ConstantBufferManager::hasGlobalBuffer() )
-                        break;
-                    if ( not GLOBAL_BUFFER.update( cmd.name, &cmd.vec ) )
-                        LOG_WARN_RENDERING( "Global-Vec4 '" + cmd.name.toString() + "' does not exist. Did you spell it correctly?" );
-                    break;
-                }
-                case GPUCommand::SET_GLOBAL_INT:
-                {
-                    auto& cmd = *reinterpret_cast<GPUC_SetGlobalInt*>( command.get() );
-                    if ( not D3D11::ConstantBufferManager::hasGlobalBuffer() )
-                        break;
-                    if ( not GLOBAL_BUFFER.update( cmd.name, &cmd.value ) )
-                        LOG_WARN_RENDERING( "Global-Int '" + cmd.name.toString() + "' does not exist. Did you spell it correctly?" );
-                    break;
-                }
-                case GPUCommand::SET_GLOBAL_MATRIX:
-                {
-                    auto& cmd = *reinterpret_cast<GPUC_SetGlobalMatrix*>( command.get() );
-                    if ( not D3D11::ConstantBufferManager::hasGlobalBuffer() )
-                        break;
-                    if ( not GLOBAL_BUFFER.update( cmd.name, &cmd.matrix ) )
-                        LOG_WARN_RENDERING( "Global-Matrix '" + cmd.name.toString() + "' does not exist. Did you spell it correctly?" );
                     break;
                 }
                 case GPUCommand::DRAW_LIGHT:
@@ -191,6 +158,71 @@ namespace Graphics {
     IRenderTexture*     D3D11Renderer::createRenderTexture()    { return new D3D11::RenderTexture(); }
     ICubemap*           D3D11Renderer::createCubemap()          { return new D3D11::Cubemap(); }
     ITexture2DArray*    D3D11Renderer::createTexture2DArray()   { return new D3D11::Texture2DArray(); }
+
+    //----------------------------------------------------------------------
+    bool D3D11Renderer::setGlobalFloat( StringID name, F32 value )
+    {
+        if ( not D3D11::ConstantBufferManager::hasGlobalBuffer() )
+            return false;
+
+        bool success = GLOBAL_BUFFER.update( name, &value );
+        if ( not success)
+            LOG_WARN_RENDERING( "Global-Float '" + name.toString() + "' does not exist. Did you spell it correctly?" );
+
+        return success;
+    }
+
+    //----------------------------------------------------------------------
+    bool D3D11Renderer::setGlobalInt( StringID name, I32 value )
+    {
+        if ( not D3D11::ConstantBufferManager::hasGlobalBuffer() )
+            return false;
+
+        bool success = GLOBAL_BUFFER.update( name, &value );
+        if ( not success)
+            LOG_WARN_RENDERING( "Global-Int '" + name.toString() + "' does not exist. Did you spell it correctly?" );
+
+        return success;
+    }
+
+    //----------------------------------------------------------------------
+    bool D3D11Renderer::setGlobalVector4( StringID name, const Math::Vec4& vec4 )
+    {
+        if ( not D3D11::ConstantBufferManager::hasGlobalBuffer() )
+            return false;
+
+        bool success = GLOBAL_BUFFER.update( name, &vec4 );
+        if ( not success)
+            LOG_WARN_RENDERING( "Global-Vec4 '" + name.toString() + "' does not exist. Did you spell it correctly?" );
+
+        return success;
+    }
+
+    //----------------------------------------------------------------------
+    bool D3D11Renderer::setGlobalColor( StringID name, Color color )
+    {
+        if ( not D3D11::ConstantBufferManager::hasGlobalBuffer() )
+            return false;
+
+        bool success = GLOBAL_BUFFER.update( name, color.normalized().data() );
+        if ( not success)
+            LOG_WARN_RENDERING( "Global-Color '" + name.toString() + "' does not exist. Did you spell it correctly?" );
+
+        return success;
+    }
+
+    //----------------------------------------------------------------------
+    bool D3D11Renderer::setGlobalMatrix( StringID name, const DirectX::XMMATRIX& matrix )
+    {
+        if ( not D3D11::ConstantBufferManager::hasGlobalBuffer() )
+            return false;
+
+        bool success = GLOBAL_BUFFER.update( name, &matrix);
+        if ( not success)
+            LOG_WARN_RENDERING( "Global-Matrix '" + name.toString() + "' does not exist. Did you spell it correctly?" );
+
+        return success;
+    }
 
     //**********************************************************************
     // PRIVATE
@@ -462,6 +494,31 @@ namespace Graphics {
             LOG_ERROR_RENDERING( "Failed to update light-buffer. Something is horribly broken! Fix this!" );
 
         LIGHT_BUFFER.flush();
+    }
+
+    //----------------------------------------------------------------------
+    void D3D11Renderer::_CreateGlobalBuffer()
+    {
+        // This is a small hack in order to create the global buffer as early as possible.
+        // Otherwise calling setGlobalFloat(...) etc. does not work before the first shader using the global buffers has been compiled.
+        try {
+            OS::BinaryFile file( "/shaders/includes/enginePS.hlsl" );
+
+            String fragSrc = file.readAll();
+            fragSrc += "float4 main() : SV_Target       \
+            {                                           \
+                return float4(1,1,1,1) * gTime;         \
+            }";
+
+            Shader* shader = createShader();
+            if (not shader->compileFragmentShaderFromSource(fragSrc, "main"))
+                LOG_WARN_RENDERING( "Could not precompile enginePS.hlsl for buffer creation. This might cause some issues." );
+            delete shader;
+        } 
+        catch (const std::runtime_error& ex)
+        {
+            LOG_WARN_RENDERING( String( "Could not open enginePS.hlsl. Reason: " ) + ex.what() + ". This might cause some issues." );
+        }
     }
 
 } // End namespaces

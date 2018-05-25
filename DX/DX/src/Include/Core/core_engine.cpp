@@ -37,6 +37,8 @@ namespace Core {
         // Initialize all subsystems
         m_subSystemManager.init();
 
+        Locator::getRenderer().setGlobalFloat( SID("gAmbient"), 0.2f );
+
         // Call virtual init function for game class
         init();
 
@@ -105,15 +107,10 @@ namespace Core {
     void CoreEngine::_Render( F32 lerp )
     {
         auto& graphicsEngine = Locator::getRenderer();
-
-        // Update global buffer on gpu
-        Graphics::CommandBuffer globalBufferCommands;
-        globalBufferCommands.setGlobalFloat( SID("gTime"), (F32)TIME.getTime() );
-        globalBufferCommands.setGlobalFloat( SID("gAmbient"), 0.2f );
-        Locator::getRenderer().dispatch( globalBufferCommands );
-
-        // Records rendering commands for the current scene and dispatches them to the renderer
         graphicsEngine.resetFrameInfo();
+
+        // Update global buffer
+        graphicsEngine.setGlobalFloat( SID("gTime"), (F32)TIME.getTime() );
 
         // Fetch all renderer components
         auto& renderers = SCENE.getComponentManager().getRenderer();

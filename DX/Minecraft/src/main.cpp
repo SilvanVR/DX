@@ -590,6 +590,8 @@ public:
         // Enable shader reloading
         ASSETS.setHotReloading(true);
 
+        Locator::getRenderer().setGlobalFloat(SID("gAmbient"), 0.1f);
+
         // Create a gameobject in the default scene with a new component and add new scene onto the stack.
         // This way the music manager will stay alife during the whole program.
         SCENE.createGameObject("MusicManager")->addComponent<MusicManager>(ArrayList<OS::Path>{"/audio/minecraft.wav", "/audio/minecraft2.wav"});

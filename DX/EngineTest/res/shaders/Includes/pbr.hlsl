@@ -159,7 +159,9 @@ float4 APPLY_LIGHTING( float4 fragColor, float3 P, float3 normal, float roughnes
 	
 	// Reinhard tonemapping
 	color = color / (color + float3(1,1,1));
-	color = pow( color, float3(1.0/2.2,1.0/2.2,1.0/2.2) ); 
+	
+	// Gamma correct
+	color = pow( abs(color), float3(1.0/2.2,1.0/2.2,1.0/2.2) ); 
 	
 	return float4( color, 1 ); 
 }

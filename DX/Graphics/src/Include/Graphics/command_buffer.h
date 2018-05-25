@@ -40,11 +40,6 @@ namespace Graphics {
         void setCamera(Camera* camera);
         void copyTexture(ITexture* srcTex, ITexture* dstTex);
         void copyTexture(ITexture* srcTex, I32 srcElement, I32 srcMip, ITexture* dstTex, I32 dstElement, I32 dstMip);
-        void setGlobalFloat(StringID name, F32 value);
-        void setGlobalInt(StringID name, I32 value);
-        void setGlobalVector4(StringID name, const Math::Vec4& vec4);
-        void setGlobalColor(StringID name, Color color);
-        void setGlobalMatrix(StringID name, const DirectX::XMMATRIX& matrix);
         void drawLight(const Light* light);
 
     private:
