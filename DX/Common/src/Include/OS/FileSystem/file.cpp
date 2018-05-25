@@ -318,22 +318,4 @@ namespace OS {
         fseek( m_file, pos, SEEK_SET );
     }
 
-
-    //**********************************************************************
-    // ASYNC
-    //**********************************************************************
-
-    //----------------------------------------------------------------------
-    void File::readAsync(const std::function<void(const String&)>& callback)
-    {
-        ASSERT(false);
-
-        FILE_EXISTS_AND_NOT_EOF();
-
-        //ASYNC_JOB([=]() {
-        //    String contents = readAll();
-        //    callback( contents );
-        //});
-    }
-
 }

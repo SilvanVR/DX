@@ -1,0 +1,6 @@
+{
+
+"shader" : "/shaders/phong.shader",
+"tex0" : "/textures/dirt.jpg"
+
+}

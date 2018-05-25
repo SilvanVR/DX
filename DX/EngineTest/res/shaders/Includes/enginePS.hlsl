@@ -132,11 +132,12 @@ float4 DoSpotLight( Light light, float3 V, float3 P, float3 N )
 // Calculates the lighting contribution for all lights in the light buffer.
 // @Params:
 //  "P": The position of the fragment in world space
-//  "N": The normalized normal of the fragment in world space
+//  "N": The normal of the fragment in world space
 //----------------------------------------------------------------------
 float4 APPLY_LIGHTING( float3 P, float3 N )
 { 
 	float3 V = normalize( gCameraPos - P ).xyz;
+	float3 normal = normalize( N );
 	
 	float4 totalLight = { 0, 0, 0, 1 };
 	
@@ -146,13 +147,13 @@ float4 APPLY_LIGHTING( float3 P, float3 N )
         switch( lights[i].lightType )
         {
         case DIRECTIONAL_LIGHT:
-            totalLight += DoDirectionalLight( lights[i], V, N );
+            totalLight += DoDirectionalLight( lights[i], V, normal );
             break;
 		case POINT_LIGHT:
-            totalLight += DoPointLight( lights[i], V, P, N );
+            totalLight += DoPointLight( lights[i], V, P, normal );
             break;
 		case SPOT_LIGHT:		
-            totalLight += DoSpotLight( lights[i], V, P, N );
+            totalLight += DoSpotLight( lights[i], V, P, normal );
             break;
         }
 	}
@@ -165,7 +166,7 @@ float4 APPLY_LIGHTING( float3 P, float3 N )
 // @Params:
 //  "fragColor": The color of the fragment which will receive the lighting
 //  "P": The position of the fragment in world space
-//  "N": The normalized normal of the fragment in world space
+//  "N": The normal of the fragment in world space
 //----------------------------------------------------------------------
 float4 APPLY_LIGHTING( float4 fragColor, float3 P, float3 N )
 { 

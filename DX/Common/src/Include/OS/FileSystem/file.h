@@ -224,13 +224,6 @@ namespace OS {
         template <typename T> File& operator >> (T& buff) { buff = readAll(); return (*this); }
 
 
-        //----------------------------------------------------------------------
-        // Read the file asynchronously via the job system. Be careful about
-        // that the file does not get deleted until the read has been finished.
-        //----------------------------------------------------------------------
-        void readAsync(const std::function<void(const String& contents)>& callback);
-
-
     private:
         Path        m_filePath          = Path("", false);
         Size        m_fileSize          = 0;

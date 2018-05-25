@@ -643,3 +643,104 @@ public:
 
     void shutdown() override { LOG("TransparencyScene Shutdown!", Color::RED); }
 };
+
+class Lighting : public IScene
+{
+    Components::SpotLight* spot;
+
+public:
+    Lighting() : IScene("Lighting") {}
+
+    void init() override
+    {
+        // Camera
+        auto go = createGameObject("Camera");
+        auto cam = go->addComponent<Components::Camera>();
+        go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -10);
+        go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA);
+
+        spot = go->addComponent<Components::SpotLight>(2.0f, Color::RED, 25.0f);
+
+        createGameObject("Grid")->addComponent<GridGeneration>(20);
+
+        auto mesh = Core::Assets::MeshGenerator::CreatePlane(1.0f);
+
+        auto mat = ASSETS.getMaterial("/materials/globalTest.material");
+        auto go2 = createGameObject("Obj");
+        go2->addComponent<Components::MeshRenderer>(mesh, mat);
+        go2->addComponent<VisualizeNormals>(0.1f, Color::WHITE);
+        go2->getTransform()->rotation *= Math::Quat(Math::Vec3::RIGHT, 90);
+        go2->getTransform()->scale = { 10,10,10 };
+
+        I32 loop = 2;
+        F32 distance = 3.0f;
+        for (I32 x = -loop; x <= loop; x++)
+        {
+            for (I32 y = -loop; y <= loop; y++)
+            {
+                for (I32 z = -loop; z <= loop; z++)
+                {
+                    auto gameobject = createGameObject("Obj");
+                    gameobject->addComponent<Components::MeshRenderer>(mesh, mat);
+                    gameobject->getTransform()->position = Math::Vec3(x * distance, y * distance + 0.01f, z * distance);
+                    gameobject->getTransform()->rotation *= Math::Quat(Math::Vec3::RIGHT, 90);
+                }
+            }
+        }
+
+        I32 loop2 = 1;
+        F32 distance2 = 3.0f;
+        for (I32 x = -loop2; x <= loop2; x++)
+        {
+            for (I32 z = -loop2; z <= loop2; z++)
+            {
+                auto gameobject = createGameObject("Obj");
+                gameobject->addComponent<Components::PointLight>(2.0f, Math::Random::Color());
+                gameobject->getTransform()->position = Math::Vec3(x * distance2, 1.0f, z * distance2);
+                gameobject->addComponent<Components::Billboard>(ASSETS.getTexture2D("/textures/pointLight.png"), 0.3f);
+            }
+        }
+
+        //auto sun = createGameObject("Sun");
+        //sun->addComponent<Components::DirectionalLight>(1.0f, Color::WHITE);
+        //sun->getTransform()->rotation = Math::Quat::LookRotation(Math::Vec3{ 0,-1, 1 });
+
+        auto pl = createGameObject("PointLight");
+        pl->addComponent<Components::PointLight>(2.0f, Color::GREEN);
+        pl->getTransform()->position = { 3, 1, 0 };
+        pl->addComponent<Components::Billboard>(ASSETS.getTexture2D("/textures/pointLight.png"), 0.3f);
+        pl->addComponent<AutoOrbiting>(20.0f);
+
+        LOG("LightingScene initialized!", Color::RED);
+    }
+
+    void tick(Time::Seconds d) override
+    {
+        if (KEYBOARD.isKeyDown(Key::Up))
+        {
+            spot->setAngle(spot->getAngle() + 10.0f * (F32)d);
+            LOG(TS(spot->getAngle()));
+        }
+        if (KEYBOARD.isKeyDown(Key::Down))
+        {
+            spot->setAngle(spot->getAngle() - 10.0f * (F32)d);
+            LOG(TS(spot->getAngle()));
+        }
+
+        if (KEYBOARD.isKeyDown(Key::Left))
+        {
+            spot->setRange(spot->getRange() - 10.0f * (F32)d);
+            LOG(TS(spot->getRange()));
+        }
+        if (KEYBOARD.isKeyDown(Key::Right))
+        {
+            spot->setRange(spot->getRange() + 10.0f * (F32)d);
+            LOG(TS(spot->getRange()));
+        }
+
+        if (KEYBOARD.wasKeyPressed(Key::F))
+            spot->setActive(!spot->isActive());
+    }
+
+    void shutdown() override { LOG("Lighting Shutdown!", Color::RED); }
+};

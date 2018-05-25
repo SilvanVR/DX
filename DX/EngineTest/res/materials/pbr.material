@@ -1,0 +1,10 @@
+{
+
+"shader" : "/shaders/pbr.shader",
+"albedo" : "/textures/white.jpg",
+"metallic": 0.0,
+"roughness": 0.0,
+"ao": 0.0,
+"color": "#FF0000"
+
+}
