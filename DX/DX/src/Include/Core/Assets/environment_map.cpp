@@ -48,9 +48,7 @@ namespace Core { namespace Assets {
             {
                 auto specularReflectionMaterial = RESOURCES.createMaterial( shader );
                 specularReflectionMaterial->setTexture( SHADER_NAME_ENV_MAP, cubemap );
-
-                F32 size = F32( cubemap->getHeight() / pow( 2, mip ) );
-                specularReflectionMaterial->setFloat( SHADER_NAME_RESOLUTION, size);
+                specularReflectionMaterial->setFloat( SHADER_NAME_RESOLUTION, (F32)cubemap->getWidth() );
 
                 F32 roughness = (F32)mip / (mipCount - 1);
                 specularReflectionMaterial->setFloat( SHADER_NAME_ROUGHNESS, roughness );

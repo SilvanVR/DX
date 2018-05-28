@@ -218,7 +218,7 @@ public:
 
         // Camera 2
         auto renderTex = RESOURCES.createRenderTexture();
-        renderTex->create(400, 400, 24, Graphics::TextureFormat::BGRA32);
+        renderTex->create(400, 400, 24, Graphics::TextureFormat::BGRA32, 2);
         auto cam2GO = createGameObject("Camera2");
         cam2GO->getComponent<Components::Transform>()->position = Math::Vec3(0, 3, -10);
         cam2GO->addComponent<AutoOrbiting>(10.0f);

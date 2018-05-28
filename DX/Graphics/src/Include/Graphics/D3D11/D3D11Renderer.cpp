@@ -612,13 +612,16 @@ namespace Graphics {
         U32 width = U32( cubemap->getWidth() * std::pow( 0.5, dstMip ) );
         U32 height = U32( cubemap->getHeight() * std::pow( 0.5, dstMip ) );
 
+        // Create temporary render texture
         auto renderTexture = createRenderTexture();
         renderTexture->create( width, height, 0, cubemap->getFormat() );
-
         renderTexture->bindForRendering();
+
+        // Setup viewport matching the render texture
         D3D11_VIEWPORT vp = { 0, 0, (F32)renderTexture->getWidth(), (F32)renderTexture->getHeight(), 0, 1 };
         g_pImmediateContext->RSSetViewports( 1, &vp );
 
+        // Render into render texture for each face and copy the result into the cubemaps face
         auto projection = DirectX::XMMatrixPerspectiveFovLH( DirectX::XMConvertToRadians( 90.0f ), 1.0f, 0.1f, 10.0f );
         for (I32 face = 0; face < 6; face++)
         {

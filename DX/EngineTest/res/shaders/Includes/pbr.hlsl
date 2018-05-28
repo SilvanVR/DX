@@ -178,7 +178,7 @@ float3 getIBL( float3 albedo, float3 V, float3 P, float3 N, float roughness, flo
     float2 brdf = brdfLUT.Sample( samplerbrdfLUT, float2( max( dot( N, V ), 0.0 ), roughness ) ).rg;
     float3 specular = prefilteredColor * (F * brdf.x + brdf.y);
 	
-	float3 ibl = (kD * diffuse) + specular; 
+	float3 ibl = gAmbient * (kD * diffuse) + specular; 
 	
 	return ibl;
 }
@@ -226,7 +226,7 @@ float4 APPLY_LIGHTING( float4 fragColor, float3 P, float3 normal, float roughnes
 	result = result / (result + float3(1,1,1));
 	
 	// Gamma correct
-	result = TO_SRGB( result );	
+	result = TO_SRGB( result ); 
 	
 	return float4( result, 1 ); 
 }

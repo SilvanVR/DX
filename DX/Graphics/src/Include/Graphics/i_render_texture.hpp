@@ -37,8 +37,10 @@ namespace Graphics
         //  "height": Height in pixels.
         //  "depth": Bit-depth of the depth-buffer. Allowed is only 0, 16, 24, 32
         //  "format": The texture format.
+        //  "numBuffers": Amount of buffers to create. This should be greater than one 
+        //  if you plan to use the rt as a rendertarget and in a material at the same time (e.g. as a mirror)
         //----------------------------------------------------------------------
-        virtual void create(U32 width, U32 height, U32 depth, TextureFormat format) = 0;
+        virtual void create(U32 width, U32 height, U32 depth, TextureFormat format, U32 numBuffers = 1) = 0;
 
         //----------------------------------------------------------------------
         // Bind this texture to the output merger for rendering.

@@ -11,12 +11,13 @@
 namespace Graphics { namespace D3D11 {
 
     //----------------------------------------------------------------------
-    void RenderTexture::create( U32 width, U32 height, U32 depth, TextureFormat format )
+    void RenderTexture::create( U32 width, U32 height, U32 depth, TextureFormat format, U32 numBuffers )
     {
         ITexture::_Init( TextureDimension::Tex2D, width, height, format );
         m_depth = depth;
 
-        for (I32 i = 0; i < NUM_BUFFERS; i++)
+        m_buffers.resize( numBuffers );
+        for (I32 i = 0; i < m_buffers.size(); i++)
         {
             _CreateTexture( i );
             _CreateViews( i );
@@ -29,7 +30,7 @@ namespace Graphics { namespace D3D11 {
     //----------------------------------------------------------------------
     RenderTexture::~RenderTexture()
     {
-        for (I32 i = 0; i < NUM_BUFFERS; i++)
+        for (I32 i = 0; i < m_buffers.size(); i++)
         {
             SAFE_RELEASE( m_buffers[i].pRenderTexture );
             SAFE_RELEASE( m_buffers[i].pRenderTextureView );
@@ -68,7 +69,7 @@ namespace Graphics { namespace D3D11 {
     void RenderTexture::bindForRendering()
     {
         // Bind next buffer
-        m_index = (m_index + 1) % NUM_BUFFERS;
+        m_index = (m_index + 1) % m_buffers.size();
         g_pImmediateContext->OMSetRenderTargets( 1, &m_buffers[m_index].pRenderTargetView, m_depth == 0 ? nullptr : m_buffers[m_index].pDepthStencilView );
     }
 
@@ -96,7 +97,7 @@ namespace Graphics { namespace D3D11 {
     {
         I32 index = (m_index - 1);
         if (index < 0)
-            index += NUM_BUFFERS;
+            index += (I32)m_buffers.size();
         return index;
     }
 

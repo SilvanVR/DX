@@ -5,10 +5,9 @@
     author: S. Hau
     date: March 24, 2018
 
-    D3D11 implementation of a render-texture. It consists of more than 
+    D3D11 implementation of a render-texture. It can consist of more than 
     one buffer, so it can be bound as a srv and to the output-merger
-    at the same time. Internally always the previous rendered buffer
-    will be used when bound as a srv.
+    at the same time.
 **********************************************************************/
 
 #include "i_render_texture.hpp"
@@ -20,8 +19,6 @@ namespace Graphics { namespace D3D11 {
     //**********************************************************************
     class RenderTexture : public Graphics::IRenderTexture, public D3D11::IBindableTexture
     {
-        static const I32 NUM_BUFFERS = 1; // Number of render-buffers
-
     public:
         RenderTexture() = default;
         ~RenderTexture();
@@ -29,7 +26,7 @@ namespace Graphics { namespace D3D11 {
         //----------------------------------------------------------------------
         // IRenderTexture Interface
         //----------------------------------------------------------------------
-        void create(U32 width, U32 height, U32 depth, TextureFormat format) override;
+        void create(U32 width, U32 height, U32 depth, TextureFormat format, U32 numBuffers) override;
         void clear(Color color, F32 depth, U8 stencil) override;
         void clearDepthStencil(F32 depth, U8 stencil) override;
         void bindForRendering() override;
@@ -38,10 +35,10 @@ namespace Graphics { namespace D3D11 {
         // D3D11ITexture Interface
         //----------------------------------------------------------------------
         void bind(ShaderType shaderType, U32 slot) override;
-        ID3D11Texture2D* getD3D11Texture() override { return m_buffers[_PreviousBufferIndex()].pRenderTexture; }
+        ID3D11Texture2D* getD3D11Texture() override { return m_buffers[m_index].pRenderTexture; }
 
     private:
-        struct
+        struct RenderBuffer
         {
             ID3D11Texture2D*            pRenderTexture        = nullptr;
             ID3D11ShaderResourceView*   pRenderTextureView    = nullptr;
@@ -49,9 +46,11 @@ namespace Graphics { namespace D3D11 {
 
             ID3D11Texture2D*            pDepthStencilBuffer   = nullptr;
             ID3D11DepthStencilView*     pDepthStencilView     = nullptr;
-        } m_buffers[NUM_BUFFERS];
+        };
 
-        // Ping pong framebuffer index
+        ArrayList<RenderBuffer> m_buffers;
+
+        // Framebuffer index
         I32 m_index = 0;
 
         //----------------------------------------------------------------------
