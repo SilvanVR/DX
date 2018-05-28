@@ -24,13 +24,13 @@ namespace Graphics { namespace D3D11 {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    void Cubemap::create( I32 size, TextureFormat format, bool generateMips )
+    void Cubemap::create( I32 size, TextureFormat format, Mips mips )
     {
         ASSERT( size > 0 );
-        ITexture::_Init( size, size, format );
+        ITexture::_Init( TextureDimension::Cube, size, size, format );
 
-        m_generateMips = generateMips;
-        if (m_generateMips)
+        m_generateMips = (mips == Mips::Generate);
+        if (mips == Mips::Generate || mips == Mips::Create)
             _UpdateMipCount();
 
         // Reserve mem for faces
@@ -39,7 +39,7 @@ namespace Graphics { namespace D3D11 {
             m_facePixels[face].resize( bytesPerFace );
 
         // Create D3D11 Resources
-        _CreateTexture();
+        _CreateTexture( mips );
         _CreateShaderResourceView();
         _CreateSampler( m_anisoLevel, m_filter, m_clampMode );
     }
@@ -58,12 +58,14 @@ namespace Graphics { namespace D3D11 {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    void Cubemap::_CreateTexture()
+    void Cubemap::_CreateTexture( Mips mips )
     {
+        bool createMips = (mips != Mips::None);
+
         D3D11_TEXTURE2D_DESC texDesc;
         texDesc.Height              = getHeight();
         texDesc.Width               = getWidth();
-        texDesc.MipLevels           = m_generateMips ? 0 : 1;
+        texDesc.MipLevels           = createMips ? 0 : 1;
         texDesc.ArraySize           = 6;
         texDesc.Format              = Utility::TranslateTextureFormat( m_format );
         texDesc.SampleDesc.Count    = 1;
@@ -85,7 +87,7 @@ namespace Graphics { namespace D3D11 {
         D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
         srvDesc.Format                      = Utility::TranslateTextureFormat( m_format );
         srvDesc.ViewDimension               = D3D11_SRV_DIMENSION_TEXTURECUBE;
-        srvDesc.TextureCube.MipLevels       = m_mipCount;
+        srvDesc.TextureCube.MipLevels       = -1;
         srvDesc.TextureCube.MostDetailedMip = 0;
 
         HR( g_pDevice->CreateShaderResourceView( m_pTexture, &srvDesc, &m_pTextureView ) );

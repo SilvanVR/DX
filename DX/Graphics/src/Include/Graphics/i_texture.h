@@ -50,7 +50,7 @@ namespace Graphics
         TextureAddressMode  m_clampMode         = TextureAddressMode::Repeat;
 
         //----------------------------------------------------------------------
-        void _Init(U32 width, U32 height, TextureFormat format) { m_width = width; m_height = height; m_format = format; }
+        void _Init(TextureDimension dimension, U32 width, U32 height, TextureFormat format) { m_dimension = dimension; m_width = width; m_height = height; m_format = format; }
 
         // Indicates that something related to sampling has been changed. 
         virtual void _UpdateSampler() = 0;

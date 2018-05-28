@@ -20,6 +20,7 @@ namespace Graphics {
     class CommandBuffer;
     class ITexture2D;
     class IMaterial;
+    class ITexture;
     class ICubemap;
     class IShader;
     class IMesh;

@@ -22,7 +22,7 @@ namespace Graphics { namespace D3D11 {
     void Texture2D::create( U32 width, U32 height, TextureFormat format, bool generateMips )
     {
         ASSERT( width > 0 && height > 0 && m_width == 0 && "Invalid params or texture were already created" );
-        ITexture::_Init( width, height, format );
+        ITexture::_Init( TextureDimension::Tex2D, width, height, format );
 
         m_isImmutable = false;
         m_generateMips = generateMips;
@@ -39,7 +39,7 @@ namespace Graphics { namespace D3D11 {
     void Texture2D::create( U32 width, U32 height, TextureFormat format, const void* pData )
     {
         ASSERT( width > 0 && height > 0 && pData != nullptr && m_width == 0 && "Invalid params or texture were already created" );
-        ITexture::_Init( width, height, format );
+        ITexture::_Init( TextureDimension::Tex2D, width, height, format );
 
         m_isImmutable = true;
         _CreateTexture( pData );

@@ -28,7 +28,7 @@ namespace Graphics {
     }
 
     //----------------------------------------------------------------------
-    void CommandBuffer::drawMesh( MeshPtr mesh, MaterialPtr material, const DirectX::XMMATRIX& modelMatrix, I32 subMeshIndex )
+    void CommandBuffer::drawMesh( const MeshPtr& mesh, const MaterialPtr& material, const DirectX::XMMATRIX& modelMatrix, I32 subMeshIndex )
     {
         m_gpuCommands.push_back( std::make_unique<GPUC_DrawMesh>( mesh, material, modelMatrix, subMeshIndex ) );
     }
@@ -40,13 +40,13 @@ namespace Graphics {
     }
 
     //----------------------------------------------------------------------
-    void CommandBuffer::copyTexture( ITexture* srcTex, ITexture* dstTex )
+    void CommandBuffer::copyTexture( const TexturePtr& srcTex, const TexturePtr& dstTex )
     {
         copyTexture( srcTex, 0, 0, dstTex, 0, 0 );
     }
 
     //----------------------------------------------------------------------
-    void CommandBuffer::copyTexture( ITexture* srcTex, I32 srcElement, I32 srcMip, ITexture* dstTex, I32 dstElement, I32 dstMip )
+    void CommandBuffer::copyTexture( const TexturePtr& srcTex, I32 srcElement, I32 srcMip, const TexturePtr& dstTex, I32 dstElement, I32 dstMip )
     {
         ASSERT( srcTex->getWidth() == dstTex->getWidth() && srcTex->getHeight() == dstTex->getHeight() && "Textures must be of same size" );
         m_gpuCommands.push_back( std::make_unique<GPUC_CopyTexture>( srcTex, srcElement, srcMip, dstTex, dstElement, dstMip ) );
@@ -58,5 +58,22 @@ namespace Graphics {
         m_gpuCommands.push_back( std::make_unique<GPUC_DrawLight>( light ) );
     }
 
+    //----------------------------------------------------------------------
+    void CommandBuffer::setRenderTarget( const RenderTexturePtr& target )
+    {
+        m_gpuCommands.push_back( std::make_unique<GPUC_SetRenderTarget>( target ) );
+    }
+
+    //----------------------------------------------------------------------
+    void CommandBuffer::drawFullscreenQuad( const MaterialPtr& material )
+    {
+        m_gpuCommands.push_back( std::make_unique<GPUC_DrawFullscreenQuad>( material ) );
+    }
+
+    //----------------------------------------------------------------------
+    void CommandBuffer::renderCubemap( const CubemapPtr& cubemap, const MaterialPtr& material, I32 dstMip )
+    {
+        m_gpuCommands.push_back( std::make_unique<GPUC_RenderCubemap>( cubemap, material, dstMip ) );
+    }
 
 } // End namespaces

@@ -285,7 +285,7 @@ namespace Core { namespace Resources {
             const I32 size = 2;
             m_defaultCubemap = createCubemap();
             m_defaultCubemap->setFilter( Graphics::TextureFilter::Point );
-            m_defaultCubemap->create( size, Graphics::TextureFormat::BGRA32, false );
+            m_defaultCubemap->create( size, Graphics::TextureFormat::BGRA32 );
 
             Color colorsPerFace[6] = { Color::WHITE, Color::GREEN, Color::RED, Color::BLUE, Color::ORANGE, Color::VIOLET };
             for (int i = 0; i < 6; i++)

@@ -273,7 +273,7 @@ namespace Core { namespace Assets {
         }
 
         auto cubemap = RESOURCES.createCubemap();
-        cubemap->create( width, Graphics::TextureFormat::RGBA32, generateMips );
+        cubemap->create( width, Graphics::TextureFormat::RGBA32, Graphics::Mips::Generate );
       
         cubemap->setPixels( Graphics::CubemapFace::PositiveX, posXPixels );
         cubemap->setPixels( Graphics::CubemapFace::NegativeX, negXPixels );
@@ -399,7 +399,7 @@ namespace Core { namespace Assets {
                             if ( auto mat = pair.second.material.lock() )
                                 if (mat->getShader() == sh)
                                 {
-                                    LOG( "Reloading material: " + path.toString(), LOG_COLOR );
+                                    LOG( "Reloading material: " + pair.second.path.toString(), LOG_COLOR );
                                     MaterialParser::UpdateMaterial( mat, pair.second.path, true );
                                 }
 

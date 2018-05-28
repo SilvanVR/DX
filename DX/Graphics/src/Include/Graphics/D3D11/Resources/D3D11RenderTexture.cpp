@@ -13,7 +13,7 @@ namespace Graphics { namespace D3D11 {
     //----------------------------------------------------------------------
     void RenderTexture::create( U32 width, U32 height, U32 depth, TextureFormat format )
     {
-        ITexture::_Init( width, height, format );
+        ITexture::_Init( TextureDimension::Tex2D, width, height, format );
         m_depth = depth;
 
         for (I32 i = 0; i < NUM_BUFFERS; i++)

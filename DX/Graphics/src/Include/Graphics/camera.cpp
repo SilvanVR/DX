@@ -50,8 +50,17 @@ namespace Graphics {
     //----------------------------------------------------------------------
     void Camera::setModelMatrix( const DirectX::XMMATRIX& model )
     { 
-        m_model = model; 
+        m_model = model;
         m_view = DirectX::XMMatrixInverse( nullptr, m_model );
+        _UpdateProjectionMatrix();
+        m_viewProjection = m_view * m_projection;
+    }
+
+    //----------------------------------------------------------------------
+    void Camera::setViewMatrix( const DirectX::XMMATRIX& view )
+    {
+        m_view = view;
+        m_model = DirectX::XMMatrixInverse( nullptr, m_view );
         _UpdateProjectionMatrix();
         m_viewProjection = m_view * m_projection;
     }

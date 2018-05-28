@@ -12,6 +12,7 @@
 #include "structs.hpp"
 #include "i_mesh.h"
 #include "i_material.h"
+#include "i_cubemap.hpp"
 #include "i_render_texture.hpp"
 #include "Lighting/light.h"
 #include "camera.h"
@@ -25,8 +26,10 @@ namespace Graphics {
         DRAW_MESH,
         SET_CAMERA,
         COPY_TEXTURE,
-        SET_GLOBAL_FLOAT, SET_GLOBAL_INT, SET_GLOBAL_VECTOR, SET_GLOBAL_MATRIX,
-        DRAW_LIGHT
+        DRAW_LIGHT,
+        SET_RENDER_TARGET,
+        DRAW_FULLSCREEN_QUAD,
+        RENDER_CUBEMAP
     };
 
     //**********************************************************************
@@ -46,7 +49,7 @@ namespace Graphics {
     //**********************************************************************
     struct GPUC_DrawMesh : public GPUCommandBase
     {
-        GPUC_DrawMesh( MeshPtr mesh, MaterialPtr material, const DirectX::XMMATRIX& modelMatrix, I32 subMeshIndex )
+        GPUC_DrawMesh( const MeshPtr& mesh, const MaterialPtr& material, const DirectX::XMMATRIX& modelMatrix, I32 subMeshIndex )
             : GPUCommandBase( GPUCommand::DRAW_MESH ),
             material( material ), mesh( mesh ), modelMatrix( modelMatrix ), subMeshIndex( subMeshIndex ) {}
 
@@ -69,12 +72,12 @@ namespace Graphics {
     //**********************************************************************
     struct GPUC_CopyTexture : public GPUCommandBase
     {
-        GPUC_CopyTexture(ITexture* srcTex, I32 srcElement, I32 srcMip, ITexture* dstTex, I32 dstElement, I32 dstMip)
+        GPUC_CopyTexture(const TexturePtr& srcTex, I32 srcElement, I32 srcMip, const TexturePtr& dstTex, I32 dstElement, I32 dstMip)
             : GPUCommandBase( GPUCommand::COPY_TEXTURE ), 
             srcTex( srcTex ), srcElement(srcElement ), srcMip( srcMip ), dstTex( dstTex ), dstElement( dstElement ), dstMip( dstMip ){}
 
-        ITexture*   srcTex;
-        ITexture*   dstTex;
+        TexturePtr  srcTex;
+        TexturePtr  dstTex;
         I32         srcElement, dstElement, srcMip, dstMip;
     };
 
@@ -86,6 +89,38 @@ namespace Graphics {
             light( light ) {}
 
         const Light* light;
+    };
+
+    //**********************************************************************
+    struct GPUC_SetRenderTarget : public GPUCommandBase
+    {
+        GPUC_SetRenderTarget(const RenderTexturePtr& target )
+            : GPUCommandBase( GPUCommand::SET_RENDER_TARGET ),
+            target( target ) {}
+
+        const RenderTexturePtr  target;
+    };
+
+    //**********************************************************************
+    struct GPUC_DrawFullscreenQuad : public GPUCommandBase
+    {
+        GPUC_DrawFullscreenQuad( const MaterialPtr& material )
+            : GPUCommandBase( GPUCommand::DRAW_FULLSCREEN_QUAD ),
+            material( material ) {}
+
+        const MaterialPtr material;
+    };
+
+    //**********************************************************************
+    struct GPUC_RenderCubemap : public GPUCommandBase
+    {
+        GPUC_RenderCubemap( const CubemapPtr& cubemap, const MaterialPtr& material, I32 dstMip )
+            : GPUCommandBase( GPUCommand::RENDER_CUBEMAP ),
+            cubemap( cubemap ), material( material ), dstMip( dstMip ) {}
+
+        const CubemapPtr  cubemap;
+        const MaterialPtr material;
+        I32               dstMip;
     };
 
 } // End namespaces

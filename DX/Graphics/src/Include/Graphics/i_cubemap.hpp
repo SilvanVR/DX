@@ -14,6 +14,14 @@
 namespace Graphics
 {
     //----------------------------------------------------------------------
+    enum class Mips
+    {
+        None,
+        Create,
+        Generate
+    };
+
+    //----------------------------------------------------------------------
     enum class CubemapFace
     {
         Unknown = -1,
@@ -37,9 +45,9 @@ namespace Graphics
         // @Params:
         //  "size": Width/Height of each face in pixels
         //  "format": Format for each pixel
-        //  "generateMips": If true a complete mipmap-chain will be generated for each face
+        //  "mips": Whether mips should be created or not and automatically generated.
         //----------------------------------------------------------------------
-        virtual void create(I32 size, TextureFormat format, bool generateMips) = 0;
+        virtual void create(I32 size, TextureFormat format, Mips mips = Mips::None) = 0;
 
         //----------------------------------------------------------------------
         // Apply all previous setPixel() changes

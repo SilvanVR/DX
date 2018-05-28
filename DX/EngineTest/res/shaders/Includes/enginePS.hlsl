@@ -9,6 +9,7 @@
 #define POINT_LIGHT 		1
 #define SPOT_LIGHT 			2
 #define PI					3.14159265359
+#define GAMMA				2.2
 
 cbuffer cbPerCamera : register(b0)
 {
@@ -43,3 +44,18 @@ cbuffer cbBufferLights : register(b3)
 	Light 	lights[MAX_LIGHTS];
 	int 	lightCount;
 };
+
+// ----------------------------------------------
+float4 TO_LINEAR( float4 color )
+{
+	return float4( pow( abs( color.rgb ), GAMMA ), color.a );
+}
+float3 TO_LINEAR( float3 color )
+{
+	return pow( abs( color ), GAMMA );
+}
+
+float3 TO_SRGB( float3 color )
+{
+	return pow( abs( color ), 1.0/GAMMA ); 
+}

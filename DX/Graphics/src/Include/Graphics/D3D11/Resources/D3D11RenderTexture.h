@@ -20,7 +20,7 @@ namespace Graphics { namespace D3D11 {
     //**********************************************************************
     class RenderTexture : public Graphics::IRenderTexture, public D3D11::IBindableTexture
     {
-        static const I32 NUM_BUFFERS = 2; // Number of render-buffers
+        static const I32 NUM_BUFFERS = 1; // Number of render-buffers
 
     public:
         RenderTexture() = default;

@@ -21,7 +21,7 @@ namespace Components {
     class Skybox : public Components::IComponent
     {
     public:
-        Skybox(CubemapPtr cubemap) : m_cubemap( cubemap ) {}
+        Skybox(TexturePtr cubemap) : m_cubemap( cubemap ) {}
 
         //----------------------------------------------------------------------
         // IComponent Interface
@@ -29,11 +29,11 @@ namespace Components {
         void addedToGameObject(GameObject* go) override;
 
         //----------------------------------------------------------------------
-        void setCubemap(CubemapPtr cubemap) { m_cubemap = cubemap; }
-        const CubemapPtr getCubemap() const { return m_cubemap; }
+        void setCubemap(TexturePtr cubemap) { m_cubemap = cubemap; }
+        const TexturePtr getCubemap() const { return m_cubemap; }
 
     private:
-        CubemapPtr  m_cubemap           = nullptr;
+        TexturePtr  m_cubemap           = nullptr;
 
         ShaderPtr   m_skyboxShader      = nullptr;
         MaterialPtr m_skyboxMaterial    = nullptr;

@@ -92,6 +92,13 @@ namespace Graphics {
         //----------------------------------------------------------------------
         void setModelMatrix(const DirectX::XMMATRIX& model);
 
+        //----------------------------------------------------------------------
+        // Set the view matrix for this camera.
+        // This function also calculates the model + projection and view-projection matrix.
+        // This function should be called once per frame.
+        //----------------------------------------------------------------------
+        void setViewMatrix(const DirectX::XMMATRIX& model);
+
     private:
         CameraMode m_cameraMode = CameraMode::Perspective;
 

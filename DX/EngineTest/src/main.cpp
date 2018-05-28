@@ -18,6 +18,8 @@ class TestScene : public IScene
 {
     Components::SpotLight* spot;
 
+    MaterialPtr skyboxMat;
+
 public:
     TestScene() : IScene("TestScene") {}
 
@@ -33,41 +35,81 @@ public:
 
         createGameObject("Grid")->addComponent<GridGeneration>(20);
 
+        auto brdfLut = RESOURCES.createRenderTexture();
+        brdfLut->create(512, 512, 0, Graphics::TextureFormat::RGHalf);
+        brdfLut->setAnisoLevel(1);
+        brdfLut->setFilter(Graphics::TextureFilter::Bilinear);
+        brdfLut->setClampMode(Graphics::TextureAddressMode::Clamp);
+
+        Graphics::CommandBuffer cmd;
+        cmd.setRenderTarget(brdfLut);
+        cmd.drawFullscreenQuad(ASSETS.getMaterial("/materials/pbr_brdfLut.material"));
+        Locator::getRenderer().dispatch(cmd);
+
+        auto cubemap = ASSETS.getCubemap("/cubemaps/tropical_sunny_day/Left.png", "/cubemaps/tropical_sunny_day/Right.png",
+            "/cubemaps/tropical_sunny_day/Up.png", "/cubemaps/tropical_sunny_day/Down.png",
+            "/cubemaps/tropical_sunny_day/Front.png", "/cubemaps/tropical_sunny_day/Back.png", true);
+
+        Assets::EnvironmentMap envMap(cubemap, 256, 1024);
+        auto diffuse = envMap.getDiffuseIrradianceMap();
+        auto specular = envMap.getSpecularReflectionMap();
+        //pbrShader->setTexture("environmentMap", envMap);
+
         auto mesh = Core::Assets::MeshGenerator::CreateUVSphere(20,20);
         mesh->recalculateNormals();
 
         auto mat = ASSETS.getMaterial("/materials/pbr.material");
-        //auto go2 = createGameObject("Obj");
-        //go2->addComponent<Components::MeshRenderer>(mesh, mat);
+        mat->setTexture("diffuseIrradianceMap", diffuse);
+        mat->setTexture("specularReflectionMap", specular);
+        mat->setTexture("brdfLUT", brdfLut);
+        mat->setFloat("maxReflectionLOD", (F32)specular->getMipCount()-1);
+
+        auto go2 = createGameObject("Obj");
+        go2->addComponent<Components::MeshRenderer>(mesh, mat);
         //go2->addComponent<VisualizeNormals>(0.1f, Color::WHITE);
-        //go2->getTransform()->rotation *= Math::Quat(Math::Vec3::RIGHT, 90);
-        //go2->getTransform()->scale = { 10.0f };
+        go2->getTransform()->rotation *= Math::Quat(Math::Vec3::RIGHT, 90);
+        go2->getTransform()->scale = { 1.0f };
+        go2->getTransform()->position = { 0, 0, -3 };
+        //go2->addComponent<Components::Skybox>(specular);
+
+        skyboxMat = ASSETS.getMaterial("/materials/skyboxLOD.material");
+        skyboxMat->setTexture("Cubemap", specular);
+        skyboxMat->setFloat("lod", 0);
+        auto skybox = createGameObject("Skybox");
+        skybox->getTransform()->scale = { 1000.0f };
+        skybox->addComponent<Components::MeshRenderer>(mesh, skyboxMat);
 
         auto shader = ASSETS.getShader("/shaders/pbr.shader");
 
-        I32 loop = 2;
+        I32 num = 6;
         F32 distance = 3.0f;
-        for (I32 x = -loop; x <= loop; x++)
+        for (I32 x = 0; x < num; x++)
         {
-            F32 roughness = (1.0f / (2.0f*loop + 1.0f)) * (x+loop);
-            for (I32 y = -loop; y <= loop; y++)
+            F32 roughness = x / (F32)(num - 1);
+
+            for (I32 y = 0; y < num; y++)
             {
                 auto gameobject = createGameObject("Obj");
 
                 auto material = RESOURCES.createMaterial(shader);
                 material->setColor("color", Color::WHITE);
                 material->setFloat("roughness", roughness);
-                F32 metallic = (1.0f / (2.0f*loop + 1.0f)) * (y+loop);
+                material->setFloat("maxReflectionLOD", (F32)specular->getMipCount()-1);
+                F32 metallic = y / (F32)(num-1);
                 material->setFloat("metallic", metallic);
 
+                material->setTexture("diffuseIrradianceMap", diffuse);
+                material->setTexture("specularReflectionMap", specular);
+                material->setTexture("brdfLUT", brdfLut);
+
                 gameobject->addComponent<Components::MeshRenderer>(mesh, material);
-                gameobject->getTransform()->position = Math::Vec3(x * distance, y * distance + 0.01f, 0.0f);
+                gameobject->getTransform()->position = Math::Vec3(x * distance - (num/2 * distance), y * distance + 0.01f, 0.0f);
             }
         }
 
-        //auto sun = createGameObject("Sun");
-        //sun->addComponent<Components::DirectionalLight>(1.0f, Color::WHITE);
-        //sun->getTransform()->rotation = Math::Quat::LookRotation(Math::Vec3{ 0,-1, 1 });
+        auto sun = createGameObject("Sun");
+        sun->addComponent<Components::DirectionalLight>(1.0f, Color::WHITE);
+        sun->getTransform()->rotation = Math::Quat::LookRotation(Math::Vec3{ 0,-1, 1 });
 
         auto pl = createGameObject("PointLight");
         pl->addComponent<Components::PointLight>(10.0f, Color::GREEN);
@@ -103,6 +145,19 @@ public:
     {
         if (KEYBOARD.wasKeyPressed(Key::F))
             spot->setActive(!spot->isActive());
+
+        if (KEYBOARD.isKeyDown(Key::Up))
+        {
+            skyboxMat->setFloat("lod", skyboxMat->getFloat("lod") + 2.0f * (F32)d );
+            LOG(TS(skyboxMat->getFloat("lod")));
+        }
+
+        if (KEYBOARD.isKeyDown(Key::Down))
+        {
+            skyboxMat->setFloat("lod", skyboxMat->getFloat("lod") - 2.0f * (F32)d );
+            LOG(TS(skyboxMat->getFloat("lod")));
+        }
+
     }
 
     void shutdown() override { LOG("TestScene Shutdown!", Color::RED); }
@@ -136,6 +191,9 @@ public:
         }, 1000);
 
         ASSETS.setHotReloading(true);
+
+        Locator::getRenderer().setVSync(true);
+        Locator::getRenderer().setGlobalFloat(SID("gAmbient"), 1.0f);
 
         Locator::getSceneManager().LoadSceneAsync(new TestScene());
     }

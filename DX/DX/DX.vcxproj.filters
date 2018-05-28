@@ -138,6 +138,9 @@
     <ClCompile Include="src\Include\GameplayLayer\Components\billboard.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Include\Core\Assets\environment_map.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\stdafx.h">
@@ -297,6 +300,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Include\GameplayLayer\Components\billboard.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Include\Core\Assets\environment_map.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

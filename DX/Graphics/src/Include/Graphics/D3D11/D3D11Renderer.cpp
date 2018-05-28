@@ -36,6 +36,8 @@ namespace Graphics {
     #define CAM_POS_NAME        "gCameraPos"
     #define MAX_LIGHTS          16
 
+    static StringID viewProjName = SID( CAM_VIEW_PROJ_NAME );
+
     //----------------------------------------------------------------------
     struct RenderContext
     {
@@ -44,10 +46,33 @@ namespace Graphics {
         Shader*      shader     = nullptr;  // Current bound shader
         Material*    material   = nullptr;  // Current bound material
 
+        IRenderTexture* renderTarget = nullptr; // Current render target
+
         I32          lightCount = 0;
         const Light* lights[MAX_LIGHTS];
         bool         lightsUpdated = false; // Set to true whenever a new light has been added
     } renderContext;
+
+    ArrayList<Math::Vec3> cubeVertices =
+    {
+        Math::Vec3(-1.0f, -1.0f, -1.0f),
+        Math::Vec3(-1.0f,  1.0f, -1.0f),
+        Math::Vec3(1.0f,  1.0f, -1.0f),
+        Math::Vec3(1.0f, -1.0f, -1.0f),
+        Math::Vec3(-1.0f, -1.0f,  1.0f),
+        Math::Vec3(-1.0f,  1.0f,  1.0f),
+        Math::Vec3(1.0f,  1.0f,  1.0f),
+        Math::Vec3(1.0f, -1.0f,  1.0f)
+    };
+    ArrayList<U32> cubeIndices = {
+        0, 1, 3, 3, 1, 2,
+        4, 6, 5, 4, 7, 6,
+        4, 5, 1, 4, 1, 0,
+        3, 2, 6, 3, 6, 7,
+        1, 5, 6, 1, 6, 2,
+        4, 0, 3, 4, 3, 7
+    };
+    static IMesh* s_cubeMesh; // Needed for cubemap rendering
 
     //**********************************************************************
     // INIT STUFF
@@ -58,17 +83,27 @@ namespace Graphics {
     {
         _InitD3D11();
         _CreateGlobalBuffer();
-    }
+        s_cubeMesh = createMesh();
+        s_cubeMesh->setVertices( cubeVertices );
+        s_cubeMesh->setIndices( cubeIndices );
+    } 
 
     //----------------------------------------------------------------------
     void D3D11Renderer::shutdown()
     {
+        SAFE_DELETE( s_cubeMesh );
         D3D11::ConstantBufferManager::Destroy();
         _DeinitD3D11();
     }
 
     //----------------------------------------------------------------------
     void D3D11Renderer::dispatch( const CommandBuffer& cmd )
+    {
+        m_pendingCmdQueue.emplace_back( std::move( cmd ) );
+    }
+
+    //----------------------------------------------------------------------
+    void D3D11Renderer::_ExecuteCommandBuffer( const CommandBuffer& cmd )
     {
         auto& commands = cmd.getGPUCommands();
 
@@ -90,13 +125,8 @@ namespace Graphics {
                 }
                 case GPUCommand::COPY_TEXTURE:
                 {
-                    auto& cmd = *reinterpret_cast<GPUC_CopyTexture*>( command.get() );
-                    U32 dstElement = D3D11CalcSubresource( cmd.dstMip, cmd.dstElement, cmd.dstTex->getMipCount() );
-                    U32 srcElement = D3D11CalcSubresource( cmd.srcMip, cmd.srcElement, cmd.srcTex->getMipCount() );
-                    D3D11::IBindableTexture* dstTex = reinterpret_cast<D3D11::IBindableTexture*>( cmd.dstTex );
-                    D3D11::IBindableTexture* srcTex = reinterpret_cast<D3D11::IBindableTexture*>( cmd.srcTex );
-                    g_pImmediateContext->CopySubresourceRegion( dstTex->getD3D11Texture(), dstElement, 0, 0, 0, 
-                                                                srcTex->getD3D11Texture(), srcElement, NULL );
+                    auto& cmd = *dynamic_cast<GPUC_CopyTexture*>( command.get() );
+                    _CopyTexture( cmd.srcTex.get(), cmd.srcElement, cmd.srcMip, cmd.dstTex.get(), cmd.dstElement, cmd.dstMip );
                     break;
                 }
                 case GPUCommand::DRAW_LIGHT:
@@ -112,6 +142,34 @@ namespace Graphics {
                     {
                         LOG_WARN_RENDERING( "Too many lights! Only " + TS( MAX_LIGHTS ) + " lights will be rendered." );
                     }
+                    break;
+                }
+                case GPUCommand::SET_RENDER_TARGET:
+                {
+                    auto& cmd = *reinterpret_cast<GPUC_SetRenderTarget*>( command.get() );
+                    renderContext.renderTarget = cmd.target.get();
+                    renderContext.renderTarget->bindForRendering();
+                    break;
+                }
+                case GPUCommand::DRAW_FULLSCREEN_QUAD:
+                {
+                    auto& cmd = *reinterpret_cast<GPUC_DrawFullscreenQuad*>( command.get() );
+                    renderContext.shader = cmd.material->getShader().get();
+                    renderContext.material = cmd.material.get();
+
+                    cmd.material->getShader()->bind();
+                    cmd.material->bind();
+
+                    D3D11_VIEWPORT vp = { 0, 0, (F32)renderContext.renderTarget->getWidth(), (F32)renderContext.renderTarget->getHeight(), 0, 1 };
+                    g_pImmediateContext->RSSetViewports( 1, &vp );
+                    g_pImmediateContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP );
+                    g_pImmediateContext->Draw( 4, 0 );
+                    break;
+                }
+                case GPUCommand::RENDER_CUBEMAP:
+                {
+                    auto& cmd = *reinterpret_cast<GPUC_RenderCubemap*>( command.get() );
+                    _RenderCubemap( cmd.cubemap.get(), cmd.material.get(), cmd.dstMip );
                     break;
                 }
                 default:
@@ -136,6 +194,10 @@ namespace Graphics {
     //----------------------------------------------------------------------
     void D3D11Renderer::present()
     {
+        for ( auto& cmd  : m_pendingCmdQueue)
+            _ExecuteCommandBuffer( cmd );
+        m_pendingCmdQueue.clear();
+
         m_pSwapchain->present( m_vsync );
     }
 
@@ -301,9 +363,12 @@ namespace Graphics {
         renderContext.camera = camera;
         renderContext.lightCount = 0;
         renderContext.lightsUpdated = true;
+        renderContext.material = nullptr;
+        renderContext.shader = nullptr;
 
         // Set rendertarget
         auto renderTarget = camera->getRenderTarget();
+        renderContext.renderTarget = renderTarget.get();
         if ( renderTarget == nullptr )
         {
             m_pSwapchain->bind();
@@ -351,7 +416,6 @@ namespace Graphics {
         g_pImmediateContext->RSSetViewports( 1, &vp );
 
         // Update camera buffer
-        static StringID viewProjName = SID( CAM_VIEW_PROJ_NAME );
         XMMATRIX viewProj = camera->getViewMatrix() * camera->getProjectionMatrix();
         if ( not CAMERA_BUFFER.update( viewProjName, &viewProj ) )
             LOG_ERROR_RENDERING( "D3D11: Could not update the view-projection matrix in the camera buffer!" );
@@ -400,10 +464,9 @@ namespace Graphics {
             {
                 shader = material->getShader().get();
                 shader->bind();
-                renderContext.shader = material->getShader().get();
+                renderContext.shader = shader;
             }
 
-            // Bind material if not already bound
             if ( material != renderContext.material )
             {
                 material->bind();
@@ -511,14 +574,67 @@ namespace Graphics {
             }";
 
             Shader* shader = createShader();
-            if (not shader->compileFragmentShaderFromSource(fragSrc, "main"))
+            if ( not shader->compileFragmentShaderFromSource( fragSrc, "main" ) )
                 LOG_WARN_RENDERING( "Could not precompile enginePS.hlsl for buffer creation. This might cause some issues." );
             delete shader;
         } 
         catch (const std::runtime_error& ex)
         {
-            LOG_WARN_RENDERING( String( "Could not open enginePS.hlsl. Reason: " ) + ex.what() + ". This might cause some issues." );
+            LOG_WARN_RENDERING( String( "Could not open enginePS.hlsl. This might cause some issues. Reason: " ) + ex.what() );
         }
+    }
+
+    //----------------------------------------------------------------------
+    void D3D11Renderer::_CopyTexture( ITexture* srcTex, I32 srcElement, I32 srcMip, ITexture* dstTex, I32 dstElement, I32 dstMip )
+    {
+        U32 dstSubResource = D3D11CalcSubresource( dstMip, dstElement, dstTex->getMipCount() );
+        U32 srcSubResource = D3D11CalcSubresource( srcMip, srcElement, srcTex->getMipCount() );
+        D3D11::IBindableTexture* d3d11DstTex = dynamic_cast<D3D11::IBindableTexture*>( dstTex );
+        D3D11::IBindableTexture* d3d11SrcTex = dynamic_cast<D3D11::IBindableTexture*>( srcTex );
+        g_pImmediateContext->CopySubresourceRegion( d3d11DstTex->getD3D11Texture(), dstSubResource, 0, 0, 0,
+                                                    d3d11SrcTex->getD3D11Texture(), srcSubResource, NULL );
+    }
+
+    //----------------------------------------------------------------------
+    void D3D11Renderer::_RenderCubemap( ICubemap* cubemap, IMaterial* material, U32 dstMip )
+    {
+        DirectX::XMVECTOR directions[] = {
+            { 1, 0, 0, 0 }, { -1,  0,  0, 0 },
+            { 0, 1, 0, 0 }, {  0, -1,  0, 0 },
+            { 0, 0, 1, 0 }, {  0,  0, -1, 0 },
+        };
+        DirectX::XMVECTOR ups[] = {
+            { 0, 1,  0, 0 }, { 0, 1, 0, 0 },
+            { 0, 0, -1, 0 }, { 0, 0, 1, 0 },
+            { 0, 1,  0, 0 }, { 0, 1, 0, 0 },
+        };
+
+        U32 width = U32( cubemap->getWidth() * std::pow( 0.5, dstMip ) );
+        U32 height = U32( cubemap->getHeight() * std::pow( 0.5, dstMip ) );
+
+        auto renderTexture = createRenderTexture();
+        renderTexture->create( width, height, 0, cubemap->getFormat() );
+
+        renderTexture->bindForRendering();
+        D3D11_VIEWPORT vp = { 0, 0, (F32)renderTexture->getWidth(), (F32)renderTexture->getHeight(), 0, 1 };
+        g_pImmediateContext->RSSetViewports( 1, &vp );
+
+        auto projection = DirectX::XMMatrixPerspectiveFovLH( DirectX::XMConvertToRadians( 90.0f ), 1.0f, 0.1f, 10.0f );
+        for (I32 face = 0; face < 6; face++)
+        {
+            renderTexture->clear( Color::BLACK, 1, 0 );
+
+            auto view = DirectX::XMMatrixLookToLH( { 0, 0, 0, 0 }, directions[face], ups[face] );
+            auto viewProj = view * projection;
+            if ( not CAMERA_BUFFER.update( viewProjName, &viewProj ) )
+                LOG_ERROR_RENDERING( "D3D11: Could not update the view-projection matrix in the camera buffer!" );
+            CAMERA_BUFFER.flush();
+
+            _DrawMesh( s_cubeMesh, material, DirectX::XMMatrixIdentity(), 0 );
+            _CopyTexture( renderTexture, 0, 0, cubemap, face, dstMip );
+        }
+
+        SAFE_DELETE( renderTexture );
     }
 
 } // End namespaces

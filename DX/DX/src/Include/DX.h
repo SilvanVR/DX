@@ -17,3 +17,4 @@
 #include "Math/random.h"
 #include "Core/layer_defines.hpp"
 #include "Core/Assets/mesh_generator.h"
+#include "Core/Assets/environment_map.h"

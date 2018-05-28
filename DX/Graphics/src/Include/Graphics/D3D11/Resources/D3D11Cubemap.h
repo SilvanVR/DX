@@ -22,7 +22,7 @@ namespace Graphics { namespace D3D11 {
         //----------------------------------------------------------------------
         // ICubemap Interface
         //----------------------------------------------------------------------
-        void create(I32 size, TextureFormat format, bool generateMips) override;
+        void create(I32 size, TextureFormat format, Mips mips) override;
         void apply(bool updateMips, bool keepPixelsInRAM) override;
 
     private:
@@ -32,7 +32,7 @@ namespace Graphics { namespace D3D11 {
         void _UpdateSampler() override { SAFE_RELEASE( m_pSampleState ); _CreateSampler( m_anisoLevel, m_filter, m_clampMode ); }
 
         //----------------------------------------------------------------------
-        void _CreateTexture();
+        void _CreateTexture(Mips mips);
         void _CreateShaderResourceView();
 
         //----------------------------------------------------------------------

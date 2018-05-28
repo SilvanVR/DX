@@ -301,6 +301,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\Include\Core\Assets\asset_manager.cpp" />
+    <ClCompile Include="src\Include\Core\Assets\environment_map.cpp" />
     <ClCompile Include="src\Include\Core\Assets\mesh_generator.cpp" />
     <ClCompile Include="src\Include\Core\Audio\audio_clip.cpp" />
     <ClCompile Include="src\Include\Core\Audio\audio_manager.cpp" />
@@ -353,6 +354,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Include\Core\Assets\asset_manager.h" />
+    <ClInclude Include="src\Include\Core\Assets\environment_map.h" />
     <ClInclude Include="src\Include\Core\Assets\material_parser.hpp" />
     <ClInclude Include="src\Include\Core\Assets\shader_parser.hpp" />
     <ClInclude Include="src\Include\Core\Audio\audio_clip.h" />

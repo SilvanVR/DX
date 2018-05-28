@@ -1,0 +1,5 @@
+{
+
+"shader" : "/shaders/pbr_diffuse_irradiance.shader"
+
+}

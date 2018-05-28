@@ -36,20 +36,17 @@ namespace Graphics {
         // <------------------------ GPU COMMANDS ----------------------------->
         const ArrayList<std::shared_ptr<GPUCommandBase>>& getGPUCommands() const { return m_gpuCommands; }
         ArrayList<std::shared_ptr<GPUCommandBase>>& getGPUCommands() { return m_gpuCommands; }
-        void drawMesh(MeshPtr mesh, MaterialPtr material, const DirectX::XMMATRIX& modelMatrix, I32 subMeshIndex);
+        void drawMesh(const MeshPtr& mesh, const MaterialPtr& material, const DirectX::XMMATRIX& modelMatrix, I32 subMeshIndex);
         void setCamera(Camera* camera);
-        void copyTexture(ITexture* srcTex, ITexture* dstTex);
-        void copyTexture(ITexture* srcTex, I32 srcElement, I32 srcMip, ITexture* dstTex, I32 dstElement, I32 dstMip);
+        void copyTexture(const TexturePtr& srcTex, const TexturePtr& dstTex);
+        void copyTexture(const TexturePtr& srcTex, I32 srcElement, I32 srcMip, const TexturePtr& dstTex, I32 dstElement, I32 dstMip);
         void drawLight(const Light* light);
+        void setRenderTarget(const RenderTexturePtr& target);
+        void drawFullscreenQuad(const MaterialPtr& material);
+        void renderCubemap(const CubemapPtr& cubemap, const MaterialPtr& material, I32 dstMip = 0);
 
     private:
         ArrayList<std::shared_ptr<GPUCommandBase>> m_gpuCommands;
-
-        //----------------------------------------------------------------------
-        CommandBuffer(const CommandBuffer& other)               = delete;
-        CommandBuffer& operator = (const CommandBuffer& other)  = delete;
-        CommandBuffer(CommandBuffer&& other)                    = delete;
-        CommandBuffer& operator = (CommandBuffer&& other)       = delete;
     };
 
 } // End namespaces

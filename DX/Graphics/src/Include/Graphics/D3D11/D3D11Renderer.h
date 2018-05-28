@@ -55,9 +55,13 @@ namespace Graphics {
         D3D11::Swapchain*   m_pSwapchain    = nullptr;
         bool                m_vsync         = false;
 
+        ArrayList<CommandBuffer> m_pendingCmdQueue;
+
         //----------------------------------------------------------------------
         inline void _SetCamera(Camera* camera);
         inline void _DrawMesh(IMesh* mesh, IMaterial* mat, const DirectX::XMMATRIX& model, U32 subMeshIndex);
+        inline void _CopyTexture(ITexture* srcTex, I32 srcElement, I32 srcMip, ITexture* dstTex, I32 dstElement, I32 dstMip);
+        inline void _RenderCubemap(ICubemap* cubemap, IMaterial* material, U32 dstMip);
 
         //----------------------------------------------------------------------
         void _InitD3D11();
@@ -71,6 +75,9 @@ namespace Graphics {
         void _FlushLightBuffer();
 
         void _CreateGlobalBuffer();
+
+        void _ExecuteCommandBuffer(const CommandBuffer& cmd);
+
 
         //----------------------------------------------------------------------
         // IRenderer Interface

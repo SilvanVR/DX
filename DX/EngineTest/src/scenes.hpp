@@ -142,16 +142,6 @@ public:
             mr = goModel3->addComponent<Components::MeshRenderer>(plane, RESOURCES.getColorMaterial());
         }
 
-        {
-            //auto cam2GO = createGameObject("Camera2");
-            //cam2GO->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, 10);
-            //cam2GO->getComponent<Components::Transform>()->lookAt(Math::Vec3(0));
-            //auto cam2 = cam2GO->addComponent<Components::Camera>();
-            //cam2->setClearMode(Components::Camera::EClearMode::NONE);
-            //cam2->getViewport().topLeftX = 0.5f;
-            //cam2->getViewport().width = 0.5f;
-        }
-
         LOG("VertexGenScene initialized!", Color::RED);
     }
 
@@ -196,16 +186,6 @@ public:
             go->getComponent<Components::Transform>()->position = Math::Random::Vec3(-1,1).normalized() * sqrtf((F32)m_numObjects);
         }
 
-        // GAMEOBJECTs
-        //for (U32 i = 0; i < sq; i++)
-        //{
-        //    for (U32 j = 0; j < sq; j++)
-        //    {
-        //        auto go = createGameObject("Test");
-        //        go->addComponent<Components::MeshRenderer>(cube);
-        //        go->getComponent<Components::Transform>()->position = Math::Vec3(i * 3.0f, 0, j * 3.0f);
-        //    }
-        //}
         LOG("ManyObjectsScene initialized!", Color::RED);
     }
 
@@ -743,4 +723,41 @@ public:
     }
 
     void shutdown() override { LOG("BlinnPhongLightingScene Shutdown!", Color::RED); }
+};
+
+
+class BRDFLUTScene : public IScene
+{
+public:
+    BRDFLUTScene() : IScene("BRDFLUTScene") {}
+
+    void init() override
+    {
+        // Camera
+        auto go = createGameObject("Camera");
+        auto cam = go->addComponent<Components::Camera>();
+        cam->setClearColor(Color::BLUE);
+        go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -10);
+        go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA);
+
+        auto brdfLut = RESOURCES.createRenderTexture();
+        brdfLut->create(512, 512, 0, Graphics::TextureFormat::RGHalf);
+        brdfLut->setAnisoLevel(1);
+        brdfLut->setFilter(Graphics::TextureFilter::Bilinear);
+        brdfLut->setClampMode(Graphics::TextureAddressMode::Clamp);
+
+        Graphics::CommandBuffer cmd;
+        cmd.setRenderTarget(brdfLut);
+        cmd.drawFullscreenQuad(ASSETS.getMaterial("/materials/pbr_brdfLut.material"));
+        Locator::getRenderer().dispatch(cmd);
+
+        auto planeMat = ASSETS.getMaterial("/materials/texture.material");
+        planeMat->setTexture("tex0", brdfLut);
+        auto plane = createGameObject("Plane");
+        plane->addComponent<Components::MeshRenderer>(Assets::MeshGenerator::CreatePlane(1), planeMat);
+
+        LOG("BRDFLUTScene initialized!", Color::RED);
+    }
+
+    void shutdown() override { LOG("BRDFLUTScene Shutdown!", Color::RED); }
 };
