@@ -45,11 +45,17 @@ public:
         pbrShader->setTexture("brdfLUT", brdfLut.getTexture());
         pbrShader->setFloat("maxReflectionLOD", F32(specular->getMipCount()-1));
 
-        auto mesh = ASSETS.getMesh("/models/teapot.obj");
+        //auto mesh = RESOURCES.createMesh();
+        auto mesh = ASSETS.getMesh("/models/lamp.obj");
 
         auto go2 = createGameObject("Obj");
-        go2->addComponent<Components::MeshRenderer>(mesh, ASSETS.getMaterial("/materials/pbr/gold.material"));
-        go2->getTransform()->position = { 0, 0, 0 };
+        auto mr = go2->addComponent<Components::MeshRenderer>(mesh, ASSETS.getMaterial("/materials/pbr/gold.material"));
+        for (U32 i = 0; i < mr->getMaterialCount(); i++)
+            mr->setMaterial(ASSETS.getMaterial("/materials/pbr/gold.material"), i);
+
+        //go2->getTransform()->position = { 0, -mesh->getBounds().getHeight() * 0.5f, 0 };
+        //go2->getTransform()->scale = { 0.1f };
+        go2->addComponent<VisualizeNormals>(0.3f, Color::WHITE);
 
         // LIGHTS
         auto sun = createGameObject("Sun");

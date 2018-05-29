@@ -52,6 +52,9 @@ namespace Assets {
             if ( not hasNormals )
                 LOG_WARN( TS( m ) + "th Submesh of mesh '" + path.toString() + "' has no Normals. All normals set to zero." );
 
+            // Save base vertex for this submesh
+            U32 baseVertex = (U32)vertices.size();
+
             // Fill vertices
             for (U32 j = 0; j < aMesh->mNumVertices; j++)
             {
@@ -81,7 +84,7 @@ namespace Assets {
                 indices.push_back( Face.mIndices[1] );
                 indices.push_back( Face.mIndices[2] );
             }
-            mesh->setIndices( indices, m );
+            mesh->setIndices( indices, m, Graphics::MeshTopology::Triangles, baseVertex );
         }
 
         // Load materials from the scene

@@ -34,6 +34,8 @@ namespace Math
         Math::Vec3& getMin() { return m_bounds[0]; }
         Math::Vec3& getMax() { return m_bounds[1]; }
 
+        F32 getHeight() const { return getMax().y - getMin().y; }
+
         std::array<Math::Vec3, 8> getCorners() const;
 
         const Math::Vec3&   operator[] (I32 index) const    { ASSERT( index < 2 ); return m_bounds[index]; }
