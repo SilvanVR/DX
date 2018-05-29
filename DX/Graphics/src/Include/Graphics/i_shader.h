@@ -113,16 +113,23 @@ namespace Graphics {
 
         //----------------------------------------------------------------------
         // @Return:
-        //  Information an uniform buffer with the given name. Nullptr if not existent.
-        //----------------------------------------------------------------------
-        //virtual const ShaderUniformBufferDeclaration* getUniformBuffer(StringID name) const = 0;
-
-        //----------------------------------------------------------------------
-        // @Return:
         //  Information about the corresponding uniform buffer which is used by a material.
         //----------------------------------------------------------------------
         virtual const ShaderUniformBufferDeclaration* getVSUniformMaterialBuffer() const = 0;
         virtual const ShaderUniformBufferDeclaration* getFSUniformMaterialBuffer() const = 0;
+
+        //----------------------------------------------------------------------
+        // @Return:
+        //  Information about the corresponding uniform buffer which is used by a shader.
+        //----------------------------------------------------------------------
+        virtual const ShaderUniformBufferDeclaration* getVSUniformShaderBuffer() const = 0;
+        virtual const ShaderUniformBufferDeclaration* getFSUniformShaderBuffer() const = 0;
+
+        //----------------------------------------------------------------------
+        // @Return:
+        //  The resource declaration with name 'name' across all shader stages. Nullptr if not existent.
+        //----------------------------------------------------------------------
+        virtual const ShaderResourceDeclaration* getShaderResource(StringID name) const = 0;
 
         //----------------------------------------------------------------------
         // @Return:
@@ -137,6 +144,19 @@ namespace Graphics {
         //  True if the property exists and is considered to be part of the material. (This does not include shader resources like textures)
         //----------------------------------------------------------------------
         bool hasMaterialProperty(StringID name){ return getDataTypeOfMaterialProperty(name) != DataType::Unknown; }
+
+        //----------------------------------------------------------------------
+        // @Return:
+        //  The datatype of a property with the given name. Issues a warning if the
+        //  name exists in more than one shader stage. (This does not include shader resources like textures)
+        //----------------------------------------------------------------------
+        DataType getDataTypeOfShaderProperty(StringID name);
+
+        //----------------------------------------------------------------------
+        // @Return:
+        //  True if the property exists and is considered to be part of the shader. (This does not include shader resources like textures)
+        //----------------------------------------------------------------------
+        bool hasShaderProperty(StringID name) { return getDataTypeOfShaderProperty(name) != DataType::Unknown; }
 
         //----------------------------------------------------------------------
         // @Return:
@@ -175,26 +195,56 @@ namespace Graphics {
         //**********************************************************************
         // Shader Buffer
         //**********************************************************************
+        //----------------------------------------------------------------------
+        I32                 getInt(StringID name)       const;
+        F32                 getFloat(StringID name)     const;
+        Math::Vec4          getVec4(StringID name)      const;
+        DirectX::XMMATRIX   getMatrix(StringID name)    const;
+        Color               getColor(StringID name)     const;
         TexturePtr          getTexture(StringID name)   const;
-        inline TexturePtr   getTexture(CString name)    const { return getTexture(SID(name)); }
-
-        void                setTexture(StringID name, const TexturePtr& tex);
-        inline void         setTexture(CString name, const TexturePtr& tex) { setTexture(SID(name), tex); }
 
         //----------------------------------------------------------------------
-        // @Return:
-        //  The resource declaration with name 'name' across all shader stages. Nullptr if not existent.
+        I32                 getInt(CString name)       const { return getInt(SID(name)); }
+        F32                 getFloat(CString name)     const { return getFloat(SID(name)); }
+        Math::Vec4          getVec4(CString name)      const { return getVec4(SID(name)); }
+        DirectX::XMMATRIX   getMatrix(CString name)    const { return getMatrix(SID(name)); }
+        Color               getColor(CString name)     const { return getColor(SID(name)); }
+        TexturePtr          getTexture(CString name)   const { return getTexture(SID(name)); }
+
         //----------------------------------------------------------------------
-        virtual const ShaderResourceDeclaration* getShaderResource(StringID name) const = 0;
+        void setInt(StringID name, I32 val);
+        void setFloat(StringID name, F32 val);
+        void setVec4(StringID name, const Math::Vec4& vec);
+        void setMatrix(StringID name, const DirectX::XMMATRIX& matrix);
+        void setColor(StringID name, Color color);
+        void setTexture(StringID name, const TexturePtr& tex);
+
+        inline void setInt(CString name, I32 val)                           { setInt(SID(name), val); }
+        inline void setFloat(CString name, F32 val)                         { setFloat(SID(name), val); }
+        inline void setVec4(CString name, const Math::Vec4& vec)            { setVec4(SID(name), vec); }
+        inline void setMatrix(CString name, const DirectX::XMMATRIX& matrix){ setMatrix(SID(name), matrix); }
+        inline void setColor(CString name, Color color)                     { setColor(SID(name), color); }
+        inline void setTexture(CString name, const TexturePtr& tex)         { setTexture(SID(name), tex); }
 
     protected:
         std::array<F32, 4>  m_blendFactors  = { 1.0f, 1.0f, 1.0f, 1.0f };   // These are only used when blending is enabled
         String              m_name          = "NO NAME";
         I32                 m_renderQueue   = (I32)RenderQueue::Geometry;
 
-        HashMap<StringID, TexturePtr> m_textureMap;
+        // Data maps
+        HashMap<StringID, I32>                  m_intMap;
+        HashMap<StringID, F32>                  m_floatMap;
+        HashMap<StringID, Math::Vec4>           m_vec4Map;
+        HashMap<StringID, DirectX::XMMATRIX>    m_matrixMap;
+        HashMap<StringID, TexturePtr>           m_textureMap;
 
+        // Bind all textures in the texture map
         void _BindTextures();
+
+        virtual void _SetInt(StringID name, I32 val) = 0;
+        virtual void _SetFloat(StringID name, F32 val) = 0;
+        virtual void _SetVec4(StringID name, const Math::Vec4& vec) = 0;
+        virtual void _SetMatrix(StringID name, const DirectX::XMMATRIX& matrix) = 0;
 
     private:
         //----------------------------------------------------------------------

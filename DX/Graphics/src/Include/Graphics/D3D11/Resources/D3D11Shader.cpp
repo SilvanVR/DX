@@ -25,17 +25,24 @@ namespace Graphics { namespace D3D11 {
         SAFE_RELEASE( m_pDepthStencilState );
         SAFE_RELEASE( m_pRSState );
         SAFE_RELEASE( m_pBlendState );
+        SAFE_DELETE( m_shaderDataVS );
+        SAFE_DELETE( m_shaderDataPS );
     }
 
     //----------------------------------------------------------------------
     void Shader::bind()
     {
+        // Bind shaders
         m_pVertexShader->bind();
         if (m_pPixelShader)
             m_pPixelShader->bind();
 
+        // Bind constant buffers and textures
+        if (m_shaderDataVS) m_shaderDataVS->bind( ShaderType::Vertex );
+        if (m_shaderDataPS) m_shaderDataPS->bind( ShaderType::Fragment );
         _BindTextures();
 
+        // Bind pipeline states
         g_pImmediateContext->OMSetDepthStencilState( m_pDepthStencilState, 0 );
         g_pImmediateContext->RSSetState( m_pRSState );
         g_pImmediateContext->OMSetBlendState( m_pBlendState ? m_pBlendState : NULL, m_blendFactors.data(), 0xffffffff );
@@ -57,6 +64,8 @@ namespace Graphics { namespace D3D11 {
         if ( not m_pPixelShader->compileFromFile( fragPath, entryPoint ) )
             success = false;
 
+        _CreateConstantBuffers();
+
         return success;
     }
 
@@ -68,6 +77,8 @@ namespace Graphics { namespace D3D11 {
             success = false;
         if ( not compileFragmentShaderFromSource( fragSrc, entryPoint ) )
             success = false;
+
+        _CreateConstantBuffers();
 
         return success;
     }
@@ -83,6 +94,7 @@ namespace Graphics { namespace D3D11 {
         }
 
         m_pVertexShader.reset( vertShader );
+        _CreateVSConstantBuffer();
         return true;
     }
 
@@ -97,6 +109,7 @@ namespace Graphics { namespace D3D11 {
         }
 
         m_pPixelShader.reset( pixelShader );
+        _CreatePSConstantBuffer();
         return true;
     }
 
@@ -114,6 +127,7 @@ namespace Graphics { namespace D3D11 {
                 if ( m_pPixelShader->recompile() )
                     shaderPaths.emplace_back( m_pPixelShader->getFilePath() );
 
+        _CreateConstantBuffers();
         return shaderPaths;
     }
 
@@ -158,6 +172,18 @@ namespace Graphics { namespace D3D11 {
     }
 
     //----------------------------------------------------------------------
+    const ShaderUniformBufferDeclaration* Shader::getVSUniformShaderBuffer() const
+    {
+        return m_pVertexShader->getShaderBufferDeclaration();
+    }
+
+    //----------------------------------------------------------------------
+    const ShaderUniformBufferDeclaration* Shader::getFSUniformShaderBuffer() const
+    {
+        return m_pPixelShader->getShaderBufferDeclaration();
+    }
+
+    //----------------------------------------------------------------------
     const ShaderResourceDeclaration* Shader::getShaderResource( StringID name ) const
     {
         auto decl1 = m_pVertexShader->getResourceDeclaration( name );
@@ -173,17 +199,6 @@ namespace Graphics { namespace D3D11 {
 
         // Not found
         return nullptr;
-    }
-
-    //**********************************************************************
-    // PRIVATE
-    //**********************************************************************
-
-    //----------------------------------------------------------------------
-    void Shader::_CreatePipeline()
-    {
-        setDepthStencilState({});
-        setRasterizationState({});
     }
 
     //----------------------------------------------------------------------
@@ -247,6 +262,50 @@ namespace Graphics { namespace D3D11 {
         }
 
         HR( g_pDevice->CreateBlendState( &blendDesc, &m_pBlendState ) );
+    }
+
+    //**********************************************************************
+    // PRIVATE
+    //**********************************************************************
+
+    //----------------------------------------------------------------------
+    void Shader::_CreatePipeline()
+    {
+        setDepthStencilState({});
+        setRasterizationState({});
+    }
+
+    //----------------------------------------------------------------------
+    void Shader::_CreateVSConstantBuffer()
+    {
+        SAFE_DELETE( m_shaderDataVS );
+        if ( auto cb = getVSUniformShaderBuffer() )
+            m_shaderDataVS = new MappedConstantBuffer( *cb, BufferUsage::LongLived );
+    }
+
+    //----------------------------------------------------------------------
+    void Shader::_CreatePSConstantBuffer()
+    {
+        SAFE_DELETE( m_shaderDataPS );
+        if ( auto cb = getFSUniformShaderBuffer() )
+            m_shaderDataPS = new MappedConstantBuffer( *cb, BufferUsage::LongLived );
+    }
+
+    //----------------------------------------------------------------------
+    void Shader::_CreateConstantBuffers()
+    {
+        _CreateVSConstantBuffer();
+        _CreatePSConstantBuffer();
+    }
+
+    //----------------------------------------------------------------------
+    void Shader::_UpdateConstantBuffer(StringID name, const void* pData)
+    {
+        // Because the super shader class issues if the uniform does not exist,
+        // i dont have to do it here. The update call on the corresponding mapped buffer
+        // will do nothing if the name does not exist.
+        if (m_shaderDataVS) m_shaderDataVS->update( name, pData );
+        if (m_shaderDataPS) m_shaderDataPS->update( name, pData );
     }
 
 } } // End namespaces

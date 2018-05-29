@@ -50,7 +50,6 @@ cbuffer cbPerMaterial
 	float metallic;
 	float roughness;
 	float ao;
-	float maxReflectionLOD;
 };
 
 struct FragmentIn  
@@ -67,6 +66,6 @@ struct FragmentIn
 float4 main(FragmentIn fin) : SV_Target
 {
 	//float4 textureColor = albedo.Sample(sampler0, fin.Tex);
-	float4 result = APPLY_LIGHTING( color, fin.WorldPos, fin.Normal, roughness, metallic, maxReflectionLOD );
+	float4 result = APPLY_LIGHTING( color, fin.WorldPos, fin.Normal, roughness, metallic );
 	return result; 
 }

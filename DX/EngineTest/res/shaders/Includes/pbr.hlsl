@@ -1,6 +1,11 @@
 
 #define DIELECTRIC_IOR 0.04
 
+cbuffer cbShader
+{ 
+	float maxReflectionLOD;
+};
+
 TextureCube<float4> diffuseIrradianceMap;
 SamplerState samplerDiffuseIrradianceMap; 
 
@@ -159,7 +164,7 @@ float3 DoSpotLight( Light light, float3 albedo, float3 V, float3 P, float3 N, fl
 //----------------------------------------------------------------------
 // IMAGE BASED LIGHTING
 //----------------------------------------------------------------------
-float3 getIBL( float3 albedo, float3 V, float3 P, float3 N, float roughness, float metallic, float maxReflectionLOD )
+float3 getIBL( float3 albedo, float3 V, float3 P, float3 N, float roughness, float metallic )
 {
 	float3 R = reflect( -V, N ); 
 		
@@ -192,7 +197,7 @@ float3 getIBL( float3 albedo, float3 V, float3 P, float3 N, float roughness, flo
 //  "roughness": The roughness of the fragment
 //  "metallic": Metallic of the fragment
 //----------------------------------------------------------------------
-float4 APPLY_LIGHTING( float4 fragColor, float3 P, float3 normal, float roughness, float metallic, float maxReflectionLOD )
+float4 APPLY_LIGHTING( float4 fragColor, float3 P, float3 normal, float roughness, float metallic )
 { 
 	float3 V = normalize( gCameraPos - P ).xyz;
 	float3 N = normalize( normal );
@@ -218,7 +223,7 @@ float4 APPLY_LIGHTING( float4 fragColor, float3 P, float3 normal, float roughnes
 	
 	float3 lighting = fragColor.rgb * Lo;	
 	
-	float3 ibl = getIBL( fragColor.rgb, V, P, N, roughness, metallic, maxReflectionLOD );
+	float3 ibl = getIBL( fragColor.rgb, V, P, N, roughness, metallic );
 	
 	float3 result = ibl + lighting;
 	

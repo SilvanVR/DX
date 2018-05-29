@@ -12,3 +12,4 @@
 #define SEMANTIC_NORMAL         "NORMAL"
 
 #define MATERIAL_NAME           "material"
+#define SHADER_NAME             "shader"

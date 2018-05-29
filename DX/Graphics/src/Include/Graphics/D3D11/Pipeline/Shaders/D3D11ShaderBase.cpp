@@ -42,6 +42,20 @@ namespace Graphics { namespace D3D11 {
     }
 
     //----------------------------------------------------------------------
+    const ShaderUniformBufferDeclaration* ShaderBase::getShaderBufferDeclaration() const
+    {
+        for ( auto& ubo : m_constantBuffers )
+        {
+            String lower = StringUtils::toLower( ubo.getName().toString() );
+            if ( lower.find( SHADER_NAME ) != String::npos )
+                return &ubo;
+        }
+
+        // This shader has no shader set
+        return nullptr;
+    }
+
+    //----------------------------------------------------------------------
     bool ShaderBase::isUpToDate() const 
     { 
         if ( m_filePath.empty() ) // Compiled shaders from source are always up to date

@@ -8,6 +8,7 @@
 
 #include "../../i_shader.h"
 #include "../D3D11.hpp"
+#include "D3D11/Pipeline/Buffers/D3D11MappedConstantBuffer.h"
 
 namespace Graphics { namespace D3D11 {
 
@@ -36,6 +37,13 @@ namespace Graphics { namespace D3D11 {
         const ShaderResourceDeclaration*        getShaderResource(StringID name) const override;
         const ShaderUniformBufferDeclaration*   getVSUniformMaterialBuffer() const override;
         const ShaderUniformBufferDeclaration*   getFSUniformMaterialBuffer() const override;
+        const ShaderUniformBufferDeclaration*   getVSUniformShaderBuffer() const override;
+        const ShaderUniformBufferDeclaration*   getFSUniformShaderBuffer() const override;
+
+        void _SetInt(StringID name, I32 val)                            override { _UpdateConstantBuffer(name, &val); }
+        void _SetFloat(StringID name, F32 val)                          override { _UpdateConstantBuffer(name, &val); }
+        void _SetVec4(StringID name, const Math::Vec4& vec)             override { _UpdateConstantBuffer(name, &vec); }
+        void _SetMatrix(StringID name, const DirectX::XMMATRIX& matrix) override { _UpdateConstantBuffer(name, &matrix); }
 
         void setRasterizationState(const RasterizationState& rzState) override;
         void setDepthStencilState(const DepthStencilState& dsState) override;
@@ -53,6 +61,10 @@ namespace Graphics { namespace D3D11 {
         ID3D11RasterizerState*          m_pRSState;
         ID3D11BlendState*               m_pBlendState;
 
+        // Contains the material data in a contiguous block of memory. Will be empty if not used for a shader.
+        MappedConstantBuffer* m_shaderDataVS = nullptr;
+        MappedConstantBuffer* m_shaderDataPS = nullptr;
+
         //----------------------------------------------------------------------
         // IShader Interface
         //----------------------------------------------------------------------
@@ -60,6 +72,10 @@ namespace Graphics { namespace D3D11 {
 
         //----------------------------------------------------------------------
         void _CreatePipeline();
+        void _CreateConstantBuffers();
+        void _UpdateConstantBuffer(StringID name, const void* pData);
+        void _CreateVSConstantBuffer();
+        void _CreatePSConstantBuffer();
 
         //----------------------------------------------------------------------
         Shader(const Shader& other)               = delete;

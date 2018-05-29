@@ -58,12 +58,13 @@ public:
         pbrShader->setTexture("diffuseIrradianceMap", envMap.getDiffuseIrradianceMap());
         pbrShader->setTexture("specularReflectionMap", envMap.getSpecularReflectionMap());
         pbrShader->setTexture("brdfLUT", brdfLut);
+        pbrShader->setFloat("maxReflectionLOD", (F32)specular->getMipCount() - 1);
+        pbrShader->setFloat("BLABLA", (F32)specular->getMipCount() - 1);
 
         auto mesh = Core::Assets::MeshGenerator::CreateUVSphere(20,20);
         mesh->recalculateNormals();
 
         auto mat = ASSETS.getMaterial("/materials/pbr.material");
-        mat->setFloat("maxReflectionLOD", (F32)specular->getMipCount()-1);
 
         auto go2 = createGameObject("Obj");
         go2->addComponent<Components::MeshRenderer>(mesh, mat);
@@ -92,7 +93,6 @@ public:
                 auto material = RESOURCES.createMaterial(pbrShader);
                 material->setColor("color", Color::WHITE);
                 material->setFloat("roughness", roughness);
-                material->setFloat("maxReflectionLOD", (F32)specular->getMipCount()-1);
                 F32 metallic = (F32)y;
                 material->setFloat("metallic", metallic);
 
