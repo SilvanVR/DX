@@ -266,8 +266,11 @@ namespace Core { namespace Resources {
         // MATERIALS
         {
             m_defaultMaterial   = createMaterial( m_defaultShader );
+            m_defaultMaterial->setName( "Default Material" );
             m_wireframeMaterial = createMaterial( m_wireframeShader );
+            m_wireframeMaterial->setName( "Wireframe Material" );
             m_colorMaterial = createMaterial( m_colorShader );
+            m_colorMaterial->setName( "Color Material" );
 
             Locator::getRenderer().addGlobalMaterial( "Wireframe", m_wireframeMaterial.get() );
         }
@@ -296,7 +299,7 @@ namespace Core { namespace Resources {
 
         // Mesh
         {
-            m_defaultMesh = MeshGenerator::CreatePlane();
+            m_defaultMesh = MeshGenerator::CreatePlane( 1.0f, Color::RED );
         }
     }
 

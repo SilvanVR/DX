@@ -10,6 +10,7 @@
 #include "Core/locator.h"
 #include "shader_parser.hpp"
 #include "material_parser.hpp"
+#include "assimp_loader.h"
 
 namespace Assets {
 
@@ -230,8 +231,7 @@ namespace Assets {
         LOG( "AssetManager: Loading Mesh '" + filePath.toString() + "'", LOG_COLOR );
         try 
         {
-            throw std::runtime_error("blaba");
-            MeshPtr mesh = nullptr;
+            MeshPtr mesh = AssimpLoader::LoadMesh( filePath );
 
             MeshAssetInfo materialInfo;
             materialInfo.mesh        = mesh;
@@ -381,19 +381,19 @@ namespace Assets {
             }
 
             // Mesh reloading
-            for ( auto it = m_meshCache.begin(); it != m_meshCache.end(); )
-            {
-                if ( it->second.mesh.expired() )
-                {
-                    // Material does no longer exist, so remove it from the cache map
-                    it = m_meshCache.erase( it );
-                }
-                else
-                {
-                    it->second.ReloadIfNotUpToDate();
-                    it++;
-                }
-            }
+            //for ( auto it = m_meshCache.begin(); it != m_meshCache.end(); )
+            //{
+            //    if ( it->second.mesh.expired() )
+            //    {
+            //        // Material does no longer exist, so remove it from the cache map
+            //        it = m_meshCache.erase( it );
+            //    }
+            //    else
+            //    {
+            //        it->second.ReloadIfNotUpToDate();
+            //        it++;
+            //    }
+            //}
 
         }, HOT_RELOAD_INTERVAL_MILLIS);
     }
@@ -497,28 +497,34 @@ namespace Assets {
     }
 
     //----------------------------------------------------------------------
-    void AssetManager::MeshAssetInfo::ReloadIfNotUpToDate()
-    {
-        if ( auto m = mesh.lock() )
-        {
-            try {
-                auto currentFileTime = path.getLastWrittenFileTime();
+    //void AssetManager::MeshAssetInfo::ReloadIfNotUpToDate()
+    //{
+    //    if ( auto m = mesh.lock() )
+    //    {
+    //        try {
+    //            auto currentFileTime = path.getLastWrittenFileTime();
 
-                if (timeAtLoad != currentFileTime)
-                {
-                    // Reload texture on a separate thread
-                    LOG( "Reloading mesh: " + path.toString(), LOG_COLOR );
-                    ASYNC_JOB([=] {
-                        ASSERT(false);
-                    });
+    //            if (timeAtLoad != currentFileTime)
+    //            {
+    //                // Reload mesh on a separate thread
+    //                LOG( "Reloading mesh: " + path.toString(), LOG_COLOR );
 
-                    timeAtLoad = currentFileTime;
-                }
-            }
-            catch (...) {
-                // Do nothing here. This means simply the file could not be opened, because another app has not yet closed the handle
-            }
-        }
-    }
+    //                ASYNC_JOB([=] {
+    //                    auto mesh = AssimpLoader::LoadMesh( path, m );
+    //                    try {
+    //                    }
+    //                    catch (const std::runtime_error& e) {
+    //                        LOG_WARN( String( "Failed to reload mesh. Reason: " ) + e.what() );
+    //                    }
+    //                });
+
+    //                timeAtLoad = currentFileTime;
+    //            }
+    //        }
+    //        catch (...) {
+    //            // Do nothing here. This means simply the file could not be opened, because another app has not yet closed the handle
+    //        }
+    //    }
+    //}
 
 } // End namespaces

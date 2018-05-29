@@ -27,7 +27,7 @@ public:
         go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -10);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA);
 
-        createGameObject("Grid")->addComponent<GridGeneration>(20);
+        //createGameObject("Grid")->addComponent<GridGeneration>(20);
 
         auto cubemap = ASSETS.getCubemap("/cubemaps/tropical_sunny_day/Left.png", "/cubemaps/tropical_sunny_day/Right.png",
             "/cubemaps/tropical_sunny_day/Up.png", "/cubemaps/tropical_sunny_day/Down.png",
@@ -45,23 +45,22 @@ public:
         pbrShader->setTexture("brdfLUT", brdfLut.getTexture());
         pbrShader->setFloat("maxReflectionLOD", F32(specular->getMipCount()-1));
 
-        auto mesh = ASSETS.getMesh("/models/monkey.obj");
-        //mesh->recalculateNormals();
+        auto mesh = ASSETS.getMesh("/models/teapot.obj");
 
         auto go2 = createGameObject("Obj");
         go2->addComponent<Components::MeshRenderer>(mesh, ASSETS.getMaterial("/materials/pbr/gold.material"));
-        go2->getTransform()->position = { 0, 1, 0 };
+        go2->getTransform()->position = { 0, 0, 0 };
 
         // LIGHTS
         auto sun = createGameObject("Sun");
         sun->addComponent<Components::DirectionalLight>(1.0f, Color::WHITE);
         sun->getTransform()->rotation = Math::Quat::LookRotation(Math::Vec3{ 0,-1, 1 });
 
-        auto pl = createGameObject("PointLight");
-        pl->addComponent<Components::PointLight>(10.0f, Color::WHITE);
-        pl->getTransform()->position = {4, 2, 0};
-        pl->addComponent<Components::Billboard>(ASSETS.getTexture2D("/textures/pointLight.png"), 0.3f);
-        pl->addComponent<AutoOrbiting>(20.0f);
+        //auto pl = createGameObject("PointLight");
+        //pl->addComponent<Components::PointLight>(10.0f, Color::WHITE, 20.0f);
+        //pl->getTransform()->position = {4, 2, 0};
+        //pl->addComponent<Components::Billboard>(ASSETS.getTexture2D("/textures/pointLight.png"), 0.3f);
+        //pl->addComponent<AutoOrbiting>(20.0f);
 
         LOG("TestScene initialized!", Color::RED);
     }
@@ -109,7 +108,7 @@ public:
         ASSETS.setHotReloading(true);
 
         Locator::getRenderer().setVSync(true);
-        Locator::getRenderer().setGlobalFloat(SID("gAmbient"), 1.0f);
+        Locator::getRenderer().setGlobalFloat(SID("gAmbient"), 0.5f);
 
         Locator::getSceneManager().LoadSceneAsync(new TestScene());
     }

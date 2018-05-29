@@ -22,15 +22,15 @@ namespace Components {
     {
     public:
         MeshRenderer() = default;
-        MeshRenderer(MeshPtr mesh, MaterialPtr material = nullptr);
+        MeshRenderer(const MeshPtr& mesh, const MaterialPtr& material = nullptr);
 
-        MeshPtr                                 getMesh()                   const   { return m_mesh; }
-        MaterialPtr                             getMaterial(U32 index = 0)  const   { return m_materials[index]; }
+        const MeshPtr&                          getMesh()                   const   { return m_mesh; }
+        const MaterialPtr&                      getMaterial(U32 index = 0)  const   { return m_materials[index]; }
         const ArrayList<MaterialPtr>&           getMaterials()              const   { return m_materials; }
         U32                                     getMaterialCount()          const   { return static_cast<U32>( m_materials.size() ); }
 
-        void setMesh(MeshPtr mesh);
-        void setMaterial(MaterialPtr m, U32 index = 0);
+        void setMesh(const MeshPtr& mesh);
+        void setMaterial(const MaterialPtr& m, U32 index = 0);
 
     private:
         MeshPtr                 m_mesh;

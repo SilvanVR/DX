@@ -798,7 +798,7 @@ public:
         pbrShader->setTexture("brdfLUT", brdfLut.getTexture());
         pbrShader->setFloat("maxReflectionLOD", F32(specular->getMipCount() - 1));
 
-        auto mesh = Core::MeshGenerator::CreateUVSphere(20, 20);
+        auto mesh = ASSETS.getMesh("/models/sphere.obj");
         mesh->recalculateNormals();
 
         auto mat = ASSETS.getMaterial("/materials/pbr.material");

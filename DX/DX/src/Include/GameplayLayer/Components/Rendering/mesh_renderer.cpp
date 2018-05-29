@@ -15,7 +15,7 @@
 namespace Components {
 
     //----------------------------------------------------------------------
-    MeshRenderer::MeshRenderer( MeshPtr mesh, MaterialPtr material )
+    MeshRenderer::MeshRenderer( const MeshPtr& mesh, const MaterialPtr& material )
     {
         setMesh( mesh );
         setMaterial( material, 0 );
@@ -26,7 +26,7 @@ namespace Components {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    void MeshRenderer::setMesh( MeshPtr mesh )
+    void MeshRenderer::setMesh( const MeshPtr& mesh )
     { 
         m_mesh = mesh;
         if (m_mesh != nullptr)
@@ -39,7 +39,7 @@ namespace Components {
     }
 
     //----------------------------------------------------------------------
-    void MeshRenderer::setMaterial( MaterialPtr m, U32 index )
+    void MeshRenderer::setMaterial( const MaterialPtr& m, U32 index )
     { 
         ASSERT( index < m_materials.size() && "MeshRenderer::setMaterial(): INVALID INDEX." );
         m_materials[index] = (m == nullptr ? RESOURCES.getDefaultMaterial() : m);

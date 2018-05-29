@@ -65,7 +65,7 @@ SamplerState sampler0;
 
 float4 main(FragmentIn fin) : SV_Target
 {
-	float4 textureColor = albedo.Sample(sampler0, fin.Tex);
+	float4 textureColor = TO_LINEAR( albedo.Sample(sampler0, fin.Tex) );
 	float4 result = APPLY_LIGHTING( textureColor * color, fin.WorldPos, fin.Normal, roughness, metallic );
 	return result; 
 }
