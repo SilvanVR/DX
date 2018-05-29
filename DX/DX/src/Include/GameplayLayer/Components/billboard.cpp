@@ -6,7 +6,7 @@
     date: May 23, 2018
 **********************************************************************/
 
-#include "Assets/mesh_generator.h"
+#include "Core/mesh_generator.h"
 #include "GameplayLayer/gameobject.h"
 #include "GameplayLayer/i_scene.h"
 #include "Rendering/mesh_renderer.h"
@@ -27,7 +27,7 @@ namespace Components {
         m_billboardMaterial->setTexture( "tex", m_billboardTexture );
 
         // Create billboard mesh
-        m_billboardMesh = Assets::MeshGenerator::CreatePlane( m_scale * m_billboardTexture->getAspectRatio(), m_scale );
+        m_billboardMesh = Core::MeshGenerator::CreatePlane( m_scale * m_billboardTexture->getAspectRatio(), m_scale );
 
         // Create gameobject which renders the billboard
         auto mr = m_billboardGO->addComponent<Components::MeshRenderer>();

@@ -153,7 +153,7 @@ public:
         auto shader = ASSETS.getShader("/shaders/previewBlock.shader");
 
         previewBlockMaterial = RESOURCES.createMaterial(shader);
-        previewBlock->addComponent<Components::MeshRenderer>(Core::Assets::MeshGenerator::CreateCubeUV(), previewBlockMaterial);
+        previewBlock->addComponent<Components::MeshRenderer>(Core::MeshGenerator::CreateCubeUV(), previewBlockMaterial);
 
         // Adjust transform
         auto transform = previewBlock->getTransform();
@@ -455,7 +455,7 @@ public:
         mat->setFloat("opacity", 0.8f);
 
         auto water = go->getScene()->createGameObject();
-        water->addComponent<Components::MeshRenderer>(Core::Assets::MeshGenerator::CreatePlane(1000.0f), mat);
+        water->addComponent<Components::MeshRenderer>(Core::MeshGenerator::CreatePlane(1000.0f), mat);
         transform = water->getTransform();
         transform->rotation *= Math::Quat(Math::Vec3::RIGHT, 90);
     }

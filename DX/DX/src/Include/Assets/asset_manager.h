@@ -18,6 +18,7 @@
 #include "Core/Audio/audio_clip.h"
 #include "Graphics/i_shader.h"
 #include "Graphics/i_material.h"
+#include "Graphics/i_mesh.h"
 
 namespace Assets {
 
@@ -28,7 +29,8 @@ namespace Assets {
         using WeakCubemapPtr    = std::weak_ptr<Graphics::Cubemap>;
         using WeakWavClipPtr    = std::weak_ptr<Core::Audio::WAVClip>;
         using WeakShaderPtr     = std::weak_ptr<Graphics::Shader>;
-        using WeakMaterialPtr   = std::weak_ptr<Graphics::IMaterial>;
+        using WeakMaterialPtr   = std::weak_ptr<Graphics::Material>;
+        using WeakMeshPtr       = std::weak_ptr<Graphics::Mesh>;
 
     public:
         AssetManager() = default;
@@ -83,6 +85,13 @@ namespace Assets {
         MaterialPtr getMaterial(const OS::Path& path);
 
         //----------------------------------------------------------------------
+        // Creates a new mesh object. Will be loaded only if not already in memory.
+        // @Params:
+        //  "path": Path to the mesh file.
+        //----------------------------------------------------------------------
+        MeshPtr getMesh(const OS::Path& path);
+
+        //----------------------------------------------------------------------
         // Enable/Disable hot reloading. The asset manager will periodically check
         // all loaded resource files and reload them if they are outdated. (Note that not all resource types are supported)
         //----------------------------------------------------------------------
@@ -130,12 +139,19 @@ namespace Assets {
             void ReloadIfNotUpToDate();
         };
 
+        struct MeshAssetInfo : public FileInfo
+        {
+            WeakMeshPtr mesh;
+            void ReloadIfNotUpToDate();
+        };
+
         // Lists of all loaded resources. Stores weak-ptrs, which means that the resource might be already unloaded.
         HashMap<StringID, TextureAssetInfo>     m_textureCache;
         HashMap<StringID, CubemapAssetInfo>     m_cubemapCache;
         HashMap<StringID, AudioClipAssetInfo>   m_audioCache;
         HashMap<StringID, ShaderAssetInfo>      m_shaderCache;
         HashMap<StringID, MaterialAssetInfo>    m_materialCache;
+        HashMap<StringID, MeshAssetInfo>        m_meshCache;
 
         //----------------------------------------------------------------------
         inline Texture2DPtr _LoadTexture2D(const OS::Path& filePath, bool generateMips);

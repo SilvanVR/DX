@@ -191,7 +191,7 @@ namespace Assets {
                 return MaterialPtr( weakPtr );
         }
 
-        // Try loading shader
+        // Try loading material
         LOG( "AssetManager: Loading Material '" + filePath.toString() + "'", LOG_COLOR );
         try 
         {
@@ -211,6 +211,42 @@ namespace Assets {
             LOG_WARN( "AssetManager::getMaterial(): Material '" + filePath.toString() + "' could not be loaded. Reason: " 
                       + e.what() +  " Returning the default material instead." );
             return RESOURCES.getDefaultMaterial();
+        }
+    }
+
+    //----------------------------------------------------------------------
+    MeshPtr AssetManager::getMesh( const OS::Path& filePath )
+    {
+        // Check if mesh was already loaded
+        StringID pathAsID = SID( StringUtils::toLower( filePath.toString() ).c_str() );
+        if ( m_meshCache.find( pathAsID ) != m_meshCache.end() )
+        {
+            auto weakPtr = m_meshCache[pathAsID].mesh;
+            if ( not weakPtr.expired() )
+                return MeshPtr( weakPtr );
+        }
+
+        // Try loading mesh
+        LOG( "AssetManager: Loading Mesh '" + filePath.toString() + "'", LOG_COLOR );
+        try 
+        {
+            throw std::runtime_error("blaba");
+            MeshPtr mesh = nullptr;
+
+            MeshAssetInfo materialInfo;
+            materialInfo.mesh        = mesh;
+            materialInfo.path        = filePath;
+            materialInfo.timeAtLoad  = filePath.getLastWrittenFileTime();
+
+            m_meshCache[pathAsID] = materialInfo;
+
+            return mesh;
+        }
+        catch ( const std::runtime_error& e )
+        {
+            LOG_WARN( "AssetManager::getMesh(): Mesh '" + filePath.toString() + "' could not be loaded. Reason: " 
+                      + e.what() +  " Returning the default mesh instead." );
+            return RESOURCES.getDefaultMesh();
         }
     }
 
@@ -344,6 +380,21 @@ namespace Assets {
                 }
             }
 
+            // Mesh reloading
+            for ( auto it = m_meshCache.begin(); it != m_meshCache.end(); )
+            {
+                if ( it->second.mesh.expired() )
+                {
+                    // Material does no longer exist, so remove it from the cache map
+                    it = m_meshCache.erase( it );
+                }
+                else
+                {
+                    it->second.ReloadIfNotUpToDate();
+                    it++;
+                }
+            }
+
         }, HOT_RELOAD_INTERVAL_MILLIS);
     }
 
@@ -434,6 +485,31 @@ namespace Assets {
                         catch (const std::runtime_error& e) {
                             LOG_WARN( String( "Failed to reload material. Reason: " ) + e.what() );
                         }
+                    });
+
+                    timeAtLoad = currentFileTime;
+                }
+            }
+            catch (...) {
+                // Do nothing here. This means simply the file could not be opened, because another app has not yet closed the handle
+            }
+        }
+    }
+
+    //----------------------------------------------------------------------
+    void AssetManager::MeshAssetInfo::ReloadIfNotUpToDate()
+    {
+        if ( auto m = mesh.lock() )
+        {
+            try {
+                auto currentFileTime = path.getLastWrittenFileTime();
+
+                if (timeAtLoad != currentFileTime)
+                {
+                    // Reload texture on a separate thread
+                    LOG( "Reloading mesh: " + path.toString(), LOG_COLOR );
+                    ASYNC_JOB([=] {
+                        ASSERT(false);
                     });
 
                     timeAtLoad = currentFileTime;

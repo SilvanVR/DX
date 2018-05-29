@@ -138,10 +138,10 @@
     <ClCompile Include="src\Include\Assets\environment_map.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Include\Assets\mesh_generator.cpp">
+    <ClCompile Include="src\Include\Assets\asset_manager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Include\Assets\asset_manager.cpp">
+    <ClCompile Include="src\Include\Core\mesh_generator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -302,13 +302,13 @@
     <ClInclude Include="src\Include\Assets\material_parser.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Include\Assets\mesh_generator.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\Include\Assets\shader_parser.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Include\Assets\asset_manager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Include\Core\mesh_generator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

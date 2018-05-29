@@ -14,7 +14,7 @@
 #include "Events/event_dispatcher.h"
 #include "Core/event_names.hpp"
 #include "GameplayLayer/i_scene.h"
-#include "Assets/mesh_generator.h"
+#include "Core/mesh_generator.h"
 #include "Graphics/default_shaders.hpp"
 
 namespace Core { namespace Debug {
@@ -148,7 +148,7 @@ namespace Core { namespace Debug {
     //----------------------------------------------------------------------
     void DebugManager::drawSphere( const Math::Vec3& pos, F32 radius, Color color, Time::Seconds duration, bool depthTest )
     {
-        auto mesh = Assets::MeshGenerator::CreateUVSphere( pos, radius, 30, 30 );       
+        auto mesh = Core::MeshGenerator::CreateUVSphere( pos, radius, 30, 30 );       
         mesh->setColors(  ArrayList<Color>( mesh->getIndexCount( 0 ), color ) );
 
         _AddMesh( mesh, duration, depthTest );
@@ -158,8 +158,8 @@ namespace Core { namespace Debug {
     void DebugManager::drawFrustum( const Math::Vec3& pos, const Math::Vec3& up, const Math::Vec3& right, const Math::Vec3& forward, 
                                     F32 fovAngleYDeg, F32 zNear, F32 zFar, F32 aspectRatio,
                                     Color color, Time::Seconds duration, bool depthTest )
-    {        
-        auto mesh = Assets::MeshGenerator::CreateFrustum( pos, up, right, forward, fovAngleYDeg, zNear, zFar, aspectRatio, color );
+    {
+        auto mesh = Core::MeshGenerator::CreateFrustum( pos, up, right, forward, fovAngleYDeg, zNear, zFar, aspectRatio, color );
         _AddMesh( mesh, duration, depthTest );
     }
 

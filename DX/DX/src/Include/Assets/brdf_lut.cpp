@@ -10,11 +10,6 @@
 
 namespace Assets {
 
-    #define SHADER_NAME_ENV_MAP         "environmentMap"
-    #define SHADER_NAME_SPEC_SAMPLES    "numSamples"
-    #define SHADER_NAME_RESOLUTION      "resolution"
-    #define SHADER_NAME_ROUGHNESS       "roughness"
-
     //----------------------------------------------------------------------
     BRDFLut::BRDFLut()
     {

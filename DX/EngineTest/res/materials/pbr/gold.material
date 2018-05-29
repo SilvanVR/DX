@@ -1,0 +1,11 @@
+{
+
+"shader" : "/shaders/pbr.shader",
+"albedo" : "/textures/nico.jpg",
+"metallic": 0,
+"roughness": 1,
+"metallic2" : "/textures/pbr/gold/metallic.png",
+"roughness2" : "/textures/pbr/gold/roughness.png",
+"color": "#FFFFFF"
+
+}

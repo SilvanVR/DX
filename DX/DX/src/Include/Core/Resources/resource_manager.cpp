@@ -12,6 +12,7 @@
 
 #include "Core/locator.h"
 #include "Graphics/default_shaders.hpp"
+#include "Core/mesh_generator.h"
 
 #define PRINT_DELETES 0
 
@@ -291,6 +292,11 @@ namespace Core { namespace Resources {
             for (int i = 0; i < 6; i++)
                 m_defaultCubemap->setPixels( (Graphics::CubemapFace)i, ArrayList<Color>( size*size, colorsPerFace[i] ).data() );
             m_defaultCubemap->apply();
+        }
+
+        // Mesh
+        {
+            m_defaultMesh = MeshGenerator::CreatePlane();
         }
     }
 

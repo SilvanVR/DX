@@ -7,7 +7,6 @@
 **********************************************************************/
 
 #include "Core/locator.h"
-#include "Assets/mesh_generator.h"
 
 namespace Assets {
 

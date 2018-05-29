@@ -8,7 +8,7 @@
 
 #include "Graphics/i_mesh.h"
 
-namespace Assets { 
+namespace Core { 
 
     //*********************************************************************
     class MeshGenerator

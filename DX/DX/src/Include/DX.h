@@ -16,6 +16,6 @@
 #include "Math/math_utils.h"
 #include "Math/random.h"
 #include "Core/layer_defines.hpp"
-#include "Assets/mesh_generator.h"
+#include "Core/mesh_generator.h"
 #include "Assets/environment_map.h"
 #include "Assets/brdf_lut.h"

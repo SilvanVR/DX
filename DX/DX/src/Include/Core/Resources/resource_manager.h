@@ -127,16 +127,15 @@ namespace Core { namespace Resources {
         const ArrayList<Graphics::Texture*>&    getTextures() const { return m_textures; }
         const ArrayList<Audio::AudioClip*>&     getAudioClips() const { return m_audioClips; }
 
-        const MaterialPtr&      getDefaultMaterial() const { return m_defaultMaterial; }
-        const ShaderPtr&        getDefaultShader()   const { return m_defaultShader; }
-        const ShaderPtr&        getColorShader() const { return m_colorShader; }
-        const ShaderPtr&        getErrorShader() const { return m_errorShader; }
-        const MaterialPtr&      getColorMaterial() const { return m_colorMaterial; }
-
-        const Texture2DPtr&     getBlackTexture() const { return m_black; }
-        const Texture2DPtr&     getWhiteTexture() const { return m_white; }
-
-        const CubemapPtr&       getDefaultCubemap() const { return m_defaultCubemap; }
+        const MaterialPtr&      getDefaultMaterial()    const { return m_defaultMaterial; }
+        const ShaderPtr&        getDefaultShader()      const { return m_defaultShader; }
+        const ShaderPtr&        getColorShader()        const { return m_colorShader; }
+        const ShaderPtr&        getErrorShader()        const { return m_errorShader; }
+        const MaterialPtr&      getColorMaterial()      const { return m_colorMaterial; }
+        const Texture2DPtr&     getBlackTexture()       const { return m_black; }
+        const Texture2DPtr&     getWhiteTexture()       const { return m_white; }
+        const CubemapPtr&       getDefaultCubemap()     const { return m_defaultCubemap; }
+        const MeshPtr&          getDefaultMesh()        const { return m_defaultMesh; }
 
     private:
         ArrayList<Graphics::Mesh*>      m_meshes;
@@ -158,6 +157,8 @@ namespace Core { namespace Resources {
         Texture2DPtr    m_white;
 
         CubemapPtr      m_defaultCubemap;
+
+        MeshPtr         m_defaultMesh;
 
         //----------------------------------------------------------------------
         void _CreateDefaultAssets();

@@ -51,7 +51,7 @@ class WorldGeneration : public Components::IComponent
 public:
     void addedToGameObject(GameObject* go) override
     {
-        mesh = Assets::MeshGenerator::CreatePlane();
+        mesh = Core::MeshGenerator::CreatePlane();
         mesh->setColors(planeColors);
         mesh->setBufferUsage(Graphics::BufferUsage::Frequently);
 
@@ -123,7 +123,7 @@ public:
 private:
     void generateMesh()
     {
-        mesh = Assets::MeshGenerator::CreatePlane(width, height);
+        mesh = Core::MeshGenerator::CreatePlane(width, height);
         mesh->setBufferUsage(Graphics::BufferUsage::Frequently);
 
         ArrayList<Color> m_colors;
@@ -142,7 +142,7 @@ public:
 
     void addedToGameObject(GameObject* go) override
     {
-        auto mesh = Assets::MeshGenerator::CreateGrid(m_size);
+        auto mesh = Core::MeshGenerator::CreateGrid(m_size);
         go->addComponent<Components::MeshRenderer>(mesh, RESOURCES.getColorMaterial());
     }
 
@@ -183,8 +183,8 @@ public:
     void addedToGameObject(GameObject* go) override
     {
         auto cam = go->getComponent<Components::Camera>();
-        auto mesh = Assets::MeshGenerator::CreateFrustum( Math::Vec3(0), Math::Vec3::UP, Math::Vec3::RIGHT, Math::Vec3::FORWARD, 
-                                                          cam->getFOV(), cam->getZNear(), cam->getZFar(), cam->getAspectRatio(), Color::GREEN );
+        auto mesh = Core::MeshGenerator::CreateFrustum( Math::Vec3(0), Math::Vec3::UP, Math::Vec3::RIGHT, Math::Vec3::FORWARD,
+                                                        cam->getFOV(), cam->getZNear(), cam->getZFar(), cam->getAspectRatio(), Color::GREEN );
 
         auto mr = go->addComponent<Components::MeshRenderer>(mesh, RESOURCES.getColorMaterial());
     }

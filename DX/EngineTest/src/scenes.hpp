@@ -22,7 +22,7 @@ public:
         F32 size = 5.0f;
         cam->setOrthoParams(-size, size, -size, size, 0.1f, 100.0f);
 
-        auto sphere = Assets::MeshGenerator::CreateUVSphere(30,30);
+        auto sphere = Core::MeshGenerator::CreateUVSphere(30,30);
         ArrayList<Color> sphereColors;
         for (U32 i = 0; i < sphere->getVertexCount(); i++)
             sphereColors.push_back(Math::Random::Color());
@@ -114,13 +114,13 @@ public:
         auto wavesGO = createGameObject("Waves");
         wavesGO->addComponent<VertexGeneration>();
 
-        auto cube = Assets::MeshGenerator::CreateCube(1.0f);
+        auto cube = Core::MeshGenerator::CreateCube(1.0f);
         cube->setColors(cubeColors);
 
-        auto plane = Assets::MeshGenerator::CreatePlane();
+        auto plane = Core::MeshGenerator::CreatePlane();
         plane->setColors(planeColors);
 
-        auto sphere = Assets::MeshGenerator::CreateUVSphere(10,10);
+        auto sphere = Core::MeshGenerator::CreateUVSphere(10,10);
         ArrayList<Color> sphereColors;
         for(U32 i = 0; i < sphere->getVertexCount(); i++)
             sphereColors.push_back(Math::Random::Color());
@@ -174,7 +174,7 @@ public:
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA);
 
         // MESH
-        auto cube = Assets::MeshGenerator::CreateCube(1.0f);
+        auto cube = Core::MeshGenerator::CreateCube(1.0f);
         cube->setColors(cubeColors);
 
         U32 sq = (U32)sqrt(m_numObjects);
@@ -231,10 +231,10 @@ public:
         grid->addComponent<GridGeneration>(20);
 
         // MESH
-        auto cube = Assets::MeshGenerator::CreateCubeUV();
+        auto cube = Core::MeshGenerator::CreateCubeUV();
         cube->setColors(cubeColors);
 
-        auto plane = Assets::MeshGenerator::CreatePlane();
+        auto plane = Core::MeshGenerator::CreatePlane();
         plane->setColors(planeColors);
 
         // SHADER
@@ -323,7 +323,7 @@ public:
         grid->addComponent<GridGeneration>(20);
 
         // MESH
-        auto sphere = Assets::MeshGenerator::CreateCubeUV(1000.0f);
+        auto sphere = Core::MeshGenerator::CreateCubeUV(1000.0f);
 
         // SHADER
         auto texShader = ASSETS.getShader( "/shaders/skybox.shader" );
@@ -363,7 +363,7 @@ public:
         createGameObject("Grid")->addComponent<GridGeneration>(20);
 
         // MESH
-        auto plane = Assets::MeshGenerator::CreatePlane();
+        auto plane = Core::MeshGenerator::CreatePlane();
 
         // SHADER
         auto texShader = ASSETS.getShader( "/shaders/textureArray.shader" );
@@ -455,7 +455,7 @@ public:
         material->setColor(SID("tintColor"), Color::WHITE);
 
         // MESH
-        auto mesh = Assets::MeshGenerator::CreateCubeUV();
+        auto mesh = Core::MeshGenerator::CreateCubeUV();
         mesh->setColors(cubeColors);
 
         // GAMEOBJECT
@@ -513,7 +513,7 @@ public:
         material2->setColor(SID("tintColor"), Color::WHITE);
 
         // MESH
-        auto mesh = Assets::MeshGenerator::CreateCubeUV();
+        auto mesh = Core::MeshGenerator::CreateCubeUV();
         mesh->setColors(cubeColors);
 
         // GAMEOBJECT
@@ -576,7 +576,7 @@ public:
 
         createGameObject("Grid")->addComponent<GridGeneration>(20);
 
-        auto mesh = Assets::MeshGenerator::CreateCube(1);
+        auto mesh = Core::MeshGenerator::CreateCube(1);
         mesh->setColors(cubeColors);
 
         auto go2 = createGameObject("Obj");
@@ -604,7 +604,7 @@ public:
 
         createGameObject("Grid")->addComponent<GridGeneration>(20);
 
-        auto plane = Assets::MeshGenerator::CreatePlane();
+        auto plane = Core::MeshGenerator::CreatePlane();
         auto mat = ASSETS.getMaterial("/materials/transparent.material");
 
         auto go2 = createGameObject("Obj");
@@ -643,7 +643,7 @@ public:
 
         createGameObject("Grid")->addComponent<GridGeneration>(20);
 
-        auto mesh = Assets::MeshGenerator::CreatePlane(1.0f);
+        auto mesh = Core::MeshGenerator::CreatePlane(1.0f);
 
         auto mat = ASSETS.getMaterial("/materials/phong.material");
         auto go2 = createGameObject("Obj");
@@ -754,10 +754,142 @@ public:
         auto planeMat = ASSETS.getMaterial("/materials/texture.material");
         planeMat->setTexture("tex0", brdfLut);
         auto plane = createGameObject("Plane");
-        plane->addComponent<Components::MeshRenderer>(Assets::MeshGenerator::CreatePlane(1), planeMat);
+        plane->addComponent<Components::MeshRenderer>(Core::MeshGenerator::CreatePlane(1), planeMat);
 
         LOG("BRDFLUTScene initialized!", Color::RED);
     }
 
     void shutdown() override { LOG("BRDFLUTScene Shutdown!", Color::RED); }
+};
+
+
+class ScenePBRSpheres : public IScene
+{
+    Components::SpotLight* spot;
+    MaterialPtr skyboxMat;
+
+public:
+    ScenePBRSpheres() : IScene("PBRSpheres") {}
+
+    void init() override
+    {
+        // Camera
+        auto go = createGameObject("Camera");
+        auto cam = go->addComponent<Components::Camera>();
+        go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -10);
+        go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA);
+
+        spot = go->addComponent<Components::SpotLight>(2.0f, Color::RED, 25.0f);
+
+        createGameObject("Grid")->addComponent<GridGeneration>(20);
+
+        auto cubemap = ASSETS.getCubemap("/cubemaps/tropical_sunny_day/Left.png", "/cubemaps/tropical_sunny_day/Right.png",
+            "/cubemaps/tropical_sunny_day/Up.png", "/cubemaps/tropical_sunny_day/Down.png",
+            "/cubemaps/tropical_sunny_day/Front.png", "/cubemaps/tropical_sunny_day/Back.png", true);
+
+        auto pbrShader = ASSETS.getShader("/shaders/pbr.shader");
+
+        Assets::BRDFLut brdfLut;
+        Assets::EnvironmentMap envMap(cubemap, 256, 1024);
+        auto diffuse = envMap.getDiffuseIrradianceMap();
+        auto specular = envMap.getSpecularReflectionMap();
+        pbrShader->setTexture("diffuseIrradianceMap", diffuse);
+        pbrShader->setTexture("specularReflectionMap", specular);
+        pbrShader->setTexture("brdfLUT", brdfLut.getTexture());
+        pbrShader->setFloat("maxReflectionLOD", F32(specular->getMipCount() - 1));
+
+        auto mesh = Core::MeshGenerator::CreateUVSphere(20, 20);
+        mesh->recalculateNormals();
+
+        auto mat = ASSETS.getMaterial("/materials/pbr.material");
+
+        auto go2 = createGameObject("Obj");
+        go2->addComponent<Components::MeshRenderer>(mesh, mat);
+        //go2->addComponent<VisualizeNormals>(0.1f, Color::WHITE);
+        go2->getTransform()->rotation *= Math::Quat(Math::Vec3::RIGHT, 90);
+        go2->getTransform()->scale = { 1.0f };
+        go2->getTransform()->position = { 0, 0, -3 };
+        //go2->addComponent<Components::Skybox>(specular);
+
+        skyboxMat = ASSETS.getMaterial("/materials/skyboxLOD.material");
+        skyboxMat->setTexture("Cubemap", specular);
+        auto skybox = createGameObject("Skybox");
+        skybox->getTransform()->scale = { 1000.0f };
+        skybox->addComponent<Components::MeshRenderer>(mesh, skyboxMat);
+
+        I32 num = 6;
+        F32 distance = 3.0f;
+        for (I32 x = 0; x < num; x++)
+        {
+            F32 roughness = x / (F32)(num - 1);
+
+            for (I32 y = 0; y < 2; y++)
+            {
+                auto gameobject = createGameObject("Obj");
+
+                auto material = RESOURCES.createMaterial(pbrShader);
+                material->setColor("color", Color::WHITE);
+                material->setFloat("roughness", roughness);
+                F32 metallic = (F32)y;
+                material->setFloat("metallic", metallic);
+
+                gameobject->addComponent<Components::MeshRenderer>(mesh, material);
+                gameobject->getTransform()->position = Math::Vec3(x * distance - (num / 2 * distance), y * distance + 0.01f, 0.0f);
+            }
+        }
+
+        auto sun = createGameObject("Sun");
+        sun->addComponent<Components::DirectionalLight>(1.0f, Color::WHITE);
+        sun->getTransform()->rotation = Math::Quat::LookRotation(Math::Vec3{ 0,-1, 1 });
+
+        auto pl = createGameObject("PointLight");
+        pl->addComponent<Components::PointLight>(10.0f, Color::GREEN);
+        pl->getTransform()->position = { 4, 2, 0 };
+        pl->addComponent<Components::Billboard>(ASSETS.getTexture2D("/textures/pointLight.png"), 0.3f);
+        pl->addComponent<AutoOrbiting>(20.0f);
+
+        F32 intensity = 2.0f;
+        auto pl2 = createGameObject("PointLight");
+        pl2->addComponent<Components::PointLight>(intensity, Color::WHITE);
+        pl2->getTransform()->position = { -5, 3, -3 };
+        pl2->addComponent<Components::Billboard>(ASSETS.getTexture2D("/textures/pointLight.png"), 0.3f);
+
+        auto pl3 = createGameObject("PointLight");
+        pl3->addComponent<Components::PointLight>(intensity, Color::WHITE);
+        pl3->getTransform()->position = { 5, 3, -3 };
+        pl3->addComponent<Components::Billboard>(ASSETS.getTexture2D("/textures/pointLight.png"), 0.3f);
+
+        auto pl4 = createGameObject("PointLight");
+        pl4->addComponent<Components::PointLight>(intensity, Color::WHITE);
+        pl4->getTransform()->position = { -5, -3, -3 };
+        pl4->addComponent<Components::Billboard>(ASSETS.getTexture2D("/textures/pointLight.png"), 0.3f);
+
+        auto pl5 = createGameObject("PointLight");
+        pl5->addComponent<Components::PointLight>(intensity, Color::WHITE);
+        pl5->getTransform()->position = { 5, -3, -3 };
+        pl5->addComponent<Components::Billboard>(ASSETS.getTexture2D("/textures/pointLight.png"), 0.3f);
+
+        LOG("PBRSpheres initialized!", Color::RED);
+    }
+
+    void tick(Time::Seconds d) override
+    {
+        if (KEYBOARD.wasKeyPressed(Key::F))
+            spot->setActive(!spot->isActive());
+
+        if (KEYBOARD.isKeyDown(Key::Up))
+        {
+            skyboxMat->setFloat("lod", skyboxMat->getFloat("lod") + 2.0f * (F32)d);
+            LOG(TS(skyboxMat->getFloat("lod")));
+        }
+
+        if (KEYBOARD.isKeyDown(Key::Down))
+        {
+            skyboxMat->setFloat("lod", skyboxMat->getFloat("lod") - 2.0f * (F32)d);
+            LOG(TS(skyboxMat->getFloat("lod")));
+        }
+
+    }
+
+    void shutdown() override { LOG("PBRSpheres Shutdown!", Color::RED); }
 };
