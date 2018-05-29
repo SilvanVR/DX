@@ -7,10 +7,14 @@
 **********************************************************************/
 
 #include "Logging/logging.h"
+#include "command_buffer.h"
+#include <mutex>
 
 namespace Graphics {
 
     OS::Window* IRenderer::s_window = nullptr;
+
+    static std::mutex s_renderQueueMutex;
 
     //----------------------------------------------------------------------
     IRenderer::IRenderer( OS::Window* window )
@@ -23,6 +27,14 @@ namespace Graphics {
     //----------------------------------------------------------------------
     // PUBLIC
     //----------------------------------------------------------------------
+
+    //----------------------------------------------------------------------
+    void IRenderer::dispatch( const CommandBuffer& cmd )
+    {
+        _LockQueue();
+        m_pendingCmdQueue.emplace_back( cmd );
+        _UnlockQueue();
+    }
 
     //----------------------------------------------------------------------
     void IRenderer::addGlobalMaterial( CString name, IMaterial* material )
@@ -41,6 +53,22 @@ namespace Graphics {
         }
 
         m_activeGlobalMaterial = m_globalMaterials[id];
+    }
+
+    //----------------------------------------------------------------------
+    // PROTECTED
+    //----------------------------------------------------------------------
+
+    //----------------------------------------------------------------------
+    void IRenderer::_LockQueue()
+    {
+        s_renderQueueMutex.lock();
+    }
+
+    //----------------------------------------------------------------------
+    void IRenderer::_UnlockQueue()
+    {
+        s_renderQueueMutex.unlock();
     }
 
 } // End namespaces

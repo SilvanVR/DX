@@ -49,7 +49,7 @@ namespace Graphics {
         //----------------------------------------------------------------------
         // Dispatches the given command buffer for execution on the gpu.
         //----------------------------------------------------------------------
-        virtual void dispatch( const CommandBuffer& cmd ) = 0;
+        void dispatch( const CommandBuffer& cmd );
 
         //----------------------------------------------------------------------
         // Presents the latest backbuffer to the screen.
@@ -117,7 +117,11 @@ namespace Graphics {
 
     protected:
         static OS::Window* s_window;
-        FrameInfo m_frameInfo = {};
+        FrameInfo                   m_frameInfo = {};
+        ArrayList<CommandBuffer>    m_pendingCmdQueue;
+
+        void _LockQueue();
+        void _UnlockQueue();
 
         //----------------------------------------------------------------------
         HashMap<StringID, IMaterial*>   m_globalMaterials;

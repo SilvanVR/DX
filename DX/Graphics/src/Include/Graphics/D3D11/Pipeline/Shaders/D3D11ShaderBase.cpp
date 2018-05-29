@@ -16,31 +16,25 @@ namespace Graphics { namespace D3D11 {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    const ConstantBufferInfo* ShaderBase::getConstantBufferInfo( StringID name ) const
+    const ShaderUniformBufferDeclaration* ShaderBase::getUniformBufferDeclaration( StringID name ) const
     {
-        if ( m_constantBuffers.find( name ) == m_constantBuffers.end() )
+        auto it = std::find_if( m_constantBuffers.begin(), m_constantBuffers.end(), [name](const ShaderUniformBufferDeclaration& ubo) {
+            return ubo.getName() == name;
+        } );
+        if ( it == m_constantBuffers.end() )
             return nullptr;
 
-        return &m_constantBuffers.at( name );
+        return &(*it);
     }
 
     //----------------------------------------------------------------------
-    const TextureBindingInfo* ShaderBase::getTextureBindingInfo( StringID name ) const
+    const ShaderUniformBufferDeclaration* ShaderBase::getMaterialBufferDeclaration() const
     {
-        if ( m_textures.find( name ) == m_textures.end() )
-            return nullptr;
-
-        return &m_textures.at( name );
-    }
-
-    //----------------------------------------------------------------------
-    const ConstantBufferInfo* ShaderBase::getMaterialBufferInfo() const
-    {
-        for ( auto& pair : m_constantBuffers )
+        for ( auto& ubo : m_constantBuffers )
         {
-            String lower = StringUtils::toLower( pair.first.toString() );
+            String lower = StringUtils::toLower( ubo.getName().toString() );
             if ( lower.find( MATERIAL_NAME ) != String::npos )
-                return &pair.second;
+                return &ubo;
         }
 
         // This shader has no material set
@@ -79,63 +73,15 @@ namespace Graphics { namespace D3D11 {
     }
 
     //----------------------------------------------------------------------
-    DataType ShaderBase::getDataTypeOfProperty( StringID name )
+    const ShaderResourceDeclaration* ShaderBase::getResourceDeclaration( StringID name ) const
     {
-        // Check constant buffers first
-        DataType type1 = DataType::Unknown;
-        for ( auto& cb : m_constantBuffers )
-            for ( auto& member : cb.second.members )
-                if (member.name == name)
-                    type1 = member.type;
-
-        // Check textures second
-        DataType type2 = DataType::Unknown;
-        for (auto& pair : m_textures)
-            if (pair.first == name)
-                type2 = pair.second.type;
-
-        // Issue a warning if property does exist as a buffer member and a texture
-        if (type1 != DataType::Unknown && type2 != DataType::Unknown)
-            LOG_WARN_RENDERING( "ShaderBase::getDataTypeOfProperty(): Property name '" + name.toString() + "' exists as a texture and a buffer member. "
-                                "This can lead to problems. Please rename one of it." );
-
-        if (type1 != DataType::Unknown)
-            return type1;
-        else if (type2 != DataType::Unknown)
-            return type2;
-
-        return DataType::Unknown;
-    }
-
-    //----------------------------------------------------------------------
-    DataType ShaderBase::getDataTypeOfMaterialProperty( StringID name )
-    {
-        // Check constant buffers first
-        DataType type1 = DataType::Unknown;
-        if ( auto materialBuffer = getMaterialBufferInfo() )
+        for (auto& decl : m_resourceDeclarations)
         {
-            for ( auto& member : materialBuffer->members )
-                if (member.name == name)
-                    type1 = member.type;
+            if (decl.getName() == name)
+                return &decl;
         }
 
-        // Check textures second
-        DataType type2 = DataType::Unknown;
-        for (auto& pair : m_textures)
-            if (pair.first == name)
-                type2 = pair.second.type;
-
-        // Issue a warning if property does exist as a buffer member and a texture
-        if (type1 != DataType::Unknown && type2 != DataType::Unknown)
-            LOG_WARN_RENDERING( "ShaderBase::getDataTypeOfMaterialProperty(): Property name '" + name.toString() + "' exists as a texture and a buffer member. "
-                                "This can lead to problems. Please rename one of it." );
-
-        if (type1 != DataType::Unknown)
-            return type1;
-        else if (type2 != DataType::Unknown)
-            return type2;
-
-        return DataType::Unknown;
+        return nullptr;
     }
 
     //**********************************************************************
@@ -233,7 +179,7 @@ namespace Graphics { namespace D3D11 {
     {
         // Make sure old buffer information is no longer valid
         m_constantBuffers.clear();
-        m_textures.clear();
+        m_resourceDeclarations.clear();
 
         for (U32 i = 0; i < shaderDesc.BoundResources; i++)
         {
@@ -250,23 +196,22 @@ namespace Graphics { namespace D3D11 {
             }
             case D3D_SIT_TEXTURE:
             {
-                TextureBindingInfo texInfo;
-                texInfo.slot = bindDesc.BindPoint;
-
+                DataType type = DataType::Unknown;
                 switch (bindDesc.Dimension)
                 {
                 case D3D11_SRV_DIMENSION_TEXTURE1DARRAY:
-                case D3D11_SRV_DIMENSION_TEXTURE1D:         texInfo.type = DataType::Texture1D; break;
+                case D3D11_SRV_DIMENSION_TEXTURE1D:         type = DataType::Texture1D; break;
                 case D3D11_SRV_DIMENSION_TEXTURE2DARRAY:
                 case D3D11_SRV_DIMENSION_TEXTURE2DMSARRAY:
-                case D3D11_SRV_DIMENSION_TEXTURE2D:         texInfo.type = DataType::Texture2D; break;
-                case D3D11_SRV_DIMENSION_TEXTURE3D:         texInfo.type = DataType::Texture3D; break;
+                case D3D11_SRV_DIMENSION_TEXTURE2D:         type = DataType::Texture2D; break;
+                case D3D11_SRV_DIMENSION_TEXTURE3D:         type = DataType::Texture3D; break;
                 case D3D11_SRV_DIMENSION_TEXTURECUBEARRAY:
-                case D3D11_SRV_DIMENSION_TEXTURECUBE:       texInfo.type = DataType::TextureCubemap; break;
+                case D3D11_SRV_DIMENSION_TEXTURECUBE:       type = DataType::TextureCubemap; break;
                 }
-                ASSERT( texInfo.type != DataType::Unknown && "Could not deduce texture type." );
+                ASSERT( type != DataType::Unknown && "Could not deduce texture type." );
 
-                m_textures[ SID( bindDesc.Name ) ] = texInfo;
+                ShaderResourceDeclaration decl( m_shaderType, bindDesc.BindPoint, SID( bindDesc.Name ), type );
+                m_resourceDeclarations.push_back( decl );
                 break;
             }
             }
@@ -279,9 +224,7 @@ namespace Graphics { namespace D3D11 {
         D3D11_SHADER_BUFFER_DESC bufferDesc;
         HR( cb->GetDesc( &bufferDesc ) );
 
-        ConstantBufferInfo bufferInfo;
-        bufferInfo.sizeInBytes  = bufferDesc.Size;
-        bufferInfo.slot         = bindSlot;
+        ShaderUniformBufferDeclaration buffer( SID( bufferDesc.Name ), bindSlot, bufferDesc.Size );
 
         for (U32 j = 0; j < bufferDesc.Variables; j++)
         {
@@ -290,14 +233,10 @@ namespace Graphics { namespace D3D11 {
             D3D11_SHADER_VARIABLE_DESC varDesc;
             HR( var->GetDesc( &varDesc ) );
 
-            ConstantBufferMemberInfo info = {};
-            info.name   = SID( varDesc.Name );
-            info.offset = varDesc.StartOffset;
-            info.size   = varDesc.Size;
-            info.type   = _GetDataType( var );
-            bufferInfo.members.emplace_back( info );
+            ShaderUniformDeclaration uniform( SID( varDesc.Name ), varDesc.StartOffset, varDesc.Size, _GetDataType( var ) );
+            buffer._AddUniformDecl( uniform );
         }
-        m_constantBuffers[ SID( bufferDesc.Name ) ] = bufferInfo;
+        m_constantBuffers.push_back( buffer );
     }
 
     //----------------------------------------------------------------------

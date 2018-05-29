@@ -15,7 +15,7 @@ namespace Graphics { namespace D3D11 {
     class VertexShader : public ShaderBase
     {
     public:
-        VertexShader() = default;
+        VertexShader() : ShaderBase(ShaderType::Vertex) {}
         ~VertexShader();
 
         //----------------------------------------------------------------------

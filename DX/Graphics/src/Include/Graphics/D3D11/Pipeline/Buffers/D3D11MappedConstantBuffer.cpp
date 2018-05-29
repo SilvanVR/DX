@@ -9,11 +9,11 @@
 namespace Graphics { namespace D3D11 {
 
     //----------------------------------------------------------------------
-    MappedConstantBuffer::MappedConstantBuffer( const ConstantBufferInfo& bufferInfo, BufferUsage usage ) 
+    MappedConstantBuffer::MappedConstantBuffer( const ShaderUniformBufferDeclaration& bufferInfo, BufferUsage usage )
         : m_bufferInfo( bufferInfo )
     {
-        m_CPUBuffer = (Byte*)_aligned_malloc( m_bufferInfo.sizeInBytes, 16 );
-        m_GPUBuffer = new D3D11::ConstantBuffer( (U32)m_bufferInfo.sizeInBytes, usage );
+        m_CPUBuffer = (Byte*)_aligned_malloc( m_bufferInfo.getSize(), 16 );
+        m_GPUBuffer = new D3D11::ConstantBuffer( m_bufferInfo.getSize(), usage );
     }
 
     //**********************************************************************
@@ -23,11 +23,11 @@ namespace Graphics { namespace D3D11 {
     //----------------------------------------------------------------------
     bool MappedConstantBuffer::update( StringID name, const void* data )
     {
-        for (auto& member : m_bufferInfo.members)
+        for (auto& member : m_bufferInfo.getMembers())
         {
-            if (member.name == name)
+            if (member.getName() == name)
             {
-                memcpy( &m_CPUBuffer[member.offset], data, member.size );
+                memcpy( &m_CPUBuffer[member.getOffset()], data, member.getSize() );
                 m_gpuUpToDate = false;
                 return true;
             }
@@ -46,7 +46,7 @@ namespace Graphics { namespace D3D11 {
     {
         if ( not m_gpuUpToDate )
         {
-            m_GPUBuffer->update( m_CPUBuffer, m_bufferInfo.sizeInBytes );
+            m_GPUBuffer->update( m_CPUBuffer, m_bufferInfo.getSize() );
             m_gpuUpToDate = true;
         }
     }
@@ -58,8 +58,8 @@ namespace Graphics { namespace D3D11 {
 
         switch (shaderType)
         {
-        case ShaderType::Vertex:    m_GPUBuffer->bindToVertexShader( m_bufferInfo.slot ); break;
-        case ShaderType::Fragment:  m_GPUBuffer->bindToPixelShader( m_bufferInfo.slot ); break;
+        case ShaderType::Vertex:    m_GPUBuffer->bindToVertexShader( m_bufferInfo.getBindingSlot() ); break;
+        case ShaderType::Fragment:  m_GPUBuffer->bindToPixelShader( m_bufferInfo.getBindingSlot() ); break;
         default: ASSERT( false );
         }
     }

@@ -10,6 +10,7 @@
 #include "D3D11/D3D11ConstantBufferManager.h"
 #include "OS/FileSystem/path.h"
 #include <d3dcompiler.h>
+#include "shader_resources.hpp"
 
 namespace Graphics { namespace D3D11 {
 
@@ -21,7 +22,7 @@ namespace Graphics { namespace D3D11 {
     class ShaderBase
     {
     public:
-        ShaderBase() = default;
+        ShaderBase(ShaderType shaderType) : m_shaderType(shaderType) {};
         virtual ~ShaderBase() { SAFE_RELEASE( m_pShaderBlob ); SAFE_RELEASE( m_pShaderReflection ); }
 
         //----------------------------------------------------------------------
@@ -30,11 +31,12 @@ namespace Graphics { namespace D3D11 {
         virtual bool compileFromSource(const String& shaderSource, CString entryPoint) = 0;
 
         //----------------------------------------------------------------------
-        const OS::Path&                                 getFilePath()   const { return m_filePath; }
-        CString                                         getEntryPoint() const { return m_entryPoint.c_str(); }
-        bool                                            recompile();
-        const HashMap<StringID, TextureBindingInfo>&    getTextureBindingInfos() const { return m_textures; }
-        const HashMap<StringID, ConstantBufferInfo>&    getConstantBufferBindings() const { return m_constantBuffers; }
+        const OS::Path&                                     getFilePath()   const { return m_filePath; }
+        CString                                             getEntryPoint() const { return m_entryPoint.c_str(); }
+        bool                                                recompile();
+        const ArrayList<ShaderResourceDeclaration>&         getResourceDeclarations() const { return m_resourceDeclarations; }
+        const ArrayList<ShaderUniformBufferDeclaration>&    getConstantBufferBindings() const { return m_constantBuffers; }
+        const ShaderResourceDeclaration*                    getResourceDeclaration(StringID name) const;
 
         //----------------------------------------------------------------------
         // @Return:
@@ -47,43 +49,26 @@ namespace Graphics { namespace D3D11 {
         // @Return:
         //  Constant buffer with name "name". Nullptr if not existent.
         //----------------------------------------------------------------------
-        const ConstantBufferInfo*   getConstantBufferInfo(StringID name) const;
+        const ShaderUniformBufferDeclaration* getUniformBufferDeclaration(StringID name) const;
 
         //----------------------------------------------------------------------
         // @Return:
         //  Constant buffer info about first constant buffer with name "material" in it.
         //  Nullptr if not existent.
         //----------------------------------------------------------------------
-        const ConstantBufferInfo*   getMaterialBufferInfo()  const;
-
-        //----------------------------------------------------------------------
-        // @Return:
-        //  texture info with name "name". Nullptr if not existent.
-        //----------------------------------------------------------------------
-        const TextureBindingInfo*   getTextureBindingInfo(StringID name) const;
-
-        //----------------------------------------------------------------------
-        // @Return:
-        //  Datatype of a given property name. Unknown if property does not exist.
-        //----------------------------------------------------------------------
-        DataType getDataTypeOfProperty(StringID name);
-
-        //----------------------------------------------------------------------
-        // @Return:
-        //  Datatype of a given property name. Unknown if property does not exist.
-        //----------------------------------------------------------------------
-        DataType getDataTypeOfMaterialProperty(StringID name);
+        const ShaderUniformBufferDeclaration* getMaterialBufferDeclaration() const;
 
     protected:
         ID3DBlob*                               m_pShaderBlob           = nullptr;
         ID3D11ShaderReflection*                 m_pShaderReflection     = nullptr;
         String                                  m_entryPoint            = "main";
+        ShaderType                              m_shaderType            = ShaderType::Unknown;
         OS::Path                                m_filePath;
         OS::SystemTime                          m_fileTimeAtCompilation;
 
-        // Resources bound to this shader
-        HashMap<StringID, ConstantBufferInfo>   m_constantBuffers;
-        HashMap<StringID, TextureBindingInfo>   m_textures;
+        // Resources + UBO's bound to this shader
+        ArrayList<ShaderUniformBufferDeclaration>   m_constantBuffers;
+        ArrayList<ShaderResourceDeclaration>        m_resourceDeclarations;
 
         //----------------------------------------------------------------------
         template <typename T>

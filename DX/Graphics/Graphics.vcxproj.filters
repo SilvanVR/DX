@@ -93,6 +93,9 @@
     <ClCompile Include="src\Include\Graphics\camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Include\Graphics\i_shader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\stdafx.h">
@@ -138,9 +141,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Include\Graphics\D3D11\Resources\D3D11Material.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Include\Graphics\i_shader.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Include\Graphics\D3D11\Resources\D3D11Shader.h">
@@ -206,9 +206,6 @@
     <ClInclude Include="src\Include\Graphics\D3D11\D3D11ConstantBufferManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Include\Graphics\D3D11\D3D11Structs.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\Include\Graphics\D3D11\Pipeline\Buffers\D3D11MappedConstantBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -225,6 +222,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Include\Graphics\camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Include\Graphics\i_shader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Include\Graphics\shader_resources.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -6,7 +6,7 @@
     date: March 31, 2018
 **********************************************************************/
 
-#include "../i_shader.hpp"
+#include "../i_shader.h"
 
 namespace Graphics {
 

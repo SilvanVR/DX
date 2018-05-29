@@ -51,14 +51,17 @@ namespace Graphics
 
         //----------------------------------------------------------------------
         void _Init(TextureDimension dimension, U32 width, U32 height, TextureFormat format) { m_dimension = dimension; m_width = width; m_height = height; m_format = format; }
-
-        // Indicates that something related to sampling has been changed. 
-        virtual void _UpdateSampler() = 0;
-
-        //----------------------------------------------------------------------
         void _UpdateMipCount() { m_mipCount = static_cast<U32>( std::floor( std::log2( std::min( m_width, m_height) ) ) + 1 ); }
 
+        //----------------------------------------------------------------------
+        // Indicates that something related to sampling has been changed.
+        virtual void _UpdateSampler() = 0;
+
     private:
+        friend class IMaterial;
+        friend class IShader;
+        virtual void bind(ShaderType shaderType, U32 bindSlot) = 0;
+
         //----------------------------------------------------------------------
         ITexture(const ITexture& other)               = delete;
         ITexture& operator = (const ITexture& other)  = delete;

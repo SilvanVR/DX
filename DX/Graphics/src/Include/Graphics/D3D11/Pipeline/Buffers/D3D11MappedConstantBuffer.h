@@ -7,7 +7,7 @@
 **********************************************************************/
 
 #include "D3D11Buffers.h"
-#include "D3D11/D3D11Structs.hpp"
+#include "shader_resources.hpp"
 
 namespace Graphics { namespace D3D11 {
 
@@ -19,12 +19,12 @@ namespace Graphics { namespace D3D11 {
     {
     public:
         MappedConstantBuffer() = default;
-        MappedConstantBuffer(const ConstantBufferInfo& bufferInfo, BufferUsage usage);
+        MappedConstantBuffer(const ShaderUniformBufferDeclaration& bufferInfo, BufferUsage usage);
         ~MappedConstantBuffer() { _FreeBuffers(); }
 
         //----------------------------------------------------------------------
-        inline bool                        gpuIsUpToDate() const { return m_gpuUpToDate; }
-        inline const ConstantBufferInfo&   getBufferInfo() const { return m_bufferInfo; }
+        inline bool                                     gpuIsUpToDate() const { return m_gpuUpToDate; }
+        inline const ShaderUniformBufferDeclaration&    getBufferInfo() const { return m_bufferInfo; }
 
         //----------------------------------------------------------------------
         // Update the given uniform 'name' with the given data. !! ONLY ON THE CPU !!
@@ -53,10 +53,10 @@ namespace Graphics { namespace D3D11 {
         void bind(ShaderType shaderType);
 
     private:
-        ConstantBufferInfo  m_bufferInfo;
-        Byte*               m_CPUBuffer     = nullptr;
-        ConstantBuffer*     m_GPUBuffer     = nullptr;
-        bool                m_gpuUpToDate   = false;
+        ShaderUniformBufferDeclaration  m_bufferInfo;
+        Byte*                           m_CPUBuffer     = nullptr;
+        ConstantBuffer*                 m_GPUBuffer     = nullptr;
+        bool                            m_gpuUpToDate   = false;
 
         //----------------------------------------------------------------------
         void _FreeBuffers();

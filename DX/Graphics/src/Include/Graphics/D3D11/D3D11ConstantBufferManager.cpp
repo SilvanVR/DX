@@ -26,24 +26,24 @@ namespace Graphics { namespace D3D11 {
     }
 
     //----------------------------------------------------------------------
-    void ConstantBufferManager::ReflectConstantBuffers( const HashMap<StringID, ConstantBufferInfo>& constantBuffers )
+    void ConstantBufferManager::ReflectConstantBuffers( const ArrayList<ShaderUniformBufferDeclaration>& constantBuffers )
     {
-        for (const auto& [name, bufferInfo] : constantBuffers)
+        for ( const auto& cb : constantBuffers )
         {
-            String lower = StringUtils::toLower( name.toString() );
+            String lower = StringUtils::toLower( cb.getName().toString() );
 
             if (lower.find( GLOBAL_BUFFER_KEYWORD ) != String::npos)
             {
                 if (s_pBufferGlobal == nullptr)
                 {
-                    s_pBufferGlobal = new MappedConstantBuffer( bufferInfo, BufferUsage::Frequently );
+                    s_pBufferGlobal = new MappedConstantBuffer( cb, BufferUsage::Frequently );
                     s_pBufferGlobal->bind( ShaderType::Vertex );
                     s_pBufferGlobal->bind( ShaderType::Fragment );
                 }
                 else
                 {
                     // Check that constant buffer matches the other one
-                    if ( s_pBufferGlobal->getBufferInfo() != bufferInfo )
+                    if ( s_pBufferGlobal->getBufferInfo() != cb )
                         LOG_WARN_RENDERING( "Global buffer mismatch in recent compiled shader. This might cause errors during shading. "
                                             "Please ensure that every global buffer has the exact same layout and binding slot." );
                 }
@@ -52,13 +52,13 @@ namespace Graphics { namespace D3D11 {
             {
                 if (s_pBufferObject == nullptr)
                 {
-                    s_pBufferObject = new MappedConstantBuffer( bufferInfo, BufferUsage::Frequently );
+                    s_pBufferObject = new MappedConstantBuffer( cb, BufferUsage::Frequently );
                     s_pBufferObject->bind( ShaderType::Vertex );
                 }
                 else
                 {
                     // Check that constant buffer matches the other one
-                    if ( s_pBufferObject->getBufferInfo() != bufferInfo )
+                    if ( s_pBufferObject->getBufferInfo() != cb )
                         LOG_WARN_RENDERING( "Object buffer mismatch in recent compiled shader. This might cause errors during shading. "
                                             "Please ensure that every object buffer has the exact same layout and binding slot." );
                 }
@@ -67,14 +67,14 @@ namespace Graphics { namespace D3D11 {
             {
                 if (s_pBufferCamera == nullptr)
                 {
-                    s_pBufferCamera = new MappedConstantBuffer( bufferInfo, BufferUsage::Frequently );
+                    s_pBufferCamera = new MappedConstantBuffer( cb, BufferUsage::Frequently );
                     s_pBufferCamera->bind( ShaderType::Vertex );
                     s_pBufferCamera->bind( ShaderType::Fragment );
                 }
                 else
                 {
                     // Check that constant buffer matches the other one
-                    if ( s_pBufferCamera->getBufferInfo() != bufferInfo )
+                    if ( s_pBufferCamera->getBufferInfo() != cb )
                         LOG_WARN_RENDERING( "Camera buffer mismatch in recent compiled shader. This might cause errors during shading. "
                                             "Please ensure that every camera buffer has the exact same layout and binding slot." );
                 }
@@ -83,13 +83,13 @@ namespace Graphics { namespace D3D11 {
             {
                 if (s_pBufferLights == nullptr)
                 {
-                    s_pBufferLights = new MappedConstantBuffer( bufferInfo, BufferUsage::Frequently );
+                    s_pBufferLights = new MappedConstantBuffer( cb, BufferUsage::Frequently );
                     s_pBufferLights->bind( ShaderType::Fragment );
                 }
                 else
                 {
                     // Check that constant buffer matches the other one
-                    if ( s_pBufferLights->getBufferInfo() != bufferInfo )
+                    if ( s_pBufferLights->getBufferInfo() != cb )
                         LOG_WARN_RENDERING( "Light buffer mismatch in recent compiled shader. This might cause errors during shading. "
                                             "Please ensure that every light buffer has the exact same layout and binding slot." );
                 }

@@ -28,7 +28,7 @@ namespace Graphics { namespace D3D11 {
 
         //----------------------------------------------------------------------
         // @Return:
-        //  D3D11Texture for this texture. (Virtual cause render-textures needs more than one)
+        //  D3D11Texture for this texture. (Virtual cause some render-textures needs more than one)
         //----------------------------------------------------------------------
         virtual ID3D11Texture2D* getD3D11Texture() { return m_pTexture; }
 
@@ -42,12 +42,12 @@ namespace Graphics { namespace D3D11 {
         bool                        m_keepPixelsInRAM  = false;
 
         //----------------------------------------------------------------------
-        void _CreateSampler( U32 anisoLevel, TextureFilter filter, TextureAddressMode addressMode );
+        void _CreateSampler(U32 anisoLevel, TextureFilter filter, TextureAddressMode addressMode);
 
         //----------------------------------------------------------------------
-        // Pushes the pixel data to the GPU right before binding occurs.
+        // Pushes the pixel data to the GPU before binding if gpu is not up to date.
         //----------------------------------------------------------------------
-        virtual void _PushToGPU() {};
+        virtual void _PushToGPU() {}
 
     private:
         //----------------------------------------------------------------------

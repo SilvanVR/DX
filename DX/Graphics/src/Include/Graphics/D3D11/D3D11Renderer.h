@@ -32,7 +32,6 @@ namespace Graphics {
         //----------------------------------------------------------------------
         void init() override;
         void shutdown() override;
-        void dispatch(const CommandBuffer& cmd) override;
         void present() override;
         void setVSync(bool enabled) override { m_vsync = enabled; }
         void setMultiSampleCount(U32 numSamples) override;
@@ -55,8 +54,6 @@ namespace Graphics {
         D3D11::Swapchain*   m_pSwapchain    = nullptr;
         bool                m_vsync         = false;
 
-        ArrayList<CommandBuffer> m_pendingCmdQueue;
-
         //----------------------------------------------------------------------
         inline void _SetCamera(Camera* camera);
         inline void _DrawMesh(IMesh* mesh, IMaterial* mat, const DirectX::XMMATRIX& model, U32 subMeshIndex);
@@ -77,7 +74,6 @@ namespace Graphics {
         void _CreateGlobalBuffer();
 
         void _ExecuteCommandBuffer(const CommandBuffer& cmd);
-
 
         //----------------------------------------------------------------------
         // IRenderer Interface

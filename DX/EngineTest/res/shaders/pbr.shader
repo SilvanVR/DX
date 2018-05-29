@@ -50,7 +50,7 @@ cbuffer cbPerMaterial
 	float metallic;
 	float roughness;
 	float ao;
-	float maxReflectionLOD;  
+	float maxReflectionLOD;
 };
 
 struct FragmentIn  

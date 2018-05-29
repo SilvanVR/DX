@@ -6,7 +6,7 @@
     date: March 12, 2018
 **********************************************************************/
 
-#include "../../i_shader.hpp"
+#include "../../i_shader.h"
 #include "../D3D11.hpp"
 
 namespace Graphics { namespace D3D11 {
@@ -25,16 +25,17 @@ namespace Graphics { namespace D3D11 {
         //----------------------------------------------------------------------
         // IShader Interface
         //----------------------------------------------------------------------
-        bool                compileFromFile(const OS::Path& vertPath, const OS::Path& fragPath, CString entryPoint) override;
-        bool                compileFromSource(const String& vertSrc, const String& fragSrc, CString entryPoint) override;
-        bool                compileVertexShaderFromSource(const String& src, CString entryPoint) override;
-        bool                compileFragmentShaderFromSource(const String& src, CString entryPoint) override;
-        ArrayList<OS::Path> recompile();
-        bool                isUpToDate() override;
-        ArrayList<OS::Path> getShaderPaths() const override;
-        const VertexLayout& getVertexLayout() const override;
-        DataType            getDataTypeOfProperty(StringID name) const override;
-        DataType            getDataTypeOfMaterialProperty(StringID name) const override;
+        bool                                    compileFromFile(const OS::Path& vertPath, const OS::Path& fragPath, CString entryPoint) override;
+        bool                                    compileFromSource(const String& vertSrc, const String& fragSrc, CString entryPoint) override;
+        bool                                    compileVertexShaderFromSource(const String& src, CString entryPoint) override;
+        bool                                    compileFragmentShaderFromSource(const String& src, CString entryPoint) override;
+        ArrayList<OS::Path>                     recompile();
+        bool                                    isUpToDate() override;
+        ArrayList<OS::Path>                     getShaderPaths() const override;
+        const VertexLayout&                     getVertexLayout() const override;
+        const ShaderResourceDeclaration*        getShaderResource(StringID name) const override;
+        const ShaderUniformBufferDeclaration*   getVSUniformMaterialBuffer() const override;
+        const ShaderUniformBufferDeclaration*   getFSUniformMaterialBuffer() const override;
 
         void setRasterizationState(const RasterizationState& rzState) override;
         void setDepthStencilState(const DepthStencilState& dsState) override;

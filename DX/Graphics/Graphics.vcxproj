@@ -172,6 +172,7 @@
     <ClCompile Include="src\Include\Graphics\i_material.cpp" />
     <ClCompile Include="src\Include\Graphics\i_mesh.cpp" />
     <ClCompile Include="src\Include\Graphics\i_renderer.cpp" />
+    <ClCompile Include="src\Include\Graphics\i_shader.cpp" />
     <ClCompile Include="src\Include\Graphics\Utils\utils.cpp" />
     <ClCompile Include="src\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -188,7 +189,6 @@
     <ClInclude Include="src\Include\Graphics\D3D11\D3D11Defines.hpp" />
     <ClInclude Include="src\Include\Graphics\D3D11\D3D11Globals.h" />
     <ClInclude Include="src\Include\Graphics\D3D11\D3D11Renderer.h" />
-    <ClInclude Include="src\Include\Graphics\D3D11\D3D11Structs.hpp" />
     <ClInclude Include="src\Include\Graphics\D3D11\D3D11Swapchain.h" />
     <ClInclude Include="src\Include\Graphics\D3D11\D3D11Utility.h" />
     <ClInclude Include="src\Include\Graphics\D3D11\Pipeline\Buffers\D3D11MappedConstantBuffer.h" />
@@ -212,7 +212,7 @@
     <ClInclude Include="src\Include\Graphics\D3D11\Pipeline\Shaders\D3D11PixelShader.h" />
     <ClInclude Include="src\Include\Graphics\gpu_commands.hpp" />
     <ClInclude Include="src\Include\Graphics\i_renderer.h" />
-    <ClInclude Include="src\Include\Graphics\i_shader.hpp" />
+    <ClInclude Include="src\Include\Graphics\i_shader.h" />
     <ClInclude Include="src\Include\Graphics\i_render_texture.hpp" />
     <ClInclude Include="src\Include\Graphics\i_texture.h" />
     <ClInclude Include="src\Include\Graphics\i_texture2d.hpp" />
@@ -221,6 +221,7 @@
     <ClInclude Include="src\Include\Graphics\Lighting\light.h" />
     <ClInclude Include="src\Include\Graphics\Lighting\point_light.h" />
     <ClInclude Include="src\Include\Graphics\Lighting\spot_light.h" />
+    <ClInclude Include="src\Include\Graphics\shader_resources.hpp" />
     <ClInclude Include="src\Include\Graphics\structs.hpp" />
     <ClInclude Include="src\Include\Graphics\Utils\utils.h" />
     <ClInclude Include="src\Include\Graphics\vertex_layout.hpp" />

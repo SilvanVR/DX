@@ -14,7 +14,7 @@ namespace Graphics { namespace D3D11 {
     class PixelShader : public ShaderBase
     {
     public:
-        PixelShader() = default;
+        PixelShader() : ShaderBase(ShaderType::Fragment) {}
         ~PixelShader();
 
         //----------------------------------------------------------------------

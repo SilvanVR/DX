@@ -6,7 +6,7 @@
     date: March 1, 2018
 **********************************************************************/
 
-#include "Graphics/i_shader.hpp"
+#include "Graphics/i_shader.h"
 #include "OS/FileSystem/file.h"
 #include "Common/string_utils.h"
 

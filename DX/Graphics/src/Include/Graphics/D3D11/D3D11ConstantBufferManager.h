@@ -10,7 +10,7 @@
     in a shader.
 **********************************************************************/
 
-#include "D3D11Structs.hpp"
+#include "shader_resources.hpp"
 #include "Pipeline/Buffers/D3D11MappedConstantBuffer.h"
 
 #define GLOBAL_BUFFER_KEYWORD "global"
@@ -36,7 +36,7 @@ namespace Graphics { namespace D3D11 {
         inline static bool hasLightBuffer()  { return s_pBufferLights != nullptr; }
 
         //----------------------------------------------------------------------
-        static void ReflectConstantBuffers(const HashMap<StringID, ConstantBufferInfo>& constantBuffers);
+        static void ReflectConstantBuffers(const ArrayList<ShaderUniformBufferDeclaration>& constantBuffers);
 
         //----------------------------------------------------------------------
         static void Destroy();

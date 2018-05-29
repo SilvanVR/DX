@@ -39,15 +39,4 @@ namespace Graphics { namespace D3D11 {
         bool operator!=(const ConstantBufferInfo& c) const { return !(*this == c); }
     };
 
-    // Contains information about bound resources
-    struct TextureBindingInfo
-    {
-        StringID    name;
-        U32         slot = 0;
-        DataType    type = DataType::Unknown;
-
-        bool operator==(const TextureBindingInfo& c) const { return name == c.name && slot == c.slot && type == c.type; }
-        bool operator!=(const TextureBindingInfo& c) const { return !(*this == c); }
-    };
-
 } } // End namespaces

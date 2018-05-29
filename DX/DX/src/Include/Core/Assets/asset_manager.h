@@ -16,7 +16,7 @@
 #include "Graphics/i_texture2d.hpp"
 #include "Graphics/i_cubemap.hpp"
 #include "Core/Audio/audio_clip.h"
-#include "Graphics/i_shader.hpp"
+#include "Graphics/i_shader.h"
 #include "Graphics/i_material.h"
 
 namespace Core { namespace Assets {

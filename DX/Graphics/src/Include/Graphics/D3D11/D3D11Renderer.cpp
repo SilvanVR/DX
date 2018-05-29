@@ -97,12 +97,6 @@ namespace Graphics {
     }
 
     //----------------------------------------------------------------------
-    void D3D11Renderer::dispatch( const CommandBuffer& cmd )
-    {
-        m_pendingCmdQueue.emplace_back( std::move( cmd ) );
-    }
-
-    //----------------------------------------------------------------------
     void D3D11Renderer::_ExecuteCommandBuffer( const CommandBuffer& cmd )
     {
         auto& commands = cmd.getGPUCommands();
@@ -194,9 +188,11 @@ namespace Graphics {
     //----------------------------------------------------------------------
     void D3D11Renderer::present()
     {
-        for ( auto& cmd  : m_pendingCmdQueue)
+        _LockQueue();
+        for ( auto& cmd : m_pendingCmdQueue)
             _ExecuteCommandBuffer( cmd );
         m_pendingCmdQueue.clear();
+        _UnlockQueue();
 
         m_pSwapchain->present( m_vsync );
     }

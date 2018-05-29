@@ -8,7 +8,7 @@
 
 #include "i_component.h"
 #include "Graphics/i_material.h"
-#include "Graphics/i_shader.hpp"
+#include "Graphics/i_shader.h"
 #include "Graphics/i_mesh.h"
 
 namespace Components {

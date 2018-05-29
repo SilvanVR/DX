@@ -140,7 +140,7 @@ namespace Graphics { namespace D3D11 {
     //----------------------------------------------------------------------
     void VertexShader::_AddToVertexLayout( const String& semanticName, U32 semanticIndex )
     {
-        if (semanticName.substr(0,3) == "SV_")
+        if (semanticName.substr(0,3) == "SV_") // Skip system semantics
             return;
 
         bool nameExists = false;

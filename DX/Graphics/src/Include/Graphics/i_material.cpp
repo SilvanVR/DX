@@ -34,7 +34,7 @@ namespace Graphics {
         if ( m_intMap.find( name ) != m_intMap.end() )
             return m_intMap.at( name );
 
-        LOG_WARN_RENDERING( "Material::getInt(): Name '" + name.toString() + "' does not exist in shader '" + m_shader->getName() + "'" );
+        LOG_WARN_RENDERING( "Material::getInt(): Name '" + name.toString() + "' does not exist in material '" + getName() + "'" );
         return 0;
     }
 
@@ -44,7 +44,7 @@ namespace Graphics {
         if ( m_floatMap.find( name ) != m_floatMap.end() )
             return m_floatMap.at( name );
 
-        LOG_WARN_RENDERING( "Material::getFloat(): Name '" + name.toString() + "' does not exist in shader '" + m_shader->getName() + "'" );
+        LOG_WARN_RENDERING( "Material::getFloat(): Name '" + name.toString() + "' does not exist in material '" + getName() + "'" );
         return 0.0f;
     }
 
@@ -54,7 +54,7 @@ namespace Graphics {
         if ( m_vec4Map.find( name ) != m_vec4Map.end() )
             return m_vec4Map.at( name );
 
-        LOG_WARN_RENDERING( "Material::getVec4(): Name '" + name.toString() + "' does not exist in shader '" + m_shader->getName() + "'" );
+        LOG_WARN_RENDERING( "Material::getVec4(): Name '" + name.toString() + "' does not exist in material '" + getName() + "'" );
         return Math::Vec4( 0.0f );
     }
 
@@ -64,7 +64,7 @@ namespace Graphics {
         if ( m_matrixMap.find( name ) != m_matrixMap.end() )
             return m_matrixMap.at( name );
 
-        LOG_WARN_RENDERING( "Material::getMatrix(): Name '" + name.toString() + "' does not exist in shader '" + m_shader->getName() + "'" );
+        LOG_WARN_RENDERING( "Material::getMatrix(): Name '" + name.toString() + "' does not exist in material '" + getName() + "'" );
         return DirectX::XMMatrixIdentity();
     }
 
@@ -77,7 +77,7 @@ namespace Graphics {
             return Color( (Byte) (colorAsVec.x * 255.0f), (Byte) (colorAsVec.y * 255.0f), (Byte) (colorAsVec.z * 255.0f), (Byte) (colorAsVec.w * 255.0f) );
         }
 
-        LOG_WARN_RENDERING( "Material::getColor(): Name '" + name.toString() + "' does not exist in shader '" + m_shader->getName() + "'" );
+        LOG_WARN_RENDERING( "Material::getColor(): Name '" + name.toString() + "' does not exist in material '" + getName() + "'" );
         return Color::BLACK;
     }
 
@@ -87,7 +87,7 @@ namespace Graphics {
         if ( m_textureMap.find( name ) != m_textureMap.end() )
             return m_textureMap.at( name );
 
-        LOG_WARN_RENDERING( "Material::getTexture(): Name '" + name.toString() + "' does not exist in shader '" + m_shader->getName() + "'" );
+        LOG_WARN_RENDERING( "Material::getTexture(): Name '" + name.toString() + "' does not exist in material '" + getName() + "'" );
         return nullptr;
     }
 
@@ -97,7 +97,7 @@ namespace Graphics {
         if (m_shader == nullptr)
             return DataType::Unknown;
 
-        return m_shader->getDataTypeOfMaterialProperty( name );
+        return m_shader->getDataTypeOfMaterialPropertyOrResource( name );
     }
 
     //**********************************************************************
@@ -174,7 +174,7 @@ namespace Graphics {
     //----------------------------------------------------------------------
     void IMaterial::setTexture( StringID name, const TexturePtr& texture )
     { 
-        if ( not m_shader->hasMaterialProperty( name ) )
+        if ( not m_shader->getShaderResource( name ) )
         {
             LOG_WARN_RENDERING( "Material::setTexture(): Name '" + name.toString() + "' does not exist in shader '" + m_shader->getName() + "'" );
             return;
@@ -183,5 +183,20 @@ namespace Graphics {
         m_textureMap[ name ] = texture;
         _SetTexture( name, texture );
     }
+
+    //**********************************************************************
+    // PROTECTED
+    //**********************************************************************
+
+    //----------------------------------------------------------------------
+    void IMaterial::_BindTextures()
+    {
+        for (auto& pair : m_textureMap)
+        {
+            auto shaderRes = m_shader->getShaderResource( pair.first );
+            pair.second->bind( shaderRes->getShaderType(), shaderRes->getBindingSlot() );
+        }
+    }
+
 
 } // End namespaces

@@ -50,18 +50,19 @@ public:
             "/cubemaps/tropical_sunny_day/Up.png", "/cubemaps/tropical_sunny_day/Down.png",
             "/cubemaps/tropical_sunny_day/Front.png", "/cubemaps/tropical_sunny_day/Back.png", true);
 
+        auto pbrShader = ASSETS.getShader("/shaders/pbr.shader");
+
         Assets::EnvironmentMap envMap(cubemap, 256, 1024);
         auto diffuse = envMap.getDiffuseIrradianceMap();
         auto specular = envMap.getSpecularReflectionMap();
-        //pbrShader->setTexture("environmentMap", envMap);
+        pbrShader->setTexture("diffuseIrradianceMap", envMap.getDiffuseIrradianceMap());
+        pbrShader->setTexture("specularReflectionMap", envMap.getSpecularReflectionMap());
+        pbrShader->setTexture("brdfLUT", brdfLut);
 
         auto mesh = Core::Assets::MeshGenerator::CreateUVSphere(20,20);
         mesh->recalculateNormals();
 
         auto mat = ASSETS.getMaterial("/materials/pbr.material");
-        mat->setTexture("diffuseIrradianceMap", diffuse);
-        mat->setTexture("specularReflectionMap", specular);
-        mat->setTexture("brdfLUT", brdfLut);
         mat->setFloat("maxReflectionLOD", (F32)specular->getMipCount()-1);
 
         auto go2 = createGameObject("Obj");
@@ -74,12 +75,9 @@ public:
 
         skyboxMat = ASSETS.getMaterial("/materials/skyboxLOD.material");
         skyboxMat->setTexture("Cubemap", specular);
-        skyboxMat->setFloat("lod", 0);
         auto skybox = createGameObject("Skybox");
         skybox->getTransform()->scale = { 1000.0f };
         skybox->addComponent<Components::MeshRenderer>(mesh, skyboxMat);
-
-        auto shader = ASSETS.getShader("/shaders/pbr.shader");
 
         I32 num = 6;
         F32 distance = 3.0f;
@@ -87,20 +85,16 @@ public:
         {
             F32 roughness = x / (F32)(num - 1);
 
-            for (I32 y = 0; y < num; y++)
+            for (I32 y = 0; y < 2; y++)
             {
                 auto gameobject = createGameObject("Obj");
 
-                auto material = RESOURCES.createMaterial(shader);
+                auto material = RESOURCES.createMaterial(pbrShader);
                 material->setColor("color", Color::WHITE);
                 material->setFloat("roughness", roughness);
                 material->setFloat("maxReflectionLOD", (F32)specular->getMipCount()-1);
-                F32 metallic = y / (F32)(num-1);
+                F32 metallic = (F32)y;
                 material->setFloat("metallic", metallic);
-
-                material->setTexture("diffuseIrradianceMap", diffuse);
-                material->setTexture("specularReflectionMap", specular);
-                material->setTexture("brdfLUT", brdfLut);
 
                 gameobject->addComponent<Components::MeshRenderer>(mesh, material);
                 gameobject->getTransform()->position = Math::Vec3(x * distance - (num/2 * distance), y * distance + 0.01f, 0.0f);

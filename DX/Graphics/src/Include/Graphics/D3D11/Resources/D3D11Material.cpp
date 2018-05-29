@@ -8,12 +8,9 @@
     @Considerations:
      - Mark material as dynamic or figure it out automatically, 
        so the buffer usage can be changed to FREQUENTLY
-     - Cache (NAME, [ShaderType, offset]). Needs testing if its worth
 **********************************************************************/
 
 #include "D3D11Shader.h"
-#include "../Pipeline/Shaders/D3D11VertexShader.h"
-#include "../Pipeline/Shaders/D3D11PixelShader.h"
 
 namespace Graphics { namespace D3D11 {
 
@@ -26,15 +23,12 @@ namespace Graphics { namespace D3D11 {
         if ( m_materialDataPS )
             m_materialDataPS->bind( ShaderType::Fragment );
 
-        // Bind textures
-        for (auto& texInfo : m_textureCache)
-            texInfo.texture->bind( texInfo.shaderType, texInfo.bindSlot );
+        _BindTextures();
     }
 
     //----------------------------------------------------------------------
     void Material::_ChangedShader()
     {
-        m_textureCache.clear();
         _DestroyConstantBuffers();
         _CreateConstantBuffers();
     }
@@ -44,50 +38,29 @@ namespace Graphics { namespace D3D11 {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    void Material::_SetTexture( StringID name, const TexturePtr& texture )
-    {
-        auto d3d11Shader = dynamic_cast<Shader*>( m_shader.get() );
+    //void Material::_SetTexture( StringID name, const TexturePtr& texture )
+    //{
+    //    auto shaderDecl = m_shader->getShaderResource( name );
 
-        // VERTEX SHADER
-        if ( auto binding = d3d11Shader->getVertexShader()->getTextureBindingInfo( name ) )
-        {
-            // Update texture slot if possible
-            for (auto& entry : m_textureCache)
-                if (entry.bindSlot == binding->slot)
-                {
-                    entry.texture = dynamic_cast<D3D11::IBindableTexture*>( texture.get() );
-                    return;
-                }
+    //    if (shaderDecl)
+    //    {
+    //        // Update texture slot if possible
+    //        for (auto& entry : m_textureCache)
+    //            if (entry.bindSlot == shaderDecl->getBindingSlot())
+    //            {
+    //                entry.texture = dynamic_cast<D3D11::IBindableTexture*>( texture.get() );
+    //                return;
+    //            }
 
-            // Texture slot was set for the first time
-            TextureCache texCache;
-            texCache.bindSlot = binding->slot;
-            texCache.shaderType = ShaderType::Vertex;
-            texCache.texture = dynamic_cast<D3D11::IBindableTexture*>( texture.get() );
+    //        // Texture slot was set for the first time
+    //        TextureCache texCache;
+    //        texCache.bindSlot   = shaderDecl->getBindingSlot();
+    //        texCache.shaderType = shaderDecl->getShaderType();
+    //        texCache.texture    = dynamic_cast<D3D11::IBindableTexture*>( texture.get() );
 
-            m_textureCache.emplace_back( texCache );
-        }
-
-        // PIXEL SHADER
-        if ( auto binding = d3d11Shader->getPixelShader()->getTextureBindingInfo( name ) )
-        {
-            // Update texture slot if possible
-            for (auto& entry : m_textureCache)
-                if (entry.bindSlot == binding->slot)
-                {
-                    entry.texture = dynamic_cast<D3D11::IBindableTexture*>( texture.get() );
-                    return;
-                }
-      
-            // Texture slot was set for the first time
-            TextureCache texCache;
-            texCache.bindSlot = binding->slot;
-            texCache.shaderType = ShaderType::Fragment;
-            texCache.texture = dynamic_cast<D3D11::IBindableTexture*>( texture.get() );
-
-            m_textureCache.emplace_back( texCache );
-        }
-    }
+    //        m_textureCache.emplace_back(texCache);
+    //    }
+    //}
 
     //**********************************************************************
     // PRIVATE
@@ -96,14 +69,12 @@ namespace Graphics { namespace D3D11 {
     //----------------------------------------------------------------------
     void Material::_CreateConstantBuffers()
     {
-        auto d3d11Shader = dynamic_cast<Shader*>( m_shader.get() );
-
         // Create buffer for vertex shader
-        if ( auto cb = d3d11Shader->getVertexShader()->getMaterialBufferInfo() )
+        if ( auto cb = m_shader->getVSUniformMaterialBuffer() )
             m_materialDataVS = new MappedConstantBuffer( *cb, BufferUsage::LongLived );
 
         // Create buffer for pixel shader
-        if ( auto cb = d3d11Shader->getPixelShader()->getMaterialBufferInfo() )
+        if ( auto cb = m_shader->getFSUniformMaterialBuffer() )
             m_materialDataPS = new MappedConstantBuffer( *cb, BufferUsage::LongLived );
     }
  

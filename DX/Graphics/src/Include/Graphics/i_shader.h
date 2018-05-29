@@ -1,6 +1,6 @@
 #pragma once
 /**********************************************************************
-    class: IShader (i_shader.hpp)
+    class: IShader (i_shader.h)
 
     author: S. Hau
     date: March 12, 2018
@@ -13,11 +13,13 @@
 #include "OS/FileSystem/path.h"
 #include "structs.hpp"
 #include "vertex_layout.hpp"
+#include "i_texture.h"
+#include "shader_resources.hpp"
 
 namespace Graphics {
 
     //**********************************************************************
-    // Shaders with a renderqueue <= 1000 will be rendered front to back, >= 1000 back to front.
+    // Shaders with a renderqueue >= BackToFrontBoundary will be rendered back to front.
     enum class RenderQueue : I32
     {
         // --------- FRONT TO BACK ------------
@@ -111,15 +113,30 @@ namespace Graphics {
 
         //----------------------------------------------------------------------
         // @Return:
-        //  The datatype of a property in this shader. Unknown if property does not exist.
+        //  Information an uniform buffer with the given name. Nullptr if not existent.
         //----------------------------------------------------------------------
-        virtual DataType getDataTypeOfProperty(StringID name) const = 0;
+        //virtual const ShaderUniformBufferDeclaration* getUniformBuffer(StringID name) const = 0;
 
         //----------------------------------------------------------------------
         // @Return:
-        //  The datatype of a material property in this shader. Unknown if property does not exist.
+        //  Information about the corresponding uniform buffer which is used by a material.
         //----------------------------------------------------------------------
-        virtual DataType getDataTypeOfMaterialProperty(StringID name) const = 0;
+        virtual const ShaderUniformBufferDeclaration* getVSUniformMaterialBuffer() const = 0;
+        virtual const ShaderUniformBufferDeclaration* getFSUniformMaterialBuffer() const = 0;
+
+        //----------------------------------------------------------------------
+        // @Return:
+        //  The datatype of a property with the given name. Issues a warning if the
+        //  name exists in more than one shader stage. (This does not include shader resources like textures)
+        //----------------------------------------------------------------------
+        DataType getDataTypeOfMaterialProperty(StringID name);
+        DataType getDataTypeOfMaterialPropertyOrResource(StringID name);
+
+        //----------------------------------------------------------------------
+        // @Return:
+        //  True if the property exists and is considered to be part of the material. (This does not include shader resources like textures)
+        //----------------------------------------------------------------------
+        bool hasMaterialProperty(StringID name){ return getDataTypeOfMaterialProperty(name) != DataType::Unknown; }
 
         //----------------------------------------------------------------------
         // @Return:
@@ -155,17 +172,29 @@ namespace Graphics {
         //----------------------------------------------------------------------
         void setRenderQueue(I32 renderQueue) { m_renderQueue = renderQueue; }
 
+        //**********************************************************************
+        // Shader Buffer
+        //**********************************************************************
+        TexturePtr          getTexture(StringID name)   const;
+        inline TexturePtr   getTexture(CString name)    const { return getTexture(SID(name)); }
+
+        void                setTexture(StringID name, const TexturePtr& tex);
+        inline void         setTexture(CString name, const TexturePtr& tex) { setTexture(SID(name), tex); }
+
         //----------------------------------------------------------------------
         // @Return:
-        //  True if the property exists and is considered to be part of the material.
+        //  The resource declaration with name 'name' across all shader stages. Nullptr if not existent.
         //----------------------------------------------------------------------
-        bool hasMaterialProperty(StringID name) { return getDataTypeOfMaterialProperty( name ) != DataType::Unknown; }
+        virtual const ShaderResourceDeclaration* getShaderResource(StringID name) const = 0;
 
     protected:
-        // These are only used when blending is enabled
-        std::array<F32, 4>  m_blendFactors  = { 1.0f, 1.0f, 1.0f, 1.0f };
+        std::array<F32, 4>  m_blendFactors  = { 1.0f, 1.0f, 1.0f, 1.0f };   // These are only used when blending is enabled
         String              m_name          = "NO NAME";
         I32                 m_renderQueue   = (I32)RenderQueue::Geometry;
+
+        HashMap<StringID, TexturePtr> m_textureMap;
+
+        void _BindTextures();
 
     private:
         //----------------------------------------------------------------------
