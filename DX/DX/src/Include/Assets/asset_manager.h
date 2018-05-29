@@ -19,14 +19,14 @@
 #include "Graphics/i_shader.h"
 #include "Graphics/i_material.h"
 
-namespace Core { namespace Assets {
+namespace Assets {
 
     //**********************************************************************
-    class AssetManager : public ISubSystem
+    class AssetManager : public Core::ISubSystem
     {
         using WeakTexture2DPtr  = std::weak_ptr<Graphics::Texture2D>;
         using WeakCubemapPtr    = std::weak_ptr<Graphics::Cubemap>;
-        using WeakWavClipPtr    = std::weak_ptr<Audio::WAVClip>;
+        using WeakWavClipPtr    = std::weak_ptr<Core::Audio::WAVClip>;
         using WeakShaderPtr     = std::weak_ptr<Graphics::Shader>;
         using WeakMaterialPtr   = std::weak_ptr<Graphics::IMaterial>;
 
@@ -151,4 +151,4 @@ namespace Core { namespace Assets {
         AssetManager& operator = (AssetManager&& other)         = delete;
     };
 
-} } // End namespaces
+} // End namespaces

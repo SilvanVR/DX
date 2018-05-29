@@ -7,9 +7,9 @@
 **********************************************************************/
 
 #include "Core/locator.h"
-#include "Core/Assets/mesh_generator.h"
+#include "Assets/mesh_generator.h"
 
-namespace Core { namespace Assets {
+namespace Assets {
 
     #define SHADER_NAME_ENV_MAP         "environmentMap"
     #define SHADER_NAME_SPEC_SAMPLES    "numSamples"
@@ -60,4 +60,4 @@ namespace Core { namespace Assets {
         Locator::getRenderer().dispatch( cmd );
     }
 
-} } // End namespaces
+} // End namespaces

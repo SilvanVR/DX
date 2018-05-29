@@ -35,7 +35,7 @@
 #define NUM_SHADER_TYPES                (I32)Graphics::ShaderType::NUM_SHADER_TYPES
 #define INCLUDE_NAME                    "#include"
 
-namespace Core { namespace Assets {
+namespace Assets {
 
     //**********************************************************************
     class ShaderParser
@@ -305,4 +305,4 @@ namespace Core { namespace Assets {
 
     };
 
-} } // End namespaces
+} // End namespaces

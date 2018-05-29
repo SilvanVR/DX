@@ -32,15 +32,6 @@ namespace Graphics { namespace D3D11 {
         MappedConstantBuffer* m_materialDataVS = nullptr;
         MappedConstantBuffer* m_materialDataPS = nullptr;
 
-        //// Stores texture as a d3d11 texture and the bindslot
-        //struct TextureCache
-        //{
-        //    U32                         bindSlot;
-        //    ShaderType                  shaderType;
-        //    D3D11::IBindableTexture*    texture;
-        //};
-        //ArrayList<TexturePtr> m_textureCache;
-
         //----------------------------------------------------------------------
         // IMaterial Interface
         //----------------------------------------------------------------------

@@ -21,5 +21,5 @@ Graphics::IRenderer*                    Locator::gRenderer          = nullptr;
 Core::SceneManager*                     Locator::gSceneManager      = nullptr;
 Core::Resources::ResourceManager*       Locator::gResourceManager   = nullptr;
 Core::Debug::DebugManager*              Locator::gDebugManager      = nullptr;
-Core::Assets::AssetManager*             Locator::gAssetManager      = nullptr;
+Assets::AssetManager*                   Locator::gAssetManager      = nullptr;
 Core::Audio::AudioManager*              Locator::gAudioManager      = nullptr;

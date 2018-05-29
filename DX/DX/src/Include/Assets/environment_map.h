@@ -11,7 +11,7 @@
 
 #include "Graphics/i_cubemap.hpp"
 
-namespace Core { namespace Assets { 
+namespace Assets { 
 
     //*********************************************************************
     class EnvironmentMap
@@ -34,4 +34,4 @@ namespace Core { namespace Assets {
         EnvironmentMap& operator = (EnvironmentMap&& other)       = delete;
     };
 
-} } // End namespaces
+} // End namespaces

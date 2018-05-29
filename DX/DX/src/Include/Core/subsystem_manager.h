@@ -13,6 +13,7 @@
 #include "Time/durations.h"
 
 namespace Graphics { class IRenderer; }
+namespace Assets   { class AssetManager; }
 
 namespace Core {
 
@@ -26,7 +27,6 @@ namespace Core {
     namespace Input             { class InputManager; }
     namespace Resources         { class ResourceManager; }
     namespace Debug             { class DebugManager; }
-    namespace Assets            { class AssetManager; }
     namespace Audio             { class AudioManager; }
     class IInGameConsole;
     class SceneManager;

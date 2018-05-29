@@ -35,33 +35,22 @@ public:
 
         createGameObject("Grid")->addComponent<GridGeneration>(20);
 
-        auto brdfLut = RESOURCES.createRenderTexture();
-        brdfLut->create(512, 512, 0, Graphics::TextureFormat::RGHalf);
-        brdfLut->setAnisoLevel(1);
-        brdfLut->setFilter(Graphics::TextureFilter::Bilinear);
-        brdfLut->setClampMode(Graphics::TextureAddressMode::Clamp);
-
-        Graphics::CommandBuffer cmd;
-        cmd.setRenderTarget(brdfLut);
-        cmd.drawFullscreenQuad(ASSETS.getMaterial("/materials/pbr_brdfLut.material"));
-        Locator::getRenderer().dispatch(cmd);
-
         auto cubemap = ASSETS.getCubemap("/cubemaps/tropical_sunny_day/Left.png", "/cubemaps/tropical_sunny_day/Right.png",
             "/cubemaps/tropical_sunny_day/Up.png", "/cubemaps/tropical_sunny_day/Down.png",
             "/cubemaps/tropical_sunny_day/Front.png", "/cubemaps/tropical_sunny_day/Back.png", true);
 
         auto pbrShader = ASSETS.getShader("/shaders/pbr.shader");
 
+        Assets::BRDFLut brdfLut;
         Assets::EnvironmentMap envMap(cubemap, 256, 1024);
         auto diffuse = envMap.getDiffuseIrradianceMap();
         auto specular = envMap.getSpecularReflectionMap();
-        pbrShader->setTexture("diffuseIrradianceMap", envMap.getDiffuseIrradianceMap());
-        pbrShader->setTexture("specularReflectionMap", envMap.getSpecularReflectionMap());
-        pbrShader->setTexture("brdfLUT", brdfLut);
-        pbrShader->setFloat("maxReflectionLOD", (F32)specular->getMipCount() - 1);
-        pbrShader->setFloat("BLABLA", (F32)specular->getMipCount() - 1);
+        pbrShader->setTexture("diffuseIrradianceMap", diffuse);
+        pbrShader->setTexture("specularReflectionMap", specular);
+        pbrShader->setTexture("brdfLUT", brdfLut.getTexture());
+        pbrShader->setFloat("maxReflectionLOD", F32(specular->getMipCount()-1));
 
-        auto mesh = Core::Assets::MeshGenerator::CreateUVSphere(20,20);
+        auto mesh = Assets::MeshGenerator::CreateUVSphere(20,20);
         mesh->recalculateNormals();
 
         auto mat = ASSETS.getMaterial("/materials/pbr.material");

@@ -11,7 +11,7 @@
 #include "shader_parser.hpp"
 #include "material_parser.hpp"
 
-namespace Core { namespace Assets {
+namespace Assets {
 
     #define HOT_RELOAD_INTERVAL_MILLIS  500
     #define LOG_COLOR                   Color::GREEN
@@ -115,7 +115,7 @@ namespace Core { namespace Assets {
             if ( not weakPtr.expired() )
             {
                 auto audioClip = RESOURCES.createAudioClip();
-                audioClip->setWAVClip( Audio::WAVClipPtr( weakPtr ) );
+                audioClip->setWAVClip( Core::Audio::WAVClipPtr( weakPtr ) );
                 return audioClip;
             }
         }
@@ -123,7 +123,7 @@ namespace Core { namespace Assets {
         // Try loading audio
         LOG( "AssetManager: Loading Audio '" + filePath.toString() + "'", LOG_COLOR );
 
-        auto wav = std::make_shared<Audio::WAVClip>();
+        auto wav = std::make_shared<Core::Audio::WAVClip>();
         if( not wav->load( filePath ) )
         {
             LOG_WARN( "AssetManager::getAudioClip(): Audio clip '" + filePath.toString() + "' could not be loaded. Returning nullptr." );
@@ -445,4 +445,4 @@ namespace Core { namespace Assets {
         }
     }
 
-} } // End namespaces
+} // End namespaces

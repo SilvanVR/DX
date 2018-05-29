@@ -14,7 +14,7 @@
 #include "Events/event_dispatcher.h"
 #include "Core/event_names.hpp"
 #include "GameplayLayer/i_scene.h"
-#include "Core/Assets/mesh_generator.h"
+#include "Assets/mesh_generator.h"
 #include "Graphics/default_shaders.hpp"
 
 namespace Core { namespace Debug {

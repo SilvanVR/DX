@@ -6,7 +6,7 @@
     date: April 1, 2018
 **********************************************************************/
 
-#include "Core/Assets/mesh_generator.h"
+#include "Assets/mesh_generator.h"
 #include "GameplayLayer/gameobject.h"
 #include "GameplayLayer/i_scene.h"
 #include "Rendering/mesh_renderer.h"
@@ -27,7 +27,7 @@ namespace Components {
         m_skyboxMaterial->setTexture( SID( "Cubemap" ), m_cubemap );
 
         // Create skybox mesh (make it as large as possible so it wont get culled)
-        m_skyboxMesh = Core::Assets::MeshGenerator::CreateCube(100000);
+        m_skyboxMesh = Assets::MeshGenerator::CreateCube(100000);
 
         // Create gameobject which renders the skybox
         auto mr = m_gameObject->addComponent<Components::MeshRenderer>();

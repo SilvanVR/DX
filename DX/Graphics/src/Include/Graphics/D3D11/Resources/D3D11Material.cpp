@@ -10,18 +10,14 @@
        so the buffer usage can be changed to FREQUENTLY
 **********************************************************************/
 
-#include "D3D11Shader.h"
-
 namespace Graphics { namespace D3D11 {
 
     //----------------------------------------------------------------------
     void Material::bind()
     {
         // Bind constant buffers
-        if ( m_materialDataVS )
-            m_materialDataVS->bind( ShaderType::Vertex );
-        if ( m_materialDataPS )
-            m_materialDataPS->bind( ShaderType::Fragment );
+        if (m_materialDataVS) m_materialDataVS->bind( ShaderType::Vertex );
+        if (m_materialDataPS) m_materialDataPS->bind( ShaderType::Fragment );
 
         _BindTextures();
     }
@@ -36,31 +32,6 @@ namespace Graphics { namespace D3D11 {
     //**********************************************************************
     // PUBLIC
     //**********************************************************************
-
-    //----------------------------------------------------------------------
-    //void Material::_SetTexture( StringID name, const TexturePtr& texture )
-    //{
-    //    auto shaderDecl = m_shader->getShaderResource( name );
-
-    //    if (shaderDecl)
-    //    {
-    //        // Update texture slot if possible
-    //        for (auto& entry : m_textureCache)
-    //            if (entry.bindSlot == shaderDecl->getBindingSlot())
-    //            {
-    //                entry.texture = dynamic_cast<D3D11::IBindableTexture*>( texture.get() );
-    //                return;
-    //            }
-
-    //        // Texture slot was set for the first time
-    //        TextureCache texCache;
-    //        texCache.bindSlot   = shaderDecl->getBindingSlot();
-    //        texCache.shaderType = shaderDecl->getShaderType();
-    //        texCache.texture    = dynamic_cast<D3D11::IBindableTexture*>( texture.get() );
-
-    //        m_textureCache.emplace_back(texCache);
-    //    }
-    //}
 
     //**********************************************************************
     // PRIVATE

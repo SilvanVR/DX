@@ -576,7 +576,7 @@ public:
 
         createGameObject("Grid")->addComponent<GridGeneration>(20);
 
-        auto mesh = Core::Assets::MeshGenerator::CreateCube(1);
+        auto mesh = Assets::MeshGenerator::CreateCube(1);
         mesh->setColors(cubeColors);
 
         auto go2 = createGameObject("Obj");
@@ -604,7 +604,7 @@ public:
 
         createGameObject("Grid")->addComponent<GridGeneration>(20);
 
-        auto plane = Core::Assets::MeshGenerator::CreatePlane();
+        auto plane = Assets::MeshGenerator::CreatePlane();
         auto mat = ASSETS.getMaterial("/materials/transparent.material");
 
         auto go2 = createGameObject("Obj");
@@ -643,7 +643,7 @@ public:
 
         createGameObject("Grid")->addComponent<GridGeneration>(20);
 
-        auto mesh = Core::Assets::MeshGenerator::CreatePlane(1.0f);
+        auto mesh = Assets::MeshGenerator::CreatePlane(1.0f);
 
         auto mat = ASSETS.getMaterial("/materials/phong.material");
         auto go2 = createGameObject("Obj");

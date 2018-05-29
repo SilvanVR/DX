@@ -300,9 +300,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\Include\Core\Assets\asset_manager.cpp" />
-    <ClCompile Include="src\Include\Core\Assets\environment_map.cpp" />
-    <ClCompile Include="src\Include\Core\Assets\mesh_generator.cpp" />
+    <ClCompile Include="src\Include\Assets\asset_manager.cpp" />
+    <ClCompile Include="src\Include\Assets\brdf_lut.cpp" />
+    <ClCompile Include="src\Include\Assets\environment_map.cpp" />
+    <ClCompile Include="src\Include\Assets\mesh_generator.cpp" />
     <ClCompile Include="src\Include\Core\Audio\audio_clip.cpp" />
     <ClCompile Include="src\Include\Core\Audio\audio_manager.cpp" />
     <ClCompile Include="src\Include\Core\Audio\wav_clip.cpp" />
@@ -353,17 +354,18 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\Include\Core\Assets\asset_manager.h" />
-    <ClInclude Include="src\Include\Core\Assets\environment_map.h" />
-    <ClInclude Include="src\Include\Core\Assets\material_parser.hpp" />
-    <ClInclude Include="src\Include\Core\Assets\shader_parser.hpp" />
+    <ClInclude Include="src\Include\Assets\asset_manager.h" />
+    <ClInclude Include="src\Include\Assets\brdf_lut.h" />
+    <ClInclude Include="src\Include\Assets\environment_map.h" />
+    <ClInclude Include="src\Include\Assets\material_parser.hpp" />
+    <ClInclude Include="src\Include\Assets\shader_parser.hpp" />
     <ClInclude Include="src\Include\Core\Audio\audio_clip.h" />
     <ClInclude Include="src\Include\Core\Audio\audio_manager.h" />
     <ClInclude Include="src\Include\Core\Audio\wav_clip.h" />
     <ClInclude Include="src\Include\Core\layer_defines.hpp" />
     <ClInclude Include="src\Include\Core\DebugManager\debug_manager.h" />
     <ClInclude Include="src\Include\Core\event_names.hpp" />
-    <ClInclude Include="src\Include\Core\Assets\mesh_generator.h" />
+    <ClInclude Include="src\Include\Assets\mesh_generator.h" />
     <ClInclude Include="src\Include\Ext\JSON\json.hpp" />
     <ClInclude Include="src\Include\Ext\StbImage\stb_image.h" />
     <ClInclude Include="src\Include\Core\InGameConsole\in_game_console.h" />

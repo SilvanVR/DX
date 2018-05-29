@@ -13,7 +13,7 @@
 
 using JSON = nlohmann::json;
 
-namespace Core { namespace Assets {
+namespace Assets {
 
     //**********************************************************************
     class MaterialParser
@@ -198,4 +198,4 @@ namespace Core { namespace Assets {
 
     };
 
-} } // End namespaces
+} // End namespaces

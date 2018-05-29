@@ -72,7 +72,7 @@ public:
     static Core::SceneManager&                        getSceneManager()   { return *gSceneManager; }
     static Core::Resources::ResourceManager&          getResourceManager(){ return *gResourceManager; }
     static Core::Debug::DebugManager&                 getDebugManager()   { return *gDebugManager;}
-    static Core::Assets::AssetManager&                getAssetManager()   { return *gAssetManager; }
+    static Assets::AssetManager&                      getAssetManager()   { return *gAssetManager; }
     static Core::Audio::AudioManager&                 getAudioManager()   { return *gAudioManager; }
 
     //----------------------------------------------------------------------
@@ -91,7 +91,7 @@ public:
     static void provide(Core::SceneManager* s)                                { gSceneManager = s; }
     static void provide(Core::Resources::ResourceManager* r)                  { gResourceManager = r; }
     static void provide(Core::Debug::DebugManager* d)                         { gDebugManager = d; }
-    static void provide(Core::Assets::AssetManager* a)                        { gAssetManager = a; }
+    static void provide(Assets::AssetManager* a)                              { gAssetManager = a; }
     static void provide(Core::Audio::AudioManager* a)                         { gAudioManager = a; }
 
 private:
@@ -112,7 +112,7 @@ private:
     static Core::SceneManager*                        gSceneManager;
     static Core::Resources::ResourceManager*          gResourceManager;
     static Core::Debug::DebugManager*                 gDebugManager;
-    static Core::Assets::AssetManager*                gAssetManager;
+    static Assets::AssetManager*                      gAssetManager;
     static Core::Audio::AudioManager*                 gAudioManager;
 
     //----------------------------------------------------------------------
