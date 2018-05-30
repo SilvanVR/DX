@@ -5,6 +5,8 @@
 "albedoMap" : "/textures/pbr/gold/albedo.png",
 "color": "#FFFFFF",
 "metallic": 0,
-"roughness": 0
+"roughness": 0,
+"metallicMap" : "/textures/pbr/gold/metallic.png",
+"roughnessMap" : "/textures/pbr/gold/roughness.png"
 
 }

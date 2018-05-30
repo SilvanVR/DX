@@ -268,11 +268,20 @@ namespace Assets {
     Texture2DPtr AssetManager::_LoadTexture2D( const OS::Path& filePath, bool generateMips )
     {
         I32 width, height, bpp;
-        auto pixels = stbi_load( filePath.c_str(), &width, &height, &bpp, 4 );
+        stbi_info( filePath.c_str(), &width, &height, &bpp );
 
+        auto pixels = stbi_load( filePath.c_str(), &width, &height, &bpp, bpp == 3 ? 4 : 0 );
         if (pixels)
         {
-            auto tex = RESOURCES.createTexture2D( width, height, Graphics::TextureFormat::RGBA32, generateMips );
+            auto texFormat = Graphics::TextureFormat::RGBA32;
+            switch (bpp)
+            {
+            case 1: texFormat = Graphics::TextureFormat::R8; break;
+            case 2: texFormat = Graphics::TextureFormat::RG16; break;
+            case 3: texFormat = Graphics::TextureFormat::RGBA32; break;
+            }
+
+            auto tex = RESOURCES.createTexture2D( width, height, texFormat, generateMips );
             tex->setPixels( pixels );
             tex->apply();
 
