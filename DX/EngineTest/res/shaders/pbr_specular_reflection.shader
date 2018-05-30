@@ -1,6 +1,6 @@
 // ----------------------------------------------
 #Fill			Solid
-#Cull 			None
+#Cull 			Front
 #ZWrite 		Off
 #Queue 			Background
 

@@ -64,6 +64,16 @@ namespace Assets {
                               const OS::Path& posZ, const OS::Path& negZ, bool genMips = false);
 
         //----------------------------------------------------------------------
+        // Creates a new cubemap from a file. Will be loaded only if not already in memory.
+        // Returns a default one and issues a warning if file couldn't be loaded.
+        // @Params:
+        //  "path": Path to the cubemap.
+        //  "sizePerFace": The size per face if the engine has to convert the given cubemap first.
+        //  "genMips": If true a complete mipchain will be generated for each face.
+        //----------------------------------------------------------------------
+        CubemapPtr getCubemap(const OS::Path& path, I32 sizePerFace = 512, bool genMips = false);
+
+        //----------------------------------------------------------------------
         // Creates a new audio object. Will be loaded only if not already in memory.
         // @Params:
         //  "path": Path to the audio clip.
@@ -158,6 +168,7 @@ namespace Assets {
         inline CubemapPtr _LoadCubemap(const OS::Path& posX, const OS::Path& negX, 
                                        const OS::Path& posY, const OS::Path& negY,
                                        const OS::Path& posZ, const OS::Path& negZ, bool generateMips);
+        inline CubemapPtr _LoadCubemap(const OS::Path& path, I32 sizePerFace, bool generateMips);
         void _EnableHotReloading();
 
         //----------------------------------------------------------------------

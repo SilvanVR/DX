@@ -197,7 +197,7 @@ namespace Assets {
             return result;
         }
 
-        static void _SetPBRParams(const MaterialPtr& material)
+        static void _SetPBRParams( const MaterialPtr& material )
         {
             static const StringID NAME_COLOR                = SID( "color" );
             static const StringID NAME_ROUGHNESS            = SID( "roughness" );
@@ -207,11 +207,12 @@ namespace Assets {
             static const StringID NAME_USE_ROUGHNESS_MAP    = SID( "useRoughnessMap" );
             static const StringID NAME_USE_METALLIC_MAP     = SID( "useMetallicMap" );
 
-            // Color
-            material->setColor( NAME_COLOR, Color::WHITE );
-
             material->setFloat( NAME_USE_METALLIC_MAP, 0.0f );
             material->setFloat( NAME_USE_ROUGHNESS_MAP, 0.0f );
+
+            // Color
+            if ( not material->hasVec4( NAME_COLOR ) )
+                material->setColor( NAME_COLOR, Color::WHITE );
 
             // Roughness
             if ( not material->hasFloat( NAME_ROUGHNESS ) )

@@ -611,8 +611,7 @@ namespace Graphics {
 
         // Create temporary render texture
         auto renderTexture = createRenderTexture();
-        renderContext.renderTarget = renderTexture;
-        renderTexture->create( width, height, 0, cubemap->getFormat() );
+        renderTexture->create( width, height, 0, cubemap->getFormat(), 1 );
         renderTexture->bindForRendering();
 
         // Setup viewport matching the render texture

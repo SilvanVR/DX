@@ -45,21 +45,25 @@ namespace Assets {
 
         // Try loading texture
         LOG( "AssetManager: Loading Texture '" + filePath.toString() + "'", LOG_COLOR );
-        auto texture = _LoadTexture2D( filePath, generateMips );
-        if ( not texture )
+        try
         {
-            LOG_WARN( "LoadTexture(): Texture '" + filePath.toString() + "' could not be loaded. Returning the default texture instead." );
+            auto texture = _LoadTexture2D( filePath, generateMips );
+
+            TextureAssetInfo texInfo;
+            texInfo.texture     = texture;
+            texInfo.path        = filePath;
+            texInfo.timeAtLoad  = filePath.getLastWrittenFileTime();
+
+            m_textureCache[pathAsID] = texInfo;
+
+            return texture;
+        }
+        catch (const std::runtime_error& e)
+        {
+            LOG_WARN( "LoadTexture(): Texture '" + filePath.toString() + "' could not be loaded. Reason: " 
+                      + e.what() + "Returning the default texture instead." );
             return RESOURCES.getWhiteTexture();
         }
-
-        TextureAssetInfo texInfo;
-        texInfo.texture     = texture;
-        texInfo.path        = filePath;
-        texInfo.timeAtLoad  = filePath.getLastWrittenFileTime();
-
-        m_textureCache[pathAsID] = texInfo;
-
-        return texture;
     }
 
     //----------------------------------------------------------------------
@@ -87,22 +91,60 @@ namespace Assets {
 
         // Try loading cubemap
         LOG( "AssetManager: Loading 6 Cubemap Faces '" + posX.toString() + "' (Positive X-Face) etc.", LOG_COLOR );
-        auto cubemap = _LoadCubemap( posX, negX, posY, negY, posZ, negZ, generateMips );
-        if (not cubemap)
+        try
         {
-            LOG_WARN( "LoadCubemap(): At least one of the specified cubemap faces couldn't be loaded! Positive X-Face path was " +
-                   posX.toString() + " .Returning default cubemap instead." );
+            auto cubemap = _LoadCubemap( posX, negX, posY, negY, posZ, negZ, generateMips );
+
+            CubemapAssetInfo texInfo;
+            texInfo.cubemap     = cubemap;
+            texInfo.path        = posX;
+            texInfo.timeAtLoad  = posX.getLastWrittenFileTime();
+
+            m_cubemapCache[pathAsID] = texInfo;
+
+            return cubemap;
+        }
+        catch (const std::runtime_error& e)
+        {
+            LOG_WARN( "LoadCubemap():  At least one of the specified cubemap faces couldn't be loaded! Positive X-Face path was  '" + posX.toString() + "' could not be loaded. "
+                      "Reason: " + e.what() + "Returning the default texture instead." );
             return RESOURCES.getDefaultCubemap();
         }
+    }
 
-        CubemapAssetInfo texInfo;
-        texInfo.cubemap     = cubemap;
-        texInfo.path        = posX;
-        texInfo.timeAtLoad  = posX.getLastWrittenFileTime();
+    //----------------------------------------------------------------------
+    CubemapPtr AssetManager::getCubemap( const OS::Path& path, I32 sizePerFace, bool genMips )
+    {
+        // Check if cubemap was already loaded (checks only first path)
+        StringID pathAsID = SID( StringUtils::toLower( path.toString() ).c_str() );
+        if ( m_cubemapCache.find( pathAsID ) != m_cubemapCache.end() )
+        {
+            auto weakPtr = m_cubemapCache[pathAsID].cubemap;
+            if ( not weakPtr.expired() )
+                return CubemapPtr( weakPtr );
+        }
 
-        m_cubemapCache[pathAsID] = texInfo;
+        // Try loading cubemap
+        LOG( "AssetManager: Loading Cubemap '" + path.toString() + "'", LOG_COLOR );
+        try
+        {
+            auto cubemap = _LoadCubemap( path, sizePerFace, genMips );
 
-        return cubemap;
+            CubemapAssetInfo texInfo;
+            texInfo.cubemap     = cubemap;
+            texInfo.path        = path;
+            texInfo.timeAtLoad  = path.getLastWrittenFileTime();
+
+            m_cubemapCache[pathAsID] = texInfo;
+
+            return cubemap;
+        }
+        catch (const std::runtime_error& e)
+        {
+            LOG_WARN( "LoadCubemap(): Cubemap " + path.toString() + " couldn't be loaded. "
+                      "Reason: " + e.what() + " Returning the default cubemap instead." );
+            return RESOURCES.getDefaultCubemap();
+        }
     }
 
     //----------------------------------------------------------------------
@@ -271,26 +313,27 @@ namespace Assets {
         stbi_info( filePath.c_str(), &width, &height, &bpp );
 
         auto pixels = stbi_load( filePath.c_str(), &width, &height, &bpp, bpp == 3 ? 4 : 0 );
-        if (pixels)
+        if ( not pixels )
         {
-            auto texFormat = Graphics::TextureFormat::RGBA32;
-            switch (bpp)
-            {
-            case 1: texFormat = Graphics::TextureFormat::R8; break;
-            case 2: texFormat = Graphics::TextureFormat::RG16; break;
-            case 3: texFormat = Graphics::TextureFormat::RGBA32; break;
-            }
-
-            auto tex = RESOURCES.createTexture2D( width, height, texFormat, generateMips );
-            tex->setPixels( pixels );
-            tex->apply();
-
             stbi_image_free( pixels );
-
-            return tex;
+            throw std::runtime_error( String( stbi_failure_reason() ) );
         }
 
-        return nullptr;
+        auto texFormat = Graphics::TextureFormat::RGBA32;
+        switch (bpp)
+        {
+        case 1: texFormat = Graphics::TextureFormat::R8; break;
+        case 2: texFormat = Graphics::TextureFormat::RG16; break;
+        case 3: texFormat = Graphics::TextureFormat::RGBA32; break;
+        }
+
+        auto tex = RESOURCES.createTexture2D( width, height, texFormat, generateMips );
+        tex->setPixels( pixels );
+        tex->apply();
+
+        stbi_image_free( pixels );
+
+        return tex;
     }
 
     //----------------------------------------------------------------------
@@ -314,11 +357,11 @@ namespace Assets {
             stbi_image_free( negYPixels );
             stbi_image_free( posZPixels );
             stbi_image_free( negZPixels );
-            return nullptr;
+            throw std::runtime_error( String( stbi_failure_reason() ) );
         }
 
         auto cubemap = RESOURCES.createCubemap();
-        cubemap->create( width, Graphics::TextureFormat::RGBA32, Graphics::Mips::Generate );
+        cubemap->create( width, Graphics::TextureFormat::RGBA32, generateMips ? Graphics::Mips::Generate : Graphics::Mips::None );
       
         cubemap->setPixels( Graphics::CubemapFace::PositiveX, posXPixels );
         cubemap->setPixels( Graphics::CubemapFace::NegativeX, negXPixels );
@@ -335,6 +378,45 @@ namespace Assets {
         stbi_image_free( negZPixels );
 
         cubemap->apply();
+        return cubemap;
+    }
+
+    //----------------------------------------------------------------------
+    CubemapPtr AssetManager::_LoadCubemap( const OS::Path& path, I32 sizePerFace, bool generateMips )
+    {
+        if ( path.getExtension() != "hdr" )
+            throw std::runtime_error( "File-Extension '" + path.getExtension() + "' not supported" );
+
+        auto shader = getShader( "/shaders/hdr_to_cube.shader" );
+        if ( shader == RESOURCES.getErrorShader() )
+            throw std::runtime_error( "Can't load 'hdr_to_cube.shader'. This is required in order to create a cubemap from a hdr file." );
+
+        I32 width, height, bpp;
+        auto pixels = stbi_loadf( path.c_str(), &width, &height, &bpp, 4 );
+        if ( not pixels )
+        {
+            stbi_image_free( pixels );
+            throw std::runtime_error( String( stbi_failure_reason() ) );
+        }
+
+        // Create hdr floating point texture
+        auto hdrTex = RESOURCES.createTexture2D( width, height, Graphics::TextureFormat::RGBAFloat, pixels );
+
+        // Create cubemap
+        auto cubemap = RESOURCES.createCubemap();
+        cubemap->create( sizePerFace, Graphics::TextureFormat::RGBAFloat, generateMips ? Graphics::Mips::Generate : Graphics::Mips::None );
+
+        // Create material and set texture
+        auto mat = RESOURCES.createMaterial( shader );
+        mat->setTexture( "equirectangularMap", hdrTex );
+
+        // Submit command to the renderer
+        Graphics::CommandBuffer cmd;
+        cmd.renderCubemap( cubemap, mat );
+        Locator::getRenderer().dispatch( cmd );
+
+        stbi_image_free( pixels );
+
         return cubemap;
     }
 

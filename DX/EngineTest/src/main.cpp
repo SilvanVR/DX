@@ -29,14 +29,16 @@ public:
 
         //createGameObject("Grid")->addComponent<GridGeneration>(20);
 
-        auto cubemap = ASSETS.getCubemap("/cubemaps/tropical_sunny_day/Left.png", "/cubemaps/tropical_sunny_day/Right.png",
-            "/cubemaps/tropical_sunny_day/Up.png", "/cubemaps/tropical_sunny_day/Down.png",
-            "/cubemaps/tropical_sunny_day/Front.png", "/cubemaps/tropical_sunny_day/Back.png", true);
+        //auto cubemap = ASSETS.getCubemap("/cubemaps/tropical_sunny_day/Left.png", "/cubemaps/tropical_sunny_day/Right.png",
+        //    "/cubemaps/tropical_sunny_day/Up.png", "/cubemaps/tropical_sunny_day/Down.png",
+        //    "/cubemaps/tropical_sunny_day/Front.png", "/cubemaps/tropical_sunny_day/Back.png", true);
+
+        auto cubemapHDR = ASSETS.getCubemap("/cubemaps/malibu.hdr", 2048);
 
         auto pbrShader = ASSETS.getShader("/shaders/pbr.shader");
 
         Assets::BRDFLut brdfLut;
-        Assets::EnvironmentMap envMap(cubemap, 256, 1024);
+        Assets::EnvironmentMap envMap(cubemapHDR, 64, 512);
         auto diffuse = envMap.getDiffuseIrradianceMap();
         auto specular = envMap.getSpecularReflectionMap();
         pbrShader->setTexture("diffuseIrradianceMap", diffuse);
@@ -44,7 +46,7 @@ public:
         pbrShader->setTexture("brdfLUT", brdfLut.getTexture());
         pbrShader->setFloat("maxReflectionLOD", F32(specular->getMipCount()-1));
 
-        createGameObject("Skybox")->addComponent<Components::Skybox>(diffuse);
+        createGameObject("Skybox")->addComponent<Components::Skybox>(cubemapHDR);
 
         //auto mesh = ASSETS.getMesh("/models/cerberus.fbx");
         auto mesh = ASSETS.getMesh("/models/sphere.obj");
@@ -66,6 +68,12 @@ public:
         pl->getTransform()->position = {4, 2, 0};
         pl->addComponent<Components::Billboard>(ASSETS.getTexture2D("/textures/pointLight.png"), 0.3f);
         pl->addComponent<AutoOrbiting>(20.0f);
+
+        //auto planeMat = ASSETS.getMaterial("/materials/texture.material");
+        //planeMat->setTexture("tex0", ASSETS.getTexture2D("/textures/cubemaps/malibu.hdr"));
+        //auto plane = createGameObject("Plane");
+        //plane->addComponent<Components::MeshRenderer>(Core::MeshGenerator::CreatePlane(1), planeMat);
+        //plane->getTransform()->position = { 0, 2, 0 };
 
         LOG("TestScene initialized!", Color::RED);
     }
