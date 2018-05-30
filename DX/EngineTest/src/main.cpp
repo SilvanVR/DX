@@ -33,7 +33,7 @@ public:
         //    "/cubemaps/tropical_sunny_day/Up.png", "/cubemaps/tropical_sunny_day/Down.png",
         //    "/cubemaps/tropical_sunny_day/Front.png", "/cubemaps/tropical_sunny_day/Back.png", true);
 
-        auto cubemapHDR = ASSETS.getCubemap("/cubemaps/malibu.hdr", 2048);
+        auto cubemapHDR = ASSETS.getCubemap("/cubemaps/malibu.hdr", 2048, true);
 
         auto pbrShader = ASSETS.getShader("/shaders/pbr.shader");
 

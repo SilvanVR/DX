@@ -8,8 +8,6 @@
 
 #include "Utils/utils.h"
 
-#define NUM_FACES 6
-
 namespace Graphics { namespace D3D11 {
 
     //----------------------------------------------------------------------
@@ -32,11 +30,6 @@ namespace Graphics { namespace D3D11 {
         m_generateMips = (mips == Mips::Generate);
         if (mips == Mips::Generate || mips == Mips::Create)
             _UpdateMipCount();
-
-        // Reserve mem for faces
-        Size bytesPerFace = size * size * ByteCountFromTextureFormat( m_format );
-        for (U32 face = 0; face < NUM_FACES; face++)
-            m_facePixels[face].resize( bytesPerFace );
 
         // Create D3D11 Resources
         _CreateTexture( mips );

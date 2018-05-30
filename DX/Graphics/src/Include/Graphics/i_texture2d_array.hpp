@@ -51,7 +51,15 @@ namespace Graphics
         void setPixels(I32 slice, const void* pPixels)
         {
             Size sizeInBytes = m_width * m_height * ByteCountFromTextureFormat( m_format );
-            ASSERT( m_pixels[slice].size() <= sizeInBytes );
+
+            // Reserve mem for pixel if not already available
+            if ( m_pixels.empty() )
+            {
+                m_pixels.resize( m_depth );
+                for (auto& slice : m_pixels)
+                    slice.resize( sizeInBytes );
+            }
+
             memcpy( m_pixels[slice].data(), pPixels, sizeInBytes );
         }
 
@@ -65,7 +73,16 @@ namespace Graphics
         void setPixels(I32 slice, Texture2DPtr tex)
         {
             ASSERT( ( m_width == tex->getWidth() ) && ( m_height == tex->getHeight() ) 
-                 && ( m_format == tex->getFormat() ) && ( tex->getPixels().size() != 0 ) );
+                 && ( m_format == tex->getFormat() ) && ( not tex->getPixels().empty() ) );
+
+            // Reserve mem for pixel if not already available
+            if ( m_pixels.empty() )
+            {
+                m_pixels.resize( m_depth );
+                for (auto& slice : m_pixels)
+                    slice.resize( m_width * m_height * ByteCountFromTextureFormat( m_format ) );
+            }
+
             memcpy( m_pixels[slice].data(), tex->getPixels().data(), tex->getPixels().size() );
         }
 

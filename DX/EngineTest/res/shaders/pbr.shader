@@ -74,7 +74,7 @@ float getRoughness( float2 uv )
 {
 	return (1.0 - useRoughnessMap) * roughness + useRoughnessMap * roughnessMap.Sample( samplerRoughnessMap, uv ).r;
 }
-       
+
 float getMetallic( float2 uv )
 {
 	return (1.0 - useMetallicMap) * metallic + useMetallicMap * metallicMap.Sample( samplerMetallicMap, uv ).r;

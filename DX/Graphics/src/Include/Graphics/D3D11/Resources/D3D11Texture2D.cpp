@@ -28,7 +28,6 @@ namespace Graphics { namespace D3D11 {
         m_generateMips = generateMips;
         if (m_generateMips)
             _UpdateMipCount();
-        m_pixels.resize( m_width * m_height * ByteCountFromTextureFormat( format ) );
 
         _CreateTexture();
         _CreateShaderResourveView();

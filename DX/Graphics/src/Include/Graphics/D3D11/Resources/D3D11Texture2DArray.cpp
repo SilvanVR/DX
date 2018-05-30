@@ -29,10 +29,6 @@ namespace Graphics { namespace D3D11 {
         if (m_generateMips)
             _UpdateMipCount();
 
-        m_pixels.resize( depth );
-        for (auto& slice : m_pixels)
-            slice.resize( m_width * m_height * ByteCountFromTextureFormat( format ) );
-
         _CreateTextureArray();
         _CreateShaderResourveView();
         _CreateSampler( m_anisoLevel, m_filter, m_clampMode );

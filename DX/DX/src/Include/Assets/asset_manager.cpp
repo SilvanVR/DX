@@ -387,9 +387,10 @@ namespace Assets {
         if ( path.getExtension() != "hdr" )
             throw std::runtime_error( "File-Extension '" + path.getExtension() + "' not supported" );
 
-        auto shader = getShader( "/shaders/hdr_to_cube.shader" );
+        OS::Path shaderPath = "/shaders/hdr_to_cube.shader";
+        auto shader = getShader( shaderPath );
         if ( shader == RESOURCES.getErrorShader() )
-            throw std::runtime_error( "Can't load 'hdr_to_cube.shader'. This is required in order to create a cubemap from a hdr file." );
+            throw std::runtime_error( "Can't load '" + shaderPath.toString() + ". This is required in order to create a cubemap from a hdr file." );
 
         I32 width, height, bpp;
         auto pixels = stbi_loadf( path.c_str(), &width, &height, &bpp, 4 );

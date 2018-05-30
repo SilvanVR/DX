@@ -13,6 +13,8 @@
 
 namespace Graphics
 {
+    #define NUM_FACES 6
+
     //----------------------------------------------------------------------
     enum class Mips
     {
@@ -68,8 +70,16 @@ namespace Graphics
         void setPixel(CubemapFace face, U32 x, U32 y, Color color)
         {
             ASSERT( (m_format == TextureFormat::RGBA32 || m_format == TextureFormat::BGRA32)
-                   && not m_facePixels[(I32)face].empty() 
                    && x < m_width && y < m_height );
+
+            // Reserve mem for face if not already
+            if ( m_facePixels[(I32)face].empty() )
+            {
+                Size bytesPerFace = m_width * m_height * ByteCountFromTextureFormat(m_format);
+                m_facePixels[(I32)face].resize( bytesPerFace );
+            }
+
+            // Apply color
             reinterpret_cast<Color*>( m_facePixels[(I32)face].data() )[x + y * m_width] = color;
         }
 
@@ -81,10 +91,13 @@ namespace Graphics
         //----------------------------------------------------------------------
         void setPixels(CubemapFace face, const void* pPixels)
         {
-            ASSERT( not m_facePixels[(I32)face].empty() );
-            Size sizeInBytes = m_width * m_height * ByteCountFromTextureFormat( m_format );
-            ASSERT( m_facePixels[(I32)face].size() <= sizeInBytes );
-            memcpy( m_facePixels[(I32)face].data(), pPixels, sizeInBytes );
+            // Reserve mem for face if not already
+            Size bytesPerFace = m_width * m_height * ByteCountFromTextureFormat( m_format );
+            if ( m_facePixels[(I32)face].empty() )
+                m_facePixels[(I32)face].resize( bytesPerFace );
+
+            ASSERT( m_facePixels[(I32)face].size() <= bytesPerFace );
+            memcpy( m_facePixels[(I32)face].data(), pPixels, bytesPerFace );
         }
 
         //----------------------------------------------------------------------

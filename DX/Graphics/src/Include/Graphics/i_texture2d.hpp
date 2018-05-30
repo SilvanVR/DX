@@ -54,13 +54,17 @@ namespace Graphics
         bool isImmutable() const { return m_isImmutable; }
 
         //----------------------------------------------------------------------
-        // Change one pixel. This function is only supported by the formats RGBA32 and BGRA32.
+        // Change one pixel. This function is only supported for the formats RGBA32 and BGRA32.
         //----------------------------------------------------------------------
         void setPixel( U32 x, U32 y, Color color ) 
         { 
             ASSERT( not isImmutable() 
                     && (m_format == TextureFormat::RGBA32 || m_format == TextureFormat::BGRA32) 
                     && x < m_width && y < m_height );
+
+            if ( m_pixels.empty() )
+                m_pixels.resize( m_width * m_height * ByteCountFromTextureFormat( m_format ) );
+
             reinterpret_cast<Color*>( m_pixels.data() )[x + y * m_width] = color; 
         }
 
@@ -73,7 +77,9 @@ namespace Graphics
         {
             ASSERT( not isImmutable() ); 
             Size sizeInBytes = m_width * m_height * ByteCountFromTextureFormat( m_format );
-            m_pixels.resize( sizeInBytes );
+            if ( m_pixels.empty() )
+                m_pixels.resize( sizeInBytes );
+
             memcpy( m_pixels.data(), pPixels, sizeInBytes );
         }
 
@@ -84,7 +90,11 @@ namespace Graphics
         //----------------------------------------------------------------------
         void setPixels( const void* pPixels, Size sizeInBytes ) 
         {
-            ASSERT( not isImmutable() && ( sizeInBytes <= m_pixels.size() ) ); 
+            ASSERT( not isImmutable() && ( sizeInBytes <= m_pixels.size() ) );
+
+            if ( m_pixels.empty() )
+                m_pixels.resize( m_width * m_height * ByteCountFromTextureFormat( m_format ) );
+
             memcpy( m_pixels.data(), pPixels, sizeInBytes );
         }
 
