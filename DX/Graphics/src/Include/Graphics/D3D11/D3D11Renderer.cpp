@@ -151,8 +151,8 @@ namespace Graphics {
                     renderContext.shader = cmd.material->getShader().get();
                     renderContext.material = cmd.material.get();
 
-                    cmd.material->getShader()->bind();
-                    cmd.material->bind();
+                    renderContext.shader->bind();
+                    renderContext.material->bind();
 
                     D3D11_VIEWPORT vp = { 0, 0, (F32)renderContext.renderTarget->getWidth(), (F32)renderContext.renderTarget->getHeight(), 0, 1 };
                     g_pImmediateContext->RSSetViewports( 1, &vp );
@@ -463,6 +463,7 @@ namespace Graphics {
                 renderContext.shader = shader;
             }
 
+            // Bind material if not already bound
             if ( material != renderContext.material )
             {
                 material->bind();
@@ -610,6 +611,7 @@ namespace Graphics {
 
         // Create temporary render texture
         auto renderTexture = createRenderTexture();
+        renderContext.renderTarget = renderTexture;
         renderTexture->create( width, height, 0, cubemap->getFormat() );
         renderTexture->bindForRendering();
 

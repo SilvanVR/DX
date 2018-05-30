@@ -451,7 +451,7 @@ namespace Assets {
                                 if (mat->getShader() == sh)
                                 {
                                     LOG( "Reloading material: " + pair.second.path.toString(), LOG_COLOR );
-                                    MaterialParser::UpdateMaterial( mat, pair.second.path, true );
+                                    MaterialParser::UpdateMaterial( mat, pair.second.path );
                                 }
 
                     } catch(const std::runtime_error& e) { 

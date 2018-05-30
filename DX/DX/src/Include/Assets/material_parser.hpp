@@ -39,11 +39,10 @@ namespace Assets {
         // @Params:
         //  "material": The material object
         //  "filePath": Path to the material file
-        //  "enforceApplyShader": If true the shader will be set regardless whether the material has this shader already applied (This is necessary for shder reloading to recreate all material buffers)
         // @Throws:
         //  std::runtime_error if something went wrong.
         //----------------------------------------------------------------------
-        static void UpdateMaterial( const MaterialPtr& material, const OS::Path& filePath, bool enforceApplyShader = false )
+        static void UpdateMaterial( const MaterialPtr& material, const OS::Path& filePath )
         {
             OS::File file( filePath );
 
@@ -62,8 +61,7 @@ namespace Assets {
                 // Set shader. Will be loaded if not already loaded.
                 String shaderPath = shader.value();
                 auto shader = ASSETS.getShader( shaderPath );
-                if ( material->getShader() != shader || enforceApplyShader )
-                    material->setShader( shader );
+                material->setShader( shader );
                 json.erase( "shader" );
             }
 
@@ -164,8 +162,11 @@ namespace Assets {
                     LOG_WARN( "MaterialParser: Parameter '" + propName + "' does not exist in shader '" + material->getShader()->getName() + "'"
                               " for material '" + filePath.toString() + "'");
                 }
+            } // End for loop
 
-            }
+            // Assume its a PBR-material if "pbr" is found in the file-extension
+            if ( filePath.getExtension().find("pbr") != String::npos )
+                _SetPBRParams( material );
         }
 
     private:
@@ -194,6 +195,41 @@ namespace Assets {
                 result.w = value["a"];
 
             return result;
+        }
+
+        static void _SetPBRParams(const MaterialPtr& material)
+        {
+            static const StringID NAME_COLOR                = SID( "color" );
+            static const StringID NAME_ROUGHNESS            = SID( "roughness" );
+            static const StringID NAME_METALLIC             = SID( "metallic" );
+            static const StringID NAME_ROUGHNESS_MAP        = SID( "roughnessMap" );
+            static const StringID NAME_METALLIC_MAP         = SID( "metallicMap" );
+            static const StringID NAME_USE_ROUGHNESS_MAP    = SID( "useRoughnessMap" );
+            static const StringID NAME_USE_METALLIC_MAP     = SID( "useMetallicMap" );
+
+            // Color
+            material->setColor( NAME_COLOR, Color::WHITE );
+
+            material->setFloat( NAME_USE_METALLIC_MAP, 0.0f );
+            material->setFloat( NAME_USE_ROUGHNESS_MAP, 0.0f );
+
+            // Roughness
+            if ( not material->hasFloat( NAME_ROUGHNESS ) )
+                material->setFloat( NAME_ROUGHNESS, 0.1f );
+
+            if ( material->hasTexture( NAME_ROUGHNESS_MAP ) )
+                material->setFloat( NAME_USE_ROUGHNESS_MAP, 1.0f );
+            else
+                material->setTexture( NAME_ROUGHNESS_MAP, RESOURCES.getBlackTexture() );
+
+            // Metallic
+            if ( not material->hasFloat( NAME_METALLIC ) )
+                material->setFloat( NAME_METALLIC, 0.0f );
+
+            if ( material->hasTexture( NAME_METALLIC_MAP ) )
+                material->setFloat( NAME_USE_METALLIC_MAP, 1.0f );
+            else
+                material->setTexture( NAME_METALLIC_MAP, RESOURCES.getBlackTexture() );
         }
 
     };

@@ -245,7 +245,8 @@ namespace Graphics {
         for (auto& pair : m_textureMap)
         {
             auto shaderRes = getShaderResource( pair.first );
-            pair.second->bind( shaderRes->getShaderType(), shaderRes->getBindingSlot() );
+            if (shaderRes) // shader res can be null when the shaders was reloaded but the res no longer exists in it
+                pair.second->bind( shaderRes->getShaderType(), shaderRes->getBindingSlot() );
         }
     }
 

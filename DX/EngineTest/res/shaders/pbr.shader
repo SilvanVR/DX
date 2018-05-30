@@ -49,7 +49,8 @@ cbuffer cbPerMaterial
 	float4 color;
 	float metallic;
 	float roughness;
-	float ao;
+	float useRoughnessMap;
+	float useMetallicMap;
 };
 
 struct FragmentIn  
@@ -60,12 +61,31 @@ struct FragmentIn
 	float3 WorldPos : POSITION;
 };
 
-Texture2D albedo;
-SamplerState sampler0;  
+Texture2D albedoMap : register(t3);
+SamplerState samplerAlbedoMap : register(s3);
 
+Texture2D roughnessMap : register(t4);
+SamplerState samplerRoughnessMap : register(s4);  
+
+Texture2D metallicMap : register(t5);
+SamplerState samplerMetallicMap : register(s5);  
+ 
+float getRoughness( float2 uv )
+{
+	return (1.0 - useRoughnessMap) * roughness + useRoughnessMap * roughnessMap.Sample( samplerRoughnessMap, uv ).r;
+}
+       
+float getMetallic( float2 uv )
+{
+	return (1.0 - useMetallicMap) * metallic + useMetallicMap * metallicMap.Sample( samplerMetallicMap, uv ).r;
+}
+ 
 float4 main(FragmentIn fin) : SV_Target
 {
-	float4 textureColor = TO_LINEAR( albedo.Sample(sampler0, fin.Tex) );
-	float4 result = APPLY_LIGHTING( textureColor * color, fin.WorldPos, fin.Normal, roughness, metallic );
+	float4 albedo = TO_LINEAR( albedoMap.Sample(samplerAlbedoMap, fin.Tex) );
+	float r = getRoughness( fin.Tex );
+	float m = getMetallic( fin.Tex );
+	
+	float4 result = APPLY_LIGHTING( albedo * color, fin.WorldPos, fin.Normal, r, m );
 	return result; 
 }

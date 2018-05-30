@@ -27,7 +27,10 @@ namespace Assets {
             m_diffuseIrradianceMap = RESOURCES.createCubemap();
             m_diffuseIrradianceMap->create( diffuseIrradianceSize, Graphics::TextureFormat::RGBAHalf );
 
-            auto diffuseIrradianceMat = ASSETS.getMaterial( "/materials/pbr_diffuse_irradiance.material" );
+            auto shader = ASSETS.getShader( "/shaders/pbr_diffuse_irradiance.shader" );
+            ASSERT( shader != RESOURCES.getErrorShader() && "Please ensure that the given shader file exists." );
+
+            auto diffuseIrradianceMat = RESOURCES.createMaterial( shader );
             diffuseIrradianceMat->setTexture( SHADER_NAME_ENV_MAP, cubemap );
 
             cmd.renderCubemap( m_diffuseIrradianceMap, diffuseIrradianceMat );

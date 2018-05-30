@@ -41,6 +41,7 @@ namespace Graphics { namespace D3D11 {
         ASSERT( width > 0 && height > 0 && pData != nullptr && m_width == 0 && "Invalid params or texture were already created" );
         ITexture::_Init( TextureDimension::Tex2D, width, height, format );
 
+        m_generateMips = false;
         m_isImmutable = true;
         _CreateTexture( pData );
         _CreateShaderResourveView();

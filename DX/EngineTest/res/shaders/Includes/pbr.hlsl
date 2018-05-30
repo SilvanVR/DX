@@ -6,14 +6,14 @@ cbuffer cbShader
 	float maxReflectionLOD;
 };
 
-TextureCube<float4> diffuseIrradianceMap;
-SamplerState samplerDiffuseIrradianceMap; 
+Texture2D brdfLUT : register(t0);
+SamplerState samplerbrdfLUT : register(s0);
 
-TextureCube<float4> specularReflectionMap;
-SamplerState samplerSpecularReflectionMap;
+TextureCube<float4> diffuseIrradianceMap : register(t1);
+SamplerState samplerDiffuseIrradianceMap : register(s1); 
 
-Texture2D brdfLUT;
-SamplerState samplerbrdfLUT;
+TextureCube<float4> specularReflectionMap : register(t2);
+SamplerState samplerSpecularReflectionMap : register(s2);
 
 //----------------------------------------------------------------------
 // LIGHTING - PBR

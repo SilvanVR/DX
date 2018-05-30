@@ -23,10 +23,10 @@ namespace Graphics {
         virtual ~IMaterial() {}
 
         //----------------------------------------------------------------------
-        ShaderPtr       getShader() const { return m_shader; }
-        const String&   getName()   const { return m_name; }
-        void            setShader(const ShaderPtr& shader);
-        void            setName(const String& name) { m_name = name; }
+        ShaderPtr           getShader() const { return m_shader; }
+        const String&       getName()   const { return m_name; }
+        void                setShader(const ShaderPtr& shader);
+        void                setName(const String& name) { m_name = name; }
 
         //**********************************************************************
         // MATERIAL PARAMETERS
@@ -63,6 +63,19 @@ namespace Graphics {
         inline void setMatrix(CString name, const DirectX::XMMATRIX& matrix){ setMatrix(SID(name), matrix); }
         inline void setColor(CString name, Color color)                     { setColor(SID(name), color); }
         inline void setTexture(CString name, const TexturePtr& tex)         { setTexture(SID(name), tex); }
+
+        //----------------------------------------------------------------------
+        inline bool hasInt(StringID name)       const { return m_intMap.find( name ) != m_intMap.end(); }
+        inline bool hasFloat(StringID name)     const { return m_floatMap.find( name ) != m_floatMap.end(); }
+        inline bool hasVec4(StringID name)      const { return m_vec4Map.find( name ) != m_vec4Map.end(); }
+        inline bool hasMatrix(StringID name)    const { return m_matrixMap.find( name ) != m_matrixMap.end(); }
+        inline bool hasTexture(StringID name)   const { return m_textureMap.find( name ) != m_textureMap.end(); }
+
+        inline bool hasInt(CString name)       const { return hasInt(SID(name)); }
+        inline bool hasFloat(CString name)     const { return hasFloat(SID(name)); }
+        inline bool hasVec4(CString name)      const { return hasVec4(SID(name)); }
+        inline bool hasMatrix(CString name)    const { return hasMatrix(SID(name)); }
+        inline bool hasTexture(CString name)   const { return hasTexture(SID(name)); }
 
     protected:
         ShaderPtr   m_shader = nullptr;

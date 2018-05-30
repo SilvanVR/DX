@@ -18,7 +18,10 @@ namespace Components {
     MeshRenderer::MeshRenderer( const MeshPtr& mesh, const MaterialPtr& material )
     {
         setMesh( mesh );
-        setMaterial( material, 0 );
+
+        // Apply given material to all submeshes
+        for (I32 i = 0; i < m_materials.size(); i++)
+            setMaterial( material, i );
     }
 
     //**********************************************************************

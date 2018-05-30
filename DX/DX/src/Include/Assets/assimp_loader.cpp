@@ -88,7 +88,8 @@ namespace Assets {
         }
 
         // Load materials from the scene
-        //if (scene->HasMaterials())
+        if (scene->HasMaterials())
+            LOG("Has materials", Color::BLUE);
             //loadMaterials(physicalPath, mesh, scene);
 
         mesh->setVertices( vertices );

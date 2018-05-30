@@ -4,7 +4,6 @@
 "albedo" : "/textures/white.jpg",
 "metallic": 0.0,
 "roughness": 0.1,
-"ao": 0.0,
 "color": "#FF00FF"
 
 }

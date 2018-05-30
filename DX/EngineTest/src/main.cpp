@@ -32,7 +32,6 @@ public:
         auto cubemap = ASSETS.getCubemap("/cubemaps/tropical_sunny_day/Left.png", "/cubemaps/tropical_sunny_day/Right.png",
             "/cubemaps/tropical_sunny_day/Up.png", "/cubemaps/tropical_sunny_day/Down.png",
             "/cubemaps/tropical_sunny_day/Front.png", "/cubemaps/tropical_sunny_day/Back.png", true);
-        createGameObject("Skybox")->addComponent<Components::Skybox>(cubemap);
 
         auto pbrShader = ASSETS.getShader("/shaders/pbr.shader");
 
@@ -45,28 +44,28 @@ public:
         pbrShader->setTexture("brdfLUT", brdfLut.getTexture());
         pbrShader->setFloat("maxReflectionLOD", F32(specular->getMipCount()-1));
 
-        //auto mesh = RESOURCES.createMesh();
-        auto mesh = ASSETS.getMesh("/models/lamp.obj");
+        createGameObject("Skybox")->addComponent<Components::Skybox>(diffuse);
+
+        //auto mesh = ASSETS.getMesh("/models/cerberus.fbx");
+        auto mesh = ASSETS.getMesh("/models/sphere.obj");
 
         auto go2 = createGameObject("Obj");
-        auto mr = go2->addComponent<Components::MeshRenderer>(mesh, ASSETS.getMaterial("/materials/pbr/gold.material"));
-        for (U32 i = 0; i < mr->getMaterialCount(); i++)
-            mr->setMaterial(ASSETS.getMaterial("/materials/pbr/gold.material"), i);
+        auto mr = go2->addComponent<Components::MeshRenderer>(mesh, ASSETS.getMaterial("/materials/pbr/gold.pbrmaterial"));
 
-        //go2->getTransform()->position = { 0, -mesh->getBounds().getHeight() * 0.5f, 0 };
         //go2->getTransform()->scale = { 0.1f };
-        go2->addComponent<VisualizeNormals>(0.3f, Color::WHITE);
+        //go2->addComponent<VisualizeNormals>(0.3f, Color::WHITE);
+        //go2->getTransform()->position = { 0, -mesh->getBounds().getHeight() * 0.5f, 0 };
 
         // LIGHTS
         auto sun = createGameObject("Sun");
         sun->addComponent<Components::DirectionalLight>(1.0f, Color::WHITE);
         sun->getTransform()->rotation = Math::Quat::LookRotation(Math::Vec3{ 0,-1, 1 });
 
-        //auto pl = createGameObject("PointLight");
-        //pl->addComponent<Components::PointLight>(10.0f, Color::WHITE, 20.0f);
-        //pl->getTransform()->position = {4, 2, 0};
-        //pl->addComponent<Components::Billboard>(ASSETS.getTexture2D("/textures/pointLight.png"), 0.3f);
-        //pl->addComponent<AutoOrbiting>(20.0f);
+        auto pl = createGameObject("PointLight");
+        pl->addComponent<Components::PointLight>(10.0f, Color::WHITE, 20.0f);
+        pl->getTransform()->position = {4, 2, 0};
+        pl->addComponent<Components::Billboard>(ASSETS.getTexture2D("/textures/pointLight.png"), 0.3f);
+        pl->addComponent<AutoOrbiting>(20.0f);
 
         LOG("TestScene initialized!", Color::RED);
     }
