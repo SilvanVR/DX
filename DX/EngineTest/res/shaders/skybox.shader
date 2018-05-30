@@ -40,7 +40,7 @@ VertexOut main(VertexIn vin)
 
 #include "includes/enginePS.hlsl"
 
-#define SRGB 0
+#define SRGB 1
 
 struct FragmentIn
 {
