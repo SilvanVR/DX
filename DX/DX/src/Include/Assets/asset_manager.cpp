@@ -61,7 +61,7 @@ namespace Assets {
         catch (const std::runtime_error& e)
         {
             LOG_WARN( "LoadTexture(): Texture '" + filePath.toString() + "' could not be loaded. Reason: " 
-                      + e.what() + "Returning the default texture instead." );
+                      + e.what() + ". Returning the default texture instead." );
             return RESOURCES.getWhiteTexture();
         }
     }

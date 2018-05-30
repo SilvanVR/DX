@@ -176,10 +176,10 @@ float3 getIBL( float3 albedo, float3 V, float3 P, float3 N, float roughness, flo
 	float3 kD = float3( 1.0, 1.0, 1.0 ) - kS;  
 	kD *= 1.0 - metallic;	
 	
-	float3 irradiance = TO_LINEAR( diffuseIrradianceMap.Sample( samplerDiffuseIrradianceMap, N ).rgb );
+	float3 irradiance = diffuseIrradianceMap.Sample( samplerDiffuseIrradianceMap, N ).rgb;
 	float3 diffuse    = irradiance * albedo;	
 		
-    float3 prefilteredColor = TO_LINEAR( specularReflectionMap.SampleLevel( samplerSpecularReflectionMap, R,  roughness * maxReflectionLOD ).rgb );    
+    float3 prefilteredColor = specularReflectionMap.SampleLevel( samplerSpecularReflectionMap, R,  roughness * maxReflectionLOD ).rgb;    
     float2 brdf = brdfLUT.Sample( samplerbrdfLUT, float2( max( dot( N, V ), 0.0 ), roughness ) ).rg;
     float3 specular = prefilteredColor * (F * brdf.x + brdf.y);
 	
@@ -191,7 +191,7 @@ float3 getIBL( float3 albedo, float3 V, float3 P, float3 N, float roughness, flo
 //----------------------------------------------------------------------
 // Applies lighting to a given fragment.
 // @Params:
-//  "fragColor": The color of the fragment which will receive the lighting
+//  "fragColor": The color of the fragment which will receive the lighting in LINEAR SPACE
 //  "P": The position of the fragment in world space
 //  "N": The normal of the fragment in world space
 //  "roughness": The roughness of the fragment
@@ -228,7 +228,11 @@ float4 APPLY_LIGHTING( float4 fragColor, float3 P, float3 normal, float roughnes
 	float3 result = ibl + lighting;
 	
 	// Reinhard tonemapping
-	result = result / (result + float3(1,1,1));
+	//result = result / (result + float3(1,1,1));
+	
+	// Exposure tone mapping
+	float exposure = 5.0f;
+	result = float3(1,1,1) - exp(-result * exposure);
 	
 	// Gamma correct
 	result = TO_SRGB( result ); 

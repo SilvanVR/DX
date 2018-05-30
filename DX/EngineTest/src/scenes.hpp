@@ -740,19 +740,9 @@ public:
         go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -10);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA);
 
-        auto brdfLut = RESOURCES.createRenderTexture();
-        brdfLut->create(512, 512, 0, Graphics::TextureFormat::RGHalf);
-        brdfLut->setAnisoLevel(1);
-        brdfLut->setFilter(Graphics::TextureFilter::Bilinear);
-        brdfLut->setClampMode(Graphics::TextureAddressMode::Clamp);
-
-        Graphics::CommandBuffer cmd;
-        cmd.setRenderTarget(brdfLut);
-        cmd.drawFullscreenQuad(ASSETS.getMaterial("/materials/pbr_brdfLut.material"));
-        Locator::getRenderer().dispatch(cmd);
-
+        Assets::BRDFLut brdfLut;
         auto planeMat = ASSETS.getMaterial("/materials/texture.material");
-        planeMat->setTexture("tex0", brdfLut);
+        planeMat->setTexture("tex0", brdfLut.getTexture());
         auto plane = createGameObject("Plane");
         plane->addComponent<Components::MeshRenderer>(Core::MeshGenerator::CreatePlane(1), planeMat);
 
@@ -766,7 +756,6 @@ public:
 class ScenePBRSpheres : public IScene
 {
     Components::SpotLight* spot;
-    MaterialPtr skyboxMat;
 
 public:
     ScenePBRSpheres() : IScene("PBRSpheres") {}
@@ -779,45 +768,38 @@ public:
         go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -10);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA);
 
-        spot = go->addComponent<Components::SpotLight>(2.0f, Color::RED, 25.0f);
+        spot = go->addComponent<Components::SpotLight>(50.0f, Color::RED, 25.0f);
 
         createGameObject("Grid")->addComponent<GridGeneration>(20);
 
-        auto cubemap = ASSETS.getCubemap("/cubemaps/tropical_sunny_day/Left.png", "/cubemaps/tropical_sunny_day/Right.png",
-            "/cubemaps/tropical_sunny_day/Up.png", "/cubemaps/tropical_sunny_day/Down.png",
-            "/cubemaps/tropical_sunny_day/Front.png", "/cubemaps/tropical_sunny_day/Back.png", true);
+        auto cubemapHDR = ASSETS.getCubemap("/cubemaps/pine.hdr", 2048, true);
 
         auto pbrShader = ASSETS.getShader("/shaders/pbr.shader");
 
-        Assets::BRDFLut brdfLut;
-        Assets::EnvironmentMap envMap(cubemap, 256, 1024);
+        Assets::EnvironmentMap envMap(cubemapHDR, 256, 1024);
         auto diffuse = envMap.getDiffuseIrradianceMap();
         auto specular = envMap.getSpecularReflectionMap();
-        pbrShader->setTexture("diffuseIrradianceMap", diffuse);
-        pbrShader->setTexture("specularReflectionMap", specular);
-        pbrShader->setTexture("brdfLUT", brdfLut.getTexture());
-        pbrShader->setFloat("maxReflectionLOD", F32(specular->getMipCount() - 1));
+
+        auto brdfLut = Assets::BRDFLut().getTexture();
+        pbrShader->setReloadCallback([=](Graphics::IShader* shader) {
+            shader->setTexture("diffuseIrradianceMap", diffuse);
+            shader->setTexture("specularReflectionMap", specular);
+            shader->setTexture("brdfLUT", brdfLut);
+            shader->setFloat("maxReflectionLOD", F32(specular->getMipCount() - 1));
+        });
+        pbrShader->invokeReloadCallback();
 
         auto mesh = ASSETS.getMesh("/models/sphere.obj");
-        mesh->recalculateNormals();
-
-        auto mat = ASSETS.getMaterial("/materials/pbr.material");
+        auto mat = ASSETS.getMaterial("/materials/test.pbrmaterial");
 
         auto go2 = createGameObject("Obj");
         go2->addComponent<Components::MeshRenderer>(mesh, mat);
-        //go2->addComponent<VisualizeNormals>(0.1f, Color::WHITE);
         go2->getTransform()->rotation *= Math::Quat(Math::Vec3::RIGHT, 90);
         go2->getTransform()->scale = { 1.0f };
         go2->getTransform()->position = { 0, 0, -3 };
-        //go2->addComponent<Components::Skybox>(specular);
+        go2->addComponent<Components::Skybox>(cubemapHDR);
 
-        skyboxMat = ASSETS.getMaterial("/materials/skyboxLOD.material");
-        skyboxMat->setTexture("Cubemap", specular);
-        auto skybox = createGameObject("Skybox");
-        skybox->getTransform()->scale = { 1000.0f };
-        skybox->addComponent<Components::MeshRenderer>(mesh, skyboxMat);
-
-        I32 num = 6;
+        I32 num = 7;
         F32 distance = 3.0f;
         for (I32 x = 0; x < num; x++)
         {
@@ -828,46 +810,50 @@ public:
                 auto gameobject = createGameObject("Obj");
 
                 auto material = RESOURCES.createMaterial(pbrShader);
+                material->setTexture("albedoMap", RESOURCES.getWhiteTexture());
                 material->setColor("color", Color::WHITE);
                 material->setFloat("roughness", roughness);
                 F32 metallic = (F32)y;
                 material->setFloat("metallic", metallic);
+                material->setFloat("useRoughnessMap", 0.0f);
+                material->setFloat("useMetallicMap", 0.0f);
 
                 gameobject->addComponent<Components::MeshRenderer>(mesh, material);
                 gameobject->getTransform()->position = Math::Vec3(x * distance - (num / 2 * distance), y * distance + 0.01f, 0.0f);
             }
         }
 
-        auto sun = createGameObject("Sun");
-        sun->addComponent<Components::DirectionalLight>(1.0f, Color::WHITE);
-        sun->getTransform()->rotation = Math::Quat::LookRotation(Math::Vec3{ 0,-1, 1 });
+        //auto sun = createGameObject("Sun");
+        //sun->addComponent<Components::DirectionalLight>(1.0f, Color::WHITE);
+        //sun->getTransform()->rotation = Math::Quat::LookRotation(Math::Vec3{ 0,-1, 1 });
 
         auto pl = createGameObject("PointLight");
-        pl->addComponent<Components::PointLight>(10.0f, Color::GREEN);
+        pl->addComponent<Components::PointLight>(3.0f, Color::ORANGE);
         pl->getTransform()->position = { 4, 2, 0 };
         pl->addComponent<Components::Billboard>(ASSETS.getTexture2D("/textures/pointLight.png"), 0.3f);
         pl->addComponent<AutoOrbiting>(20.0f);
 
-        F32 intensity = 2.0f;
-        auto pl2 = createGameObject("PointLight");
-        pl2->addComponent<Components::PointLight>(intensity, Color::WHITE);
-        pl2->getTransform()->position = { -5, 3, -3 };
-        pl2->addComponent<Components::Billboard>(ASSETS.getTexture2D("/textures/pointLight.png"), 0.3f);
+        F32 intensity = 5.0f;
+        F32 range = 30.0f;
+        //auto pl2 = createGameObject("PointLight");
+        //pl2->addComponent<Components::PointLight>(intensity, Math::Random::Color(), range);
+        //pl2->getTransform()->position = { -5, 3, -3 };
+        //pl2->addComponent<Components::Billboard>(ASSETS.getTexture2D("/textures/pointLight.png"), 0.3f);
 
-        auto pl3 = createGameObject("PointLight");
-        pl3->addComponent<Components::PointLight>(intensity, Color::WHITE);
-        pl3->getTransform()->position = { 5, 3, -3 };
-        pl3->addComponent<Components::Billboard>(ASSETS.getTexture2D("/textures/pointLight.png"), 0.3f);
+        //auto pl3 = createGameObject("PointLight");
+        //pl3->addComponent<Components::PointLight>(intensity, Math::Random::Color(), range);
+        //pl3->getTransform()->position = { 5, 3, -3 };
+        //pl3->addComponent<Components::Billboard>(ASSETS.getTexture2D("/textures/pointLight.png"), 0.3f);
 
-        auto pl4 = createGameObject("PointLight");
-        pl4->addComponent<Components::PointLight>(intensity, Color::WHITE);
-        pl4->getTransform()->position = { -5, -3, -3 };
-        pl4->addComponent<Components::Billboard>(ASSETS.getTexture2D("/textures/pointLight.png"), 0.3f);
+        //auto pl4 = createGameObject("PointLight");
+        //pl4->addComponent<Components::PointLight>(intensity, Math::Random::Color(), range);
+        //pl4->getTransform()->position = { -5, -3, -3 };
+        //pl4->addComponent<Components::Billboard>(ASSETS.getTexture2D("/textures/pointLight.png"), 0.3f);
 
-        auto pl5 = createGameObject("PointLight");
-        pl5->addComponent<Components::PointLight>(intensity, Color::WHITE);
-        pl5->getTransform()->position = { 5, -3, -3 };
-        pl5->addComponent<Components::Billboard>(ASSETS.getTexture2D("/textures/pointLight.png"), 0.3f);
+        //auto pl5 = createGameObject("PointLight");
+        //pl5->addComponent<Components::PointLight>(intensity, Math::Random::Color(), range);
+        //pl5->getTransform()->position = { 5, -3, -3 };
+        //pl5->addComponent<Components::Billboard>(ASSETS.getTexture2D("/textures/pointLight.png"), 0.3f);
 
         LOG("PBRSpheres initialized!", Color::RED);
     }
@@ -876,20 +862,67 @@ public:
     {
         if (KEYBOARD.wasKeyPressed(Key::F))
             spot->setActive(!spot->isActive());
-
-        if (KEYBOARD.isKeyDown(Key::Up))
-        {
-            skyboxMat->setFloat("lod", skyboxMat->getFloat("lod") + 2.0f * (F32)d);
-            LOG(TS(skyboxMat->getFloat("lod")));
-        }
-
-        if (KEYBOARD.isKeyDown(Key::Down))
-        {
-            skyboxMat->setFloat("lod", skyboxMat->getFloat("lod") - 2.0f * (F32)d);
-            LOG(TS(skyboxMat->getFloat("lod")));
-        }
-
     }
 
     void shutdown() override { LOG("PBRSpheres Shutdown!", Color::RED); }
+};
+
+class ScenePBRPistol : public IScene
+{
+public:
+    ScenePBRPistol() : IScene("ScenePBRPistol") {}
+
+    void init() override
+    {
+        // Camera
+        auto go = createGameObject("Camera");
+        auto cam = go->addComponent<Components::Camera>();
+        go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -10);
+        go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA);
+
+        // Environment map
+        auto cubemapHDR = ASSETS.getCubemap("/cubemaps/canyon.hdr", 2048, true);
+        auto pbrShader = ASSETS.getShader("/shaders/pbr.shader");
+
+        Assets::EnvironmentMap envMap(cubemapHDR, 128, 512);
+        auto diffuse = envMap.getDiffuseIrradianceMap();
+        auto specular = envMap.getSpecularReflectionMap();
+
+        auto brdfLut = Assets::BRDFLut().getTexture();
+        pbrShader->setReloadCallback([=](Graphics::IShader* shader) {
+            shader->setTexture("diffuseIrradianceMap", diffuse);
+            shader->setTexture("specularReflectionMap", specular);
+            shader->setTexture("brdfLUT", brdfLut);
+            shader->setFloat("maxReflectionLOD", F32(specular->getMipCount() - 1));
+        });
+        pbrShader->invokeReloadCallback();
+
+        // Skybox
+        createGameObject("Skybox")->addComponent<Components::Skybox>(cubemapHDR);
+
+        // Gameobjects
+        auto pistolMesh = ASSETS.getMesh("/models/pistol.fbx");
+        auto pistol = createGameObject("Pistol");
+        pistol->addComponent<Components::MeshRenderer>(pistolMesh, ASSETS.getMaterial("/materials/pbr/pistol.pbrmaterial"));
+        pistol->getTransform()->scale = { 0.1f };
+        pistol->getTransform()->rotation *= Math::Quat(Math::Vec3::RIGHT, -90.0f);
+        pistol->getTransform()->rotation *= Math::Quat(Math::Vec3::UP, -90.0f);
+        pistol->getTransform()->position = { 5, 0, 0 };
+
+        auto daggerMesh = ASSETS.getMesh("/models/dagger.obj");
+        auto dagger = createGameObject("Dagger");
+        dagger->addComponent<Components::MeshRenderer>(daggerMesh, ASSETS.getMaterial("/materials/pbr/dagger.pbrmaterial"));
+        dagger->getTransform()->scale = { 0.1f };
+        dagger->getTransform()->rotation *= Math::Quat(Math::Vec3::FORWARD, -90.0f);
+        dagger->getTransform()->position = { 0, 4, 0 };
+
+        // LIGHTS
+        auto sun = createGameObject("Sun");
+        sun->addComponent<Components::DirectionalLight>(5.0f, Color::WHITE);
+        sun->getTransform()->rotation = Math::Quat::LookRotation(Math::Vec3{ 0,-1, 1 });
+
+        LOG("ScenePBRPistol initialized!", Color::RED);
+    }
+
+    void shutdown() override { LOG("ScenePBRPistol Shutdown!", Color::RED); }
 };

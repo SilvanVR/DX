@@ -16,7 +16,6 @@
 
 class TestScene : public IScene
 {
-    MaterialPtr skyboxMat;
 public:
     TestScene() : IScene("TestScene") {}
 
@@ -30,20 +29,15 @@ public:
 
         //createGameObject("Grid")->addComponent<GridGeneration>(20);
 
-        //auto cubemap = ASSETS.getCubemap("/cubemaps/tropical_sunny_day/Left.png", "/cubemaps/tropical_sunny_day/Right.png",
-        //    "/cubemaps/tropical_sunny_day/Up.png", "/cubemaps/tropical_sunny_day/Down.png",
-        //    "/cubemaps/tropical_sunny_day/Front.png", "/cubemaps/tropical_sunny_day/Back.png", true);
-
-        auto cubemapHDR = ASSETS.getCubemap("/cubemaps/malibu.hdr", 2048, true);
+        auto cubemapHDR = ASSETS.getCubemap("/cubemaps/pine.hdr", 2048, true);
 
         auto pbrShader = ASSETS.getShader("/shaders/pbr.shader");
 
-        auto brdfLut = Assets::BRDFLut().getTexture();
-
-        Assets::EnvironmentMap envMap(cubemapHDR, 64, 512);
+        Assets::EnvironmentMap envMap(cubemapHDR, 128, 512);
         auto diffuse = envMap.getDiffuseIrradianceMap();
         auto specular = envMap.getSpecularReflectionMap();
 
+        auto brdfLut = Assets::BRDFLut().getTexture();
         pbrShader->setReloadCallback([=](Graphics::IShader* shader) {
             shader->setTexture("diffuseIrradianceMap", diffuse);
             shader->setTexture("specularReflectionMap", specular);
@@ -52,27 +46,20 @@ public:
         });
         pbrShader->invokeReloadCallback();
 
-        //createGameObject("Skybox")->addComponent<Components::Skybox>(cubemapHDR);
-        skyboxMat = ASSETS.getMaterial("/materials/skyboxLOD.material");
-        skyboxMat->setTexture("Cubemap", specular);
-        auto skybox = createGameObject("Skybox");
-        skybox->getTransform()->scale = { 1000.0f };
-        skybox->addComponent<Components::MeshRenderer>(Core::MeshGenerator::CreateCube(), skyboxMat);
+        createGameObject("Skybox")->addComponent<Components::Skybox>(cubemapHDR);
 
-        auto mesh = ASSETS.getMesh("/models/dagger.obj");
+        auto mesh = ASSETS.getMesh("/models/sphere.obj");
 
-        auto go2 = createGameObject("Obj");
-        auto mr = go2->addComponent<Components::MeshRenderer>(mesh, ASSETS.getMaterial("/materials/pbr/dagger.pbrmaterial"));
+        auto pistol = createGameObject("Obj");
+        auto mr = pistol->addComponent<Components::MeshRenderer>(mesh, ASSETS.getMaterial("/materials/pbr/gold.pbrmaterial"));
 
-        go2->getTransform()->scale = { 0.1f };
+        //pistol->getTransform()->scale = { 0.1f };
         //go2->addComponent<VisualizeNormals>(0.3f, Color::WHITE);
         //go2->getTransform()->position = { 0, -mesh->getBounds().getHeight() * 0.5f, 0 };
-        go2->getTransform()->rotation *= Math::Quat(Math::Vec3::RIGHT, -90.0f);
-        go2->getTransform()->rotation *= Math::Quat(Math::Vec3::UP, -90.0f);
 
         // LIGHTS
         auto sun = createGameObject("Sun");
-        sun->addComponent<Components::DirectionalLight>(1.0f, Color::WHITE);
+        sun->addComponent<Components::DirectionalLight>(5.0f, Color::WHITE);
         sun->getTransform()->rotation = Math::Quat::LookRotation(Math::Vec3{ 0,-1, 1 });
 
         auto pl = createGameObject("PointLight");
@@ -81,28 +68,11 @@ public:
         pl->addComponent<Components::Billboard>(ASSETS.getTexture2D("/textures/pointLight.png"), 0.3f);
         pl->addComponent<AutoOrbiting>(20.0f);
 
-        //auto planeMat = ASSETS.getMaterial("/materials/texture.material");
-        //planeMat->setTexture("tex0", ASSETS.getTexture2D("/textures/cubemaps/malibu.hdr"));
-        //auto plane = createGameObject("Plane");
-        //plane->addComponent<Components::MeshRenderer>(Core::MeshGenerator::CreatePlane(1), planeMat);
-        //plane->getTransform()->position = { 0, 2, 0 };
-
         LOG("TestScene initialized!", Color::RED);
     }
 
     void tick(Time::Seconds d) override
     {
-        if (KEYBOARD.isKeyDown(Key::Up))
-        {
-            skyboxMat->setFloat("lod", skyboxMat->getFloat("lod") + 2.0f * (F32)d);
-            LOG(TS(skyboxMat->getFloat("lod")));
-        }
-
-    if (KEYBOARD.isKeyDown(Key::Down))
-    {
-        skyboxMat->setFloat("lod", skyboxMat->getFloat("lod") - 2.0f * (F32)d);
-        LOG(TS(skyboxMat->getFloat("lod")));
-    }
     }
 
     void shutdown() override { LOG("TestScene Shutdown!", Color::RED); }
@@ -166,6 +136,8 @@ public:
             Locator::getSceneManager().LoadSceneAsync(new MultiCamera());
         if (KEYBOARD.wasKeyPressed(Key::Eight))
             Locator::getSceneManager().LoadSceneAsync(new TransparencyScene());
+        if (KEYBOARD.wasKeyPressed(Key::Nine))
+            Locator::getSceneManager().LoadSceneAsync(new ScenePBRPistol());
         if (KEYBOARD.wasKeyPressed(Key::Zero))
             Locator::getSceneManager().LoadSceneAsync(new TestScene());
 
