@@ -82,10 +82,10 @@ float getMetallic( float2 uv )
  
 float4 main(FragmentIn fin) : SV_Target
 {
-	float4 albedo = TO_LINEAR( albedoMap.Sample(samplerAlbedoMap, fin.Tex) );
+	float4 albedo = TO_LINEAR( albedoMap.Sample(samplerAlbedoMap, fin.Tex) );   
 	float r = getRoughness( fin.Tex );
 	float m = getMetallic( fin.Tex );
-	
+			
 	float4 result = APPLY_LIGHTING( albedo * color, fin.WorldPos, fin.Normal, r, m );
 	return result; 
 }

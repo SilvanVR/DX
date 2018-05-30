@@ -537,6 +537,9 @@ namespace Assets {
                     try {
                         ShaderParser::UpdateShader( sh, path );
 
+                        // Invoke reload callback if one exists
+                        sh->invokeReloadCallback();
+
                         // Reload every material which has this shader applied
                         for (auto& pair : sm.m_materialCache)
                             if ( auto mat = pair.second.material.lock() )

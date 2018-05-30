@@ -278,6 +278,7 @@ namespace Graphics { namespace D3D11 {
     //----------------------------------------------------------------------
     void Shader::_CreateVSConstantBuffer()
     {
+        _ClearAllMaps();
         SAFE_DELETE( m_shaderDataVS );
         if ( auto cb = getVSUniformShaderBuffer() )
             m_shaderDataVS = new MappedConstantBuffer( *cb, BufferUsage::LongLived );
@@ -286,6 +287,7 @@ namespace Graphics { namespace D3D11 {
     //----------------------------------------------------------------------
     void Shader::_CreatePSConstantBuffer()
     {
+        _ClearAllMaps();
         SAFE_DELETE( m_shaderDataPS );
         if ( auto cb = getFSUniformShaderBuffer() )
             m_shaderDataPS = new MappedConstantBuffer( *cb, BufferUsage::LongLived );
@@ -299,7 +301,7 @@ namespace Graphics { namespace D3D11 {
     }
 
     //----------------------------------------------------------------------
-    void Shader::_UpdateConstantBuffer(StringID name, const void* pData)
+    void Shader::_UpdateConstantBuffer( StringID name, const void* pData )
     {
         // Because the super shader class issues if the uniform does not exist,
         // i dont have to do it here. The update call on the corresponding mapped buffer

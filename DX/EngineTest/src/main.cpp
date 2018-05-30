@@ -16,6 +16,7 @@
 
 class TestScene : public IScene
 {
+    MaterialPtr skyboxMat;
 public:
     TestScene() : IScene("TestScene") {}
 
@@ -37,21 +38,31 @@ public:
 
         auto pbrShader = ASSETS.getShader("/shaders/pbr.shader");
 
-        Assets::BRDFLut brdfLut;
+        auto brdfLut = Assets::BRDFLut().getTexture();
+
         Assets::EnvironmentMap envMap(cubemapHDR, 64, 512);
         auto diffuse = envMap.getDiffuseIrradianceMap();
         auto specular = envMap.getSpecularReflectionMap();
-        pbrShader->setTexture("diffuseIrradianceMap", diffuse);
-        pbrShader->setTexture("specularReflectionMap", specular);
-        pbrShader->setTexture("brdfLUT", brdfLut.getTexture());
-        pbrShader->setFloat("maxReflectionLOD", F32(specular->getMipCount()-1));
 
-        createGameObject("Skybox")->addComponent<Components::Skybox>(cubemapHDR);
+        pbrShader->setReloadCallback([=](Graphics::IShader* shader) {
+            shader->setTexture("diffuseIrradianceMap", diffuse);
+            shader->setTexture("specularReflectionMap", specular);
+            shader->setTexture("brdfLUT", brdfLut);
+            shader->setFloat("maxReflectionLOD", F32(specular->getMipCount() - 1));
+        });
+        pbrShader->invokeReloadCallback();
 
-        auto mesh = ASSETS.getMesh("/models/pistol.fbx");
+        //createGameObject("Skybox")->addComponent<Components::Skybox>(cubemapHDR);
+        skyboxMat = ASSETS.getMaterial("/materials/skyboxLOD.material");
+        skyboxMat->setTexture("Cubemap", specular);
+        auto skybox = createGameObject("Skybox");
+        skybox->getTransform()->scale = { 1000.0f };
+        skybox->addComponent<Components::MeshRenderer>(Core::MeshGenerator::CreateCube(), skyboxMat);
+
+        auto mesh = ASSETS.getMesh("/models/dagger.obj");
 
         auto go2 = createGameObject("Obj");
-        auto mr = go2->addComponent<Components::MeshRenderer>(mesh, ASSETS.getMaterial("/materials/pbr/pistol.pbrmaterial"));
+        auto mr = go2->addComponent<Components::MeshRenderer>(mesh, ASSETS.getMaterial("/materials/pbr/dagger.pbrmaterial"));
 
         go2->getTransform()->scale = { 0.1f };
         //go2->addComponent<VisualizeNormals>(0.3f, Color::WHITE);
@@ -83,10 +94,15 @@ public:
     {
         if (KEYBOARD.isKeyDown(Key::Up))
         {
+            skyboxMat->setFloat("lod", skyboxMat->getFloat("lod") + 2.0f * (F32)d);
+            LOG(TS(skyboxMat->getFloat("lod")));
         }
-        if (KEYBOARD.isKeyDown(Key::Down))
-        {
-        }
+
+    if (KEYBOARD.isKeyDown(Key::Down))
+    {
+        skyboxMat->setFloat("lod", skyboxMat->getFloat("lod") - 2.0f * (F32)d);
+        LOG(TS(skyboxMat->getFloat("lod")));
+    }
     }
 
     void shutdown() override { LOG("TestScene Shutdown!", Color::RED); }

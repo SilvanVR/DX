@@ -22,6 +22,8 @@
 
 namespace Assets {
 
+
+
     //**********************************************************************
     class AssetManager : public Core::ISubSystem
     {

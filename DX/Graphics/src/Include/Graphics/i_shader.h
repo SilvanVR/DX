@@ -15,8 +15,11 @@
 #include "vertex_layout.hpp"
 #include "i_texture.h"
 #include "shader_resources.hpp"
+#include <functional>
 
 namespace Graphics {
+
+    typedef std::function<void(IShader*)> ShaderReloadCallback;
 
     //**********************************************************************
     // Shaders with a renderqueue >= BackToFrontBoundary will be rendered back to front.
@@ -40,9 +43,10 @@ namespace Graphics {
         virtual ~IShader() {}
 
         //----------------------------------------------------------------------
-        const String&   getName() const             { return m_name; }
-        I32             getRenderQueue() const      { return m_renderQueue; }
-        void            setName(const String& name) { m_name = name; }
+        const String&                   getName()           const { return m_name; }
+        I32                             getRenderQueue()    const { return m_renderQueue; }
+
+        void setName(const String& name) { m_name = name; }
 
         //----------------------------------------------------------------------
         // Try to compile this shader.
@@ -192,6 +196,16 @@ namespace Graphics {
         //----------------------------------------------------------------------
         void setRenderQueue(I32 renderQueue) { m_renderQueue = renderQueue; }
 
+        //----------------------------------------------------------------------
+        // The given function will be invoked whenever the shader gets reloaded.
+        //----------------------------------------------------------------------
+        void setReloadCallback(const ShaderReloadCallback& f) { m_reloadCallback = f; }
+
+        //----------------------------------------------------------------------
+        // Invokes the reload callback if one exists.
+        //----------------------------------------------------------------------
+        void invokeReloadCallback() { if (m_reloadCallback) m_reloadCallback(this); }
+
         //**********************************************************************
         // Shader Buffer
         //**********************************************************************
@@ -226,6 +240,7 @@ namespace Graphics {
         inline void setColor(CString name, Color color)                     { setColor(SID(name), color); }
         inline void setTexture(CString name, const TexturePtr& tex)         { setTexture(SID(name), tex); }
 
+
     protected:
         std::array<F32, 4>  m_blendFactors  = { 1.0f, 1.0f, 1.0f, 1.0f };   // These are only used when blending is enabled
         String              m_name          = "NO NAME";
@@ -238,6 +253,8 @@ namespace Graphics {
         HashMap<StringID, DirectX::XMMATRIX>    m_matrixMap;
         HashMap<StringID, TexturePtr>           m_textureMap;
 
+        ShaderReloadCallback                    m_reloadCallback = nullptr;
+
         // Bind all textures in the texture map
         void _BindTextures();
 
@@ -245,6 +262,8 @@ namespace Graphics {
         virtual void _SetFloat(StringID name, F32 val) = 0;
         virtual void _SetVec4(StringID name, const Math::Vec4& vec) = 0;
         virtual void _SetMatrix(StringID name, const DirectX::XMMATRIX& matrix) = 0;
+
+        void _ClearAllMaps();
 
     private:
         //----------------------------------------------------------------------

@@ -1,11 +1,5 @@
 {
 
-"shader" : "/shaders/skyboxLOD.shader",
-"Cubemap" : { "posX" : "/cubemaps/tropical_sunny_day/Left.png",
-			  "negX" : "/cubemaps/tropical_sunny_day/Right.png",
-              "posY" : "/cubemaps/tropical_sunny_day/Up.png",
-			  "negY" : "/cubemaps/tropical_sunny_day/Down.png",
-			  "posZ" : "/cubemaps/tropical_sunny_day/Front.png",
-			  "negZ" : "/cubemaps/tropical_sunny_day/Back.png" }
+"shader" : "/shaders/skyboxLOD.shader"
 
 }

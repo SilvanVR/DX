@@ -236,7 +236,7 @@ namespace Graphics {
     }
 
     //**********************************************************************
-    // PRIVATE
+    // PROTECTED
     //**********************************************************************
 
     //----------------------------------------------------------------------
@@ -248,6 +248,16 @@ namespace Graphics {
             if (shaderRes) // shader res can be null when the shaders was reloaded but the res no longer exists in it
                 pair.second->bind( shaderRes->getShaderType(), shaderRes->getBindingSlot() );
         }
+    }
+
+    //----------------------------------------------------------------------
+    void IShader::_ClearAllMaps()
+    {
+        m_intMap.clear();
+        m_floatMap.clear();
+        m_vec4Map.clear();
+        m_matrixMap.clear();
+        m_textureMap.clear();
     }
 
 } // End namespaces
