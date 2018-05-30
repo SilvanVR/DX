@@ -1,0 +1,9 @@
+{
+
+"shader" : "/shaders/pbr.shader",
+
+"albedoMap" : "/textures/pbr/pistol/albedo.jpg",
+"metallicMap" : "/textures/pbr/pistol/metallic.jpg",
+"roughnessMap" : "/textures/pbr/pistol/roughness.jpg"
+
+}

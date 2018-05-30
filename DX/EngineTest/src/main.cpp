@@ -48,15 +48,16 @@ public:
 
         createGameObject("Skybox")->addComponent<Components::Skybox>(cubemapHDR);
 
-        //auto mesh = ASSETS.getMesh("/models/cerberus.fbx");
-        auto mesh = ASSETS.getMesh("/models/sphere.obj");
+        auto mesh = ASSETS.getMesh("/models/pistol.fbx");
 
         auto go2 = createGameObject("Obj");
-        auto mr = go2->addComponent<Components::MeshRenderer>(mesh, ASSETS.getMaterial("/materials/pbr/gold.pbrmaterial"));
+        auto mr = go2->addComponent<Components::MeshRenderer>(mesh, ASSETS.getMaterial("/materials/pbr/pistol.pbrmaterial"));
 
-        //go2->getTransform()->scale = { 0.1f };
+        go2->getTransform()->scale = { 0.1f };
         //go2->addComponent<VisualizeNormals>(0.3f, Color::WHITE);
         //go2->getTransform()->position = { 0, -mesh->getBounds().getHeight() * 0.5f, 0 };
+        go2->getTransform()->rotation *= Math::Quat(Math::Vec3::RIGHT, -90.0f);
+        go2->getTransform()->rotation *= Math::Quat(Math::Vec3::UP, -90.0f);
 
         // LIGHTS
         auto sun = createGameObject("Sun");

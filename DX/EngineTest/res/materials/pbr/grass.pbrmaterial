@@ -1,0 +1,9 @@
+{
+
+"shader" : "/shaders/pbr.shader",
+
+"albedoMap" : "/textures/pbr/grass/albedo.jpg",
+"metallic" : 0,
+"roughnessMap" : "/textures/pbr/grass/roughness.jpg"
+
+}

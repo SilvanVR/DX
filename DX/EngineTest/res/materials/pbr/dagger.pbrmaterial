@@ -1,0 +1,9 @@
+{
+
+"shader" : "/shaders/pbr.shader",
+
+"albedoMap" : "/textures/pbr/dagger/albedo.tga",
+"metallicMap" : "/textures/pbr/dagger/metallic.tga",
+"roughnessMap" : "/textures/pbr/dagger/roughness.tga"
+
+}
