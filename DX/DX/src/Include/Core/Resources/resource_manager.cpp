@@ -282,6 +282,10 @@ namespace Core { namespace Resources {
 
             Color whites[4] = { Color::WHITE, Color::WHITE, Color::WHITE, Color::WHITE };
             m_white = createTexture2D( 2, 2, Graphics::TextureFormat::BGRA32, whites );
+
+            Color normalColor = Color( 128, 127, 255 );
+            Color normals[4] = { normalColor, normalColor, normalColor, normalColor };
+            m_normal = createTexture2D( 2, 2, Graphics::TextureFormat::BGRA32, normals );
         }
 
         // CUBEMAPS

@@ -170,6 +170,7 @@ namespace Assets {
         }
 
     private:
+        //----------------------------------------------------------------------
         static Math::Vec4 _ParseVec4( const JSON& value )
         {
             Math::Vec4 result;
@@ -197,6 +198,7 @@ namespace Assets {
             return result;
         }
 
+        //----------------------------------------------------------------------
         static void _SetPBRParams( const MaterialPtr& material )
         {
             static const StringID NAME_COLOR                = SID( "color" );
@@ -206,6 +208,7 @@ namespace Assets {
             static const StringID NAME_METALLIC_MAP         = SID( "metallicMap" );
             static const StringID NAME_USE_ROUGHNESS_MAP    = SID( "useRoughnessMap" );
             static const StringID NAME_USE_METALLIC_MAP     = SID( "useMetallicMap" );
+            static const StringID NAME_NORMAL_MAP           = SID( "normalMap" );
 
             material->setFloat( NAME_USE_METALLIC_MAP, 0.0f );
             material->setFloat( NAME_USE_ROUGHNESS_MAP, 0.0f );
@@ -213,6 +216,10 @@ namespace Assets {
             // Color
             if ( not material->hasVec4( NAME_COLOR ) )
                 material->setColor( NAME_COLOR, Color::WHITE );
+
+            // Normalmap
+            if ( not material->hasTexture( NAME_NORMAL_MAP ) )
+                material->setTexture( NAME_NORMAL_MAP, RESOURCES.getNormalTexture() );
 
             // Roughness
             if ( not material->hasFloat( NAME_ROUGHNESS ) )

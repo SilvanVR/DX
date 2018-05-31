@@ -2,8 +2,10 @@
 
 "shader" : "/shaders/pbr.shader",
 
-"albedoMap" : "/textures/pbr/grass/albedo.jpg",
-"metallic" : 0,
-"roughnessMap" : "/textures/pbr/grass/roughness.jpg"
+"albedoMap" : "/textures/pbr/grass/albedo.png",
+"normalMap" : "/textures/pbr/grass/normal.png",
+"roughnessMap" : "/textures/pbr/grass/roughness.png",
+"aoMap" : "/textures/pbr/grass/ao.png",
+"heightMap" : "/textures/pbr/grass/height.png"
 
 }

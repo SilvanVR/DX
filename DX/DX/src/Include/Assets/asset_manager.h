@@ -154,7 +154,7 @@ namespace Assets {
         struct MeshAssetInfo : public FileInfo
         {
             WeakMeshPtr mesh;
-            //void ReloadIfNotUpToDate();
+            // No reloading supported for meshes
         };
 
         // Lists of all loaded resources. Stores weak-ptrs, which means that the resource might be already unloaded.

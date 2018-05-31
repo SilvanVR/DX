@@ -472,21 +472,6 @@ namespace Assets {
                 }
             }
 
-            // Mesh reloading
-            //for ( auto it = m_meshCache.begin(); it != m_meshCache.end(); )
-            //{
-            //    if ( it->second.mesh.expired() )
-            //    {
-            //        // Material does no longer exist, so remove it from the cache map
-            //        it = m_meshCache.erase( it );
-            //    }
-            //    else
-            //    {
-            //        it->second.ReloadIfNotUpToDate();
-            //        it++;
-            //    }
-            //}
-
         }, HOT_RELOAD_INTERVAL_MILLIS);
     }
 
@@ -518,7 +503,8 @@ namespace Assets {
                 }
             }
             catch (...) {
-                // Do nothing here. This means simply the file could not be opened, because another app has not yet closed the handle
+                // Do nothing here. This means simply the file could not be opened, because another app has not yet closed the handle or
+                // a worker thread is currently reloading the file
             }
         }
     }
@@ -557,7 +543,8 @@ namespace Assets {
                 }
             }
             catch (...) {
-                // Do nothing here. This means simply the file could not be opened, because another app has not yet closed the handle
+                // Do nothing here. This means simply the file could not be opened, because another app has not yet closed the handle or
+                // a worker thread is currently reloading the file
             }
         }
     }
@@ -586,40 +573,10 @@ namespace Assets {
                 }
             }
             catch (...) {
-                // Do nothing here. This means simply the file could not be opened, because another app has not yet closed the handle
+                // Do nothing here. This means simply the file could not be opened, because another app has not yet closed the handle or
+                // a worker thread is currently reloading the file
             }
         }
     }
-
-    //----------------------------------------------------------------------
-    //void AssetManager::MeshAssetInfo::ReloadIfNotUpToDate()
-    //{
-    //    if ( auto m = mesh.lock() )
-    //    {
-    //        try {
-    //            auto currentFileTime = path.getLastWrittenFileTime();
-
-    //            if (timeAtLoad != currentFileTime)
-    //            {
-    //                // Reload mesh on a separate thread
-    //                LOG( "Reloading mesh: " + path.toString(), LOG_COLOR );
-
-    //                ASYNC_JOB([=] {
-    //                    auto mesh = AssimpLoader::LoadMesh( path, m );
-    //                    try {
-    //                    }
-    //                    catch (const std::runtime_error& e) {
-    //                        LOG_WARN( String( "Failed to reload mesh. Reason: " ) + e.what() );
-    //                    }
-    //                });
-
-    //                timeAtLoad = currentFileTime;
-    //            }
-    //        }
-    //        catch (...) {
-    //            // Do nothing here. This means simply the file could not be opened, because another app has not yet closed the handle
-    //        }
-    //    }
-    //}
 
 } // End namespaces

@@ -54,8 +54,7 @@ public:
         //mesh->recalculateTangents();
 
         auto obj = createGameObject("Obj");
-        obj->addComponent<Components::MeshRenderer>(mesh, ASSETS.getMaterial("/materials/pbr/stone.pbrmaterial"));
-        obj->addComponent<ConstantRotation>(0,15,0);
+        obj->addComponent<Components::MeshRenderer>(mesh, ASSETS.getMaterial("/materials/pbr/oakfloor.pbrmaterial"));
         //obj->addComponent<VisualizeNormals>(0.1f, Color::BLUE);
         //obj->addComponent<VisualizeTangents>(0.1f, Color::RED);
 

@@ -134,6 +134,7 @@ namespace Core { namespace Resources {
         const MaterialPtr&      getColorMaterial()      const { return m_colorMaterial; }
         const Texture2DPtr&     getBlackTexture()       const { return m_black; }
         const Texture2DPtr&     getWhiteTexture()       const { return m_white; }
+        const Texture2DPtr&     getNormalTexture()      const { return m_normal; }
         const CubemapPtr&       getDefaultCubemap()     const { return m_defaultCubemap; }
         const MeshPtr&          getDefaultMesh()        const { return m_defaultMesh; }
 
@@ -155,6 +156,7 @@ namespace Core { namespace Resources {
 
         Texture2DPtr    m_black;
         Texture2DPtr    m_white;
+        Texture2DPtr    m_normal;
 
         CubemapPtr      m_defaultCubemap;
 
