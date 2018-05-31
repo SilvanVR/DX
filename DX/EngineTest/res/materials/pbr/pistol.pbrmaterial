@@ -4,6 +4,7 @@
 
 "albedoMap" : "/textures/pbr/pistol/albedo.jpg",
 "metallicMap" : "/textures/pbr/pistol/metallic.jpg",
-"roughnessMap" : "/textures/pbr/pistol/roughness.jpg" 
+"roughnessMap" : "/textures/pbr/pistol/roughness.jpg",
+"normalMap" : "/textures/pbr/pistol/normal.jpg"
 
 }

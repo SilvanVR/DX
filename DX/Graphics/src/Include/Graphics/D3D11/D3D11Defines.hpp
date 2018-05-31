@@ -10,6 +10,7 @@
 #define SEMANTIC_COLOR          "COLOR"
 #define SEMANTIC_TEXCOORD       "TEXCOORD"
 #define SEMANTIC_NORMAL         "NORMAL"
+#define SEMANTIC_TANGENT        "TANGENT"
 
 #define MATERIAL_NAME           "material"
 #define SHADER_NAME             "shader"

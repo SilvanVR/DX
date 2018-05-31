@@ -31,6 +31,8 @@ namespace Graphics { namespace D3D11 {
             case MeshBufferType::Color:     _UpdateColorBuffer();                   break;
             case MeshBufferType::Index:     _UpdateIndexBuffer(buffUpdate.index);   break;
             case MeshBufferType::Normal:    _UpdateNormalBuffer();                  break;
+            case MeshBufferType::Tangent:   _UpdateTangentBuffer();                 break;
+            default: ASSERT( false && "Unknown buffer type!" );
             }
             m_queuedBufferUpdates.pop();
         }
@@ -51,6 +53,7 @@ namespace Graphics { namespace D3D11 {
         SAFE_DELETE( m_pColorBuffer );
         SAFE_DELETE( m_pUVBuffer );
         SAFE_DELETE( m_pNormalBuffer );
+        SAFE_DELETE( m_pTangentBuffer );
         for (auto& indexBuffer : m_pIndexBuffers)
             SAFE_DELETE( indexBuffer );
         m_pIndexBuffers.clear();
@@ -116,6 +119,13 @@ namespace Graphics { namespace D3D11 {
         m_pNormalBuffer = new VertexBuffer( normals.data(), getVertexCount() * sizeof( Math::Vec3 ), m_bufferUsage );
     }
 
+    //----------------------------------------------------------------------
+    void Mesh::_CreateTangentBuffer( const ArrayList<Math::Vec4>& tangents )
+    {
+        ASSERT( m_pTangentBuffer == nullptr);
+        m_pTangentBuffer = new VertexBuffer( tangents.data(), getVertexCount() * sizeof( Math::Vec4 ), m_bufferUsage );
+    }
+
     //**********************************************************************
     // PRIVATE
     //**********************************************************************
@@ -166,6 +176,12 @@ namespace Graphics { namespace D3D11 {
     }
 
     //----------------------------------------------------------------------
+    void Mesh::_UpdateTangentBuffer()
+    {
+        m_pTangentBuffer->update( m_tangents.data(), m_tangents.size() * sizeof( Math::Vec4 ) );
+    }
+
+    //----------------------------------------------------------------------
     void Mesh::_RecreateBuffers()
     {
         // Recreate vertex buffer
@@ -194,6 +210,13 @@ namespace Graphics { namespace D3D11 {
         {
             SAFE_DELETE( m_pNormalBuffer );
             _CreateNormalBuffer( m_normals );
+        }
+
+        // Recreate tangent buffer
+        if (m_pTangentBuffer)
+        {
+            SAFE_DELETE( m_pTangentBuffer );
+            _CreateTangentBuffer( m_tangents );
         }
 
         // Recreate index buffers
@@ -269,6 +292,15 @@ namespace Graphics { namespace D3D11 {
                 ASSERT( m_pNormalBuffer && "Shader requires a normal-buffer, but mesh has none!");
                 pBuffers[bufferIndex] = m_pNormalBuffer->getBuffer();
                 strides[bufferIndex] = static_cast<U32>( sizeof( Math::Vec3 ) );
+                offsets[bufferIndex] = 0;
+                bufferIndex++;
+                break;
+            }
+            case InputLayoutType::TANGENT:
+            {
+                ASSERT( m_pTangentBuffer && "Shader requires a tangent-buffer, but mesh has none!" );
+                pBuffers[bufferIndex] = m_pTangentBuffer->getBuffer();
+                strides[bufferIndex] = static_cast<U32>( sizeof( Math::Vec4 ) );
                 offsets[bufferIndex] = 0;
                 bufferIndex++;
                 break;

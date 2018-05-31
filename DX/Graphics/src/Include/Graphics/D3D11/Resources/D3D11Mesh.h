@@ -31,12 +31,14 @@ namespace Graphics { namespace D3D11 {
         void _CreateUVBuffer(const ArrayList<Math::Vec2>& uvs) override;
         void _CreateColorBuffer(const ArrayList<Color>& colors) override;
         void _CreateNormalBuffer(const ArrayList<Math::Vec3>& normals) override;
+        void _CreateTangentBuffer(const ArrayList<Math::Vec4>& tangents) override;
 
     private:
         VertexBuffer*   m_pVertexBuffer   = nullptr;
         VertexBuffer*   m_pColorBuffer    = nullptr;
         VertexBuffer*   m_pUVBuffer       = nullptr;
         VertexBuffer*   m_pNormalBuffer   = nullptr;
+        VertexBuffer*   m_pTangentBuffer  = nullptr;
 
         // Array of index buffer. One indexbuffer for each submesh.
         ArrayList<IndexBuffer*> m_pIndexBuffers;
@@ -57,6 +59,7 @@ namespace Graphics { namespace D3D11 {
         inline void _UpdateColorBuffer();
         inline void _UpdateIndexBuffer(U32 index);
         inline void _UpdateNormalBuffer();
+        inline void _UpdateTangentBuffer();
 
         //----------------------------------------------------------------------
         Mesh(const Mesh& other)               = delete;

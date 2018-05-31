@@ -26,6 +26,7 @@ public:
         auto cam = go->addComponent<Components::Camera>();
         go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -10);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA);
+        go->addComponent<Components::SpotLight>(10.0f, Color::RED, 25.0f);
 
         //createGameObject("Grid")->addComponent<GridGeneration>(20);
 
@@ -49,18 +50,22 @@ public:
         createGameObject("Skybox")->addComponent<Components::Skybox>(cubemapHDR);
 
         auto mesh = ASSETS.getMesh("/models/sphere.obj");
+        //auto mesh = Core::MeshGenerator::CreatePlane();
+        //mesh->recalculateTangents();
 
-        auto pistol = createGameObject("Obj");
-        auto mr = pistol->addComponent<Components::MeshRenderer>(mesh, ASSETS.getMaterial("/materials/pbr/gold.pbrmaterial"));
+        auto obj = createGameObject("Obj");
+        obj->addComponent<Components::MeshRenderer>(mesh, ASSETS.getMaterial("/materials/pbr/stone.pbrmaterial"));
+        obj->addComponent<ConstantRotation>(0,15,0);
+        //obj->addComponent<VisualizeNormals>(0.1f, Color::BLUE);
+        //obj->addComponent<VisualizeTangents>(0.1f, Color::RED);
 
         //pistol->getTransform()->scale = { 0.1f };
-        //go2->addComponent<VisualizeNormals>(0.3f, Color::WHITE);
         //go2->getTransform()->position = { 0, -mesh->getBounds().getHeight() * 0.5f, 0 };
 
         // LIGHTS
-        auto sun = createGameObject("Sun");
-        sun->addComponent<Components::DirectionalLight>(5.0f, Color::WHITE);
-        sun->getTransform()->rotation = Math::Quat::LookRotation(Math::Vec3{ 0,-1, 1 });
+        //auto sun = createGameObject("Sun");
+        //sun->addComponent<Components::DirectionalLight>(5.0f, Color::WHITE);
+        //sun->getTransform()->rotation = Math::Quat::LookRotation(Math::Vec3{ 0,-1, 1 });
 
         auto pl = createGameObject("PointLight");
         pl->addComponent<Components::PointLight>(10.0f, Color::WHITE, 20.0f);

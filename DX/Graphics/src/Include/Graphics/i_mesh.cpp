@@ -21,6 +21,7 @@ namespace Graphics {
         m_colors.clear();
         m_uvs0.clear();
         m_normals.clear();
+        m_tangents.clear();
         m_subMeshes.clear();
         _Clear();
     }
@@ -142,6 +143,27 @@ namespace Graphics {
     }
 
     //----------------------------------------------------------------------
+    void IMesh::setTangents( const ArrayList<Math::Vec4>& tangents )
+    {
+        bool hasBuffer = not m_tangents.empty();
+
+        m_tangents = tangents;
+        if ( not hasBuffer )
+        {
+            _CreateTangentBuffer( m_tangents );
+        }
+        else
+        {
+            ASSERT( (m_tangents.size() == m_tangents.size() &&
+                    "IMesh::setTangents(): The amount of tangents given must be the number of tangents already present! "
+                    "Otherwise call clear() before, so the gpu buffer will be recreated.") );
+            ASSERT( not isImmutable() && "Mesh is immutable! It can't be updated. "
+                    "Either change the buffer usage via setBufferUsage() or call clear() to reset the whole mesh." );
+            m_queuedBufferUpdates.push({ MeshBufferType::Tangent });
+        }
+    }
+
+    //----------------------------------------------------------------------
     void IMesh::recalculateNormals()
     {
         ArrayList<Math::Vec3> normals( m_vertices.size(), Math::Vec3( 0.0f ) );
@@ -183,6 +205,62 @@ namespace Graphics {
     }
 
     //----------------------------------------------------------------------
+    void IMesh::recalculateTangents( bool invertBinormal )
+    {
+        ArrayList<Math::Vec3> tangents( m_vertices.size(), Math::Vec3( 0.0f ) );
+
+        // Calculate normals
+        for (auto& subMesh : m_subMeshes)
+        {
+            if (subMesh.topology != MeshTopology::Triangles)
+            {
+                LOG_WARN_RENDERING( "IMesh::recalculateTangents(): Tangent recalculation not supported for this (sub)mesh topology!" );
+                continue;
+            }
+
+            for (I32 i = 0; i < subMesh.indices.size(); i += 3)
+            {
+                U32 index0 = subMesh.indices[i + 0];
+                U32 index1 = subMesh.indices[i + 1];
+                U32 index2 = subMesh.indices[i + 2];
+
+                auto vert0 = m_vertices[index0];
+                auto vert1 = m_vertices[index1];
+                auto vert2 = m_vertices[index2];
+
+                auto edge0 = vert1 - vert0;
+                auto edge1 = vert2 - vert0;
+
+                F32 deltaU1 = m_uvs0[index1].x - m_uvs0[index0].x;
+                F32 deltaV1 = m_uvs0[index1].y - m_uvs0[index0].y;
+                F32 deltaU2 = m_uvs0[index2].x - m_uvs0[index0].x;
+                F32 deltaV2 = m_uvs0[index2].y - m_uvs0[index0].y;
+
+                F32 f = 1.0f / (deltaU1*deltaV2 - deltaU2*deltaV1);
+
+                Math::Vec3 tangent;
+                tangent.x = f * (deltaV2*edge0.x - deltaV1*edge1.x);
+                tangent.y = f * (deltaV2*edge0.y - deltaV1*edge1.y);
+                tangent.z = f * (deltaV2*edge0.z - deltaV1*edge1.z);
+
+                tangents[index0] += tangent;
+                tangents[index1] += tangent;
+                tangents[index2] += tangent;
+            }
+        }
+
+        for (I32 i = 0; i < tangents.size(); i++)
+            tangents[i].normalize();
+
+        // Now add the w component
+        ArrayList<Math::Vec4> tangentsVec4( tangents.size(), Math::Vec4(0.0f) );
+        for (I32 i = 0; i < tangents.size(); i++)
+            tangentsVec4[i] = { tangents[i].x, tangents[i].y, tangents[i].z, invertBinormal ? -1.0f : 1.0f };
+
+        setTangents( tangentsVec4 );
+    }
+
+    //----------------------------------------------------------------------
     // PROTECTED
     //----------------------------------------------------------------------
 
@@ -201,7 +279,7 @@ namespace Graphics {
         if ( indices.size() > 65535 )
             sm.indexFormat = IndexFormat::U32;
 
-        m_subMeshes.push_back( std::move( sm ) );
+        m_subMeshes.push_back( sm );
         return m_subMeshes.back();
     }
 

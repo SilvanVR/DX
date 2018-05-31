@@ -171,6 +171,11 @@ namespace Graphics { namespace D3D11 {
             m_vertexLayout.add({ InputLayoutType::NORMAL });
             nameExists = true;
         }
+        else if (semanticName == SEMANTIC_TANGENT)
+        {
+            m_vertexLayout.add({ InputLayoutType::TANGENT });
+            nameExists = true;
+        }
         if (not nameExists)
             LOG_WARN_RENDERING( "D3D11VertexShader: Semantic name '" + semanticName + "' for shader '" + getFilePath().toString() + "' does not exist.");
     }

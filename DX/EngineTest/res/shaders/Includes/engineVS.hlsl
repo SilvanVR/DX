@@ -40,9 +40,8 @@ float3 TO_WORLD_SPACE( float3 vert )
     return mul( gWorld, float4( vert, 1 ) ).xyz;
 }
 
-
 //----------------------------------------------------------------------
 float3 TRANSFORM_NORMAL( float3 normal )
 {
-	return normalize( mul( gWorld, float4( normal, 0.0f ) ).xyz );
+	return normalize( mul( (float3x3)gWorld, normal ) );
 }

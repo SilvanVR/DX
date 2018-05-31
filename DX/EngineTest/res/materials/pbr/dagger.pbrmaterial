@@ -4,6 +4,7 @@
 
 "albedoMap" : "/textures/pbr/dagger/albedo.tga",
 "metallicMap" : "/textures/pbr/dagger/metallic.tga",
-"roughnessMap" : "/textures/pbr/dagger/roughness.tga"
+"roughnessMap" : "/textures/pbr/dagger/roughness.tga",
+"normalMap" : "/textures/pbr/dagger/normal.tga"
 
 }

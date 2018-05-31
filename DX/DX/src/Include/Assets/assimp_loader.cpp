@@ -37,6 +37,7 @@ namespace Assets {
         ArrayList<Math::Vec3> vertices;
         ArrayList<Math::Vec2> uvs;
         ArrayList<Math::Vec3> normals;
+        ArrayList<Math::Vec4> tangents;
 
         // Create submeshes for each mesh in the aiScene
         aiVector3D Zero3D( 0.0f, 0.0f, 0.0f );
@@ -62,11 +63,11 @@ namespace Assets {
                 aiVector3D* pTexCoord   = hasTextureCoords      ? &(aMesh->mTextureCoords[0][j]) : &Zero3D;
                 aiVector3D* pNormal     = hasNormals            ? &(aMesh->mNormals[j])          : &Zero3D;
                 aiVector3D* pTangent    = hasTangentsBitangents ? &(aMesh->mTangents[j])         : &Zero3D;
-                aiVector3D* pBiTangent  = hasTangentsBitangents ? &(aMesh->mBitangents[j])       : &Zero3D;
 
                 vertices.emplace_back( pPos->x, pPos->y, pPos->z );
                 uvs.emplace_back( pTexCoord->x, pTexCoord->y );
                 normals.emplace_back( pNormal->x, pNormal->y, pNormal->z );
+                tangents.emplace_back( pTangent->x, pTangent->y, pTangent->z, 1.0f );
             }
 
             // Fill Indices
@@ -88,13 +89,13 @@ namespace Assets {
         }
 
         // Load materials from the scene
-        if (scene->HasMaterials())
-            LOG("Has materials", Color::BLUE);
+        //if (scene->HasMaterials())
             //loadMaterials(physicalPath, mesh, scene);
 
         mesh->setVertices( vertices );
         mesh->setUVs( uvs );
         mesh->setNormals( normals );
+        mesh->setTangents( tangents );
 
         return mesh;
     }

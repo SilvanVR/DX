@@ -235,3 +235,48 @@ public:
         normalGO->addComponent<Components::MeshRenderer>( normalMesh, RESOURCES.getColorMaterial() );
     }
 };
+
+// Visualizes the normals from the mesh in the attached mesh renderer
+class VisualizeTangents : public Components::IComponent
+{
+    F32 m_length;
+    Color m_color;
+
+public:
+    VisualizeTangents(F32 length, Color color)
+        : m_length(length), m_color(color) {}
+
+    void addedToGameObject(GameObject* go) override
+    {
+        auto mr = getGameObject()->getComponent<Components::MeshRenderer>();
+        ASSERT(mr != nullptr && "VisualizeNormals requires a mesh renderer component attached to it!");
+
+        auto mesh = mr->getMesh();
+        auto& meshTangents = mesh->getTangents();
+        auto& meshVertices = mesh->getVertices();
+
+        ArrayList<Math::Vec3> vertices;
+        ArrayList<U32> indices;
+        U32 index = 0;
+        for (I32 i = 0; i < meshTangents.size(); i++)
+        {
+            auto start = meshVertices[i];
+            auto end = start + Math::Vec3(meshTangents[i].x, meshTangents[i].y, meshTangents[i].z) * m_length;
+
+            vertices.emplace_back(start);
+            vertices.emplace_back(end);
+
+            indices.push_back(index++);
+            indices.push_back(index++);
+        }
+
+        auto tangentMesh = RESOURCES.createMesh();
+        tangentMesh->setVertices(vertices);
+        tangentMesh->setIndices(indices, 0, Graphics::MeshTopology::Lines);
+        tangentMesh->setColors(ArrayList<Color>(vertices.size(), m_color));
+
+        auto meshGO = go->getScene()->createGameObject("TangentVisualizer");
+        meshGO->getTransform()->setParent(go->getTransform());
+        meshGO->addComponent<Components::MeshRenderer>(tangentMesh, RESOURCES.getColorMaterial());
+    }
+};

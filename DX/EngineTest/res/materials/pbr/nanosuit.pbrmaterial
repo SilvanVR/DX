@@ -1,0 +1,10 @@
+{
+
+"shader" : "/shaders/pbr.shader",
+
+"albedoMap" : "/textures/pbr/nanosuit/body_dif.png",
+"metallicMap" : "/textures/pbr/nanosuit/metallic.png",
+"roughnessMap" : "/textures/pbr/nanosuit/roughness.png",
+"normalMap" : "/textures/pbr/nanosuit/normal.png"
+
+}

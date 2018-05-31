@@ -69,6 +69,13 @@ namespace Graphics {
         void setNormals(const ArrayList<Math::Vec3>& normals);
 
         //----------------------------------------------------------------------
+        // Sets the tangents for this mesh. If a buffer was not created,
+        // it will be created to fit the amount of data given. Otherwise, the gpu
+        // buffer will just be updated. Note that this is a slow operation.
+        //----------------------------------------------------------------------
+        void setTangents(const ArrayList<Math::Vec4>& tangents);
+
+        //----------------------------------------------------------------------
         // @Return: Buffer usage, which determines if it can be updated or not.
         //----------------------------------------------------------------------
         BufferUsage getBufferUsage()    const { return m_bufferUsage; }
@@ -85,10 +92,18 @@ namespace Graphics {
         void recalculateNormals();
 
         //----------------------------------------------------------------------
+        // Recalculates the tangents from the vertices and uvs
+        // @Params:
+        //  "invertBinormal": If set to true the w component of the tangent will be set to -1 instead of 1.
+        //----------------------------------------------------------------------
+        void recalculateTangents(bool invertBinormal = false);
+
+        //----------------------------------------------------------------------
         const ArrayList<Math::Vec3>&    getVertices()       const { return m_vertices; }
         const ArrayList<Color>&         getColors()         const { return m_colors; }
         const ArrayList<Math::Vec2>&    getUVs0()           const { return m_uvs0; }
         const ArrayList<Math::Vec3>&    getNormals()        const { return m_normals; }
+        const ArrayList<Math::Vec4>&    getTangents()       const { return m_tangents; }
         U32                             getVertexCount()    const { return static_cast<U32>( m_vertices.size() ); }
         U16                             getSubMeshCount()   const { return static_cast<U32>( m_subMeshes.size() ); }
         bool                            isImmutable()       const { return m_bufferUsage == BufferUsage::Immutable; }
@@ -106,6 +121,7 @@ namespace Graphics {
         ArrayList<Color>        m_colors;
         ArrayList<Math::Vec2>   m_uvs0;
         ArrayList<Math::Vec3>   m_normals;
+        ArrayList<Math::Vec4>   m_tangents;
         BufferUsage             m_bufferUsage = BufferUsage::Immutable;
         Math::AABB              m_bounds;
 
@@ -125,7 +141,8 @@ namespace Graphics {
             Color,
             TexCoord,
             Normal,
-            Index
+            Index,
+            Tangent
         };
         struct BufferUpdateInformation
         {
@@ -148,6 +165,7 @@ namespace Graphics {
         virtual void _CreateColorBuffer(const ArrayList<Color>& colors) = 0;
         virtual void _CreateUVBuffer(const ArrayList<Math::Vec2>& uvs) = 0;
         virtual void _CreateNormalBuffer(const ArrayList<Math::Vec3>& normals) = 0;
+        virtual void _CreateTangentBuffer(const ArrayList<Math::Vec4>& tangents) = 0;
 
     private:
         //----------------------------------------------------------------------

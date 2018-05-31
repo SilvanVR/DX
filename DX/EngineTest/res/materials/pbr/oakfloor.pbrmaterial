@@ -1,0 +1,12 @@
+{
+
+"shader" : "/shaders/pbr.shader",
+
+"albedoMap" : "/textures/pbr/oakfloor/albedo.png",
+"metallic" : 0,
+"roughnessMap" : "/textures/pbr/oakfloor/roughness.png",
+"normalMap" : "/textures/pbr/oakfloor/normal.png",
+"heightMap" : "/textures/pbr/oakfloor/height.png",
+"aoMap" : "/textures/pbr/oakfloor/ao.png"
+
+}
