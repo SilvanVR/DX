@@ -29,8 +29,18 @@ namespace Components {
         const ArrayList<MaterialPtr>&           getMaterials()              const   { return m_materials; }
         U32                                     getMaterialCount()          const   { return static_cast<U32>( m_materials.size() ); }
 
+        //----------------------------------------------------------------------
+        // Set the mesh in this mesh renderer component.
+        //----------------------------------------------------------------------
         void setMesh(const MeshPtr& mesh);
-        void setMaterial(const MaterialPtr& m, U32 index = 0);
+
+        //----------------------------------------------------------------------
+        // Set a material in this mesh renderer component.
+        // @Params:
+        //  "m": The material.
+        //  "subMeshIndex": The index of the submesh, which gains the material.
+        //----------------------------------------------------------------------
+        void setMaterial(const MaterialPtr& m, U32 subMeshIndex = 0);
 
     private:
         MeshPtr                 m_mesh;

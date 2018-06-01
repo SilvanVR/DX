@@ -926,3 +926,113 @@ public:
 
     void shutdown() override { LOG("ScenePBRPistol Shutdown!", Color::RED); }
 };
+
+ArrayList<MaterialPtr> GeneratePBRMaterials(const ShaderPtr& pbrShader, const MeshPtr& mesh, const Assets::MeshMaterialInfo& materials)
+{
+    ASSERT(materials.isValid());
+    static const F32 DEFAULT_ROUGHNESS = 0.4f;
+
+    ArrayList<MaterialPtr> pbrMaterials;
+    for ( I32 i = 0; i < mesh->getSubMeshCount(); i++ )
+    {
+        auto pbrMat = RESOURCES.createMaterial( pbrShader );
+        pbrMat->setColor( "color", Color::WHITE );
+        pbrMat->setTexture( "normalMap", RESOURCES.getNormalTexture() );
+        pbrMat->setFloat( "useRoughnessMap", 0.0f );
+        pbrMat->setFloat( "useMetallicMap", 0.0f );
+        pbrMat->setTexture( "roughnessMap", RESOURCES.getBlackTexture() );
+        pbrMat->setTexture( "metallicMap", RESOURCES.getBlackTexture() );
+        pbrMat->setFloat( "metallic", 0.0f );
+        pbrMat->setFloat( "roughness", DEFAULT_ROUGHNESS );
+
+        auto material = materials[i];
+        pbrMat->setColor("color", material.diffuseColor);
+
+        for (auto& texture : material.textures)
+        {
+            switch (texture.type)
+            {
+            case Assets::MaterialTextureType::Albedo: pbrMat->setTexture("albedoMap", ASSETS.getTexture2D(texture.filePath)); break;
+            case Assets::MaterialTextureType::Normal: pbrMat->setTexture("normalMap", ASSETS.getTexture2D(texture.filePath)); break;
+            case Assets::MaterialTextureType::Shininess:
+            {
+                pbrMat->setFloat("useRoughnessMap", 1.0f);
+                pbrMat->setTexture("roughnessMap", ASSETS.getTexture2D(texture.filePath)); 
+                break;
+            }
+            case Assets::MaterialTextureType::Specular:
+            {
+                pbrMat->setFloat("useMetallicMap", 1.0f);
+                pbrMat->setTexture("metallicMap", ASSETS.getTexture2D(texture.filePath)); 
+                break;
+            }
+            }
+        }
+        pbrMaterials.push_back( pbrMat );
+    }
+    return pbrMaterials;
+}
+
+class SponzaScene : public IScene
+{
+public:
+    SponzaScene() : IScene("SponzaScene") {}
+
+    void init() override
+    {
+        // Camera
+        auto go = createGameObject("Camera");
+        auto cam = go->addComponent<Components::Camera>();
+        go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -10);
+        go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA);
+
+        auto cubemapHDR = ASSETS.getCubemap("/cubemaps/canyon.hdr", 2048, true);
+        auto pbrShader = ASSETS.getShader("/shaders/pbr.shader");
+
+        Assets::EnvironmentMap envMap(cubemapHDR, 128, 512);
+        auto diffuse = envMap.getDiffuseIrradianceMap();
+        auto specular = envMap.getSpecularReflectionMap();
+
+        auto brdfLut = Assets::BRDFLut().getTexture();
+        pbrShader->setReloadCallback([=](Graphics::IShader* shader) {
+            shader->setTexture("diffuseIrradianceMap", diffuse);
+            shader->setTexture("specularReflectionMap", specular);
+            shader->setTexture("brdfLUT", brdfLut);
+            shader->setFloat("maxReflectionLOD", F32(specular->getMipCount() - 1));
+        });
+        pbrShader->invokeReloadCallback();
+
+        createGameObject("Skybox")->addComponent<Components::Skybox>(cubemapHDR);
+
+        Assets::MeshMaterialInfo materialImportInfo;
+        auto mesh = ASSETS.getMesh( "/models/sponza/sponza.obj", &materialImportInfo );
+
+        auto obj = createGameObject("Obj");
+        auto mr = obj->addComponent<Components::MeshRenderer>(mesh, ASSETS.getMaterial("/materials/pbr/gold.pbrmaterial"));
+        //obj->addComponent<VisualizeNormals>(1.0f, Color::BLUE);
+        //obj->addComponent<VisualizeTangents>(1.0f, Color::RED);
+        obj->getTransform()->scale = { 0.05f };
+
+        if ( materialImportInfo.isValid() )
+        {
+            auto pbrMaterials = GeneratePBRMaterials( pbrShader, mesh, materialImportInfo );
+            for ( I32 i = 0; i < pbrMaterials.size(); i++ )
+                mr->setMaterial( pbrMaterials[i], i );
+        }
+
+        // LIGHTS
+        //auto sun = createGameObject("Sun");
+        //sun->addComponent<Components::DirectionalLight>(5.0f, Color::WHITE);
+        //sun->getTransform()->rotation = Math::Quat::LookRotation(Math::Vec3{ 0,-1, 1 });
+
+        auto pl = createGameObject("PointLight");
+        pl->addComponent<Components::PointLight>(15.0f, Color::WHITE, 30.0f);
+        pl->getTransform()->position = { 5, 2, 0 };
+        pl->addComponent<Components::Billboard>(ASSETS.getTexture2D("/textures/pointLight.png"), 0.3f);
+        pl->addComponent<AutoOrbiting>(20.0f);
+
+        LOG("SponzaScene initialized!", Color::RED);
+    }
+
+    void shutdown() override { LOG("SponzaScene Shutdown!", Color::RED); }
+};

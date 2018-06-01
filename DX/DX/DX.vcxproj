@@ -388,6 +388,7 @@
     <ClInclude Include="src\Include\Assets\brdf_lut.h" />
     <ClInclude Include="src\Include\Assets\environment_map.h" />
     <ClInclude Include="src\Include\Assets\material_parser.hpp" />
+    <ClInclude Include="src\Include\Assets\mesh_material_info.hpp" />
     <ClInclude Include="src\Include\Assets\shader_parser.hpp" />
     <ClInclude Include="src\Include\Core\Audio\audio_clip.h" />
     <ClInclude Include="src\Include\Core\Audio\audio_manager.h" />

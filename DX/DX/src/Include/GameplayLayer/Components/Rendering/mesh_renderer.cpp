@@ -42,10 +42,10 @@ namespace Components {
     }
 
     //----------------------------------------------------------------------
-    void MeshRenderer::setMaterial( const MaterialPtr& m, U32 index )
+    void MeshRenderer::setMaterial( const MaterialPtr& m, U32 subMeshIndex )
     { 
-        ASSERT( index < m_materials.size() && "MeshRenderer::setMaterial(): INVALID INDEX." );
-        m_materials[index] = (m == nullptr ? RESOURCES.getDefaultMaterial() : m);
+        ASSERT( subMeshIndex < m_materials.size() && "MeshRenderer::setMaterial(): INVALID INDEX." );
+        m_materials[subMeshIndex] = (m == nullptr ? RESOURCES.getDefaultMaterial() : m);
     }
 
     //**********************************************************************

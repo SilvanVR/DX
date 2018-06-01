@@ -186,9 +186,16 @@ namespace Core {
             Math::Vec3( 0.0f, 0.0f, -1.0f ),
             Math::Vec3( 0.0f, 0.0f, -1.0f )
         };
+        ArrayList<Math::Vec4> tangents = {
+            Math::Vec4( 1.0f, 0.0f, 0.0f, 1.0f ),
+            Math::Vec4( 1.0f, 0.0f, 0.0f, 1.0f ),
+            Math::Vec4( 1.0f, 0.0f, 0.0f, 1.0f ),
+            Math::Vec4( 1.0f, 0.0f, 0.0f, 1.0f )
+        };
 
         auto mesh = RESOURCES.createMesh( vertices, indices, uvs );
         mesh->setNormals( normals );
+        mesh->setTangents( tangents );
 
         return mesh;
     }

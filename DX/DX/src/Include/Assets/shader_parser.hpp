@@ -265,8 +265,7 @@ namespace Assets {
                 }
             }
 
-            if (found)
-                shader->setBlendState( bsState );
+            shader->setBlendState( bsState );
         }
 
         //----------------------------------------------------------------------

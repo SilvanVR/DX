@@ -430,9 +430,8 @@ namespace Graphics {
     {
         // Measuring per frame data
         m_frameInfo.drawCalls++;
-        m_frameInfo.numVertices += mesh->getVertexCount();
-        for (auto i = 0; i < mesh->getSubMeshCount(); i++)
-            m_frameInfo.numTriangles += mesh->getIndexCount(i) / 3;
+        m_frameInfo.numTriangles += mesh->getIndexCount( subMeshIndex ) / 3;
+        m_frameInfo.numVertices += mesh->getVertexCount(); // This is actually not correct, cause i need the vertex-count from the submesh
 
         // Update global buffer if necessary
         if ( D3D11::ConstantBufferManager::hasGlobalBuffer() )

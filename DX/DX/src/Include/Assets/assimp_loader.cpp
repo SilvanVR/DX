@@ -15,12 +15,23 @@
 
 namespace Assets {
 
-    static const I32 IMPORTER_FLAGS = aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace
-                                      | aiProcess_FlipUVs | aiProcess_GenUVCoords | aiProcess_FindInvalidData;
+    //----------------------------------------------------------------------
+    // Check if the given material is the default one or a real material
+    // The only way to do this in Assimp currently is to check the name.
+    //----------------------------------------------------------------------
+    bool isDefaultMaterial(const aiMaterial* material)
+    {
+        aiString name;
+        material->Get( AI_MATKEY_NAME, name );
+        return String( name.C_Str() ) == AI_DEFAULT_MATERIAL_NAME;
+    }
 
     //----------------------------------------------------------------------
-    MeshPtr AssimpLoader::LoadMesh( const OS::Path& path )
+    MeshPtr AssimpLoader::LoadMesh( const OS::Path& path, MeshMaterialInfo* materials )
     {
+        static const I32 IMPORTER_FLAGS = aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace
+                                          | aiProcess_FlipUVs | aiProcess_GenUVCoords | aiProcess_FindInvalidData;
+
         Assimp::Importer importer;
         const aiScene* scene = importer.ReadFile( path.c_str(), IMPORTER_FLAGS );
 
@@ -52,6 +63,9 @@ namespace Assets {
                 LOG_WARN( TS( m ) + "th Submesh of mesh '" + path.toString() + "' has no UV-Coordinates. All uvs set to zero." );
             if ( not hasNormals )
                 LOG_WARN( TS( m ) + "th Submesh of mesh '" + path.toString() + "' has no Normals. All normals set to zero." );
+
+            if (materials)
+                materials->materialIndices.push_back( aMesh->mMaterialIndex );
 
             // Save base vertex for this submesh
             U32 baseVertex = (U32)vertices.size();
@@ -88,137 +102,92 @@ namespace Assets {
             mesh->setIndices( indices, m, Graphics::MeshTopology::Triangles, baseVertex );
         }
 
-        // Load materials from the scene
-        //if (scene->HasMaterials())
-            //loadMaterials(physicalPath, mesh, scene);
-
+        // Apply data to the mesh
         mesh->setVertices( vertices );
         mesh->setUVs( uvs );
         mesh->setNormals( normals );
         mesh->setTangents( tangents );
 
+        // Load material information from the scene if requested.
+        // Because Mesh-Files without a material file still have one material, i have to check it manually.
+        // This can cause problems if the first material is named "DefaultMaterial".
+        bool hasOnlyDefaultMaterial = scene->mNumMaterials == 1 && isDefaultMaterial( scene->mMaterials[0] );
+        if ( materials != nullptr && scene->HasMaterials() && not hasOnlyDefaultMaterial )
+        {
+            materials->materials.resize( scene->mNumMaterials );
+            for (U32 i = 0; i < scene->mNumMaterials; i++)
+            {
+                aiString texturePath;
+                const aiMaterial* material = scene->mMaterials[i];
+
+                // Albedo map
+                if ( material->GetTexture( aiTextureType_DIFFUSE, 0, &texturePath ) == AI_SUCCESS )
+                {
+                    const String fullTexturePath = path.getDirectoryPath() + texturePath.C_Str();
+                    materials->materials[i].textures.push_back({ MaterialTextureType::Albedo, fullTexturePath });
+                }
+
+                // Normal map
+                if ( material->GetTexture( aiTextureType_NORMALS, 0, &texturePath ) == AI_SUCCESS )
+                {
+                    const String fullTexturePath = path.getDirectoryPath() + texturePath.C_Str();
+                    materials->materials[i].textures.push_back({ MaterialTextureType::Normal, fullTexturePath });
+                }
+
+                // Shininess map
+                if ( material->GetTexture( aiTextureType_SHININESS, 0, &texturePath ) == AI_SUCCESS )
+                {
+                    const String fullTexturePath = path.getDirectoryPath() + texturePath.C_Str();
+                    materials->materials[i].textures.push_back({ MaterialTextureType::Shininess, fullTexturePath });
+                }
+                
+                // AO map
+                if ( material->GetTexture( aiTextureType_AMBIENT, 0, &texturePath ) == AI_SUCCESS )
+                {
+                    const String fullTexturePath = path.getDirectoryPath() + texturePath.C_Str();
+                    materials->materials[i].textures.push_back({ MaterialTextureType::Ambient, fullTexturePath });
+                }
+
+                // Specular map
+                if ( material->GetTexture(aiTextureType_SPECULAR, 0, &texturePath ) == AI_SUCCESS )
+                {
+                    const String fullTexturePath = path.getDirectoryPath() + texturePath.C_Str();
+                    materials->materials[i].textures.push_back({ MaterialTextureType::Specular, fullTexturePath });
+                }
+
+                // Height map
+                if ( material->GetTexture( aiTextureType_HEIGHT, 0, &texturePath ) == AI_SUCCESS )
+                {
+                    const String fullTexturePath = path.getDirectoryPath() + texturePath.C_Str();
+                    materials->materials[i].textures.push_back({ MaterialTextureType::Height, fullTexturePath });
+                }
+
+                // Displacement map
+                if ( material->GetTexture( aiTextureType_DISPLACEMENT, 0, &texturePath ) == AI_SUCCESS )
+                {
+                    const String fullTexturePath = path.getDirectoryPath() + texturePath.C_Str();
+                    materials->materials[i].textures.push_back({ MaterialTextureType::Displacement, fullTexturePath });
+                }
+
+                // Displacement map
+                if (material->GetTexture( aiTextureType_EMISSIVE, 0, &texturePath ) == AI_SUCCESS )
+                {
+                    const String fullTexturePath = path.getDirectoryPath() + texturePath.C_Str();
+                    materials->materials[i].textures.push_back({ MaterialTextureType::Emissive, fullTexturePath });
+                }
+
+                // Set Material-Properties
+                aiColor3D color( 0.f, 0.f, 0.f );
+                if ( material->Get( AI_MATKEY_COLOR_DIFFUSE, color ) == AI_SUCCESS )
+                    materials->materials[i].diffuseColor = Color( (Byte)(color.r * 255), (Byte)(color.g * 255), (Byte)(color.b * 255));
+                else 
+                    materials->materials[i].diffuseColor = Color::WHITE;
+
+            }
+        }
+
         return mesh;
     }
 
-
-    //// Check if the given material is the default one or a real material
-    //// The only way to do this in Assimp currently is to check the name
-    //bool isDefaultMaterial(const aiMaterial* material)
-    //{
-    //    aiString name;
-    //    material->Get(AI_MATKEY_NAME, name);
-    //    return std::string(name.C_Str()) == AI_DEFAULT_MATERIAL_NAME;
-    //}
-
-    //// Tries to load a texture from the given material.
-    //// Return nullptr if texture does not exist.
-    //TexturePtr loadTexture(const aiMaterial* material, aiTextureType textureType, const std::string& filePath, bool logMissingTextureWarning)
-    //{
-    //    aiString texturePath;
-    //    if (material->GetTextureCount(textureType) > 0 && material->GetTexture(textureType, 0, &texturePath) == AI_SUCCESS)
-    //    {
-    //        const std::string fullTexturePath = FileSystem::getDirectoryPath(filePath) + texturePath.C_Str();
-    //        if (FileSystem::fileExists(fullTexturePath))
-    //            return TEXTURE(fullTexturePath);
-    //        else if (logMissingTextureWarning)
-    //            Logger::Log("Could not find texture '" + fullTexturePath + "'", LOGTYPE_WARNING);
-    //    }
-    //    // Texture type does not exist in material so just return nullptr
-    //    return nullptr;
-    //}
-
-    //// Load all textures specified in the scene object and make materials from it
-    //void AssimpLoader::loadMaterials(const std::string& filePath, Mesh* mesh, const aiScene* scene)
-    //{
-    //    std::vector<TexturePtr>& textures = mesh->textures;
-    //    std::map<uint32_t, MaterialPtr>& materials = mesh->materials;
-
-    //    for (unsigned int i = 0; i < scene->mNumMaterials; i++)
-    //    {
-    //        const aiMaterial* material = scene->mMaterials[i];
-
-    //        // Because Mesh-Files without a material file still have one material, i have to check it manually
-    //        // This can cause problems if the first material is named "DefaultMaterial"
-    //        if (scene->mNumMaterials == 1 && isDefaultMaterial(material))
-    //            continue;
-
-    //        PBRMaterialPtr newMaterial = PBRMATERIAL({ nullptr });
-
-    //        // Diffuse-Texture
-    //        auto diffuseMap = loadTexture(material, aiTextureType_DIFFUSE, filePath, true);
-    //        bool hasDiffuseMap = diffuseMap != nullptr;
-    //        if (hasDiffuseMap)
-    //        {
-    //            newMaterial->setTexture(SHADER_DIFFUSE_MAP_NAME, diffuseMap);
-    //            textures.push_back(diffuseMap);
-    //        }
-    //        else { // Diffuse-Texture is not even present in the material-class
-    //            std::string missingTextureMessage = "There is no diffuse texture specified for material #" + TS(i) +
-    //                " for file " + filePath;
-    //            Logger::Log(missingTextureMessage, LOGTYPE_WARNING);
-    //        }
-
-    //        if (hasDiffuseMap)
-    //        {
-    //            // Normal-Map
-    //            auto normalMap = loadTexture(material, aiTextureType_NORMALS, filePath, false);
-    //            if (normalMap != nullptr)
-    //            {
-    //                newMaterial->setMatNormalMap(normalMap);
-    //                textures.push_back(normalMap);
-    //            }
-
-    //            // AO-Map
-    //            auto aoMap = loadTexture(material, aiTextureType_AMBIENT, filePath, false);
-    //            if (aoMap != nullptr)
-    //            {
-    //                newMaterial->setMatAOMap(aoMap);
-    //                textures.push_back(aoMap);
-    //            }
-
-    //            // Metalness (Specular)-Map 
-    //            auto metallicMap = loadTexture(material, aiTextureType_SPECULAR, filePath, false);
-    //            if (metallicMap != nullptr)
-    //            {
-    //                newMaterial->setMatMetallicMap(metallicMap);
-    //                textures.push_back(metallicMap);
-    //            }
-
-    //            // Roughness-Map
-    //            auto roughnessMap = loadTexture(material, aiTextureType_SHININESS, filePath, false);
-    //            if (roughnessMap != nullptr)
-    //            {
-    //                newMaterial->setMatRoughnessMap(roughnessMap);
-    //                textures.push_back(roughnessMap);
-    //            }
-
-    //            // Displacement-Map (aiTextureType_DISPLACEMENT or aiTextureType_HEIGHT)
-    //            auto displacementMap = loadTexture(material, aiTextureType_DISPLACEMENT, filePath, false);
-    //            if (!displacementMap.isValid())
-    //                displacementMap = loadTexture(material, aiTextureType_HEIGHT, filePath, false);
-    //            if (displacementMap.isValid())
-    //            {
-    //                newMaterial->setMatDisplacementMap(displacementMap);
-    //                textures.push_back(displacementMap);
-    //            }
-
-    //            //int normal = material->GetTextureCount(aiTextureType_NORMALS);
-    //            //int specular = material->GetTextureCount(aiTextureType_SPECULAR);
-    //            //int disp = material->GetTextureCount(aiTextureType_DISPLACEMENT);
-    //            //int height = material->GetTextureCount(aiTextureType_HEIGHT);
-    //            //int ambent = material->GetTextureCount(aiTextureType_AMBIENT);
-    //            //int emmissive = material->GetTextureCount(aiTextureType_EMISSIVE);
-    //            //int shininess = material->GetTextureCount(aiTextureType_SHININESS);
-
-    //            // Set Material-Properties
-    //            for (unsigned int j = 0; j < material->mNumProperties; j++)
-    //            {
-    //                aiMaterialProperty* prop = material->mProperties[j];
-    //                // Add parameters to material
-    //            }
-    //        }
-    //        materials[i] = newMaterial;
-    //    }
-    //}
 
 } // End namespaces

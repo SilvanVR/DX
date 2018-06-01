@@ -8,6 +8,7 @@
 
 #include "Graphics/i_mesh.h"
 #include "OS/FileSystem/path.h"
+#include "mesh_material_info.hpp"
 
 namespace Assets { 
 
@@ -21,9 +22,10 @@ namespace Assets {
         // @Params:
         //  "path": The file-path to the mesh file.
         //----------------------------------------------------------------------
-        static MeshPtr LoadMesh(const OS::Path& path);
+        static MeshPtr LoadMesh(const OS::Path& path, MeshMaterialInfo* materials);
 
     private:
+
         //----------------------------------------------------------------------
         AssimpLoader()                                        = delete;
         AssimpLoader(const AssimpLoader& other)               = delete;

@@ -3,7 +3,6 @@
 #Cull 			Back
 #ZWrite 		On
 #ZTest 			Less
-#Blend 			SrcAlpha OneMinusSrcAlpha
 #Queue 			Geometry
 
 // ----------------------------------------------
@@ -80,33 +79,36 @@ SamplerState samplerMetallicMap : register(s5);
 Texture2D normalMap : register(t6); 
 SamplerState samplerNormalMap : register(s6);  
  
- //----------------------------------------------------------------------
+//----------------------------------------------------------------------
 float getRoughness( float2 uv )
 {
 	return (1.0 - useRoughnessMap) * roughness + useRoughnessMap * roughnessMap.Sample( samplerRoughnessMap, uv ).r;
 }
  
- //----------------------------------------------------------------------
+//----------------------------------------------------------------------
 float getMetallic( float2 uv )
-{
+{ 
 	return (1.0 - useMetallicMap) * metallic + useMetallicMap * metallicMap.Sample( samplerMetallicMap, uv ).r;
-}
+} 
 
 //----------------------------------------------------------------------
 float3 getNormal( float3x3 TBN, float2 uv )
 {
 	float3 normal = normalMap.Sample( samplerNormalMap, uv ).rgb; 
 	normal = normalize( normal * 2.0 - 1.0 ); 
-	return mul( TBN, normal ); 
-} 
+	return mul( TBN, normal );  
+}
  
- //----------------------------------------------------------------------
+//----------------------------------------------------------------------
 float4 main(FragmentIn fin) : SV_Target
 {
 	float4 albedo = TO_LINEAR( albedoMap.Sample(samplerAlbedoMap, fin.Tex) );   
 	float r = getRoughness( fin.Tex );   
 	float m = getMetallic( fin.Tex );
 	float3 normal = getNormal( fin.TBN, fin.Tex );
+
+	if(albedo.a < 0.1)
+		discard;
 
 	float4 result = APPLY_LIGHTING( albedo * color, fin.WorldPos, normal, r, m );
 	return result; 

@@ -258,7 +258,7 @@ namespace Assets {
     }
 
     //----------------------------------------------------------------------
-    MeshPtr AssetManager::getMesh( const OS::Path& filePath )
+    MeshPtr AssetManager::getMesh( const OS::Path& filePath, MeshMaterialInfo* materials )
     {
         // Check if mesh was already loaded
         StringID pathAsID = SID( StringUtils::toLower( filePath.toString() ).c_str() );
@@ -273,7 +273,7 @@ namespace Assets {
         LOG( "AssetManager: Loading Mesh '" + filePath.toString() + "'", LOG_COLOR );
         try 
         {
-            MeshPtr mesh = AssimpLoader::LoadMesh( filePath );
+            MeshPtr mesh = AssimpLoader::LoadMesh( filePath, materials );
 
             MeshAssetInfo materialInfo;
             materialInfo.mesh        = mesh;

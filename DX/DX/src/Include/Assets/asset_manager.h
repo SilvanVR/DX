@@ -19,9 +19,9 @@
 #include "Graphics/i_shader.h"
 #include "Graphics/i_material.h"
 #include "Graphics/i_mesh.h"
+#include "mesh_material_info.hpp"
 
 namespace Assets {
-
 
 
     //**********************************************************************
@@ -100,8 +100,9 @@ namespace Assets {
         // Creates a new mesh object. Will be loaded only if not already in memory.
         // @Params:
         //  "path": Path to the mesh file.
+        //  "materials": If not null and the mesh-file has materials, information about it will be stored in the given struct
         //----------------------------------------------------------------------
-        MeshPtr getMesh(const OS::Path& path);
+        MeshPtr getMesh(const OS::Path& path, MeshMaterialInfo* materials = nullptr);
 
         //----------------------------------------------------------------------
         // Enable/Disable hot reloading. The asset manager will periodically check

@@ -54,7 +54,7 @@ public:
         //mesh->recalculateTangents();
 
         auto obj = createGameObject("Obj");
-        obj->addComponent<Components::MeshRenderer>(mesh, ASSETS.getMaterial("/materials/pbr/oakfloor.pbrmaterial"));
+        obj->addComponent<Components::MeshRenderer>(mesh, ASSETS.getMaterial("/materials/pbr/gold.pbrmaterial"));
         //obj->addComponent<VisualizeNormals>(0.1f, Color::BLUE);
         //obj->addComponent<VisualizeTangents>(0.1f, Color::RED);
 
@@ -81,6 +81,7 @@ public:
 
     void shutdown() override { LOG("TestScene Shutdown!", Color::RED); }
 };
+
 
 //----------------------------------------------------------------------
 // GAME
@@ -114,7 +115,7 @@ public:
         Locator::getRenderer().setVSync(true);
         Locator::getRenderer().setGlobalFloat(SID("gAmbient"), 0.5f);
 
-        Locator::getSceneManager().LoadSceneAsync(new TestScene());
+        Locator::getSceneManager().LoadSceneAsync(new SponzaScene());
     }
 
     //----------------------------------------------------------------------
@@ -135,11 +136,11 @@ public:
         if (KEYBOARD.wasKeyPressed(Key::Five))
             Locator::getSceneManager().LoadSceneAsync(new CubemapScene());
         if (KEYBOARD.wasKeyPressed(Key::Six))
-            Locator::getSceneManager().LoadSceneAsync(new TexArrayScene());
-        if (KEYBOARD.wasKeyPressed(Key::Seven))
             Locator::getSceneManager().LoadSceneAsync(new MultiCamera());
-        if (KEYBOARD.wasKeyPressed(Key::Eight))
+        if (KEYBOARD.wasKeyPressed(Key::Seven))
             Locator::getSceneManager().LoadSceneAsync(new TransparencyScene());
+        if (KEYBOARD.wasKeyPressed(Key::Eight))
+            Locator::getSceneManager().LoadSceneAsync(new SponzaScene());
         if (KEYBOARD.wasKeyPressed(Key::Nine))
             Locator::getSceneManager().LoadSceneAsync(new ScenePBRPistol());
         if (KEYBOARD.wasKeyPressed(Key::Zero))

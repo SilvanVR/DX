@@ -317,5 +317,8 @@
     <ClInclude Include="src\Include\Assets\assimp_loader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Include\Assets\mesh_material_info.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
