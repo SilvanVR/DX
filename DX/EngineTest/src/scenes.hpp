@@ -755,8 +755,6 @@ public:
 
 class ScenePBRSpheres : public IScene
 {
-    Components::SpotLight* spot;
-
 public:
     ScenePBRSpheres() : IScene("PBRSpheres") {}
 
@@ -767,8 +765,6 @@ public:
         auto cam = go->addComponent<Components::Camera>();
         go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -10);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA);
-
-        spot = go->addComponent<Components::SpotLight>(50.0f, Color::RED, 25.0f);
 
         createGameObject("Grid")->addComponent<GridGeneration>(20);
 
@@ -828,8 +824,8 @@ public:
         //sun->getTransform()->rotation = Math::Quat::LookRotation(Math::Vec3{ 0,-1, 1 });
 
         auto pl = createGameObject("PointLight");
-        pl->addComponent<Components::PointLight>(3.0f, Color::ORANGE);
-        pl->getTransform()->position = { 4, 2, 0 };
+        pl->addComponent<Components::PointLight>(3.0f, Color::WHITE);
+        pl->getTransform()->position = { 5, 2, 0 };
         pl->addComponent<Components::Billboard>(ASSETS.getTexture2D("/textures/pointLight.png"), 0.3f);
         pl->addComponent<AutoOrbiting>(20.0f);
 
@@ -856,12 +852,6 @@ public:
         //pl5->addComponent<Components::Billboard>(ASSETS.getTexture2D("/textures/pointLight.png"), 0.3f);
 
         LOG("PBRSpheres initialized!", Color::RED);
-    }
-
-    void tick(Time::Seconds d) override
-    {
-        if (KEYBOARD.wasKeyPressed(Key::F))
-            spot->setActive(!spot->isActive());
     }
 
     void shutdown() override { LOG("PBRSpheres Shutdown!", Color::RED); }

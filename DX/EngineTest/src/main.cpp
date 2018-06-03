@@ -26,51 +26,13 @@ public:
         auto cam = go->addComponent<Components::Camera>();
         go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -10);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA);
-        go->addComponent<Components::SpotLight>(10.0f, Color::RED, 25.0f);
 
-        //createGameObject("Grid")->addComponent<GridGeneration>(20);
-
-        auto cubemapHDR = ASSETS.getCubemap("/cubemaps/pine.hdr", 2048, true);
-
-        auto pbrShader = ASSETS.getShader("/shaders/pbr.shader");
-
-        Assets::EnvironmentMap envMap(cubemapHDR, 128, 512);
-        auto diffuse = envMap.getDiffuseIrradianceMap();
-        auto specular = envMap.getSpecularReflectionMap();
-
-        auto brdfLut = Assets::BRDFLut().getTexture();
-        pbrShader->setReloadCallback([=](Graphics::IShader* shader) {
-            shader->setTexture("diffuseIrradianceMap", diffuse);
-            shader->setTexture("specularReflectionMap", specular);
-            shader->setTexture("brdfLUT", brdfLut);
-            shader->setFloat("maxReflectionLOD", F32(specular->getMipCount() - 1));
-        });
-        pbrShader->invokeReloadCallback();
-
-        createGameObject("Skybox")->addComponent<Components::Skybox>(cubemapHDR);
+        createGameObject("Grid")->addComponent<GridGeneration>(20);
 
         auto mesh = ASSETS.getMesh("/models/sphere.obj");
-        //auto mesh = Core::MeshGenerator::CreatePlane();
-        //mesh->recalculateTangents();
 
         auto obj = createGameObject("Obj");
-        obj->addComponent<Components::MeshRenderer>(mesh, ASSETS.getMaterial("/materials/pbr/gold.pbrmaterial"));
-        //obj->addComponent<VisualizeNormals>(0.1f, Color::BLUE);
-        //obj->addComponent<VisualizeTangents>(0.1f, Color::RED);
-
-        //pistol->getTransform()->scale = { 0.1f };
-        //go2->getTransform()->position = { 0, -mesh->getBounds().getHeight() * 0.5f, 0 };
-
-        // LIGHTS
-        //auto sun = createGameObject("Sun");
-        //sun->addComponent<Components::DirectionalLight>(5.0f, Color::WHITE);
-        //sun->getTransform()->rotation = Math::Quat::LookRotation(Math::Vec3{ 0,-1, 1 });
-
-        auto pl = createGameObject("PointLight");
-        pl->addComponent<Components::PointLight>(10.0f, Color::WHITE, 20.0f);
-        pl->getTransform()->position = {4, 2, 0};
-        pl->addComponent<Components::Billboard>(ASSETS.getTexture2D("/textures/pointLight.png"), 0.3f);
-        pl->addComponent<AutoOrbiting>(20.0f);
+        obj->addComponent<Components::MeshRenderer>(mesh, ASSETS.getMaterial("/materials/texture.material"));
 
         LOG("TestScene initialized!", Color::RED);
     }
@@ -115,7 +77,7 @@ public:
         Locator::getRenderer().setVSync(true);
         Locator::getRenderer().setGlobalFloat(SID("gAmbient"), 0.5f);
 
-        Locator::getSceneManager().LoadSceneAsync(new SponzaScene());
+        Locator::getSceneManager().LoadSceneAsync(new TestScene());
     }
 
     //----------------------------------------------------------------------

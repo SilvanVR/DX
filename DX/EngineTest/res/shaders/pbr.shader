@@ -39,7 +39,9 @@ VertexOut main(VertexIn vin)
 	float3 N = TRANSFORM_NORMAL( vin.normal ); 
 	float3 B = cross( N, T ) * vin.tangent.w; 
 
-	OUT.TBN = transpose( float3x3( T, B, N ) );
+	OUT.TBN = float3x3( T.x, B.x, N.x,
+	                    T.y, B.y, N.y, 
+						T.z, B.z, N.z );						
 	
     return OUT;
 }
@@ -107,7 +109,7 @@ float4 main(FragmentIn fin) : SV_Target
 	float m = getMetallic( fin.Tex );
 	float3 normal = getNormal( fin.TBN, fin.Tex );
 
-	if(albedo.a < 0.1)
+	if (albedo.a < 0.1)
 		discard;
 
 	float4 result = APPLY_LIGHTING( albedo * color, fin.WorldPos, normal, r, m );
