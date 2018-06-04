@@ -10,6 +10,24 @@
 
 #include "Time/clock.h"
 
+class ColorGrading : public Components::IComponent
+{
+public:
+    ColorGrading() 
+    {
+        auto shader =  ASSETS.getShader("/shaders/post processing/color_grading.shader");
+
+        // Tell the engine to render a fullscreenquard into a new render-texture with the shader above
+        auto rt = RESOURCES.createRenderTexture();
+        rt->create(512, 512,0, Graphics::TextureFormat::RGBA32); // Dynamic scaling required
+    }
+
+    void tick(Time::Seconds delta) override
+    {
+    }
+};
+
+
 //----------------------------------------------------------------------
 // SCENES
 //----------------------------------------------------------------------
@@ -26,6 +44,7 @@ public:
         auto cam = go->addComponent<Components::Camera>();
         go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -10);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA);
+        go->addComponent<ColorGrading>();
 
         createGameObject("Grid")->addComponent<GridGeneration>(20);
 

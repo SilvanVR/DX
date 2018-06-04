@@ -55,8 +55,7 @@ namespace Core {
     //----------------------------------------------------------------------
     void VSync()
     {
-        static bool b = false;
-        Locator::getRenderer().setVSync( (b = not b) );
+        Locator::getRenderer().setVSync( not Locator::getRenderer().isVSyncEnabled() );
     }
 
     //----------------------------------------------------------------------

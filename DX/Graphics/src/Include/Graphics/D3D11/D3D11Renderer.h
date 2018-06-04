@@ -34,6 +34,7 @@ namespace Graphics {
         void shutdown() override;
         void present() override;
         void setVSync(bool enabled) override { m_vsync = enabled; }
+        bool isVSyncEnabled() const { return m_vsync; }
         void setMultiSampleCount(U32 numSamples) override;
 
         IMesh*              createMesh() override;

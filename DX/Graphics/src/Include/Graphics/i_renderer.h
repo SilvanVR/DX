@@ -63,6 +63,7 @@ namespace Graphics {
 
         //----------------------------------------------------------------------
         virtual void setVSync(bool enabled) = 0;
+        virtual bool isVSyncEnabled() const = 0;
 
         //----------------------------------------------------------------------
         // Notifies the graphics engine that the window size has changed.
