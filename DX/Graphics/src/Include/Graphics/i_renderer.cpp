@@ -8,18 +8,22 @@
 
 #include "Logging/logging.h"
 #include "command_buffer.h"
+#include "Events/event_dispatcher.h"
+#include "Events/event_names.hpp"
 #include <mutex>
 
 namespace Graphics {
-
-    OS::Window* IRenderer::s_window = nullptr;
 
     static std::mutex s_renderQueueMutex;
 
     //----------------------------------------------------------------------
     IRenderer::IRenderer( OS::Window* window )
+        : m_window( window )
     { 
-        s_window = window;
+        // Register to resize window event
+        Events::Event& evt = Events::EventDispatcher::GetEvent( EVENT_WINDOW_RESIZE );
+        evt.addListener( BIND_THIS_FUNC_0_ARGS( &IRenderer::_OnWindowSizeChanged ) );
+
         ASSERT( window != nullptr );
         addGlobalMaterial( "NONE", nullptr );
     }
@@ -69,6 +73,16 @@ namespace Graphics {
     void IRenderer::_UnlockQueue()
     {
         s_renderQueueMutex.unlock();
+    }
+
+    //----------------------------------------------------------------------
+    // PRIVATE
+    //----------------------------------------------------------------------
+
+    //----------------------------------------------------------------------
+    void IRenderer::_OnWindowSizeChanged()
+    {
+        OnWindowSizeChanged( m_window->getWidth(), m_window->getHeight() );
     }
 
 } // End namespaces

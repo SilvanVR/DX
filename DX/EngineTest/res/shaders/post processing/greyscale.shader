@@ -26,11 +26,6 @@ VertexOut main( uint vI : SV_VERTEXID )
 // ----------------------------------------------
 #shader fragment
 
-cbuffer cbPerMaterial
-{
-	float4 color;
-};
-
 struct FragmentIn
 {
     float4 PosH : SV_POSITION;	
@@ -43,6 +38,7 @@ SamplerState _Sampler0;
 float4 main(FragmentIn fin) : SV_Target
 {
 	float2 uv = float2(fin.uv.x, fin.uv.y);
-	float4 c = _MainTex.Sample(_Sampler0, uv);
-	return float4(c.g, c.r-0.2, c.b, c.a);
+	float4 color = _MainTex.Sample(_Sampler0, uv);
+	float lum = (color.r * 0.2126) + (color.g * 0.7152) + (color.b * 0.0722);
+	return float4(lum,lum,lum, 1);
 }

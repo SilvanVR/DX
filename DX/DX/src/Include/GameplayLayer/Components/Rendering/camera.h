@@ -21,8 +21,8 @@ namespace Components {
     class Camera : public IComponent
     {
     public:
-        Camera(F32 fovAngleYInDegree = 45.0f, F32 zNear = 0.1f, F32 zFar = 1000.0f);
-        Camera(F32 left, F32 right, F32 bottom, F32 top, F32 zNear, F32 zFar);
+        Camera(F32 fovAngleYInDegree = 45.0f, F32 zNear = 0.1f, F32 zFar = 1000.0f, bool hdr = false);
+        Camera(F32 left, F32 right, F32 bottom, F32 top, F32 zNear, F32 zFar, bool hdr = false);
         ~Camera() = default;
 
         //----------------------------------------------------------------------
@@ -50,6 +50,8 @@ namespace Components {
         void setCullingMask         (U32 layers)                                                    { m_cullingMask.unsetAnyBit(); m_cullingMask.setBits(layers); }
         void setOrthoParams         (F32 left, F32 right, F32 bottom, F32 top, F32 zNear, F32 zFar) { m_camera.setOrthoParams(left, right, bottom, top, zNear, zFar); }
         void setPerspectiveParams   (F32 fovAngleYInDegree, F32 zNear, F32 zFar)                    { m_camera.setPerspectiveParams(fovAngleYInDegree, zNear, zFar); }
+        void setSuperSampling       (F32 screenResMod);
+        void setHDRRendering        (bool enabled);
 
         //----------------------------------------------------------------------
         // @Return
@@ -66,9 +68,12 @@ namespace Components {
         RenderTexturePtr                getRenderTarget() { return m_camera.getRenderTarget(); }
 
         //----------------------------------------------------------------------
-        // Set the render target in which this camera renders. Nullptr means the camera should render to the screen. 
+        // Set the render target in which this camera renders.
+        // @Params:
+        //  "renderTarget": The target in which this camera renders.
+        //  "renderToScreen": If true the rendertarget will be copied to the screen afterwards.
         //----------------------------------------------------------------------
-        void setRenderTarget(RenderTexturePtr renderTarget) { m_camera.setRenderTarget(renderTarget); }
+        void setRenderTarget(RenderTexturePtr renderTarget, bool renderToScreen = false) { m_camera.setRenderTarget(renderTarget, renderToScreen); }
 
         //----------------------------------------------------------------------
         // Add an additional command buffer to this camera
@@ -98,6 +103,9 @@ namespace Components {
         // Which layer the camera should render
         Common::BitMask             m_cullingMask;
 
+        // Whether this camera renders into a floating point buffer for HDR rendering or not
+        bool                        m_hdr = false;
+
         // Culling planes
         enum side { LEFT = 0, RIGHT = 1, TOP = 2, BOTTOM = 3, BACK = 4, FRONT = 5 };
         std::array<Math::Vec4, 6>   m_planes;
@@ -119,6 +127,7 @@ namespace Components {
 
         //----------------------------------------------------------------------
         void _UpdateCullingPlanes(const DirectX::XMMATRIX& viewProjection);
+        void _CreateRenderTarget();
 
         //----------------------------------------------------------------------
         Camera(const Camera& other)               = delete;

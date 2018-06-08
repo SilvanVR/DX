@@ -13,6 +13,8 @@
 #include "Logging/logging.h"
 #include "GameplayLayer/i_scene.h"
 #include "GameplayLayer/Components/Rendering/camera.h"
+#include "Events/event_dispatcher.h"
+#include "Events/event_names.hpp"
 
 namespace Core {
 
@@ -161,7 +163,7 @@ namespace Core {
     //----------------------------------------------------------------------
     void CoreEngine::_OnWindowSizeChanged( U16 w, U16 h )
     {
-        Locator::getRenderer().OnWindowSizeChanged( w, h );
+        Events::EventDispatcher::GetEvent( EVENT_WINDOW_RESIZE ).invoke();
     }
 
 } // end namespaces

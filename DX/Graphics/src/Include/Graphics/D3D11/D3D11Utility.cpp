@@ -143,4 +143,18 @@ namespace Graphics { namespace D3D11 { namespace Utility {
         return DXGI_FORMAT_D16_UNORM;
     }
 
+    //----------------------------------------------------------------------
+    bool MSAASamplesSupported( DXGI_FORMAT format, U8 numSamples )
+    {
+        if (numSamples > D3D11_MAX_MULTISAMPLE_SAMPLE_COUNT)
+            return false;
+
+        UINT msaaQualityLevels;
+        HR( g_pDevice->CheckMultisampleQualityLevels( format, numSamples, &msaaQualityLevels ) );
+        if (msaaQualityLevels == 0)
+            return false;
+
+        return true;
+    }
+
 } } }

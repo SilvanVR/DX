@@ -90,10 +90,10 @@
     <ClCompile Include="src\Include\Graphics\D3D11\Pipeline\Buffers\D3D11MappedConstantBuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Include\Graphics\camera.cpp">
+    <ClCompile Include="src\Include\Graphics\i_shader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Include\Graphics\i_shader.cpp">
+    <ClCompile Include="src\Include\Graphics\camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

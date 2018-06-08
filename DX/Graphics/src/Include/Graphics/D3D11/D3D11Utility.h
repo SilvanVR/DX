@@ -34,4 +34,7 @@ namespace Graphics { namespace D3D11 { namespace Utility {
     //----------------------------------------------------------------------
     DXGI_FORMAT TranslateDepthFormat( U32 depth );
 
+    //----------------------------------------------------------------------
+    bool MSAASamplesSupported( DXGI_FORMAT format, U8 numSamples );
+
 } } }

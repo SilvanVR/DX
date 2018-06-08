@@ -38,12 +38,14 @@ namespace Graphics {
         ArrayList<std::shared_ptr<GPUCommandBase>>& getGPUCommands() { return m_gpuCommands; }
         void drawMesh(const MeshPtr& mesh, const MaterialPtr& material, const DirectX::XMMATRIX& modelMatrix, I32 subMeshIndex);
         void setCamera(Camera* camera);
-        void copyTexture(const TexturePtr& srcTex, const TexturePtr& dstTex);
-        void copyTexture(const TexturePtr& srcTex, I32 srcElement, I32 srcMip, const TexturePtr& dstTex, I32 dstElement, I32 dstMip);
+        void endCamera(Camera* camera);
+        //void copyTexture(const TexturePtr& srcTex, const TexturePtr& dstTex);
+        //void copyTexture(const TexturePtr& srcTex, I32 srcElement, I32 srcMip, const TexturePtr& dstTex, I32 dstElement, I32 dstMip);
         void drawLight(const Light* light);
         void setRenderTarget(const RenderTexturePtr& target);
         void drawFullscreenQuad(const MaterialPtr& material);
         void renderCubemap(const CubemapPtr& cubemap, const MaterialPtr& material, I32 dstMip = 0);
+        void blit(const RenderTexturePtr& src, const RenderTexturePtr& dst, const MaterialPtr& material = nullptr);
 
     private:
         ArrayList<std::shared_ptr<GPUCommandBase>> m_gpuCommands;

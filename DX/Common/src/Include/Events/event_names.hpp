@@ -7,3 +7,4 @@
 **********************************************************************/
 
 #define EVENT_SCENE_CHANGED SID( "OnSceneChanged" )
+#define EVENT_WINDOW_RESIZE SID( "OnWindowSizeChanged" )

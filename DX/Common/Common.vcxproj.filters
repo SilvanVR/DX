@@ -159,6 +159,9 @@
     <ClInclude Include="src\Include\Common\DataStructures\byte_array.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Include\Events\event_names.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\stdafx.cpp">

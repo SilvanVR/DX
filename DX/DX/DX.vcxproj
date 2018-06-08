@@ -395,7 +395,6 @@
     <ClInclude Include="src\Include\Core\Audio\wav_clip.h" />
     <ClInclude Include="src\Include\Core\layer_defines.hpp" />
     <ClInclude Include="src\Include\Core\DebugManager\debug_manager.h" />
-    <ClInclude Include="src\Include\Core\event_names.hpp" />
     <ClInclude Include="src\Include\Core\mesh_generator.h" />
     <ClInclude Include="src\Include\Ext\JSON\json.hpp" />
     <ClInclude Include="src\Include\Ext\StbImage\stb_image.h" />

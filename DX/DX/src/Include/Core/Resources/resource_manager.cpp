@@ -13,6 +13,8 @@
 #include "Core/locator.h"
 #include "Graphics/default_shaders.hpp"
 #include "Core/mesh_generator.h"
+#include "Events/event_dispatcher.h"
+#include "Events/event_names.hpp"
 
 #define PRINT_DELETES 0
 
@@ -23,6 +25,10 @@ namespace Core { namespace Resources {
     //----------------------------------------------------------------------
     void ResourceManager::init()
     {
+        // Register to resize window event
+        Events::Event& evt = Events::EventDispatcher::GetEvent( EVENT_WINDOW_RESIZE );
+        evt.addListener( BIND_THIS_FUNC_0_ARGS( &ResourceManager::_OnWindowSizeChanged ) );
+
         _CreateDefaultAssets();
     }
 
@@ -231,7 +237,7 @@ namespace Core { namespace Resources {
             // Error shader
             m_errorShader = ShaderPtr( Locator::getRenderer().createShader(), BIND_THIS_FUNC_1_ARGS( &ResourceManager::_DeleteShader ) );
             m_errorShader->setName( SHADER_ERROR_NAME );
-            if ( not m_errorShader->compileFromSource( Graphics::ERROR_VERTEX_SHADER_SOURCE, Graphics::ERROR_FRAGMENT_SHADER_SOURCE, "main" ) )
+            if ( not m_errorShader->compileFromSource( Graphics::ShaderSources::ERROR_VERTEX, Graphics::ShaderSources::ERROR_FRAGMENT, "main" ) )
                 LOG_ERROR( "Error shader source didn't compile. This is mandatory!" );
 
             m_shaders.push_back( m_errorShader.get() );
@@ -240,7 +246,7 @@ namespace Core { namespace Resources {
             m_defaultShader = ShaderPtr( Locator::getRenderer().createShader(), BIND_THIS_FUNC_1_ARGS( &ResourceManager::_DeleteShader ) );
             m_defaultShader->setName( SHADER_DEFAULT_NAME );
 
-            if ( not m_defaultShader->compileFromSource( Graphics::DEFAULT_VERTEX_SHADER_SOURCE, Graphics::DEFAULT_FRAGMENT_SHADER_SOURCE, "main" ) )
+            if ( not m_defaultShader->compileFromSource( Graphics::ShaderSources::DEFAULT_VERTEX, Graphics::ShaderSources::DEFAULT_FRAGMENT, "main" ) )
                 LOG_ERROR( "Default shader source didn't compile. This is mandatory!" );
 
             m_shaders.push_back( m_defaultShader.get() );
@@ -249,15 +255,15 @@ namespace Core { namespace Resources {
             m_wireframeShader = ShaderPtr( Locator::getRenderer().createShader(), BIND_THIS_FUNC_1_ARGS( &ResourceManager::_DeleteShader ) );
             m_wireframeShader->setName( SHADER_WIREFRAME_NAME );
             m_wireframeShader->setRasterizationState( { Graphics::FillMode::Wireframe } );
-            m_wireframeShader->compileFromSource( Graphics::DEFAULT_VERTEX_SHADER_SOURCE, Graphics::DEFAULT_FRAGMENT_SHADER_SOURCE, "main" );
+            m_wireframeShader->compileFromSource( Graphics::ShaderSources::DEFAULT_VERTEX, Graphics::ShaderSources::DEFAULT_FRAGMENT, "main" );
 
             m_shaders.push_back( m_wireframeShader.get() );
 
-            // Default shader
+            // Color shader
             m_colorShader = ShaderPtr( Locator::getRenderer().createShader(), BIND_THIS_FUNC_1_ARGS( &ResourceManager::_DeleteShader ) );
             m_colorShader->setName( SHADER_COLOR_NAME );
 
-            if ( not m_colorShader->compileFromSource( Graphics::COLOR_VERTEX_SHADER_SOURCE, Graphics::COLOR_FRAGMENT_SHADER_SOURCE, "main") )
+            if ( not m_colorShader->compileFromSource( Graphics::ShaderSources::COLOR_VERTEX, Graphics::ShaderSources::COLOR_FRAGMENT, "main") )
                 LOG_ERROR( "Color shader source didn't compile. This is mandatory!" );
 
             m_shaders.push_back( m_colorShader.get() );
@@ -265,10 +271,12 @@ namespace Core { namespace Resources {
 
         // MATERIALS
         {
-            m_defaultMaterial   = createMaterial( m_defaultShader );
+            m_defaultMaterial = createMaterial( m_defaultShader );
             m_defaultMaterial->setName( "Default Material" );
+
             m_wireframeMaterial = createMaterial( m_wireframeShader );
             m_wireframeMaterial->setName( "Wireframe Material" );
+
             m_colorMaterial = createMaterial( m_colorShader );
             m_colorMaterial->setName( "Color Material" );
 
@@ -304,6 +312,19 @@ namespace Core { namespace Resources {
         // Mesh
         {
             m_defaultMesh = MeshGenerator::CreatePlane( 1.0f, Color::RED );
+        }
+    }
+
+    //----------------------------------------------------------------------
+    void ResourceManager::_OnWindowSizeChanged()
+    {
+        auto& window = Locator::getWindow();
+        for (auto& texture : m_textures)
+        {
+            auto renderTexture = dynamic_cast<Graphics::IRenderTexture*>( texture );
+            if (renderTexture)
+                if ( renderTexture->dynamicScales() )
+                    renderTexture->recreate( window.getWidth(), window.getHeight() );
         }
     }
 

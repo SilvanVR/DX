@@ -25,11 +25,13 @@ namespace Graphics {
         UNKNOWN,
         DRAW_MESH,
         SET_CAMERA,
+        END_CAMERA,
         COPY_TEXTURE,
         DRAW_LIGHT,
         SET_RENDER_TARGET,
         DRAW_FULLSCREEN_QUAD,
-        RENDER_CUBEMAP
+        RENDER_CUBEMAP,
+        BLIT
     };
 
     //**********************************************************************
@@ -64,6 +66,16 @@ namespace Graphics {
     {
         GPUC_SetCamera( Camera* camera )
             : GPUCommandBase( GPUCommand::SET_CAMERA ), 
+            camera( camera ) {}
+
+        Camera* camera;
+    };
+
+    //**********************************************************************
+    struct GPUC_EndCamera : public GPUCommandBase
+    {
+        GPUC_EndCamera( Camera* camera )
+            : GPUCommandBase( GPUCommand::END_CAMERA ),
             camera( camera ) {}
 
         Camera* camera;
@@ -121,6 +133,18 @@ namespace Graphics {
         const CubemapPtr  cubemap;
         const MaterialPtr material;
         I32               dstMip;
+    };
+
+    //**********************************************************************
+    struct GPUC_Blit : public GPUCommandBase
+    {
+        GPUC_Blit( const RenderTexturePtr& src, const RenderTexturePtr& dst, const MaterialPtr& material )
+            : GPUCommandBase( GPUCommand::BLIT ),
+            src( src ), dst( dst ), material( material ) {}
+
+        const RenderTexturePtr  src;
+        const RenderTexturePtr  dst;
+        const MaterialPtr       material;
     };
 
 } // End namespaces

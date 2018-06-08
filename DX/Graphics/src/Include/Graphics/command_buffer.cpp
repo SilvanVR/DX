@@ -40,17 +40,23 @@ namespace Graphics {
     }
 
     //----------------------------------------------------------------------
-    void CommandBuffer::copyTexture( const TexturePtr& srcTex, const TexturePtr& dstTex )
+    void CommandBuffer::endCamera( Camera* camera )
     {
-        copyTexture( srcTex, 0, 0, dstTex, 0, 0 );
+        m_gpuCommands.push_back( std::make_unique<GPUC_EndCamera>( camera ) );
     }
 
-    //----------------------------------------------------------------------
-    void CommandBuffer::copyTexture( const TexturePtr& srcTex, I32 srcElement, I32 srcMip, const TexturePtr& dstTex, I32 dstElement, I32 dstMip )
-    {
-        ASSERT( srcTex->getWidth() == dstTex->getWidth() && srcTex->getHeight() == dstTex->getHeight() && "Textures must be of same size" );
-        m_gpuCommands.push_back( std::make_unique<GPUC_CopyTexture>( srcTex, srcElement, srcMip, dstTex, dstElement, dstMip ) );
-    }
+    ////----------------------------------------------------------------------
+    //void CommandBuffer::copyTexture( const TexturePtr& srcTex, const TexturePtr& dstTex )
+    //{
+    //    copyTexture( srcTex, 0, 0, dstTex, 0, 0 );
+    //}
+
+    ////----------------------------------------------------------------------
+    //void CommandBuffer::copyTexture( const TexturePtr& srcTex, I32 srcElement, I32 srcMip, const TexturePtr& dstTex, I32 dstElement, I32 dstMip )
+    //{
+    //    ASSERT( srcTex->getWidth() == dstTex->getWidth() && srcTex->getHeight() == dstTex->getHeight() && "Textures must be of same size" );
+    //    m_gpuCommands.push_back( std::make_unique<GPUC_CopyTexture>( srcTex, srcElement, srcMip, dstTex, dstElement, dstMip ) );
+    //}
 
     //----------------------------------------------------------------------
     void CommandBuffer::drawLight( const Light* light )
@@ -74,6 +80,12 @@ namespace Graphics {
     void CommandBuffer::renderCubemap( const CubemapPtr& cubemap, const MaterialPtr& material, I32 dstMip )
     {
         m_gpuCommands.push_back( std::make_unique<GPUC_RenderCubemap>( cubemap, material, dstMip ) );
+    }
+
+    //----------------------------------------------------------------------
+    void CommandBuffer::blit( const RenderTexturePtr& src, const RenderTexturePtr& dst, const MaterialPtr& material )
+    {
+        m_gpuCommands.push_back( std::make_unique<GPUC_Blit>( src, dst, material ) );
     }
 
 } // End namespaces

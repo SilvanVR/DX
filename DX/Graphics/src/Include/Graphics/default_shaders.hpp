@@ -10,11 +10,11 @@
 
 #define API_D3D11
 
-namespace Graphics { 
+namespace Graphics { namespace ShaderSources {
 
 #ifdef API_D3D11
 
-    const String ERROR_VERTEX_SHADER_SOURCE = "     \
+    const String ERROR_VERTEX =                    "\
     cbuffer cbPerCamera : register( b0 )            \
     {                                               \
         float4x4 gViewProj;                         \
@@ -46,7 +46,7 @@ namespace Graphics {
         return OUT;                                 \
     }";
 
-    const String ERROR_FRAGMENT_SHADER_SOURCE = "   \
+    const String ERROR_FRAGMENT =                  "\
     struct FragmentIn                               \
     {                                               \
         float4 PosH : SV_POSITION;                  \
@@ -57,9 +57,9 @@ namespace Graphics {
         return float4(1,0,1,1);                     \
     }";
 
-    const String DEFAULT_VERTEX_SHADER_SOURCE = ERROR_VERTEX_SHADER_SOURCE;
+    const String DEFAULT_VERTEX = ERROR_VERTEX;
 
-    const String DEFAULT_FRAGMENT_SHADER_SOURCE = " \
+    const String DEFAULT_FRAGMENT =                "\
     struct FragmentIn                               \
     {                                               \
         float4 PosH : SV_POSITION;                  \
@@ -70,7 +70,7 @@ namespace Graphics {
         return float4(1,1,1,1);                     \
     }";
 
-    const String COLOR_VERTEX_SHADER_SOURCE =    "  \
+    const String COLOR_VERTEX =                    "\
     cbuffer cbPerCamera : register( b0 )            \
     {                                               \
         float4x4 gViewProj;                         \
@@ -105,7 +105,7 @@ namespace Graphics {
         return OUT;                                 \
     }";
 
-    const String COLOR_FRAGMENT_SHADER_SOURCE =   " \
+    const String COLOR_FRAGMENT =                  "\
     struct FragmentIn                               \
     {                                               \
         float4 PosH : SV_POSITION;                  \
@@ -117,9 +117,44 @@ namespace Graphics {
         return fin.Color;                           \
     }";
 
+
+    const String POST_PROCESS_VERTEX =                 "\
+    struct VertexOut                                    \
+    {                                                   \
+        float4 PosH : SV_POSITION;                      \
+        float2 UV : TEXCOORD0;                          \
+    };                                                  \
+                                                        \
+    VertexOut main(uint vI : SV_VERTEXID)               \
+    {                                                   \
+        VertexOut OUT;                                  \
+                                                        \
+        float2 uv = float2((vI << 1) & 2, vI & 2);      \
+        OUT.UV = float2(uv.x, 1-uv.y);                  \
+        OUT.PosH = float4(uv * 2.0f - 1.0f, 0.0f, 1.0f);\
+                                                        \
+        return OUT;                                     \
+    }";
+
+    const String POST_PROCESS_FRAGMENT =               "\
+    struct FragmentIn                                   \
+    {                                                   \
+        float4 PosH : SV_POSITION;                      \
+        float2 UV : TEXCOORD0;                          \
+    };                                                  \
+                                                        \
+    Texture2D _MainTex;                                 \
+    SamplerState _Sampler0;                             \
+                                                        \
+    float4 main(FragmentIn fin) : SV_Target             \
+    {                                                   \
+        float4 color = _MainTex.Sample(_Sampler0, fin.UV);\
+        return color;                                   \
+    }";
+
 #elif
     static_assert("Default shader for every graphics api must be set here as a string.")
 #endif
 
 
-}
+} } // End namespaces

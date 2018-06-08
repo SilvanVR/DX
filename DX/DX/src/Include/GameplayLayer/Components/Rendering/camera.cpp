@@ -14,16 +14,33 @@
 
 namespace Components {
 
+    #define BUFFER_FORMAT_LDR       Graphics::TextureFormat::RGBA32
+    #define BUFFER_FORMAT_HDR       Graphics::TextureFormat::RGBAFloat
+    #define DEPTH_STENCIL_FORMAT    24
+
     //----------------------------------------------------------------------
-    Camera::Camera( F32 fovAngleYInDegree, F32 zNear, F32 zFar )
-        : m_camera( fovAngleYInDegree, zNear, zFar ), m_cullingMask( LAYER_ALL )
+    Camera::Camera( F32 fovAngleYInDegree, F32 zNear, F32 zFar, bool hdr )
+        : m_camera( fovAngleYInDegree, zNear, zFar ), m_cullingMask( LAYER_ALL ), m_hdr( hdr )
     {
+        _CreateRenderTarget();
     }
 
     //----------------------------------------------------------------------
-    Camera::Camera( F32 left, F32 right, F32 bottom, F32 top, F32 zNear, F32 zFar )
-        : m_camera( left, right, bottom, top, zNear, zFar ), m_cullingMask( LAYER_ALL )
+    Camera::Camera( F32 left, F32 right, F32 bottom, F32 top, F32 zNear, F32 zFar, bool hdr )
+        : m_camera( left, right, bottom, top, zNear, zFar ), m_cullingMask( LAYER_ALL ), m_hdr( hdr )
     {
+        _CreateRenderTarget();
+    }
+
+    //----------------------------------------------------------------------
+    void Camera::_CreateRenderTarget()
+    {
+        auto& window = Locator::getWindow();
+        auto rt = RESOURCES.createRenderTexture();
+        rt->create( window.getWidth(), window.getHeight(), DEPTH_STENCIL_FORMAT, m_hdr ? BUFFER_FORMAT_HDR : BUFFER_FORMAT_LDR, 1, { 1, 0 } );
+        rt->setDynamicScreenScale( true, 1.0f );
+
+        setRenderTarget( rt, true );
     }
 
     //----------------------------------------------------------------------
@@ -48,17 +65,26 @@ namespace Components {
             if ( not renderer->isActive() )
                 continue;
 
-            // Check if component is visible and if layer matches
-            bool isVisible = renderer->cull( *this );
+            // Check if layer matches
             bool layerMatch = ( m_cullingMask & renderer->getGameObject()->getLayers() ).isAnyBitSet();
-            if (isVisible && layerMatch)
+            if ( not layerMatch )
+                continue;
+
+            // Check if component is visible
+            bool isVisible = renderer->cull( *this );
+            if (isVisible)
                 renderer->recordGraphicsCommands( tmpBuffer, lerp );
         }
 
+        // Merge all commands buffers into one
         for ( auto& additionalCmd : m_additionalCommandBuffers )
             tmpBuffer.merge( *additionalCmd );
 
+        // Sort all commands e.g. based on shader-queue
         _SortRenderCommands( tmpBuffer, transform->position );
+
+        // Add an end camera command
+        m_commandBuffer.endCamera( &m_camera );
 
         return m_commandBuffer;
     }
@@ -66,6 +92,24 @@ namespace Components {
     //**********************************************************************
     // PUBLIC
     //**********************************************************************
+
+    //----------------------------------------------------------------------
+    void Camera::setHDRRendering( bool enabled )
+    {
+        if (m_hdr == enabled)
+            return;
+
+        m_hdr = enabled;
+        getRenderTarget()->recreate( m_hdr ? BUFFER_FORMAT_HDR : BUFFER_FORMAT_LDR );
+    }
+
+    //----------------------------------------------------------------------
+    void Camera::setSuperSampling( F32 screenResMod )
+    {
+        if (getRenderTarget()->getDynamicScaleFactor() == screenResMod)
+            return;
+        getRenderTarget()->setDynamicScreenScale( true, screenResMod );
+    }
 
     //----------------------------------------------------------------------
     bool Camera::cull( const Math::AABB& aabb, const DirectX::XMMATRIX& modelMatrix ) const
@@ -144,8 +188,6 @@ namespace Components {
                 m_commandBuffer.getGPUCommands().push_back( command );
                 break;
             }
-            default:
-                ASSERT(false && "Unknown command, must be added here");
             }
         }
 
@@ -187,6 +229,21 @@ namespace Components {
         // Add drawcalls to command buffer
         for (auto& drawCall : transparentDrawcalls)
             m_commandBuffer.getGPUCommands().push_back( drawCall );
+
+        // These commands are for post processing
+        for (auto& command : cmd.getGPUCommands())
+        {
+            switch (command->getType())
+            {
+            case Graphics::GPUCommand::SET_RENDER_TARGET:
+            case Graphics::GPUCommand::DRAW_FULLSCREEN_QUAD:
+            case Graphics::GPUCommand::BLIT:
+            {
+                m_commandBuffer.getGPUCommands().push_back( command );
+                break;
+            }
+            }
+        }
     }
 
     //----------------------------------------------------------------------

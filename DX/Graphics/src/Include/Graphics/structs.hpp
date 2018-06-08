@@ -59,4 +59,11 @@ namespace Graphics {
         RenderTargetBlendState  blendStates[8];                 // Blend states for each render target
     };
 
+    // Multisampling description
+    struct SamplingDescription
+    {
+        U32 count   = 1;
+        U32 quality = 0;
+    };
+
 }

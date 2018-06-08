@@ -11,33 +11,39 @@
 namespace Graphics { namespace D3D11 {
 
     //----------------------------------------------------------------------
-    void RenderTexture::create( U32 width, U32 height, U32 depth, TextureFormat format, U32 numBuffers )
+    void RenderTexture::create( U32 width, U32 height, U32 depth, TextureFormat format, U32 numBuffers, SamplingDescription samplingDescription )
     {
         ITexture::_Init( TextureDimension::Tex2D, width, height, format );
         m_depth = depth;
+        m_samplingDescription = samplingDescription;
 
         m_buffers.resize( numBuffers );
-        for (I32 i = 0; i < m_buffers.size(); i++)
-        {
-            _CreateTexture( i );
-            _CreateViews( i );
-            if (m_depth > 0)
-                _CreateDepthBuffer( i );
-        }
+        _CreateBufferAndViews();
         _CreateSampler( m_anisoLevel, m_filter, m_clampMode );
     }
 
     //----------------------------------------------------------------------
-    RenderTexture::~RenderTexture()
+    void RenderTexture::recreate( U32 w, U32 h )
     {
-        for (I32 i = 0; i < m_buffers.size(); i++)
-        {
-            SAFE_RELEASE( m_buffers[i].pRenderTexture );
-            SAFE_RELEASE( m_buffers[i].pRenderTextureView );
-            SAFE_RELEASE( m_buffers[i].pRenderTargetView );
-            SAFE_RELEASE( m_buffers[i].pDepthStencilBuffer );
-            SAFE_RELEASE( m_buffers[i].pDepthStencilView );
-        }
+        recreate( w, h, m_samplingDescription );
+    }
+
+    //----------------------------------------------------------------------
+    void RenderTexture::recreate( U32 w, U32 h, SamplingDescription samplingDescription )
+    {
+        m_width = w;
+        m_height = h;
+        m_samplingDescription = samplingDescription;
+        _DestroyBufferAndViews();
+        _CreateBufferAndViews();
+    }
+
+    //----------------------------------------------------------------------
+    void RenderTexture::recreate( Graphics::TextureFormat format )
+    {
+        m_format = format;
+        _DestroyBufferAndViews();
+        _CreateBufferAndViews();
     }
 
     //**********************************************************************
@@ -103,15 +109,14 @@ namespace Graphics { namespace D3D11 {
 
     //----------------------------------------------------------------------
     void RenderTexture::_CreateTexture( I32 index )
-    {   
+    {
         D3D11_TEXTURE2D_DESC textureDesc;
-        textureDesc.Height              = getHeight();
-        textureDesc.Width               = getWidth();
+        textureDesc.Width               = static_cast<UINT>( m_width * m_scaleFactor );
+        textureDesc.Height              = static_cast<UINT>( m_height * m_scaleFactor );
         textureDesc.MipLevels           = 1;
         textureDesc.ArraySize           = 1;
         textureDesc.Format              = Utility::TranslateTextureFormat( m_format );
-        textureDesc.SampleDesc.Count    = 1;
-        textureDesc.SampleDesc.Quality  = 0;
+        textureDesc.SampleDesc          = { m_samplingDescription.count, m_samplingDescription.quality };
         textureDesc.Usage               = D3D11_USAGE_DEFAULT;
         textureDesc.BindFlags           = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
         textureDesc.CPUAccessFlags      = 0;
@@ -125,7 +130,7 @@ namespace Graphics { namespace D3D11 {
     {
         D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
         srvDesc.Format = Utility::TranslateTextureFormat( m_format );
-        srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+        srvDesc.ViewDimension = m_samplingDescription.count > 1 ? D3D11_SRV_DIMENSION_TEXTURE2DMS : D3D11_SRV_DIMENSION_TEXTURE2D;
         srvDesc.Texture2D.MostDetailedMip = 0;
         srvDesc.Texture2D.MipLevels = -1;
 
@@ -138,12 +143,12 @@ namespace Graphics { namespace D3D11 {
     void RenderTexture::_CreateDepthBuffer( I32 index )
     {
         D3D11_TEXTURE2D_DESC depthStencilDesc = {};
-        depthStencilDesc.Width          = m_width;
-        depthStencilDesc.Height         = m_height;
+        depthStencilDesc.Width          = static_cast<UINT>( m_width * m_scaleFactor );
+        depthStencilDesc.Height         = static_cast<UINT>( m_height * m_scaleFactor );
         depthStencilDesc.MipLevels      = 1;
         depthStencilDesc.ArraySize      = 1;
         depthStencilDesc.Format         = Utility::TranslateDepthFormat( m_depth );
-        depthStencilDesc.SampleDesc     = { 1, 0 };
+        depthStencilDesc.SampleDesc     = { m_samplingDescription.count, m_samplingDescription.quality };
         depthStencilDesc.Usage          = D3D11_USAGE_DEFAULT;
         depthStencilDesc.BindFlags      = D3D11_BIND_DEPTH_STENCIL;
         depthStencilDesc.CPUAccessFlags = 0;
@@ -151,6 +156,31 @@ namespace Graphics { namespace D3D11 {
 
         HR( g_pDevice->CreateTexture2D( &depthStencilDesc, NULL, &m_buffers[index].pDepthStencilBuffer) );
         HR( g_pDevice->CreateDepthStencilView( m_buffers[index].pDepthStencilBuffer, NULL, &m_buffers[index].pDepthStencilView ) );
+    }
+
+    //----------------------------------------------------------------------
+    void RenderTexture::_CreateBufferAndViews()
+    {
+        for (I32 i = 0; i < m_buffers.size(); i++)
+        {
+            _CreateTexture( i );
+            _CreateViews( i );
+            if (m_depth > 0)
+                _CreateDepthBuffer( i );
+        }
+    }
+
+    //----------------------------------------------------------------------
+    void RenderTexture::_DestroyBufferAndViews()
+    {
+        for (I32 i = 0; i < m_buffers.size(); i++)
+        {
+            SAFE_RELEASE( m_buffers[i].pRenderTexture );
+            SAFE_RELEASE( m_buffers[i].pRenderTextureView );
+            SAFE_RELEASE( m_buffers[i].pRenderTargetView );
+            SAFE_RELEASE( m_buffers[i].pDepthStencilBuffer );
+            SAFE_RELEASE( m_buffers[i].pDepthStencilView );
+        }
     }
 
 } } // End namespaces

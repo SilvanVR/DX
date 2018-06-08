@@ -64,7 +64,8 @@ namespace Graphics { namespace D3D11 {
         if ( not m_pPixelShader->compileFromFile( fragPath, entryPoint ) )
             success = false;
 
-        _CreateConstantBuffers();
+        if (success)
+            _CreateConstantBuffers();
 
         return success;
     }
@@ -78,7 +79,8 @@ namespace Graphics { namespace D3D11 {
         if ( not compileFragmentShaderFromSource( fragSrc, entryPoint ) )
             success = false;
 
-        _CreateConstantBuffers();
+        if (success)
+            _CreateConstantBuffers();
 
         return success;
     }

@@ -150,6 +150,7 @@
   <ItemGroup>
     <ClInclude Include="src\Include\Events\event.hpp" />
     <ClInclude Include="src\Include\Events\event_dispatcher.h" />
+    <ClInclude Include="src\Include\Events\event_names.hpp" />
     <ClInclude Include="src\Include\Math\aabb.h" />
     <ClInclude Include="src\Include\Math\dxmath_wrapper.h" />
     <ClInclude Include="src\Include\Math\math_utils.h" />

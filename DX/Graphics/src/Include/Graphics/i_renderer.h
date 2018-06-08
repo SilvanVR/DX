@@ -9,6 +9,7 @@
 **********************************************************************/
 
 #include "Common/i_subsystem.hpp"
+#include "i_render_texture.hpp"
 #include "OS/Window/window.h"
 #include "structs.hpp"
 
@@ -44,12 +45,12 @@ namespace Graphics {
         virtual ~IRenderer() {}
 
         //----------------------------------------------------------------------
-        static OS::Window* GetWindow() { return s_window; }
+        const OS::Window*       getWindow()             const { return m_window; }
 
         //----------------------------------------------------------------------
         // Dispatches the given command buffer for execution on the gpu.
         //----------------------------------------------------------------------
-        void dispatch( const CommandBuffer& cmd );
+        void dispatch(const CommandBuffer& cmd);
 
         //----------------------------------------------------------------------
         // Presents the latest backbuffer to the screen.
@@ -65,10 +66,6 @@ namespace Graphics {
         virtual void setVSync(bool enabled) = 0;
         virtual bool isVSyncEnabled() const = 0;
 
-        //----------------------------------------------------------------------
-        // Notifies the graphics engine that the window size has changed.
-        //----------------------------------------------------------------------
-        virtual void OnWindowSizeChanged(U16 w, U16 h) = 0;
 
         //----------------------------------------------------------------------
         virtual IMesh*              createMesh() = 0;
@@ -117,7 +114,7 @@ namespace Graphics {
         void resetFrameInfo() { m_frameInfo = {}; }
 
     protected:
-        static OS::Window* s_window;
+        OS::Window*                 m_window;
         FrameInfo                   m_frameInfo = {};
         ArrayList<CommandBuffer>    m_pendingCmdQueue;
 
@@ -125,8 +122,20 @@ namespace Graphics {
         void _UnlockQueue();
 
         //----------------------------------------------------------------------
+        virtual void OnWindowSizeChanged(U16 w, U16 h) = 0;
+
+        //----------------------------------------------------------------------
         HashMap<StringID, IMaterial*>   m_globalMaterials;
         IMaterial*                      m_activeGlobalMaterial = nullptr; // If this is not null the scene should be rendered just with this material
+
+    private:
+        void _OnWindowSizeChanged();
+
+        //----------------------------------------------------------------------
+        IRenderer(const IRenderer& other)               = delete;
+        IRenderer& operator = (const IRenderer& other)  = delete;
+        IRenderer(IRenderer&& other)                    = delete;
+        IRenderer& operator = (IRenderer&& other)       = delete;
     };
 
 } // End namespaces

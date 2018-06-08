@@ -6,9 +6,6 @@
     date: March 4, 2018
 **********************************************************************/
 
-#include "command_buffer.h"
-#include "i_renderer.h"
-
 namespace Graphics {
 
     //----------------------------------------------------------------------
@@ -44,7 +41,7 @@ namespace Graphics {
     //----------------------------------------------------------------------
     F32 Camera::getAspectRatio() const
     {
-        return isRenderingToScreen() ? IRenderer::GetWindow()->getAspectRatio() : m_renderTarget->getAspectRatio();
+        return m_renderTarget->getAspectRatio() * (m_viewport.width / m_viewport.height);
     }
 
     //----------------------------------------------------------------------

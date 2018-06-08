@@ -18,13 +18,9 @@ namespace Graphics { namespace D3D11 {
         ~Swapchain();
 
         //----------------------------------------------------------------------
-        ID3D11RenderTargetView* getRenderTargetView() { return m_pRenderTargetView; }
-        ID3D11DepthStencilView* getDepthStencilView() { return m_pDepthStencilView; }
-
-        //----------------------------------------------------------------------
         // Bind the color + depth attachment to the output merger.
         //----------------------------------------------------------------------
-        void bind();
+        void bindForRendering();
 
         //----------------------------------------------------------------------
         // Simply recreates the swapchain buffers with the new width and height.
@@ -39,19 +35,9 @@ namespace Graphics { namespace D3D11 {
         void present(bool vsync);
 
         //----------------------------------------------------------------------
-        // Clears the backbuffer with the given color, depth and stencil data.
+        // Clears the backbuffer with the given color.
         //----------------------------------------------------------------------
-        void clear(Color color, F32 depth, U8 stencil);
-
-        //----------------------------------------------------------------------
-        // Clears the backbuffer with the given depth and stencil data.
-        //----------------------------------------------------------------------
-        void clearDepthStencil(F32 depth, U8 stencil);
-
-        //----------------------------------------------------------------------
-        // @Return: True if the given MSAA samples are supported for this swapchain.
-        //----------------------------------------------------------------------
-        bool numMSAASamplesSupported(U8 numSamples);
+        void clear(Color color);
 
     private:
         U8                      m_msaaCount             = 1;
@@ -60,13 +46,10 @@ namespace Graphics { namespace D3D11 {
         //----------------------------------------------------------------------
         IDXGISwapChain1*        m_pSwapChain            = nullptr;
         ID3D11RenderTargetView* m_pRenderTargetView     = nullptr;
-        ID3D11Texture2D*        m_pDepthStencilBuffer   = nullptr;
-        ID3D11DepthStencilView* m_pDepthStencilView     = nullptr;
 
         //----------------------------------------------------------------------
         void _CreateD3D11Swapchain(HWND hwnd, U16 width, U16 height);
         void _CreateRenderTargetView();
-        void _CreateDepthBuffer(U16 width, U16 height);
 
         //----------------------------------------------------------------------
         Swapchain(const Swapchain& other)               = delete;

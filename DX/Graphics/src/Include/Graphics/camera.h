@@ -46,7 +46,6 @@ namespace Graphics {
         inline void setPerspectiveParams   (F32 fovAngleYInDegree, F32 zNear, F32 zFar);
 
         //----------------------------------------------------------------------
-        inline bool                    isRenderingToScreen()   const { return m_renderTarget == nullptr; }
         inline const CameraMode&       getCameraMode()         const { return m_cameraMode; }
         inline F32                     getZNear()              const { return m_zNear; }
         inline F32                     getZFar()               const { return m_zFar; }
@@ -58,6 +57,7 @@ namespace Graphics {
         inline F32                     getTop()                const { return m_ortho.top; }
         inline F32                     getBottom()             const { return m_ortho.bottom; }
         inline CameraClearMode         getClearMode()          const { return m_clearMode; }
+        inline bool                    isRenderingToScreen()   const { return m_isRenderingToScreen; }
         inline F32                     getAspectRatio()        const;
 
         //----------------------------------------------------------------------
@@ -70,14 +70,17 @@ namespace Graphics {
 
         //----------------------------------------------------------------------
         // @Return:
-        //  Target texture in which this camera renders. Nullptr if rendering to screen.
+        //  Target texture in which this camera renders.
         //----------------------------------------------------------------------
-        inline RenderTexturePtr getRenderTarget() { return m_renderTarget; }
+        inline RenderTexturePtr getRenderTarget() const { return m_renderTarget; }
 
         //----------------------------------------------------------------------
-        // Set the render target in which this camera renders. Nullptr means the camera should render to the screen.
+        // Set the render target in which this camera renders.
+        // @Params:
+        //  "renderTarget": The target in which this camera renders.
+        //  "renderToScreen": If true the result will be copied to the screen afterwards.
         //----------------------------------------------------------------------
-        void setRenderTarget(RenderTexturePtr renderTarget) { m_renderTarget = renderTarget; }
+        void setRenderTarget(RenderTexturePtr renderTarget, bool renderToScreen) { m_renderTarget = renderTarget; m_isRenderingToScreen = renderToScreen; }
 
         //----------------------------------------------------------------------
         inline const DirectX::XMMATRIX& getProjectionMatrix()      const { return m_projection; }
@@ -101,6 +104,7 @@ namespace Graphics {
 
     private:
         CameraMode m_cameraMode = CameraMode::Perspective;
+
 
         // Z Clipping Planes
         F32 m_zNear     = 0.1f;
@@ -132,6 +136,9 @@ namespace Graphics {
         DirectX::XMMATRIX       m_view;
         DirectX::XMMATRIX       m_projection;
         DirectX::XMMATRIX       m_viewProjection;
+
+        // Wether the camera is rendering to the screen or not
+        bool m_isRenderingToScreen = true;
 
         //----------------------------------------------------------------------
         void _UpdateProjectionMatrix();

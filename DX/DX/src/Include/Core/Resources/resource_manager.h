@@ -138,6 +138,7 @@ namespace Core { namespace Resources {
         const CubemapPtr&       getDefaultCubemap()     const { return m_defaultCubemap; }
         const MeshPtr&          getDefaultMesh()        const { return m_defaultMesh; }
 
+
     private:
         ArrayList<Graphics::Mesh*>      m_meshes;
         ArrayList<Graphics::Shader*>    m_shaders;
@@ -170,6 +171,8 @@ namespace Core { namespace Resources {
         void _DeleteMaterial(Graphics::Material* mat);
         void _DeleteShader(Graphics::Shader* shader);
         void _DeleteAudioClip(Audio::AudioClip* clip);
+
+        void _OnWindowSizeChanged();
 
         //----------------------------------------------------------------------
         ResourceManager(const ResourceManager& other)               = delete;

@@ -21,15 +21,18 @@ namespace Graphics { namespace D3D11 {
     {
     public:
         RenderTexture() = default;
-        ~RenderTexture();
+        ~RenderTexture() { _DestroyBufferAndViews(); }
 
         //----------------------------------------------------------------------
         // IRenderTexture Interface
         //----------------------------------------------------------------------
-        void create(U32 width, U32 height, U32 depth, TextureFormat format, U32 numBuffers) override;
+        void create(U32 width, U32 height, U32 depth, TextureFormat format, U32 numBuffers, SamplingDescription sd) override;
         void clear(Color color, F32 depth, U8 stencil) override;
         void clearDepthStencil(F32 depth, U8 stencil) override;
         void bindForRendering() override;
+        void recreate(U32 w, U32 h) override;
+        void recreate(U32 w, U32 h, SamplingDescription sd) override;
+        void recreate(Graphics::TextureFormat format) override;
 
         //----------------------------------------------------------------------
         // D3D11ITexture Interface
@@ -62,6 +65,8 @@ namespace Graphics { namespace D3D11 {
         void _CreateTexture(I32 index);
         void _CreateViews(I32 index);
         void _CreateDepthBuffer(I32 index);
+        void _CreateBufferAndViews();
+        void _DestroyBufferAndViews();
 
         inline I32 _PreviousBufferIndex();
 

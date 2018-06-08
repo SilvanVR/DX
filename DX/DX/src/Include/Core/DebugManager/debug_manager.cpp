@@ -12,7 +12,7 @@
 
 #include "Core/locator.h"
 #include "Events/event_dispatcher.h"
-#include "Core/event_names.hpp"
+#include "Events/event_names.hpp"
 #include "GameplayLayer/i_scene.h"
 #include "Core/mesh_generator.h"
 #include "Graphics/default_shaders.hpp"
@@ -33,13 +33,13 @@ namespace Core { namespace Debug {
         m_colorShaderWireframe = RESOURCES.createShader();
         m_colorShaderWireframe->setName( "DEBUG - DEPTH" );
         m_colorShaderWireframe->setRasterizationState( { Graphics::FillMode::Wireframe, Graphics::CullMode::None } );
-        m_colorShaderWireframe->compileFromSource( Graphics::COLOR_VERTEX_SHADER_SOURCE, Graphics::COLOR_FRAGMENT_SHADER_SOURCE, "main" );
+        m_colorShaderWireframe->compileFromSource( Graphics::ShaderSources::COLOR_VERTEX, Graphics::ShaderSources::COLOR_FRAGMENT, "main" );
 
         m_colorShaderWireframeNoDepthTest = RESOURCES.createShader();
-        m_colorShaderWireframeNoDepthTest->setName("DEBUG - NO DEPTH");
+        m_colorShaderWireframeNoDepthTest->setName( "DEBUG - NO DEPTH" );
         m_colorShaderWireframeNoDepthTest->setRasterizationState( { Graphics::FillMode::Wireframe, Graphics::CullMode::None } );
         m_colorShaderWireframeNoDepthTest->setDepthStencilState( { false } );
-        m_colorShaderWireframeNoDepthTest->compileFromSource( Graphics::COLOR_VERTEX_SHADER_SOURCE, Graphics::COLOR_FRAGMENT_SHADER_SOURCE, "main" );
+        m_colorShaderWireframeNoDepthTest->compileFromSource( Graphics::ShaderSources::COLOR_VERTEX, Graphics::ShaderSources::COLOR_FRAGMENT, "main" );
 
         // Create material from both shaders
         m_colorMaterial = RESOURCES.createMaterial( m_colorShaderWireframe );

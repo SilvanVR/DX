@@ -41,7 +41,7 @@ public:
             auto go3 = createGameObject("Camera2");
             auto cam2 = go3->addComponent<Components::Camera>();
             go3->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -5);
-            cam2->setClearMode(Graphics::CameraClearMode::None);
+            //cam2->setClearMode(Graphics::CameraClearMode::None);
 
             auto& viewport2 = cam2->getViewport();
             viewport2.topLeftX = 0.5f;
@@ -53,7 +53,7 @@ public:
             auto cam3 = go4->addComponent<Components::Camera>();
             go4->getComponent<Components::Transform>()->position = Math::Vec3(0, 5, 5);
             go4->getComponent<Components::Transform>()->lookAt(Math::Vec3(0));
-            cam3->setClearMode(Graphics::CameraClearMode::None);
+            //cam3->setClearMode(Graphics::CameraClearMode::None);
 
             auto& viewport3 = cam3->getViewport();
             viewport3.topLeftY = 0.5f;
@@ -65,7 +65,7 @@ public:
             auto cam4 = go5->addComponent<Components::Camera>();
             go5->getComponent<Components::Transform>()->position = Math::Vec3(0, -5, -5);
             go5->getComponent<Components::Transform>()->lookAt(Math::Vec3(0));
-            cam4->setClearMode(Graphics::CameraClearMode::None);
+            //cam4->setClearMode(Graphics::CameraClearMode::None);
 
             auto& viewport4 = cam4->getViewport();
             viewport4.topLeftY = 0.5f;
@@ -568,7 +568,7 @@ public:
         auto cam2 = go3->addComponent<Components::Camera>();
         go3->getComponent<Components::Transform>()->position = Math::Vec3(0, 5, -10);
         go3->addComponent<AutoOrbiting>(10.0f);
-        cam2->setClearMode(Graphics::CameraClearMode::None);
+        //cam2->setClearMode(Graphics::CameraClearMode::None);
         cam2->setZFar(20.0f);
         cam2->getViewport().width = 0.25f;
         cam2->getViewport().height = 0.25f;

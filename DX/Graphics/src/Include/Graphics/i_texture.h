@@ -22,14 +22,15 @@ namespace Graphics
 
         //----------------------------------------------------------------------
         F32                  getAspectRatio()    const { return (F32)getWidth() / getHeight(); }
-        U32                  getWidth()          const { return m_width; }
-        U32                  getHeight()         const { return m_height; }
         U32                  getMipCount()       const { return m_mipCount; }
         U32                  getAnisoLevel()     const { return m_anisoLevel; }
         TextureFormat        getFormat()         const { return m_format; }
         TextureDimension     getDimension()      const { return m_dimension; }
         TextureFilter        getFilter()         const { return m_filter; }
         TextureAddressMode   getClampMode()      const { return m_clampMode; }
+
+        virtual U32          getWidth()          const { return m_width; }
+        virtual U32          getHeight()         const { return m_height; }
 
         //----------------------------------------------------------------------
         // Set the filter mode for this texture. Note that this has no effect if

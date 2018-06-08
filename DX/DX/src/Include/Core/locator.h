@@ -49,6 +49,7 @@
 #define RESOURCES               Locator::getResourceManager()
 #define DEBUG                   Locator::getDebugManager()
 #define ASSETS                  Locator::getAssetManager()
+#define WINDOW                  Locator::getWindow()
 
 //*********************************************************************
 // Retrieve / Change every subsystem via a static method.

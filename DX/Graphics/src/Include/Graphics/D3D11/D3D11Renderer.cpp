@@ -20,6 +20,7 @@
 #include "Lighting/spot_light.h"
 #include "OS/FileSystem/file.h"
 #include "default_shaders.hpp"
+#include "D3D11Utility.h"
 
 using namespace DirectX;
 
@@ -30,13 +31,13 @@ namespace Graphics {
     #define CAMERA_BUFFER D3D11::ConstantBufferManager::getCameraBuffer()
     #define LIGHT_BUFFER  D3D11::ConstantBufferManager::getLightBuffer()
 
-    #define LIGHT_COUNT_NAME    "lightCount"
-    #define LIGHT_BUFFER_NAME   "lights"
-    #define CAM_VIEW_PROJ_NAME  "gViewProj"
-    #define CAM_POS_NAME        "gCameraPos"
-    #define MAX_LIGHTS          16
+    #define MAX_LIGHTS                      16
 
-    static StringID viewProjName = SID( CAM_VIEW_PROJ_NAME );
+    static const StringID LIGHT_COUNT_NAME          = SID( "lightCount" );
+    static const StringID LIGHT_BUFFER_NAME         = SID( "lights" );
+    static const StringID CAM_POS_NAME              = SID( "gCameraPos" );
+    static const StringID POST_PROCESS_INPUT_NAME   = SID( "_MainTex" );
+    static const StringID VIEW_PROJ_NAME            = SID( "gViewProj" );
 
     //----------------------------------------------------------------------
     struct RenderContext
@@ -46,11 +47,21 @@ namespace Graphics {
         Shader*      shader     = nullptr;  // Current bound shader
         Material*    material   = nullptr;  // Current bound material
 
-        IRenderTexture* renderTarget = nullptr; // Current render target
+        RenderTexturePtr renderTarget = nullptr; // Current render target
 
         I32          lightCount = 0;
         const Light* lights[MAX_LIGHTS];
         bool         lightsUpdated = false; // Set to true whenever a new light has been added
+
+        void Reset()
+        {
+            camera = nullptr;
+            shader = nullptr;
+            material = nullptr;
+            lightCount = 0;
+            lightsUpdated = false;
+            renderTarget = nullptr;
+        }
     } renderContext;
 
     ArrayList<Math::Vec3> cubeVertices =
@@ -72,7 +83,8 @@ namespace Graphics {
         1, 5, 6, 1, 6, 2,
         4, 0, 3, 4, 3, 7
     };
-    static IMesh* s_cubeMesh; // Needed for cubemap rendering
+    static IMesh* s_cubeMesh;               // Needed for cubemap rendering
+    static IShader* s_postProcessShader;    // Needed for automatic blit from camera-rendertarget to screen
 
     //**********************************************************************
     // INIT STUFF
@@ -82,16 +94,24 @@ namespace Graphics {
     void D3D11Renderer::init()
     {
         _InitD3D11();
+
         _CreateGlobalBuffer();
         s_cubeMesh = createMesh();
         s_cubeMesh->setVertices( cubeVertices );
         s_cubeMesh->setIndices( cubeIndices );
+
+        s_postProcessShader = createShader();
+        if ( not s_postProcessShader->compileFromSource( ShaderSources::POST_PROCESS_VERTEX, ShaderSources::POST_PROCESS_FRAGMENT, "main" ) )
+            LOG_ERROR_RENDERING( "Compiling the default post process shader failed. This is mandatory!" );
+        s_postProcessShader->setRasterizationState({ FillMode::Solid, CullMode::None });
+        s_postProcessShader->setDepthStencilState({ false, false });
     } 
 
     //----------------------------------------------------------------------
     void D3D11Renderer::shutdown()
     {
         SAFE_DELETE( s_cubeMesh );
+        SAFE_DELETE( s_postProcessShader );
         D3D11::ConstantBufferManager::Destroy();
         _DeinitD3D11();
     }
@@ -109,6 +129,48 @@ namespace Graphics {
                 {
                     auto& cmd = *reinterpret_cast<GPUC_SetCamera*>( command.get() );
                     _SetCamera( cmd.camera );
+                    break;
+                }
+                case GPUCommand::END_CAMERA:
+                {
+                    auto& cmd = *reinterpret_cast<GPUC_EndCamera*>( command.get() );
+
+                    auto& camera = cmd.camera;
+                    if (renderContext.renderTarget)
+                    {
+                        if ( camera->isRenderingToScreen() )
+                        {
+                            // Set viewport (Translate to pixel coordinates first)
+                            D3D11_VIEWPORT vp = {};
+                            auto viewport = camera->getViewport();
+                            vp.TopLeftX = viewport.topLeftX * m_window->getWidth();
+                            vp.TopLeftY = viewport.topLeftY * m_window->getHeight();
+                            vp.Width    = viewport.width    * m_window->getWidth();
+                            vp.Height   = viewport.height   * m_window->getHeight();
+                            vp.MaxDepth = 1.0f;
+                            g_pImmediateContext->RSSetViewports( 1, &vp );
+
+                            m_pSwapchain->bindForRendering();
+                        }
+                        else
+                        {
+                            D3D11_VIEWPORT vp = { 0, 0, (F32)renderContext.renderTarget->getWidth(), (F32)renderContext.renderTarget->getHeight(), 0, 1 };
+                            g_pImmediateContext->RSSetViewports( 1, &vp );
+
+                            ID3D11ShaderResourceView* resourceViews[16] = {};
+                            g_pImmediateContext->PSSetShaderResources( 0, 16, resourceViews );
+                            camera->getRenderTarget()->bindForRendering();
+                        }
+
+                        s_postProcessShader->setTexture(POST_PROCESS_INPUT_NAME, renderContext.renderTarget);
+                        s_postProcessShader->bind();
+
+                        g_pImmediateContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP );
+                        g_pImmediateContext->Draw( 4, 0 );
+                        s_postProcessShader->setTexture(POST_PROCESS_INPUT_NAME, nullptr);
+                    }
+
+                    renderContext.Reset();
                     break;
                 }
                 case GPUCommand::DRAW_MESH:
@@ -141,29 +203,53 @@ namespace Graphics {
                 case GPUCommand::SET_RENDER_TARGET:
                 {
                     auto& cmd = *reinterpret_cast<GPUC_SetRenderTarget*>( command.get() );
-                    renderContext.renderTarget = cmd.target.get();
+                    renderContext.renderTarget = cmd.target;
                     renderContext.renderTarget->bindForRendering();
                     break;
                 }
                 case GPUCommand::DRAW_FULLSCREEN_QUAD:
                 {
                     auto& cmd = *reinterpret_cast<GPUC_DrawFullscreenQuad*>( command.get() );
-                    renderContext.shader = cmd.material->getShader().get();
-                    renderContext.material = cmd.material.get();
-
-                    renderContext.shader->bind();
-                    renderContext.material->bind();
-
                     D3D11_VIEWPORT vp = { 0, 0, (F32)renderContext.renderTarget->getWidth(), (F32)renderContext.renderTarget->getHeight(), 0, 1 };
-                    g_pImmediateContext->RSSetViewports( 1, &vp );
-                    g_pImmediateContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP );
-                    g_pImmediateContext->Draw( 4, 0 );
+                    _DrawFullScreenQuad( cmd.material.get(), vp );
                     break;
                 }
                 case GPUCommand::RENDER_CUBEMAP:
                 {
                     auto& cmd = *reinterpret_cast<GPUC_RenderCubemap*>( command.get() );
                     _RenderCubemap( cmd.cubemap.get(), cmd.material.get(), cmd.dstMip );
+                    break;
+                }
+                case GPUCommand::BLIT:
+                {
+                    auto& cmd = *reinterpret_cast<GPUC_Blit*>( command.get() );
+
+                    // Use the src texture as the input IF not null. Otherwise use the current bound render target.
+                    auto input = cmd.src ? cmd.src : renderContext.renderTarget;
+                    cmd.material->setTexture( POST_PROCESS_INPUT_NAME, input );
+
+                    // Set the destination as the new rendertarget
+                    renderContext.renderTarget = cmd.dst;
+
+                    D3D11_VIEWPORT vp = {};
+                    if (renderContext.renderTarget == nullptr)
+                    {
+                        // Set viewport (Translate to pixel coordinates first)
+                        auto viewport = renderContext.camera->getViewport();
+                        vp.TopLeftX = viewport.topLeftX * m_window->getWidth();
+                        vp.TopLeftY = viewport.topLeftY * m_window->getHeight();
+                        vp.Width    = viewport.width    * m_window->getWidth();
+                        vp.Height   = viewport.height   * m_window->getHeight();
+                        vp.MaxDepth = 1.0f;
+
+                        m_pSwapchain->bindForRendering();
+                    }
+                    else
+                    {
+                        vp = { 0, 0, (F32)renderContext.renderTarget->getWidth(), (F32)renderContext.renderTarget->getHeight(), 0, 1 };
+                        renderContext.renderTarget->bindForRendering();
+                    }
+                    _DrawFullScreenQuad( cmd.material.get(), vp );
                     break;
                 }
                 default:
@@ -189,7 +275,7 @@ namespace Graphics {
     void D3D11Renderer::present()
     {
         _LockQueue();
-        for ( auto& cmd : m_pendingCmdQueue)
+        for (auto& cmd : m_pendingCmdQueue)
             _ExecuteCommandBuffer( cmd );
         m_pendingCmdQueue.clear();
         _UnlockQueue();
@@ -200,8 +286,8 @@ namespace Graphics {
     //----------------------------------------------------------------------
     void D3D11Renderer::setMultiSampleCount( U32 numSamples )
     {
-        if( not m_pSwapchain->numMSAASamplesSupported( numSamples ) )
-            return;
+        //if ( not D3D11::Utility::MSAASamplesSupported( m_screenFramebuffer->getFormat() , numSamples ) )
+        //    return;
 
         // Recreate Swapchain
         SAFE_DELETE( m_pSwapchain );
@@ -290,7 +376,7 @@ namespace Graphics {
     void D3D11Renderer::_InitD3D11()
     {
         _CreateDeviceAndContext();
-        _CreateSwapchain( INITIAL_MSAA_SAMPLES );
+        _CreateSwapchain( 1 );
 
         LOG_RENDERING( "Done initializing D3D11..." );
     }
@@ -336,8 +422,7 @@ namespace Graphics {
     //----------------------------------------------------------------------
     void D3D11Renderer::_CreateSwapchain( U32 numSamples )
     {
-        auto windowSize = s_window->getSize();
-        m_pSwapchain = new D3D11::Swapchain( s_window->getHWND(), windowSize.x, windowSize.y, numSamples );
+        m_pSwapchain = new D3D11::Swapchain( m_window->getHWND(), m_window->getWidth(), m_window->getHeight(), numSamples );
     }
 
     //----------------------------------------------------------------------
@@ -356,64 +441,56 @@ namespace Graphics {
     //----------------------------------------------------------------------
     void D3D11Renderer::_SetCamera( Camera* camera )
     {
-        renderContext.camera = camera;
-        renderContext.lightCount = 0;
-        renderContext.lightsUpdated = true;
-        renderContext.material = nullptr;
-        renderContext.shader = nullptr;
-
-        // Set rendertarget
         auto renderTarget = camera->getRenderTarget();
-        renderContext.renderTarget = renderTarget.get();
-        if ( renderTarget == nullptr )
+        if (renderTarget == nullptr)
         {
-            m_pSwapchain->bind();
+            LOG_WARN_RENDERING( "Rendertarget of a camera is NULL. This is not allowed. Please ensure that a camera always has a valid RT." );
+            return;
         }
-        else
-        {
-            // Unbind all shader resources, because the render target might be used as a srv
-            ID3D11ShaderResourceView* resourceViews[16] = {};
-            g_pImmediateContext->PSSetShaderResources( 0, 16, resourceViews );
-            renderTarget->bindForRendering();
-        }
+
+        renderContext.Reset();
+        renderContext.camera = camera;
+        renderContext.renderTarget = renderTarget;
+
+        // Unbind all shader resources, because the render target might be used as a srv
+        ID3D11ShaderResourceView* resourceViews[16] = {};
+        g_pImmediateContext->PSSetShaderResources( 0, 16, resourceViews );
+        renderTarget->bindForRendering();
 
         // Clear rendertarget
         switch ( camera->getClearMode() )
         {
         case CameraClearMode::None: break;
         case CameraClearMode::Color:
-            renderTarget == nullptr ? m_pSwapchain->clear( camera->getClearColor(), 1.0f, 0 ) : renderTarget->clear( camera->getClearColor(), 1.0f, 0 );
+            renderTarget->clear( camera->getClearColor(), 1.0f, 0 );
             break;
         case CameraClearMode::Depth:
-            renderTarget == nullptr ? m_pSwapchain->clearDepthStencil( 1.0f, 0 ) : renderTarget->clearDepthStencil( 1.0f, 0 );
+            renderTarget->clearDepthStencil( 1.0f, 0 );
             break;
         default: LOG_WARN_RENDERING( "Unknown Clear-Mode in camera!" );
         }
 
-        // Set viewport (Translate to pixel coordinates first)
-        D3D11_VIEWPORT vp = {};
-        auto viewport = camera->getViewport();
-        if ( renderTarget == nullptr )
+        if ( camera->isRenderingToScreen() )
         {
-            vp.TopLeftX = viewport.topLeftX * s_window->getWidth();
-            vp.TopLeftY = viewport.topLeftY * s_window->getHeight();
-            vp.Width    = viewport.width    * s_window->getWidth();
-            vp.Height   = viewport.height   * s_window->getHeight();
-            vp.MaxDepth = 1.0f;
+            D3D11_VIEWPORT vp = { 0, 0, (F32)renderTarget->getWidth(), (F32)renderTarget->getHeight(), 0, 1 };
+            g_pImmediateContext->RSSetViewports( 1, &vp );
         }
         else
         {
+            // Set viewport (Translate to pixel coordinates first)
+            D3D11_VIEWPORT vp = {};
+            auto viewport = camera->getViewport();
             vp.TopLeftX = viewport.topLeftX * renderTarget->getWidth();
             vp.TopLeftY = viewport.topLeftY * renderTarget->getHeight();
             vp.Width    = viewport.width    * renderTarget->getWidth();
             vp.Height   = viewport.height   * renderTarget->getHeight();
             vp.MaxDepth = 1.0f;
+            g_pImmediateContext->RSSetViewports( 1, &vp );
         }
-        g_pImmediateContext->RSSetViewports( 1, &vp );
 
         // Update camera buffer
         XMMATRIX viewProj = camera->getViewMatrix() * camera->getProjectionMatrix();
-        if ( not CAMERA_BUFFER.update( viewProjName, &viewProj ) )
+        if ( not CAMERA_BUFFER.update( VIEW_PROJ_NAME, &viewProj ) )
             LOG_ERROR_RENDERING( "D3D11: Could not update the view-projection matrix in the camera buffer!" );
 
         static StringID camPosName = SID( CAM_POS_NAME );
@@ -625,8 +702,8 @@ namespace Graphics {
 
             auto view = DirectX::XMMatrixLookToLH( { 0, 0, 0, 0 }, directions[face], ups[face] );
             auto viewProj = view * projection;
-            if ( not CAMERA_BUFFER.update( viewProjName, &viewProj ) )
-                LOG_ERROR_RENDERING( "D3D11: Could not update the view-projection matrix in the camera buffer!" );
+            if ( not CAMERA_BUFFER.update( VIEW_PROJ_NAME, &viewProj ) )
+                LOG_ERROR_RENDERING( "D3D11::RenderCubemap(): Could not update the view-projection matrix in the camera buffer!" );
             CAMERA_BUFFER.flush();
 
             _DrawMesh( s_cubeMesh, material, DirectX::XMMatrixIdentity(), 0 );
@@ -634,6 +711,20 @@ namespace Graphics {
         }
 
         SAFE_DELETE( renderTexture );
+    }
+
+    //----------------------------------------------------------------------
+    void D3D11Renderer::_DrawFullScreenQuad( IMaterial* material, const D3D11_VIEWPORT& viewport )
+    {
+        renderContext.shader = material->getShader().get();
+        renderContext.material = material;
+
+        renderContext.shader->bind();
+        renderContext.material->bind();
+
+        g_pImmediateContext->RSSetViewports( 1, &viewport );
+        g_pImmediateContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP );
+        g_pImmediateContext->Draw( 4, 0 );
     }
 
 } // End namespaces

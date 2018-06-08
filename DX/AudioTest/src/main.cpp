@@ -25,14 +25,14 @@ public:
         auto go2 = createGameObject("Sound");
         auto as = go2->addComponent<Components::AudioSource>(clip, true);
 
-        go2->addComponent<Components::MeshRenderer>(Core::Assets::MeshGenerator::CreateCube(0.5f, Color::BLUE), RESOURCES.getColorMaterial());
+        go2->addComponent<Components::MeshRenderer>(Core::MeshGenerator::CreateCube(0.5f, Color::BLUE), RESOURCES.getColorMaterial());
 
         auto go3 = createGameObject("Sound");
         go3->getComponent<Components::Transform>()->position = Math::Vec3(50, 0, 0);
         go3->addComponent<Components::AudioSource>(ASSETS.getAudioClip("/audio/doki.wav"));
-        go3->addComponent<Components::MeshRenderer>(Core::Assets::MeshGenerator::CreateCube(0.5f, Color::RED), RESOURCES.getColorMaterial());
+        go3->addComponent<Components::MeshRenderer>(Core::MeshGenerator::CreateCube(0.5f, Color::RED), RESOURCES.getColorMaterial());
 
-        mesh = Core::Assets::MeshGenerator::CreateGrid(100);
+        mesh = Core::MeshGenerator::CreateGrid(100);
         createGameObject("Grid")->addComponent<Components::MeshRenderer>(mesh, RESOURCES.getColorMaterial());
     }
 
