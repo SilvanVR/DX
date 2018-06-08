@@ -37,6 +37,7 @@ public:
         auto rt = RESOURCES.createRenderTexture();
         rt->create(WINDOW.getWidth(), WINDOW.getHeight(), 0, Graphics::TextureFormat::RGBA32);
         rt->setDynamicScreenScale(true);
+        rt->setClampMode(Graphics::TextureAddressMode::Clamp);
 
         // Apply post processing
         cmd.blit(PREVIOUS_BUFFER, rt, material);
@@ -78,6 +79,39 @@ public:
     }
 };
 
+class GaussianBlur : public Components::IComponent
+{
+    Graphics::CommandBuffer cmd;
+    MaterialPtr horizontalBlur;
+    MaterialPtr verticalBlur;
+
+public:
+    GaussianBlur() {}
+
+    void addedToGameObject(GameObject* go)
+    {
+        // Create rendertarget
+        auto rt = RESOURCES.createRenderTexture();
+        rt->create(WINDOW.getWidth(), WINDOW.getHeight(), 0, Graphics::TextureFormat::RGBA32);
+        rt->setDynamicScreenScale(true);
+
+        auto rt2 = RESOURCES.createRenderTexture();
+        rt2->create(WINDOW.getWidth(), WINDOW.getHeight(), 0, Graphics::TextureFormat::RGBA32);
+        rt2->setDynamicScreenScale(true);
+
+        horizontalBlur = ASSETS.getMaterial("/materials/post processing/gaussian_blur_horizontal.material");
+        verticalBlur = ASSETS.getMaterial("/materials/post processing/gaussian_blur_vertical.material");
+
+        // Apply post processing
+        cmd.blit(PREVIOUS_BUFFER, rt, horizontalBlur);
+        cmd.blit(rt, rt2, verticalBlur);
+
+        // Attach command buffer to camera
+        auto cam = go->getComponent<Components::Camera>();
+        cam->addCommandBuffer(&cmd);
+    }
+};
+
 //----------------------------------------------------------------------
 // SCENES
 //----------------------------------------------------------------------
@@ -103,6 +137,7 @@ public:
         cam2->getViewport().width = 0.5f;
         cam2->getViewport().topLeftX = 0.5f;
         go2->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -4);
+        go2->addComponent<GaussianBlur>();
 
         createGameObject("Grid")->addComponent<GridGeneration>(20);
 

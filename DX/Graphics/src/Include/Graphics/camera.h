@@ -35,15 +35,16 @@ namespace Graphics {
         ~Camera() = default;
 
         //----------------------------------------------------------------------
-        inline void setCameraMode          (CameraMode mode)                        { m_cameraMode = mode; }
-        inline void setZNear               (F32 zNear)                              { m_zNear = zNear; }
-        inline void setZFar                (F32 zFar)                               { m_zFar = zFar; }
-        inline void setFOV                 (F32 fovAngleYInDegree)                  { m_fov = fovAngleYInDegree; }
-        inline void setClearColor          (const Color& clearColor)                { m_clearColor = clearColor; }
-        inline void setClearMode           (CameraClearMode clearMode)              { m_clearMode = clearMode; }
-        inline void setViewport            (const Graphics::ViewportRect& viewport) { m_viewport = viewport; }
-        inline void setOrthoParams         (F32 left, F32 right, F32 bottom, F32 top, F32 zNear, F32 zFar);
-        inline void setPerspectiveParams   (F32 fovAngleYInDegree, F32 zNear, F32 zFar);
+        inline void setCameraMode           (CameraMode mode)                        { m_cameraMode = mode; }
+        inline void setZNear                (F32 zNear)                              { m_zNear = zNear; }
+        inline void setZFar                 (F32 zFar)                               { m_zFar = zFar; }
+        inline void setFOV                  (F32 fovAngleYInDegree)                  { m_fov = fovAngleYInDegree; }
+        inline void setClearColor           (const Color& clearColor)                { m_clearColor = clearColor; }
+        inline void setClearMode            (CameraClearMode clearMode)              { m_clearMode = clearMode; }
+        inline void setViewport             (const Graphics::ViewportRect& viewport) { m_viewport = viewport; }
+        inline void setOrthoParams          (F32 left, F32 right, F32 bottom, F32 top, F32 zNear, F32 zFar);
+        inline void setPerspectiveParams    (F32 fovAngleYInDegree, F32 zNear, F32 zFar);
+        inline void setRenderingToScreen    (bool renderToScreen)                    { m_isRenderingToScreen = renderToScreen; }
 
         //----------------------------------------------------------------------
         inline const CameraMode&       getCameraMode()         const { return m_cameraMode; }
