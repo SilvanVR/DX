@@ -19,6 +19,10 @@
 
 namespace Graphics {
 
+    // These are for better code readability. (Used by the blit-command)
+    #define PREVIOUS_BUFFER nullptr
+    #define SCREEN_BUFFER   nullptr
+
     //----------------------------------------------------------------------
     enum class GPUCommand
     {

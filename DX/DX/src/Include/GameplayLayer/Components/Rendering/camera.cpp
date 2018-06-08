@@ -230,20 +230,32 @@ namespace Components {
         for (auto& drawCall : transparentDrawcalls)
             m_commandBuffer.getGPUCommands().push_back( drawCall );
 
-        // These commands are for post processing
+        // These commands are mostly for post processing
+        RenderTexturePtr lastRenderTarget = nullptr;
         for (auto& command : cmd.getGPUCommands())
         {
             switch (command->getType())
             {
             case Graphics::GPUCommand::SET_RENDER_TARGET:
             case Graphics::GPUCommand::DRAW_FULLSCREEN_QUAD:
+            {
+                m_commandBuffer.getGPUCommands().push_back( command );
+                break;
+            }
             case Graphics::GPUCommand::BLIT:
             {
+                auto& cmd = *reinterpret_cast<Graphics::GPUC_Blit*>( command.get() );
+                lastRenderTarget = cmd.dst;
                 m_commandBuffer.getGPUCommands().push_back( command );
                 break;
             }
             }
         }
+
+        // Inject an additional blit command which renders the last framebuffer either to screen or back to the cameras rendertarget
+        // This is only necessary when the last post process does not render directly to the screen.
+        if (lastRenderTarget != nullptr)
+            m_commandBuffer.blit( PREVIOUS_BUFFER, m_camera.isRenderingToScreen() ? SCREEN_BUFFER : getRenderTarget(), RESOURCES.getPostProcessMaterial() );
     }
 
     //----------------------------------------------------------------------

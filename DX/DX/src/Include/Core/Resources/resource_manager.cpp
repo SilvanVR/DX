@@ -267,6 +267,17 @@ namespace Core { namespace Resources {
                 LOG_ERROR( "Color shader source didn't compile. This is mandatory!" );
 
             m_shaders.push_back( m_colorShader.get() );
+
+            // Post process shader
+            m_postProcessShader = ShaderPtr( Locator::getRenderer().createShader(), BIND_THIS_FUNC_1_ARGS( &ResourceManager::_DeleteShader ) );
+            m_postProcessShader->setName( SHADER_POST_PROCESS_NAME );
+            m_postProcessShader->setRasterizationState({ Graphics::FillMode::Solid, Graphics::CullMode::None });
+            m_postProcessShader->setDepthStencilState({ false, false });
+
+            if ( not m_postProcessShader->compileFromSource( Graphics::ShaderSources::POST_PROCESS_VERTEX, Graphics::ShaderSources::POST_PROCESS_FRAGMENT, "main") )
+                LOG_ERROR( "post process shader source didn't compile. This is mandatory!" );
+
+            m_shaders.push_back( m_postProcessShader.get() );
         }
 
         // MATERIALS
@@ -279,6 +290,9 @@ namespace Core { namespace Resources {
 
             m_colorMaterial = createMaterial( m_colorShader );
             m_colorMaterial->setName( "Color Material" );
+
+            m_postProcessMaterial = createMaterial( m_postProcessShader );
+            m_postProcessMaterial->setName( "Post Process Material" );
 
             Locator::getRenderer().addGlobalMaterial( "Wireframe", m_wireframeMaterial.get() );
         }

@@ -84,7 +84,6 @@ namespace Graphics {
         4, 0, 3, 4, 3, 7
     };
     static IMesh* s_cubeMesh;               // Needed for cubemap rendering
-    static IShader* s_postProcessShader;    // Needed for automatic blit from camera-rendertarget to screen
 
     //**********************************************************************
     // INIT STUFF
@@ -99,19 +98,12 @@ namespace Graphics {
         s_cubeMesh = createMesh();
         s_cubeMesh->setVertices( cubeVertices );
         s_cubeMesh->setIndices( cubeIndices );
-
-        s_postProcessShader = createShader();
-        if ( not s_postProcessShader->compileFromSource( ShaderSources::POST_PROCESS_VERTEX, ShaderSources::POST_PROCESS_FRAGMENT, "main" ) )
-            LOG_ERROR_RENDERING( "Compiling the default post process shader failed. This is mandatory!" );
-        s_postProcessShader->setRasterizationState({ FillMode::Solid, CullMode::None });
-        s_postProcessShader->setDepthStencilState({ false, false });
     } 
 
     //----------------------------------------------------------------------
     void D3D11Renderer::shutdown()
     {
         SAFE_DELETE( s_cubeMesh );
-        SAFE_DELETE( s_postProcessShader );
         D3D11::ConstantBufferManager::Destroy();
         _DeinitD3D11();
     }
@@ -134,42 +126,6 @@ namespace Graphics {
                 case GPUCommand::END_CAMERA:
                 {
                     auto& cmd = *reinterpret_cast<GPUC_EndCamera*>( command.get() );
-
-                    auto& camera = cmd.camera;
-                    if (renderContext.renderTarget)
-                    {
-                        if ( camera->isRenderingToScreen() )
-                        {
-                            // Set viewport (Translate to pixel coordinates first)
-                            D3D11_VIEWPORT vp = {};
-                            auto viewport = camera->getViewport();
-                            vp.TopLeftX = viewport.topLeftX * m_window->getWidth();
-                            vp.TopLeftY = viewport.topLeftY * m_window->getHeight();
-                            vp.Width    = viewport.width    * m_window->getWidth();
-                            vp.Height   = viewport.height   * m_window->getHeight();
-                            vp.MaxDepth = 1.0f;
-                            g_pImmediateContext->RSSetViewports( 1, &vp );
-
-                            m_pSwapchain->bindForRendering();
-                        }
-                        else
-                        {
-                            D3D11_VIEWPORT vp = { 0, 0, (F32)renderContext.renderTarget->getWidth(), (F32)renderContext.renderTarget->getHeight(), 0, 1 };
-                            g_pImmediateContext->RSSetViewports( 1, &vp );
-
-                            ID3D11ShaderResourceView* resourceViews[16] = {};
-                            g_pImmediateContext->PSSetShaderResources( 0, 16, resourceViews );
-                            camera->getRenderTarget()->bindForRendering();
-                        }
-
-                        s_postProcessShader->setTexture(POST_PROCESS_INPUT_NAME, renderContext.renderTarget);
-                        s_postProcessShader->bind();
-
-                        g_pImmediateContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP );
-                        g_pImmediateContext->Draw( 4, 0 );
-                        s_postProcessShader->setTexture(POST_PROCESS_INPUT_NAME, nullptr);
-                    }
-
                     renderContext.Reset();
                     break;
                 }
@@ -224,15 +180,27 @@ namespace Graphics {
                 {
                     auto& cmd = *reinterpret_cast<GPUC_Blit*>( command.get() );
 
+                    if (renderContext.renderTarget == nullptr && cmd.dst == nullptr)
+                        LOG_WARN_RENDERING( "D3D11[Blit]: Target texture was previously screen, so the content will probably be overriden. This can"
+                                            " occur if two blits in succession with both target = nullptr (to screen) were recored." );
+
                     // Use the src texture as the input IF not null. Otherwise use the current bound render target.
                     auto input = cmd.src ? cmd.src : renderContext.renderTarget;
+                    if (input == nullptr)
+                    {
+                        LOG_WARN_RENDERING( "D3D11[Blit]: Previous render target was screen, which can't be used as input! This happens when a blit-command "
+                                            "with src=nullptr (to screen) was recorded but a previous blit had dst=nulltr (to screen)" );
+                        break;
+                    }
+
+                    // Set texture in material
                     cmd.material->setTexture( POST_PROCESS_INPUT_NAME, input );
 
                     // Set the destination as the new rendertarget
                     renderContext.renderTarget = cmd.dst;
 
                     D3D11_VIEWPORT vp = {};
-                    if (renderContext.renderTarget == nullptr)
+                    if (cmd.dst == nullptr) // If destination is nullptr, this means blit directly to screen
                     {
                         // Set viewport (Translate to pixel coordinates first)
                         auto viewport = renderContext.camera->getViewport();

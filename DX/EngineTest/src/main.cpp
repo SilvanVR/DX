@@ -10,10 +10,6 @@
 
 #include "Time/clock.h"
 
-
-#define PREVIOUS_BUFFER nullptr
-#define SCREEN_BUFFER   nullptr
-
 class ColorGrading : public Components::IComponent
 {
     MaterialPtr material;
@@ -25,7 +21,7 @@ public:
     void addedToGameObject(GameObject* go)
     {
         auto cam = go->getComponent<Components::Camera>();
-        auto shader =  ASSETS.getShader("/shaders/post processing/color_grading.shader");
+        auto shader = ASSETS.getShader("/shaders/post processing/color_grading.shader");
 
         material = RESOURCES.createMaterial(shader);
         material->setColor("color", Color::RED);
@@ -41,7 +37,7 @@ public:
 
         // Apply post processing
         cmd.blit(PREVIOUS_BUFFER, rt, material);
-        //cmd.blit(rt, SCREEN_BUFFER, material);
+        cmd.blit(rt, SCREEN_BUFFER, material);
 
         // Attach command buffer to camera
         cam->addCommandBuffer(&cmd);
@@ -130,14 +126,15 @@ public:
         go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -10);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA);
         go->addComponent<ColorGrading>();
+        //go->addComponent<GreyScale>();
 
-        cam->getViewport().width = 0.5f;
-        auto go2 = createGameObject("Camera2");
-        auto cam2 = go2->addComponent<Components::Camera>();
-        cam2->getViewport().width = 0.5f;
-        cam2->getViewport().topLeftX = 0.5f;
-        go2->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -4);
-        go2->addComponent<GaussianBlur>();
+        //cam->getViewport().width = 0.5f;
+        //auto go2 = createGameObject("Camera2");
+        //auto cam2 = go2->addComponent<Components::Camera>();
+        //cam2->getViewport().width = 0.5f;
+        //cam2->getViewport().topLeftX = 0.5f;
+        //go2->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -4);
+        //go2->addComponent<GaussianBlur>();
 
         createGameObject("Grid")->addComponent<GridGeneration>(20);
 

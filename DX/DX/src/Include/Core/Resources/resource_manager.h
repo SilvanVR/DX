@@ -26,10 +26,11 @@
 
 namespace Core { namespace Resources {
 
-    const static CString SHADER_DEFAULT_NAME    = "DEFAULT";
-    const static CString SHADER_WIREFRAME_NAME  = "WIREFRAME";
-    const static CString SHADER_ERROR_NAME      = "ERROR";
-    const static CString SHADER_COLOR_NAME      = "COLOR";
+    const static CString SHADER_DEFAULT_NAME        = "DEFAULT";
+    const static CString SHADER_WIREFRAME_NAME      = "WIREFRAME";
+    const static CString SHADER_ERROR_NAME          = "ERROR";
+    const static CString SHADER_COLOR_NAME          = "COLOR";
+    const static CString SHADER_POST_PROCESS_NAME   = "POSTPROCESS";
 
     //*********************************************************************
     class ResourceManager : public ISubSystem
@@ -111,32 +112,34 @@ namespace Core { namespace Resources {
         AudioClipPtr createAudioClip();
 
         //----------------------------------------------------------------------
-        // Sets the anisotropic filtering for all textures @TODO: move this somewhere else
+        // Sets the anisotropic filtering for all textures
         //----------------------------------------------------------------------
         void setGlobalAnisotropicFiltering(U32 level);
 
         //----------------------------------------------------------------------
-        U32 getMeshCount()      const { return static_cast<U32>( m_meshes.size() ); }
-        U32 getShaderCount()    const { return static_cast<U32>( m_shaders.size() ); }
-        U32 getMaterialCount()  const { return static_cast<U32>( m_materials.size() ); }
-        U32 getTextureCount()   const { return static_cast<U32>( m_textures.size() ); }
+        inline U32 getMeshCount()      const { return static_cast<U32>( m_meshes.size() ); }
+        inline U32 getShaderCount()    const { return static_cast<U32>( m_shaders.size() ); }
+        inline U32 getMaterialCount()  const { return static_cast<U32>( m_materials.size() ); }
+        inline U32 getTextureCount()   const { return static_cast<U32>( m_textures.size() ); }
 
-        const ArrayList<Graphics::Mesh*>&       getMeshes() const { return m_meshes; }
-        const ArrayList<Graphics::Shader*>&     getShaders() const { return m_shaders; }
-        const ArrayList<Graphics::Material*>&   getMaterials() const { return m_materials; }
-        const ArrayList<Graphics::Texture*>&    getTextures() const { return m_textures; }
-        const ArrayList<Audio::AudioClip*>&     getAudioClips() const { return m_audioClips; }
+        inline const ArrayList<Graphics::Mesh*>&       getMeshes() const { return m_meshes; }
+        inline const ArrayList<Graphics::Shader*>&     getShaders() const { return m_shaders; }
+        inline const ArrayList<Graphics::Material*>&   getMaterials() const { return m_materials; }
+        inline const ArrayList<Graphics::Texture*>&    getTextures() const { return m_textures; }
+        inline const ArrayList<Audio::AudioClip*>&     getAudioClips() const { return m_audioClips; }
 
-        const MaterialPtr&      getDefaultMaterial()    const { return m_defaultMaterial; }
-        const ShaderPtr&        getDefaultShader()      const { return m_defaultShader; }
-        const ShaderPtr&        getColorShader()        const { return m_colorShader; }
-        const ShaderPtr&        getErrorShader()        const { return m_errorShader; }
-        const MaterialPtr&      getColorMaterial()      const { return m_colorMaterial; }
-        const Texture2DPtr&     getBlackTexture()       const { return m_black; }
-        const Texture2DPtr&     getWhiteTexture()       const { return m_white; }
-        const Texture2DPtr&     getNormalTexture()      const { return m_normal; }
-        const CubemapPtr&       getDefaultCubemap()     const { return m_defaultCubemap; }
-        const MeshPtr&          getDefaultMesh()        const { return m_defaultMesh; }
+        inline const MaterialPtr&      getDefaultMaterial()    const { return m_defaultMaterial; }
+        inline const ShaderPtr&        getDefaultShader()      const { return m_defaultShader; }
+        inline const ShaderPtr&        getColorShader()        const { return m_colorShader; }
+        inline const ShaderPtr&        getErrorShader()        const { return m_errorShader; }
+        inline const ShaderPtr&        getPostProcessShader()  const { return m_postProcessShader; }
+        inline const MaterialPtr&      getColorMaterial()      const { return m_colorMaterial; }
+        inline const MaterialPtr&      getPostProcessMaterial()const { return m_postProcessMaterial; }
+        inline const Texture2DPtr&     getBlackTexture()       const { return m_black; }
+        inline const Texture2DPtr&     getWhiteTexture()       const { return m_white; }
+        inline const Texture2DPtr&     getNormalTexture()      const { return m_normal; }
+        inline const CubemapPtr&       getDefaultCubemap()     const { return m_defaultCubemap; }
+        inline const MeshPtr&          getDefaultMesh()        const { return m_defaultMesh; }
 
 
     private:
@@ -150,10 +153,12 @@ namespace Core { namespace Resources {
         ShaderPtr       m_errorShader;
         ShaderPtr       m_wireframeShader;
         ShaderPtr       m_colorShader;
+        ShaderPtr       m_postProcessShader;
 
         MaterialPtr     m_defaultMaterial;
         MaterialPtr     m_wireframeMaterial;
         MaterialPtr     m_colorMaterial;
+        MaterialPtr     m_postProcessMaterial;
 
         Texture2DPtr    m_black;
         Texture2DPtr    m_white;
