@@ -232,6 +232,7 @@ namespace Components {
 
         // These commands are mostly for post processing
         RenderTexturePtr lastRenderTarget = nullptr;
+        bool hasBlit = false;
         for (auto& command : cmd.getGPUCommands())
         {
             switch (command->getType())
@@ -246,6 +247,7 @@ namespace Components {
             {
                 auto& cmd = *reinterpret_cast<Graphics::GPUC_Blit*>( command.get() );
                 lastRenderTarget = cmd.dst;
+                hasBlit = true;
                 m_commandBuffer.getGPUCommands().push_back( command );
                 break;
             }
@@ -254,7 +256,7 @@ namespace Components {
 
         // Inject an additional blit command which renders the last framebuffer either to screen or back to the cameras rendertarget
         // This is only necessary when the last post process does not render directly to the screen.
-        if (lastRenderTarget != nullptr)
+        if (lastRenderTarget != nullptr || not hasBlit)
             m_commandBuffer.blit( PREVIOUS_BUFFER, m_camera.isRenderingToScreen() ? SCREEN_BUFFER : getRenderTarget(), RESOURCES.getPostProcessMaterial() );
     }
 

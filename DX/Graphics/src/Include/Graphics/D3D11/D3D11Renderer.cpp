@@ -214,6 +214,8 @@ namespace Graphics {
                     }
                     else
                     {
+                        ID3D11ShaderResourceView* resourceViews[16] = {};
+                        g_pImmediateContext->PSSetShaderResources( 0, 16, resourceViews );
                         vp = { 0, 0, (F32)renderContext.renderTarget->getWidth(), (F32)renderContext.renderTarget->getHeight(), 0, 1 };
                         renderContext.renderTarget->bindForRendering();
                     }
