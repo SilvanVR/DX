@@ -64,7 +64,7 @@ float4 main(FragmentIn fin) : SV_Target
 	float linDepth = linearDepth( depth );
 	
 	float visibility = 1.0;
-	visibility = clamp( exp( -pow( linDepth*density, gradient ) ), 0.0, 1.0 );
+	visibility = clamp( exp( -pow( abs(linDepth*density), gradient ) ), 0.0, 1.0 );
 	
 	return lerp( fogColor, sceneColor, visibility );	
 	return float4( linDepth, linDepth, linDepth, sceneColor.a );

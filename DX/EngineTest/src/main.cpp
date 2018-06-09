@@ -144,7 +144,7 @@ public:
         cam->setHDRRendering(true);
         go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -10);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA);
-        //go->addComponent<ColorGrading>();
+        go->addComponent<ColorGrading>();
         //go->addComponent<GreyScale>();
         //go->addComponent<Fog>();
 
@@ -155,6 +155,7 @@ public:
         cam2->getViewport().topLeftX = 0.5f;
         go2->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, 0);
         //go2->addComponent<GaussianBlur>();
+        //go2->addComponent<ColorGrading>();
         go2->addComponent<Fog>();
         go2->getTransform()->setParent(go->getTransform(), false);
 
@@ -164,10 +165,6 @@ public:
 
         auto obj = createGameObject("Obj");
         obj->addComponent<Components::MeshRenderer>(mesh, ASSETS.getMaterial("/materials/texture.material"));
-
-        auto obj2 = createGameObject("Obj");
-        obj2->addComponent<Components::MeshRenderer>(mesh, ASSETS.getMaterial("/materials/texture.material"));
-        obj2->getTransform()->position.z = 100.0f;
 
         LOG("TestScene initialized!", Color::RED);
     }
