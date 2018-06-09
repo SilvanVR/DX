@@ -140,7 +140,10 @@ namespace Assets {
                     auto includeFilePath = StringUtils::substringBetween( line, '\"', '\"' );
                     try
                     {
-                        OS::BinaryFile includeFile( filePath.getDirectoryPath() + includeFilePath, OS::EFileMode::READ );
+                        bool isVirtualPath = includeFilePath[0] == '/';
+                        OS::Path fullPath = isVirtualPath ? includeFilePath : filePath.getDirectoryPath() + includeFilePath;
+
+                        OS::BinaryFile includeFile( fullPath, OS::EFileMode::READ );
                         shaderSources[(I32)type + 1].append( includeFile.readAll() );
                     }
                     catch (const std::runtime_error& e) {

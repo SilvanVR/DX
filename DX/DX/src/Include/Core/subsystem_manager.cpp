@@ -133,12 +133,12 @@ namespace Core
         shutdownSubSystem( m_audioManager );
 
         //----------------------------------------------------------------------
-        LOG( " > Shutdown ResourceManager...", LOGCOLOR );
-        shutdownSubSystem( m_resourceManager );
-
-        //----------------------------------------------------------------------
         LOG( " > Shutdown Renderer...", LOGCOLOR );
         shutdownSubSystem( m_renderer );
+
+        //----------------------------------------------------------------------
+        LOG( " > Shutdown ResourceManager...", LOGCOLOR );
+        shutdownSubSystem( m_resourceManager );
 
         //----------------------------------------------------------------------
         LOG( " > Shutdown In-Game Console...", LOGCOLOR  );

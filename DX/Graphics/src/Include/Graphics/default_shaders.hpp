@@ -17,13 +17,15 @@ namespace Graphics { namespace ShaderSources {
     const String ERROR_VERTEX =                    "\
     cbuffer cbPerCamera : register( b0 )            \
     {                                               \
-        float4x4 gViewProj;                         \
-        float3 gCameraPos;                          \
+        float4x4 _ViewProj;                         \
+        float3 _CameraPos;                          \
+        float _zNear;                               \
+        float _zFar;                                \
     };                                              \
                                                     \
     cbuffer cbPerObject : register( b1 )            \
     {                                               \
-        float4x4 gWorld;                            \
+        float4x4 _World;                            \
     };                                              \
                                                     \
     struct VertexIn                                 \
@@ -40,7 +42,7 @@ namespace Graphics { namespace ShaderSources {
     {                                               \
         VertexOut OUT;                              \
                                                     \
-        float4x4 mvp = mul(gViewProj, gWorld);      \
+        float4x4 mvp = mul(_ViewProj, _World);      \
         OUT.PosH = mul(mvp, float4(vin.PosL, 1.0f));\
                                                     \
         return OUT;                                 \
@@ -73,13 +75,15 @@ namespace Graphics { namespace ShaderSources {
     const String COLOR_VERTEX =                    "\
     cbuffer cbPerCamera : register( b0 )            \
     {                                               \
-        float4x4 gViewProj;                         \
-	    float3 gCameraPos;                          \
+        float4x4 _ViewProj;                         \
+        float3 _CameraPos;                          \
+        float _zNear;                               \
+        float _zFar;                                \
     };                                              \
                                                     \
     cbuffer cbPerObject : register( b1 )            \
     {                                               \
-        float4x4 gWorld;                            \
+        float4x4 _World;                            \
     };                                              \
                                                     \
     struct VertexIn                                 \
@@ -98,7 +102,7 @@ namespace Graphics { namespace ShaderSources {
     {                                               \
         VertexOut OUT;                              \
                                                     \
-        float4x4 mvp = mul(gViewProj, gWorld);      \
+        float4x4 mvp = mul(_ViewProj, _World);      \
         OUT.PosH = mul(mvp, float4(vin.PosL, 1.0f));\
         OUT.Color = vin.Color;                      \
                                                     \

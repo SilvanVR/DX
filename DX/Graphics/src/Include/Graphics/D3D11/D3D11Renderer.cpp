@@ -32,13 +32,13 @@ namespace Graphics {
     #define CAMERA_BUFFER D3D11::ConstantBufferManager::getCameraBuffer()
     #define LIGHT_BUFFER  D3D11::ConstantBufferManager::getLightBuffer()
 
-    #define MAX_LIGHTS                      16
+    #define MAX_LIGHTS 16
 
-    static const StringID LIGHT_COUNT_NAME          = SID( "lightCount" );
-    static const StringID LIGHT_BUFFER_NAME         = SID( "lights" );
-    static const StringID CAM_POS_NAME              = SID( "gCameraPos" );
+    static const StringID LIGHT_COUNT_NAME          = SID( "_LightCount" );
+    static const StringID LIGHT_BUFFER_NAME         = SID( "_Lights" );
+    static const StringID CAM_POS_NAME              = SID( "_CameraPos" );
     static const StringID POST_PROCESS_INPUT_NAME   = SID( "_MainTex" );
-    static const StringID VIEW_PROJ_NAME            = SID( "gViewProj" );
+    static const StringID VIEW_PROJ_NAME            = SID( "_ViewProj" );
 
     //----------------------------------------------------------------------
     struct RenderContext
@@ -575,7 +575,7 @@ namespace Graphics {
             String fragSrc = file.readAll();
             fragSrc += "float4 main() : SV_Target       \
             {                                           \
-                return float4(1,1,1,1) * gTime;         \
+                return float4(1,1,1,1) * _Time;         \
             }";
 
             Shader* shader = createShader();

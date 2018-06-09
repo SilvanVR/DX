@@ -46,7 +46,7 @@ namespace Graphics {
         virtual ~IRenderer() {}
 
         //----------------------------------------------------------------------
-        const OS::Window*       getWindow()             const { return m_window; }
+        const OS::Window* getWindow() const { return m_window; }
 
         //----------------------------------------------------------------------
         // Dispatches the given command buffer for execution on the gpu.

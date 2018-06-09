@@ -39,7 +39,7 @@ namespace Core {
         // Initialize all subsystems
         m_subSystemManager.init();
 
-        Locator::getRenderer().setGlobalFloat( SID("gAmbient"), 0.2f );
+        Locator::getRenderer().setGlobalFloat( SID("_Ambient"), 0.2f );
 
         // Call virtual init function for game class
         init();
@@ -112,7 +112,7 @@ namespace Core {
         graphicsEngine.resetFrameInfo();
 
         // Update global buffer
-        graphicsEngine.setGlobalFloat( SID("gTime"), (F32)TIME.getTime() );
+        graphicsEngine.setGlobalFloat( SID("_Time"), (F32)TIME.getTime() );
 
         // Fetch all renderer components
         auto& renderers = SCENE.getComponentManager().getRenderer();

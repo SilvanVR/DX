@@ -204,7 +204,7 @@ public:
         ASSETS.setHotReloading(true);
 
         Locator::getRenderer().setVSync(true);
-        Locator::getRenderer().setGlobalFloat(SID("gAmbient"), 0.5f);
+        Locator::getRenderer().setGlobalFloat(SID("_Ambient"), 0.5f);
 
         Locator::getSceneManager().LoadSceneAsync(new TestScene());
     }
@@ -221,7 +221,7 @@ public:
         if (KEYBOARD.wasKeyPressed(Key::Two))
             Locator::getSceneManager().LoadSceneAsync(new SceneCameras);
         if (KEYBOARD.wasKeyPressed(Key::Three))
-            Locator::getSceneManager().LoadSceneAsync(new MaterialTestScene);
+            Locator::getSceneManager().LoadSceneAsync(new SceneMirror);
         if (KEYBOARD.wasKeyPressed(Key::Four))
             Locator::getSceneManager().LoadSceneAsync(new ManyObjectsScene(10000));
         if (KEYBOARD.wasKeyPressed(Key::Five))

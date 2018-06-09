@@ -64,7 +64,7 @@ namespace Components {
 
         //----------------------------------------------------------------------
         // @Return:
-        //  Target texture in which this camera renders. Nullptr if rendering to screen.
+        //  Target texture in which this camera renders.
         //----------------------------------------------------------------------
         RenderTexturePtr                getRenderTarget() { return m_camera.getRenderTarget(); }
 

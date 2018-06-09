@@ -39,6 +39,7 @@ VertexOut main(VertexIn vin)
 #shader fragmentf
 
 #include "includes/enginePS.hlsl"
+#include "includes/blinn_phong.hlsl"
 
 struct FragmentIn
 {
@@ -58,15 +59,15 @@ float4 main(FragmentIn fin) : SV_Target
 	float3 N = float3(0,1,0);
 	
 	float4 totalLight = { 0, 0, 0, 1 };	
-	for (int i = 0; i < lightCount; i++)
+	for (int i = 0; i < _LightCount; i++)
 	{
-        switch( lights[i].lightType )
+        switch( _Lights[i].lightType )
         {
         case DIRECTIONAL_LIGHT:
-            totalLight += DoDirectionalLight( lights[i], V, N );
+            totalLight += DoDirectionalLight( _Lights[i], V, N );
             break;
         }
 	}
 	
-	return textureColor * gAmbient + textureColor * totalLight;
+	return textureColor * _Ambient + textureColor * totalLight;
 }

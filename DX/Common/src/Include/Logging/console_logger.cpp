@@ -132,7 +132,22 @@ namespace Logging {
         if ( not m_messageBuffer.hasEnoughPlace( len ) )
             _DumpToDisk();
 
-        m_messageBuffer.write( msg );
+        auto bufferSize = m_messageBuffer.capacity();
+        if ( len > bufferSize )
+        {
+            I32 numFlushes = I32( len / bufferSize );
+            for (I32 i = 0; i < numFlushes; i++)
+            {
+                m_messageBuffer.write( msg + i * bufferSize, bufferSize );
+                _DumpToDisk();
+            }
+            m_messageBuffer.write(msg + numFlushes * bufferSize, (len - numFlushes * bufferSize));
+            _DumpToDisk();
+        }
+        else
+        {
+            m_messageBuffer.write( msg );
+        }
     }
 
     //----------------------------------------------------------------------

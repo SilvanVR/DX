@@ -199,24 +199,24 @@ float3 getIBL( float3 albedo, float3 V, float3 P, float3 N, float roughness, flo
 //----------------------------------------------------------------------
 float4 APPLY_LIGHTING( float4 fragColor, float3 P, float3 normal, float roughness, float metallic )
 { 
-	float3 V = normalize( gCameraPos - P ).xyz;
+	float3 V = normalize( _CameraPos - P ).xyz;
 	float3 N = normalize( normal );
 	
 	float3 Lo = { 0, 0, 0 };
 	
     [unroll]
-	for (int i = 0; i < lightCount; i++)
+	for (int i = 0; i < _LightCount; i++)
 	{
-        switch( lights[i].lightType )
+        switch( _Lights[i].lightType )
         {
         case DIRECTIONAL_LIGHT:
-            Lo += DoDirectionalLight( lights[i], fragColor.rgb, V, P, N, roughness, metallic );
+            Lo += DoDirectionalLight( _Lights[i], fragColor.rgb, V, P, N, roughness, metallic );
             break;
 		case POINT_LIGHT:		
-            Lo += DoPointLight( lights[i], fragColor.rgb, V, P, N, roughness, metallic );
+            Lo += DoPointLight( _Lights[i], fragColor.rgb, V, P, N, roughness, metallic );
             break;
 		case SPOT_LIGHT:
-			Lo += DoSpotLight( lights[i], fragColor.rgb, V, P, N, roughness, metallic );
+			Lo += DoSpotLight( _Lights[i], fragColor.rgb, V, P, N, roughness, metallic );
             break;
         }
 	}
@@ -225,7 +225,7 @@ float4 APPLY_LIGHTING( float4 fragColor, float3 P, float3 normal, float roughnes
 	
 	float3 ibl = getIBL( fragColor.rgb, V, P, N, roughness, metallic );
 	
-	float3 result = gAmbient * ibl + lighting;
+	float3 result = _Ambient * ibl + lighting;
 	
 	// Reinhard tonemapping
 	//result = result / (result + float3(1,1,1));

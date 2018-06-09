@@ -13,14 +13,16 @@
 
 cbuffer cbPerCamera : register(b0)
 {
-    float4x4 gViewProj;
-	float3 gCameraPos;
+    float4x4 _ViewProj;	
+	float3 _CameraPos;
+	float _zNear;
+	float _zFar;
 };
 
 cbuffer cbBufferGlobal : register(b2)
 {	
-	float gTime;
-	float gAmbient;
+	float _Time;
+	float _Ambient;
 };
 
 struct Light
@@ -41,8 +43,8 @@ struct Light
  
 cbuffer cbBufferLights : register(b3)
 {
-	Light 	lights[MAX_LIGHTS];
-	int 	lightCount;
+	Light 	_Lights[MAX_LIGHTS];
+	int 	_LightCount;
 };
 
 // ----------------------------------------------

@@ -192,7 +192,7 @@ public:
     void shutdown() override { LOG("ManyObjectsScene Shutdown!", Color::RED); }
 };
 
-class MaterialTestScene : public IScene
+class SceneMirror : public IScene
 {
     MaterialPtr material;
 
@@ -200,7 +200,7 @@ class MaterialTestScene : public IScene
     Texture2DPtr tex2;
 
 public:
-    MaterialTestScene() : IScene("MaterialTestScene") {}
+    SceneMirror() : IScene("SceneMirror") {}
 
     void init() override
     {
@@ -253,21 +253,23 @@ public:
         // MATERIAL
         material = RESOURCES.createMaterial();
         material->setShader(texShader);
-        material->setTexture( SID("tex0"), tex2);
-        material->setTexture( SID("tex1"), dirt );
-        material->setFloat( SID("mix"), 0.0f);
-        material->setColor( SID("tintColor"), Color::WHITE );
+        material->setTexture("tex0", tex2);
+        material->setTexture("tex1", dirt );
+        material->setFloat("mix", 0.0f);
+        material->setColor("tintColor", Color::WHITE);
 
         auto dirtMaterial = RESOURCES.createMaterial();
         dirtMaterial->setShader(texShader);
-        dirtMaterial->setTexture(SID("tex0"), dirt);
-        dirtMaterial->setColor(SID("tintColor"), Color::WHITE);
+        dirtMaterial->setTexture("tex0", dirt);
+        dirtMaterial->setTexture("tex1", dirt);
+        dirtMaterial->setColor("tintColor", Color::WHITE);
 
         auto customTexMaterial = RESOURCES.createMaterial();
         customTexMaterial->setShader(texShader);
-        customTexMaterial->setTexture(SID("tex0"), renderTex->getColorBuffer());
-        customTexMaterial->setFloat(SID("mix"), 0.0f);
-        customTexMaterial->setColor(SID("tintColor"), Color::WHITE);
+        customTexMaterial->setTexture("tex0", renderTex->getColorBuffer());
+        customTexMaterial->setTexture("tex1", renderTex->getColorBuffer());
+        customTexMaterial->setFloat("mix", 0.0f);
+        customTexMaterial->setColor("tintColor", Color::WHITE);
 
         // GAMEOBJECT
         auto goModel = createGameObject("Test");
@@ -284,7 +286,7 @@ public:
 
         go->addComponent<Components::MeshRenderer>(cube, dirtMaterial);
 
-        LOG("MaterialTestScene initialized!", Color::RED);
+        LOG("SceneMirror initialized!", Color::RED);
     }
 
     void tick(Time::Seconds d) override
@@ -299,7 +301,7 @@ public:
 
     void shutdown() override
     {
-        LOG("MaterialTestScene Shutdown!", Color::RED);
+        LOG("SceneMirror Shutdown!", Color::RED);
     }
 };
 

@@ -29,7 +29,7 @@ namespace Common {
         //----------------------------------------------------------------------
         bool isFull()                   const { return m_index == m_capacity; }
         bool isEmpty()                  const { return m_index == 0; }
-        bool hasEnoughPlace(Size size)  const { return (m_index + size) < m_capacity; }
+        bool hasEnoughPlace(Size size)  const { return (m_index + size) <= m_capacity; }
         Size capacity()                 const { return m_capacity; }
         Size size()                     const { return m_index; }
 
@@ -43,6 +43,17 @@ namespace Common {
 
             memcpy( m_data + m_index, str, len );
             m_index += len;
+        }
+
+        //----------------------------------------------------------------------
+        // Write the given amount of bytes into this buffer. Assert if not enough space.
+        //----------------------------------------------------------------------
+        void write( const char* str, Size bytes )
+        {
+            ASSERT( hasEnoughPlace(bytes) );
+
+            memcpy( m_data + m_index, str, bytes );
+            m_index += bytes;
         }
 
         //----------------------------------------------------------------------
