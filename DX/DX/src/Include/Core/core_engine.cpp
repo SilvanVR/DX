@@ -140,6 +140,9 @@ namespace Core {
 
         // Deinitialize every subsystem
         m_subSystemManager.shutdown();
+
+        // Destroy the window
+        m_window.destroy();
     }
 
     //----------------------------------------------------------------------

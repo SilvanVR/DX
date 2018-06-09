@@ -131,15 +131,28 @@ namespace Graphics { namespace D3D11 { namespace Utility {
     }
 
     //----------------------------------------------------------------------
-    DXGI_FORMAT TranslateDepthFormat( U32 depth )
+    DXGI_FORMAT TranslateDepthFormat( DepthFormat depth )
     {
         switch (depth)
         {
-        case 16: return DXGI_FORMAT_D16_UNORM; break;
-        case 24: return DXGI_FORMAT_D24_UNORM_S8_UINT; break;
-        case 32: return DXGI_FORMAT_D32_FLOAT; break;
+        case DepthFormat::D16:      return DXGI_FORMAT_D16_UNORM; break;
+        case DepthFormat::D24S8:    return DXGI_FORMAT_D24_UNORM_S8_UINT; break;
+        case DepthFormat::D32:      return DXGI_FORMAT_D32_FLOAT; break;
         }
-        ASSERT( false && "Oops! Depth format parameters are invalid." );
+        ASSERT( false && "Oops! Depth format parameter are invalid." );
+        return DXGI_FORMAT_D16_UNORM;
+    }
+
+    //----------------------------------------------------------------------
+    DXGI_FORMAT TranslateDepthFormatSRV( DepthFormat depth )
+    {
+        switch (depth)
+        {
+        case DepthFormat::D16:      return DXGI_FORMAT_R16_TYPELESS; break;
+        case DepthFormat::D24S8:    return DXGI_FORMAT_R24G8_TYPELESS; break;
+        case DepthFormat::D32:      return DXGI_FORMAT_R32_TYPELESS; break;
+        }
+        ASSERT( false && "Oops! Depth format parameter are invalid." );
         return DXGI_FORMAT_D16_UNORM;
     }
 

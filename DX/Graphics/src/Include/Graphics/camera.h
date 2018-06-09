@@ -6,7 +6,7 @@
     date: March 4, 2018
 **********************************************************************/
 
-#include "i_render_texture.hpp"
+#include "i_render_texture.h"
 #include "structs.hpp"
 
 namespace Graphics {

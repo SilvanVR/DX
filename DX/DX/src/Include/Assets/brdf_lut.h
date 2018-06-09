@@ -8,7 +8,7 @@
     2D BRDF loop-up-texture for Physically based rendering.
 **********************************************************************/
 
-#include "Graphics/i_render_texture.hpp"
+#include "Graphics/i_render_texture.h"
 
 namespace Assets { 
 
@@ -20,7 +20,7 @@ namespace Assets {
         ~BRDFLut() = default;
 
         //----------------------------------------------------------------------
-        const RenderTexturePtr& getTexture() const { return m_brdfLut; }
+        const RenderBufferPtr& getTexture() const { return m_brdfLut->getColorBuffer(); }
 
     private:
         RenderTexturePtr m_brdfLut;

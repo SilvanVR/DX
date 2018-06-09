@@ -59,8 +59,8 @@ float linearDepth(float depthSample)
 float4 main(FragmentIn fin) : SV_Target
 {
 	float2 uv = float2( fin.uv.x, fin.uv.y );
-	float4 sceneColor = _MainTex.Sample( _Sampler0, uv );
-	
+	float4 sceneColor = _MainTex.Sample( _Sampler0, uv );	
+		
 	float depth = depthBuffer.Sample( depthBufferSampler, uv ).r;
 
 	float linDepth = linearDepth( depth );

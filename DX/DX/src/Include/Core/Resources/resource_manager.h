@@ -19,7 +19,7 @@
 #include "Graphics/i_material.h"
 #include "Graphics/i_shader.h"
 #include "Graphics/i_texture2d.hpp"
-#include "Graphics/i_render_texture.hpp"
+#include "Graphics/i_render_texture.h"
 #include "Graphics/i_cubemap.hpp"
 #include "Graphics/i_texture2d_array.hpp"
 #include "Core/Audio/audio_clip.h"
@@ -100,6 +100,15 @@ namespace Core { namespace Resources {
         // Creates a new render texture
         //----------------------------------------------------------------------
         RenderTexturePtr createRenderTexture();
+        RenderTexturePtr createRenderTexture(U32 width, U32 height, Graphics::TextureFormat format, bool dynamicScale);
+        RenderTexturePtr createRenderTexture(U32 width, U32 height, Graphics::TextureFormat format, Graphics::SamplingDescription samplingDesc = {1, 0});
+        RenderTexturePtr createRenderTexture(U32 width, U32 height, Graphics::DepthFormat depth, Graphics::TextureFormat format, U32 numBuffers = 1, 
+                                             Graphics::SamplingDescription samplingDesc = {1,0});
+
+        //----------------------------------------------------------------------
+        // Creates a new render buffer
+        //----------------------------------------------------------------------
+        RenderBufferPtr createRenderBuffer();
 
         //----------------------------------------------------------------------
         // Creates a new cubemap
@@ -143,11 +152,12 @@ namespace Core { namespace Resources {
 
 
     private:
-        ArrayList<Graphics::Mesh*>      m_meshes;
-        ArrayList<Graphics::Shader*>    m_shaders;
-        ArrayList<Graphics::Material*>  m_materials;
-        ArrayList<Graphics::Texture*>   m_textures;
-        ArrayList<Audio::AudioClip*>    m_audioClips;
+        ArrayList<Graphics::Mesh*>              m_meshes;
+        ArrayList<Graphics::Shader*>            m_shaders;
+        ArrayList<Graphics::Material*>          m_materials;
+        ArrayList<Graphics::Texture*>           m_textures;
+        ArrayList<Graphics::RenderTexture*>     m_renderTextures;
+        ArrayList<Audio::AudioClip*>            m_audioClips;
 
         ShaderPtr       m_defaultShader;
         ShaderPtr       m_errorShader;
@@ -172,6 +182,7 @@ namespace Core { namespace Resources {
         void _CreateDefaultAssets();
 
         void _DeleteTexture(Graphics::Texture* tex);
+        void _DeleteRenderTexture(Graphics::RenderTexture* tex);
         void _DeleteMesh(Graphics::Mesh* mesh);
         void _DeleteMaterial(Graphics::Material* mat);
         void _DeleteShader(Graphics::Shader* shader);

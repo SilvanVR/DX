@@ -10,8 +10,8 @@
     at the same time.
 **********************************************************************/
 
-#include "i_render_texture.hpp"
-#include "../D3D11.hpp"
+#include "i_render_texture.h"
+#include "D3D11/D3D11.hpp"
 #include "D3D11IBindableTexture.h"
 
 namespace Graphics { namespace D3D11 {
@@ -21,55 +21,20 @@ namespace Graphics { namespace D3D11 {
     {
     public:
         RenderTexture() = default;
-        ~RenderTexture() { _DestroyBufferAndViews(); }
+        ~RenderTexture() {}
 
         //----------------------------------------------------------------------
         // IRenderTexture Interface
         //----------------------------------------------------------------------
-        void create(U32 width, U32 height, U32 depth, TextureFormat format, U32 numBuffers, SamplingDescription sd) override;
-        void clear(Color color, F32 depth, U8 stencil) override;
-        void clearDepthStencil(F32 depth, U8 stencil) override;
         void bindForRendering() override;
-        void recreate(U32 w, U32 h) override;
-        void recreate(U32 w, U32 h, SamplingDescription sd) override;
-        void recreate(Graphics::TextureFormat format) override;
 
         //----------------------------------------------------------------------
         // D3D11ITexture Interface
         //----------------------------------------------------------------------
         void bind(ShaderType shaderType, U32 slot) override;
-        ID3D11Texture2D* getD3D11Texture() override { return m_buffers[m_index].pRenderTexture; }
+        ID3D11Texture2D* getD3D11Texture() override;
 
     private:
-        struct RenderBuffer
-        {
-            ID3D11Texture2D*            pRenderTexture        = nullptr;
-            ID3D11ShaderResourceView*   pRenderTextureView    = nullptr;
-            ID3D11RenderTargetView*     pRenderTargetView     = nullptr;
-
-            ID3D11Texture2D*            pDepthStencilBuffer   = nullptr;
-            ID3D11DepthStencilView*     pDepthStencilView     = nullptr;
-        };
-
-        ArrayList<RenderBuffer> m_buffers;
-
-        // Framebuffer index
-        I32 m_index = 0;
-
-        //----------------------------------------------------------------------
-        // ITexture Interface
-        //----------------------------------------------------------------------
-        void _UpdateSampler() override { SAFE_RELEASE( m_pSampleState ); _CreateSampler( m_anisoLevel, m_filter, m_clampMode ); }
-
-        //----------------------------------------------------------------------
-        void _CreateTexture(I32 index);
-        void _CreateViews(I32 index);
-        void _CreateDepthBuffer(I32 index);
-        void _CreateBufferAndViews();
-        void _DestroyBufferAndViews();
-
-        inline I32 _PreviousBufferIndex();
-
         //----------------------------------------------------------------------
         RenderTexture(const RenderTexture& other)               = delete;
         RenderTexture& operator = (const RenderTexture& other)  = delete;

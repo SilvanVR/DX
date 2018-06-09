@@ -32,7 +32,8 @@ namespace Graphics { namespace D3D11 { namespace Utility {
     DXGI_FORMAT TranslateTextureFormat( TextureFormat format );
 
     //----------------------------------------------------------------------
-    DXGI_FORMAT TranslateDepthFormat( U32 depth );
+    DXGI_FORMAT TranslateDepthFormat( DepthFormat depth );
+    DXGI_FORMAT TranslateDepthFormatSRV( DepthFormat depth );
 
     //----------------------------------------------------------------------
     bool MSAASamplesSupported( DXGI_FORMAT format, U8 numSamples );

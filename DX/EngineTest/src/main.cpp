@@ -21,9 +21,7 @@ public:
     void addedToGameObject(GameObject* go)
     {
         // Create rendertarget for the effect
-        auto rt = RESOURCES.createRenderTexture();
-        rt->create(WINDOW.getWidth(), WINDOW.getHeight(), 0, Graphics::TextureFormat::RGBA32);
-        rt->setDynamicScreenScale(true);
+        auto rt = RESOURCES.createRenderTexture(WINDOW.getWidth(), WINDOW.getHeight(), Graphics::TextureFormat::RGBA32, true);
         rt->setClampMode(Graphics::TextureAddressMode::Clamp);
 
         // Apply post processing
@@ -58,9 +56,7 @@ public:
 
         material = RESOURCES.createMaterial(shader);
 
-        auto rt = RESOURCES.createRenderTexture();
-        rt->create(WINDOW.getWidth(), WINDOW.getHeight(), 0, Graphics::TextureFormat::RGBA32);
-        rt->setDynamicScreenScale(true);
+        auto rt = RESOURCES.createRenderTexture(WINDOW.getWidth(), WINDOW.getHeight(), Graphics::TextureFormat::RGBA32, true);
 
         // Apply post processing
         cmd.blit(PREVIOUS_BUFFER, rt, material);
@@ -82,13 +78,8 @@ public:
     void addedToGameObject(GameObject* go)
     {
         // Create rendertarget
-        auto rt = RESOURCES.createRenderTexture();
-        rt->create(WINDOW.getWidth(), WINDOW.getHeight(), 0, Graphics::TextureFormat::RGBA32);
-        rt->setDynamicScreenScale(true);
-
-        auto rt2 = RESOURCES.createRenderTexture();
-        rt2->create(WINDOW.getWidth(), WINDOW.getHeight(), 0, Graphics::TextureFormat::RGBA32);
-        rt2->setDynamicScreenScale(true);
+        auto rt = RESOURCES.createRenderTexture(WINDOW.getWidth(), WINDOW.getHeight(), Graphics::TextureFormat::RGBA32, true);
+        auto rt2 = RESOURCES.createRenderTexture(WINDOW.getWidth(), WINDOW.getHeight(), Graphics::TextureFormat::RGBA32, true);
 
         horizontalBlur = ASSETS.getMaterial("/materials/post processing/gaussian_blur_horizontal.material");
         verticalBlur = ASSETS.getMaterial("/materials/post processing/gaussian_blur_vertical.material");
@@ -119,10 +110,8 @@ public:
         material = RESOURCES.createMaterial(shader);
         material->setTexture("depthBuffer", cam->getRenderTarget()->getDepthBuffer());
 
-        // Tell the engine to render a fullscreenquard into a new render-texture with the shader above
-        auto rt = RESOURCES.createRenderTexture();
-        rt->create(WINDOW.getWidth(), WINDOW.getHeight(), 0, Graphics::TextureFormat::RGBA32);
-        rt->setDynamicScreenScale(true);
+        // Create rendertarget
+        auto rt = RESOURCES.createRenderTexture(WINDOW.getWidth(), WINDOW.getHeight(), Graphics::TextureFormat::RGBA32, true);
 
         // Apply post processing
         cmd.blit(PREVIOUS_BUFFER, rt, material);
@@ -155,15 +144,17 @@ public:
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA);
         //go->addComponent<ColorGrading>();
         //go->addComponent<GreyScale>();
-        go->addComponent<Fog>();
+        //go->addComponent<Fog>();
 
-        //cam->getViewport().width = 0.5f;
-        //auto go2 = createGameObject("Camera2");
-        //auto cam2 = go2->addComponent<Components::Camera>();
-        //cam2->getViewport().width = 0.5f;
-        //cam2->getViewport().topLeftX = 0.5f;
-        //go2->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -4);
+        cam->getViewport().width = 0.5f;
+        auto go2 = createGameObject("Camera2");
+        auto cam2 = go2->addComponent<Components::Camera>();
+        cam2->getViewport().width = 0.5f;
+        cam2->getViewport().topLeftX = 0.5f;
+        go2->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, 0);
         //go2->addComponent<GaussianBlur>();
+        go2->addComponent<Fog>();
+        go2->getTransform()->setParent(go->getTransform(), false);
 
         createGameObject("Grid")->addComponent<GridGeneration>(20);
 

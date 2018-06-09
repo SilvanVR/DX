@@ -14,6 +14,7 @@
 #include "Resources/D3D11RenderTexture.h"
 #include "Resources/D3D11Cubemap.h"
 #include "Resources/D3D11Texture2DArray.h"
+#include "Resources/D3D11RenderBuffer.h"
 #include "D3D11ConstantBufferManager.h"
 #include "Lighting/directional_light.h"
 #include "Lighting/point_light.h"
@@ -232,6 +233,7 @@ namespace Graphics {
     IRenderTexture*     D3D11Renderer::createRenderTexture()    { return new D3D11::RenderTexture(); }
     ICubemap*           D3D11Renderer::createCubemap()          { return new D3D11::Cubemap(); }
     ITexture2DArray*    D3D11Renderer::createTexture2DArray()   { return new D3D11::Texture2DArray(); }
+    IRenderBuffer*      D3D11Renderer::createRenderBuffer()     { return new D3D11::RenderBuffer(); }
 
     //----------------------------------------------------------------------
     bool D3D11Renderer::setGlobalFloat( StringID name, F32 value )
@@ -616,19 +618,20 @@ namespace Graphics {
         U32 height = U32( cubemap->getHeight() * std::pow( 0.5, dstMip ) );
 
         // Create temporary render texture
-        auto renderTexture = createRenderTexture();
-        renderTexture->create( width, height, 0, cubemap->getFormat(), 1 );
-        renderTexture->bindForRendering();
+        auto colorBuffer = createRenderBuffer();
+        colorBuffer->create( width, height, cubemap->getFormat() );
+
+        colorBuffer->bindForRendering();
 
         // Setup viewport matching the render texture
-        D3D11_VIEWPORT vp = { 0, 0, (F32)renderTexture->getWidth(), (F32)renderTexture->getHeight(), 0, 1 };
+        D3D11_VIEWPORT vp = { 0, 0, (F32)colorBuffer->getWidth(), (F32)colorBuffer->getHeight(), 0, 1 };
         g_pImmediateContext->RSSetViewports( 1, &vp );
 
         // Render into render texture for each face and copy the result into the cubemaps face
         auto projection = DirectX::XMMatrixPerspectiveFovLH( DirectX::XMConvertToRadians( 90.0f ), 1.0f, 0.1f, 10.0f );
         for (I32 face = 0; face < 6; face++)
         {
-            renderTexture->clear( Color::BLACK, 1, 0 );
+            colorBuffer->clearColor( Color::BLACK );
 
             auto view = DirectX::XMMatrixLookToLH( { 0, 0, 0, 0 }, directions[face], ups[face] );
             auto viewProj = view * projection;
@@ -637,10 +640,10 @@ namespace Graphics {
             CAMERA_BUFFER.flush();
 
             _DrawMesh( s_cubeMesh, material, DirectX::XMMatrixIdentity(), 0 );
-            _CopyTexture( renderTexture, 0, 0, cubemap, face, dstMip );
+            _CopyTexture( colorBuffer, 0, 0, cubemap, face, dstMip );
         }
 
-        SAFE_DELETE( renderTexture );
+        SAFE_DELETE( colorBuffer );
     }
 
     //----------------------------------------------------------------------
@@ -660,7 +663,7 @@ namespace Graphics {
         }
 
         // Set texture in material
-        material->setTexture( POST_PROCESS_INPUT_NAME, input );
+        material->setTexture( POST_PROCESS_INPUT_NAME, input->getColorBuffer() );
 
         // Set the destination as the new rendertarget
         renderContext.renderTarget = dst;

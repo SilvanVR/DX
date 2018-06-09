@@ -13,7 +13,7 @@
 #include "i_mesh.h"
 #include "i_material.h"
 #include "i_cubemap.hpp"
-#include "i_render_texture.hpp"
+#include "i_render_texture.h"
 #include "Lighting/light.h"
 #include "camera.h"
 

@@ -96,6 +96,12 @@
     <ClCompile Include="src\Include\Graphics\camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Include\Graphics\D3D11\Resources\D3D11RenderBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Include\Graphics\i_render_texture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\stdafx.h">
@@ -176,9 +182,6 @@
     <ClInclude Include="src\Include\Graphics\i_texture2d.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Include\Graphics\i_render_texture.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\Include\Graphics\D3D11\Resources\D3D11Texture2D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -228,6 +231,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Include\Graphics\shader_resources.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Include\Graphics\i_renderbuffer.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Include\Graphics\D3D11\Resources\D3D11RenderBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Include\Graphics\i_render_texture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

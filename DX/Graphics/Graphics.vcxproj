@@ -165,6 +165,7 @@
     <ClCompile Include="src\Include\Graphics\D3D11\Resources\D3D11IBindableTexture.cpp" />
     <ClCompile Include="src\Include\Graphics\D3D11\Resources\D3D11Material.cpp" />
     <ClCompile Include="src\Include\Graphics\D3D11\Resources\D3D11Mesh.cpp" />
+    <ClCompile Include="src\Include\Graphics\D3D11\Resources\D3D11RenderBuffer.cpp" />
     <ClCompile Include="src\Include\Graphics\D3D11\Resources\D3D11RenderTexture.cpp" />
     <ClCompile Include="src\Include\Graphics\D3D11\Resources\D3D11Shader.cpp" />
     <ClCompile Include="src\Include\Graphics\D3D11\Resources\D3D11Texture2D.cpp" />
@@ -172,6 +173,7 @@
     <ClCompile Include="src\Include\Graphics\i_material.cpp" />
     <ClCompile Include="src\Include\Graphics\i_mesh.cpp" />
     <ClCompile Include="src\Include\Graphics\i_renderer.cpp" />
+    <ClCompile Include="src\Include\Graphics\i_render_texture.cpp" />
     <ClCompile Include="src\Include\Graphics\i_shader.cpp" />
     <ClCompile Include="src\Include\Graphics\Utils\utils.cpp" />
     <ClCompile Include="src\stdafx.cpp">
@@ -197,6 +199,7 @@
     <ClInclude Include="src\Include\Graphics\D3D11\Resources\D3D11Cubemap.h" />
     <ClInclude Include="src\Include\Graphics\D3D11\Resources\D3D11Material.h" />
     <ClInclude Include="src\Include\Graphics\D3D11\Resources\D3D11Mesh.h" />
+    <ClInclude Include="src\Include\Graphics\D3D11\Resources\D3D11RenderBuffer.h" />
     <ClInclude Include="src\Include\Graphics\D3D11\Resources\D3D11RenderTexture.h" />
     <ClInclude Include="src\Include\Graphics\D3D11\Resources\D3D11Shader.h" />
     <ClInclude Include="src\Include\Graphics\D3D11\Resources\D3D11IBindableTexture.h" />
@@ -211,9 +214,10 @@
     <ClInclude Include="src\Include\Graphics\D3D11\Pipeline\Buffers\D3D11IBuffer.h" />
     <ClInclude Include="src\Include\Graphics\D3D11\Pipeline\Shaders\D3D11PixelShader.h" />
     <ClInclude Include="src\Include\Graphics\gpu_commands.hpp" />
+    <ClInclude Include="src\Include\Graphics\i_renderbuffer.hpp" />
     <ClInclude Include="src\Include\Graphics\i_renderer.h" />
+    <ClInclude Include="src\Include\Graphics\i_render_texture.h" />
     <ClInclude Include="src\Include\Graphics\i_shader.h" />
-    <ClInclude Include="src\Include\Graphics\i_render_texture.hpp" />
     <ClInclude Include="src\Include\Graphics\i_texture.h" />
     <ClInclude Include="src\Include\Graphics\i_texture2d.hpp" />
     <ClInclude Include="src\Include\Graphics\i_texture2d_array.hpp" />

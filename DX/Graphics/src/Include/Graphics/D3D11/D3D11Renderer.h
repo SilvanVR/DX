@@ -44,6 +44,7 @@ namespace Graphics {
         IRenderTexture*     createRenderTexture() override;
         ICubemap*           createCubemap() override;
         ITexture2DArray*    createTexture2DArray() override;
+        IRenderBuffer*      createRenderBuffer() override;
 
         bool setGlobalFloat(StringID name, F32 value) override;
         bool setGlobalInt(StringID name, I32 value) override;

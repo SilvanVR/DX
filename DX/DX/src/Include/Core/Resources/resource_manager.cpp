@@ -150,9 +150,53 @@ namespace Core { namespace Resources {
     {
         auto texture = Locator::getRenderer().createRenderTexture();
 
-        m_textures.push_back( texture );
+        m_renderTextures.push_back( texture );
 
-        return RenderTexturePtr( texture, BIND_THIS_FUNC_1_ARGS( &ResourceManager::_DeleteTexture ) );
+        return RenderTexturePtr( texture, BIND_THIS_FUNC_1_ARGS( &ResourceManager::_DeleteRenderTexture ) );
+    }
+
+    //----------------------------------------------------------------------
+    RenderTexturePtr ResourceManager::createRenderTexture( U32 width, U32 height, Graphics::TextureFormat format, Graphics::SamplingDescription samplingDesc )
+    {
+        auto colorBuffer = createRenderBuffer();
+        colorBuffer->create( width, height, format, samplingDesc );
+
+        auto renderTexture = createRenderTexture();
+        renderTexture->create( colorBuffer );
+
+        return renderTexture;
+    }
+
+    //----------------------------------------------------------------------
+    RenderTexturePtr ResourceManager::createRenderTexture( U32 width, U32 height, Graphics::TextureFormat format, bool dynamicScale )
+    {
+        auto renderTexture = createRenderTexture( width, height, format, {1, 0} );
+        renderTexture->setDynamicScreenScale( dynamicScale );
+
+        return renderTexture;
+    }
+
+    //----------------------------------------------------------------------
+    RenderTexturePtr ResourceManager::createRenderTexture( U32 width, U32 height, Graphics::DepthFormat depth, Graphics::TextureFormat format, 
+                                                           U32 numBuffers, Graphics::SamplingDescription samplingDesc )
+    {
+        ArrayList<RenderBufferPtr> colorBuffers;
+        ArrayList<RenderBufferPtr> depthBuffers;
+        for (U32 i = 0; i < numBuffers; i++)
+        {
+            auto colorBuffer = createRenderBuffer();
+            colorBuffer->create( width, height, format, samplingDesc );
+            colorBuffers.push_back( colorBuffer );
+
+            auto depthBuffer = createRenderBuffer();
+            depthBuffer->create( width, height, depth, samplingDesc );
+            depthBuffers.push_back( depthBuffer );
+        }
+
+        auto renderTexture = createRenderTexture();
+        renderTexture->create( colorBuffers, depthBuffers );
+
+        return renderTexture;
     }
 
     //----------------------------------------------------------------------
@@ -173,6 +217,16 @@ namespace Core { namespace Resources {
         m_audioClips.push_back( audioClip );
 
         return AudioClipPtr( audioClip, BIND_THIS_FUNC_1_ARGS( &ResourceManager::_DeleteAudioClip ) );
+    }
+
+    //----------------------------------------------------------------------
+    RenderBufferPtr ResourceManager::createRenderBuffer()
+    {
+        auto texture = Locator::getRenderer().createRenderBuffer();
+
+        m_textures.push_back( texture );
+
+        return RenderBufferPtr( texture, BIND_THIS_FUNC_1_ARGS( &ResourceManager::_DeleteTexture ) );
     }
 
     //**********************************************************************
@@ -206,6 +260,16 @@ namespace Core { namespace Resources {
         LOG( "DELETING TEXTURE", Color::RED );
 #endif
         m_textures.erase( std::remove( m_textures.begin(), m_textures.end(), tex ) );
+        SAFE_DELETE( tex );
+    }
+
+    //----------------------------------------------------------------------
+    void ResourceManager::_DeleteRenderTexture( Graphics::RenderTexture* tex )
+    {
+#if PRINT_DELETES
+        LOG( "DELETING TEXTURE", Color::RED );
+#endif
+        m_renderTextures.erase( std::remove( m_renderTextures.begin(), m_renderTextures.end(), tex ) );
         SAFE_DELETE( tex );
     }
 
@@ -333,7 +397,7 @@ namespace Core { namespace Resources {
     void ResourceManager::_OnWindowSizeChanged()
     {
         auto& window = Locator::getWindow();
-        for (auto& texture : m_textures)
+        for (auto& texture : m_renderTextures)
         {
             auto renderTexture = dynamic_cast<Graphics::IRenderTexture*>( texture );
             if (renderTexture)

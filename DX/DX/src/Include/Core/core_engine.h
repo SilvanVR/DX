@@ -44,7 +44,7 @@ namespace Core {
         //----------------------------------------------------------------------
         // Stops the core game loop.
         //----------------------------------------------------------------------
-        void terminate() { m_isRunning = false; m_window.destroy(); };
+        void terminate() { m_isRunning = false; }
 
         //----------------------------------------------------------------------
         virtual void init() = 0;

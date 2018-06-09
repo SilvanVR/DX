@@ -9,7 +9,7 @@
 **********************************************************************/
 
 #include "Common/i_subsystem.hpp"
-#include "i_render_texture.hpp"
+#include "i_render_texture.h"
 #include "OS/Window/window.h"
 #include "structs.hpp"
 
@@ -18,6 +18,7 @@ namespace Graphics {
     //----------------------------------------------------------------------
     class ITexture2DArray;
     class IRenderTexture;
+    class IRenderBuffer;
     class CommandBuffer;
     class ITexture2D;
     class IMaterial;
@@ -75,6 +76,7 @@ namespace Graphics {
         virtual IRenderTexture*     createRenderTexture() = 0;
         virtual ICubemap*           createCubemap() = 0;
         virtual ITexture2DArray*    createTexture2DArray() = 0;
+        virtual IRenderBuffer*      createRenderBuffer() = 0;
 
         //----------------------------------------------------------------------
         // Update the global buffer.

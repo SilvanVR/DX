@@ -16,7 +16,7 @@ namespace Components {
 
     #define BUFFER_FORMAT_LDR       Graphics::TextureFormat::RGBA32
     #define BUFFER_FORMAT_HDR       Graphics::TextureFormat::RGBAFloat
-    #define DEPTH_STENCIL_FORMAT    24
+    #define DEPTH_STENCIL_FORMAT    Graphics::DepthFormat::D32
 
     //----------------------------------------------------------------------
     Camera::Camera( F32 fovAngleYInDegree, F32 zNear, F32 zFar, bool hdr )
@@ -36,8 +36,7 @@ namespace Components {
     void Camera::_CreateRenderTarget()
     {
         auto& window = Locator::getWindow();
-        auto rt = RESOURCES.createRenderTexture();
-        rt->create( window.getWidth(), window.getHeight(), DEPTH_STENCIL_FORMAT, m_hdr ? BUFFER_FORMAT_HDR : BUFFER_FORMAT_LDR, 1, { 1, 0 } );
+        auto rt = RESOURCES.createRenderTexture( window.getWidth(), window.getHeight(), DEPTH_STENCIL_FORMAT, m_hdr ? BUFFER_FORMAT_HDR : BUFFER_FORMAT_LDR, 1, { 1, 0 } );
         rt->setDynamicScreenScale( true, 1.0f );
 
         setRenderTarget( rt, true );
