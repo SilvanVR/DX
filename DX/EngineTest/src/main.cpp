@@ -20,26 +20,21 @@ public:
 
     void addedToGameObject(GameObject* go)
     {
-        auto cam = go->getComponent<Components::Camera>();
-        auto shader = ASSETS.getShader("/shaders/post processing/color_grading.shader");
-
-        material = RESOURCES.createMaterial(shader);
-        material->setColor("color", Color::RED);
-
-        //material->setTexture("depthBuffer", ??); // How to set depth-buffer?
-        material->setTexture("sceneBuffer", cam->getRenderTarget());
-
-        // Tell the engine to render a fullscreenquard into a new render-texture with the shader above
+        // Create rendertarget for the effect
         auto rt = RESOURCES.createRenderTexture();
         rt->create(WINDOW.getWidth(), WINDOW.getHeight(), 0, Graphics::TextureFormat::RGBA32);
         rt->setDynamicScreenScale(true);
         rt->setClampMode(Graphics::TextureAddressMode::Clamp);
 
         // Apply post processing
+        auto shader = ASSETS.getShader("/shaders/post processing/color_grading.shader");
+        material = RESOURCES.createMaterial(shader);
+
         cmd.blit(PREVIOUS_BUFFER, rt, material);
-        cmd.blit(rt, SCREEN_BUFFER, material);
+        //cmd.blit(rt, SCREEN_BUFFER, material);
 
         // Attach command buffer to camera
+        auto cam = go->getComponent<Components::Camera>();
         cam->addCommandBuffer(&cmd);
     }
 
@@ -108,6 +103,39 @@ public:
     }
 };
 
+class Fog : public Components::IComponent
+{
+    MaterialPtr material;
+    Graphics::CommandBuffer cmd;
+
+public:
+    Fog() {}
+
+    void addedToGameObject(GameObject* go)
+    {
+        auto cam = go->getComponent<Components::Camera>();
+        auto shader = ASSETS.getShader("/shaders/post processing/fog.shader");
+
+        material = RESOURCES.createMaterial(shader);
+        material->setTexture("depthBuffer", cam->getRenderTarget()->getDepthBuffer());
+
+        // Tell the engine to render a fullscreenquard into a new render-texture with the shader above
+        auto rt = RESOURCES.createRenderTexture();
+        rt->create(WINDOW.getWidth(), WINDOW.getHeight(), 0, Graphics::TextureFormat::RGBA32);
+        rt->setDynamicScreenScale(true);
+
+        // Apply post processing
+        cmd.blit(PREVIOUS_BUFFER, rt, material);
+
+        // Attach command buffer to camera
+        cam->addCommandBuffer(&cmd);
+    }
+
+    void tick(Time::Seconds delta) override
+    {
+    }
+};
+
 //----------------------------------------------------------------------
 // SCENES
 //----------------------------------------------------------------------
@@ -125,8 +153,9 @@ public:
         cam->setHDRRendering(true);
         go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -10);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA);
-        go->addComponent<ColorGrading>();
+        //go->addComponent<ColorGrading>();
         //go->addComponent<GreyScale>();
+        go->addComponent<Fog>();
 
         //cam->getViewport().width = 0.5f;
         //auto go2 = createGameObject("Camera2");

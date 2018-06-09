@@ -27,6 +27,13 @@ namespace Graphics
         const SamplingDescription&  getSamplingDescription()    const           { return m_samplingDescription; }
         bool                        dynamicScales()             const           { return m_dynamicScale; }
         F32                         getDynamicScaleFactor()     const           { return m_scaleFactor; }
+        bool                        hasDepthBuffer()            const           { return m_depthBuffer != nullptr; }
+
+        //----------------------------------------------------------------------
+        // @Return:
+        //  Depth-Buffer if present, otherwise nullptr.
+        //----------------------------------------------------------------------
+        const TexturePtr& getDepthBuffer() const { return m_depthBuffer; }
 
         //----------------------------------------------------------------------
         // @Params:
@@ -52,9 +59,9 @@ namespace Graphics
         //  "height": Height in pixels.
         //  "depth": Bit-depth of the depth-buffer. Allowed is only 0, 16, 24, 32
         //  "format": The texture format.
-        //  "numBuffers": Amount of buffers to create. This should be greater than one 
+        //  "numBuffers": Amount of buffers to create. This should be greater than one if you plan 
+        //                to use the rt as a rendertarget and in a material at the same time(e.g.as a mirror)
         //  "samplingDesc": Whether the buffer will be multisampled or not.
-        //  if you plan to use the rt as a rendertarget and in a material at the same time (e.g. as a mirror)
         //----------------------------------------------------------------------
         virtual void create(U32 width, U32 height, U32 depth, TextureFormat format, U32 numBuffers = 1, SamplingDescription samplingDesc = {}) = 0;
 
@@ -75,6 +82,7 @@ namespace Graphics
         SamplingDescription m_samplingDescription;
         F32                 m_scaleFactor = 1.0f;
         bool                m_dynamicScale = false; // If true it will be scaled automatically when the window resizes.
+        TexturePtr          m_depthBuffer = nullptr;
 
     private:
         //----------------------------------------------------------------------

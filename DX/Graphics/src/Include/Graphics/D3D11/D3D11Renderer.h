@@ -60,6 +60,7 @@ namespace Graphics {
         inline void _DrawMesh(IMesh* mesh, IMaterial* mat, const DirectX::XMMATRIX& model, U32 subMeshIndex);
         inline void _CopyTexture(ITexture* srcTex, I32 srcElement, I32 srcMip, ITexture* dstTex, I32 dstElement, I32 dstMip);
         inline void _RenderCubemap(ICubemap* cubemap, IMaterial* material, U32 dstMip);
+        inline void _Blit(RenderTexturePtr src, RenderTexturePtr dst, IMaterial* material);
         inline void _DrawFullScreenQuad(IMaterial* mat, const D3D11_VIEWPORT& viewport);
 
         //----------------------------------------------------------------------

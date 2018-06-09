@@ -174,7 +174,7 @@ namespace Graphics {
     //----------------------------------------------------------------------
     void IMaterial::setTexture( StringID name, const TexturePtr& texture )
     { 
-        ASSERT( texture && "It's not allowed to a a null texture to a material" );
+        ASSERT( texture && "It's not allowed to set a null texture in a material" );
         if ( not m_shader->getShaderResource( name ) )
         {
             LOG_WARN_RENDERING( "Material::setTexture(): Name '" + name.toString() + "' does not exist in shader '" + m_shader->getName() + "'" );

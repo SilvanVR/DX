@@ -179,47 +179,7 @@ namespace Graphics {
                 case GPUCommand::BLIT:
                 {
                     auto& cmd = *reinterpret_cast<GPUC_Blit*>( command.get() );
-
-                    if (renderContext.renderTarget == nullptr && cmd.dst == nullptr)
-                        LOG_WARN_RENDERING( "D3D11[Blit]: Target texture was previously screen, so the content will probably be overriden. This can"
-                                            " occur if two blits in succession with both target = nullptr (to screen) were recored." );
-
-                    // Use the src texture as the input IF not null. Otherwise use the current bound render target.
-                    auto input = cmd.src ? cmd.src : renderContext.renderTarget;
-                    if (input == nullptr)
-                    {
-                        LOG_WARN_RENDERING( "D3D11[Blit]: Previous render target was screen, which can't be used as input! This happens when a blit-command "
-                                            "with src=nullptr (to screen) was recorded but a previous blit had dst=nulltr (to screen)" );
-                        break;
-                    }
-
-                    // Set texture in material
-                    cmd.material->setTexture( POST_PROCESS_INPUT_NAME, input );
-
-                    // Set the destination as the new rendertarget
-                    renderContext.renderTarget = cmd.dst;
-
-                    D3D11_VIEWPORT vp = {};
-                    if (cmd.dst == nullptr) // If destination is nullptr, this means blit directly to screen
-                    {
-                        // Set viewport (Translate to pixel coordinates first)
-                        auto viewport = renderContext.camera->getViewport();
-                        vp.TopLeftX = viewport.topLeftX * m_window->getWidth();
-                        vp.TopLeftY = viewport.topLeftY * m_window->getHeight();
-                        vp.Width    = viewport.width    * m_window->getWidth();
-                        vp.Height   = viewport.height   * m_window->getHeight();
-                        vp.MaxDepth = 1.0f;
-
-                        m_pSwapchain->bindForRendering();
-                    }
-                    else
-                    {
-                        ID3D11ShaderResourceView* resourceViews[16] = {};
-                        g_pImmediateContext->PSSetShaderResources( 0, 16, resourceViews );
-                        vp = { 0, 0, (F32)renderContext.renderTarget->getWidth(), (F32)renderContext.renderTarget->getHeight(), 0, 1 };
-                        renderContext.renderTarget->bindForRendering();
-                    }
-                    _DrawFullScreenQuad( cmd.material.get(), vp );
+                    _Blit( cmd.src, cmd.dst, cmd.material.get() );
                     break;
                 }
                 default:
@@ -681,6 +641,51 @@ namespace Graphics {
         }
 
         SAFE_DELETE( renderTexture );
+    }
+
+    //----------------------------------------------------------------------
+    void D3D11Renderer::_Blit( RenderTexturePtr src, RenderTexturePtr dst, IMaterial* material )
+    {
+        if (renderContext.renderTarget == SCREEN_BUFFER && dst == SCREEN_BUFFER)
+            LOG_WARN_RENDERING( "D3D11[Blit]: Target texture was previously screen, so the content will probably be overriden. This can"
+                                " occur if two blits in succession with both target = nullptr (to screen) were recorded." );
+
+        // Use the src texture as the input IF not null. Otherwise use the current bound render target.
+        auto input = src ? src : renderContext.renderTarget;
+        if (input == SCREEN_BUFFER)
+        {
+            LOG_WARN_RENDERING( "D3D11[Blit]: Previous render target was screen, which can't be used as input! This happens when a blit-command "
+                                "with src=nullptr (to screen) was recorded but a previous blit had dst=nullptr (to screen)" );
+            return;
+        }
+
+        // Set texture in material
+        material->setTexture( POST_PROCESS_INPUT_NAME, input );
+
+        // Set the destination as the new rendertarget
+        renderContext.renderTarget = dst;
+
+        D3D11_VIEWPORT vp = {};
+        if (dst == SCREEN_BUFFER)
+        {
+            // Set viewport (Translate to pixel coordinates first)
+            auto viewport = renderContext.camera->getViewport();
+            vp.TopLeftX = viewport.topLeftX * m_window->getWidth();
+            vp.TopLeftY = viewport.topLeftY * m_window->getHeight();
+            vp.Width    = viewport.width    * m_window->getWidth();
+            vp.Height   = viewport.height   * m_window->getHeight();
+            vp.MaxDepth = 1.0f;
+
+            m_pSwapchain->bindForRendering();
+        }
+        else
+        {
+            ID3D11ShaderResourceView* resourceViews[16] = {};
+            g_pImmediateContext->PSSetShaderResources( 0, 16, resourceViews );
+            vp = { 0, 0, (F32)renderContext.renderTarget->getWidth(), (F32)renderContext.renderTarget->getHeight(), 0, 1 };
+            dst->bindForRendering();
+        }
+        _DrawFullScreenQuad( material, vp );
     }
 
     //----------------------------------------------------------------------

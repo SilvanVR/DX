@@ -1,9 +1,9 @@
-// ----------------------------------------------
+//----------------------------------------------
 #Fill			Solid
 #Cull 			Front
 #ZWrite 		Off
 
-// ----------------------------------------------
+//----------------------------------------------
 #shader vertex
 
 struct VertexOut
@@ -23,13 +23,8 @@ VertexOut main( uint vI : SV_VERTEXID )
     return OUT;
 }
 
-// ----------------------------------------------
+//----------------------------------------------
 #shader fragment
-
-cbuffer cbPerMaterial
-{
-	float4 color;
-};
 
 struct FragmentIn
 {
@@ -44,5 +39,10 @@ float4 main(FragmentIn fin) : SV_Target
 {
 	float2 uv = float2(fin.uv.x, fin.uv.y);
 	float4 c = _MainTex.Sample(_Sampler0, uv);
+
 	return float4(c.g, c.r-0.2, c.b, c.a);
 }
+
+
+
+
