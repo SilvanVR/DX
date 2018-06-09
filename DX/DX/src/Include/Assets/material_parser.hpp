@@ -157,7 +157,7 @@ namespace Assets {
                 case DataType::Double:
                 case DataType::Texture1D:
                 case DataType::Texture3D:
-                    LOG_WARN( "MaterialParser: Material type of parameter '" + propName + "' is not supported" ); break;
+                    LOG_WARN( "MaterialParser: Material type of parameter '" + propName + "' is not supported yet." ); break;
                 default:
                     LOG_WARN( "MaterialParser: Parameter '" + propName + "' does not exist in shader '" + material->getShader()->getName() + "'"
                               " for material '" + filePath.toString() + "'");

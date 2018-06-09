@@ -39,6 +39,8 @@ namespace Graphics {
     static const StringID CAM_POS_NAME              = SID( "_CameraPos" );
     static const StringID POST_PROCESS_INPUT_NAME   = SID( "_MainTex" );
     static const StringID VIEW_PROJ_NAME            = SID( "_ViewProj" );
+    static const StringID CAM_ZNEAR_NAME            = SID( "_zNear" );
+    static const StringID CAM_ZFAR_NAME             = SID( "_zFar" );
 
     //----------------------------------------------------------------------
     struct RenderContext
@@ -429,7 +431,15 @@ namespace Graphics {
         auto modelMatrix = camera->getModelMatrix();
         auto translation = modelMatrix.r[3];
         if ( not CAMERA_BUFFER.update( camPosName, &translation ) )
-            LOG_ERROR_RENDERING( "D3D11: Could not update the camera buffer. Fix this!" );
+            LOG_ERROR_RENDERING( "D3D11: Could not update the camera buffer [position]. Fix this!" );
+
+        auto zFar = camera->getZFar();
+        if ( not CAMERA_BUFFER.update( CAM_ZFAR_NAME, &zFar ) )
+            LOG_ERROR_RENDERING( "D3D11: Could not update the camera buffer [zFar]. Fix this!" );
+
+        auto zNear = camera->getZNear();
+        if ( not CAMERA_BUFFER.update( CAM_ZNEAR_NAME, &zNear) )
+            LOG_ERROR_RENDERING( "D3D11: Could not update the camera buffer [zNear]. Fix this!" );
 
         CAMERA_BUFFER.flush();
     }

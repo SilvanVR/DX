@@ -105,16 +105,18 @@ public:
     void addedToGameObject(GameObject* go)
     {
         auto cam = go->getComponent<Components::Camera>();
-        auto shader = ASSETS.getShader("/shaders/post processing/fog.shader");
 
-        material = RESOURCES.createMaterial(shader);
-        material->setTexture("depthBuffer", cam->getRenderTarget()->getDepthBuffer());
+        auto shader = ASSETS.getShader("/shaders/post processing/fog.shader");
+        shader->setReloadCallback([=](Graphics::Shader* shader){
+            shader->setTexture("depthBuffer", cam->getRenderTarget()->getDepthBuffer());
+        });
+        shader->setTexture("depthBuffer", cam->getRenderTarget()->getDepthBuffer());
 
         // Create rendertarget
         auto rt = RESOURCES.createRenderTexture(WINDOW.getWidth(), WINDOW.getHeight(), Graphics::TextureFormat::RGBA32, true);
 
         // Apply post processing
-        cmd.blit(PREVIOUS_BUFFER, rt, material);
+        cmd.blit(PREVIOUS_BUFFER, rt, ASSETS.getMaterial("/materials/post processing/fog.material"));
 
         // Attach command buffer to camera
         cam->addCommandBuffer(&cmd);
@@ -158,10 +160,14 @@ public:
 
         createGameObject("Grid")->addComponent<GridGeneration>(20);
 
-        auto mesh = ASSETS.getMesh("/models/sphere.obj");
+        auto mesh = ASSETS.getMesh("/models/monkey.obj");
 
         auto obj = createGameObject("Obj");
         obj->addComponent<Components::MeshRenderer>(mesh, ASSETS.getMaterial("/materials/texture.material"));
+
+        auto obj2 = createGameObject("Obj");
+        obj2->addComponent<Components::MeshRenderer>(mesh, ASSETS.getMaterial("/materials/texture.material"));
+        obj2->getTransform()->position.z = 100.0f;
 
         LOG("TestScene initialized!", Color::RED);
     }

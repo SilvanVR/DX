@@ -36,7 +36,7 @@ struct FragmentIn
 
 cbuffer perMaterial
 {
-	float3 fogColor;
+	float4 fogColor;
 	float density;
 	float gradient;
 }
@@ -58,25 +58,16 @@ float linearDepth(float depthSample)
 //----------------------------------------------
 float4 main(FragmentIn fin) : SV_Target
 {
-	float2 uv = float2( fin.uv.x, fin.uv.y );
-	float4 sceneColor = _MainTex.Sample( _Sampler0, uv );	
+	float4 sceneColor = _MainTex.Sample( _Sampler0, fin.uv );	
 		
-	float depth = depthBuffer.Sample( depthBufferSampler, uv ).r;
-
+	float depth = depthBuffer.Sample( depthBufferSampler, fin.uv ).r;
 	float linDepth = linearDepth( depth );
-
-	float d = 1.0f;
-	float g = 1.0f;
-	float3 fogCol = float3(1,1,1);
 	
 	float visibility = 1.0;
-	visibility = clamp(exp(-pow(linDepth*d, g)), 0.0, 1.0);
+	visibility = clamp( exp( -pow( linDepth*density, gradient ) ), 0.0, 1.0 );
 	
-	
-	float4 result = lerp( float4(fogCol, 1), sceneColor, visibility );
-	//return result;
-	
-	return float4( depth, depth, depth, sceneColor.a );
+	return lerp( fogColor, sceneColor, visibility );	
+	return float4( linDepth, linDepth, linDepth, sceneColor.a );
 }
 
 
