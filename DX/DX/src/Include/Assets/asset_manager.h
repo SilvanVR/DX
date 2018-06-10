@@ -100,7 +100,8 @@ namespace Assets {
         // Creates a new mesh object. Will be loaded only if not already in memory.
         // @Params:
         //  "path": Path to the mesh file.
-        //  "materials": If not null and the mesh-file has materials, information about it will be stored in the given struct
+        //  "materials": If not null and the mesh-file has materials, information about it will be stored in the given struct.
+        //               Note that this always loads the mesh from the given file regardless whether the mesh already exists or not.
         //----------------------------------------------------------------------
         MeshPtr getMesh(const OS::Path& path, MeshMaterialInfo* materials = nullptr);
 

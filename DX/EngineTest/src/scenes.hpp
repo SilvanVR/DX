@@ -999,7 +999,7 @@ public:
         auto mesh = ASSETS.getMesh( "/models/sponza/sponza.obj", &materialImportInfo );
 
         auto obj = createGameObject("Obj");
-        auto mr = obj->addComponent<Components::MeshRenderer>(mesh, ASSETS.getMaterial("/materials/pbr/gold.pbrmaterial"));
+        auto mr = obj->addComponent<Components::MeshRenderer>(mesh, nullptr);
         //obj->addComponent<VisualizeNormals>(1.0f, Color::BLUE);
         //obj->addComponent<VisualizeTangents>(1.0f, Color::RED);
         obj->getTransform()->scale = { 0.05f };

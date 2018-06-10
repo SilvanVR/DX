@@ -260,14 +260,14 @@ namespace Assets {
     //----------------------------------------------------------------------
     MeshPtr AssetManager::getMesh( const OS::Path& filePath, MeshMaterialInfo* materials )
     {
-        // Check if mesh was already loaded
+        // Check if mesh was already loaded (only if "materials" is null)
         StringID pathAsID = SID( StringUtils::toLower( filePath.toString() ).c_str() );
-        if ( m_meshCache.find( pathAsID ) != m_meshCache.end() )
+        if ( m_meshCache.find( pathAsID ) != m_meshCache.end() && (materials == nullptr) )
         {
             auto weakPtr = m_meshCache[pathAsID].mesh;
             if ( not weakPtr.expired() )
                 return MeshPtr( weakPtr );
-        }
+        } 
 
         // Try loading mesh
         LOG( "AssetManager: Loading Mesh '" + filePath.toString() + "'", LOG_COLOR );

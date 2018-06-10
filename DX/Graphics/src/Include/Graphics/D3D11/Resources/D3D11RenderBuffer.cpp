@@ -92,7 +92,7 @@ namespace Graphics { namespace D3D11 {
         {
             if ( isDepthBuffer() )
             {
-                LOG_WARN_RENDERING( "D3D11RenderBuffer::bind(): Resolving a multisampled depth-buffer is not supported yet!" );
+                LOG_WARN_RENDERING( "D3D11RenderBuffer::bind(): Trying to bind a multisampled depth-buffer, but must be resolved first! This is not supported yet!" );
             }
             else
             {
@@ -146,23 +146,23 @@ namespace Graphics { namespace D3D11 {
         textureDesc.Usage               = D3D11_USAGE_DEFAULT;
         textureDesc.CPUAccessFlags      = 0;
         textureDesc.MiscFlags           = 0;
+        textureDesc.SampleDesc          = { 1, 0 };
+        textureDesc.BindFlags           = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
 
+        // Create always a non multisampled render buffer
+        HR( g_pDevice->CreateTexture2D( &textureDesc, NULL, &m_pRenderBuffer ) );
+
+        // If multisampling was requested create an additional buffer in which we render, but have to resolve it before using it in a shader
         if ( isMultisampled() )
         {
             textureDesc.SampleDesc      = { m_samplingDescription.count, m_samplingDescription.quality };
             textureDesc.BindFlags       = D3D11_BIND_RENDER_TARGET;
             HR( g_pDevice->CreateTexture2D( &textureDesc, NULL, &m_pRenderBufferMS ) );
             HR( g_pDevice->CreateRenderTargetView( m_pRenderBufferMS, NULL, &m_pRenderTargetView ) );
-
-            textureDesc.SampleDesc = { 1, 0 };
-            textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
-            HR( g_pDevice->CreateTexture2D( &textureDesc, NULL, &m_pRenderBuffer ) );
         }
         else
         {
-            textureDesc.SampleDesc = { 1, 0 };
-            textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
-            HR( g_pDevice->CreateTexture2D( &textureDesc, NULL, &m_pRenderBuffer ) );
+            // Just use the non multisampled render buffer as the render target
             HR( g_pDevice->CreateRenderTargetView( m_pRenderBuffer, NULL, &m_pRenderTargetView ) );
         }
 

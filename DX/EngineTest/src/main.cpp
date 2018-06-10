@@ -128,20 +128,20 @@ public:
         cam = go->addComponent<Components::Camera>();
         go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -10);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA);
-        //go->addComponent<ColorGrading>();
+        go->addComponent<ColorGrading>();
         //go->addComponent<GreyScale>();
-        go->addComponent<Fog>();
+        //go->addComponent<Fog>();
 
-        //cam->getViewport().width = 0.5f;
-        //auto go2 = createGameObject("Camera2");
-        //auto cam2 = go2->addComponent<Components::Camera>();
-        //cam2->getViewport().width = 0.5f;
-        //cam2->getViewport().topLeftX = 0.5f;
-        //go2->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, 0);
-        ////go2->addComponent<GaussianBlur>();
-        ////go2->addComponent<ColorGrading>();
-        //go2->addComponent<Fog>();
-        //go2->getTransform()->setParent(go->getTransform(), false);
+        cam->getViewport().width = 0.5f;
+        auto go2 = createGameObject("Camera2");
+        auto cam2 = go2->addComponent<Components::Camera>(45,0.1f,1000.0f,1);
+        cam2->getViewport().width = 0.5f;
+        cam2->getViewport().topLeftX = 0.5f;
+        go2->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, 0);
+        //go2->addComponent<GaussianBlur>();
+        //go2->addComponent<ColorGrading>();
+        go2->addComponent<Fog>();
+        go2->getTransform()->setParent(go->getTransform(), false);
 
         createGameObject("Grid")->addComponent<GridGeneration>(20);
 
