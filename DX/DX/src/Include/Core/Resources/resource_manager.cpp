@@ -200,6 +200,24 @@ namespace Core { namespace Resources {
     }
 
     //----------------------------------------------------------------------
+    RenderTexturePtr ResourceManager::createRenderTexture( U32 width, U32 height, Graphics::DepthFormat depth, Graphics::TextureFormat format,
+                                                           Graphics::SamplingDescription samplingDesc, bool dynamicScale )
+    {
+        auto colorBuffer = createRenderBuffer();
+        colorBuffer->create( width, height, format, samplingDesc );
+
+        auto depthBuffer = createRenderBuffer();
+        depthBuffer->create( width, height, depth, samplingDesc );
+
+        auto renderTexture = createRenderTexture();
+        renderTexture->create( colorBuffer, depthBuffer );
+
+        renderTexture->setDynamicScreenScale( dynamicScale );
+
+        return renderTexture;
+    }
+
+    //----------------------------------------------------------------------
     CubemapPtr ResourceManager::createCubemap()
     {
         auto cubemap = Locator::getRenderer().createCubemap();

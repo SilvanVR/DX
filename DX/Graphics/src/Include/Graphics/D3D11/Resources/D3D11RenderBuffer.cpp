@@ -87,6 +87,19 @@ namespace Graphics { namespace D3D11 {
     //----------------------------------------------------------------------
     void RenderBuffer::bind( ShaderType shaderType, U32 slot )
     {
+        // If the renderbuffer is multisampled itself, we must resolve it to the non-multisampled buffer and bind that to the shader then
+        if ( isMultisampled() )
+        {
+            if ( isDepthBuffer() )
+            {
+                LOG_WARN_RENDERING( "D3D11RenderBuffer::bind(): Resolving a multisampled depth-buffer is not supported yet!" );
+            }
+            else
+            {
+                g_pImmediateContext->ResolveSubresource( m_pRenderBuffer, 0, m_pRenderBufferMS, 0, Utility::TranslateTextureFormat( m_format ) );
+            }
+        }
+
         switch (shaderType)
         {
         case ShaderType::Vertex:
@@ -100,6 +113,7 @@ namespace Graphics { namespace D3D11 {
         default:
             ASSERT( false );
         }
+
     }
 
     //----------------------------------------------------------------------
@@ -129,14 +143,28 @@ namespace Graphics { namespace D3D11 {
         textureDesc.MipLevels           = 1;
         textureDesc.ArraySize           = 1;
         textureDesc.Format              = Utility::TranslateTextureFormat( m_format );
-        textureDesc.SampleDesc          = { m_samplingDescription.count, m_samplingDescription.quality };
         textureDesc.Usage               = D3D11_USAGE_DEFAULT;
-        textureDesc.BindFlags           = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
         textureDesc.CPUAccessFlags      = 0;
         textureDesc.MiscFlags           = 0;
 
-        HR( g_pDevice->CreateTexture2D( &textureDesc, NULL, &m_pRenderBuffer) );
-        HR( g_pDevice->CreateRenderTargetView( m_pRenderBuffer, NULL, &m_pRenderTargetView ) );
+        if ( isMultisampled() )
+        {
+            textureDesc.SampleDesc      = { m_samplingDescription.count, m_samplingDescription.quality };
+            textureDesc.BindFlags       = D3D11_BIND_RENDER_TARGET;
+            HR( g_pDevice->CreateTexture2D( &textureDesc, NULL, &m_pRenderBufferMS ) );
+            HR( g_pDevice->CreateRenderTargetView( m_pRenderBufferMS, NULL, &m_pRenderTargetView ) );
+
+            textureDesc.SampleDesc = { 1, 0 };
+            textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
+            HR( g_pDevice->CreateTexture2D( &textureDesc, NULL, &m_pRenderBuffer ) );
+        }
+        else
+        {
+            textureDesc.SampleDesc = { 1, 0 };
+            textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
+            HR( g_pDevice->CreateTexture2D( &textureDesc, NULL, &m_pRenderBuffer ) );
+            HR( g_pDevice->CreateRenderTargetView( m_pRenderBuffer, NULL, &m_pRenderTargetView ) );
+        }
 
         _CreateShaderResourceView();
     }
@@ -171,25 +199,25 @@ namespace Graphics { namespace D3D11 {
     //----------------------------------------------------------------------
     void RenderBuffer::_CreateShaderResourceView()
     {
-        DXGI_FORMAT format = DXGI_FORMAT_UNKNOWN;
+        D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+
         if ( isDepthBuffer() )
         {
             switch (m_depthFormat)
             {
-            case DepthFormat::D16:   format = DXGI_FORMAT_R16_UNORM; break;
-            case DepthFormat::D24S8: format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS; break;
-            case DepthFormat::D32:   format = DXGI_FORMAT_R32_FLOAT; break;
+            case DepthFormat::D16:   srvDesc.Format = DXGI_FORMAT_R16_UNORM; break;
+            case DepthFormat::D24S8: srvDesc.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS; break;
+            case DepthFormat::D32:   srvDesc.Format = DXGI_FORMAT_R32_FLOAT; break;
             ASSERT( false && "Ooops! Something is wrong here!" );
             }
+            srvDesc.ViewDimension = isMultisampled() ? D3D11_SRV_DIMENSION_TEXTURE2DMS : D3D11_SRV_DIMENSION_TEXTURE2D;
         }
         else
         {
-            format = Utility::TranslateTextureFormat( m_format );
+            srvDesc.Format = Utility::TranslateTextureFormat( m_format );
+            srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
         }
 
-        D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
-        srvDesc.Format = format;
-        srvDesc.ViewDimension = m_samplingDescription.count > 1 ? D3D11_SRV_DIMENSION_TEXTURE2DMS : D3D11_SRV_DIMENSION_TEXTURE2D;
         srvDesc.Texture2D.MostDetailedMip = 0;
         srvDesc.Texture2D.MipLevels = -1;
 
@@ -201,6 +229,8 @@ namespace Graphics { namespace D3D11 {
     {
         SAFE_RELEASE( m_pRenderBuffer );
         SAFE_RELEASE( m_pShaderBufferView );
+        SAFE_RELEASE( m_pRenderBufferMS );
+        SAFE_RELEASE( m_pShaderBufferViewMS );
 
         if ( isDepthBuffer() )
         {

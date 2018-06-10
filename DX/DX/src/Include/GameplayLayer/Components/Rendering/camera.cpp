@@ -17,29 +17,28 @@ namespace Components {
     #define BUFFER_FORMAT_LDR       Graphics::TextureFormat::RGBA32
     #define BUFFER_FORMAT_HDR       Graphics::TextureFormat::RGBAFloat
     #define DEPTH_STENCIL_FORMAT    Graphics::DepthFormat::D32
-    #define INITIAL_MSAA_SAMPLES    1
 
     //----------------------------------------------------------------------
-    Camera::Camera( F32 fovAngleYInDegree, F32 zNear, F32 zFar, bool hdr )
+    Camera::Camera( F32 fovAngleYInDegree, F32 zNear, F32 zFar, U32 numSamples, bool hdr )
         : m_camera( fovAngleYInDegree, zNear, zFar ), m_cullingMask( LAYER_ALL ), m_hdr( hdr )
     {
-        _CreateRenderTarget();
+        _CreateRenderTarget( numSamples );
     }
 
     //----------------------------------------------------------------------
-    Camera::Camera( F32 left, F32 right, F32 bottom, F32 top, F32 zNear, F32 zFar, bool hdr )
+    Camera::Camera( F32 left, F32 right, F32 bottom, F32 top, F32 zNear, F32 zFar, U32 numSamples, bool hdr )
         : m_camera( left, right, bottom, top, zNear, zFar ), m_cullingMask( LAYER_ALL ), m_hdr( hdr )
     {
-        _CreateRenderTarget();
+        _CreateRenderTarget( numSamples );
     }
 
     //----------------------------------------------------------------------
-    void Camera::_CreateRenderTarget()
+    void Camera::_CreateRenderTarget( U32 numSamples )
     {
         auto& window = Locator::getWindow();
         auto rt = RESOURCES.createRenderTexture( window.getWidth(), window.getHeight(), 
-                                                 DEPTH_STENCIL_FORMAT, m_hdr ? BUFFER_FORMAT_HDR : BUFFER_FORMAT_LDR, 1, 
-                                                { INITIAL_MSAA_SAMPLES } );
+                                                 DEPTH_STENCIL_FORMAT, m_hdr ? BUFFER_FORMAT_HDR : BUFFER_FORMAT_LDR, 
+                                                { numSamples }, true );
         rt->setDynamicScreenScale( true, 1.0f );
 
         setRenderTarget( rt, true );

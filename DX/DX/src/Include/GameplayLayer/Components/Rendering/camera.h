@@ -20,9 +20,10 @@ namespace Components {
     //**********************************************************************
     class Camera : public IComponent
     {
+        static const U32 DEFAULT_MSAA_SAMPLES = 8;
     public:
-        Camera(F32 fovAngleYInDegree = 45.0f, F32 zNear = 0.1f, F32 zFar = 1000.0f, bool hdr = false);
-        Camera(F32 left, F32 right, F32 bottom, F32 top, F32 zNear, F32 zFar, bool hdr = false);
+        Camera(F32 fovAngleYInDegree = 45.0f, F32 zNear = 0.1f, F32 zFar = 1000.0f, U32 numSamples = DEFAULT_MSAA_SAMPLES, bool hdr = false);
+        Camera(F32 left, F32 right, F32 bottom, F32 top, F32 zNear, F32 zFar, U32 numSamples = DEFAULT_MSAA_SAMPLES, bool hdr = false);
         ~Camera() = default;
 
         //----------------------------------------------------------------------
@@ -128,7 +129,7 @@ namespace Components {
 
         //----------------------------------------------------------------------
         void _UpdateCullingPlanes(const DirectX::XMMATRIX& viewProjection);
-        void _CreateRenderTarget();
+        void _CreateRenderTarget(U32 numSamples);
 
         //----------------------------------------------------------------------
         Camera(const Camera& other)               = delete;

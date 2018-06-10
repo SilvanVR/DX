@@ -26,11 +26,11 @@ namespace Graphics
         //----------------------------------------------------------------------
         inline U32                         getWidth()                  const { return (U32)(getColorBuffer()->getWidth()); }
         inline U32                         getHeight()                 const { return (U32)(getColorBuffer()->getHeight()); }
-        inline const SamplingDescription&  getSamplingDescription()    const { return m_samplingDescription; }
         inline bool                        dynamicScales()             const { return m_dynamicScale; }
         inline F32                         getDynamicScaleFactor()     const { return m_scaleFactor; }
         inline bool                        hasDepthBuffer()            const { return getDepthBuffer() != nullptr; }
         inline F32                         getAspectRatio()            const { return getColorBuffer()->getAspectRatio(); }
+        inline SamplingDescription         getSamplingDescription()    const { return getColorBuffer()->getSamplingDescription(); }
 
         //----------------------------------------------------------------------
         // These set functions will be forwarded to all renderbuffers within this texture.
@@ -75,16 +75,14 @@ namespace Graphics
         //----------------------------------------------------------------------
         // Recreate all buffers in this render texture.
         //----------------------------------------------------------------------
-        void recreate(U32 w, U32 h) { recreate(w, h, m_samplingDescription); }
+        void recreate(U32 w, U32 h) { recreate(w, h, getSamplingDescription()); }
         void recreate(SamplingDescription samplingDesc) { recreate(getWidth(), getHeight(), samplingDesc); }
         void recreate(U32 w, U32 h, SamplingDescription samplingDesc);
         void recreate(Graphics::TextureFormat format);
 
-
     protected:
-        SamplingDescription m_samplingDescription;
-        F32                 m_scaleFactor = 1.0f;
-        bool                m_dynamicScale = false; // If true it will be scaled automatically when the window resizes.
+        F32  m_scaleFactor = 1.0f;
+        bool m_dynamicScale = false; // If true it will be scaled automatically when the window resizes.
 
         struct RenderBuffers
         {
@@ -94,7 +92,7 @@ namespace Graphics
 
         ArrayList<RenderBuffers> m_renderBuffers;
 
-        // Framebuffer index
+        // Framebuffer index. Only used if this render texture contains a SET of renderbuffers.
         I32 m_bufferIndex = 0;
 
         I32 _PreviousBufferIndex();

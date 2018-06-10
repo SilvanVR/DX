@@ -16,11 +16,9 @@ class ColorGrading : public Components::IComponent
     Graphics::CommandBuffer cmd;
 
 public:
-    ColorGrading() {}
-
     void addedToGameObject(GameObject* go)
     {
-        // Create rendertarget for the effect
+        // Create rendertarget
         auto rt = RESOURCES.createRenderTexture(WINDOW.getWidth(), WINDOW.getHeight(), Graphics::TextureFormat::RGBA32, true);
         rt->setClampMode(Graphics::TextureAddressMode::Clamp);
 
@@ -35,10 +33,6 @@ public:
         auto cam = go->getComponent<Components::Camera>();
         cam->addCommandBuffer(&cmd);
     }
-
-    void tick(Time::Seconds delta) override
-    {
-    }
 };
 
 class GreyScale : public Components::IComponent
@@ -47,8 +41,6 @@ class GreyScale : public Components::IComponent
     Graphics::CommandBuffer cmd;
 
 public:
-    GreyScale() {}
-
     void addedToGameObject(GameObject* go)
     {
         auto cam = go->getComponent<Components::Camera>();
@@ -73,8 +65,6 @@ class GaussianBlur : public Components::IComponent
     MaterialPtr verticalBlur;
 
 public:
-    GaussianBlur() {}
-
     void addedToGameObject(GameObject* go)
     {
         // Create rendertarget
@@ -100,8 +90,6 @@ class Fog : public Components::IComponent
     Graphics::CommandBuffer cmd;
 
 public:
-    Fog() {}
-
     void addedToGameObject(GameObject* go)
     {
         auto cam = go->getComponent<Components::Camera>();
@@ -110,7 +98,7 @@ public:
         shader->setReloadCallback([=](Graphics::Shader* shader){
             shader->setTexture("depthBuffer", cam->getRenderTarget()->getDepthBuffer());
         });
-        shader->setTexture("depthBuffer", cam->getRenderTarget()->getDepthBuffer());
+        shader->invokeReloadCallback();
 
         // Create rendertarget
         auto rt = RESOURCES.createRenderTexture(WINDOW.getWidth(), WINDOW.getHeight(), Graphics::TextureFormat::RGBA32, true);
@@ -120,10 +108,6 @@ public:
 
         // Attach command buffer to camera
         cam->addCommandBuffer(&cmd);
-    }
-
-    void tick(Time::Seconds delta) override
-    {
     }
 };
 
@@ -142,12 +126,11 @@ public:
         // Camera
         auto go = createGameObject("Camera");
         cam = go->addComponent<Components::Camera>();
-        cam->setHDRRendering(true);
         go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -10);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA);
         //go->addComponent<ColorGrading>();
         //go->addComponent<GreyScale>();
-        //go->addComponent<Fog>();
+        go->addComponent<Fog>();
 
         //cam->getViewport().width = 0.5f;
         //auto go2 = createGameObject("Camera2");
@@ -175,7 +158,7 @@ public:
         if (KEYBOARD.wasKeyPressed(Key::M))
         {
             static int index = 0;
-            U32 mscounts[]{ 1,4,8 };
+            U32 mscounts[]{ 1,2,4,8 };
             U32 newmscount = mscounts[index];
             index = (index + 1) % (sizeof(mscounts) / sizeof(int));
             cam->getRenderTarget()->recreate({ newmscount });

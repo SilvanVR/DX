@@ -53,6 +53,10 @@ namespace Graphics { namespace D3D11 {
             ID3D11DepthStencilView* m_pDepthStencilView;
         };
 
+        // This is used for multisampled resources
+        ID3D11Texture2D*            m_pRenderBufferMS = nullptr;
+        ID3D11ShaderResourceView*   m_pShaderBufferViewMS = nullptr;
+
         //----------------------------------------------------------------------
         // ITexture Interface
         //----------------------------------------------------------------------

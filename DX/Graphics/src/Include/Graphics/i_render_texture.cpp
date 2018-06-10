@@ -13,12 +13,15 @@ namespace Graphics
     void RenderTexture::setDynamicScreenScale( bool shouldScale, F32 scaleFactor ) 
     { 
         m_dynamicScale = shouldScale;
-        m_scaleFactor = scaleFactor; 
-        for (auto& buffer : m_renderBuffers)
+        if (scaleFactor != m_scaleFactor)
         {
-            buffer.m_colorBuffer->recreate( U32(buffer.m_colorBuffer->getWidth() * m_scaleFactor), U32(buffer.m_colorBuffer->getHeight() * m_scaleFactor) );
-            if ( hasDepthBuffer() )
-                buffer.m_depthBuffer->recreate( U32(buffer.m_depthBuffer->getWidth() * m_scaleFactor), U32(buffer.m_depthBuffer->getHeight() * m_scaleFactor) );
+            m_scaleFactor = scaleFactor;
+            for (auto& buffer : m_renderBuffers)
+            {
+                buffer.m_colorBuffer->recreate( U32(buffer.m_colorBuffer->getWidth() * m_scaleFactor), U32(buffer.m_colorBuffer->getHeight() * m_scaleFactor) );
+                if ( hasDepthBuffer() )
+                    buffer.m_depthBuffer->recreate( U32(buffer.m_depthBuffer->getWidth() * m_scaleFactor), U32(buffer.m_depthBuffer->getHeight() * m_scaleFactor) );
+            }
         }
     }
 
@@ -59,7 +62,6 @@ namespace Graphics
     //----------------------------------------------------------------------
     void RenderTexture::recreate( U32 w, U32 h, SamplingDescription samplingDesc )
     {
-        m_samplingDescription = samplingDesc;
         for (auto& buffer : m_renderBuffers)
         {
             buffer.m_colorBuffer->recreate( U32(w * m_scaleFactor), U32(h * m_scaleFactor), samplingDesc );

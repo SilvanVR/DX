@@ -98,12 +98,21 @@ namespace Core { namespace Resources {
 
         //----------------------------------------------------------------------
         // Creates a new render texture
+        // @Params:
+        // "width/height": Width/Height of the texture in pixels.
+        // "format": Texture format for the color buffer.
+        // "depth": Depth-Format for the depth buffer.
+        // "samplingDesc": Description for multisampling.
+        // "dynamicScale": If true, render texture will be recreated with a new size whenever the window resizes.
+        // "numBuffers": Amount of buffers to create. This is only useful if a camera renders itself, so a previous buffer can be used as input (e.g. for a mirror)
         //----------------------------------------------------------------------
         RenderTexturePtr createRenderTexture();
         RenderTexturePtr createRenderTexture(U32 width, U32 height, Graphics::TextureFormat format, bool dynamicScale);
         RenderTexturePtr createRenderTexture(U32 width, U32 height, Graphics::TextureFormat format, Graphics::SamplingDescription samplingDesc = {1, 0});
         RenderTexturePtr createRenderTexture(U32 width, U32 height, Graphics::DepthFormat depth, Graphics::TextureFormat format, U32 numBuffers = 1, 
                                              Graphics::SamplingDescription samplingDesc = {1,0});
+        RenderTexturePtr createRenderTexture(U32 width, U32 height, Graphics::DepthFormat depth, Graphics::TextureFormat format,
+                                             Graphics::SamplingDescription samplingDesc, bool dynamicScale);
 
         //----------------------------------------------------------------------
         // Creates a new render buffer
