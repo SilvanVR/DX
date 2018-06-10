@@ -15,15 +15,12 @@
 namespace Graphics {
 
     class Camera;
-    namespace D3D11 { class RenderTexture; }
 
     //**********************************************************************
     // D3D11 Renderer Subsystem.
     //**********************************************************************
     class D3D11Renderer : public IRenderer
     {
-        static const U8 INITIAL_MSAA_SAMPLES = 4;
-
     public:
         D3D11Renderer(OS::Window* window) : IRenderer( window ) {}
 
@@ -35,7 +32,6 @@ namespace Graphics {
         void present() override;
         void setVSync(bool enabled) override { m_vsync = enabled; }
         bool isVSyncEnabled() const { return m_vsync; }
-        void setMultiSampleCount(U32 numSamples) override;
 
         IMesh*              createMesh() override;
         IMaterial*          createMaterial() override;

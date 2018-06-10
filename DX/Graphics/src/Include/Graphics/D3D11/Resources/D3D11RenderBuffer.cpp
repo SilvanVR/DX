@@ -15,7 +15,8 @@ namespace Graphics { namespace D3D11 {
     {
         ITexture::_Init( TextureDimension::Tex2D, width, height, format );
         m_isDepthBuffer = false;
-        m_samplingDescription = samplingDesc;
+
+        _SetMultisampleDesc( samplingDesc );
 
         _CreateColorBufferAndViews();
         _CreateSampler( m_anisoLevel, m_filter, m_clampMode );
@@ -27,7 +28,8 @@ namespace Graphics { namespace D3D11 {
         ITexture::_Init( TextureDimension::Tex2D, width, height, TextureFormat::Depth );
         m_isDepthBuffer = true;
         m_depthFormat = format;
-        m_samplingDescription = samplingDesc;
+
+        _SetMultisampleDesc( samplingDesc );
 
         _CreateDepthBufferAndViews();
         _CreateSampler( m_anisoLevel, m_filter, m_clampMode );
@@ -40,11 +42,13 @@ namespace Graphics { namespace D3D11 {
     }
 
     //----------------------------------------------------------------------
-    void RenderBuffer::recreate( U32 w, U32 h, SamplingDescription samplingDescription )
+    void RenderBuffer::recreate( U32 w, U32 h, SamplingDescription samplingDesc )
     {
         m_width = w;
         m_height = h;
-        m_samplingDescription = samplingDescription;
+
+        _SetMultisampleDesc( samplingDesc );
+
         _DestroyBufferAndViews();
         isDepthBuffer() ? _CreateDepthBufferAndViews() : _CreateColorBufferAndViews();
     }
@@ -71,7 +75,7 @@ namespace Graphics { namespace D3D11 {
     void RenderBuffer::bindForRendering()
     {
         if ( isDepthBuffer() )
-            g_pImmediateContext->OMSetRenderTargets( 1, NULL, m_pDepthStencilView );
+            g_pImmediateContext->OMSetRenderTargets( 0, NULL, m_pDepthStencilView );
         else
             g_pImmediateContext->OMSetRenderTargets( 1, &m_pRenderTargetView, NULL );
     }
@@ -157,7 +161,7 @@ namespace Graphics { namespace D3D11 {
         D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc = {};
         dsvDesc.Flags = 0;
         dsvDesc.Format = Utility::TranslateDepthFormat( m_depthFormat );
-        dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+        dsvDesc.ViewDimension = m_samplingDescription.count > 1 ? D3D11_DSV_DIMENSION_TEXTURE2DMS : D3D11_DSV_DIMENSION_TEXTURE2D;
 
         HR( g_pDevice->CreateDepthStencilView( m_pRenderBuffer, &dsvDesc, &m_pDepthStencilView ) );
 
@@ -205,6 +209,19 @@ namespace Graphics { namespace D3D11 {
         else
         {
             SAFE_RELEASE( m_pRenderTargetView );
+        }
+    }
+
+    //----------------------------------------------------------------------
+    void RenderBuffer::_SetMultisampleDesc( SamplingDescription samplingDesc )
+    {
+        m_samplingDescription = samplingDesc;
+
+        DXGI_FORMAT format = isDepthBuffer() ? Utility::TranslateDepthFormatSRV( m_depthFormat ) : Utility::TranslateTextureFormat( m_format );
+        if ( not Utility::MSAASamplesSupported( format, m_samplingDescription.count ) )
+        { 
+            LOG_WARN_RENDERING( "D3D11: MSAA count (" + TS( m_samplingDescription.count ) + ") for render-buffer is not supported. Count will be set to 1." );
+            m_samplingDescription.count = 1;
         }
     }
 

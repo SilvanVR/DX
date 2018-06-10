@@ -63,6 +63,7 @@ namespace Graphics { namespace D3D11 {
         void _CreateDepthBufferAndViews();
         void _CreateShaderResourceView();
         void _DestroyBufferAndViews();
+        void _SetMultisampleDesc(SamplingDescription samplingDesc);
 
         //----------------------------------------------------------------------
         RenderBuffer(const RenderBuffer& other)               = delete;

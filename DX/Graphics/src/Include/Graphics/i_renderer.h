@@ -59,11 +59,6 @@ namespace Graphics {
         virtual void present() = 0;
 
         //----------------------------------------------------------------------
-        // Set the multisample count from the screens backbuffers
-        //----------------------------------------------------------------------
-        virtual void setMultiSampleCount(U32 numSamples) = 0;
-
-        //----------------------------------------------------------------------
         virtual void setVSync(bool enabled) = 0;
         virtual bool isVSyncEnabled() const = 0;
 

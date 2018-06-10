@@ -86,7 +86,7 @@ namespace Graphics {
         1, 5, 6, 1, 6, 2,
         4, 0, 3, 4, 3, 7
     };
-    static IMesh* s_cubeMesh;               // Needed for cubemap rendering
+    static IMesh* s_cubeMesh; // Needed for cubemap rendering
 
     //**********************************************************************
     // INIT STUFF
@@ -214,17 +214,6 @@ namespace Graphics {
         _UnlockQueue();
 
         m_pSwapchain->present( m_vsync );
-    }
-
-    //----------------------------------------------------------------------
-    void D3D11Renderer::setMultiSampleCount( U32 numSamples )
-    {
-        //if ( not D3D11::Utility::MSAASamplesSupported( m_screenFramebuffer->getFormat() , numSamples ) )
-        //    return;
-
-        // Recreate Swapchain
-        SAFE_DELETE( m_pSwapchain );
-        _CreateSwapchain( numSamples );
     }
 
     //----------------------------------------------------------------------

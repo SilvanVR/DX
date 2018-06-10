@@ -75,7 +75,8 @@ namespace Graphics
         //----------------------------------------------------------------------
         // Recreate all buffers in this render texture.
         //----------------------------------------------------------------------
-        void recreate(U32 w, U32 h);
+        void recreate(U32 w, U32 h) { recreate(w, h, m_samplingDescription); }
+        void recreate(SamplingDescription samplingDesc) { recreate(getWidth(), getHeight(), samplingDesc); }
         void recreate(U32 w, U32 h, SamplingDescription samplingDesc);
         void recreate(Graphics::TextureFormat format);
 

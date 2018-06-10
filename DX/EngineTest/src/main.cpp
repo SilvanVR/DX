@@ -133,6 +133,7 @@ public:
 
 class TestScene : public IScene
 {
+    Components::Camera* cam;
 public:
     TestScene() : IScene("TestScene") {}
 
@@ -140,24 +141,24 @@ public:
     {
         // Camera
         auto go = createGameObject("Camera");
-        auto cam = go->addComponent<Components::Camera>();
+        cam = go->addComponent<Components::Camera>();
         cam->setHDRRendering(true);
         go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -10);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA);
-        go->addComponent<ColorGrading>();
+        //go->addComponent<ColorGrading>();
         //go->addComponent<GreyScale>();
         //go->addComponent<Fog>();
 
-        cam->getViewport().width = 0.5f;
-        auto go2 = createGameObject("Camera2");
-        auto cam2 = go2->addComponent<Components::Camera>();
-        cam2->getViewport().width = 0.5f;
-        cam2->getViewport().topLeftX = 0.5f;
-        go2->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, 0);
-        //go2->addComponent<GaussianBlur>();
-        //go2->addComponent<ColorGrading>();
-        go2->addComponent<Fog>();
-        go2->getTransform()->setParent(go->getTransform(), false);
+        //cam->getViewport().width = 0.5f;
+        //auto go2 = createGameObject("Camera2");
+        //auto cam2 = go2->addComponent<Components::Camera>();
+        //cam2->getViewport().width = 0.5f;
+        //cam2->getViewport().topLeftX = 0.5f;
+        //go2->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, 0);
+        ////go2->addComponent<GaussianBlur>();
+        ////go2->addComponent<ColorGrading>();
+        //go2->addComponent<Fog>();
+        //go2->getTransform()->setParent(go->getTransform(), false);
 
         createGameObject("Grid")->addComponent<GridGeneration>(20);
 
@@ -171,6 +172,15 @@ public:
 
     void tick(Time::Seconds d) override
     {
+        if (KEYBOARD.wasKeyPressed(Key::M))
+        {
+            static int index = 0;
+            U32 mscounts[]{ 1,4,8 };
+            U32 newmscount = mscounts[index];
+            index = (index + 1) % (sizeof(mscounts) / sizeof(int));
+            cam->getRenderTarget()->recreate({ newmscount });
+            LOG("New Multisample-Count: " + TS(newmscount), Color::GREEN);
+        }
     }
 
     void shutdown() override { LOG("TestScene Shutdown!", Color::RED); }
@@ -248,22 +258,8 @@ public:
         if (KEYBOARD.wasKeyPressed(Key::F2))
             Locator::getRenderer().setGlobalMaterialActive("Wireframe");
 
-        if (KEYBOARD.wasKeyPressed(Key::M))
-            _ChangeMultiSampling();
-
         if(KEYBOARD.isKeyDown(Key::Escape))
             terminate();
-    }
-
-    //----------------------------------------------------------------------
-    void _ChangeMultiSampling()
-    {
-        static int index = 0;
-        int mscounts[]{ 1,4,8 };
-        int newmscount = mscounts[index];
-        index = (index + 1) % (sizeof(mscounts) / sizeof(int));
-        Locator::getRenderer().setMultiSampleCount(newmscount);
-        LOG("New Multisample-Count: " + TS(newmscount), Color::GREEN);
     }
 
     //----------------------------------------------------------------------

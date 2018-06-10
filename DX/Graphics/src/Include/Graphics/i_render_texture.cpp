@@ -57,19 +57,9 @@ namespace Graphics
     }
 
     //----------------------------------------------------------------------
-    void RenderTexture::recreate( U32 w, U32 h )
-    {
-        for (auto& buffer : m_renderBuffers)
-        {
-            buffer.m_colorBuffer->recreate( U32(w * m_scaleFactor), U32(h * m_scaleFactor) );
-            if ( hasDepthBuffer() )
-                buffer.m_depthBuffer->recreate( U32(w * m_scaleFactor), U32(h * m_scaleFactor) );
-        }
-    }
-
-    //----------------------------------------------------------------------
     void RenderTexture::recreate( U32 w, U32 h, SamplingDescription samplingDesc )
     {
+        m_samplingDescription = samplingDesc;
         for (auto& buffer : m_renderBuffers)
         {
             buffer.m_colorBuffer->recreate( U32(w * m_scaleFactor), U32(h * m_scaleFactor), samplingDesc );

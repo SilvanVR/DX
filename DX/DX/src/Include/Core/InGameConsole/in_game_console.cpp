@@ -59,13 +59,6 @@ namespace Core {
     }
 
     //----------------------------------------------------------------------
-    void Multisampling()
-    {
-        static bool b = false;
-        Locator::getRenderer().setMultiSampleCount( (b = not b) ? 8 : 1 );
-    }
-
-    //----------------------------------------------------------------------
     void Red()      { SCENE.getMainCamera()->setClearColor( Color::RED ); }
     void Green()    { SCENE.getMainCamera()->setClearColor( Color::GREEN ); }
     void Blue()     { SCENE.getMainCamera()->setClearColor( Color::BLUE ); }
@@ -88,7 +81,6 @@ namespace Core {
         IGC_REGISTER_COMMAND( Profile );
         IGC_REGISTER_COMMAND( Help );
         IGC_REGISTER_COMMAND( VSync );
-        IGC_REGISTER_COMMAND( Multisampling );
         IGC_REGISTER_COMMAND( Red );
         IGC_REGISTER_COMMAND( Green );
         IGC_REGISTER_COMMAND( Blue );
