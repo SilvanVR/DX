@@ -41,8 +41,11 @@ float4 main(FragmentIn fin) : SV_Target
 {
 	float2 uv = float2(fin.uv.x, fin.uv.y);
 	float4 c = _MainTex.Sample(_Sampler0, uv);
+	
+	float contrast = 0.8;
+	float3 result = (c.rgb - 0.5) * (1.0 + contrast) + 0.5;
 
-	return float4(c.g, c.r-0.2, c.b, c.a);
+	return float4(result.rgb, c.a);
 }
 
 

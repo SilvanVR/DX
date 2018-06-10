@@ -33,9 +33,9 @@ float DoAttenuation( Light light, float d )
 float4 DoDirectionalLight( Light light, float3 V, float3 N )
 {
     float3 L = -light.direction;
- 
+	
     float4 diffuse = DoDiffuse( light, L, N );
-    float4 specular = DoSpecular( light, V, L, N );
+    //float4 specular = DoSpecular( light, V, L, N );	
  
     return diffuse;// + specular;
 }

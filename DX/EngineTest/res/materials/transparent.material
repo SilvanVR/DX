@@ -1,7 +1,7 @@
 {
 
 "shader" : "/shaders/transparent.shader",
-"tex" : "/textures/nico.jpg",
+"tex" : "/textures/checker.jpg",
 "opacity" : 0.5
 
 }

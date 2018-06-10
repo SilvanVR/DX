@@ -123,32 +123,73 @@ public:
 
     void init() override
     {
-        // Camera
+        // Camera 1
         auto go = createGameObject("Camera");
         cam = go->addComponent<Components::Camera>();
         go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -10);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA);
-        go->addComponent<ColorGrading>();
+        //go->addComponent<ColorGrading>();
         //go->addComponent<GreyScale>();
         //go->addComponent<Fog>();
-
         cam->getViewport().width = 0.5f;
+        cam->getViewport().height = 0.5f;
+
+        // Camera 2
         auto go2 = createGameObject("Camera2");
-        auto cam2 = go2->addComponent<Components::Camera>(45,0.1f,1000.0f,1);
+        auto cam2 = go2->addComponent<Components::Camera>(45.0f,0.1f,1000.0f,1);
         cam2->getViewport().width = 0.5f;
+        cam2->getViewport().height = 0.5f;
         cam2->getViewport().topLeftX = 0.5f;
-        go2->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, 0);
         //go2->addComponent<GaussianBlur>();
         //go2->addComponent<ColorGrading>();
         go2->addComponent<Fog>();
         go2->getTransform()->setParent(go->getTransform(), false);
 
+        // Camera 3
+        auto go3 = createGameObject("Camera3");
+        auto cam3 = go3->addComponent<Components::Camera>(45.0f, 0.1f, 1000.0f, 1);
+        cam3->getViewport().width = 0.5f;
+        cam3->getViewport().height = 0.5f;
+        cam3->getViewport().topLeftY = 0.5f;
+        go3->addComponent<ColorGrading>();
+        go3->getTransform()->setParent(go->getTransform(), false);
+
+        // Camera 4
+        auto go4 = createGameObject("Camera4");
+        auto cam4 = go4->addComponent<Components::Camera>(45.0f, 0.1f, 1000.0f, 1);
+        cam4->getViewport().width = 0.5f;
+        cam4->getViewport().height = 0.5f;
+        cam4->getViewport().topLeftY = 0.5f;
+        cam4->getViewport().topLeftX = 0.5f;
+        go4->addComponent<GaussianBlur>();
+        go4->getTransform()->setParent(go->getTransform(), false);
+
+
         createGameObject("Grid")->addComponent<GridGeneration>(20);
 
-        auto mesh = ASSETS.getMesh("/models/monkey.obj");
+        //auto mesh = ASSETS.getMesh("/models/monkey.obj");
+        //auto obj = createGameObject("Obj");
+        //obj->addComponent<Components::MeshRenderer>(mesh, ASSETS.getMaterial("/materials/texture.material"));
+
+        // PBR
+        auto cubemapHDR = ASSETS.getCubemap("/cubemaps/pine.hdr", 2048, true);
+        Assets::EnvironmentMap envMap(cubemapHDR, 128, 512);
+        auto diffuse = envMap.getDiffuseIrradianceMap();
+        auto specular = envMap.getSpecularReflectionMap();
+
+        auto brdfLut = Assets::BRDFLut().getTexture();
+        auto pbrShader = ASSETS.getShader("/shaders/pbr.shader");
+        pbrShader->setReloadCallback([=](Graphics::IShader* shader) {
+            shader->setTexture("diffuseIrradianceMap", diffuse);
+            shader->setTexture("specularReflectionMap", specular);
+            shader->setTexture("brdfLUT", brdfLut);
+            shader->setFloat("maxReflectionLOD", F32(specular->getMipCount() - 1));
+        });
+        pbrShader->invokeReloadCallback();
 
         auto obj = createGameObject("Obj");
-        obj->addComponent<Components::MeshRenderer>(mesh, ASSETS.getMaterial("/materials/texture.material"));
+        obj->addComponent<Components::MeshRenderer>(ASSETS.getMesh("/models/monkey.obj"), ASSETS.getMaterial("/materials/pbr/gold.pbrmaterial"));
+        obj->addComponent<Components::Skybox>(cubemapHDR);
 
         LOG("TestScene initialized!", Color::RED);
     }
@@ -202,7 +243,7 @@ public:
         Locator::getRenderer().setVSync(true);
         Locator::getRenderer().setGlobalFloat(SID("_Ambient"), 0.5f);
 
-        Locator::getSceneManager().LoadSceneAsync(new TestScene());
+        Locator::getSceneManager().LoadSceneAsync(new SceneStarCitizen());
     }
 
     //----------------------------------------------------------------------
@@ -215,13 +256,13 @@ public:
         if (KEYBOARD.wasKeyPressed(Key::One))
             Locator::getSceneManager().LoadSceneAsync(new VertexGenScene);
         if (KEYBOARD.wasKeyPressed(Key::Two))
-            Locator::getSceneManager().LoadSceneAsync(new SceneCameras);
+            Locator::getSceneManager().LoadSceneAsync(new SceneStarCitizen);
         if (KEYBOARD.wasKeyPressed(Key::Three))
             Locator::getSceneManager().LoadSceneAsync(new SceneMirror);
         if (KEYBOARD.wasKeyPressed(Key::Four))
             Locator::getSceneManager().LoadSceneAsync(new ManyObjectsScene(10000));
         if (KEYBOARD.wasKeyPressed(Key::Five))
-            Locator::getSceneManager().LoadSceneAsync(new CubemapScene());
+            Locator::getSceneManager().LoadSceneAsync(new ScenePBRSpheres());
         if (KEYBOARD.wasKeyPressed(Key::Six))
             Locator::getSceneManager().LoadSceneAsync(new MultiCamera());
         if (KEYBOARD.wasKeyPressed(Key::Seven))

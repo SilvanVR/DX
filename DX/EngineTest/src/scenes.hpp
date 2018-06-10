@@ -194,11 +194,6 @@ public:
 
 class SceneMirror : public IScene
 {
-    MaterialPtr material;
-
-    Texture2DPtr tex;
-    Texture2DPtr tex2;
-
 public:
     SceneMirror() : IScene("SceneMirror") {}
 
@@ -217,7 +212,7 @@ public:
         go->addComponent<Components::Skybox>(cubemap);
 
         // Camera 2
-        auto renderTex = RESOURCES.createRenderTexture(400, 400, Graphics::DepthFormat::D32, Graphics::TextureFormat::BGRA32, 2);
+        auto renderTex = RESOURCES.createRenderTexture(1024, 720, Graphics::DepthFormat::D32, Graphics::TextureFormat::BGRA32, 2, {4});
         auto cam2GO = createGameObject("Camera2");
         cam2GO->getComponent<Components::Transform>()->position = Math::Vec3(0, 3, -10);
         cam2GO->addComponent<AutoOrbiting>(10.0f);
@@ -240,29 +235,14 @@ public:
         auto texShader = ASSETS.getShader( "/shaders/texture.shader" );
 
         // TEXTURES
-        tex = RESOURCES.createTexture2D(4, 4, Graphics::TextureFormat::RGBA32);
-        for (U32 x = 0; x < tex->getWidth(); x++)
-            for (U32 y = 0; y < tex->getHeight(); y++)
-                tex->setPixel( x, y, Math::Random::Color() );
-        tex->apply();
-        tex->setFilter(Graphics::TextureFilter::Point);
-
-        tex2 = ASSETS.getTexture2D("/textures/nico.jpg");
-        auto dirt = ASSETS.getTexture2D("/textures/dirt.jpg");
+        auto tex = ASSETS.getTexture2D("/textures/star_citizen.png");
 
         // MATERIAL
-        material = RESOURCES.createMaterial();
+        auto material = RESOURCES.createMaterial();
         material->setShader(texShader);
-        material->setTexture("tex0", tex2);
-        material->setTexture("tex1", dirt );
-        material->setFloat("mix", 0.0f);
+        material->setTexture("tex0", tex);
+        material->setTexture("tex1", tex);
         material->setColor("tintColor", Color::WHITE);
-
-        auto dirtMaterial = RESOURCES.createMaterial();
-        dirtMaterial->setShader(texShader);
-        dirtMaterial->setTexture("tex0", dirt);
-        dirtMaterial->setTexture("tex1", dirt);
-        dirtMaterial->setColor("tintColor", Color::WHITE);
 
         auto customTexMaterial = RESOURCES.createMaterial();
         customTexMaterial->setShader(texShader);
@@ -272,19 +252,16 @@ public:
         customTexMaterial->setColor("tintColor", Color::WHITE);
 
         // GAMEOBJECT
-        auto goModel = createGameObject("Test");
-        //goModel->addComponent<ConstantRotation>(0.0f, 20.0f, 20.0f);
-        auto mr = goModel->addComponent<Components::MeshRenderer>(plane, material);
-
-        auto go2 = createGameObject("Test2");
-        go2->addComponent<Components::MeshRenderer>(cube, dirtMaterial);
-        go2->getComponent<Components::Transform>()->position = Math::Vec3(3, 0, 0);
-
         auto go3 = createGameObject("Test3");
         go3->addComponent<Components::MeshRenderer>(plane, customTexMaterial);
-        go3->getComponent<Components::Transform>()->position = Math::Vec3(0, 2, 0);
+        go3->getTransform()->position = Math::Vec3(0, 1.5f, 0);
+        go3->getTransform()->scale = { 3 };
 
-        go->addComponent<Components::MeshRenderer>(cube, dirtMaterial);
+        auto player = createGameObject("Player");
+        player->addComponent<Components::MeshRenderer>(ASSETS.getMesh("/models/monkey.obj"), ASSETS.getMaterial("/materials/normals.material"));
+        player->getTransform()->setParent(go->getTransform(), false);
+        player->getTransform()->position = { 0, 0, -0.5f };
+        player->getTransform()->rotation *= Math::Quat(Math::Vec3::UP, 180.0f);
 
         LOG("SceneMirror initialized!", Color::RED);
     }
@@ -415,64 +392,32 @@ public:
     void shutdown() override { LOG("TexArrayScene Shutdown!", Color::RED); }
 };
 
-class AsyncLoadScene : public IScene
+class SceneStarCitizen : public IScene
 {
-    MaterialPtr material;
-
 public:
-    AsyncLoadScene() : IScene("AsyncLoadScene") {}
+    SceneStarCitizen() : IScene("SceneStarCitizen") {}
 
     void init() override
     {
         // Camera
         auto go = createGameObject("Camera");
         auto cam = go->addComponent<Components::Camera>();
-        go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -10);
+        go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -4);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA);
 
-        auto go3 = createGameObject("Camera2");
-        auto cam2 = go3->addComponent<Components::Camera>();
-        go3->getComponent<Components::Transform>()->position = Math::Vec3(0, 5, -10);
-        go3->addComponent<AutoOrbiting>(10.0f);
+        //createGameObject("Grid")->addComponent<GridGeneration>(20);
 
-        cam2->setClearMode(Graphics::CameraClearMode::None);
-        cam2->setZFar(20.0f);
-        cam2->getViewport().width = 0.25f;
-        cam2->getViewport().height = 0.25f;
-
-        go3->addComponent<DrawFrustum>();
-
-        createGameObject("Grid")->addComponent<GridGeneration>(20);
-
-        // SHADER
-        auto texShader = ASSETS.getShader( "/shaders/texture.shader" );
-
-        // MATERIAL
-        material = RESOURCES.createMaterial();
-        material->setShader(texShader);
-        material->setTexture(SID("tex0"), ASSETS.getTexture2D("/textures/dirt.jpg"));
-        material->setTexture(SID("tex1"), ASSETS.getTexture2D("/textures/nico.jpg"));
-        material->setFloat(SID("mix"), 0.0f);
-        material->setColor(SID("tintColor"), Color::WHITE);
-
-        // MESH
-        auto mesh = Core::MeshGenerator::CreateCubeUV();
-        mesh->setColors(cubeColors);
+        auto planeMesh = Core::MeshGenerator::CreatePlane();
 
         // GAMEOBJECT
         auto go2 = createGameObject("Test2");
-        go2->addComponent<Components::MeshRenderer>(mesh, material);
+        go2->addComponent<Components::MeshRenderer>(planeMesh, ASSETS.getMaterial("/materials/star_citizen.material"));
+        go2->getTransform()->scale = { 1, 1.3f, 1 };
 
-        LOG("AsyncLoadScene initialized!", Color::RED);
+        LOG("SceneStarCitizen initialized!", Color::RED);
     }
 
-    void tick(Time::Seconds d) override
-    {
-        if (KEYBOARD.wasKeyPressed(Key::L))
-            ASSETS.getTexture2DAsync("/textures/4k.jpg", true, [=](Texture2DPtr tex) { material->setTexture(SID("tex0"), tex); });
-    }
-
-    void shutdown() override { LOG("AsyncLoadScene Shutdown!", Color::RED); }
+    void shutdown() override { LOG("SceneStarCitizen Shutdown!", Color::RED); }
 };
 
 class SceneGraphScene : public IScene

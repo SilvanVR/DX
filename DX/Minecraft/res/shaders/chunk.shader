@@ -60,5 +60,9 @@ float4 main(FragmentIn fin) : SV_Target
 	
 	float4 textureColor = texArray.Sample(sampler0, uvw);
 	
+	// Don't light from below blocks
+	if (fin.Normal.y < 0)
+		return textureColor * _Ambient;
+	
 	return APPLY_LIGHTING( textureColor, fin.WorldPos, fin.Normal );
 }

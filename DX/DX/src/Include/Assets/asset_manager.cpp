@@ -560,14 +560,12 @@ namespace Assets {
                 if (timeAtLoad != currentFileTime)
                 {
                     LOG( "Reloading material: " + path.toString(), LOG_COLOR );
-                    ASYNC_JOB([=] {
-                        try {
-                            MaterialParser::UpdateMaterial( mat, path );
-                        }
-                        catch (const std::runtime_error& e) {
-                            LOG_WARN( String( "Failed to reload material. Reason: " ) + e.what() );
-                        }
-                    });
+                    try {
+                        MaterialParser::UpdateMaterial( mat, path );
+                    }
+                    catch (const std::runtime_error& e) {
+                        LOG_WARN( String( "Failed to reload material. Reason: " ) + e.what() );
+                    }
 
                     timeAtLoad = currentFileTime;
                 }
