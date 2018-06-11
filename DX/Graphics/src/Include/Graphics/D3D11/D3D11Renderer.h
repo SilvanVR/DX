@@ -51,6 +51,7 @@ namespace Graphics {
     private:
         D3D11::Swapchain*   m_pSwapchain    = nullptr;
         bool                m_vsync         = false;
+        IMesh*              m_cubeMesh      = nullptr;
 
         //----------------------------------------------------------------------
         inline void _SetCamera(Camera* camera);

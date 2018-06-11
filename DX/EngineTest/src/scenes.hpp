@@ -409,9 +409,12 @@ public:
 
         auto planeMesh = Core::MeshGenerator::CreatePlane();
 
+        auto mat = ASSETS.getMaterial("/materials/star_citizen.material");
+        mat->getTexture("tex")->setClampMode(Graphics::TextureAddressMode::Clamp);
+
         // GAMEOBJECT
         auto go2 = createGameObject("Test2");
-        go2->addComponent<Components::MeshRenderer>(planeMesh, ASSETS.getMaterial("/materials/star_citizen.material"));
+        go2->addComponent<Components::MeshRenderer>(planeMesh, mat);
         go2->getTransform()->scale = { 1, 1.3f, 1 };
 
         LOG("SceneStarCitizen initialized!", Color::RED);
@@ -718,7 +721,7 @@ public:
 
         auto pbrShader = ASSETS.getShader("/shaders/pbr.shader");
 
-        Assets::EnvironmentMap envMap(cubemapHDR, 256, 1024);
+        Assets::EnvironmentMap envMap(cubemapHDR, 128, 512);
         auto diffuse = envMap.getDiffuseIrradianceMap();
         auto specular = envMap.getSpecularReflectionMap();
 
@@ -753,6 +756,7 @@ public:
 
                 auto material = RESOURCES.createMaterial(pbrShader);
                 material->setTexture("albedoMap", RESOURCES.getWhiteTexture());
+                material->setTexture("normalMap", RESOURCES.getNormalTexture());
                 material->setColor("color", Color::WHITE);
                 material->setFloat("roughness", roughness);
                 F32 metallic = (F32)y;

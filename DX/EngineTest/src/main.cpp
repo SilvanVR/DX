@@ -264,7 +264,7 @@ public:
         if (KEYBOARD.wasKeyPressed(Key::Five))
             Locator::getSceneManager().LoadSceneAsync(new ScenePBRSpheres());
         if (KEYBOARD.wasKeyPressed(Key::Six))
-            Locator::getSceneManager().LoadSceneAsync(new MultiCamera());
+            Locator::getSceneManager().LoadSceneAsync(new BlinnPhongLightingScene());
         if (KEYBOARD.wasKeyPressed(Key::Seven))
             Locator::getSceneManager().LoadSceneAsync(new TransparencyScene());
         if (KEYBOARD.wasKeyPressed(Key::Eight))

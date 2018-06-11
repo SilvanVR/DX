@@ -86,7 +86,6 @@ namespace Graphics {
         1, 5, 6, 1, 6, 2,
         4, 0, 3, 4, 3, 7
     };
-    static IMesh* s_cubeMesh; // Needed for cubemap rendering
 
     //**********************************************************************
     // INIT STUFF
@@ -98,15 +97,15 @@ namespace Graphics {
         _InitD3D11();
 
         _CreateGlobalBuffer();
-        s_cubeMesh = createMesh();
-        s_cubeMesh->setVertices( cubeVertices );
-        s_cubeMesh->setIndices( cubeIndices );
+        m_cubeMesh = createMesh();
+        m_cubeMesh->setVertices( cubeVertices );
+        m_cubeMesh->setIndices( cubeIndices );
     } 
 
     //----------------------------------------------------------------------
     void D3D11Renderer::shutdown()
     {
-        SAFE_DELETE( s_cubeMesh );
+        SAFE_DELETE( m_cubeMesh );
         D3D11::ConstantBufferManager::Destroy();
         _DeinitD3D11();
     }
@@ -197,6 +196,7 @@ namespace Graphics {
         if ( w == 0 || h == 0 ) // Window was minimized
             return;
 
+        g_pImmediateContext->OMSetRenderTargets( 0, 0, 0 );
         m_pSwapchain->recreate( w, h );
     }
 
@@ -638,8 +638,11 @@ namespace Graphics {
                 LOG_ERROR_RENDERING( "D3D11::RenderCubemap(): Could not update the view-projection matrix in the camera buffer!" );
             CAMERA_BUFFER.flush();
 
-            _DrawMesh( s_cubeMesh, material, DirectX::XMMatrixIdentity(), 0 );
+            _DrawMesh( m_cubeMesh, material, DirectX::XMMatrixIdentity(), 0 );
             _CopyTexture( colorBuffer, 0, 0, cubemap, face, dstMip );
+
+            // Unfortunately on my laptop if i dont flush here the driver crashes sometimes...
+            g_pImmediateContext->Flush();
         }
 
         SAFE_DELETE( colorBuffer );
