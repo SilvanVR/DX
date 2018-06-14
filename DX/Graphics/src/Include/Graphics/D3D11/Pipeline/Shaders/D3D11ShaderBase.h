@@ -27,6 +27,7 @@ namespace Graphics { namespace D3D11 {
 
         //----------------------------------------------------------------------
         virtual void bind() = 0;
+        virtual void unbind() = 0;
         virtual bool compileFromFile(const OS::Path& path, CString entryPoint) = 0;
         virtual bool compileFromSource(const String& shaderSource, CString entryPoint) = 0;
 
@@ -158,6 +159,30 @@ namespace Graphics { namespace D3D11 {
         case D3D_FEATURE_LEVEL_9_2:
         case D3D_FEATURE_LEVEL_9_1:
             return "ps_4_0_level_9_1";
+        }
+        return "";
+    }
+
+    //----------------------------------------------------------------------
+    template<> inline
+    String GetLatestProfile<ID3D11GeometryShader>()
+    {
+        // Query the current feature level:
+        D3D_FEATURE_LEVEL featureLevel = g_pDevice->GetFeatureLevel();
+        switch (featureLevel)
+        {
+        case D3D_FEATURE_LEVEL_11_1:
+        case D3D_FEATURE_LEVEL_11_0:
+            return "gs_5_0";
+        case D3D_FEATURE_LEVEL_10_1:
+            return "gs_4_1";
+        case D3D_FEATURE_LEVEL_10_0:
+            return "gs_4_0";
+        case D3D_FEATURE_LEVEL_9_3:
+            return "gs_4_0_level_9_3";
+        case D3D_FEATURE_LEVEL_9_2:
+        case D3D_FEATURE_LEVEL_9_1:
+            return "gs_4_0_level_9_1";
         }
         return "";
     }

@@ -8,6 +8,7 @@
 
 #include "../Pipeline/Shaders/D3D11VertexShader.h"
 #include "../Pipeline/Shaders/D3D11PixelShader.h"
+#include "../Pipeline/Shaders/D3D11GeometryShader.h"
 #include "../Resources/D3D11Mesh.h"
 #include "../D3D11Utility.h"
 
@@ -27,6 +28,7 @@ namespace Graphics { namespace D3D11 {
         SAFE_RELEASE( m_pBlendState );
         SAFE_DELETE( m_shaderDataVS );
         SAFE_DELETE( m_shaderDataPS );
+        //SAFE_DELETE( m_shaderDataGS );
     }
 
     //----------------------------------------------------------------------
@@ -36,16 +38,34 @@ namespace Graphics { namespace D3D11 {
         m_pVertexShader->bind();
         if (m_pPixelShader)
             m_pPixelShader->bind();
+        if (m_pGeometryShader)
+            m_pGeometryShader->bind();
 
         // Bind constant buffers and textures
         if (m_shaderDataVS) m_shaderDataVS->bind( ShaderType::Vertex );
         if (m_shaderDataPS) m_shaderDataPS->bind( ShaderType::Fragment );
+        //if (m_shaderDataGS) m_shaderDataGS->bind( ShaderType::Geometry );
         _BindTextures();
 
         // Bind pipeline states
         g_pImmediateContext->OMSetDepthStencilState( m_pDepthStencilState, 0 );
         g_pImmediateContext->RSSetState( m_pRSState );
         g_pImmediateContext->OMSetBlendState( m_pBlendState ? m_pBlendState : NULL, m_blendFactors.data(), 0xffffffff );
+    }
+
+    //----------------------------------------------------------------------
+    void Shader::unbind()
+    {
+        // Unbind shaders
+        m_pVertexShader->unbind();
+        if (m_pPixelShader)
+            m_pPixelShader->unbind();
+        if (m_pGeometryShader)
+            m_pGeometryShader->unbind();
+
+        g_pImmediateContext->OMSetDepthStencilState( NULL, 0 );
+        g_pImmediateContext->RSSetState( NULL );
+        g_pImmediateContext->OMSetBlendState( NULL, NULL, 0xffffffff );
     }
 
     //**********************************************************************
@@ -116,6 +136,21 @@ namespace Graphics { namespace D3D11 {
     }
 
     //----------------------------------------------------------------------
+    bool Shader::compileGeometryShaderFromSource( const String& src, CString entryPoint )
+    {
+        auto geometryShader = new D3D11::GeometryShader();
+        if ( not geometryShader->compileFromSource( src, entryPoint ) )
+        {
+            delete geometryShader;
+            return false;
+        }
+
+        m_pGeometryShader.reset( geometryShader );
+        //_CreateGSConstantBuffer();
+        return true;
+    }
+
+    //----------------------------------------------------------------------
     ArrayList<OS::Path> Shader::recompile()
     {
         ArrayList<OS::Path> shaderPaths;
@@ -128,6 +163,10 @@ namespace Graphics { namespace D3D11 {
             if ( not m_pPixelShader->isUpToDate() )
                 if ( m_pPixelShader->recompile() )
                     shaderPaths.emplace_back( m_pPixelShader->getFilePath() );
+        if (m_pGeometryShader)
+            if ( not m_pGeometryShader->isUpToDate() )
+                if (m_pGeometryShader->recompile() )
+                    shaderPaths.emplace_back( m_pGeometryShader->getFilePath() );
 
         _CreateConstantBuffers();
         return shaderPaths;
@@ -142,7 +181,9 @@ namespace Graphics { namespace D3D11 {
         if (m_pPixelShader)
             if ( not m_pPixelShader->isUpToDate() )
                 return false;
-
+        if (m_pGeometryShader)
+            if ( not m_pGeometryShader->isUpToDate() )
+                return false;
         return true;
     }
 
@@ -150,8 +191,9 @@ namespace Graphics { namespace D3D11 {
     ArrayList<OS::Path> Shader::getShaderPaths() const
     {
         ArrayList<OS::Path> shaderPaths;
-        if (m_pVertexShader) shaderPaths.emplace_back( m_pVertexShader->getFilePath() );
-        if (m_pPixelShader)  shaderPaths.emplace_back( m_pPixelShader->getFilePath() );
+        if (m_pVertexShader)    shaderPaths.emplace_back( m_pVertexShader->getFilePath() );
+        if (m_pPixelShader)     shaderPaths.emplace_back( m_pPixelShader->getFilePath() );
+        if (m_pGeometryShader)  shaderPaths.emplace_back( m_pGeometryShader->getFilePath() );
         return shaderPaths;
     }
 
@@ -174,6 +216,12 @@ namespace Graphics { namespace D3D11 {
     }
 
     //----------------------------------------------------------------------
+    const ShaderUniformBufferDeclaration* Shader::getGSUniformMaterialBuffer() const 
+    { 
+        return m_pGeometryShader->getMaterialBufferDeclaration();
+    }
+
+    //----------------------------------------------------------------------
     const ShaderUniformBufferDeclaration* Shader::getVSUniformShaderBuffer() const
     {
         return m_pVertexShader->getShaderBufferDeclaration();
@@ -186,18 +234,27 @@ namespace Graphics { namespace D3D11 {
     }
 
     //----------------------------------------------------------------------
+    const ShaderUniformBufferDeclaration* Shader::getGSUniformShaderBuffer() const
+    {
+        return m_pGeometryShader->getShaderBufferDeclaration();
+    }
+
+    //----------------------------------------------------------------------
     const ShaderResourceDeclaration* Shader::getShaderResource( StringID name ) const
     {
         auto decl1 = m_pVertexShader->getResourceDeclaration( name );
-        auto decl2 = m_pPixelShader->getResourceDeclaration( name );
+        auto decl2 = m_pPixelShader ? m_pPixelShader->getResourceDeclaration( name ) : nullptr;
+        auto decl3 = m_pGeometryShader ? m_pGeometryShader->getResourceDeclaration( name ) : nullptr;
 
-        if ( decl1 && decl2 )
+        if ( decl1 && decl2 && decl3 )
             LOG_WARN_RENDERING( "Shader::getShaderResource(): Resource with name '" + name.toString() + "' exists in more than one shader." );
 
         if (decl1)
             return decl1;
         else if (decl2)
             return decl2;
+        else if (decl3)
+            return decl3;
 
         // Not found
         return nullptr;
@@ -299,7 +356,8 @@ namespace Graphics { namespace D3D11 {
     void Shader::_CreateConstantBuffers()
     {
         _CreateVSConstantBuffer();
-        _CreatePSConstantBuffer();
+        if (m_pPixelShader)
+            _CreatePSConstantBuffer();
     }
 
     //----------------------------------------------------------------------

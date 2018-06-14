@@ -94,7 +94,6 @@ namespace Graphics { namespace D3D11 {
             if (decl.getName() == name)
                 return &decl;
         }
-
         return nullptr;
     }
 

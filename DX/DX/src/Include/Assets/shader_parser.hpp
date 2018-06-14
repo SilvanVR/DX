@@ -85,6 +85,9 @@ namespace Assets {
                             throw std::runtime_error( "Fragment shader compilation failed." );
                         break;
                     case Graphics::ShaderType::Geometry:
+                        if ( not shader->compileGeometryShaderFromSource( shaderSources[i], "main" ) )
+                            throw std::runtime_error( "Geometry shader compilation failed." );
+                        break;
                     case Graphics::ShaderType::Tessellation:
                         ASSERT( "Shadertype not supported yet!" );
                     }

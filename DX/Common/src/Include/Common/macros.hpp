@@ -31,3 +31,10 @@
 #define BIND_THIS_FUNC_1_ARGS(F)    std::bind( F, this, std::placeholders::_1 )
 #define BIND_THIS_FUNC_2_ARGS(F)    std::bind( F, this, std::placeholders::_1, std::placeholders::_2 )
 #define BIND_THIS_FUNC_3_ARGS(F)    std::bind( F, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3 )
+
+//----------------------------------------------------------------------
+#define NULL_COPY_AND_ASSIGN(CLASS) \
+CLASS(const CLASS& other)               = delete;\
+CLASS& operator = (const CLASS& other)  = delete;\
+CLASS(CLASS&& other)                    = delete;\
+CLASS& operator = (CLASS&& other)       = delete;

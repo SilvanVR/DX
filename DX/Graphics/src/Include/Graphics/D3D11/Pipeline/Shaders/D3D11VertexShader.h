@@ -22,6 +22,7 @@ namespace Graphics { namespace D3D11 {
         // ShaderBase Interface
         //----------------------------------------------------------------------
         void bind() override;
+        void unbind() override;
         bool compileFromFile(const OS::Path& path, CString entryPoint) override;
         bool compileFromSource(const String& shaderSource, CString entryPoint) override;
 

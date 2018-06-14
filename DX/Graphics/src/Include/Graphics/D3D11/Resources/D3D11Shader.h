@@ -15,6 +15,7 @@ namespace Graphics { namespace D3D11 {
     //----------------------------------------------------------------------
     class VertexShader;
     class PixelShader;
+    class GeometryShader;
 
     //**********************************************************************
     class Shader : public IShader
@@ -30,6 +31,7 @@ namespace Graphics { namespace D3D11 {
         bool                                    compileFromSource(const String& vertSrc, const String& fragSrc, CString entryPoint) override;
         bool                                    compileVertexShaderFromSource(const String& src, CString entryPoint) override;
         bool                                    compileFragmentShaderFromSource(const String& src, CString entryPoint) override;
+        bool                                    compileGeometryShaderFromSource(const String& src, CString entryPoint) override;
         ArrayList<OS::Path>                     recompile();
         bool                                    isUpToDate() override;
         ArrayList<OS::Path>                     getShaderPaths() const override;
@@ -37,8 +39,13 @@ namespace Graphics { namespace D3D11 {
         const ShaderResourceDeclaration*        getShaderResource(StringID name) const override;
         const ShaderUniformBufferDeclaration*   getVSUniformMaterialBuffer() const override;
         const ShaderUniformBufferDeclaration*   getFSUniformMaterialBuffer() const override;
+        const ShaderUniformBufferDeclaration*   getGSUniformMaterialBuffer() const override;
         const ShaderUniformBufferDeclaration*   getVSUniformShaderBuffer() const override;
         const ShaderUniformBufferDeclaration*   getFSUniformShaderBuffer() const override;
+        const ShaderUniformBufferDeclaration*   getGSUniformShaderBuffer() const override;
+        bool                                    hasPixelShader()        const override { return m_pPixelShader != nullptr; }
+        bool                                    hasGeometryShader()     const override { return m_pGeometryShader != nullptr; }
+        bool                                    hasTessellationShader() const override { return false; }
 
         void _SetInt(StringID name, I32 val)                            override { _UpdateConstantBuffer(name, &val); }
         void _SetFloat(StringID name, F32 val)                          override { _UpdateConstantBuffer(name, &val); }
@@ -56,12 +63,13 @@ namespace Graphics { namespace D3D11 {
     private:
         std::unique_ptr<VertexShader>   m_pVertexShader = nullptr;
         std::unique_ptr<PixelShader>    m_pPixelShader  = nullptr;
+        std::unique_ptr<GeometryShader> m_pGeometryShader = nullptr;
 
         ID3D11DepthStencilState*        m_pDepthStencilState;
         ID3D11RasterizerState*          m_pRSState;
         ID3D11BlendState*               m_pBlendState;
 
-        // Contains the material data in a contiguous block of memory. Will be empty if not used for a shader.
+        // Contains the data in a contiguous block of memory. Will be empty if not used for a shader.
         MappedConstantBuffer* m_shaderDataVS = nullptr;
         MappedConstantBuffer* m_shaderDataPS = nullptr;
 
@@ -69,6 +77,7 @@ namespace Graphics { namespace D3D11 {
         // IShader Interface
         //----------------------------------------------------------------------
         void bind() override;
+        void unbind() override;
 
         //----------------------------------------------------------------------
         void _CreatePipeline();

@@ -49,6 +49,14 @@ namespace Graphics {
         void setName(const String& name) { m_name = name; }
 
         //----------------------------------------------------------------------
+        // @Return:
+        //  True, if the corresponding shader exists.
+        //----------------------------------------------------------------------
+        virtual bool hasPixelShader() const = 0;
+        virtual bool hasGeometryShader() const = 0;
+        virtual bool hasTessellationShader() const = 0;
+
+        //----------------------------------------------------------------------
         // Try to compile this shader.
         // @Params:
         //  "vertPath": Path to the vertex shader file.
@@ -80,7 +88,7 @@ namespace Graphics {
         //----------------------------------------------------------------------
         virtual bool compileVertexShaderFromSource(const String& src, CString entryPoint) = 0;
         virtual bool compileFragmentShaderFromSource(const String& src, CString entryPoint) = 0;
-        //virtual bool compileGeometryShaderFromSource(const String& src, CString entryPoint) = 0;
+        virtual bool compileGeometryShaderFromSource(const String& src, CString entryPoint) = 0;
         //virtual bool compileTessellationShaderFromSource(const String& src, CString entryPoint) = 0;
 
         //----------------------------------------------------------------------
@@ -121,6 +129,7 @@ namespace Graphics {
         //----------------------------------------------------------------------
         virtual const ShaderUniformBufferDeclaration* getVSUniformMaterialBuffer() const = 0;
         virtual const ShaderUniformBufferDeclaration* getFSUniformMaterialBuffer() const = 0;
+        virtual const ShaderUniformBufferDeclaration* getGSUniformMaterialBuffer() const = 0;
 
         //----------------------------------------------------------------------
         // @Return:
@@ -128,6 +137,7 @@ namespace Graphics {
         //----------------------------------------------------------------------
         virtual const ShaderUniformBufferDeclaration* getVSUniformShaderBuffer() const = 0;
         virtual const ShaderUniformBufferDeclaration* getFSUniformShaderBuffer() const = 0;
+        virtual const ShaderUniformBufferDeclaration* getGSUniformShaderBuffer() const = 0;
 
         //----------------------------------------------------------------------
         // @Return:
@@ -269,6 +279,7 @@ namespace Graphics {
         //----------------------------------------------------------------------
         friend class D3D11Renderer;
         virtual void bind() = 0;
+        virtual void unbind() = 0;
 
         //----------------------------------------------------------------------
         IShader(const IShader& other)               = delete;

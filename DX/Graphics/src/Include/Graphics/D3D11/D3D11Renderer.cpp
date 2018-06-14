@@ -32,8 +32,6 @@ namespace Graphics {
     #define CAMERA_BUFFER D3D11::ConstantBufferManager::getCameraBuffer()
     #define LIGHT_BUFFER  D3D11::ConstantBufferManager::getLightBuffer()
 
-    #define MAX_LIGHTS 16
-
     static const StringID LIGHT_COUNT_NAME          = SID( "_LightCount" );
     static const StringID LIGHT_BUFFER_NAME         = SID( "_Lights" );
     static const StringID CAM_POS_NAME              = SID( "_CameraPos" );
@@ -41,31 +39,6 @@ namespace Graphics {
     static const StringID VIEW_PROJ_NAME            = SID( "_ViewProj" );
     static const StringID CAM_ZNEAR_NAME            = SID( "_zNear" );
     static const StringID CAM_ZFAR_NAME             = SID( "_zFar" );
-
-    //----------------------------------------------------------------------
-    struct RenderContext
-    {
-        Camera*      camera     = nullptr;  // Current camera
-
-        Shader*      shader     = nullptr;  // Current bound shader
-        Material*    material   = nullptr;  // Current bound material
-
-        RenderTexturePtr renderTarget = nullptr; // Current render target
-
-        I32          lightCount = 0;
-        const Light* lights[MAX_LIGHTS];
-        bool         lightsUpdated = false; // Set to true whenever a new light has been added
-
-        void Reset()
-        {
-            camera = nullptr;
-            shader = nullptr;
-            material = nullptr;
-            lightCount = 0;
-            lightsUpdated = false;
-            renderTarget = nullptr;
-        }
-    } renderContext;
 
     ArrayList<Math::Vec3> cubeVertices =
     {
@@ -449,33 +422,16 @@ namespace Graphics {
         if ( D3D11::ConstantBufferManager::hasLightBuffer() )
             _FlushLightBuffer();
 
-        Shader* shader = renderContext.shader;
         if (m_activeGlobalMaterial)
         {
-            if (m_activeGlobalMaterial != renderContext.material)
-            {
-                shader = m_activeGlobalMaterial->getShader().get();
-                shader->bind();
-                renderContext.shader = m_activeGlobalMaterial->getShader().get();
-                renderContext.material = m_activeGlobalMaterial;
-            }
+            renderContext.BindShader( m_activeGlobalMaterial->getShader().get() );
+            renderContext.BindMaterial( m_activeGlobalMaterial );
         }
         else
         {
-            // Bind shader if not already bound
-            if ( material->getShader().get() != renderContext.shader )
-            {
-                shader = material->getShader().get();
-                shader->bind();
-                renderContext.shader = shader;
-            }
-
-            // Bind material if not already bound
-            if ( material != renderContext.material )
-            {
-                material->bind();
-                renderContext.material = material;
-            }
+            // Bind shader + material
+            renderContext.BindShader( material->getShader().get() );
+            renderContext.BindMaterial( material );
         }
 
         // Update per object buffer
@@ -483,7 +439,7 @@ namespace Graphics {
 
         // Bind mesh
         auto d3d11Mesh = reinterpret_cast<D3D11::Mesh*>( mesh );
-        d3d11Mesh->bind( shader->getVertexLayout(), subMeshIndex );
+        d3d11Mesh->bind( renderContext.getShader()->getVertexLayout(), subMeshIndex );
 
         // Submit draw call
         g_pImmediateContext->DrawIndexed( mesh->getIndexCount( subMeshIndex ), 0, mesh->getBaseVertex( subMeshIndex ) );
@@ -641,7 +597,8 @@ namespace Graphics {
             _DrawMesh( m_cubeMesh, material, DirectX::XMMatrixIdentity(), 0 );
             _CopyTexture( colorBuffer, 0, 0, cubemap, face, dstMip );
 
-            // Unfortunately on my laptop if i dont flush here the driver crashes sometimes...
+            // Unfortunately on my laptop if i dont flush here the driver crashes sometimes... 
+            // (probably because the colorbuffer gets deleted before the rendering has been finished) -> Need to delete the buffer later
             g_pImmediateContext->Flush();
         }
 
@@ -696,15 +653,53 @@ namespace Graphics {
     //----------------------------------------------------------------------
     void D3D11Renderer::_DrawFullScreenQuad( IMaterial* material, const D3D11_VIEWPORT& viewport )
     {
-        renderContext.shader = material->getShader().get();
-        renderContext.material = material;
-
-        renderContext.shader->bind();
-        renderContext.material->bind();
+        renderContext.BindShader( material->getShader().get() );
+        renderContext.BindMaterial( material );
 
         g_pImmediateContext->RSSetViewports( 1, &viewport );
         g_pImmediateContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP );
         g_pImmediateContext->Draw( 4, 0 );
+    }
+
+    //**********************************************************************
+    // RENDER CONTEXT
+    //**********************************************************************
+
+    //----------------------------------------------------------------------
+    void D3D11Renderer::RenderContext::BindShader( IShader* shader )
+    {
+        // Don't bind same shader shader again
+        if(shader == m_shader)
+            return;
+
+        // Unbind previous shader
+        if (m_shader)
+            m_shader->unbind();
+
+        m_shader = shader;
+        m_shader->bind();
+    }
+
+    //----------------------------------------------------------------------
+    void D3D11Renderer::RenderContext::BindMaterial( IMaterial* material )
+    {
+        // Don't bind same material again
+        if (material == m_material)
+            return;
+
+        m_material = material;
+        m_material->bind();
+    }
+
+    //----------------------------------------------------------------------
+    void D3D11Renderer::RenderContext::Reset()
+    {
+        camera = nullptr;
+        m_shader = nullptr;
+        m_material = nullptr;
+        lightCount = 0;
+        lightsUpdated = false;
+        renderTarget = nullptr;
     }
 
 } // End namespaces

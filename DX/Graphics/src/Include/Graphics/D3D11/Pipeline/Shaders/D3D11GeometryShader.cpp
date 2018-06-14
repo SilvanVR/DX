@@ -1,17 +1,17 @@
-#include "D3D11PixelShader.h"
+#include "D3D11GeometryShader.h"
 /**********************************************************************
-    class: PixelShader (D3D11PixelShader.cpp)
+    class: GeometryShader (D3D11GeometryShader.cpp)
 
     author: S. Hau
-    date: March 17, 2018
+    date: June 14, 2018
 **********************************************************************/
 
 namespace Graphics { namespace D3D11 {
     
     //----------------------------------------------------------------------
-    PixelShader::~PixelShader()
+    GeometryShader::~GeometryShader()
     {
-        SAFE_RELEASE( m_pPixelShader );
+        SAFE_RELEASE( m_pGeometryShader );
     }
 
     //**********************************************************************
@@ -19,38 +19,38 @@ namespace Graphics { namespace D3D11 {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    void PixelShader::bind()
+    void GeometryShader::bind()
     {
-        ASSERT( m_pPixelShader != nullptr );
-        g_pImmediateContext->PSSetShader( m_pPixelShader, NULL, 0 );
+        ASSERT( m_pGeometryShader != nullptr );
+        g_pImmediateContext->GSSetShader( m_pGeometryShader, NULL, 0 );
     }
 
     //----------------------------------------------------------------------
-    void PixelShader::unbind()
+    void GeometryShader::unbind()
     {
-        g_pImmediateContext->PSSetShader( NULL, NULL, 0 );
+        g_pImmediateContext->GSSetShader( NULL, NULL, 0 );
     }
 
     //----------------------------------------------------------------------
-    bool PixelShader::compileFromFile( const OS::Path& path, CString entryPoint )
+    bool GeometryShader::compileFromFile( const OS::Path& path, CString entryPoint )
     {
-        bool compiled = _CompileFromFile<ID3D11PixelShader>( path, entryPoint );
+        bool compiled = _CompileFromFile<ID3D11GeometryShader>( path, entryPoint );
         if (not compiled)
             return false;
 
-        _CreateD3D11PixelShader();
+        _CreateD3D11GeometryShader();
 
         return true;
     }
 
     //----------------------------------------------------------------------
-    bool PixelShader::compileFromSource( const String& source, CString entryPoint )
+    bool GeometryShader::compileFromSource( const String& source, CString entryPoint )
     {
-        bool compiled = _CompileFromSource<ID3D11PixelShader>( source, entryPoint );
+        bool compiled = _CompileFromSource<ID3D11GeometryShader>( source, entryPoint );
         if (not compiled)
             return false;
 
-        _CreateD3D11PixelShader();
+        _CreateD3D11GeometryShader();
 
         return true;
     }
@@ -60,10 +60,10 @@ namespace Graphics { namespace D3D11 {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    void PixelShader::_CreateD3D11PixelShader()
+    void GeometryShader::_CreateD3D11GeometryShader()
     {
-        SAFE_RELEASE( m_pPixelShader );
-        HR( g_pDevice->CreatePixelShader( m_pShaderBlob->GetBufferPointer(), m_pShaderBlob->GetBufferSize(), nullptr, &m_pPixelShader ) );
+        SAFE_RELEASE( m_pGeometryShader );
+        HR( g_pDevice->CreateGeometryShader( m_pShaderBlob->GetBufferPointer(), m_pShaderBlob->GetBufferSize(), nullptr, &m_pGeometryShader ) );
 
         // Shader blob + reflection data no longer needed
         SAFE_RELEASE( m_pShaderBlob );

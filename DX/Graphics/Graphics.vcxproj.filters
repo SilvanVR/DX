@@ -102,6 +102,9 @@
     <ClCompile Include="src\Include\Graphics\i_render_texture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Include\Graphics\D3D11\Pipeline\Shaders\D3D11GeometryShader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\stdafx.h">
@@ -240,6 +243,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Include\Graphics\i_render_texture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Include\Graphics\D3D11\Pipeline\Shaders\D3D11GeometryShader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

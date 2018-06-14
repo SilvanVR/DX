@@ -14,7 +14,10 @@
 
 namespace Graphics {
 
+    #define MAX_LIGHTS 16
+
     class Camera;
+    class Light;
 
     //**********************************************************************
     // D3D11 Renderer Subsystem.
@@ -80,6 +83,27 @@ namespace Graphics {
         // IRenderer Interface
         //----------------------------------------------------------------------
         void OnWindowSizeChanged(U16 w, U16 h) override;
+
+        //----------------------------------------------------------------------
+        struct RenderContext
+        {
+            Camera*             camera = nullptr;  // Current camera
+            RenderTexturePtr    renderTarget = nullptr; // Current render target
+
+            I32          lightCount = 0;
+            const Light* lights[MAX_LIGHTS];
+            bool         lightsUpdated = false; // Set to true whenever a new light has been added
+
+            void Reset();
+            void BindMaterial(IMaterial* material);
+            void BindShader(IShader* shader);
+
+            inline IShader* getShader() const { return m_shader; }
+
+        private:
+            IMaterial*  m_material = nullptr;     // Current bound material
+            IShader*    m_shader = nullptr;       // Current bound shader
+        } renderContext;
 
         //----------------------------------------------------------------------
         D3D11Renderer(const D3D11Renderer& other)               = delete;

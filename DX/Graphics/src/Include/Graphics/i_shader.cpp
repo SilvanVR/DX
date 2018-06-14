@@ -18,23 +18,37 @@ namespace Graphics {
     DataType IShader::getDataTypeOfMaterialProperty( StringID name )
     {
         auto typeVS = DataType::Unknown;
+        auto typeFS = DataType::Unknown;
+        auto typeGS = DataType::Unknown;
+
         if ( auto VSBuffer = getVSUniformMaterialBuffer() )
             if ( auto member = VSBuffer->getMember( name ) )
                 typeVS = member->getDataType();
 
-        auto typeFS = DataType::Unknown;
-        if ( auto FSBuffer = getFSUniformMaterialBuffer() )
-            if ( auto member = FSBuffer->getMember( name ) )
-                typeFS = member->getDataType();
+        if ( hasPixelShader() )
+        {
+            if ( auto FSBuffer = getFSUniformMaterialBuffer() )
+                if ( auto member = FSBuffer->getMember( name ) )
+                    typeFS = member->getDataType();
+        }
 
-        if (typeVS != DataType::Unknown && typeFS != DataType::Unknown)
-            LOG_WARN_RENDERING( "IShader::getDataTypeOfMaterialProperty(): A IShader property exists in multiple shader stages. "
+        if ( hasGeometryShader() )
+        {
+            if ( auto GSBuffer = getGSUniformMaterialBuffer() )
+                if ( auto member = GSBuffer->getMember( name ) )
+                    typeGS = member->getDataType();
+        }
+
+        if (typeVS != DataType::Unknown && typeFS != DataType::Unknown && typeGS != DataType::Unknown)
+            LOG_WARN_RENDERING( "IShader::getDataTypeOfMaterialProperty(): A shader property exists in multiple shader stages. "
                                 "This might cause issues. Consider renaming one of the properties with name: " + name.toString() );
 
         if (typeVS != DataType::Unknown)
             return typeVS;
         else if (typeFS != DataType::Unknown)
             return typeFS;
+        else if (typeGS != DataType::Unknown)
+            return typeGS;
 
         return DataType::Unknown;
     }
@@ -45,11 +59,11 @@ namespace Graphics {
         auto typeMaterial = getDataTypeOfMaterialProperty( name );
 
         auto typeResource = DataType::Unknown;
-        if ( auto shaderResource = getShaderResource(name) )
+        if ( auto shaderResource = getShaderResource( name ) )
             typeResource = shaderResource->getDataType();
 
         if ( typeMaterial != DataType::Unknown && typeResource != DataType::Unknown )
-            LOG_WARN_RENDERING( "IShader::getDataTypeOfMaterialPropertyOrResource(): A IShader property exists in a IShader buffer and as a resource. "
+            LOG_WARN_RENDERING( "IShader::getDataTypeOfMaterialPropertyOrResource(): A shader property exists in a shader buffer and as a resource. "
                                 "This might cause issues. Consider renaming one of them with name: " + name.toString());
 
         if (typeMaterial != DataType::Unknown)

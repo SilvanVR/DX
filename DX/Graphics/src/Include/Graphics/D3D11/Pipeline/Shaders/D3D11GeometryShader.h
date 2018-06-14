@@ -1,9 +1,9 @@
 #pragma once
 /**********************************************************************
-    class: PixelShader (D3D11PixelShader.h)
+    class: GeometryShader (D3D11GeometryShader.h)
 
     author: S. Hau
-    date: March 17, 2018
+    date: June 14, 2018
 **********************************************************************/
 
 #include "D3D11ShaderBase.h"
@@ -11,11 +11,11 @@
 namespace Graphics { namespace D3D11 {
 
     //**********************************************************************
-    class PixelShader : public ShaderBase
+    class GeometryShader : public ShaderBase
     {
     public:
-        PixelShader() : ShaderBase(ShaderType::Fragment) {}
-        ~PixelShader();
+        GeometryShader() : ShaderBase( ShaderType::Geometry ) {}
+        ~GeometryShader();
 
         //----------------------------------------------------------------------
         // ShaderBase Interface
@@ -26,15 +26,11 @@ namespace Graphics { namespace D3D11 {
         bool compileFromSource(const String& shaderSource, CString entryPoint) override;
 
     private:
-        ID3D11PixelShader* m_pPixelShader = nullptr;
+        ID3D11GeometryShader* m_pGeometryShader = nullptr;
 
-        void _CreateD3D11PixelShader();
+        void _CreateD3D11GeometryShader();
 
-        //----------------------------------------------------------------------
-        PixelShader(const PixelShader& other)               = delete;
-        PixelShader& operator = (const PixelShader& other)  = delete;
-        PixelShader(PixelShader&& other)                    = delete;
-        PixelShader& operator = (PixelShader&& other)       = delete;
+        NULL_COPY_AND_ASSIGN(GeometryShader)
     };
 
 

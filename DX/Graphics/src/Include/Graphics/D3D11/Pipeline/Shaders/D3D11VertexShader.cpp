@@ -30,6 +30,12 @@ namespace Graphics { namespace D3D11 {
     }
 
     //----------------------------------------------------------------------
+    void VertexShader::unbind()
+    { 
+        g_pImmediateContext->VSSetShader( NULL, NULL, 0 ); 
+    }
+
+    //----------------------------------------------------------------------
     bool VertexShader::compileFromFile( const OS::Path& path, CString entryPoint )
     {
         bool compiled = _CompileFromFile<ID3D11VertexShader>( path, entryPoint );

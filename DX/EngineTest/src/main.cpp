@@ -30,6 +30,17 @@ public:
 
         createGameObject("Grid")->addComponent<GridGeneration>(20);
 
+        //auto obj = createGameObject("GO");
+        //obj->addComponent<Components::MeshRenderer>(ASSETS.getMesh("/models/monkey.obj"), ASSETS.getMaterial("/materials/normals.material"));
+
+        auto shader = ASSETS.getShader("/shaders/geometry_test.shader");
+
+        auto mat = RESOURCES.createMaterial(shader);
+
+        auto obj2 = createGameObject();
+        obj2->addComponent<Components::MeshRenderer>(ASSETS.getMesh("/models/monkey.obj"), mat);
+
+
         LOG("TestScene initialized!", Color::RED);
     }
 
@@ -82,7 +93,7 @@ public:
         Locator::getRenderer().setVSync(true);
         Locator::getRenderer().setGlobalFloat(SID("_Ambient"), 0.5f);
 
-        Locator::getSceneManager().LoadSceneAsync(new ScenePostProcessMultiCamera());
+        Locator::getSceneManager().LoadSceneAsync(new TestScene());
     }
 
     //----------------------------------------------------------------------
@@ -95,7 +106,7 @@ public:
         if (KEYBOARD.wasKeyPressed(Key::One))
             Locator::getSceneManager().LoadSceneAsync(new VertexGenScene);
         if (KEYBOARD.wasKeyPressed(Key::Two))
-            Locator::getSceneManager().LoadSceneAsync(new SceneStarCitizen);
+            Locator::getSceneManager().LoadSceneAsync(new ScenePostProcessMultiCamera);
         if (KEYBOARD.wasKeyPressed(Key::Three))
             Locator::getSceneManager().LoadSceneAsync(new SceneMirror);
         if (KEYBOARD.wasKeyPressed(Key::Four))
