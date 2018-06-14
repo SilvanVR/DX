@@ -36,9 +36,11 @@ namespace Graphics {
     static const StringID LIGHT_BUFFER_NAME         = SID( "_Lights" );
     static const StringID CAM_POS_NAME              = SID( "_CameraPos" );
     static const StringID POST_PROCESS_INPUT_NAME   = SID( "_MainTex" );
-    static const StringID VIEW_PROJ_NAME            = SID( "_ViewProj" );
+    static const StringID CAM_VIEW_PROJ_NAME        = SID( "_ViewProj" );
     static const StringID CAM_ZNEAR_NAME            = SID( "_zNear" );
     static const StringID CAM_ZFAR_NAME             = SID( "_zFar" );
+    static const StringID CAM_VIEW_MATRIX_NAME      = SID( "_View" );
+    static const StringID CAM_PROJ_MATRIX_NAME      = SID( "_Proj" );
 
     ArrayList<Math::Vec3> cubeVertices =
     {
@@ -386,7 +388,7 @@ namespace Graphics {
 
         // Update camera buffer
         XMMATRIX viewProj = camera->getViewMatrix() * camera->getProjectionMatrix();
-        if ( not CAMERA_BUFFER.update( VIEW_PROJ_NAME, &viewProj ) )
+        if ( not CAMERA_BUFFER.update( CAM_VIEW_PROJ_NAME, &viewProj ) )
             LOG_ERROR_RENDERING( "D3D11: Could not update the view-projection matrix in the camera buffer!" );
 
         static StringID camPosName = SID( CAM_POS_NAME );
@@ -402,6 +404,12 @@ namespace Graphics {
         auto zNear = camera->getZNear();
         if ( not CAMERA_BUFFER.update( CAM_ZNEAR_NAME, &zNear) )
             LOG_ERROR_RENDERING( "D3D11: Could not update the camera buffer [zNear]. Fix this!" );
+
+        if ( not CAMERA_BUFFER.update( CAM_VIEW_MATRIX_NAME, &camera->getViewMatrix() ) )
+            LOG_ERROR_RENDERING( "D3D11: Could not update the camera buffer [View]. Fix this!" );
+
+        if ( not CAMERA_BUFFER.update( CAM_PROJ_MATRIX_NAME, &camera->getProjectionMatrix() ) )
+            LOG_ERROR_RENDERING( "D3D11: Could not update the camera buffer [Projection]. Fix this!" );
 
         CAMERA_BUFFER.flush();
     }
@@ -590,7 +598,7 @@ namespace Graphics {
 
             auto view = DirectX::XMMatrixLookToLH( { 0, 0, 0, 0 }, directions[face], ups[face] );
             auto viewProj = view * projection;
-            if ( not CAMERA_BUFFER.update( VIEW_PROJ_NAME, &viewProj ) )
+            if ( not CAMERA_BUFFER.update( CAM_VIEW_PROJ_NAME, &viewProj ) )
                 LOG_ERROR_RENDERING( "D3D11::RenderCubemap(): Could not update the view-projection matrix in the camera buffer!" );
             CAMERA_BUFFER.flush();
 

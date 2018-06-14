@@ -17,6 +17,8 @@ namespace Graphics { namespace ShaderSources {
     const String ERROR_VERTEX =                    "\
     cbuffer cbPerCamera : register( b0 )            \
     {                                               \
+        float4x4 _View;                             \
+        float4x4 _Proj;                             \
         float4x4 _ViewProj;                         \
         float3 _CameraPos;                          \
         float _zNear;                               \
@@ -75,6 +77,8 @@ namespace Graphics { namespace ShaderSources {
     const String COLOR_VERTEX =                    "\
     cbuffer cbPerCamera : register( b0 )            \
     {                                               \
+        float4x4 _View;                             \
+        float4x4 _Proj;                             \
         float4x4 _ViewProj;                         \
         float3 _CameraPos;                          \
         float _zNear;                               \

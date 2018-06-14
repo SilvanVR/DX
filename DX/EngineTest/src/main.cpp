@@ -37,9 +37,11 @@ public:
 
         auto mat = RESOURCES.createMaterial(shader);
 
-        auto obj2 = createGameObject();
-        obj2->addComponent<Components::MeshRenderer>(ASSETS.getMesh("/models/monkey.obj"), mat);
+        auto mesh = Core::MeshGenerator::CreateCubeUV();
 
+        auto obj2 = createGameObject();
+        obj2->addComponent<Components::MeshRenderer>(mesh, mat);
+        obj2->addComponent<VisualizeNormals>(0.3f, Color::BLUE);
 
         LOG("TestScene initialized!", Color::RED);
     }

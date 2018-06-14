@@ -51,19 +51,28 @@ struct GeoOut
 	float3 Normal : NORMAL;
 };
 
-cbuffer cbPerMaterial
+static const float MAGNITUDE = 0.4;
+void GenerateLine(VertexOut vertex, inout LineStream<GeoOut> OutputStream)
 {
-	float val;
+	GeoOut gout;
+    gout.PosH = vertex.PosH;
+    OutputStream.Append(gout);
+    gout.PosH = vertex.PosH + float4(vertex.Normal, 0.0) * MAGNITUDE;
+    OutputStream.Append(gout);
+	OutputStream.RestartStrip();
 }
 
 [maxvertexcount(3)]
 void main(triangle VertexOut input[3], inout TriangleStream<GeoOut> OutputStream)
-{
-	GeoOut gout;
+{	
+	//GenerateLine(input[0], OutputStream);
+	//GenerateLine(input[1], OutputStream);
+	//GenerateLine(input[2], OutputStream);
 	
 	float val = (sin(_Time)+1)/2;
     for(int i = 0; i < 3; i++)
     {
+		GeoOut gout;
 		gout.PosH = input[i].PosH + val * float4(input[i].Normal,1);
 		gout.Normal = input[i].Normal;
         OutputStream.Append(gout);
@@ -83,5 +92,5 @@ struct FragmentIn
 
 float4 main(FragmentIn fin) : SV_Target
 {
-    return float4(fin.Normal.xyz, 1);
+    return float4(fin.Normal,1);
 }
