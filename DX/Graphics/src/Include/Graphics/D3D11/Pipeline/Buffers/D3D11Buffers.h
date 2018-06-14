@@ -56,6 +56,7 @@ namespace Graphics { namespace D3D11 {
         //----------------------------------------------------------------------
         void bindToVertexShader(U32 slot) const;
         void bindToPixelShader(U32 slot) const;
+        void bindToGeometryShader(U32 slot) const;
 
     private:
         //----------------------------------------------------------------------

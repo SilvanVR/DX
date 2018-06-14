@@ -44,7 +44,7 @@ namespace Graphics { namespace D3D11 {
         // Bind constant buffers and textures
         if (m_shaderDataVS) m_shaderDataVS->bind( ShaderType::Vertex );
         if (m_shaderDataPS) m_shaderDataPS->bind( ShaderType::Fragment );
-        //if (m_shaderDataGS) m_shaderDataGS->bind( ShaderType::Geometry );
+        if (m_shaderDataGS) m_shaderDataGS->bind( ShaderType::Geometry );
         _BindTextures();
 
         // Bind pipeline states
@@ -146,7 +146,7 @@ namespace Graphics { namespace D3D11 {
         }
 
         m_pGeometryShader.reset( geometryShader );
-        //_CreateGSConstantBuffer();
+        _CreateGSConstantBuffer();
         return true;
     }
 
@@ -353,11 +353,22 @@ namespace Graphics { namespace D3D11 {
     }
 
     //----------------------------------------------------------------------
+    void Shader::_CreateGSConstantBuffer()
+    {
+        _ClearAllMaps();
+        SAFE_DELETE( m_shaderDataGS );
+        if ( auto cb = getGSUniformShaderBuffer() )
+            m_shaderDataGS = new MappedConstantBuffer( *cb, BufferUsage::LongLived );
+    }
+
+    //----------------------------------------------------------------------
     void Shader::_CreateConstantBuffers()
     {
         _CreateVSConstantBuffer();
         if (m_pPixelShader)
             _CreatePSConstantBuffer();
+        if (m_pGeometryShader)
+            _CreateGSConstantBuffer();
     }
 
     //----------------------------------------------------------------------
@@ -368,6 +379,7 @@ namespace Graphics { namespace D3D11 {
         // will do nothing if the name does not exist.
         if (m_shaderDataVS) m_shaderDataVS->update( name, pData );
         if (m_shaderDataPS) m_shaderDataPS->update( name, pData );
+        if (m_shaderDataGS) m_shaderDataGS->update( name, pData );
     }
 
 } } // End namespaces

@@ -62,4 +62,10 @@ namespace Graphics { namespace D3D11 {
         g_pImmediateContext->PSSetConstantBuffers( slot, 1, &m_pBuffer );
     }
 
+    //----------------------------------------------------------------------
+    void ConstantBuffer::bindToGeometryShader( U32 slot ) const
+    {
+        g_pImmediateContext->GSSetConstantBuffers( slot, 1, &m_pBuffer );
+    }
+
 } } // End namespaces

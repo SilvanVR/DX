@@ -18,6 +18,7 @@ namespace Graphics { namespace D3D11 {
         // Bind constant buffers
         if (m_materialDataVS) m_materialDataVS->bind( ShaderType::Vertex );
         if (m_materialDataPS) m_materialDataPS->bind( ShaderType::Fragment );
+        if (m_materialDataGS) m_materialDataGS->bind( ShaderType::Geometry );
 
         _BindTextures();
     }
@@ -45,8 +46,14 @@ namespace Graphics { namespace D3D11 {
             m_materialDataVS = new MappedConstantBuffer( *cb, BufferUsage::LongLived );
 
         // Create buffer for pixel shader
-        if ( auto cb = m_shader->getFSUniformMaterialBuffer() )
-            m_materialDataPS = new MappedConstantBuffer( *cb, BufferUsage::LongLived );
+        if ( m_shader->hasFragmentShader() )
+            if ( auto cb = m_shader->getFSUniformMaterialBuffer() )
+                m_materialDataPS = new MappedConstantBuffer( *cb, BufferUsage::LongLived );
+
+        // Create buffer for geometry shader
+        if ( m_shader->hasGeometryShader() )
+            if ( auto cb = m_shader->getGSUniformMaterialBuffer() )
+                m_materialDataGS = new MappedConstantBuffer( *cb, BufferUsage::LongLived );
     }
  
     //----------------------------------------------------------------------
@@ -57,6 +64,7 @@ namespace Graphics { namespace D3D11 {
         // will do nothing if the name does not exist.
         if (m_materialDataVS) m_materialDataVS->update( name, pData );
         if (m_materialDataPS) m_materialDataPS->update( name, pData );
+        if (m_materialDataGS) m_materialDataGS->update( name, pData );
     }
 
     //----------------------------------------------------------------------
@@ -64,6 +72,7 @@ namespace Graphics { namespace D3D11 {
     {
         SAFE_DELETE( m_materialDataVS );
         SAFE_DELETE( m_materialDataPS );
+        SAFE_DELETE( m_materialDataGS );
     }
 
 } } // End namespaces

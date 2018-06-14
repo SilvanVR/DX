@@ -43,7 +43,7 @@ namespace Graphics { namespace D3D11 {
         const ShaderUniformBufferDeclaration*   getVSUniformShaderBuffer() const override;
         const ShaderUniformBufferDeclaration*   getFSUniformShaderBuffer() const override;
         const ShaderUniformBufferDeclaration*   getGSUniformShaderBuffer() const override;
-        bool                                    hasPixelShader()        const override { return m_pPixelShader != nullptr; }
+        bool                                    hasFragmentShader()     const override { return m_pPixelShader != nullptr; }
         bool                                    hasGeometryShader()     const override { return m_pGeometryShader != nullptr; }
         bool                                    hasTessellationShader() const override { return false; }
 
@@ -72,6 +72,7 @@ namespace Graphics { namespace D3D11 {
         // Contains the data in a contiguous block of memory. Will be empty if not used for a shader.
         MappedConstantBuffer* m_shaderDataVS = nullptr;
         MappedConstantBuffer* m_shaderDataPS = nullptr;
+        MappedConstantBuffer* m_shaderDataGS = nullptr;
 
         //----------------------------------------------------------------------
         // IShader Interface
@@ -85,6 +86,7 @@ namespace Graphics { namespace D3D11 {
         void _UpdateConstantBuffer(StringID name, const void* pData);
         void _CreateVSConstantBuffer();
         void _CreatePSConstantBuffer();
+        void _CreateGSConstantBuffer();
 
         //----------------------------------------------------------------------
         Shader(const Shader& other)               = delete;

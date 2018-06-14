@@ -39,6 +39,7 @@ namespace Graphics { namespace D3D11 {
                     s_pBufferGlobal = new MappedConstantBuffer( cb, BufferUsage::Frequently );
                     s_pBufferGlobal->bind( ShaderType::Vertex );
                     s_pBufferGlobal->bind( ShaderType::Fragment );
+                    s_pBufferGlobal->bind( ShaderType::Geometry );
                 }
                 else
                 {

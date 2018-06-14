@@ -52,7 +52,7 @@ namespace Graphics {
         // @Return:
         //  True, if the corresponding shader exists.
         //----------------------------------------------------------------------
-        virtual bool hasPixelShader() const = 0;
+        virtual bool hasFragmentShader() const = 0;
         virtual bool hasGeometryShader() const = 0;
         virtual bool hasTessellationShader() const = 0;
 

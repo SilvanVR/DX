@@ -60,6 +60,7 @@ namespace Graphics { namespace D3D11 {
         {
         case ShaderType::Vertex:    m_GPUBuffer->bindToVertexShader( m_bufferInfo.getBindingSlot() ); break;
         case ShaderType::Fragment:  m_GPUBuffer->bindToPixelShader( m_bufferInfo.getBindingSlot() ); break;
+        case ShaderType::Geometry:  m_GPUBuffer->bindToGeometryShader( m_bufferInfo.getBindingSlot() ); break;
         default: ASSERT( false );
         }
     }

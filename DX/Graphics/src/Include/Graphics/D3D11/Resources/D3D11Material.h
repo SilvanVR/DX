@@ -31,6 +31,7 @@ namespace Graphics { namespace D3D11 {
         // Contains the material data in a contiguous block of memory. Will be empty if not used for a shader.
         MappedConstantBuffer* m_materialDataVS = nullptr;
         MappedConstantBuffer* m_materialDataPS = nullptr;
+        MappedConstantBuffer* m_materialDataGS = nullptr;
 
         //----------------------------------------------------------------------
         // IMaterial Interface

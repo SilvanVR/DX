@@ -37,6 +37,8 @@ VertexOut main(VertexIn vin)
 // ----------------------------------------------
 #shader geometry
 
+#include "/shaders/includes/engineGS.hlsl" 
+
 struct VertexOut
 {
     float4 PosH : SV_POSITION;
@@ -49,14 +51,20 @@ struct GeoOut
 	float3 Normal : NORMAL;
 };
 
+cbuffer cbPerMaterial
+{
+	float val;
+}
+
 [maxvertexcount(3)]
 void main(triangle VertexOut input[3], inout TriangleStream<GeoOut> OutputStream)
 {
 	GeoOut gout;
 	
+	float val = (sin(_Time)+1)/2;
     for(int i = 0; i < 3; i++)
     {
-		gout.PosH = input[i].PosH;
+		gout.PosH = input[i].PosH + val * float4(input[i].Normal,1);
 		gout.Normal = input[i].Normal;
         OutputStream.Append(gout);
     }

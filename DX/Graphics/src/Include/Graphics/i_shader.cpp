@@ -25,7 +25,7 @@ namespace Graphics {
             if ( auto member = VSBuffer->getMember( name ) )
                 typeVS = member->getDataType();
 
-        if ( hasPixelShader() )
+        if ( hasFragmentShader() )
         {
             if ( auto FSBuffer = getFSUniformMaterialBuffer() )
                 if ( auto member = FSBuffer->getMember( name ) )
