@@ -10,107 +10,6 @@
 
 #include "Time/clock.h"
 
-class ColorGrading : public Components::IComponent
-{
-    MaterialPtr material;
-    Graphics::CommandBuffer cmd;
-
-public:
-    void addedToGameObject(GameObject* go)
-    {
-        // Create rendertarget
-        auto rt = RESOURCES.createRenderTexture(WINDOW.getWidth(), WINDOW.getHeight(), Graphics::TextureFormat::RGBA32, true);
-        rt->setClampMode(Graphics::TextureAddressMode::Clamp);
-
-        // Apply post processing
-        auto shader = ASSETS.getShader("/shaders/post processing/color_grading.shader");
-        material = RESOURCES.createMaterial(shader);
-
-        cmd.blit(PREVIOUS_BUFFER, rt, material);
-        //cmd.blit(rt, SCREEN_BUFFER, material);
-
-        // Attach command buffer to camera
-        auto cam = go->getComponent<Components::Camera>();
-        cam->addCommandBuffer(&cmd);
-    }
-};
-
-class GreyScale : public Components::IComponent
-{
-    MaterialPtr material;
-    Graphics::CommandBuffer cmd;
-
-public:
-    void addedToGameObject(GameObject* go)
-    {
-        auto cam = go->getComponent<Components::Camera>();
-        auto shader = ASSETS.getShader("/shaders/post processing/greyscale.shader");
-
-        material = RESOURCES.createMaterial(shader);
-
-        auto rt = RESOURCES.createRenderTexture(WINDOW.getWidth(), WINDOW.getHeight(), Graphics::TextureFormat::RGBA32, true);
-
-        // Apply post processing
-        cmd.blit(PREVIOUS_BUFFER, rt, material);
-
-        // Attach command buffer to camera
-        cam->addCommandBuffer(&cmd);
-    }
-};
-
-class GaussianBlur : public Components::IComponent
-{
-    Graphics::CommandBuffer cmd;
-    MaterialPtr horizontalBlur;
-    MaterialPtr verticalBlur;
-
-public:
-    void addedToGameObject(GameObject* go)
-    {
-        // Create rendertarget
-        auto rt = RESOURCES.createRenderTexture(WINDOW.getWidth(), WINDOW.getHeight(), Graphics::TextureFormat::RGBA32, true);
-        auto rt2 = RESOURCES.createRenderTexture(WINDOW.getWidth(), WINDOW.getHeight(), Graphics::TextureFormat::RGBA32, true);
-
-        horizontalBlur = ASSETS.getMaterial("/materials/post processing/gaussian_blur_horizontal.material");
-        verticalBlur = ASSETS.getMaterial("/materials/post processing/gaussian_blur_vertical.material");
-
-        // Apply post processing
-        cmd.blit(PREVIOUS_BUFFER, rt, horizontalBlur);
-        cmd.blit(rt, rt2, verticalBlur);
-
-        // Attach command buffer to camera
-        auto cam = go->getComponent<Components::Camera>();
-        cam->addCommandBuffer(&cmd);
-    }
-};
-
-class Fog : public Components::IComponent
-{
-    MaterialPtr material;
-    Graphics::CommandBuffer cmd;
-
-public:
-    void addedToGameObject(GameObject* go)
-    {
-        auto cam = go->getComponent<Components::Camera>();
-
-        auto shader = ASSETS.getShader("/shaders/post processing/fog.shader");
-        shader->setReloadCallback([=](Graphics::Shader* shader){
-            shader->setTexture("depthBuffer", cam->getRenderTarget()->getDepthBuffer());
-        });
-        shader->invokeReloadCallback();
-
-        // Create rendertarget
-        auto rt = RESOURCES.createRenderTexture(WINDOW.getWidth(), WINDOW.getHeight(), Graphics::TextureFormat::RGBA32, true);
-
-        // Apply post processing
-        cmd.blit(PREVIOUS_BUFFER, rt, ASSETS.getMaterial("/materials/post processing/fog.material"));
-
-        // Attach command buffer to camera
-        cam->addCommandBuffer(&cmd);
-    }
-};
-
 //----------------------------------------------------------------------
 // SCENES
 //----------------------------------------------------------------------
@@ -128,68 +27,8 @@ public:
         cam = go->addComponent<Components::Camera>();
         go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -10);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA);
-        //go->addComponent<ColorGrading>();
-        //go->addComponent<GreyScale>();
-        //go->addComponent<Fog>();
-        cam->getViewport().width = 0.5f;
-        cam->getViewport().height = 0.5f;
-
-        // Camera 2
-        auto go2 = createGameObject("Camera2");
-        auto cam2 = go2->addComponent<Components::Camera>(45.0f,0.1f,1000.0f,1);
-        cam2->getViewport().width = 0.5f;
-        cam2->getViewport().height = 0.5f;
-        cam2->getViewport().topLeftX = 0.5f;
-        //go2->addComponent<GaussianBlur>();
-        //go2->addComponent<ColorGrading>();
-        go2->addComponent<Fog>();
-        go2->getTransform()->setParent(go->getTransform(), false);
-
-        // Camera 3
-        auto go3 = createGameObject("Camera3");
-        auto cam3 = go3->addComponent<Components::Camera>(45.0f, 0.1f, 1000.0f, 1);
-        cam3->getViewport().width = 0.5f;
-        cam3->getViewport().height = 0.5f;
-        cam3->getViewport().topLeftY = 0.5f;
-        go3->addComponent<ColorGrading>();
-        go3->getTransform()->setParent(go->getTransform(), false);
-
-        // Camera 4
-        auto go4 = createGameObject("Camera4");
-        auto cam4 = go4->addComponent<Components::Camera>(45.0f, 0.1f, 1000.0f, 1);
-        cam4->getViewport().width = 0.5f;
-        cam4->getViewport().height = 0.5f;
-        cam4->getViewport().topLeftY = 0.5f;
-        cam4->getViewport().topLeftX = 0.5f;
-        go4->addComponent<GaussianBlur>();
-        go4->getTransform()->setParent(go->getTransform(), false);
-
 
         createGameObject("Grid")->addComponent<GridGeneration>(20);
-
-        //auto mesh = ASSETS.getMesh("/models/monkey.obj");
-        //auto obj = createGameObject("Obj");
-        //obj->addComponent<Components::MeshRenderer>(mesh, ASSETS.getMaterial("/materials/texture.material"));
-
-        // PBR
-        auto cubemapHDR = ASSETS.getCubemap("/cubemaps/pine.hdr", 2048, true);
-        Assets::EnvironmentMap envMap(cubemapHDR, 128, 512);
-        auto diffuse = envMap.getDiffuseIrradianceMap();
-        auto specular = envMap.getSpecularReflectionMap();
-
-        auto brdfLut = Assets::BRDFLut().getTexture();
-        auto pbrShader = ASSETS.getShader("/shaders/pbr.shader");
-        pbrShader->setReloadCallback([=](Graphics::IShader* shader) {
-            shader->setTexture("diffuseIrradianceMap", diffuse);
-            shader->setTexture("specularReflectionMap", specular);
-            shader->setTexture("brdfLUT", brdfLut);
-            shader->setFloat("maxReflectionLOD", F32(specular->getMipCount() - 1));
-        });
-        pbrShader->invokeReloadCallback();
-
-        auto obj = createGameObject("Obj");
-        obj->addComponent<Components::MeshRenderer>(ASSETS.getMesh("/models/monkey.obj"), ASSETS.getMaterial("/materials/pbr/gold.pbrmaterial"));
-        obj->addComponent<Components::Skybox>(cubemapHDR);
 
         LOG("TestScene initialized!", Color::RED);
     }
@@ -243,7 +82,7 @@ public:
         Locator::getRenderer().setVSync(true);
         Locator::getRenderer().setGlobalFloat(SID("_Ambient"), 0.5f);
 
-        Locator::getSceneManager().LoadSceneAsync(new SceneStarCitizen());
+        Locator::getSceneManager().LoadSceneAsync(new ScenePostProcessMultiCamera());
     }
 
     //----------------------------------------------------------------------
@@ -262,9 +101,9 @@ public:
         if (KEYBOARD.wasKeyPressed(Key::Four))
             Locator::getSceneManager().LoadSceneAsync(new ManyObjectsScene(10000));
         if (KEYBOARD.wasKeyPressed(Key::Five))
-            Locator::getSceneManager().LoadSceneAsync(new ScenePBRSpheres());
-        if (KEYBOARD.wasKeyPressed(Key::Six))
             Locator::getSceneManager().LoadSceneAsync(new BlinnPhongLightingScene());
+        if (KEYBOARD.wasKeyPressed(Key::Six))
+            Locator::getSceneManager().LoadSceneAsync(new ScenePBRSpheres());
         if (KEYBOARD.wasKeyPressed(Key::Seven))
             Locator::getSceneManager().LoadSceneAsync(new TransparencyScene());
         if (KEYBOARD.wasKeyPressed(Key::Eight))

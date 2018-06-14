@@ -25,7 +25,7 @@ namespace Assets {
         // Diffuse irradiance map
         {
             m_diffuseIrradianceMap = RESOURCES.createCubemap();
-            m_diffuseIrradianceMap->create( diffuseIrradianceSize, Graphics::TextureFormat::RGBAHalf );
+            m_diffuseIrradianceMap->create( diffuseIrradianceSize, Graphics::TextureFormat::RGBAFloat );
 
             auto shader = ASSETS.getShader( "/shaders/pbr_diffuse_irradiance.shader" );
             ASSERT( shader != RESOURCES.getErrorShader() && "Please ensure that the given shader file exists." );
@@ -39,7 +39,7 @@ namespace Assets {
         // Specular reflection map
         {
             m_specularReflectionMap = RESOURCES.createCubemap();
-            m_specularReflectionMap->create( specularReflectionSize, Graphics::TextureFormat::RGBAHalf, Graphics::Mips::Create );
+            m_specularReflectionMap->create( specularReflectionSize, Graphics::TextureFormat::RGBAFloat, Graphics::Mips::Create );
 
             auto shader = ASSETS.getShader( "/shaders/pbr_specular_reflection.shader" );
             ASSERT( shader != RESOURCES.getErrorShader() && "Please ensure that the given shader file exists." );

@@ -19,17 +19,17 @@ namespace Components {
     #define DEPTH_STENCIL_FORMAT    Graphics::DepthFormat::D32
 
     //----------------------------------------------------------------------
-    Camera::Camera( F32 fovAngleYInDegree, F32 zNear, F32 zFar, U32 numSamples, bool hdr )
+    Camera::Camera( F32 fovAngleYInDegree, F32 zNear, F32 zFar, Graphics::MSAASamples numSamples, bool hdr )
         : m_camera( fovAngleYInDegree, zNear, zFar ), m_cullingMask( LAYER_ALL ), m_hdr( hdr )
     {
-        _CreateRenderTarget( numSamples );
+        _CreateRenderTarget( (U32)numSamples );
     }
 
     //----------------------------------------------------------------------
-    Camera::Camera( F32 left, F32 right, F32 bottom, F32 top, F32 zNear, F32 zFar, U32 numSamples, bool hdr )
+    Camera::Camera( F32 left, F32 right, F32 bottom, F32 top, F32 zNear, F32 zFar, Graphics::MSAASamples numSamples, bool hdr )
         : m_camera( left, right, bottom, top, zNear, zFar ), m_cullingMask( LAYER_ALL ), m_hdr( hdr )
     {
-        _CreateRenderTarget( numSamples );
+        _CreateRenderTarget( (U32)numSamples );
     }
 
     //----------------------------------------------------------------------

@@ -226,16 +226,6 @@ float4 APPLY_LIGHTING( float4 fragColor, float3 P, float3 normal, float roughnes
 	float3 ibl = getIBL( fragColor.rgb, V, P, N, roughness, metallic );
 	
 	float3 result = _Ambient * ibl + lighting;
-	
-	// Reinhard tonemapping
-	//result = result / (result + float3(1,1,1));
-	
-	// Exposure tone mapping
-	float exposure = 5.0f;
-	result = float3(1,1,1) - exp(-result * exposure);
-	
-	// Gamma correct
-	result = TO_SRGB( result ); 
-	
+		
 	return float4( result, fragColor.a ); 
 }

@@ -28,15 +28,15 @@ VertexOut main( uint vI : SV_VERTEXID )
 
 #include "/shaders/includes/enginePS.hlsl"
 
-cbuffer cbPerMaterial
-{ 
-	float contrast;
-};
-
 struct FragmentIn
 {
     float4 PosH : SV_POSITION;	
 	float2 uv : TEXCOORD0;
+};
+
+cbuffer cbPerMaterial
+{
+	float exposure;
 };
 
 Texture2D _MainTex;
@@ -44,12 +44,15 @@ SamplerState _Sampler0;
 
 float4 main(FragmentIn fin) : SV_Target
 {
-	float2 uv = float2(fin.uv.x, fin.uv.y);
-	float4 c = _MainTex.Sample(_Sampler0, uv);
+	float4 hdrColor = _MainTex.Sample(_Sampler0, fin.uv);
+	  
+    // Exposure tone mapping
+    float3 mapped = float3(1, 1, 1) - exp(-hdrColor.rgb * exposure);
 	
-	float3 result = (c.rgb - 0.5) * (1.0 + contrast) + 0.5;
-
-	return float4(result.rgb, c.a);
+    // Gamma correction 
+    mapped = TO_SRGB(mapped);
+	
+	return float4(mapped, hdrColor.a);
 }
 
 

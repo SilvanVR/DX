@@ -1,0 +1,6 @@
+{
+
+"shader" : "/shaders/post processing/color_grading.shader",
+"contrast" : 0.8
+
+}

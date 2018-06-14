@@ -711,9 +711,10 @@ public:
     {
         // Camera
         auto go = createGameObject("Camera");
-        auto cam = go->addComponent<Components::Camera>();
+        auto cam = go->addComponent<Components::Camera>(45.0f, 0.1f, 1000.0f, Graphics::MSAASamples::Four, true);
         go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -10);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA);
+        go->addComponent<Tonemap>();
 
         createGameObject("Grid")->addComponent<GridGeneration>(20);
 
@@ -816,9 +817,10 @@ public:
     {
         // Camera
         auto go = createGameObject("Camera");
-        auto cam = go->addComponent<Components::Camera>();
+        auto cam = go->addComponent<Components::Camera>(45.0f, 0.1f, 1000.0f, Graphics::MSAASamples::Four, true);
         go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -10);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA);
+        go->addComponent<Tonemap>();
 
         // Environment map
         auto cubemapHDR = ASSETS.getCubemap("/cubemaps/canyon.hdr", 2048, true);
@@ -922,9 +924,10 @@ public:
     {
         // Camera
         auto go = createGameObject("Camera");
-        auto cam = go->addComponent<Components::Camera>();
+        auto cam = go->addComponent<Components::Camera>(45.0f, 0.1f, 1000.0f, Graphics::MSAASamples::Four, true);
         go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -10);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA);
+        go->addComponent<Tonemap>();
 
         auto cubemapHDR = ASSETS.getCubemap("/cubemaps/canyon.hdr", 2048, true);
         auto pbrShader = ASSETS.getShader("/shaders/pbr.shader");
@@ -975,4 +978,81 @@ public:
     }
 
     void shutdown() override { LOG("SponzaScene Shutdown!", Color::RED); }
+};
+
+
+class ScenePostProcessMultiCamera : public IScene
+{
+    Components::Camera* cam;
+public:
+    ScenePostProcessMultiCamera() : IScene("ScenePostProcessMultiCamera") {}
+
+    void init() override
+    {
+        // Camera 1
+        auto go = createGameObject("Camera");
+        cam = go->addComponent<Components::Camera>(45.0f, 0.1f, 1000.0f, Graphics::MSAASamples::Four, true);
+        go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -10);
+        go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA);
+        cam->getViewport().width = 0.5f;
+        cam->getViewport().height = 0.5f;
+        go->addComponent<Tonemap>();
+
+        // Camera 2
+        auto go2 = createGameObject("Camera2");
+        auto cam2 = go2->addComponent<Components::Camera>(45.0f, 0.1f, 1000.0f, Graphics::MSAASamples::One);
+        cam2->getViewport().width = 0.5f;
+        cam2->getViewport().height = 0.5f;
+        cam2->getViewport().topLeftX = 0.5f;
+        go2->addComponent<Tonemap>();
+        go2->addComponent<Fog>();
+        go2->getTransform()->setParent(go->getTransform(), false);
+
+        // Camera 3
+        auto go3 = createGameObject("Camera3");
+        auto cam3 = go3->addComponent<Components::Camera>(45.0f, 0.1f, 1000.0f, Graphics::MSAASamples::One);
+        cam3->getViewport().width = 0.5f;
+        cam3->getViewport().height = 0.5f;
+        cam3->getViewport().topLeftY = 0.5f;
+        go3->addComponent<Tonemap>();
+        go3->addComponent<PostProcess>(ASSETS.getMaterial("/materials/post processing/color_grading.material"));
+        go3->getTransform()->setParent(go->getTransform(), false);
+
+        // Camera 4
+        auto go4 = createGameObject("Camera4");
+        auto cam4 = go4->addComponent<Components::Camera>(45.0f, 0.1f, 1000.0f, Graphics::MSAASamples::One);
+        cam4->getViewport().width = 0.5f;
+        cam4->getViewport().height = 0.5f;
+        cam4->getViewport().topLeftY = 0.5f;
+        cam4->getViewport().topLeftX = 0.5f;
+        go4->addComponent<Tonemap>();
+        go4->addComponent<GaussianBlur>();
+        go4->getTransform()->setParent(go->getTransform(), false);
+
+        createGameObject("Grid")->addComponent<GridGeneration>(20);
+
+        // PBR
+        auto cubemapHDR = ASSETS.getCubemap("/cubemaps/pine.hdr", 2048, true);
+        Assets::EnvironmentMap envMap(cubemapHDR, 128, 512);
+        auto diffuse = envMap.getDiffuseIrradianceMap();
+        auto specular = envMap.getSpecularReflectionMap();
+
+        auto brdfLut = Assets::BRDFLut().getTexture();
+        auto pbrShader = ASSETS.getShader("/shaders/pbr.shader");
+        pbrShader->setReloadCallback([=](Graphics::IShader* shader) {
+            shader->setTexture("diffuseIrradianceMap", diffuse);
+            shader->setTexture("specularReflectionMap", specular);
+            shader->setTexture("brdfLUT", brdfLut);
+            shader->setFloat("maxReflectionLOD", F32(specular->getMipCount() - 1));
+        });
+        pbrShader->invokeReloadCallback();
+
+        auto obj = createGameObject("Obj");
+        obj->addComponent<Components::MeshRenderer>(ASSETS.getMesh("/models/monkey.obj"), ASSETS.getMaterial("/materials/pbr/gold.pbrmaterial"));
+        obj->addComponent<Components::Skybox>(cubemapHDR);
+
+        LOG("ScenePostProcessMultiCamera initialized!", Color::RED);
+    }
+
+    void shutdown() override { LOG("ScenePostProcessMultiCamera Shutdown!", Color::RED); }
 };

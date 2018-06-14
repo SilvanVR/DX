@@ -170,4 +170,13 @@ namespace Graphics {
         Mirror,
         MirrorOnce
     };
+
+    //----------------------------------------------------------------------
+    enum class MSAASamples
+    {
+        One = 1,
+        Two = 2,
+        Four = 4,
+        Eight = 8
+    };
 }

@@ -20,10 +20,10 @@ namespace Components {
     //**********************************************************************
     class Camera : public IComponent
     {
-        static const U32 DEFAULT_MSAA_SAMPLES = 8;
+        static const Graphics::MSAASamples DEFAULT_MSAA_SAMPLES = Graphics::MSAASamples::Eight;
     public:
-        Camera(F32 fovAngleYInDegree = 45.0f, F32 zNear = 0.1f, F32 zFar = 1000.0f, U32 numSamples = DEFAULT_MSAA_SAMPLES, bool hdr = false);
-        Camera(F32 left, F32 right, F32 bottom, F32 top, F32 zNear, F32 zFar, U32 numSamples = DEFAULT_MSAA_SAMPLES, bool hdr = false);
+        Camera(F32 fovAngleYInDegree = 45.0f, F32 zNear = 0.1f, F32 zFar = 1000.0f, Graphics::MSAASamples numSamples = DEFAULT_MSAA_SAMPLES, bool hdr = false);
+        Camera(F32 left, F32 right, F32 bottom, F32 top, F32 zNear, F32 zFar, Graphics::MSAASamples numSamples = DEFAULT_MSAA_SAMPLES, bool hdr = false);
         ~Camera() = default;
 
         //----------------------------------------------------------------------

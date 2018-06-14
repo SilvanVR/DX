@@ -40,8 +40,6 @@ VertexOut main(VertexIn vin)
 
 #include "includes/enginePS.hlsl"
 
-#define SRGB 1
-
 struct FragmentIn
 {
     float4 PosH : SV_POSITION;
@@ -53,11 +51,6 @@ SamplerState sampler0;
 
 float4 main(FragmentIn fin) : SV_Target
 {
-	float4 textureColor = Cubemap.Sample(sampler0, normalize(fin.tex));
-	
-	#if SRGB
-		return float4( TO_SRGB( textureColor.rgb ),1  );
-	#else	
-		return textureColor;
-	#endif
+	float4 textureColor = Cubemap.Sample(sampler0, normalize(fin.tex));	
+	return textureColor;
 }

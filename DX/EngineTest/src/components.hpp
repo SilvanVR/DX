@@ -280,3 +280,80 @@ public:
         meshGO->addComponent<Components::MeshRenderer>(tangentMesh, RESOURCES.getColorMaterial());
     }
 };
+
+class GaussianBlur : public Components::IComponent
+{
+    Graphics::CommandBuffer cmd;
+    MaterialPtr horizontalBlur;
+    MaterialPtr verticalBlur;
+
+public:
+    void addedToGameObject(GameObject* go)
+    {
+        // Create rendertarget
+        auto rt = RESOURCES.createRenderTexture(WINDOW.getWidth(), WINDOW.getHeight(), Graphics::TextureFormat::RGBA32, true);
+        auto rt2 = RESOURCES.createRenderTexture(WINDOW.getWidth(), WINDOW.getHeight(), Graphics::TextureFormat::RGBA32, true);
+
+        horizontalBlur = ASSETS.getMaterial("/materials/post processing/gaussian_blur_horizontal.material");
+        verticalBlur = ASSETS.getMaterial("/materials/post processing/gaussian_blur_vertical.material");
+
+        // Apply post processing
+        cmd.blit(PREVIOUS_BUFFER, rt, horizontalBlur);
+        cmd.blit(rt, rt2, verticalBlur);
+
+        // Attach command buffer to camera
+        auto cam = go->getComponent<Components::Camera>();
+        cam->addCommandBuffer(&cmd);
+    }
+};
+
+class Fog : public Components::IComponent
+{
+    Graphics::CommandBuffer cmd;
+public:
+    void addedToGameObject(GameObject* go)
+    {
+        auto cam = go->getComponent<Components::Camera>();
+
+        auto shader = ASSETS.getShader("/shaders/post processing/fog.shader");
+        shader->setReloadCallback([=](Graphics::Shader* shader) {
+            shader->setTexture("depthBuffer", cam->getRenderTarget()->getDepthBuffer());
+        });
+        shader->invokeReloadCallback();
+
+        // Apply post processing
+        auto rt = RESOURCES.createRenderTexture(WINDOW.getWidth(), WINDOW.getHeight(), Graphics::TextureFormat::RGBA32, true);
+        cmd.blit(PREVIOUS_BUFFER, rt, ASSETS.getMaterial("/materials/post processing/fog.material"));
+
+        // Attach command buffer to camera
+        cam->addCommandBuffer(&cmd);
+    }
+};
+
+class PostProcess : public Components::IComponent
+{
+    Graphics::CommandBuffer cmd;
+    MaterialPtr m_material;
+    bool m_hdr;
+
+public:
+    PostProcess(const MaterialPtr& material, bool hdr = false) : m_material(material), m_hdr(hdr) {}
+
+    void addedToGameObject(GameObject* go)
+    {
+        auto cam = go->getComponent<Components::Camera>();
+
+        // Apply post processing
+        auto rt = RESOURCES.createRenderTexture(WINDOW.getWidth(), WINDOW.getHeight(), m_hdr ? Graphics::TextureFormat::RGBAFloat : Graphics::TextureFormat::RGBA32, true);
+        cmd.blit(PREVIOUS_BUFFER, rt, m_material);
+
+        // Attach command buffer to camera
+        cam->addCommandBuffer(&cmd);
+    }
+};
+
+class Tonemap : public PostProcess
+{
+public:
+    Tonemap() : PostProcess(ASSETS.getMaterial("/materials/post processing/tonemap.material")) {}
+};
