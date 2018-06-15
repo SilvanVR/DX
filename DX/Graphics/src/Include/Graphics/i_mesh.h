@@ -99,6 +99,12 @@ namespace Graphics {
         void recalculateTangents(bool invertBinormal = false);
 
         //----------------------------------------------------------------------
+        // Set the mesh bounding box manually. Note that setVertices() override the bounds,
+        // so this call makes only sense if you want to have a custom bounding box after the vertex data are set.
+        //----------------------------------------------------------------------
+        void setBounds(const Math::AABB& bounds) { m_bounds = bounds; }
+
+        //----------------------------------------------------------------------
         const ArrayList<Math::Vec3>&    getVertices()       const { return m_vertices; }
         const ArrayList<Color>&         getColors()         const { return m_colors; }
         const ArrayList<Math::Vec2>&    getUVs0()           const { return m_uvs0; }

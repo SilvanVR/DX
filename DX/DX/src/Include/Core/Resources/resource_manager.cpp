@@ -415,6 +415,9 @@ namespace Core { namespace Resources {
     void ResourceManager::_OnWindowSizeChanged()
     {
         auto& window = Locator::getWindow();
+        if (window.getWidth() == 0 || window.getHeight() == 0)
+            return;
+
         for (auto& texture : m_renderTextures)
         {
             auto renderTexture = dynamic_cast<Graphics::IRenderTexture*>( texture );

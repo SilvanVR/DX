@@ -33,15 +33,9 @@ public:
         //auto obj = createGameObject("GO");
         //obj->addComponent<Components::MeshRenderer>(ASSETS.getMesh("/models/monkey.obj"), ASSETS.getMaterial("/materials/normals.material"));
 
-        auto shader = ASSETS.getShader("/shaders/geometry_test.shader");
-
-        auto mat = RESOURCES.createMaterial(shader);
-
-        auto mesh = Core::MeshGenerator::CreateCubeUV();
-
+        //auto mesh = Core::MeshGenerator::CreateCubeUV();
         auto obj2 = createGameObject();
-        obj2->addComponent<Components::MeshRenderer>(mesh, mat);
-        obj2->addComponent<VisualizeNormals>(0.3f, Color::BLUE);
+        obj2->addComponent<Components::Billboard>(ASSETS.getTexture2D("/textures/nico.jpg"), 1.0f);
 
         LOG("TestScene initialized!", Color::RED);
     }

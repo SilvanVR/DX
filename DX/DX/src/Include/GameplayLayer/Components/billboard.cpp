@@ -6,10 +6,9 @@
     date: May 23, 2018
 **********************************************************************/
 
-#include "Core/mesh_generator.h"
 #include "GameplayLayer/gameobject.h"
-#include "GameplayLayer/i_scene.h"
 #include "Rendering/mesh_renderer.h"
+#include "GameplayLayer/i_scene.h"
 #include "Core/locator.h"
 
 namespace Components {
@@ -18,29 +17,37 @@ namespace Components {
     void Billboard::addedToGameObject(GameObject* go)
     {
         m_billboardGO = go->getScene()->createGameObject( "Billboard" );
+        go->getTransform()->addChild( m_billboardGO->getTransform(), false );
 
         // Create billboard shader
-        m_billboardShader = ASSETS.getShader( "/shaders/billboard.shader" );
+        auto billboardShader = ASSETS.getShader( "/shaders/geometry_billboard.shader" );
+
+        if ( not billboardShader )
+        {
+            LOG_WARN( "Components::Billboard: Billboard shader does not exist, therefore this component will not work." );
+            return;
+        }
 
         // Create billboard material
-        m_billboardMaterial = RESOURCES.createMaterial( m_billboardShader );
-        m_billboardMaterial->setTexture( "tex", m_billboardTexture );
+        auto billboardMaterial = RESOURCES.createMaterial( billboardShader );
+        billboardMaterial->setTexture( "tex", m_billboardTexture );
 
-        // Create billboard mesh
-        m_billboardMesh = Core::MeshGenerator::CreatePlane( m_scale * m_billboardTexture->getAspectRatio(), m_scale );
+        // Create billboard mesh (use uv coords as size params)
+        F32 ar = m_billboardTexture->getAspectRatio();
+        auto billboardMesh = RESOURCES.createMesh();
+        billboardMesh->setVertices( { Math::Vec3( 0, 0, 0 ) } );
+        billboardMesh->setIndices( { 0 }, 0, Graphics::MeshTopology::Points );
+        billboardMesh->setUVs( { Math::Vec2( m_scale * ar, m_scale ) } );
+
+        // Set custom bounds, otherwise the billboard will be culled by the single point
+        F32 halfWidth = m_scale / 2 * ar;
+        Math::AABB customBounds( Math::Vec3( -halfWidth, -m_scale / 2, -halfWidth ), Math::Vec3( halfWidth, m_scale / 2, halfWidth ) );
+        billboardMesh->setBounds( customBounds );
 
         // Create gameobject which renders the billboard
         auto mr = m_billboardGO->addComponent<Components::MeshRenderer>();
-        mr->setMesh( m_billboardMesh );
-        mr->setMaterial( m_billboardMaterial );
-    }
-
-    //----------------------------------------------------------------------
-    void Billboard::tick( Time::Seconds delta )
-    {
-        // I tried parenting but the billboard should not inherit the scale/rotation.
-        m_billboardGO->getTransform()->position = getGameObject()->getTransform()->position;
-        m_billboardGO->getTransform()->lookAt( SCENE.getMainCamera()->getGameObject()->getTransform()->position );
+        mr->setMesh( billboardMesh );
+        mr->setMaterial( billboardMaterial );
     }
 
 }
