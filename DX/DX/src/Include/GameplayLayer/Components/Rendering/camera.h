@@ -52,6 +52,7 @@ namespace Components {
         void setOrthoParams         (F32 left, F32 right, F32 bottom, F32 top, F32 zNear, F32 zFar) { m_camera.setOrthoParams(left, right, bottom, top, zNear, zFar); }
         void setPerspectiveParams   (F32 fovAngleYInDegree, F32 zNear, F32 zFar)                    { m_camera.setPerspectiveParams(fovAngleYInDegree, zNear, zFar); }
         void setRenderingToScreen   (bool renderToScreen)                                           { m_camera.setRenderingToScreen(renderToScreen); }
+        void setMultiSamples        (Graphics::MSAASamples sampleCount)                             { m_camera.getRenderTarget()->recreate({(U32)sampleCount}); }
         void setSuperSampling       (F32 screenResMod);
         void setHDRRendering        (bool enabled);
 

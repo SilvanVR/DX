@@ -387,14 +387,12 @@ namespace Graphics {
         }
 
         // Update camera buffer
-        XMMATRIX viewProj = camera->getViewMatrix() * camera->getProjectionMatrix();
-        if ( not CAMERA_BUFFER.update( CAM_VIEW_PROJ_NAME, &viewProj ) )
+        if ( not CAMERA_BUFFER.update( CAM_VIEW_PROJ_NAME, &camera->getViewProjectionMatrix() ) )
             LOG_ERROR_RENDERING( "D3D11: Could not update the view-projection matrix in the camera buffer!" );
 
-        static StringID camPosName = SID( CAM_POS_NAME );
         auto modelMatrix = camera->getModelMatrix();
         auto translation = modelMatrix.r[3];
-        if ( not CAMERA_BUFFER.update( camPosName, &translation ) )
+        if ( not CAMERA_BUFFER.update( CAM_POS_NAME, &translation ) )
             LOG_ERROR_RENDERING( "D3D11: Could not update the camera buffer [position]. Fix this!" );
 
         auto zFar = camera->getZFar();
@@ -402,7 +400,7 @@ namespace Graphics {
             LOG_ERROR_RENDERING( "D3D11: Could not update the camera buffer [zFar]. Fix this!" );
 
         auto zNear = camera->getZNear();
-        if ( not CAMERA_BUFFER.update( CAM_ZNEAR_NAME, &zNear) )
+        if ( not CAMERA_BUFFER.update( CAM_ZNEAR_NAME, &zNear ) )
             LOG_ERROR_RENDERING( "D3D11: Could not update the camera buffer [zNear]. Fix this!" );
 
         if ( not CAMERA_BUFFER.update( CAM_VIEW_MATRIX_NAME, &camera->getViewMatrix() ) )

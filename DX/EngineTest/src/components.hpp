@@ -198,7 +198,7 @@ class VisualizeNormals : public Components::IComponent
     Color m_color;
 
 public:
-    VisualizeNormals(F32 length, Color color)
+    VisualizeNormals(F32 length = 0.5f, Color color = Color::BLUE)
         : m_length(length), m_color(color) {}
 
     void addedToGameObject(GameObject* go) override

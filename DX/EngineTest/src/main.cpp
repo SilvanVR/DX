@@ -26,7 +26,7 @@ public:
         auto go = createGameObject("Camera");
         cam = go->addComponent<Components::Camera>();
         go->getComponent<Components::Transform>()->position = Math::Vec3(0, 3, -8);
-        go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA);
+        go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 0.1f);
 
         //createGameObject("Grid")->addComponent<GridGeneration>(20);
 
@@ -38,11 +38,53 @@ public:
 
         auto obj2 = createGameObject("GO2");
         obj2->addComponent<Components::MeshRenderer>(ASSETS.getMesh("/models/monkey.obj"), ASSETS.getMaterial("/materials/blinn_phong/monkey.material"));
-        obj2->getTransform()->position = {0, 1, 0};
+        obj2->getTransform()->position = {5, 1, 0};
 
+        Assets::MeshMaterialInfo matInfo;
+        auto treeMesh = ASSETS.getMesh("/models/tree/tree.obj", &matInfo);
+
+        auto treeGO = createGameObject("Tree");
+        auto mr = treeGO->addComponent<Components::MeshRenderer>(treeMesh);
+        //treeGO->getTransform()->scale = { 0.01f };
+
+        if ( matInfo.isValid() )
+        {
+            for (I32 i = 0; i < treeMesh->getSubMeshCount(); i++)
+            {
+                auto material = RESOURCES.createMaterial(ASSETS.getShader("/shaders/phong_shadow.shader"));
+                material->setFloat("uvScale", 1.0f);
+
+                for (auto& texture : matInfo[i].textures)
+                {
+                    switch (texture.type)
+                    {
+                    case Assets::MaterialTextureType::Albedo: material->setTexture("albedo", ASSETS.getTexture2D(texture.filePath)); break;
+                    case Assets::MaterialTextureType::Normal: material->setTexture("normalMap", ASSETS.getTexture2D(texture.filePath)); break;
+                    case Assets::MaterialTextureType::Shininess: break;
+                    case Assets::MaterialTextureType::Specular: break;
+                    }
+                }
+                mr->setMaterial(material, i);
+            }
+        }
+        //treeGO->addComponent<VisualizeNormals>(0.1f, Color::BLUE);
+
+        // LIGHTS
         auto sun = createGameObject("Sun");
         sun->addComponent<Components::DirectionalLight>(1.0f, Color::WHITE);
         sun->getTransform()->rotation = Math::Quat::LookRotation(Math::Vec3{ 0,-1, 1 });
+        //sun->addComponent<ConstantRotation>(15.0f, 0.0f, 0.0f);
+
+
+        auto depthMapGO = createGameObject("DepthMapGO");
+        auto depthMapMaterial = RESOURCES.createMaterial();
+        depthMapMaterial->setShader(ASSETS.getShader("/shaders/texture.shader"));
+        depthMapMaterial->setTexture("tex0", cam->getRenderTarget()->getColorBuffer());
+        depthMapMaterial->setTexture("tex1", cam->getRenderTarget()->getColorBuffer());
+        depthMapMaterial->setFloat("mix", 0.0f);
+        depthMapMaterial->setColor("tintColor", Color::WHITE);
+        depthMapGO->addComponent<Components::MeshRenderer>(Core::MeshGenerator::CreatePlane(), depthMapMaterial);
+        depthMapGO->getTransform()->position = { -5, 1, 0 };
 
         LOG("TestScene initialized!", Color::RED);
     }
@@ -55,7 +97,7 @@ public:
             U32 mscounts[]{ 1,2,4,8 };
             U32 newmscount = mscounts[index];
             index = (index + 1) % (sizeof(mscounts) / sizeof(int));
-            cam->getRenderTarget()->recreate({ newmscount });
+            cam->setMultiSamples( (Graphics::MSAASamples) newmscount );
             LOG("New Multisample-Count: " + TS(newmscount), Color::GREEN);
         }
     }

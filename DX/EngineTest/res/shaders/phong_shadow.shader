@@ -1,9 +1,8 @@
 // ----------------------------------------------
 #Fill			Solid
-#Cull 			Back
+#Cull 			None
 #ZWrite 		On
 #ZTest 			Less
-#Blend 			SrcAlpha OneMinusSrcAlpha
 #Queue 			Geometry
 
 // ----------------------------------------------
@@ -47,7 +46,7 @@ VertexOut main(VertexIn vin)
 cbuffer cbPerMaterial
 {
 	float uvScale;
-}
+} 
 
 struct FragmentIn
 {
@@ -60,8 +59,15 @@ struct FragmentIn
 Texture2D albedo;
 SamplerState sampler0;
 
+static const float ALPHA_THRESHOLD = 0.1f;
+
 float4 main(FragmentIn fin) : SV_Target
 {
 	float4 textureColor = albedo.Sample(sampler0, fin.Tex * uvScale);
+	
+	//return float4(fin.Normal,1);
+	if (textureColor.a < ALPHA_THRESHOLD)
+		discard;
+	
 	return APPLY_LIGHTING( textureColor, fin.WorldPos, fin.Normal ); 
 }
