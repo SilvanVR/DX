@@ -66,19 +66,23 @@ namespace Core { namespace Input {
     { 
         static InputChannels lastChannelMaskMouse       = ~0;
         static InputChannels lastChannelMaskKeyboard    = ~0;
+        static bool lastMouseFPSMode = false;
 
         if ( openConsole )
         {
             lastChannelMaskKeyboard = m_keyboard->getChannelMask();
             lastChannelMaskMouse    = m_mouse->getChannelMask();
+            lastMouseFPSMode        = m_mouse->isInFirstPersonMode();
 
             m_keyboard->setChannels( (U32)EInputChannel::Console );
             m_mouse->setChannels( (U32)EInputChannel::Console );
+            m_mouse->setFirstPersonMode( false );
         }
         else
         {
             m_keyboard->setChannels( lastChannelMaskKeyboard );
             m_mouse->setChannels( lastChannelMaskMouse );
+            m_mouse->setFirstPersonMode( lastMouseFPSMode );
         }
     }
 

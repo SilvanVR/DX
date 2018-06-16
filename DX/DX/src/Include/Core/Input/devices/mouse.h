@@ -58,8 +58,13 @@ namespace Core { namespace Input {
         void    setFirstPersonMode(bool enabled);
 
         //----------------------------------------------------------------------
+        // @Return: Delta position from the mouse between last and current tick.
+        //----------------------------------------------------------------------
+        OS::Point2D getMouseDelta() const;
+
+        //----------------------------------------------------------------------
         OS::Point2D getMousePos() const { return m_cursorThisTick; }
-        OS::Point2D getMouseDelta() const { return m_cursorDelta; }
+        bool isInFirstPersonMode() const { return m_firstPersonMode; }
 
     private:
         OS::Window*     m_window            = nullptr;

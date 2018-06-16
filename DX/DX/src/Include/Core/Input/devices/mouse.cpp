@@ -54,6 +54,15 @@ namespace Core { namespace Input {
     //**********************************************************************
 
     //----------------------------------------------------------------------
+    OS::Point2D Mouse::getMouseDelta() const
+    {
+        if ( not _IsMasterChannelSet() )
+            return OS::Point2D{ 0, 0 };
+        return m_cursorDelta; 
+    }
+
+
+    //----------------------------------------------------------------------
     I16 Mouse::getWheelDelta() const 
     { 
         if ( not _IsMasterChannelSet() )
@@ -105,7 +114,7 @@ namespace Core { namespace Input {
         if (m_firstPersonMode)
         {
             centerCursor();
-            m_cursorLastTick = m_window->getCursorPosition();
+            m_cursor = m_cursorThisTick = m_cursorLastTick = m_window->getCursorPosition();
         }
     }
 
