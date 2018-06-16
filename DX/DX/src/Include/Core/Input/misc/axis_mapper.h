@@ -17,7 +17,7 @@
      F32 val = axisMapper.getAxis( "Forward" );
 **********************************************************************/
 
-#include "Core/Input/e_input_devices.hpp"
+#include "Core/Input/input_enums.hpp"
 #include "OS/Window/keycodes.h"
 
 namespace Core { namespace Input {
@@ -70,12 +70,15 @@ namespace Core { namespace Input {
         //----------------------------------------------------------------------
         void updateAxis(const char* name, F64 acceleration, F64 damping);
 
-        // Should be called once per tick. Checks if actions should be fired.
-        void _UpdateInternalState(F64 delta);
+        //----------------------------------------------------------------------
+        void setMouseWheelAxisParams(F32 acc, F32 damping){ m_mouseWheelAcceleration = acc; m_mouseWheelDamping = damping; }
+
 
     private:
-        const Keyboard* m_keyboard;
-        const Mouse*    m_mouse;
+        const Keyboard* m_keyboard                  = nullptr;
+        const Mouse*    m_mouse                     = nullptr;
+        F32             m_mouseWheelAcceleration    = 50.0f;
+        F32             m_mouseWheelDamping         = 7.0f;
 
         // <---------- AXIS ----------->
         struct AxisEvent
@@ -108,6 +111,10 @@ namespace Core { namespace Input {
 
         void _UpdateAxes(F64 delta);
         void _UpdateMouseWheelAxis(F64 delta);
+
+        // Should be called once per tick. Checks if actions should be fired.
+        friend class InputManager;
+        void _UpdateInternalState(F64 delta);
 
         NULL_COPY_AND_ASSIGN(AxisMapper)
     };

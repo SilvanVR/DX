@@ -6,7 +6,7 @@
     date: November 18, 2017
 **********************************************************************/
 
-#include "Core/locator.h"
+#include "OS/Window/window.h"
 #include "../listener/input_listener.h"
 
 namespace Core { namespace Input {
@@ -16,7 +16,7 @@ namespace Core { namespace Input {
 
     //----------------------------------------------------------------------
     Mouse::Mouse( OS::Window* window )
-        : m_window( window )
+        : IChannelUser( (InputChannels)EInputChannel::All ), m_window( window )
     {
         // Zero out arrays
         memset( m_mouseKeyPressed, 0, MAX_MOUSE_KEYS * sizeof( bool ) );
@@ -49,6 +49,18 @@ namespace Core { namespace Input {
         _UpdateCursorDelta();
     }
 
+    //**********************************************************************
+    // PUBLIC
+    //**********************************************************************
+
+    //----------------------------------------------------------------------
+    I16 Mouse::getWheelDelta() const 
+    { 
+        if ( not _IsMasterChannelSet() )
+            return 0;
+        return m_wheelDelta; 
+    }
+
     //----------------------------------------------------------------------
     void Mouse::centerCursor() const
     {
@@ -64,21 +76,21 @@ namespace Core { namespace Input {
     //----------------------------------------------------------------------
     bool Mouse::isKeyDown( MouseKey key ) const
     {
-        return m_mouseKeyPressedThisTick[ (I32)key ];
+        return m_mouseKeyPressedThisTick[ (I32)key ] && _IsMasterChannelSet();
     }
 
     //----------------------------------------------------------------------
     bool Mouse::wasKeyPressed( MouseKey key ) const
     {
         I32 keyIndex = (I32)key;
-        return ( m_mouseKeyPressedThisTick[ keyIndex ] && not m_mouseKeyPressedLastTick[ keyIndex ] );
+        return ( m_mouseKeyPressedThisTick[ keyIndex ] && not m_mouseKeyPressedLastTick[ keyIndex ] ) && _IsMasterChannelSet();
     }
 
     //----------------------------------------------------------------------
     bool Mouse::wasKeyReleased( MouseKey key ) const
     {
         I32 keyIndex = (I32)key;
-        return ( not m_mouseKeyPressedThisTick[ keyIndex ] && m_mouseKeyPressedLastTick[ keyIndex ] );
+        return ( not m_mouseKeyPressedThisTick[ keyIndex ] && m_mouseKeyPressedLastTick[ keyIndex ] ) && _IsMasterChannelSet();
     }
 
     //----------------------------------------------------------------------
@@ -182,28 +194,32 @@ namespace Core { namespace Input {
     void Mouse::_NotifyMouseMoved( I16 x, I16 y ) const
     {
         for (auto& listener : m_mouseListener)
-            listener->OnMouseMoved( x, y );
+            if (listener->getChannelMask() & getChannelMask())
+                listener->OnMouseMoved( x, y );
     }
 
     //----------------------------------------------------------------------
     void Mouse::_NotifyMouseKeyPressed( MouseKey key, KeyMod mod ) const
     {
         for (auto& listener : m_mouseListener)
-            listener->OnMousePressed( key, mod);
+            if (listener->getChannelMask() & getChannelMask())
+                listener->OnMousePressed( key, mod );
     }
 
     //----------------------------------------------------------------------
     void Mouse::_NotifyMouseKeyReleased( MouseKey key, KeyMod mod ) const
     {
         for (auto& listener : m_mouseListener)
-            listener->OnMouseReleased( key, mod );
+            if (listener->getChannelMask() & getChannelMask())
+                listener->OnMouseReleased( key, mod );
     }
 
     //----------------------------------------------------------------------
     void Mouse::_NotifyMouseWheel( I16 delta ) const
     {
         for (auto& listener : m_mouseListener)
-            listener->OnMouseWheel( delta );
+            if (listener->getChannelMask() & getChannelMask())
+                listener->OnMouseWheel( delta );
     }
 
 

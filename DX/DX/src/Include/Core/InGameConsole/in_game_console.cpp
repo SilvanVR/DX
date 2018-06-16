@@ -194,12 +194,14 @@ namespace Core {
     void InGameConsole::_OpenConsole()
     {
         LOG( " >>> Opening Console...", CONSOLE_INFO_COLOR );
+        Locator::getInputManager().setConsoleIsOpen( true );
     }
 
     //----------------------------------------------------------------------
     void InGameConsole::_CloseConsole()
     {
         LOG( " >>> Closing Console...", CONSOLE_INFO_COLOR );
+        Locator::getInputManager().setConsoleIsOpen( false );
     }
 
     // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

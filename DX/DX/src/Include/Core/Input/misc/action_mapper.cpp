@@ -74,7 +74,7 @@ namespace Core { namespace Input {
     //----------------------------------------------------------------------
     void ActionMapper::_UpdateInternalState()
     {
-        // Loop through each Action and check if it should be fired
+        // Loop through each action and check if it should be fired
         for (auto& pair : m_actionEvents)
         {
             Action& action = pair.second;

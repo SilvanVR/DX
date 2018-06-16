@@ -9,13 +9,13 @@
 #include "Logging/logging.h"
 #include "Core/Input/devices/keyboard.h"
 #include "Core/Input/devices/mouse.h"
-
 #include "Math/math_utils.h"
 
 namespace Core { namespace Input {
 
     //----------------------------------------------------------------------
     #define AXIS_MIN    -1.0
+    #define AXIS_ZERO   0.0
     #define AXIS_MAX    1.0
 
     //----------------------------------------------------------------------
@@ -85,7 +85,7 @@ namespace Core { namespace Input {
         StringID axisName = SID( name );
         if ( m_axisMap.find( axisName ) == m_axisMap.end() )
         {
-            LOG_WARN( "AxisMapper::updateAxis(): Given axis name '" + String(name) + "' does not exist." );
+            LOG_WARN( "AxisMapper::updateAxis(): Given axis name '" + String( name ) + "' does not exist." );
             return;
         }
 
@@ -145,24 +145,21 @@ namespace Core { namespace Input {
 
             // Approach 0 as long no event was triggered this tick
             if ( not triggered )
-                axis.value = Math::Lerp( axis.value, 0.0, axis.damping * delta );
+                axis.value = Math::Lerp( axis.value, AXIS_ZERO, axis.damping * delta );
         }
     }
 
     //----------------------------------------------------------------------
     void AxisMapper::_UpdateMouseWheelAxis( F64 delta )
     {
-        static F32 acceleration = 50.0f;
-        static F32 damping = 7.0f;
-
         I16 wheelDelta = m_mouse->getWheelDelta();
         if (wheelDelta != 0)
         {
-            m_wheelAxis += acceleration * wheelDelta * delta;
+            m_wheelAxis += m_mouseWheelAcceleration * wheelDelta * delta;
         }
         else
         {
-            m_wheelAxis = Math::Lerp( m_wheelAxis, 0.0, damping * delta );
+            m_wheelAxis = Math::Lerp( m_wheelAxis, AXIS_ZERO, m_mouseWheelDamping * delta );
         }
     }
 

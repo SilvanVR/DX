@@ -50,5 +50,37 @@ namespace Core { namespace Input {
         delete m_mouse;
     }
 
+    //**********************************************************************
+    // PUBLIC
+    //**********************************************************************
+
+    //----------------------------------------------------------------------
+    void InputManager::setChannels( InputChannels channels )
+    {
+        m_keyboard->setChannels( channels );
+        m_mouse->setChannels( channels );
+    }
+
+    //----------------------------------------------------------------------
+    void InputManager::setConsoleIsOpen( bool openConsole )
+    { 
+        static InputChannels lastChannelMaskMouse       = ~0;
+        static InputChannels lastChannelMaskKeyboard    = ~0;
+
+        if ( openConsole )
+        {
+            lastChannelMaskKeyboard = m_keyboard->getChannelMask();
+            lastChannelMaskMouse    = m_mouse->getChannelMask();
+
+            m_keyboard->setChannels( (U32)EInputChannel::Console );
+            m_mouse->setChannels( (U32)EInputChannel::Console );
+        }
+        else
+        {
+            m_keyboard->setChannels( lastChannelMaskKeyboard );
+            m_mouse->setChannels( lastChannelMaskMouse );
+        }
+    }
+
 
 } }

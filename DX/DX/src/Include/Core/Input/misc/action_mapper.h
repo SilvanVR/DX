@@ -14,7 +14,7 @@
         [fires either when "E" or "LBUTTON" is held down]
 **********************************************************************/
 
-#include "Core/Input/e_input_devices.hpp"
+#include "Core/Input/input_enums.hpp"
 #include "OS/Window/keycodes.h"
 
 namespace Core { namespace Input {
@@ -67,13 +67,14 @@ namespace Core { namespace Input {
         bool wasKeyPressed(const char* name);
         bool wasKeyReleased(const char* name);
 
-        // Should be called once per tick. Checks if actions should be fired.
-        void _UpdateInternalState();
-
     private:
-        HashMap<StringID, Action> m_actionEvents;
-        const Keyboard* m_keyboard;
-        const Mouse*    m_mouse;
+        const Keyboard*             m_keyboard;
+        const Mouse*                m_mouse;
+        HashMap<StringID, Action>   m_actionEvents;
+
+        // Should be called once per tick. Checks if actions should be fired.
+        friend class InputManager;
+        void _UpdateInternalState();
 
         NULL_COPY_AND_ASSIGN(ActionMapper)
     };

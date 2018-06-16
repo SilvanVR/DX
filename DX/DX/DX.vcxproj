@@ -393,6 +393,7 @@
     <ClInclude Include="src\Include\Core\Audio\audio_clip.h" />
     <ClInclude Include="src\Include\Core\Audio\audio_manager.h" />
     <ClInclude Include="src\Include\Core\Audio\wav_clip.h" />
+    <ClInclude Include="src\Include\Core\Input\channel_user.hpp" />
     <ClInclude Include="src\Include\Core\layer_defines.hpp" />
     <ClInclude Include="src\Include\Core\DebugManager\debug_manager.h" />
     <ClInclude Include="src\Include\Core\mesh_generator.h" />
@@ -400,7 +401,7 @@
     <ClInclude Include="src\Include\Ext\StbImage\stb_image.h" />
     <ClInclude Include="src\Include\Core\InGameConsole\in_game_console.h" />
     <ClInclude Include="src\Include\Core\InGameConsole\i_in_game_console.hpp" />
-    <ClInclude Include="src\Include\Core\Input\e_input_devices.hpp" />
+    <ClInclude Include="src\Include\Core\Input\input_enums.hpp" />
     <ClInclude Include="src\Include\Core\Input\misc\action_mapper.h" />
     <ClInclude Include="src\Include\Core\Config\configuration_manager.h" />
     <ClInclude Include="src\Include\Core\Config\config_file.h" />

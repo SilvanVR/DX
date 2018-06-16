@@ -49,6 +49,18 @@ namespace Core { namespace Input {
         ActionMapper&   getActionMapper()   { return *m_actionMapper; }
         AxisMapper&     getAxisMapper()     { return *m_axisMapper; }
 
+        //----------------------------------------------------------------------
+        // Basically sets the channels mask for all devices to CONSOLE, so only
+        // the console is able to retrieve input. If the param is false it resets
+        // back to the last state since this function was called.
+        //----------------------------------------------------------------------
+        void            setConsoleIsOpen(bool consoleOpened);
+
+        //----------------------------------------------------------------------
+        // Set the channel for all devices.
+        //----------------------------------------------------------------------
+        void            setChannels(InputChannels channels);
+
     private:
         // <---------- DEVICES ----------->
         Keyboard*       m_keyboard  = nullptr;
@@ -58,7 +70,6 @@ namespace Core { namespace Input {
         ActionMapper*   m_actionMapper  = nullptr;
         AxisMapper*     m_axisMapper    = nullptr;
 
-    private:
         NULL_COPY_AND_ASSIGN(InputManager)
     };
 

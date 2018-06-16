@@ -14,14 +14,27 @@
 **********************************************************************/
 
 #include "OS/Window/keycodes.h"
+#include "../channel_user.hpp"
 
 namespace Core { namespace Input {
 
     //**********************************************************************
-    class IKeyListener
+    class IDeviceListener : public IChannelUser
     {
     public:
-        IKeyListener();
+        // Default channels a listener is listening too
+        static const InputChannels DEFAULT_CHANNELS = (InputChannels)EInputChannel::Master;
+
+        //----------------------------------------------------------------------
+        IDeviceListener(InputChannels channels) : IChannelUser(channels) {}
+        virtual ~IDeviceListener() = default;
+    };
+
+    //**********************************************************************
+    class IKeyListener : public IDeviceListener
+    {
+    public:
+        IKeyListener(InputChannels channels = IDeviceListener::DEFAULT_CHANNELS);
         virtual ~IKeyListener();
 
     protected:
@@ -32,10 +45,10 @@ namespace Core { namespace Input {
     };
 
     //**********************************************************************
-    class IMouseListener
+    class IMouseListener : public IDeviceListener
     {
     public:
-        IMouseListener();
+        IMouseListener(InputChannels channels = IDeviceListener::DEFAULT_CHANNELS);
         virtual ~IMouseListener();
 
     protected:

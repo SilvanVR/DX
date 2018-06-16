@@ -6,7 +6,7 @@
     date: November 18, 2017
 **********************************************************************/
 
-#include "Core/locator.h"
+#include "OS/Window/window.h"
 #include "../listener/input_listener.h"
 
 namespace Core { namespace Input {
@@ -16,7 +16,7 @@ namespace Core { namespace Input {
 
         //----------------------------------------------------------------------
         Keyboard::Keyboard( OS::Window* window )
-            : m_window( window )
+            : IChannelUser((InputChannels)EInputChannel::All), m_window( window )
         {
             // Subscribe to all window events
             m_window->setCallbackKey( BIND_THIS_FUNC_3_ARGS( &Keyboard::_KeyCallback ) );
@@ -49,21 +49,21 @@ namespace Core { namespace Input {
         //----------------------------------------------------------------------
         bool Keyboard::isKeyDown( Key key ) const
         {
-            return m_keyPressedThisTick[ (I32)key ];
+            return m_keyPressedThisTick[ (I32)key ] && _IsMasterChannelSet();
         }
 
         //----------------------------------------------------------------------
         bool Keyboard::wasKeyPressed( Key key ) const
         {
             I32 keyIndex = (I32)key;
-            return ( m_keyPressedThisTick[ keyIndex ] && not m_keyPressedLastTick[ keyIndex ] );
+            return ( m_keyPressedThisTick[ keyIndex ] && not m_keyPressedLastTick[ keyIndex ] ) && _IsMasterChannelSet();
         }
 
         //----------------------------------------------------------------------
         bool Keyboard::wasKeyReleased( Key key ) const
         {
             I32 keyIndex = (I32)key;
-            return ( not m_keyPressedThisTick[ keyIndex ] && m_keyPressedLastTick[ keyIndex ] );
+            return ( not m_keyPressedThisTick[ keyIndex ] && m_keyPressedLastTick[ keyIndex ] ) && _IsMasterChannelSet();
         }
 
         //**********************************************************************
@@ -125,21 +125,24 @@ namespace Core { namespace Input {
         void Keyboard::_NotifyKeyPressed( Key key, KeyMod mod ) const
         {
             for (auto& listener : m_keyListener)
-                listener->OnKeyPressed( key, mod );
+                if (listener->getChannelMask() & getChannelMask())
+                    listener->OnKeyPressed( key, mod );
         }
 
         //----------------------------------------------------------------------
         void Keyboard::_NotifyKeyReleased( Key key, KeyMod mod ) const
         {
             for (auto& listener : m_keyListener)
-                listener->OnKeyReleased( key, mod );
+                if (listener->getChannelMask() & getChannelMask())
+                    listener->OnKeyReleased( key, mod );
         }
 
         //----------------------------------------------------------------------
         void Keyboard::_NotifyOnChar(char c) const
         {
             for (auto& listener : m_keyListener)
-                listener->OnChar( c );
+                if (listener->getChannelMask() & getChannelMask())
+                    listener->OnChar( c );
         }
 
     }

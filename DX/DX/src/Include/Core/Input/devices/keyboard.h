@@ -11,6 +11,8 @@
 **********************************************************************/
 
 #include "OS/Window/keycodes.h"
+#include "Core/Input/input_enums.hpp"
+#include "../channel_user.hpp"
 
 //----------------------------------------------------------------------
 namespace OS { class Window; }
@@ -22,7 +24,7 @@ namespace Core { namespace Input {
     class IKeyListener;
 
     //**********************************************************************
-    class Keyboard
+    class Keyboard : public IChannelUser
     {
         static const U32 MAX_KEYS = 255;
 
@@ -46,7 +48,7 @@ namespace Core { namespace Input {
         bool wasKeyReleased(Key key) const;
 
     private:
-        OS::Window* m_window            = nullptr;
+        OS::Window*     m_window            = nullptr;
 
         // <---------- KEYBOARD ----------->
         // Those will be updated per update
@@ -71,7 +73,6 @@ namespace Core { namespace Input {
         void _NotifyKeyReleased(Key key, KeyMod mod) const;
         void _NotifyOnChar(char c) const;
 
-    private:
         //----------------------------------------------------------------------
         friend class InputManager;
         void _UpdateInternalState();

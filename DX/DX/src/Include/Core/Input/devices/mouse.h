@@ -11,6 +11,8 @@
 **********************************************************************/
 
 #include "OS/Window/window.h" /* Point2D, Keycodes */
+#include "Core/Input/input_enums.hpp"
+#include "../channel_user.hpp"
 
 namespace Core { namespace Input {
 
@@ -18,7 +20,7 @@ namespace Core { namespace Input {
     class IMouseListener;
 
     //**********************************************************************
-    class Mouse
+    class Mouse : public IChannelUser
     {
         static const U32 MAX_MOUSE_KEYS = 16;
 
@@ -48,7 +50,7 @@ namespace Core { namespace Input {
         //----------------------------------------------------------------------
         // @Return: Forward: 1, Backwards: -1 [For one frame]. Otherwise 0.
         //----------------------------------------------------------------------
-        I16     getWheelDelta() const { return m_wheelDelta; }
+        I16     getWheelDelta() const;
 
         //----------------------------------------------------------------------
         // True: Mouse is hidden and cursor is always centered.
@@ -60,8 +62,8 @@ namespace Core { namespace Input {
         OS::Point2D getMouseDelta() const { return m_cursorDelta; }
 
     private:
-        OS::Window* m_window            = nullptr;
-        bool        m_firstPersonMode   = false;
+        OS::Window*     m_window            = nullptr;
+        bool            m_firstPersonMode   = false;
 
         // These will be updated whenever the OS messages will be processed (faster than tick-rate)
         bool    m_mouseKeyPressed[MAX_MOUSE_KEYS];
@@ -92,7 +94,6 @@ namespace Core { namespace Input {
         void _NotifyMouseKeyReleased(MouseKey key, KeyMod mod) const;
         void _NotifyMouseWheel(I16 delta) const;
 
-    private:
         //----------------------------------------------------------------------
         friend class InputManager;
         void _UpdateInternalState();
