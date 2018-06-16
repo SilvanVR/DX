@@ -22,6 +22,7 @@ namespace Components {
     {
         static const Graphics::MSAASamples DEFAULT_MSAA_SAMPLES = Graphics::MSAASamples::Eight;
     public:
+        Camera(const RenderTexturePtr& rt, F32 fovAngleYInDegree = 45.0f, F32 zNear = 0.1f, F32 zFar = 1000.0f );
         Camera(F32 fovAngleYInDegree = 45.0f, F32 zNear = 0.1f, F32 zFar = 1000.0f, Graphics::MSAASamples numSamples = DEFAULT_MSAA_SAMPLES, bool hdr = false);
         Camera(F32 left, F32 right, F32 bottom, F32 top, F32 zNear, F32 zFar, Graphics::MSAASamples numSamples = DEFAULT_MSAA_SAMPLES, bool hdr = false);
         ~Camera() = default;
@@ -130,7 +131,7 @@ namespace Components {
 
         //----------------------------------------------------------------------
         void _UpdateCullingPlanes(const DirectX::XMMATRIX& viewProjection);
-        void _CreateRenderTarget(U32 numSamples);
+        void _CreateRenderTarget(Graphics::MSAASamples sampleCount);
 
         NULL_COPY_AND_ASSIGN(Camera)
     };

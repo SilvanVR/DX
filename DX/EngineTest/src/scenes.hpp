@@ -212,7 +212,7 @@ public:
         go->addComponent<Components::Skybox>(cubemap);
 
         // Camera 2
-        auto renderTex = RESOURCES.createRenderTexture(1024, 720, Graphics::DepthFormat::D32, Graphics::TextureFormat::BGRA32, 2, {4});
+        auto renderTex = RESOURCES.createRenderTexture(1024, 720, Graphics::DepthFormat::D32, Graphics::TextureFormat::BGRA32, 2, Graphics::MSAASamples::Four);
         auto cam2GO = createGameObject("Camera2");
         cam2GO->getComponent<Components::Transform>()->position = Math::Vec3(0, 3, -10);
         cam2GO->addComponent<AutoOrbiting>(10.0f);

@@ -57,6 +57,8 @@ namespace Graphics { namespace D3D11 {
         ID3D11Texture2D*            m_pRenderBufferMS = nullptr;
         ID3D11ShaderResourceView*   m_pShaderBufferViewMS = nullptr;
 
+        bool m_resolved = false;
+
         //----------------------------------------------------------------------
         // ITexture Interface
         //----------------------------------------------------------------------
@@ -68,6 +70,7 @@ namespace Graphics { namespace D3D11 {
         void _CreateShaderResourceView();
         void _DestroyBufferAndViews();
         void _SetMultisampleDesc(SamplingDescription samplingDesc);
+        inline void _ClearResolvedFlag() { m_resolved = false; }
 
         //----------------------------------------------------------------------
         RenderBuffer(const RenderBuffer& other)               = delete;

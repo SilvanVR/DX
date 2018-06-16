@@ -27,7 +27,6 @@ public:
         cam = go->addComponent<Components::Camera>();
         go->getComponent<Components::Transform>()->position = Math::Vec3(0, 3, -8);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 0.1f);
-
         //createGameObject("Grid")->addComponent<GridGeneration>(20);
 
         auto planeMesh = Core::MeshGenerator::CreatePlane();
@@ -79,8 +78,8 @@ public:
         auto depthMapGO = createGameObject("DepthMapGO");
         auto depthMapMaterial = RESOURCES.createMaterial();
         depthMapMaterial->setShader(ASSETS.getShader("/shaders/texture.shader"));
-        depthMapMaterial->setTexture("tex0", cam->getRenderTarget()->getColorBuffer());
-        depthMapMaterial->setTexture("tex1", cam->getRenderTarget()->getColorBuffer());
+        depthMapMaterial->setTexture("tex0", ASSETS.getTexture2D("/textures/nico.jpg"));
+        depthMapMaterial->setTexture("tex1", ASSETS.getTexture2D("/textures/nico.jpg"));
         depthMapMaterial->setFloat("mix", 0.0f);
         depthMapMaterial->setColor("tintColor", Color::WHITE);
         depthMapGO->addComponent<Components::MeshRenderer>(Core::MeshGenerator::CreatePlane(), depthMapMaterial);

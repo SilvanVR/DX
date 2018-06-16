@@ -33,6 +33,8 @@ namespace Graphics { namespace D3D11 {
 
         auto colorBuffer = reinterpret_cast<D3D11::RenderBuffer*>( m_renderBuffers[m_bufferIndex].m_colorBuffer.get() );
         auto depthBuffer = reinterpret_cast<D3D11::RenderBuffer*>( m_renderBuffers[m_bufferIndex].m_depthBuffer.get() );
+        colorBuffer->_ClearResolvedFlag();
+        depthBuffer->_ClearResolvedFlag();
 
         g_pImmediateContext->OMSetRenderTargets( 1, &colorBuffer->m_pRenderTargetView, depthBuffer ? depthBuffer->m_pDepthStencilView : nullptr );
     }

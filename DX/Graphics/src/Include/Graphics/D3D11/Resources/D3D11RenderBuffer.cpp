@@ -74,6 +74,7 @@ namespace Graphics { namespace D3D11 {
     //----------------------------------------------------------------------
     void RenderBuffer::bindForRendering()
     {
+        _ClearResolvedFlag();
         if ( isDepthBuffer() )
             g_pImmediateContext->OMSetRenderTargets( 0, NULL, m_pDepthStencilView );
         else
@@ -96,7 +97,11 @@ namespace Graphics { namespace D3D11 {
             }
             else
             {
-                g_pImmediateContext->ResolveSubresource( m_pRenderBuffer, 0, m_pRenderBufferMS, 0, Utility::TranslateTextureFormat( m_format ) );
+                if (not m_resolved)
+                {
+                    g_pImmediateContext->ResolveSubresource( m_pRenderBuffer, 0, m_pRenderBufferMS, 0, Utility::TranslateTextureFormat( m_format ) );
+                    m_resolved = true;
+                }
             }
         }
 

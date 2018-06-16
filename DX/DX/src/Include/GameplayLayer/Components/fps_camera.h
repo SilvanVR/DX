@@ -38,7 +38,7 @@ namespace Components {
         // "mouse-sensitivity": Determines how fast the rotation will be
         // "damping": How fast the mouse rotation slows down
         //----------------------------------------------------------------------
-        FPSCamera( ECameraMode cameraMode = ECameraMode::MAYA, F32 fpsSpeed = 0.6f, F32 mouseSensitivity = 0.3f, F32 mouseDamping = 1.0f ) 
+        FPSCamera( ECameraMode cameraMode = ECameraMode::MAYA, F32 fpsSpeed = 0.3f, F32 mouseSensitivity = 0.3f, F32 mouseDamping = 1.0f ) 
             : m_fpsSpeed( fpsSpeed ), m_mouseSensitivity( mouseSensitivity * 0.5f ), m_cameraMode( cameraMode ), m_mouseDamping( mouseDamping ) {}
 
         //----------------------------------------------------------------------
