@@ -41,11 +41,7 @@ namespace Components {
 
         void _Update3DSettings();
 
-        //----------------------------------------------------------------------
-        AudioSource(const AudioSource& other)               = delete;
-        AudioSource& operator = (const AudioSource& other)  = delete;
-        AudioSource(AudioSource&& other)                    = delete;
-        AudioSource& operator = (AudioSource&& other)       = delete;
+        NULL_COPY_AND_ASSIGN(AudioSource)
     };
 
 }

@@ -53,11 +53,7 @@ namespace Core { namespace MemoryManagement{
         void _ContinousAllocationLeakDetection();
         void _BasicLeakDetection();
 
-        //----------------------------------------------------------------------
-        MemoryManager(const MemoryManager& other)               = delete;
-        MemoryManager& operator = (const MemoryManager& other)  = delete;
-        MemoryManager(MemoryManager&& other)                    = delete;
-        MemoryManager& operator = (MemoryManager&& other)       = delete;
+        NULL_COPY_AND_ASSIGN(MemoryManager)
     };
 
 

@@ -80,11 +80,7 @@ namespace Core { namespace Audio {
 
         inline void _SubmitSourceBuffer();
 
-        //----------------------------------------------------------------------
-        AudioClip(const AudioClip& other)               = delete;
-        AudioClip& operator = (const AudioClip& other)  = delete;
-        AudioClip(AudioClip&& other)                    = delete;
-        AudioClip& operator = (AudioClip&& other)       = delete;
+        NULL_COPY_AND_ASSIGN(AudioClip)
     };
 
 

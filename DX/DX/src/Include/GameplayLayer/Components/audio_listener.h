@@ -25,11 +25,7 @@ namespace Components {
     private:
         inline void _UpdateListener();
 
-        //----------------------------------------------------------------------
-        AudioListener(const AudioListener& other)               = delete;
-        AudioListener& operator = (const AudioListener& other)  = delete;
-        AudioListener(AudioListener&& other)                    = delete;
-        AudioListener& operator = (AudioListener&& other)       = delete;
+        NULL_COPY_AND_ASSIGN(AudioListener)
     };
 
 }

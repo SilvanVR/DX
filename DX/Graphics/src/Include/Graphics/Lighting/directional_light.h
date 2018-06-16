@@ -28,11 +28,7 @@ namespace Graphics
     private:
         Math::Vec3 m_direction;
 
-        //----------------------------------------------------------------------
-        DirectionalLight(const DirectionalLight& other)                 = delete;
-        DirectionalLight& operator = (const DirectionalLight& other)    = delete;
-        DirectionalLight(DirectionalLight&& other)                      = delete;
-        DirectionalLight& operator = (DirectionalLight&& other)         = delete;
+        NULL_COPY_AND_ASSIGN(DirectionalLight)
     };
 
 } // End namespaces

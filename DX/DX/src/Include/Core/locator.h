@@ -117,9 +117,5 @@ private:
     static Core::Audio::AudioManager*                 gAudioManager;
 
     //----------------------------------------------------------------------
-    Locator()                                   = delete;
-    Locator(const Locator& other)               = delete;
-    Locator& operator = (const Locator& other)  = delete;
-    Locator(Locator&& other)                    = delete;
-    Locator& operator = (Locator&& other)       = delete;
+    Locator() = delete;
 };

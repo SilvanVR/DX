@@ -72,11 +72,7 @@ namespace Core {
         template <typename T>
         void shutdownSubSystem(T*& system);
 
-        //----------------------------------------------------------------------
-        SubSystemManager(const SubSystemManager& other)                 = delete;
-        SubSystemManager& operator = (const SubSystemManager& other)    = delete;
-        SubSystemManager(SubSystemManager&& other)                      = delete;
-        SubSystemManager& operator = (SubSystemManager&& other)         = delete;
+        NULL_COPY_AND_ASSIGN(SubSystemManager)
     };
 
     //**********************************************************************

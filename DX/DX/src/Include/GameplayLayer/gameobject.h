@@ -67,11 +67,7 @@ private:
     // Initiates the destruction of the component.
     template<typename T> void _DestroyComponent( Size hash );
 
-    //----------------------------------------------------------------------
-    GameObject(const GameObject& other)               = delete;
-    GameObject& operator = (const GameObject& other)  = delete;
-    GameObject(GameObject&& other)                    = delete;
-    GameObject& operator = (GameObject&& other)       = delete;
+    NULL_COPY_AND_ASSIGN(GameObject)
 };
 
 //**********************************************************************

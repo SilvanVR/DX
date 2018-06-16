@@ -71,11 +71,7 @@ private:
     void _Tick(Time::Seconds delta);
     void _LateTick(Time::Seconds delta);
 
-    //----------------------------------------------------------------------
-    IScene(const IScene& other)               = delete;
-    IScene& operator = (const IScene& other)  = delete;
-    IScene(IScene&& other)                    = delete;
-    IScene& operator = (IScene&& other)       = delete;
+    NULL_COPY_AND_ASSIGN(IScene)
 };
 
 

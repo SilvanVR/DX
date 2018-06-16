@@ -100,11 +100,7 @@ namespace Graphics
         U32                         m_depth = 0;
 
     private:
-        //----------------------------------------------------------------------
-        ITexture2DArray(const ITexture2DArray& other)               = delete;
-        ITexture2DArray& operator = (const ITexture2DArray& other)  = delete;
-        ITexture2DArray(ITexture2DArray&& other)                    = delete;
-        ITexture2DArray& operator = (ITexture2DArray&& other)       = delete;
+        NULL_COPY_AND_ASSIGN(ITexture2DArray)
     };
 
     using Texture2DArray = ITexture2DArray;

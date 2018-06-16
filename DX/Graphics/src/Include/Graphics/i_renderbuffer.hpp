@@ -79,11 +79,7 @@ namespace Graphics
         friend class D3D11Renderer;
         virtual void bindForRendering() = 0;
 
-        //----------------------------------------------------------------------
-        IRenderBuffer(const IRenderBuffer& other)               = delete;
-        IRenderBuffer& operator = (const IRenderBuffer& other)  = delete;
-        IRenderBuffer(IRenderBuffer&& other)                    = delete;
-        IRenderBuffer& operator = (IRenderBuffer&& other)       = delete;
+        NULL_COPY_AND_ASSIGN(IRenderBuffer)
     };
 
     using RenderBuffer = IRenderBuffer;

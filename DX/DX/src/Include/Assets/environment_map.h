@@ -27,11 +27,7 @@ namespace Assets {
         CubemapPtr m_diffuseIrradianceMap;
         CubemapPtr m_specularReflectionMap;
 
-        //----------------------------------------------------------------------
-        EnvironmentMap(const EnvironmentMap& other)               = delete;
-        EnvironmentMap& operator = (const EnvironmentMap& other)  = delete;
-        EnvironmentMap(EnvironmentMap&& other)                    = delete;
-        EnvironmentMap& operator = (EnvironmentMap&& other)       = delete;
+        NULL_COPY_AND_ASSIGN(EnvironmentMap)
     };
 
 } // End namespaces

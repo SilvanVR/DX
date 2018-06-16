@@ -1,0 +1,7 @@
+{
+
+"shader" : "/shaders/phong_shadow.shader",
+"albedo" : "/textures/grass.png",
+"uvScale" : 8
+
+}

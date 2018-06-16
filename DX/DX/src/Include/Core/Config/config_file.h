@@ -77,10 +77,7 @@ namespace Core { namespace Config {
         // Read config file from disk
         void _Read();
 
-        ConfigFile(const ConfigFile& other)                 = delete;
-        ConfigFile& operator = (const ConfigFile& other)    = delete;
-        ConfigFile(ConfigFile&& other)                      = delete;
-        ConfigFile& operator = (ConfigFile&& other)         = delete;
+        NULL_COPY_AND_ASSIGN(ConfigFile)
     };
 
 

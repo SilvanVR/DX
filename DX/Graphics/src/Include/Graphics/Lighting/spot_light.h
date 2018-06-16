@@ -32,11 +32,7 @@ namespace Graphics
         Math::Vec3  m_direction;
         F32         m_angle;
 
-        //----------------------------------------------------------------------
-        SpotLight(const SpotLight& other)                 = delete;
-        SpotLight& operator = (const SpotLight& other)    = delete;
-        SpotLight(SpotLight&& other)                      = delete;
-        SpotLight& operator = (SpotLight&& other)         = delete;
+        NULL_COPY_AND_ASSIGN(SpotLight)
     };
 
 } // End namespaces

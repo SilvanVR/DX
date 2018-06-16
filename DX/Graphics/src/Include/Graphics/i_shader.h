@@ -281,11 +281,7 @@ namespace Graphics {
         virtual void bind() = 0;
         virtual void unbind() = 0;
 
-        //----------------------------------------------------------------------
-        IShader(const IShader& other)               = delete;
-        IShader& operator = (const IShader& other)  = delete;
-        IShader(IShader&& other)                    = delete;
-        IShader& operator = (IShader&& other)       = delete;
+        NULL_COPY_AND_ASSIGN(IShader)
     };
 
     using Shader = IShader;

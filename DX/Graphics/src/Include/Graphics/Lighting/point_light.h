@@ -36,11 +36,7 @@ namespace Graphics
         Math::Vec3   m_position = { 0, 0, 0 };
         F32          m_range    = 5.0f;
 
-        //----------------------------------------------------------------------
-        PointLight(const PointLight& other)                 = delete;
-        PointLight& operator = (const PointLight& other)    = delete;
-        PointLight(PointLight&& other)                      = delete;
-        PointLight& operator = (PointLight&& other)         = delete;
+        NULL_COPY_AND_ASSIGN(PointLight)
     };
 
 } // End namespaces

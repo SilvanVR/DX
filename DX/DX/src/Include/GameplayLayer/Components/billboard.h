@@ -28,11 +28,7 @@ namespace Components {
         F32         m_scale             = 1.0f;
         GameObject* m_billboardGO       = nullptr;
 
-        //----------------------------------------------------------------------
-        Billboard(const Billboard& other)               = delete;
-        Billboard& operator = (const Billboard& other)  = delete;
-        Billboard(Billboard&& other)                    = delete;
-        Billboard& operator = (Billboard&& other)       = delete;
+        NULL_COPY_AND_ASSIGN(Billboard)
     };
 
 }

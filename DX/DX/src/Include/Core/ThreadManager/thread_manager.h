@@ -33,11 +33,7 @@ namespace Core { namespace Threading {
     private:
         OS::ThreadPool m_threadPool;
 
-        //----------------------------------------------------------------------
-        ThreadManager(const ThreadManager& other)               = delete;
-        ThreadManager& operator = (const ThreadManager& other)  = delete;
-        ThreadManager(ThreadManager&& other)                    = delete;
-        ThreadManager& operator = (ThreadManager&& other)       = delete;
+        NULL_COPY_AND_ASSIGN(ThreadManager)
     };
 
 } }

@@ -62,11 +62,7 @@ namespace Graphics
         friend class IShader;
         virtual void bind(ShaderType shaderType, U32 bindSlot) = 0;
 
-        //----------------------------------------------------------------------
-        ITexture(const ITexture& other)               = delete;
-        ITexture& operator = (const ITexture& other)  = delete;
-        ITexture(ITexture&& other)                    = delete;
-        ITexture& operator = (ITexture&& other)       = delete;
+        NULL_COPY_AND_ASSIGN(ITexture)
     };
 
     using Texture = ITexture;

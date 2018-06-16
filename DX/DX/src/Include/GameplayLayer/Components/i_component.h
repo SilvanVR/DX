@@ -70,10 +70,6 @@ namespace Components {
         //----------------------------------------------------------------------
         void _SetGameObject(GameObject* go) { m_pGameObject = go; addedToGameObject( m_pGameObject ); }
 
-        //----------------------------------------------------------------------
-        IComponent(const IComponent& other)               = delete;
-        IComponent& operator = (const IComponent& other)  = delete;
-        IComponent(IComponent&& other)                    = delete;
-        IComponent& operator = (IComponent&& other)       = delete;
+        NULL_COPY_AND_ASSIGN(IComponent)
     };
 }

@@ -42,11 +42,7 @@ namespace Components {
         void recordGraphicsCommands(Graphics::CommandBuffer& cmd, F32 lerp) override;
         bool cull(const Camera& camera) override;
 
-        //----------------------------------------------------------------------
-        SpotLight(const SpotLight& other)               = delete;
-        SpotLight& operator = (const SpotLight& other)  = delete;
-        SpotLight(SpotLight&& other)                    = delete;
-        SpotLight& operator = (SpotLight&& other)       = delete;
+        NULL_COPY_AND_ASSIGN(SpotLight)
     };
 
 

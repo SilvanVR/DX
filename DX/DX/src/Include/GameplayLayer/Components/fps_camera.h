@@ -68,11 +68,7 @@ namespace Components {
 
         inline void _ResetAnglesToCurrentView();
 
-        //----------------------------------------------------------------------
-        FPSCamera(const FPSCamera& other)               = delete;
-        FPSCamera& operator = (const FPSCamera& other)  = delete;
-        FPSCamera(FPSCamera&& other)                    = delete;
-        FPSCamera& operator = (FPSCamera&& other)       = delete;
+        NULL_COPY_AND_ASSIGN(FPSCamera)
     };
 
 }

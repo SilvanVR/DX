@@ -95,18 +95,14 @@ namespace Core { namespace Input {
     private:
         //----------------------------------------------------------------------
         friend class InputManager;
-        void    _UpdateInternalState();
+        void _UpdateInternalState();
 
         // Callbacks for windows-messages
         void _MouseCallback(MouseKey key, KeyAction action, KeyMod mod);
         void _MouseWheelCallback(I16 param);
         void _CursorMovedCallback(I16 x, I16 y);
 
-        //----------------------------------------------------------------------
-        Mouse(const Mouse& other)                 = delete;
-        Mouse& operator = (const Mouse& other)    = delete;
-        Mouse(Mouse&& other)                      = delete;
-        Mouse& operator = (Mouse&& other)         = delete;
+        NULL_COPY_AND_ASSIGN(Mouse)
     };
 
 

@@ -63,6 +63,8 @@ namespace Core { namespace MemoryManagement {
 
         // Check for a memory leak. Halt the program if one detected.
         void _CheckForMemoryLeak();
+
+        NULL_COPY_AND_ASSIGN(MemoryTracker)
     };
 
 

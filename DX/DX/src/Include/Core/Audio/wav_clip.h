@@ -37,6 +37,8 @@ namespace Core { namespace Audio {
         ArrayList<Byte>         m_pData;
         WAVEFORMATEXTENSIBLE    m_wfx;
         Time::Seconds           m_length;
+
+        NULL_COPY_AND_ASSIGN(WAVClip)
     };
 
     using WAVClipPtr = std::shared_ptr<WAVClip>;

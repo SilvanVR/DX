@@ -54,11 +54,7 @@ namespace Core {
         void _OpenConsole();
         void _CloseConsole();
 
-        //----------------------------------------------------------------------
-        InGameConsole(const InGameConsole& other)               = delete;
-        InGameConsole& operator = (const InGameConsole& other)  = delete;
-        InGameConsole(InGameConsole&& other)                    = delete;
-        InGameConsole& operator = (InGameConsole&& other)       = delete;
+        NULL_COPY_AND_ASSIGN(InGameConsole)
     };
 
 

@@ -128,11 +128,7 @@ namespace Graphics {
     private:
         void _OnWindowSizeChanged();
 
-        //----------------------------------------------------------------------
-        IRenderer(const IRenderer& other)               = delete;
-        IRenderer& operator = (const IRenderer& other)  = delete;
-        IRenderer(IRenderer&& other)                    = delete;
-        IRenderer& operator = (IRenderer&& other)       = delete;
+        NULL_COPY_AND_ASSIGN(IRenderer)
     };
 
 } // End namespaces

@@ -75,11 +75,7 @@ namespace Core { namespace Input {
         const Keyboard* m_keyboard;
         const Mouse*    m_mouse;
 
-        //----------------------------------------------------------------------
-        ActionMapper(const ActionMapper& other)              = delete;
-        ActionMapper& operator = (const ActionMapper& other) = delete;
-        ActionMapper(ActionMapper&& other)                   = delete;
-        ActionMapper& operator = (ActionMapper&& other)      = delete;
+        NULL_COPY_AND_ASSIGN(ActionMapper)
     };
 
 } } // end namespaces

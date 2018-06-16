@@ -48,9 +48,5 @@ public:
     virtual void shutdown() = 0;
 
 private:
-    //----------------------------------------------------------------------
-    IGame(const IGame& other)               = delete;
-    IGame& operator = (const IGame& other)  = delete;
-    IGame(IGame&& other)                    = delete;
-    IGame& operator = (IGame&& other)       = delete;
+    NULL_COPY_AND_ASSIGN(IGame)
 };

@@ -36,11 +36,7 @@ namespace Core { namespace Config {
     private:
         ConfigFile* m_engineIni = nullptr;
 
-        //----------------------------------------------------------------------
-        ConfigurationManager(const ConfigurationManager& other)               = delete;
-        ConfigurationManager& operator = (const ConfigurationManager& other)  = delete;
-        ConfigurationManager(ConfigurationManager&& other)                    = delete;
-        ConfigurationManager& operator = (ConfigurationManager&& other)       = delete;
+        NULL_COPY_AND_ASSIGN(ConfigurationManager)
     };
 
 

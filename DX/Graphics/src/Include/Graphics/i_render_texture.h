@@ -104,11 +104,7 @@ namespace Graphics
         friend class D3D11Renderer;
         virtual void bindForRendering() = 0;
 
-        //----------------------------------------------------------------------
-        IRenderTexture(const IRenderTexture& other)               = delete;
-        IRenderTexture& operator = (const IRenderTexture& other)  = delete;
-        IRenderTexture(IRenderTexture&& other)                    = delete;
-        IRenderTexture& operator = (IRenderTexture&& other)       = delete;
+        NULL_COPY_AND_ASSIGN(IRenderTexture)
     };
 
     using RenderTexture = IRenderTexture;

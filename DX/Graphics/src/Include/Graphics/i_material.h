@@ -107,11 +107,7 @@ namespace Graphics {
         //----------------------------------------------------------------------
         virtual void _ChangedShader() = 0;
 
-        //----------------------------------------------------------------------
-        IMaterial(const IMaterial& other)               = delete;
-        IMaterial& operator = (const IMaterial& other)  = delete;
-        IMaterial(IMaterial&& other)                    = delete;
-        IMaterial& operator = (IMaterial&& other)       = delete;
+        NULL_COPY_AND_ASSIGN(IMaterial)
     };
 
     using Material = IMaterial;

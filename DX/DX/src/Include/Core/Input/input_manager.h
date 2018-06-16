@@ -59,11 +59,7 @@ namespace Core { namespace Input {
         AxisMapper*     m_axisMapper    = nullptr;
 
     private:
-        //----------------------------------------------------------------------
-        InputManager(const InputManager& other)                 = delete;
-        InputManager& operator = (const InputManager& other)    = delete;
-        InputManager(InputManager&& other)                      = delete;
-        InputManager& operator = (InputManager&& other)         = delete;
+        NULL_COPY_AND_ASSIGN(InputManager)
     };
 
 

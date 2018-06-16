@@ -111,11 +111,7 @@ namespace Graphics
         ArrayList<Byte> m_facePixels[6];
 
     private:
-        //----------------------------------------------------------------------
-        ICubemap(const ICubemap& other)               = delete;
-        ICubemap& operator = (const ICubemap& other)  = delete;
-        ICubemap(ICubemap&& other)                    = delete;
-        ICubemap& operator = (ICubemap&& other)       = delete;
+        NULL_COPY_AND_ASSIGN(ICubemap)
     };
 
     using Cubemap = ICubemap;

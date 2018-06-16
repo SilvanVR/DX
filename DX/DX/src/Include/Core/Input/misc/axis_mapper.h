@@ -109,11 +109,7 @@ namespace Core { namespace Input {
         void _UpdateAxes(F64 delta);
         void _UpdateMouseWheelAxis(F64 delta);
 
-        //----------------------------------------------------------------------
-        AxisMapper(const AxisMapper& other)              = delete;
-        AxisMapper& operator = (const AxisMapper& other) = delete;
-        AxisMapper(AxisMapper&& other)                   = delete;
-        AxisMapper& operator = (AxisMapper&& other)      = delete;
+        NULL_COPY_AND_ASSIGN(AxisMapper)
     };
 
 } } // end namespaces

@@ -69,12 +69,7 @@ namespace Core { namespace Profiling {
         // Maps [Name] <-> [Time]
         HashMap<StringID, U64> m_entries;
 
-
-        //----------------------------------------------------------------------
-        Profiler(const Profiler& other)               = delete;
-        Profiler& operator = (const Profiler& other)  = delete;
-        Profiler(Profiler&& other)                    = delete;
-        Profiler& operator = (Profiler&& other)       = delete;
+        NULL_COPY_AND_ASSIGN(Profiler)
     };
 
 

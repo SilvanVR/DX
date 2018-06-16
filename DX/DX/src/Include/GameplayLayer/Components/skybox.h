@@ -39,11 +39,7 @@ namespace Components {
         MaterialPtr m_skyboxMaterial    = nullptr;
         MeshPtr     m_skyboxMesh        = nullptr;
 
-        //----------------------------------------------------------------------
-        Skybox(const Skybox& other)               = delete;
-        Skybox& operator = (const Skybox& other)  = delete;
-        Skybox(Skybox&& other)                    = delete;
-        Skybox& operator = (Skybox&& other)       = delete;
+        NULL_COPY_AND_ASSIGN(Skybox)
     };
 
 }

@@ -25,11 +25,7 @@ namespace Assets {
     private:
         RenderTexturePtr m_brdfLut;
 
-        //----------------------------------------------------------------------
-        BRDFLut(const BRDFLut& other)               = delete;
-        BRDFLut& operator = (const BRDFLut& other)  = delete;
-        BRDFLut(BRDFLut&& other)                    = delete;
-        BRDFLut& operator = (BRDFLut&& other)       = delete;
+        NULL_COPY_AND_ASSIGN(BRDFLut)
     };
 
 } // End namespaces

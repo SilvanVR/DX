@@ -199,11 +199,7 @@ namespace Core { namespace Resources {
 
         void _OnWindowSizeChanged();
 
-        //----------------------------------------------------------------------
-        ResourceManager(const ResourceManager& other)               = delete;
-        ResourceManager& operator = (const ResourceManager& other)  = delete;
-        ResourceManager(ResourceManager&& other)                    = delete;
-        ResourceManager& operator = (ResourceManager&& other)       = delete;
+        NULL_COPY_AND_ASSIGN(ResourceManager)
     };
 
 

@@ -79,11 +79,7 @@ namespace Core {
 
         void _Render(F32 lerp);
 
-        //----------------------------------------------------------------------
-        CoreEngine(const CoreEngine& other)                 = delete;
-        CoreEngine& operator = (const CoreEngine& other)    = delete;
-        CoreEngine(CoreEngine&& other)                      = delete;
-        CoreEngine& operator = (CoreEngine&& other)         = delete;
+        NULL_COPY_AND_ASSIGN(CoreEngine)
     };
 
 

@@ -41,11 +41,7 @@ namespace Graphics
         LightType   m_lightType = LightType::Unknown;
 
     private:
-        //----------------------------------------------------------------------
-        Light(const Light& other)               = delete;
-        Light& operator = (const Light& other)  = delete;
-        Light(Light&& other)                    = delete;
-        Light& operator = (Light&& other)       = delete;
+        NULL_COPY_AND_ASSIGN(Light)
     };
 
 } // End namespaces

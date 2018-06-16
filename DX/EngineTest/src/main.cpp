@@ -25,17 +25,24 @@ public:
         // Camera 1
         auto go = createGameObject("Camera");
         cam = go->addComponent<Components::Camera>();
-        go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -10);
+        go->getComponent<Components::Transform>()->position = Math::Vec3(0, 3, -8);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA);
 
-        createGameObject("Grid")->addComponent<GridGeneration>(20);
+        //createGameObject("Grid")->addComponent<GridGeneration>(20);
 
-        //auto obj = createGameObject("GO");
-        //obj->addComponent<Components::MeshRenderer>(ASSETS.getMesh("/models/monkey.obj"), ASSETS.getMaterial("/materials/normals.material"));
+        auto planeMesh = Core::MeshGenerator::CreatePlane();
+        auto obj = createGameObject("GO");
+        obj->addComponent<Components::MeshRenderer>(planeMesh, ASSETS.getMaterial("/materials/blinn_phong/grass.material"));
+        obj->getTransform()->rotation *= Math::Quat(Math::Vec3::RIGHT, 90.0f);
+        obj->getTransform()->scale = {20,20,20};
 
-        //auto mesh = Core::MeshGenerator::CreateCubeUV();
-        auto obj2 = createGameObject();
-        obj2->addComponent<Components::Billboard>(ASSETS.getTexture2D("/textures/nico.jpg"), 1.0f);
+        auto obj2 = createGameObject("GO2");
+        obj2->addComponent<Components::MeshRenderer>(ASSETS.getMesh("/models/monkey.obj"), ASSETS.getMaterial("/materials/blinn_phong/monkey.material"));
+        obj2->getTransform()->position = {0, 1, 0};
+
+        auto sun = createGameObject("Sun");
+        sun->addComponent<Components::DirectionalLight>(1.0f, Color::WHITE);
+        sun->getTransform()->rotation = Math::Quat::LookRotation(Math::Vec3{ 0,-1, 1 });
 
         LOG("TestScene initialized!", Color::RED);
     }

@@ -56,11 +56,7 @@ namespace Core { namespace Audio {
         X3DAUDIO_LISTENER       m_listener = { {}, {}, { 4096, 4096, 4096 } };
         X3DAUDIO_DSP_SETTINGS   m_DSPSettings = {};
 
-        //----------------------------------------------------------------------
-        AudioManager(const AudioManager& other)               = delete;
-        AudioManager& operator = (const AudioManager& other)  = delete;
-        AudioManager(AudioManager&& other)                    = delete;
-        AudioManager& operator = (AudioManager&& other)       = delete;
+        NULL_COPY_AND_ASSIGN(AudioManager)
     };
 
 } } // End namespaces

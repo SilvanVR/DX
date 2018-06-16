@@ -74,11 +74,7 @@ namespace Core { namespace Debug {
         void _UpdateCommandBuffer();
         inline void _AddMesh(MeshPtr mesh, Time::Seconds duration, bool depthTest);
 
-        //----------------------------------------------------------------------
-        DebugManager(const DebugManager& other)               = delete;
-        DebugManager& operator = (const DebugManager& other)  = delete;
-        DebugManager(DebugManager&& other)                    = delete;
-        DebugManager& operator = (DebugManager&& other)       = delete;
+        NULL_COPY_AND_ASSIGN(DebugManager)
     };
 
 

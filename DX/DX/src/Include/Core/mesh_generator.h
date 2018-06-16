@@ -85,12 +85,7 @@ namespace Core {
                                      F32 fovAngleYDeg, F32 zNear, F32 zFar, F32 aspectRatio, Color color = Color::WHITE);
 
     private:
-        //----------------------------------------------------------------------
-        MeshGenerator()                                         = delete;
-        MeshGenerator(const MeshGenerator& other)               = delete;
-        MeshGenerator& operator = (const MeshGenerator& other)  = delete;
-        MeshGenerator(MeshGenerator&& other)                    = delete;
-        MeshGenerator& operator = (MeshGenerator&& other)       = delete;
+        MeshGenerator() = delete;
     };
 
 } // End namespaces

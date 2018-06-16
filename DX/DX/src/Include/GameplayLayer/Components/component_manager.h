@@ -55,11 +55,7 @@ namespace Components {
         template <typename T, typename... Args> T*   _Create( Args&&... args );
         template <typename T>                   void _Destroy( T* component );
 
-        //----------------------------------------------------------------------
-        ComponentManager(const ComponentManager& other)               = delete;
-        ComponentManager& operator = (const ComponentManager& other)  = delete;
-        ComponentManager(ComponentManager&& other)                    = delete;
-        ComponentManager& operator = (ComponentManager&& other)       = delete;
+        NULL_COPY_AND_ASSIGN(ComponentManager)
     };
 
     //**********************************************************************

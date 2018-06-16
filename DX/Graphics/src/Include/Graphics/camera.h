@@ -144,11 +144,7 @@ namespace Graphics {
         //----------------------------------------------------------------------
         void _UpdateProjectionMatrix();
 
-        //----------------------------------------------------------------------
-        Camera(const Camera& other)               = delete;
-        Camera& operator = (const Camera& other)  = delete;
-        Camera(Camera&& other)                    = delete;
-        Camera& operator = (Camera&& other)       = delete;
+        NULL_COPY_AND_ASSIGN(Camera)
     };
 
 }

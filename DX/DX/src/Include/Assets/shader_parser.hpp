@@ -307,7 +307,7 @@ namespace Assets {
             }
         }
 
-
+        ShaderParser() = delete;
     };
 
 } // End namespaces

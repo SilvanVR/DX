@@ -80,11 +80,7 @@ namespace Core { namespace Input {
         void _KeyCallback(Key key, KeyAction action, KeyMod mod);
         void _CharCallback(char c);
 
-        //----------------------------------------------------------------------
-        Keyboard(const Keyboard& other)                 = delete;
-        Keyboard& operator = (const Keyboard& other)    = delete;
-        Keyboard(Keyboard&& other)                      = delete;
-        Keyboard& operator = (Keyboard&& other)         = delete;
+        NULL_COPY_AND_ASSIGN(Keyboard)
     };
 
 

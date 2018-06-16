@@ -79,11 +79,7 @@ namespace Core {
         //----------------------------------------------------------------------
         void _SwitchToScene(IScene* newScene);
 
-        //----------------------------------------------------------------------
-        SceneManager(const SceneManager& other)               = delete;
-        SceneManager& operator = (const SceneManager& other)  = delete;
-        SceneManager(SceneManager&& other)                    = delete;
-        SceneManager& operator = (SceneManager&& other)       = delete;
+        NULL_COPY_AND_ASSIGN(SceneManager)
     };
 
 

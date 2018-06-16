@@ -175,11 +175,7 @@ namespace Assets {
         inline CubemapPtr _LoadCubemap(const OS::Path& path, I32 sizePerFace, bool generateMips);
         void _EnableHotReloading();
 
-        //----------------------------------------------------------------------
-        AssetManager(const AssetManager& other)                 = delete;
-        AssetManager& operator = (const AssetManager& other)    = delete;
-        AssetManager(AssetManager&& other)                      = delete;
-        AssetManager& operator = (AssetManager&& other)         = delete;
+        NULL_COPY_AND_ASSIGN(AssetManager)
     };
 
 } // End namespaces

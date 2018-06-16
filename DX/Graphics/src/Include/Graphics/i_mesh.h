@@ -192,11 +192,7 @@ namespace Graphics {
         //----------------------------------------------------------------------
         void _RecalculateBounds();
 
-        //----------------------------------------------------------------------
-        IMesh(const IMesh& other)               = delete;
-        IMesh& operator = (const IMesh& other)  = delete;
-        IMesh(IMesh&& other)                    = delete;
-        IMesh& operator = (IMesh&& other)       = delete;
+        NULL_COPY_AND_ASSIGN(IMesh)
     };
 
     using Mesh = IMesh;

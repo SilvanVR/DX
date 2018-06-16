@@ -131,11 +131,7 @@ namespace Components {
         void _UpdateCullingPlanes(const DirectX::XMMATRIX& viewProjection);
         void _CreateRenderTarget(U32 numSamples);
 
-        //----------------------------------------------------------------------
-        Camera(const Camera& other)               = delete;
-        Camera& operator = (const Camera& other)  = delete;
-        Camera(Camera&& other)                    = delete;
-        Camera& operator = (Camera&& other)       = delete;
+        NULL_COPY_AND_ASSIGN(Camera)
     };
 
 }

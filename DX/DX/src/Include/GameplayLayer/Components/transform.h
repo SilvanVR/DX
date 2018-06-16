@@ -70,11 +70,7 @@ namespace Components {
         inline void _RemoveFromParent();
         inline DirectX::XMMATRIX _GetLocalTransformationMatrix() const;
 
-        //----------------------------------------------------------------------
-        Transform(const Transform& other)               = delete;
-        Transform& operator = (const Transform& other)  = delete;
-        Transform(Transform&& other)                    = delete;
-        Transform& operator = (Transform&& other)       = delete;
+        NULL_COPY_AND_ASSIGN(Transform)
     };
 
 }

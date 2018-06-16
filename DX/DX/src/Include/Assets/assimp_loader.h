@@ -25,13 +25,9 @@ namespace Assets {
         static MeshPtr LoadMesh(const OS::Path& path, MeshMaterialInfo* materials);
 
     private:
-
         //----------------------------------------------------------------------
-        AssimpLoader()                                        = delete;
-        AssimpLoader(const AssimpLoader& other)               = delete;
-        AssimpLoader& operator = (const AssimpLoader& other)  = delete;
-        AssimpLoader(AssimpLoader&& other)                    = delete;
-        AssimpLoader& operator = (AssimpLoader&& other)       = delete;
+        AssimpLoader() = delete;
+        NULL_COPY_AND_ASSIGN(AssimpLoader)
     };
 
 } // End namespaces

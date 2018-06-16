@@ -240,6 +240,7 @@ namespace Assets {
                 material->setTexture( NAME_METALLIC_MAP, RESOURCES.getBlackTexture() );
         }
 
+        MaterialParser() = delete;
     };
 
 } // End namespaces

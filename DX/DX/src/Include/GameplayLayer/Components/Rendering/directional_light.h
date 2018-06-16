@@ -38,11 +38,7 @@ namespace Components {
         void recordGraphicsCommands(Graphics::CommandBuffer& cmd, F32 lerp) override;
         bool cull(const Camera& camera) override { return true; }
 
-        //----------------------------------------------------------------------
-        DirectionalLight(const DirectionalLight& other)               = delete;
-        DirectionalLight& operator = (const DirectionalLight& other)  = delete;
-        DirectionalLight(DirectionalLight&& other)                    = delete;
-        DirectionalLight& operator = (DirectionalLight&& other)       = delete;
+        NULL_COPY_AND_ASSIGN(DirectionalLight)
     };
 
 

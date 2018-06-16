@@ -27,11 +27,7 @@ namespace Components {
 
     private:
 
-        //----------------------------------------------------------------------
-        IRenderComponent(const IRenderComponent& other)               = delete;
-        IRenderComponent& operator = (const IRenderComponent& other)  = delete;
-        IRenderComponent(IRenderComponent&& other)                    = delete;
-        IRenderComponent& operator = (IRenderComponent&& other)       = delete;
+        NULL_COPY_AND_ASSIGN(IRenderComponent)
     };
 
 }
