@@ -18,7 +18,7 @@ namespace Graphics { namespace D3D11 {
     {
     public:
         IBindableTexture() = default;
-        virtual ~IBindableTexture() { SAFE_RELEASE( m_pSampleState ); }
+        virtual ~IBindableTexture();
 
         //----------------------------------------------------------------------
         // This functions binds this texture to the given shader at the given slot.

@@ -17,22 +17,16 @@
 namespace Graphics { namespace D3D11 {
 
     //**********************************************************************
-    class RenderTexture : public Graphics::IRenderTexture, public D3D11::IBindableTexture
+    class RenderTexture : public Graphics::IRenderTexture
     {
     public:
         RenderTexture() = default;
-        ~RenderTexture() {}
+        ~RenderTexture() = default;
 
         //----------------------------------------------------------------------
         // IRenderTexture Interface
         //----------------------------------------------------------------------
         void bindForRendering() override;
-
-        //----------------------------------------------------------------------
-        // D3D11ITexture Interface
-        //----------------------------------------------------------------------
-        void bind(ShaderType shaderType, U32 slot) override;
-        ID3D11Texture2D* getD3D11Texture() override;
 
     private:
         //----------------------------------------------------------------------

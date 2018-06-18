@@ -28,7 +28,7 @@ namespace Graphics { namespace D3D11 {
         SAFE_RELEASE( m_pBlendState );
         SAFE_DELETE( m_shaderDataVS );
         SAFE_DELETE( m_shaderDataPS );
-        //SAFE_DELETE( m_shaderDataGS );
+        SAFE_DELETE( m_shaderDataGS );
     }
 
     //----------------------------------------------------------------------

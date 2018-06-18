@@ -2,6 +2,6 @@
 
 "shader" : "/shaders/phong_shadow.shader",
 "albedo" : "/textures/dirt.jpg",
-"uvScale" : 1
+"uvScale" : 10
 
 }

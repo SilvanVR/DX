@@ -204,7 +204,6 @@ public:
         auto cam = go->addComponent<Components::Camera>();
         go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -10);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA);
-        //go->addComponent<AutoOrbiting>(10.0f);
 
         auto cubemap = ASSETS.getCubemap("/cubemaps/tropical_sunny_day/Left.png", "/cubemaps/tropical_sunny_day/Right.png",
             "/cubemaps/tropical_sunny_day/Up.png", "/cubemaps/tropical_sunny_day/Down.png",
@@ -228,22 +227,10 @@ public:
         auto cube = Core::MeshGenerator::CreateCubeUV();
         cube->setColors(cubeColors);
 
-        auto plane = Core::MeshGenerator::CreatePlane();
-        plane->setColors(planeColors);
-
         // SHADER
         auto texShader = ASSETS.getShader( "/shaders/texture.shader" );
 
-        // TEXTURES
-        auto tex = ASSETS.getTexture2D("/textures/star_citizen.png");
-
         // MATERIAL
-        auto material = RESOURCES.createMaterial();
-        material->setShader(texShader);
-        material->setTexture("tex0", tex);
-        material->setTexture("tex1", tex);
-        material->setColor("tintColor", Color::WHITE);
-
         auto customTexMaterial = RESOURCES.createMaterial();
         customTexMaterial->setShader(texShader);
         customTexMaterial->setTexture("tex0", renderTex->getColorBuffer());
@@ -253,7 +240,7 @@ public:
 
         // GAMEOBJECT
         auto go3 = createGameObject("Test3");
-        go3->addComponent<Components::MeshRenderer>(plane, customTexMaterial);
+        go3->addComponent<Components::MeshRenderer>(Core::MeshGenerator::CreatePlane(), customTexMaterial);
         go3->getTransform()->position = Math::Vec3(0, 1.5f, 0);
         go3->getTransform()->scale = { 3 };
 

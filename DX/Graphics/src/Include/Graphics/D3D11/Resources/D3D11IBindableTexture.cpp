@@ -9,6 +9,14 @@
 namespace Graphics { namespace D3D11 {
 
     //----------------------------------------------------------------------
+    IBindableTexture::~IBindableTexture()
+    { 
+        SAFE_RELEASE( m_pSampleState );
+        SAFE_RELEASE( m_pTexture );
+        SAFE_RELEASE( m_pTextureView );
+    }
+
+    //----------------------------------------------------------------------
     void IBindableTexture::bind( ShaderType shaderType, U32 slot )
     {
         if (not m_gpuUpToDate)

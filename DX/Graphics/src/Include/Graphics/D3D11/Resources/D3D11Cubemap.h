@@ -17,7 +17,7 @@ namespace Graphics { namespace D3D11 {
     {
     public:
         Cubemap() = default;
-        ~Cubemap();
+        ~Cubemap() = default;
 
         //----------------------------------------------------------------------
         // ICubemap Interface

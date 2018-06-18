@@ -17,7 +17,7 @@ namespace Graphics { namespace D3D11 {
     {
     public:
         Texture2D() = default;
-        ~Texture2D();
+        ~Texture2D() = default;
 
         //----------------------------------------------------------------------
         // ITexture Interface

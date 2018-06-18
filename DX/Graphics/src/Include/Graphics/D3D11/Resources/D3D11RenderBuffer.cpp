@@ -99,7 +99,7 @@ namespace Graphics { namespace D3D11 {
             {
                 if (not m_resolved)
                 {
-                    g_pImmediateContext->ResolveSubresource( m_pRenderBuffer, 0, m_pRenderBufferMS, 0, Utility::TranslateTextureFormat( m_format ) );
+                    g_pImmediateContext->ResolveSubresource( m_pTexture, 0, m_pRenderBufferMS, 0, Utility::TranslateTextureFormat( m_format ) );
                     m_resolved = true;
                 }
             }
@@ -108,17 +108,16 @@ namespace Graphics { namespace D3D11 {
         switch (shaderType)
         {
         case ShaderType::Vertex:
-            g_pImmediateContext->VSSetShaderResources( slot, 1, &m_pShaderBufferView );
+            g_pImmediateContext->VSSetShaderResources( slot, 1, &m_pTextureView );
             g_pImmediateContext->VSSetSamplers( slot, 1, &m_pSampleState );
             break;
         case ShaderType::Fragment:
-            g_pImmediateContext->PSSetShaderResources( slot, 1, &m_pShaderBufferView );
+            g_pImmediateContext->PSSetShaderResources( slot, 1, &m_pTextureView );
             g_pImmediateContext->PSSetSamplers( slot, 1, &m_pSampleState );
             break;
         default:
             ASSERT( false );
         }
-
     }
 
     //----------------------------------------------------------------------
@@ -155,7 +154,7 @@ namespace Graphics { namespace D3D11 {
         textureDesc.BindFlags           = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
 
         // Create always a non multisampled render buffer
-        HR( g_pDevice->CreateTexture2D( &textureDesc, NULL, &m_pRenderBuffer ) );
+        HR( g_pDevice->CreateTexture2D( &textureDesc, NULL, &m_pTexture ) );
 
         // If multisampling was requested create an additional buffer in which we render, but have to resolve it before using it in a shader
         if ( isMultisampled() )
@@ -168,7 +167,7 @@ namespace Graphics { namespace D3D11 {
         else
         {
             // Just use the non multisampled render buffer as the render target
-            HR( g_pDevice->CreateRenderTargetView( m_pRenderBuffer, NULL, &m_pRenderTargetView ) );
+            HR( g_pDevice->CreateRenderTargetView( m_pTexture, NULL, &m_pRenderTargetView ) );
         }
 
         _CreateShaderResourceView();
@@ -189,14 +188,14 @@ namespace Graphics { namespace D3D11 {
         textureDesc.CPUAccessFlags = 0;
         textureDesc.MiscFlags      = 0;
 
-        HR( g_pDevice->CreateTexture2D( &textureDesc, NULL, &m_pRenderBuffer) );
+        HR( g_pDevice->CreateTexture2D( &textureDesc, NULL, &m_pTexture ) );
 
         D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc = {};
         dsvDesc.Flags = 0;
         dsvDesc.Format = Utility::TranslateDepthFormat( m_depthFormat );
         dsvDesc.ViewDimension = m_samplingDescription.count > 1 ? D3D11_DSV_DIMENSION_TEXTURE2DMS : D3D11_DSV_DIMENSION_TEXTURE2D;
 
-        HR( g_pDevice->CreateDepthStencilView( m_pRenderBuffer, &dsvDesc, &m_pDepthStencilView ) );
+        HR( g_pDevice->CreateDepthStencilView( m_pTexture, &dsvDesc, &m_pDepthStencilView ) );
 
         _CreateShaderResourceView();
     }
@@ -226,14 +225,14 @@ namespace Graphics { namespace D3D11 {
         srvDesc.Texture2D.MostDetailedMip = 0;
         srvDesc.Texture2D.MipLevels = -1;
 
-        HR( g_pDevice->CreateShaderResourceView( m_pRenderBuffer, &srvDesc, &m_pShaderBufferView ) );
+        HR( g_pDevice->CreateShaderResourceView( m_pTexture, &srvDesc, &m_pTextureView ) );
     }
 
     //----------------------------------------------------------------------
     void RenderBuffer::_DestroyBufferAndViews()
     {
-        SAFE_RELEASE( m_pRenderBuffer );
-        SAFE_RELEASE( m_pShaderBufferView );
+        SAFE_RELEASE( m_pTexture );
+        SAFE_RELEASE( m_pTextureView );
         SAFE_RELEASE( m_pRenderBufferMS );
         SAFE_RELEASE( m_pShaderBufferViewMS );
 

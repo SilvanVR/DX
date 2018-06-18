@@ -12,13 +12,6 @@
 namespace Graphics { namespace D3D11 {
 
     //----------------------------------------------------------------------
-    Texture2D::~Texture2D()
-    {
-        SAFE_RELEASE( m_pTexture );
-        SAFE_RELEASE( m_pTextureView );
-    }
-
-    //----------------------------------------------------------------------
     void Texture2D::create( U32 width, U32 height, TextureFormat format, bool generateMips )
     {
         ASSERT( width > 0 && height > 0 && m_width == 0 && "Invalid params or texture were already created" );

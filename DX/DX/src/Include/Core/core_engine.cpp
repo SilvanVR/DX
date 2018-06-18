@@ -112,7 +112,8 @@ namespace Core {
         graphicsEngine.resetFrameInfo();
 
         // Update global buffer
-        graphicsEngine.setGlobalFloat( SID("_Time"), (F32)TIME.getTime() );
+        static const StringID TIME_NAME = SID( "_Time" );
+        graphicsEngine.setGlobalFloat( TIME_NAME, (F32)TIME.getTime() );
 
         // Fetch all renderer components
         auto& renderers = SCENE.getComponentManager().getRenderer();
