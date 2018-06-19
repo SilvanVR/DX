@@ -228,14 +228,12 @@ public:
         cube->setColors(cubeColors);
 
         // SHADER
-        auto texShader = ASSETS.getShader( "/shaders/texture.shader" );
+        auto texShader = ASSETS.getShader( "/shaders/tex.shader" );
 
         // MATERIAL
         auto customTexMaterial = RESOURCES.createMaterial();
         customTexMaterial->setShader(texShader);
-        customTexMaterial->setTexture("tex0", renderTex->getColorBuffer());
-        customTexMaterial->setTexture("tex1", renderTex->getColorBuffer());
-        customTexMaterial->setFloat("mix", 0.0f);
+        customTexMaterial->setTexture("tex", renderTex->getColorBuffer());
         customTexMaterial->setColor("tintColor", Color::WHITE);
 
         // GAMEOBJECT
@@ -291,7 +289,7 @@ public:
         auto sphere = Core::MeshGenerator::CreateCubeUV(1000.0f);
 
         // SHADER
-        auto texShader = ASSETS.getShader( "/shaders/skybox.shader" );
+        auto texShader = ASSETS.getShader( "/engine/shaders/skybox.shader" );
 
         // MATERIAL
         auto material = RESOURCES.createMaterial();
@@ -430,23 +428,18 @@ public:
         createGameObject("Grid")->addComponent<GridGeneration>(20);
 
         // SHADER
-        auto texShader = ASSETS.getShader("/shaders/texture.shader");
+        auto texShader = ASSETS.getShader("/shaders/tex.shader");
 
         // MATERIAL
         auto material = RESOURCES.createMaterial();
         material->setShader(texShader);
-        material->setTexture(SID("tex0"), ASSETS.getTexture2D("/textures/dirt.jpg"));
-        material->setTexture(SID("tex1"), ASSETS.getTexture2D("/textures/nico.jpg"));
-        material->setFloat(SID("mix"), 0.0f);
-        material->setColor(SID("tintColor"), Color::WHITE);
+        material->setTexture("tex", ASSETS.getTexture2D("/textures/dirt.jpg"));
+        material->setColor("tintColor", Color::WHITE);
 
-        // MATERIAL
         auto material2 = RESOURCES.createMaterial();
         material2->setShader(texShader);
-        material2->setTexture(SID("tex0"), ASSETS.getTexture2D("/textures/dirt.jpg"));
-        material2->setTexture(SID("tex1"), ASSETS.getTexture2D("/textures/nico.jpg"));
-        material2->setFloat(SID("mix"), 1.0f);
-        material2->setColor(SID("tintColor"), Color::WHITE);
+        material2->setTexture("tex", ASSETS.getTexture2D("/textures/nico.jpg"));
+        material2->setColor("tintColor", Color::WHITE);
 
         // MESH
         auto mesh = Core::MeshGenerator::CreateCubeUV();
@@ -707,7 +700,7 @@ public:
 
         auto cubemapHDR = ASSETS.getCubemap("/cubemaps/pine.hdr", 2048, true);
 
-        auto pbrShader = ASSETS.getShader("/shaders/pbr.shader");
+        auto pbrShader = ASSETS.getShader("/engine/shaders/pbr/pbr.shader");
 
         Assets::EnvironmentMap envMap(cubemapHDR, 128, 512);
         auto diffuse = envMap.getDiffuseIrradianceMap();
@@ -723,7 +716,7 @@ public:
         pbrShader->invokeReloadCallback();
 
         auto mesh = ASSETS.getMesh("/models/sphere.obj");
-        auto mat = ASSETS.getMaterial("/materials/test.pbrmaterial");
+        auto mat = ASSETS.getMaterial("/materials/pbr/test.pbrmaterial");
 
         auto go2 = createGameObject("Obj");
         go2->addComponent<Components::MeshRenderer>(mesh, mat);
@@ -811,7 +804,7 @@ public:
 
         // Environment map
         auto cubemapHDR = ASSETS.getCubemap("/cubemaps/canyon.hdr", 2048, true);
-        auto pbrShader = ASSETS.getShader("/shaders/pbr.shader");
+        auto pbrShader = ASSETS.getShader("/engine/shaders/pbr/pbr.shader");
 
         Assets::EnvironmentMap envMap(cubemapHDR, 128, 512);
         auto diffuse = envMap.getDiffuseIrradianceMap();
@@ -917,7 +910,7 @@ public:
         go->addComponent<Tonemap>();
 
         auto cubemapHDR = ASSETS.getCubemap("/cubemaps/canyon.hdr", 2048, true);
-        auto pbrShader = ASSETS.getShader("/shaders/pbr.shader");
+        auto pbrShader = ASSETS.getShader("/engine/shaders/pbr/pbr.shader");
 
         Assets::EnvironmentMap envMap(cubemapHDR, 128, 512);
         auto diffuse = envMap.getDiffuseIrradianceMap();
@@ -1025,7 +1018,7 @@ public:
         auto specular = envMap.getSpecularReflectionMap();
 
         auto brdfLut = Assets::BRDFLut().getTexture();
-        auto pbrShader = ASSETS.getShader("/shaders/pbr.shader");
+        auto pbrShader = ASSETS.getShader("/engine/shaders/pbr/pbr.shader");
         pbrShader->setReloadCallback([=](Graphics::IShader* shader) {
             shader->setTexture("diffuseIrradianceMap", diffuse);
             shader->setTexture("specularReflectionMap", specular);

@@ -531,7 +531,7 @@ namespace Graphics {
         // This is a small hack in order to create the global buffer as early as possible.
         // Otherwise calling setGlobalFloat(...) etc. does not work before the first shader using the global buffers has been compiled.
         try {
-            OS::BinaryFile file( "/shaders/includes/enginePS.hlsl" );
+            OS::BinaryFile file( "/engine/shaders/includes/enginePS.hlsl" );
 
             String fragSrc = file.readAll();
             fragSrc += "float4 main() : SV_Target       \

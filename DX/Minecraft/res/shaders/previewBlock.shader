@@ -5,7 +5,7 @@
 // ----------------------------------------------
 #shader vertex
 
-#include "includes/engineVS.hlsl"
+#include "/engine/shaders/includes/engineVS.hlsl"
 
 struct VertexIn
 {
@@ -37,8 +37,8 @@ VertexOut main(VertexIn vin)
 // ----------------------------------------------
 #shader fragment
 
-#include "includes/enginePS.hlsl"
-#include "includes/blinn_phong.hlsl"
+#include "/engine/shaders/includes/enginePS.hlsl"
+#include "/shaders/lighting/blinn_phong.hlsl"
 
 struct FragmentIn
 {
@@ -54,5 +54,10 @@ SamplerState sampler0;
 float4 main(FragmentIn fin) : SV_Target
 {
 	float4 textureColor = tex.Sample(sampler0, fin.tex);
+	
+	// Don't light from below
+	if (fin.Normal.y < 0)
+		return textureColor * _Ambient;
+
 	return APPLY_LIGHTING( textureColor, fin.WorldPos, fin.Normal );
 }

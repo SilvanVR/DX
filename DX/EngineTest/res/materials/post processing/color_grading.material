@@ -1,6 +1,6 @@
 {
 
-"shader" : "/shaders/post processing/color_grading.shader",
+"shader" : "/engine/shaders/post processing/color_grading.shader",
 "contrast" : 0.8
 
 }

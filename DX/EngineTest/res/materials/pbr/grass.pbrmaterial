@@ -1,6 +1,6 @@
 {
 
-"shader" : "/shaders/pbr.shader",
+"shader" : "/engine/shaders/pbr/pbr.shader",
 
 "albedoMap" : "/textures/pbr/grass/albedo.png",
 "normalMap" : "/textures/pbr/grass/normal.png",

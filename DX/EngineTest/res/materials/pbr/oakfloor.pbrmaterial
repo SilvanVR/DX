@@ -1,6 +1,6 @@
 {
 
-"shader" : "/shaders/pbr.shader",
+"shader" : "/engine/shaders/pbr/pbr.shader",
 
 "albedoMap" : "/textures/pbr/oakfloor/albedo.png",
 "metallic" : 0,

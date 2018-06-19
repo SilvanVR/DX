@@ -1,6 +1,6 @@
 {
 
-"shader" : "/shaders/pbr.shader",
+"shader" : "/engine/shaders/pbr/pbr.shader",
 
 "albedoMap" : "/textures/pbr/nanosuit/body_dif.png",
 "metallicMap" : "/textures/pbr/nanosuit/metallic.png",

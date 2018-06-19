@@ -8,7 +8,7 @@
 // ----------------------------------------------
 #shader vertex
 
-#include "/shaders/includes/engineVS.hlsl"
+#include "/engine/shaders/includes/engineVS.hlsl"
 
 struct VertexIn
 {
@@ -49,8 +49,8 @@ VertexOut main(VertexIn vin)
 // ----------------------------------------------
 #shader fragment    
 
-#include "/shaders/includes/enginePS.hlsl" 
-#include "/shaders/includes/pbr.hlsl"
+#include "/engine/shaders/includes/enginePS.hlsl" 
+#include "/engine/shaders/includes/pbr.hlsl"
 
 cbuffer cbPerMaterial
 { 

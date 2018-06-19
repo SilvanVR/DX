@@ -315,7 +315,7 @@ public:
     {
         auto cam = go->getComponent<Components::Camera>();
 
-        auto shader = ASSETS.getShader("/shaders/post processing/fog.shader");
+        auto shader = ASSETS.getShader("/engine/shaders/post processing/fog.shader");
         shader->setReloadCallback([=](Graphics::Shader* shader) {
             shader->setTexture("depthBuffer", cam->getRenderTarget()->getDepthBuffer());
         });

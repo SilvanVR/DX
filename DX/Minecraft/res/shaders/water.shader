@@ -1,12 +1,13 @@
 // ----------------------------------------------
 #Fill			Solid
+#Cull			Back
 #Blend 			SrcAlpha OneMinusSrcAlpha
 #Queue 			Transparent
 
 // ----------------------------------------------
 #shader vertex
 
-#include "includes/engineVS.hlsl"
+#include "/engine/shaders/includes/engineVS.hlsl"
 
 struct VertexIn
 {
@@ -25,7 +26,7 @@ VertexOut main(VertexIn vin)
 {
     VertexOut OUT;
 
-    OUT.PosH 		= TO_CLIP_SPACE( vin.PosL );
+    OUT.PosH 		= TO_CLIP_SPACE( float4(vin.PosL,1) );
 	OUT.WorldPos 	= TO_WORLD_SPACE( vin.PosL );
 	OUT.Normal 		= TRANSFORM_NORMAL( vin.Normal );
 	
@@ -35,8 +36,8 @@ VertexOut main(VertexIn vin)
 // ----------------------------------------------
 #shader fragment
 
-#include "includes/enginePS.hlsl"
-#include "includes/blinn_phong.hlsl"
+#include "/engine/shaders/includes/enginePS.hlsl"
+#include "/shaders/lighting/blinn_phong.hlsl"
 
 struct FragmentIn
 {
@@ -56,7 +57,7 @@ SamplerState sampler0;
 float4 main(FragmentIn fin) : SV_Target
 {
 	float4 textureColor = tex.Sample(sampler0, fin.WorldPos.xz);
-	
+	return textureColor;
 	float4 result = APPLY_LIGHTING(textureColor, fin.WorldPos, fin.Normal);
 	
 	return float4(result.rgb, opacity);

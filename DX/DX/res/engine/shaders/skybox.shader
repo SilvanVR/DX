@@ -7,7 +7,7 @@
 // ----------------------------------------------
 #shader vertex
 
-#include "includes/engineVS.hlsl"
+#include "/engine/shaders/includes/engineVS.hlsl"
 
 struct VertexIn
 {
@@ -38,7 +38,7 @@ VertexOut main(VertexIn vin)
 // ----------------------------------------------
 #shader fragment
 
-#include "includes/enginePS.hlsl"
+#include "/engine/shaders/includes/enginePS.hlsl"
 
 struct FragmentIn
 {

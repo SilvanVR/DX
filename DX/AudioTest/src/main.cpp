@@ -101,7 +101,7 @@ public:
         }, 1000);
 
         getWindow().setCursor( "/cursors/Areo Cursor Red.cur" );
-        getWindow().setIcon( "/internal/icon.ico" );
+        getWindow().setIcon( "/engine/icon.ico" );
         Locator::getSceneManager().LoadSceneAsync( new MyScene() );
     }
 

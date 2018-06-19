@@ -39,6 +39,10 @@ public:
         obj2->addComponent<Components::MeshRenderer>(ASSETS.getMesh("/models/monkey.obj"), ASSETS.getMaterial("/materials/blinn_phong/monkey.material"));
         obj2->getTransform()->position = {5, 1, 0};
 
+        auto cubeGO = createGameObject("GO3");
+        cubeGO->addComponent<Components::MeshRenderer>(Core::MeshGenerator::CreateCubeUV(0.3f), ASSETS.getMaterial("/materials/blinn_phong/cube.material"));
+        cubeGO->getTransform()->position = { 0.0f, 0.3001f, -3.0f };
+
         Assets::MeshMaterialInfo matInfo;
         auto treeMesh = ASSETS.getMesh("/models/tree/tree.obj", &matInfo);
 
@@ -74,13 +78,12 @@ public:
         sun->getTransform()->rotation = Math::Quat::LookRotation(Math::Vec3{ 0,-1, 1 });
         //sun->addComponent<ConstantRotation>(15.0f, 0.0f, 0.0f);
 
+        auto shader = ASSETS.getShader("/engine/shaders/pbr/pbr_brdfLut.shader");
 
         auto depthMapGO = createGameObject("DepthMapGO");
         auto depthMapMaterial = RESOURCES.createMaterial();
-        depthMapMaterial->setShader(ASSETS.getShader("/shaders/texture.shader"));
-        depthMapMaterial->setTexture("tex0", ASSETS.getTexture2D("/textures/nico.jpg"));
-        depthMapMaterial->setTexture("tex1", ASSETS.getTexture2D("/textures/nico.jpg"));
-        depthMapMaterial->setFloat("mix", 0.0f);
+        depthMapMaterial->setShader(ASSETS.getShader("/shaders/tex.shader"));
+        depthMapMaterial->setTexture("tex", ASSETS.getTexture2D("/textures/nico.jpg"));
         depthMapMaterial->setColor("tintColor", Color::WHITE);
         depthMapGO->addComponent<Components::MeshRenderer>(Core::MeshGenerator::CreatePlane(), depthMapMaterial);
         depthMapGO->getTransform()->position = { -5, 1, 0 };
@@ -122,7 +125,7 @@ public:
     {
         LOG( "Init game..." );
         getWindow().setCursor( "/cursors/Areo Cursor Red.cur" );
-        getWindow().setIcon( "/internal/icon.ico" );
+        getWindow().setIcon( "/engine/icon.ico" );
         gLogger->setSaveToDisk( false );
 
         Locator::getEngineClock().setInterval([=] {

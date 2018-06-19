@@ -20,7 +20,7 @@ namespace Components {
         auto m_gameObject = go->getScene()->createGameObject( "Skybox" );
 
         // Create skybox shader
-        m_skyboxShader = ASSETS.getShader( "/shaders/skybox.shader" );
+        m_skyboxShader = ASSETS.getShader( "/engine/shaders/skybox.shader" );
 
         // Create skybox material
         m_skyboxMaterial = RESOURCES.createMaterial( m_skyboxShader );

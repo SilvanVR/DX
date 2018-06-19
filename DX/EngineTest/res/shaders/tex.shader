@@ -1,6 +1,6 @@
 // ----------------------------------------------
 #Fill			Solid
-#Cull 			None
+#Cull 			Back
 #ZWrite 		On
 #ZTest 			Less
 #Blend 			SrcAlpha OneMinusSrcAlpha
@@ -9,7 +9,7 @@
 // ----------------------------------------------
 #shader vertex
 
-#include "includes/engineVS.hlsl"
+#include "/engine/shaders/includes/engineVS.hlsl"
 
 struct VertexIn
 {
@@ -36,12 +36,11 @@ VertexOut main(VertexIn vin)
 // ----------------------------------------------
 #shader fragment
 
-#include "includes/enginePS.hlsl"
+#include "/engine/shaders/includes/enginePS.hlsl"
 
 cbuffer cbPerMaterial
 {
 	float4 tintColor;
-	float mix;
 };
 
 struct FragmentIn

@@ -502,7 +502,7 @@ public:
     {
         // PLAYER
         auto player = createGameObject("player");
-        auto cam = player->addComponent<Components::Camera>();
+        auto cam = player->addComponent<Components::Camera>(45.0f, 0.1f, 500.0f, Graphics::MSAASamples::Eight);
         player->getComponent<Components::Transform>()->position = Math::Vec3(0, 100, -5);
         player->getComponent<Components::Transform>()->lookAt({0});
         fpsCam = player->addComponent<Components::FPSCamera>(Components::FPSCamera::FPS);
@@ -571,9 +571,6 @@ public:
     void init() override 
     {
         LOG( "Init game..." );
-        OS::VirtualFileSystem::mount("textures", "res/textures");
-        OS::VirtualFileSystem::mount("shaders", "res/shaders");
-        OS::VirtualFileSystem::mount("audio", "res/audio");
         gLogger->setSaveToDisk( false );
 
         Locator::getEngineClock().setInterval([] {
@@ -584,8 +581,8 @@ public:
             Locator::getWindow().setTitle(newTitle.c_str());
         }, 1000);
 
-        getWindow().setCursor( "../dx/res/internal/cursors/Areo Cursor Red.cur" );
-        getWindow().setIcon( "../dx/res/internal/icon.ico" );
+        getWindow().setCursor( "/cursors/Areo Cursor Red.cur" );
+        getWindow().setIcon( "/engine/icon.ico" );
 
         // Enable shader reloading
         ASSETS.setHotReloading(true);

@@ -1,6 +1,6 @@
 {
 
-"shader" : "/shaders/post processing/gaussian_blur9x1.shader",
+"shader" : "/engine/shaders/post processing/gaussian_blur9x1.shader",
 "blurScale" : 2,
 "horizontal" : 1
 

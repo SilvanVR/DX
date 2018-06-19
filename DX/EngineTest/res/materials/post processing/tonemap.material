@@ -1,6 +1,6 @@
 {
 
-"shader" : "/shaders/post processing/tonemap.shader",
+"shader" : "/engine/shaders/post processing/tonemap.shader",
 "exposure" : 3
 
 }

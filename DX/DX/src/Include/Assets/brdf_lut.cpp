@@ -21,7 +21,7 @@ namespace Assets {
         Graphics::CommandBuffer cmd;
         cmd.setRenderTarget( m_brdfLut );
 
-        auto shader = ASSETS.getShader( "/shaders/pbr_brdfLut.shader" );
+        auto shader = ASSETS.getShader( "/engine/shaders/pbr/pbr_brdfLut.shader" );
         ASSERT( shader != RESOURCES.getErrorShader() && "Please ensure that the given shader file exists." );
         auto brdfMat = RESOURCES.createMaterial( shader );
 

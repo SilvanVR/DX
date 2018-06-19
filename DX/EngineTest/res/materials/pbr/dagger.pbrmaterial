@@ -1,6 +1,6 @@
 {
 
-"shader" : "/shaders/pbr.shader",
+"shader" : "/engine/shaders/pbr/pbr.shader",
 
 "albedoMap" : "/textures/pbr/dagger/albedo.tga",
 "metallicMap" : "/textures/pbr/dagger/metallic.tga",

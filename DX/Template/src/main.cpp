@@ -41,8 +41,8 @@ public:
             Locator::getWindow().setTitle( newTitle.c_str() );
         }, 1000);
 
-        getWindow().setCursor( "../dx/res/internal/cursors/Areo Cursor Red.cur" );
-        getWindow().setIcon( "../dx/res/internal/icon.ico" );
+        getWindow().setCursor( "/cursors/Areo Cursor Red.cur" );
+        getWindow().setIcon( "/engine/icon.ico" );
         Locator::getSceneManager().LoadSceneAsync( new MyScene() );
     }
 

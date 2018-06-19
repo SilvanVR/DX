@@ -26,7 +26,7 @@ VertexOut main( uint vI : SV_VERTEXID )
 //----------------------------------------------
 #shader fragment
 
-#include "/shaders/includes/enginePS.hlsl"
+#include "/engine/shaders/includes/enginePS.hlsl"
 
 struct FragmentIn
 {

@@ -20,7 +20,7 @@ namespace Components {
         go->getTransform()->addChild( m_billboardGO->getTransform(), false );
 
         // Create billboard shader
-        auto billboardShader = ASSETS.getShader( "/shaders/geometry_billboard.shader" );
+        auto billboardShader = ASSETS.getShader( "/engine/shaders/geometry_billboard.shader" );
 
         if ( not billboardShader )
         {

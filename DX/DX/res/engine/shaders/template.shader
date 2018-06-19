@@ -4,23 +4,24 @@
 #ZWrite 		On
 #ZTest 			Less
 #Blend 			SrcAlpha OneMinusSrcAlpha
-#Priority 		Geometry
+#Queue 			Geometry
+#AlphaToMask 	Off
 
 // ----------------------------------------------
 #shader vertex
 
-#include "includes/engineVS.hlsl"
+#include "/engine/shaders/includes/engineVS.hlsl"
 
 struct VertexIn
 {
     float3 PosL : POSITION;
-	float2 tex : TEXCOORD0;
+    float4 Color : COLOR;
 };
 
 struct VertexOut
 {
     float4 PosH : SV_POSITION;
-    float2 tex : TEXCOORD0;
+    float4 Color : COLOR;
 };
 
 VertexOut main(VertexIn vin)
@@ -28,39 +29,23 @@ VertexOut main(VertexIn vin)
     VertexOut OUT;
 
     OUT.PosH = TO_CLIP_SPACE(vin.PosL);
-	OUT.tex = vin.tex;
-	
+    OUT.Color = vin.Color;
+
     return OUT;
 }
 
 // ----------------------------------------------
 #shader fragment
 
-#include "includes/enginePS.hlsl"
-
-cbuffer cbPerMaterial
-{
-	float4 tintColor;
-	float mix;
-};
+#include "/engine/shaders/includes/enginePS.hlsl"
 
 struct FragmentIn
 {
     float4 PosH : SV_POSITION;
-	float2 tex : TEXCOORD0;
+    float4 Color : COLOR;
 };
-
-Texture2D tex0;
-SamplerState sampler0;
-
-Texture2D tex1;
-SamplerState sampler1;
 
 float4 main(FragmentIn fin) : SV_Target
 {
-	float4 textureColor = tex0.Sample(sampler0, fin.tex);
-	float4 textureColor2 = tex1.Sample(sampler1, fin.tex);
-	
-	float4 combined = lerp(textureColor, textureColor2, mix);
-	return combined * tintColor;
+    return fin.Color;
 }

@@ -10,7 +10,7 @@
 // ----------------------------------------------
 #shader vertex
 
-#include "includes/engineVS.hlsl"
+#include "/engine/shaders/includes/engineVS.hlsl"
 
 struct VertexIn
 {
@@ -39,7 +39,7 @@ VertexOut main(VertexIn vin)
 // ----------------------------------------------
 #shader geometry
 
-#include "/shaders/includes/engineGS.hlsl" 
+#include "/engine/shaders/includes/engineGS.hlsl" 
 
 struct VertexOut
 {
@@ -100,7 +100,7 @@ void main(point VertexOut input[1], inout TriangleStream<GeoOut> OutputStream)
 // ----------------------------------------------
 #shader fragment
 
-#include "includes/enginePS.hlsl"
+#include "/engine/shaders/includes/enginePS.hlsl"
 
 struct FragmentIn
 {

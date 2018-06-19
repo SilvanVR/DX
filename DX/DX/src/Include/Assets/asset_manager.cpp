@@ -387,7 +387,7 @@ namespace Assets {
         if ( path.getExtension() != "hdr" )
             throw std::runtime_error( "File-Extension '" + path.getExtension() + "' not supported" );
 
-        OS::Path shaderPath = "/shaders/hdr_to_cube.shader";
+        OS::Path shaderPath = "/engine/shaders/hdr_to_cube.shader";
         auto shader = getShader( shaderPath );
         if ( shader == RESOURCES.getErrorShader() )
             throw std::runtime_error( "Can't load '" + shaderPath.toString() + ". This is required in order to create a cubemap from a hdr file." );

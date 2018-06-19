@@ -1,36 +1,34 @@
 // ----------------------------------------------
 #Fill			Solid
-#Cull 			Front
-#ZTest			Off
-#Queue 			Background
+#Cull 			None
+#ZWrite 		On
+#ZTest 			Less
+#Blend 			SrcAlpha OneMinusSrcAlpha
+#Queue 			Transparent
 
 // ----------------------------------------------
 #shader vertex
 
-#include "includes/engineVS.hlsl"
+#include "/engine/shaders/includes/engineVS.hlsl"
 
 struct VertexIn
 {
     float3 PosL : POSITION;
+	float2 tex : TEXCOORD0;
 };
 
 struct VertexOut
 {
     float4 PosH : SV_POSITION;
-    float3 tex : POSITION;
+    float2 tex : TEXCOORD0;
 };
 
 VertexOut main(VertexIn vin)
 {
     VertexOut OUT;
 	
-	OUT.tex = vin.PosL;
-	
-    float4 clipPos = TO_CLIP_SPACE( float4(vin.PosL, 0.0f));
-	
-	// Little trick which places the object very close to the far-plane
-	OUT.PosH = clipPos.xyww;
-	OUT.PosH.z *= 0.999999;
+    OUT.PosH = TO_CLIP_SPACE(vin.PosL);
+	OUT.tex = vin.tex;
 	
     return OUT;
 }
@@ -38,25 +36,24 @@ VertexOut main(VertexIn vin)
 // ----------------------------------------------
 #shader fragment
 
-#include "includes/enginePS.hlsl"
+#include "/engine/shaders/includes/enginePS.hlsl"
 
 cbuffer cbPerMaterial
-{ 
-	float lod;
+{
+	float4 tintColor;
 };
 
 struct FragmentIn
 {
     float4 PosH : SV_POSITION;
-	float3 tex : POSITION;
+	float2 tex : TEXCOORD0;
 };
 
-TextureCube<float4> Cubemap;
+Texture2D tex;
 SamplerState sampler0;
 
 float4 main(FragmentIn fin) : SV_Target
 {
-	float4 textureColor = Cubemap.SampleLevel(sampler0, normalize(fin.tex), lod);
-	
+	float4 textureColor = tex.Sample(sampler0, fin.tex);
 	return textureColor;
 }
