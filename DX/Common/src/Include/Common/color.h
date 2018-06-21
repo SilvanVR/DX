@@ -28,6 +28,13 @@ public:
     explicit Color(Byte r, Byte g, Byte b, Byte a = 255);
 
     //----------------------------------------------------------------------
+    // @Params:
+    // "data": Float array (MUST AT LEAST 16 BYTES). Each float corresponds to rgba.
+    // "normalized": If true data is expected to be in range 0.0f - 1.0f, otherwise 0.0f - 255.0f.
+    //----------------------------------------------------------------------
+    explicit Color(const F32* data, bool normalized = true);
+
+    //----------------------------------------------------------------------
     // Construct a new color based on the internal representation.
     // Default is BGRA, that means 0xFF0000 = RED, 0x0000FF = BLUE etc.
     // Alpha will be always set to 255.

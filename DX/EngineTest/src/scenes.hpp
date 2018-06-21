@@ -1059,7 +1059,7 @@ public:
         static F32 color[4] = {};
         go->addComponent<Components::GUICustom>([=] {
             if (ImGui::ColorPicker4("Clear color", color))
-                cam->setClearColor(Color(color[0] * 255.0f, color[1] * 255.0f, color[2] * 255.0f, color[3] * 255.0f));
+                cam->setClearColor(Color(color, true));
         });
 
         LOG("SceneGUI initialized!", Color::RED);

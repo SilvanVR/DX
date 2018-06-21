@@ -57,7 +57,7 @@ SamplerState sampler0;
 float4 main(FragmentIn fin) : SV_Target
 {
 	float4 textureColor = tex.Sample(sampler0, fin.WorldPos.xz);
-	return textureColor;
+
 	float4 result = APPLY_LIGHTING(textureColor, fin.WorldPos, fin.Normal);
 	
 	return float4(result.rgb, opacity);

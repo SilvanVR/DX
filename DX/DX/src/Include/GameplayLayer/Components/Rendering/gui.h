@@ -76,12 +76,14 @@ namespace Components {
     class GUIImage : public ImGUIRenderComponent
     {
         TexturePtr m_tex;
+        F32 m_scale;
+
     public:
-        GUIImage(TexturePtr tex) : m_tex(tex) {}
+        GUIImage(TexturePtr tex, F32 scale = 1.0f) : m_tex(tex), m_scale(scale) {}
 
         void OnImGUI() override
         {
-            ImGui::Image(m_tex);
+            ImGui::Image(m_tex, { m_tex->getWidth() * m_scale, m_tex->getHeight() * m_scale });
         }
     };
 

@@ -61,6 +61,16 @@ Color::Color( U32 color )
 }
 
 //---------------------------------------------------------------------------
+Color::Color( const F32* data, bool normalized )
+{
+    Byte r = normalized ? (Byte)(data[0] * 255.0f): (Byte)data[0];
+    Byte g = normalized ? (Byte)(data[1] * 255.0f): (Byte)data[1];
+    Byte b = normalized ? (Byte)(data[2] * 255.0f): (Byte)data[2];
+    Byte a = normalized ? (Byte)(data[3] * 255.0f): (Byte)data[3];
+    setRGBA( r, g, b, a );
+}
+
+//---------------------------------------------------------------------------
 Color::Color( const String& hex )
 {
     if (hex[0] != '#' || (hex.size() != 7 && hex.size() != 9))

@@ -86,7 +86,7 @@ public:
         depthMapGO->getTransform()->position = { -5, 1, 0 };
 
         go->addComponent<Components::GUI>();
-        go->addComponent<Components::GUIImage>(ASSETS.getTexture2D("/textures/nico.jpg"));
+        go->addComponent<Components::GUIImage>(ASSETS.getTexture2D("/textures/nico.jpg"), 0.2f);
 
         LOG("TestScene initialized!", Color::RED);
     }
@@ -140,7 +140,7 @@ public:
         Locator::getRenderer().setVSync(true);
         Locator::getRenderer().setGlobalFloat(SID("_Ambient"), 0.5f);
 
-        Locator::getSceneManager().LoadSceneAsync(new SceneGUI());
+        Locator::getSceneManager().LoadSceneAsync(new TestScene());
     }
 
     //----------------------------------------------------------------------
