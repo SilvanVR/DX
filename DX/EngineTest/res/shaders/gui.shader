@@ -29,7 +29,7 @@ VertexOut main(VertexIn vin)
 {
     VertexOut OUT;
 
-    OUT.PosH 	= TO_CLIP_SPACE(vin.PosL);
+    OUT.PosH 	= mul( _Proj, float4( vin.PosL,1 ) );
 	OUT.tex 	= vin.tex;
 	OUT.color 	= vin.color;
 	
@@ -53,6 +53,6 @@ SamplerState sampler0;
 
 float4 main(FragmentIn fin) : SV_Target
 {
-	float4 textureColor = tex.Sample(sampler0, fin.tex);
+	float4 textureColor = tex.Sample( sampler0, fin.tex );
 	return textureColor * fin.color;
 }

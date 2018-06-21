@@ -37,7 +37,8 @@ namespace Graphics {
         DRAW_FULLSCREEN_QUAD,
         RENDER_CUBEMAP,
         BLIT,
-        SET_SCISSOR
+        SET_SCISSOR,
+        SET_CAMERA_MATRIX
     };
 
     //**********************************************************************
@@ -162,4 +163,16 @@ namespace Graphics {
 
         const Math::Rect rect;
     };
+
+    //**********************************************************************
+    struct GPUC_SetCameraMatrix : public GPUCommandBase
+    {
+        GPUC_SetCameraMatrix(StringID name, const DirectX::XMMATRIX& matrix)
+            : GPUCommandBase( GPUCommand::SET_CAMERA_MATRIX ),
+            name( name ), matrix( matrix ) {}
+
+        StringID name;
+        DirectX::XMMATRIX matrix;
+    };
+
 } // End namespaces

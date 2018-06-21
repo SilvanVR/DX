@@ -94,5 +94,10 @@ namespace Graphics {
         m_gpuCommands.push_back( std::make_unique<GPUC_SetScissor>( rect ) );
     }
 
+    //----------------------------------------------------------------------
+    void CommandBuffer::setCameraMatrix( StringID name, const DirectX::XMMATRIX& matrix )
+    {
+        m_gpuCommands.push_back( std::make_unique<GPUC_SetCameraMatrix>( name, matrix ) );
+    }
 
 } // End namespaces

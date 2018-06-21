@@ -166,6 +166,15 @@ namespace Graphics {
                     g_pImmediateContext->RSSetScissorRects( 1, &r );
                     break;
                 }
+                case GPUCommand::SET_CAMERA_MATRIX:
+                {
+                    auto& cmd = *reinterpret_cast<GPUC_SetCameraMatrix*>( command.get() );
+                    if ( not CAMERA_BUFFER.update( cmd.name, &cmd.matrix ) )
+                        LOG_ERROR_RENDERING( "D3D11: Could not update the camera buffer ["+cmd.name.toString()+"]." );
+                    else
+                        CAMERA_BUFFER.flush();
+                    break;
+                }
                 default:
                     LOG_WARN_RENDERING( "Unknown GPU Command in a given command buffer!" );
             }

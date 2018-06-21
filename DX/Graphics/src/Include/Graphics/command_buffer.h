@@ -47,6 +47,7 @@ namespace Graphics {
         void renderCubemap(const CubemapPtr& cubemap, const MaterialPtr& material, I32 dstMip = 0);
         void blit(const RenderTexturePtr& src, const RenderTexturePtr& dst, const MaterialPtr& material = nullptr);
         void setScissor(const Math::Rect& rect);
+        void setCameraMatrix(StringID name, const DirectX::XMMATRIX& matrix);
 
     private:
         ArrayList<std::shared_ptr<GPUCommandBase>> m_gpuCommands;

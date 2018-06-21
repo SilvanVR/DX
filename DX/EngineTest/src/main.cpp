@@ -37,10 +37,10 @@ private:
     NULL_COPY_AND_ASSIGN(ImGUIRenderComponent)
 };
 
-class ImGUI : public Components::IComponent
+class GUI : public Components::IComponent
 {
 public:
-    ImGUI() = default;
+    GUI() = default;
 
     void addedToGameObject(GameObject* go) override
     {
@@ -67,13 +67,9 @@ public:
         auto cam = go->getComponent<Components::Camera>();
         ASSERT(cam && "This component requires a camera!");
         cam->addCommandBuffer(&m_cmd, Components::CameraEvent::Overlay);
-
-        m_orthoCamera.setRenderTarget(cam->getRenderTarget(), cam->isRenderingToScreen());
-        m_orthoCamera.setCameraMode(Graphics::CameraMode::Orthographic);
-        m_orthoCamera.setClearMode(Graphics::CameraClearMode::None);
     }
 
-    ~ImGUI()
+    ~GUI()
     {
         ImGui::DestroyContext(m_imguiContext);
     }
@@ -88,13 +84,13 @@ public:
         ImGui::Render();
 
         m_cmd.reset();
-        m_cmd.setCamera(&m_orthoCamera);
-
         ImDrawData* draw_data = ImGui::GetDrawData();
-        m_orthoCamera.setModelMatrix(DirectX::XMMatrixIdentity());
-        m_orthoCamera.setOrthoParams(draw_data->DisplayPos.x, draw_data->DisplayPos.x + draw_data->DisplaySize.x,
-                                     draw_data->DisplayPos.y + draw_data->DisplaySize.y, draw_data->DisplayPos.y, 
-                                     -1, 1);
+        auto proj = DirectX::XMMatrixOrthographicOffCenterLH(draw_data->DisplayPos.x, draw_data->DisplayPos.x + draw_data->DisplaySize.x,
+                                                             draw_data->DisplayPos.y + draw_data->DisplaySize.y, draw_data->DisplayPos.y,
+                                                             -1, 1);
+
+        static const StringID PROJ_NAME = SID("_Proj");
+        m_cmd.setCameraMatrix(PROJ_NAME, proj);
 
         ArrayList<Math::Vec3>   vertices;
         ArrayList<Math::Vec2>   uvs;
@@ -165,7 +161,6 @@ private:
     MeshPtr                 m_dynamicMesh;
     ShaderPtr               m_guiShader;
     Graphics::CommandBuffer m_cmd;
-    Graphics::Camera        m_orthoCamera;
 
     void _UpdateIMGUI(F32 delta)
     {
@@ -182,7 +177,7 @@ private:
         io.MouseWheel = MOUSE.getWheelDelta();
     }
 
-    NULL_COPY_AND_ASSIGN(ImGUI)
+    NULL_COPY_AND_ASSIGN(GUI)
 };
 
 class GUIImage : public ImGUIRenderComponent
@@ -226,7 +221,7 @@ public:
         go->getComponent<Components::Transform>()->position = Math::Vec3(0, 3, -8);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 0.1f);
         createGameObject("Grid")->addComponent<GridGeneration>(20);
-        go->addComponent<ImGUI>();
+        go->addComponent<GUI>();
         go->addComponent<GUIImage>(ASSETS.getTexture2D("/textures/nico.jpg"));
         go->addComponent<GUIDemoWindow>();
 
