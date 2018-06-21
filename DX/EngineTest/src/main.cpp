@@ -230,19 +230,19 @@ public:
         go->addComponent<GUIImage>(ASSETS.getTexture2D("/textures/nico.jpg"));
         go->addComponent<GUIDemoWindow>();
 
-        auto go2 = createGameObject("Camera");
-        auto renderTex = RESOURCES.createRenderTexture(1024, 720, Graphics::DepthFormat::None, Graphics::TextureFormat::BGRA32, 2, Graphics::MSAASamples::One);
-        auto cam2 = go2->addComponent<Components::Camera>(renderTex);
-        cam2->setRenderTarget(renderTex);
-        go2->addComponent<ImGUI>();
-        go2->addComponent<GUIDemoWindow>();
+        //auto go2 = createGameObject("Camera");
+        //auto renderTex = RESOURCES.createRenderTexture(1024, 720, Graphics::DepthFormat::None, Graphics::TextureFormat::BGRA32, 2, Graphics::MSAASamples::One);
+        //auto cam2 = go2->addComponent<Components::Camera>(renderTex);
+        //cam2->setRenderTarget(renderTex);
+        //go2->addComponent<ImGUI>();
+        //go2->addComponent<GUIDemoWindow>();
 
-        auto depthMapGO = createGameObject("DepthMapGO");
-        auto depthMapMaterial = RESOURCES.createMaterial(ASSETS.getShader("/shaders/tex.shader"));
-        depthMapMaterial->setTexture("tex", cam2->getRenderTarget()->getColorBuffer());
-        depthMapMaterial->setColor("tintColor", Color::WHITE);
-        depthMapGO->addComponent<Components::MeshRenderer>(Core::MeshGenerator::CreatePlane(), depthMapMaterial);
-        depthMapGO->getTransform()->position = { 0, 1, 0 };
+        //auto depthMapGO = createGameObject("DepthMapGO");
+        //auto depthMapMaterial = RESOURCES.createMaterial(ASSETS.getShader("/shaders/tex.shader"));
+        //depthMapMaterial->setTexture("tex", cam2->getRenderTarget()->getColorBuffer());
+        //depthMapMaterial->setColor("tintColor", Color::WHITE);
+        //depthMapGO->addComponent<Components::MeshRenderer>(Core::MeshGenerator::CreatePlane(), depthMapMaterial);
+        //depthMapGO->getTransform()->position = { 0, 1, 0 };
 
         LOG("TestScene initialized!", Color::RED);
     }
