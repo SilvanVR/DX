@@ -25,9 +25,20 @@ namespace ImGui
     }
 }
 
+class ImGUIRenderComponent : public Components::IComponent
+{
+public:
+    ImGUIRenderComponent() = default;
+    virtual ~ImGUIRenderComponent() {}
+
+    virtual void OnImGUI() = 0;
+
+private:
+    NULL_COPY_AND_ASSIGN(ImGUIRenderComponent)
+};
+
 class ImGUI : public Components::IComponent
 {
-    Texture2DPtr tex;
 public:
     ImGUI() = default;
 
@@ -35,6 +46,7 @@ public:
     {
         // IMGUI
         m_imguiContext = ImGui::CreateContext();
+        ImGui::SetCurrentContext(m_imguiContext);
         ImGuiIO& io = ImGui::GetIO();
 
         // Build and load the texture atlas into a texture
@@ -51,33 +63,27 @@ public:
         // Retrieve GUI shader
         m_guiShader = ASSETS.getShader( "/shaders/gui.shader" );
         m_guiShader->setName("GUI");
-        //_UpdateIMGUI(0.0f);
-        //ImGui::NewFrame();
 
         auto cam = go->getComponent<Components::Camera>();
+        ASSERT(cam && "This component requires a camera!");
         cam->addCommandBuffer(&m_cmd, Components::CameraEvent::Overlay);
 
         m_orthoCamera.setRenderTarget(cam->getRenderTarget(), cam->isRenderingToScreen());
         m_orthoCamera.setCameraMode(Graphics::CameraMode::Orthographic);
         m_orthoCamera.setClearMode(Graphics::CameraClearMode::None);
-
-        tex = ASSETS.getTexture2D("/textures/nico.jpg");
     }
 
     ~ImGUI()
     {
-        //auto cam = getGameObject()->getComponent<Components::Camera>();
-        //cam->removeCommandBuffer(&m_cmd);
         ImGui::DestroyContext(m_imguiContext);
     }
 
-    void tick(Time::Seconds d) override
+    void lateTick(Time::Seconds d) override
     {
         _UpdateIMGUI((F32)d);
         ImGui::NewFrame();
-        ImGui::ShowDemoWindow();
-        //ImGui::Text("Hello World");
-        //ImGui::Image(tex);
+        for (auto renderComponent : getGameObject()->getComponents<ImGUIRenderComponent>())
+            renderComponent->OnImGUI();
         ImGui::EndFrame();
         ImGui::Render();
 
@@ -163,10 +169,11 @@ private:
 
     void _UpdateIMGUI(F32 delta)
     {
+        ImGui::SetCurrentContext(m_imguiContext);
         ImGuiIO& io = ImGui::GetIO();
         io.DeltaTime = delta;
 
-        auto rt = getGameObject()->getComponent<Components::Camera>()->getRenderTarget();
+        auto& rt = getGameObject()->getComponent<Components::Camera>()->getRenderTarget();
         io.DisplaySize.x = (F32)rt->getWidth();
         io.DisplaySize.y = (F32)rt->getHeight();
         io.MousePos = { (F32)MOUSE.getMousePos().x, (F32)MOUSE.getMousePos().y };
@@ -177,6 +184,28 @@ private:
 
     NULL_COPY_AND_ASSIGN(ImGUI)
 };
+
+class GUIImage : public ImGUIRenderComponent
+{
+    TexturePtr m_tex;
+public:
+    GUIImage(TexturePtr tex) : m_tex(tex) {}
+
+    void OnImGUI() override
+    {
+        ImGui::Image(m_tex);
+    }
+};
+
+class GUIDemoWindow : public ImGUIRenderComponent
+{
+public:
+    void OnImGUI() override
+    {
+        ImGui::ShowDemoWindow();
+    }
+};
+
 
 //----------------------------------------------------------------------
 // SCENES
@@ -198,19 +227,22 @@ public:
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 0.1f);
         createGameObject("Grid")->addComponent<GridGeneration>(20);
         go->addComponent<ImGUI>();
+        go->addComponent<GUIImage>(ASSETS.getTexture2D("/textures/nico.jpg"));
+        go->addComponent<GUIDemoWindow>();
 
-        //auto go2 = createGameObject("Camera");
-        //auto renderTex = RESOURCES.createRenderTexture(1024, 720, Graphics::DepthFormat::None, Graphics::TextureFormat::BGRA32, 2, Graphics::MSAASamples::One);
-        //auto cam2 = go2->addComponent<Components::Camera>(renderTex);
-        //cam2->setRenderTarget(renderTex);
-        //go2->addComponent<ImGUI>();
+        auto go2 = createGameObject("Camera");
+        auto renderTex = RESOURCES.createRenderTexture(1024, 720, Graphics::DepthFormat::None, Graphics::TextureFormat::BGRA32, 2, Graphics::MSAASamples::One);
+        auto cam2 = go2->addComponent<Components::Camera>(renderTex);
+        cam2->setRenderTarget(renderTex);
+        go2->addComponent<ImGUI>();
+        go2->addComponent<GUIDemoWindow>();
 
-        //auto depthMapGO = createGameObject("DepthMapGO");
-        //auto depthMapMaterial = RESOURCES.createMaterial(ASSETS.getShader("/shaders/tex.shader"));
-        //depthMapMaterial->setTexture("tex", cam2->getRenderTarget()->getColorBuffer());
-        //depthMapMaterial->setColor("tintColor", Color::WHITE);
-        //depthMapGO->addComponent<Components::MeshRenderer>(Core::MeshGenerator::CreatePlane(), depthMapMaterial);
-        //depthMapGO->getTransform()->position = { 0, 1, 0 };
+        auto depthMapGO = createGameObject("DepthMapGO");
+        auto depthMapMaterial = RESOURCES.createMaterial(ASSETS.getShader("/shaders/tex.shader"));
+        depthMapMaterial->setTexture("tex", cam2->getRenderTarget()->getColorBuffer());
+        depthMapMaterial->setColor("tintColor", Color::WHITE);
+        depthMapGO->addComponent<Components::MeshRenderer>(Core::MeshGenerator::CreatePlane(), depthMapMaterial);
+        depthMapGO->getTransform()->position = { 0, 1, 0 };
 
         LOG("TestScene initialized!", Color::RED);
     }

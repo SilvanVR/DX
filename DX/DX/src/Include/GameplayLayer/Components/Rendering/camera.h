@@ -77,7 +77,7 @@ namespace Components {
         // @Return:
         //  Target texture in which this camera renders.
         //----------------------------------------------------------------------
-        RenderTexturePtr                getRenderTarget() { return m_camera.getRenderTarget(); }
+        const RenderTexturePtr&         getRenderTarget() { return m_camera.getRenderTarget(); }
 
         //----------------------------------------------------------------------
         // Set the render target in which this camera renders.

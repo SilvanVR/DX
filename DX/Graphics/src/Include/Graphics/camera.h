@@ -73,7 +73,7 @@ namespace Graphics {
         // @Return:
         //  Target texture in which this camera renders.
         //----------------------------------------------------------------------
-        inline RenderTexturePtr getRenderTarget() const { return m_renderTarget; }
+        inline const RenderTexturePtr& getRenderTarget() const { return m_renderTarget; }
 
         //----------------------------------------------------------------------
         // Set the render target in which this camera renders.

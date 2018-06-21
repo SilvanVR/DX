@@ -40,6 +40,8 @@ public:
     template<typename T> bool removeComponent(T* comp);
     template<typename T, typename... Args> T* addComponent(Args&&... args);
 
+    template<typename T> ArrayList<T*> getComponents();
+
     //----------------------------------------------------------------------
     // Retrieve the transform component directly. This is faster than using getComponent<T>()
     //----------------------------------------------------------------------
@@ -128,6 +130,21 @@ T* GameObject::addComponent( Args&&... args )
     T* component = _CreateComponent<T>( args... );
     component->_SetGameObject( this );
     return component;
+}
+
+//----------------------------------------------------------------------
+// @Return: All components with type T.
+//----------------------------------------------------------------------
+template<typename T> 
+ArrayList<T*> GameObject::getComponents()
+{
+    ArrayList<T*> componentsOfTypeT;
+    for (auto pair : m_components)
+    {
+        if (T* comp = dynamic_cast<T*>( pair.second ))
+            componentsOfTypeT.push_back( comp );
+    }
+    return componentsOfTypeT;
 }
 
 //**********************************************************************
