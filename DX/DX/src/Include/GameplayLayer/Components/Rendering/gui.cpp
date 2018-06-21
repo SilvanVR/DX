@@ -171,8 +171,14 @@ namespace Components {
         ImGui::SetCurrentContext( m_imguiContext );
         ImGuiIO& io = ImGui::GetIO();
 
+        auto& vp = m_camera->getViewport();
+
+        F32 mouseX = (F32)MOUSE.getMousePos().x - m_camera->getRenderTarget()->getWidth() * vp.topLeftX;
+        F32 mouseY = (F32)MOUSE.getMousePos().y - m_camera->getRenderTarget()->getHeight() * vp.topLeftY;
+
         // @TODO: Transform camera ray to render-target if camera dont render to screen
-        io.MousePos = { (F32)MOUSE.getMousePos().x, (F32)MOUSE.getMousePos().y };
+        io.MousePos.x = mouseX * (1.0f/vp.width);
+        io.MousePos.y = mouseY * (1.0f/vp.height);
     }
 
     //----------------------------------------------------------------------
@@ -221,6 +227,7 @@ namespace Components {
         ImGuiIO& io = ImGui::GetIO();
         io.DeltaTime = delta;
 
+        auto& vp = m_camera->getViewport();
         auto& rt = m_camera->getRenderTarget();
         io.DisplaySize.x = (F32)rt->getWidth();
         io.DisplaySize.y = (F32)rt->getHeight();
