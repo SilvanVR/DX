@@ -337,6 +337,9 @@
     <ClCompile Include="src\Include\Core\Audio\audio_manager.cpp" />
     <ClCompile Include="src\Include\Core\Audio\wav_clip.cpp" />
     <ClCompile Include="src\Include\Core\DebugManager\debug_manager.cpp" />
+    <ClCompile Include="src\Include\Ext\ImGUI\imgui.cpp" />
+    <ClCompile Include="src\Include\Ext\ImGUI\imgui_demo.cpp" />
+    <ClCompile Include="src\Include\Ext\ImGUI\imgui_draw.cpp" />
     <ClCompile Include="src\Include\Ext\StbImage\stb_image.cpp" />
     <ClCompile Include="src\Include\Core\Config\configuration_manager.cpp" />
     <ClCompile Include="src\Include\Core\Config\config_file.cpp" />
@@ -397,6 +400,12 @@
     <ClInclude Include="src\Include\Core\layer_defines.hpp" />
     <ClInclude Include="src\Include\Core\DebugManager\debug_manager.h" />
     <ClInclude Include="src\Include\Core\mesh_generator.h" />
+    <ClInclude Include="src\Include\Ext\ImGUI\imconfig.h" />
+    <ClInclude Include="src\Include\Ext\ImGUI\imgui.h" />
+    <ClInclude Include="src\Include\Ext\ImGUI\imgui_internal.h" />
+    <ClInclude Include="src\Include\Ext\ImGUI\stb_rect_pack.h" />
+    <ClInclude Include="src\Include\Ext\ImGUI\stb_textedit.h" />
+    <ClInclude Include="src\Include\Ext\ImGUI\stb_truetype.h" />
     <ClInclude Include="src\Include\Ext\JSON\json.hpp" />
     <ClInclude Include="src\Include\Ext\StbImage\stb_image.h" />
     <ClInclude Include="src\Include\Core\InGameConsole\in_game_console.h" />

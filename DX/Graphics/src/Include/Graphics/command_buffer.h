@@ -46,6 +46,7 @@ namespace Graphics {
         void drawFullscreenQuad(const MaterialPtr& material);
         void renderCubemap(const CubemapPtr& cubemap, const MaterialPtr& material, I32 dstMip = 0);
         void blit(const RenderTexturePtr& src, const RenderTexturePtr& dst, const MaterialPtr& material = nullptr);
+        void setScissor(const Math::Rect& rect);
 
     private:
         ArrayList<std::shared_ptr<GPUCommandBase>> m_gpuCommands;

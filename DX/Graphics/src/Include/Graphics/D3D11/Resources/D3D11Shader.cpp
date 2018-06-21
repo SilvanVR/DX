@@ -281,6 +281,8 @@ namespace Graphics { namespace D3D11 {
         rsDesc.FrontCounterClockwise = rzState.frontCounterClockwise;
         rsDesc.DepthClipEnable   = true;
         rsDesc.MultisampleEnable = true;
+        rsDesc.ScissorEnable = rzState.scissorEnable;
+
         HR( g_pDevice->CreateRasterizerState( &rsDesc, &m_pRSState ) );
     }
 

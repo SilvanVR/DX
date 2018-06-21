@@ -23,6 +23,7 @@
 #define RASTERIZATION_FILL              "#fill"
 #define RASTERIZATION_FILL_SOLID        "solid"
 #define RASTERIZATION_FILL_WIREFRAME    "wireframe"
+#define RASTERIZATION_SCISSOR           "#scissor"
 
 #define DEPTH_STENCIL_ZWRITE            "#zwrite"
 #define DEPTH_STENCIL_ZTEST             "#ztest"
@@ -186,6 +187,13 @@ namespace Assets {
                     if (line.find( RASTERIZATION_FILL_SOLID ) != String::npos)          rzState.fillMode = Graphics::FillMode::Solid;
                     else if (line.find( RASTERIZATION_FILL_WIREFRAME ) != String::npos) rzState.fillMode = Graphics::FillMode::Wireframe;
                     else LOG_WARN( "Could not read fill mode in shader '" + filePath.toString() + "'." );
+                }
+                // Scissor state
+                else if ( line.find( RASTERIZATION_SCISSOR ) != String::npos )
+                {
+                    if (line.find( "on" ) != String::npos)        rzState.scissorEnable = true;
+                    else if (line.find( "off" ) != String::npos)  rzState.scissorEnable = false;
+                    else LOG_WARN( "Could not read scissor state in shader '" + filePath.toString() + "'." );
                 }
             }
 

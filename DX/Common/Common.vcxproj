@@ -164,6 +164,7 @@
     <ClInclude Include="src\Include\Logging\i_logger.hpp" />
     <ClInclude Include="src\Include\Logging\null_logger.hpp" />
     <ClInclude Include="src\Include\Logging\shared_console_logger.hpp" />
+    <ClInclude Include="src\Include\Math\rect.h" />
     <ClInclude Include="src\Include\Memory\Allocators\iallocator.h" />
     <ClInclude Include="src\Include\Memory\Allocators\include.hpp" />
     <ClInclude Include="src\Include\Memory\Allocators\pool_allocator.hpp" />

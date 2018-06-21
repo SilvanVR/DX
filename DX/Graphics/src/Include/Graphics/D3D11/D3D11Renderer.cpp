@@ -159,6 +159,13 @@ namespace Graphics {
                     _Blit( cmd.src, cmd.dst, cmd.material.get() );
                     break;
                 }
+                case GPUCommand::SET_SCISSOR:
+                {
+                    auto& cmd = *reinterpret_cast<GPUC_SetScissor*>( command.get() );
+                    const D3D11_RECT r = { cmd.rect.left, cmd.rect.top, cmd.rect.right, cmd.rect.bottom };
+                    g_pImmediateContext->RSSetScissorRects( 1, &r );
+                    break;
+                }
                 default:
                     LOG_WARN_RENDERING( "Unknown GPU Command in a given command buffer!" );
             }

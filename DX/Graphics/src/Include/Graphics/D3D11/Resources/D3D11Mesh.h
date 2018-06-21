@@ -33,6 +33,13 @@ namespace Graphics { namespace D3D11 {
         void _CreateNormalBuffer(const ArrayList<Math::Vec3>& normals) override;
         void _CreateTangentBuffer(const ArrayList<Math::Vec4>& tangents) override;
 
+        void _DestroyVertexBuffer() override;
+        void _DestroyIndexBuffer(I32 index) override;
+        void _DestroyColorBuffer() override;
+        void _DestroyUVBuffer() override;
+        void _DestroyNormalBuffer() override;
+        void _DestroyTangentBuffer() override;
+
     private:
         VertexBuffer*   m_pVertexBuffer   = nullptr;
         VertexBuffer*   m_pColorBuffer    = nullptr;
@@ -61,11 +68,7 @@ namespace Graphics { namespace D3D11 {
         inline void _UpdateNormalBuffer();
         inline void _UpdateTangentBuffer();
 
-        //----------------------------------------------------------------------
-        Mesh(const Mesh& other)               = delete;
-        Mesh& operator = (const Mesh& other)  = delete;
-        Mesh(Mesh&& other)                    = delete;
-        Mesh& operator = (Mesh&& other)       = delete;
+        NULL_COPY_AND_ASSIGN(Mesh)
     };
 
 

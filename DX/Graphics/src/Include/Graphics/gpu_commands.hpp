@@ -16,6 +16,7 @@
 #include "i_render_texture.h"
 #include "Lighting/light.h"
 #include "camera.h"
+#include "Math/rect.h"
 
 namespace Graphics {
 
@@ -35,7 +36,8 @@ namespace Graphics {
         SET_RENDER_TARGET,
         DRAW_FULLSCREEN_QUAD,
         RENDER_CUBEMAP,
-        BLIT
+        BLIT,
+        SET_SCISSOR
     };
 
     //**********************************************************************
@@ -151,4 +153,13 @@ namespace Graphics {
         const MaterialPtr       material;
     };
 
+    //**********************************************************************
+    struct GPUC_SetScissor : public GPUCommandBase
+    {
+        GPUC_SetScissor(const Math::Rect& rect)
+            : GPUCommandBase( GPUCommand::SET_SCISSOR ),
+            rect( rect ) {}
+
+        const Math::Rect rect;
+    };
 } // End namespaces

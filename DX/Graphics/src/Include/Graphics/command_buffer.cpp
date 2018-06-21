@@ -88,4 +88,11 @@ namespace Graphics {
         m_gpuCommands.push_back( std::make_unique<GPUC_Blit>( src, dst, material ) );
     }
 
+    //----------------------------------------------------------------------
+    void CommandBuffer::setScissor( const Math::Rect& rect )
+    {
+        m_gpuCommands.push_back( std::make_unique<GPUC_SetScissor>( rect ) );
+    }
+
+
 } // End namespaces

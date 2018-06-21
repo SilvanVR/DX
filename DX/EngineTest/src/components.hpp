@@ -117,7 +117,7 @@ public:
             color.setBlue((Byte)((sin(TIME.getTime().value) + 1) / 2 * 255));
 
         mesh->setVertices(newVertices);
-        //mesh->setColors(newColors);
+        mesh->setColors(newColors);
     }
 
 private:

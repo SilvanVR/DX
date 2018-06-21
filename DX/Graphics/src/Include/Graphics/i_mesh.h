@@ -27,21 +27,21 @@ namespace Graphics {
         virtual ~IMesh() {}
 
         //----------------------------------------------------------------------
-        // Destroys all buffers on the gpu. This should be called before
-        // calling setVertices() when you want to dynamically generate a mesh
-        // every frame with different amounts of vertices.
+        // Destroys all buffers on the gpu. This can be called every frame, but
+        // is very expensive. Note that all buffers dynamically grow, but to free
+        // up space its useful to call this function occasionally.
         //----------------------------------------------------------------------
         void clear();
 
         //----------------------------------------------------------------------
         // Sets the vertices for this mesh. If a vertex buffer was not created,
         // it will be created to fit the amount of data given. Otherwise, the gpu
-        // buffer will just be updated. Note that this is a slow operation.
+        // buffer will just be updated (and grows if necessary). Note that this is a slow operation.
         //----------------------------------------------------------------------
         void setVertices(const ArrayList<Math::Vec3>& vertices);
 
         //----------------------------------------------------------------------
-        // Set the index-buffer for this mesh. Note that this is a slow operation.
+        // Set the index-buffer for this mesh. The buffer grows if necessary. Note that this is a slow operation.
         // @Params:
         // "indices": Indices describing this submesh.
         // "subMesh": SubMesh index. Submesh must exist or index is the correct next one.
@@ -52,26 +52,22 @@ namespace Graphics {
                         MeshTopology topology = MeshTopology::Triangles, U32 baseVertex = 0);
 
         //----------------------------------------------------------------------
-        // Set the color-buffer for this mesh.
+        // Set the color-buffer for this mesh. The buffer grows if necessary.
         //----------------------------------------------------------------------
         void setColors(const ArrayList<Color>& colors);
 
         //----------------------------------------------------------------------
-        // Set the uv-buffer for this mesh.
+        // Set the uv-buffer for this mesh. The buffer grows if necessary.
         //----------------------------------------------------------------------
         void setUVs(const ArrayList<Math::Vec2>& uvs);
 
         //----------------------------------------------------------------------
-        // Sets the normals for this mesh. If a normal buffer was not created,
-        // it will be created to fit the amount of data given. Otherwise, the gpu
-        // buffer will just be updated. Note that this is a slow operation.
+        // Sets the normals for this mesh. The buffer grows if necessary.
         //----------------------------------------------------------------------
         void setNormals(const ArrayList<Math::Vec3>& normals);
 
         //----------------------------------------------------------------------
-        // Sets the tangents for this mesh. If a buffer was not created,
-        // it will be created to fit the amount of data given. Otherwise, the gpu
-        // buffer will just be updated. Note that this is a slow operation.
+        // Sets the tangents for this mesh. The buffer grows if necessary.
         //----------------------------------------------------------------------
         void setTangents(const ArrayList<Math::Vec4>& tangents);
 
@@ -115,7 +111,7 @@ namespace Graphics {
         bool                            isImmutable()       const { return m_bufferUsage == BufferUsage::Immutable; }
 
         const ArrayList<U32>&           getIndices(U32 subMesh = 0)  const { return m_subMeshes[subMesh].indices; }
-        U32                             getIndexCount(U32 subMesh)   const { return static_cast<U32>( getIndices( subMesh ).size() ); }
+        U32                             getIndexCount(U32 subMesh)   const { return m_subMeshes[subMesh].indexCount; }
         IndexFormat                     getIndexFormat(U32 subMesh)  const { return m_subMeshes[subMesh].indexFormat; }
         U32                             getBaseVertex(U32 subMesh)   const { return m_subMeshes[subMesh].baseVertex; }
         bool                            hasSubMesh(U32 subMesh)      const { return subMesh < getSubMeshCount(); }
@@ -137,6 +133,7 @@ namespace Graphics {
             IndexFormat         indexFormat = IndexFormat::U16;
             MeshTopology        topology    = MeshTopology::Triangles;
             ArrayList<U32>      indices;
+            U32                 indexCount; // Real index-count. "Indices" can contain more indices e.g. when the submesh index-buffer was updated with less indices than before
         };
         ArrayList<SubMesh>      m_subMeshes;
 
@@ -172,6 +169,13 @@ namespace Graphics {
         virtual void _CreateUVBuffer(const ArrayList<Math::Vec2>& uvs) = 0;
         virtual void _CreateNormalBuffer(const ArrayList<Math::Vec3>& normals) = 0;
         virtual void _CreateTangentBuffer(const ArrayList<Math::Vec4>& tangents) = 0;
+
+        virtual void _DestroyVertexBuffer() = 0;
+        virtual void _DestroyIndexBuffer(I32 index) = 0;
+        virtual void _DestroyColorBuffer() = 0;
+        virtual void _DestroyUVBuffer() = 0;
+        virtual void _DestroyNormalBuffer() = 0;
+        virtual void _DestroyTangentBuffer() = 0;
 
     private:
         //----------------------------------------------------------------------

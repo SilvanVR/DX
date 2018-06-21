@@ -28,6 +28,7 @@ namespace Graphics {
         FillMode    fillMode = FillMode::Solid;
         CullMode    cullMode = CullMode::Back;
         bool        frontCounterClockwise = false;
+        bool        scissorEnable = false;
     };
 
     // Depth Stencil State

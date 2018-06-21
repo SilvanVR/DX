@@ -74,6 +74,9 @@ namespace Graphics { namespace D3D11 {
         MappedConstantBuffer* m_shaderDataPS = nullptr;
         MappedConstantBuffer* m_shaderDataGS = nullptr;
 
+
+        bool m_scissorEnabled = false;
+
         //----------------------------------------------------------------------
         // IShader Interface
         //----------------------------------------------------------------------
@@ -88,11 +91,7 @@ namespace Graphics { namespace D3D11 {
         void _CreatePSConstantBuffer();
         void _CreateGSConstantBuffer();
 
-        //----------------------------------------------------------------------
-        Shader(const Shader& other)               = delete;
-        Shader& operator = (const Shader& other)  = delete;
-        Shader(Shader&& other)                    = delete;
-        Shader& operator = (Shader&& other)       = delete;
+        NULL_COPY_AND_ASSIGN(Shader)
     };
 
 } } // End namespaces

@@ -60,6 +60,7 @@ namespace Graphics { namespace D3D11 {
         {
         case BufferUsage::LongLived:
         {
+            // P.S. This might crash if pData does not has "m_size" bytes
             g_pImmediateContext->UpdateSubresource( m_pBuffer, 0, NULL, pData, 0, 0 );
             break;
         }

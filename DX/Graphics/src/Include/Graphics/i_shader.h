@@ -252,9 +252,9 @@ namespace Graphics {
 
 
     protected:
-        std::array<F32, 4>  m_blendFactors  = { 1.0f, 1.0f, 1.0f, 1.0f };   // These are only used when blending is enabled
-        String              m_name          = "NO NAME";
-        I32                 m_renderQueue   = (I32)RenderQueue::Geometry;
+        std::array<F32, 4>  m_blendFactors      = { 1.0f, 1.0f, 1.0f, 1.0f };   // These are only used when blending is enabled
+        String              m_name              = "NO NAME";
+        I32                 m_renderQueue       = (I32)RenderQueue::Geometry;
 
         // Data maps
         HashMap<StringID, I32>                  m_intMap;

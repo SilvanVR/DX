@@ -31,18 +31,29 @@ namespace Graphics {
     {
         bool hasBuffer = not m_vertices.empty();
 
-        m_vertices = vertices;
         if ( not hasBuffer )
         {
+            m_vertices = vertices;
             _CreateVertexBuffer( vertices );
         }
         else
         {
-            ASSERT( (m_vertices.size() == vertices.size() &&
-                    "IMesh::setVertices(): The amount of vertices given must be the number of vertices already present! "
-                    "Otherwise call clear() before, so the gpu buffer will be recreated.") );
             ASSERT( not isImmutable() && "Mesh is immutable! It can't be updated. "
                     "Either change the buffer usage via setBufferUsage() or call clear() to reset the whole mesh." );
+
+            // Buffer always grows but never shrink
+            bool enoughCapacity = vertices.size() <= m_vertices.size();
+            if (not enoughCapacity)
+            {
+                m_vertices.resize( vertices.size() );
+
+                _DestroyVertexBuffer();
+                _CreateVertexBuffer( m_vertices );
+            }
+
+            // Copy new vertex data into vertex array
+            memcpy( m_vertices.data(), vertices.data(), vertices.size() * sizeof( Math::Vec3 ) );
+
             m_queuedBufferUpdates.push({ MeshBufferType::Vertex });
         }
         _RecalculateBounds();
@@ -64,16 +75,26 @@ namespace Graphics {
         }
         else
         {
-            auto& subMesh = m_subMeshes[subMeshIndex];
-            ASSERT( (subMesh.indices.size() == indices.size() &&
-                    "IMesh::setIndices(): The amount of indices given must be the number of indices already present! "
-                    "Otherwise call clear() before, so the gpu buffer will be recreated.") );
             ASSERT( not isImmutable() && "Mesh is immutable! It can't be updated. "
                     "Either change the buffer usage via setBufferUsage() or call clear() to reset the whole mesh." );
 
-            subMesh.indices      = indices;
-            subMesh.baseVertex   = baseVertex;
-            subMesh.topology     = topology;
+            // Buffer always grows but never shrink
+            auto& subMesh = m_subMeshes[subMeshIndex];
+            subMesh.baseVertex  = baseVertex;
+            subMesh.topology    = topology;
+            subMesh.indexCount  = (U32)indices.size();
+
+            bool enoughCapacity = indices.size() <= subMesh.indices.size();
+            if (not enoughCapacity)
+            {
+                subMesh.indices.resize( indices.size() );
+
+                _DestroyIndexBuffer( subMeshIndex );
+                _CreateIndexBuffer( subMesh, subMeshIndex );
+            }
+
+            // Copy new index data into index array
+            memcpy( subMesh.indices.data(), indices.data(), indices.size() * sizeof( U32 ) );
 
             m_queuedBufferUpdates.push({ MeshBufferType::Index, subMeshIndex });
         }
@@ -84,18 +105,29 @@ namespace Graphics {
     {
         bool hasBuffer = not m_colors.empty();
 
-        m_colors = colors;
         if ( not hasBuffer )
         {
-            _CreateColorBuffer( m_colors );
+            m_colors = colors;
+            _CreateColorBuffer( colors );
         }
         else
         {
-            ASSERT( (m_colors.size() == colors.size() &&
-                    "IMesh::setColors(): The amount of colors given must be the number of colors already present! "
-                    "Otherwise call clear() before, so the gpu buffer will be recreated.") );
             ASSERT( not isImmutable() && "Mesh is immutable! It can't be updated. "
                     "Either change the buffer usage via setBufferUsage() or call clear() to reset the whole mesh." );
+
+            // Buffer always grows but never shrink
+            bool enoughCapacity = colors.size() <= m_colors.size();
+            if (not enoughCapacity)
+            {
+                m_colors.resize( colors.size() );
+
+                _DestroyColorBuffer();
+                _CreateColorBuffer( m_colors );
+            }
+
+            // Copy new color data into color array
+            memcpy( m_colors.data(), colors.data(), colors.size() * sizeof( Color ) );
+
             m_queuedBufferUpdates.push({ MeshBufferType::Color });
         }
     }
@@ -105,18 +137,29 @@ namespace Graphics {
     {
         bool hasBuffer = not m_uvs0.empty();
 
-        m_uvs0 = uvs;
         if ( not hasBuffer )
         {
+            m_uvs0 = uvs;
             _CreateUVBuffer( uvs );
         }
         else
         {
-            ASSERT( (m_uvs0.size() == uvs.size() &&
-                    "IMesh::setUVs(): The amount of uvs given must be the number of uvs already present! "
-                    "Otherwise call clear() before, so the gpu buffer will be recreated.") );
             ASSERT( not isImmutable() && "Mesh is immutable! It can't be updated. "
                     "Either change the buffer usage via setBufferUsage() or call clear() to reset the whole mesh." );
+
+            // Buffer always grows but never shrink
+            bool enoughCapacity = uvs.size() <= m_uvs0.size();
+            if (not enoughCapacity)
+            {
+                m_uvs0.resize( uvs.size() );
+
+                _DestroyUVBuffer();
+                _CreateUVBuffer( m_uvs0 );
+            }
+
+            // Copy new uv data into uv array
+            memcpy( m_uvs0.data(), uvs.data(), uvs.size() * sizeof( Math::Vec2 ) );
+
             m_queuedBufferUpdates.push({ MeshBufferType::TexCoord });
         }
     }
@@ -126,18 +169,29 @@ namespace Graphics {
     {
         bool hasBuffer = not m_normals.empty();
 
-        m_normals = normals;
         if ( not hasBuffer )
         {
+            m_normals = normals;
             _CreateNormalBuffer( m_normals );
         }
         else
         {
-            ASSERT( (m_normals.size() == normals.size() &&
-                    "IMesh::setNormals(): The amount of normals given must be the number of normals already present! "
-                    "Otherwise call clear() before, so the gpu buffer will be recreated.") );
             ASSERT( not isImmutable() && "Mesh is immutable! It can't be updated. "
                     "Either change the buffer usage via setBufferUsage() or call clear() to reset the whole mesh." );
+
+            // Buffer always grows but never shrink
+            bool enoughCapacity = normals.size() <= m_normals.size();
+            if (not enoughCapacity)
+            {
+                m_normals.resize( normals.size() );
+
+                _DestroyNormalBuffer();
+                _CreateNormalBuffer( m_normals );
+            }
+
+            // Copy new uv data into uv array
+            memcpy( m_normals.data(), normals.data(), normals.size() * sizeof( Math::Vec3 ) );
+
             m_queuedBufferUpdates.push({ MeshBufferType::Normal });
         }
     }
@@ -147,18 +201,29 @@ namespace Graphics {
     {
         bool hasBuffer = not m_tangents.empty();
 
-        m_tangents = tangents;
         if ( not hasBuffer )
         {
+            m_tangents = tangents;
             _CreateTangentBuffer( m_tangents );
         }
         else
         {
-            ASSERT( (m_tangents.size() == m_tangents.size() &&
-                    "IMesh::setTangents(): The amount of tangents given must be the number of tangents already present! "
-                    "Otherwise call clear() before, so the gpu buffer will be recreated.") );
             ASSERT( not isImmutable() && "Mesh is immutable! It can't be updated. "
                     "Either change the buffer usage via setBufferUsage() or call clear() to reset the whole mesh." );
+
+            // Buffer always grows but never shrink
+            bool enoughCapacity = tangents.size() <= m_tangents.size();
+            if (not enoughCapacity)
+            {
+                m_tangents.resize( tangents.size() );
+
+                _DestroyTangentBuffer();
+                _CreateTangentBuffer( m_tangents );
+            }
+
+            // Copy new uv data into uv array
+            memcpy( m_tangents.data(), tangents.data(), tangents.size() * sizeof( Math::Vec4 ) );
+
             m_queuedBufferUpdates.push({ MeshBufferType::Tangent });
         }
     }
@@ -275,6 +340,7 @@ namespace Graphics {
         sm.indices      = indices;
         sm.baseVertex   = baseVertex;
         sm.topology     = topology;
+        sm.indexCount   = (U32)indices.size();
 
         if ( indices.size() > 65535 )
             sm.indexFormat = IndexFormat::U32;

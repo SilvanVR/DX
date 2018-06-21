@@ -63,7 +63,7 @@ namespace Graphics { namespace D3D11 {
     void Mesh::_CreateVertexBuffer( const ArrayList<Math::Vec3>& vertices )
     {
         ASSERT( m_pVertexBuffer == nullptr );
-        m_pVertexBuffer = new VertexBuffer( m_vertices.data(), getVertexCount() * sizeof( Math::Vec3 ), m_bufferUsage );
+        m_pVertexBuffer = new VertexBuffer( vertices.data(), (U32)(vertices.size() * sizeof( Math::Vec3 )), m_bufferUsage );
     }
 
     //----------------------------------------------------------------------
@@ -73,17 +73,24 @@ namespace Graphics { namespace D3D11 {
         {
             case IndexFormat::U16:
             {
-                ArrayList<U16> indicesU16;
-                for ( auto& index : subMesh.indices )
-                    indicesU16.push_back( index );
-                auto pIndexBuffer = new D3D11::IndexBuffer( indicesU16.data(), getIndexCount( index ) * sizeof( U16 ), m_bufferUsage );
-                m_pIndexBuffers.push_back( pIndexBuffer );
+                ArrayList<U16> indicesU16( subMesh.indices.size() );
+                for (U32 i = 0; i < indicesU16.size(); i++)
+                    indicesU16[i] = subMesh.indices[i];
+
+                auto pIndexBuffer = new D3D11::IndexBuffer( indicesU16.data(), (U32)(subMesh.indices.size() * sizeof( U16 )), m_bufferUsage );
+                if (m_pIndexBuffers.size() <= index)
+                    m_pIndexBuffers.resize( index + 1 );
+
+                m_pIndexBuffers[index] = pIndexBuffer;
                 break;
             }
             case IndexFormat::U32:
             {
-                auto pIndexBuffer = new D3D11::IndexBuffer( subMesh.indices.data(), getIndexCount( index ) * sizeof( U32 ), m_bufferUsage );
-                m_pIndexBuffers.push_back( pIndexBuffer );
+                auto pIndexBuffer = new D3D11::IndexBuffer( subMesh.indices.data(), (U32)(subMesh.indices.size() * sizeof( U32 )), m_bufferUsage );
+                if (m_pIndexBuffers.size() <= index)
+                    m_pIndexBuffers.resize( index + 1 );
+
+                m_pIndexBuffers[index] = pIndexBuffer;
                 break;
             }
         }
@@ -93,10 +100,10 @@ namespace Graphics { namespace D3D11 {
     void Mesh::_CreateColorBuffer( const ArrayList<Color>& colors )
     {
         ASSERT( m_pColorBuffer == nullptr );
-        ArrayList<F32> colorsNormalized( m_colors.size() * 4 );
-        for (U32 i = 0; i < m_colors.size(); i++)
+        ArrayList<F32> colorsNormalized( colors.size() * 4 );
+        for (U32 i = 0; i < colors.size(); i++)
         {
-            auto normalized = m_colors[i].normalized();
+            auto normalized = colors[i].normalized();
             colorsNormalized[i * 4 + 0] = normalized[0];
             colorsNormalized[i * 4 + 1] = normalized[1];
             colorsNormalized[i * 4 + 2] = normalized[2];
@@ -109,7 +116,7 @@ namespace Graphics { namespace D3D11 {
     void Mesh::_CreateUVBuffer( const ArrayList<Math::Vec2>& uvs )
     {
         ASSERT( m_pUVBuffer == nullptr );
-        m_pUVBuffer = new VertexBuffer( m_uvs0.data(), getVertexCount() * sizeof( Math::Vec2 ), m_bufferUsage );
+        m_pUVBuffer = new VertexBuffer( uvs.data(), getVertexCount() * sizeof( Math::Vec2 ), m_bufferUsage );
     }
 
     //----------------------------------------------------------------------
@@ -126,6 +133,14 @@ namespace Graphics { namespace D3D11 {
         m_pTangentBuffer = new VertexBuffer( tangents.data(), getVertexCount() * sizeof( Math::Vec4 ), m_bufferUsage );
     }
 
+    //----------------------------------------------------------------------
+    void Mesh::_DestroyVertexBuffer()           { SAFE_DELETE( m_pVertexBuffer ); }
+    void Mesh::_DestroyIndexBuffer(I32 index)   { SAFE_DELETE( m_pIndexBuffers[index] ); }
+    void Mesh::_DestroyColorBuffer()            { SAFE_DELETE( m_pColorBuffer ); }
+    void Mesh::_DestroyUVBuffer()               { SAFE_DELETE( m_pUVBuffer ); }
+    void Mesh::_DestroyNormalBuffer()           { SAFE_DELETE( m_pNormalBuffer ); }
+    void Mesh::_DestroyTangentBuffer()          { SAFE_DELETE( m_pTangentBuffer ); }
+
     //**********************************************************************
     // PRIVATE
     //**********************************************************************
@@ -139,13 +154,21 @@ namespace Graphics { namespace D3D11 {
     //----------------------------------------------------------------------
     void Mesh::_UpdateIndexBuffer( U32 index )
     {
-        Size indexSize = 0;
-        switch ( getIndexFormat( index ) )
+        auto& subMesh = m_subMeshes[index];
+        switch ( subMesh.indexFormat )
         {
-        case IndexFormat::U16: indexSize = sizeof( U16 ); break;
-        case IndexFormat::U32: indexSize = sizeof( U32 ); break;
+        case IndexFormat::U16:
+        {
+            ArrayList<U16> indicesU16( subMesh.indexCount );
+            for (U32 i = 0; i < indicesU16.size(); i++)
+                indicesU16[i] = subMesh.indices[i];
+            m_pIndexBuffers[index]->update( indicesU16.data(), (U32)( subMesh.indexCount * sizeof( U16 ) ) );
+            break;
         }
-        m_pIndexBuffers[index]->update( m_subMeshes[index].indices.data(), m_subMeshes[index].indices.size() * indexSize );
+        case IndexFormat::U32:
+            m_pIndexBuffers[index]->update( m_subMeshes[index].indices.data(), (U32)(m_subMeshes[index].indexCount * sizeof( U32 )) );
+            break;
+        }
     }
 
     //----------------------------------------------------------------------
