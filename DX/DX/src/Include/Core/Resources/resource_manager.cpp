@@ -188,9 +188,12 @@ namespace Core { namespace Resources {
             colorBuffer->create( width, height, format, { (U32) sampleCount } );
             colorBuffers.push_back( colorBuffer );
 
-            auto depthBuffer = createRenderBuffer();
-            depthBuffer->create( width, height, depth, { (U32)sampleCount } );
-            depthBuffers.push_back( depthBuffer );
+            if (depth != Graphics::DepthFormat::None)
+            {
+                auto depthBuffer = createRenderBuffer();
+                depthBuffer->create( width, height, depth, { (U32)sampleCount } );
+                depthBuffers.push_back( depthBuffer );
+            }
         }
 
         auto renderTexture = createRenderTexture();
@@ -207,8 +210,12 @@ namespace Core { namespace Resources {
         auto colorBuffer = createRenderBuffer();
         colorBuffer->create( width, height, format, { (U32)sampleCount } );
 
-        auto depthBuffer = createRenderBuffer();
-        depthBuffer->create( width, height, depth, { (U32)sampleCount } );
+        RenderBufferPtr depthBuffer = nullptr;
+        if (depth != Graphics::DepthFormat::None)
+        {
+            depthBuffer = createRenderBuffer();
+            depthBuffer->create(width, height, depth, { (U32)sampleCount });
+        }
 
         auto renderTexture = createRenderTexture();
         renderTexture->create( colorBuffer, depthBuffer );

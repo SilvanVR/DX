@@ -12,9 +12,22 @@
 
 #include "Ext/ImGUI/imgui.h"
 
+namespace ImGui
+{
+    void Image(const TexturePtr& tex)
+    {
+        ImGui::Image( (void*)&tex, { (F32)tex->getWidth(), (F32)tex->getHeight() });
+    }
+
+    void Image(const TexturePtr& tex, const Math::Vec2& size)
+    {
+        ImGui::Image((void*)&tex, { size.x, size.y });
+    }
+}
 
 class ImGUI : public Components::IComponent
 {
+    Texture2DPtr tex;
 public:
     ImGUI() = default;
 
@@ -29,15 +42,14 @@ public:
         I32 width, height;
         io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
         m_fontAtlas = RESOURCES.createTexture2D(width, height, Graphics::TextureFormat::RGBA32, pixels);
-        io.Fonts->TexID = (void*)m_fontAtlas.get();
+        io.Fonts->TexID = &m_fontAtlas;
 
         // Mesh containing all the vertex/index data
         m_dynamicMesh = RESOURCES.createMesh();
         m_dynamicMesh->setBufferUsage(Graphics::BufferUsage::Frequently);
 
-        // Material rendering the actual font
-        m_fontMaterial = RESOURCES.createMaterial(ASSETS.getShader("/shaders/gui.shader"));
-        m_fontMaterial->setTexture("fontAtlas", m_fontAtlas);
+        // Retrieve GUI shader
+        m_guiShader = ASSETS.getShader( "/shaders/gui.shader" );
 
         //_UpdateIMGUI(0.0f);
         //ImGui::NewFrame();
@@ -48,6 +60,8 @@ public:
 
         m_orthoCamera.setRenderTarget(cam->getRenderTarget(), cam->isRenderingToScreen());
         m_orthoCamera.setCameraMode(Graphics::CameraMode::Orthographic);
+
+        tex = ASSETS.getTexture2D("/textures/nico.jpg");
     }
 
     ~ImGUI()
@@ -59,13 +73,12 @@ public:
     {
         _UpdateIMGUI((F32)d);
         ImGui::NewFrame();
-        //ImGui::ShowDemoWindow();
-        ImGui::Text("Hello World");
+        ImGui::ShowDemoWindow();
+        //ImGui::Text("Hello World");
+        //ImGui::Image(tex);
         ImGui::EndFrame();
         ImGui::Render();
 
-        if (KEYBOARD.isKeyDown(Key::F))
-            m_dynamicMesh->clear();
         m_cmd.reset();
         m_cmd.setCamera(&m_orthoCamera);
 
@@ -113,8 +126,14 @@ public:
                                      (long)(pcmd->ClipRect.z - pos.x), (long)(pcmd->ClipRect.w - pos.y) };
                     m_cmd.setScissor(r);
 
+                    // Create a new material and set texture
+                    auto mat = RESOURCES.createMaterial(m_guiShader);
+
+                    TexturePtr* texture = static_cast<TexturePtr*>( pcmd->TextureId );
+                    mat->setTexture( "tex", *texture );
+
                     m_dynamicMesh->setIndices(indices, subMesh, Graphics::MeshTopology::Triangles, baseVertex);
-                    m_cmd.drawMesh(m_dynamicMesh, m_fontMaterial, DirectX::XMMatrixIdentity(), subMesh);
+                    m_cmd.drawMesh(m_dynamicMesh, mat, DirectX::XMMatrixIdentity(), subMesh);
                     subMesh++;
                 }
                 idx_buffer += pcmd->ElemCount;
@@ -136,7 +155,7 @@ private:
     ImGuiContext*           m_imguiContext = nullptr;
     Texture2DPtr            m_fontAtlas;
     MeshPtr                 m_dynamicMesh;
-    MaterialPtr             m_fontMaterial;
+    ShaderPtr               m_guiShader;
     Graphics::CommandBuffer m_cmd;
     Graphics::Camera        m_orthoCamera;
 
@@ -173,16 +192,20 @@ public:
         cam = go->addComponent<Components::Camera>();
         go->getComponent<Components::Transform>()->position = Math::Vec3(0, 3, -8);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 0.1f);
-        //createGameObject("Grid")->addComponent<GridGeneration>(20);
+        createGameObject("Grid")->addComponent<GridGeneration>(20);
         go->addComponent<ImGUI>();
 
+        //auto go2 = createGameObject("Camera");
+        //auto renderTex = RESOURCES.createRenderTexture(1024, 720, Graphics::DepthFormat::D16, Graphics::TextureFormat::BGRA32, 2, Graphics::MSAASamples::One);
+        //auto cam2 = go2->addComponent<Components::Camera>(renderTex);
+        //cam2->setRenderingToScreen(false);
+        //cam2->setRenderTarget(renderTex);
         //auto depthMapGO = createGameObject("DepthMapGO");
         //auto depthMapMaterial = RESOURCES.createMaterial(ASSETS.getShader("/shaders/tex.shader"));
-        //depthMapMaterial->setTexture("tex", font);
+        //depthMapMaterial->setTexture("tex", cam2->getRenderTarget()->getColorBuffer());
         //depthMapMaterial->setColor("tintColor", Color::WHITE);
         //depthMapGO->addComponent<Components::MeshRenderer>(Core::MeshGenerator::CreatePlane(), depthMapMaterial);
-        //depthMapGO->getTransform()->position = { -5, 1, 0 };
-        //depthMapGO->getTransform()->scale.x = font->getAspectRatio();
+        //depthMapGO->getTransform()->position = { 0, 1, 0 };
 
         LOG("TestScene initialized!", Color::RED);
     }

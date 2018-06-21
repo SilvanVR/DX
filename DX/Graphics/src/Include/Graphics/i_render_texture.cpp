@@ -50,12 +50,11 @@ namespace Graphics
     //----------------------------------------------------------------------
     void RenderTexture::create( const ArrayList<RenderBufferPtr>& colorBuffers, const ArrayList<RenderBufferPtr>& depthBuffers )
     {
-        ASSERT( colorBuffers.size() == depthBuffers.size() );
         m_renderBuffers.resize( colorBuffers.size() );
         for (I32 i = 0; i < m_renderBuffers.size(); i++)
         {
             m_renderBuffers[i].m_colorBuffer = colorBuffers[i];
-            m_renderBuffers[i].m_depthBuffer = depthBuffers[i];
+            m_renderBuffers[i].m_depthBuffer = i < depthBuffers.size() ? depthBuffers[i] : nullptr;
         }
     }
 

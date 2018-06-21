@@ -196,7 +196,7 @@ namespace Components {
                 m_commandBuffer.getGPUCommands().push_back( command );
                 break;
             }
-            case Graphics::GPUCommand::SET_CAMERA: ASSERT(false && "This is invalid"); break;
+            //case Graphics::GPUCommand::SET_CAMERA: ASSERT(false && "This is invalid"); break;
             }
         }
 
