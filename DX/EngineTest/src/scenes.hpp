@@ -1036,3 +1036,34 @@ public:
 
     void shutdown() override { LOG("ScenePostProcessMultiCamera Shutdown!", Color::RED); }
 };
+
+class SceneGUI : public IScene
+{
+public:
+    SceneGUI() : IScene("SceneGUI") {}
+
+    void init() override
+    {
+        // Camera 1
+        auto go = createGameObject("Camera");
+        auto cam = go->addComponent<Components::Camera>();
+        go->getComponent<Components::Transform>()->position = Math::Vec3(0, 3, -8);
+        go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 0.1f);
+
+        createGameObject("Grid")->addComponent<GridGeneration>(20);
+
+        go->addComponent<Components::GUI>();
+        //go->addComponent<Components::GUIImage>(ASSETS.getTexture2D("/textures/nico.jpg"));
+        go->addComponent<Components::GUIDemoWindow>();
+
+        static F32 color[4] = {};
+        go->addComponent<Components::GUICustom>([=] {
+            if (ImGui::ColorPicker4("Clear color", color))
+                cam->setClearColor(Color(color[0] * 255.0f, color[1] * 255.0f, color[2] * 255.0f, color[3] * 255.0f));
+        });
+
+        LOG("SceneGUI initialized!", Color::RED);
+    }
+
+    void shutdown() override { LOG("SceneGUI Shutdown!", Color::RED); }
+};

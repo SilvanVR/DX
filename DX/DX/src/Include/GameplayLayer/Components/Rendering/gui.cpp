@@ -71,13 +71,14 @@ namespace Components {
         m_dynamicMesh->setBufferUsage( Graphics::BufferUsage::Frequently );
 
         // Retrieve GUI shader
-        m_guiShader = ASSETS.getShader( "/shaders/gui.shader" );
+        m_guiShader = ASSETS.getShader( "/engine/shaders/gui.shader" );
         m_guiShader->setName( "GUI" );
     }
 
     //----------------------------------------------------------------------
     void GUI::preTick( Time::Seconds d )
     {
+        // Needs to be in pretick, so it can disable the input early enough if mouse is over an imgui window
         _UpdateIMGUI((F32)d);
     }
 
@@ -96,7 +97,6 @@ namespace Components {
         auto proj = DirectX::XMMatrixOrthographicOffCenterLH( draw_data->DisplayPos.x, draw_data->DisplayPos.x + draw_data->DisplaySize.x,
                                                               draw_data->DisplayPos.y + draw_data->DisplaySize.y, draw_data->DisplayPos.y,
                                                               -1, 1 );
-
         static const StringID PROJ_NAME = SID( "_Proj" );
         m_cmd.setCameraMatrix( PROJ_NAME, proj );
 
@@ -168,6 +168,9 @@ namespace Components {
     //----------------------------------------------------------------------
     void GUI::OnMouseMoved( I16 x, I16 y )
     {
+        if (not m_camera)
+            return;
+
         ImGui::SetCurrentContext( m_imguiContext );
         ImGuiIO& io = ImGui::GetIO();
 

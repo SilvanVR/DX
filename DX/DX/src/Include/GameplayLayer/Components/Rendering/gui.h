@@ -95,6 +95,19 @@ namespace Components {
         }
     };
 
+    //**********************************************************************
+    class GUICustom : public Components::ImGUIRenderComponent
+    {
+        std::function<void()> m_fn;
+    public:
+        GUICustom(const std::function<void()>& fn) 
+            : m_fn(fn) {}
+
+        void OnImGUI() override
+        {
+            m_fn();
+        }
+    };
 
 
 } // End namespaces
