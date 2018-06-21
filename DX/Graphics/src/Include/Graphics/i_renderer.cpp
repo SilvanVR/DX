@@ -41,7 +41,7 @@ namespace Graphics {
     }
 
     //----------------------------------------------------------------------
-    void IRenderer::addGlobalMaterial( CString name, IMaterial* material )
+    void IRenderer::addGlobalMaterial( CString name, const std::shared_ptr<IMaterial>& material )
     { 
         m_globalMaterials[SID( name )] = material;
     }

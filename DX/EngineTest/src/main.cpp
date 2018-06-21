@@ -50,22 +50,24 @@ public:
 
         // Retrieve GUI shader
         m_guiShader = ASSETS.getShader( "/shaders/gui.shader" );
-
+        m_guiShader->setName("GUI");
         //_UpdateIMGUI(0.0f);
         //ImGui::NewFrame();
 
         auto cam = go->getComponent<Components::Camera>();
-        //cam->addCommandBuffer(&m_cmd);
-        cam->setClearMode(Graphics::CameraClearMode::None);
+        cam->addCommandBuffer(&m_cmd, Components::CameraEvent::Overlay);
 
         m_orthoCamera.setRenderTarget(cam->getRenderTarget(), cam->isRenderingToScreen());
         m_orthoCamera.setCameraMode(Graphics::CameraMode::Orthographic);
+        m_orthoCamera.setClearMode(Graphics::CameraClearMode::None);
 
         tex = ASSETS.getTexture2D("/textures/nico.jpg");
     }
 
     ~ImGUI()
     {
+        //auto cam = getGameObject()->getComponent<Components::Camera>();
+        //cam->removeCommandBuffer(&m_cmd);
         ImGui::DestroyContext(m_imguiContext);
     }
 
@@ -163,8 +165,10 @@ private:
     {
         ImGuiIO& io = ImGui::GetIO();
         io.DeltaTime = delta;
-        io.DisplaySize.x = WINDOW.getWidth();
-        io.DisplaySize.y = WINDOW.getHeight();
+
+        auto rt = getGameObject()->getComponent<Components::Camera>()->getRenderTarget();
+        io.DisplaySize.x = (F32)rt->getWidth();
+        io.DisplaySize.y = (F32)rt->getHeight();
         io.MousePos = { (F32)MOUSE.getMousePos().x, (F32)MOUSE.getMousePos().y };
         io.MouseDown[0] = MOUSE.isKeyDown(MouseKey::LButton);
         io.MouseDown[1] = MOUSE.isKeyDown(MouseKey::RButton);
@@ -196,10 +200,11 @@ public:
         go->addComponent<ImGUI>();
 
         //auto go2 = createGameObject("Camera");
-        //auto renderTex = RESOURCES.createRenderTexture(1024, 720, Graphics::DepthFormat::D16, Graphics::TextureFormat::BGRA32, 2, Graphics::MSAASamples::One);
+        //auto renderTex = RESOURCES.createRenderTexture(1024, 720, Graphics::DepthFormat::None, Graphics::TextureFormat::BGRA32, 2, Graphics::MSAASamples::One);
         //auto cam2 = go2->addComponent<Components::Camera>(renderTex);
-        //cam2->setRenderingToScreen(false);
         //cam2->setRenderTarget(renderTex);
+        //go2->addComponent<ImGUI>();
+
         //auto depthMapGO = createGameObject("DepthMapGO");
         //auto depthMapMaterial = RESOURCES.createMaterial(ASSETS.getShader("/shaders/tex.shader"));
         //depthMapMaterial->setTexture("tex", cam2->getRenderTarget()->getColorBuffer());

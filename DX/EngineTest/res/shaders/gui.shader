@@ -4,7 +4,7 @@
 #ZWrite 		Off
 #Blend 			SrcAlpha OneMinusSrcAlpha
 #Scissor		On
-#Priority		Overlay
+#Queue			Overlay
 
 // ----------------------------------------------
 #shader vertex

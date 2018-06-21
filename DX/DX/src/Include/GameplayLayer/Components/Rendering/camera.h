@@ -15,6 +15,14 @@ namespace Core { class CoreEngine; }
 
 namespace Components {
 
+    enum class CameraEvent
+    {
+        Geometry = 0, // Commands corresponding to this event will be sorted with every render command in scene
+        PostProcess,
+        Overlay,
+        MAX_EVENTS
+    };
+
     class IRenderComponent;
 
     //**********************************************************************
@@ -82,10 +90,10 @@ namespace Components {
         //----------------------------------------------------------------------
         // Add an additional command buffer to this camera
         //----------------------------------------------------------------------
-        void addCommandBuffer(Graphics::CommandBuffer* cmd) { m_additionalCommandBuffers.push_back(cmd); }
+        void addCommandBuffer(Graphics::CommandBuffer* cmd, CameraEvent evt = CameraEvent::Geometry);
 
         //----------------------------------------------------------------------
-        void removeCommandBuffer(Graphics::CommandBuffer* cmd) { m_additionalCommandBuffers.erase(std::remove(m_additionalCommandBuffers.begin(), m_additionalCommandBuffers.end(), cmd)); }
+        void removeCommandBuffer(Graphics::CommandBuffer* cmd);
 
         //----------------------------------------------------------------------
         // Cull the aabb with the given world matrix against this camera frustum.
@@ -118,7 +126,7 @@ namespace Components {
         Graphics::CommandBuffer     m_commandBuffer;
 
         // Additional attached command buffer
-        ArrayList<Graphics::CommandBuffer*> m_additionalCommandBuffers;
+        HashMap<CameraEvent, ArrayList<Graphics::CommandBuffer*>> m_additionalCommandBuffers;
 
         //----------------------------------------------------------------------
         friend class Core::CoreEngine;

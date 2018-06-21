@@ -303,7 +303,7 @@ public:
 
         // Attach command buffer to camera
         auto cam = go->getComponent<Components::Camera>();
-        cam->addCommandBuffer(&cmd);
+        cam->addCommandBuffer(&cmd, Components::CameraEvent::PostProcess);
     }
 };
 
@@ -326,7 +326,7 @@ public:
         cmd.blit(PREVIOUS_BUFFER, rt, ASSETS.getMaterial("/materials/post processing/fog.material"));
 
         // Attach command buffer to camera
-        cam->addCommandBuffer(&cmd);
+        cam->addCommandBuffer(&cmd, Components::CameraEvent::PostProcess);
     }
 };
 
@@ -348,7 +348,7 @@ public:
         cmd.blit(PREVIOUS_BUFFER, rt, m_material);
 
         // Attach command buffer to camera
-        cam->addCommandBuffer(&cmd);
+        cam->addCommandBuffer(&cmd, Components::CameraEvent::PostProcess);
     }
 };
 

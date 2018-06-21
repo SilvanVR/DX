@@ -74,9 +74,6 @@ namespace Graphics { namespace D3D11 {
         MappedConstantBuffer* m_shaderDataPS = nullptr;
         MappedConstantBuffer* m_shaderDataGS = nullptr;
 
-
-        bool m_scissorEnabled = false;
-
         //----------------------------------------------------------------------
         // IShader Interface
         //----------------------------------------------------------------------

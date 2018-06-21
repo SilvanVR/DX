@@ -384,7 +384,7 @@ namespace Core { namespace Resources {
             m_postProcessMaterial = createMaterial( m_postProcessShader );
             m_postProcessMaterial->setName( "Post Process Material" );
 
-            Locator::getRenderer().addGlobalMaterial( "Wireframe", m_wireframeMaterial.get() );
+            Locator::getRenderer().addGlobalMaterial( "Wireframe", m_wireframeMaterial );
         }
 
         // TEXTURES

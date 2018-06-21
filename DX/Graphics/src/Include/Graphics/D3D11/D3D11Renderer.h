@@ -58,11 +58,11 @@ namespace Graphics {
 
         //----------------------------------------------------------------------
         inline void _SetCamera(Camera* camera);
-        inline void _DrawMesh(IMesh* mesh, IMaterial* mat, const DirectX::XMMATRIX& model, U32 subMeshIndex);
+        inline void _DrawMesh(IMesh* mesh, const std::shared_ptr<IMaterial>& material, const DirectX::XMMATRIX& model, U32 subMeshIndex);
         inline void _CopyTexture(ITexture* srcTex, I32 srcElement, I32 srcMip, ITexture* dstTex, I32 dstElement, I32 dstMip);
-        inline void _RenderCubemap(ICubemap* cubemap, IMaterial* material, U32 dstMip);
-        inline void _Blit(RenderTexturePtr src, RenderTexturePtr dst, IMaterial* material);
-        inline void _DrawFullScreenQuad(IMaterial* mat, const D3D11_VIEWPORT& viewport);
+        inline void _RenderCubemap(ICubemap* cubemap, const std::shared_ptr<IMaterial>& material, U32 dstMip);
+        inline void _Blit(RenderTexturePtr src, RenderTexturePtr dst, const std::shared_ptr<IMaterial>& material);
+        inline void _DrawFullScreenQuad(const std::shared_ptr<IMaterial>& material, const D3D11_VIEWPORT& viewport);
 
         //----------------------------------------------------------------------
         void _InitD3D11();
@@ -95,21 +95,17 @@ namespace Graphics {
             bool         lightsUpdated = false; // Set to true whenever a new light has been added
 
             void Reset();
-            void BindMaterial(IMaterial* material);
-            void BindShader(IShader* shader);
+            void BindMaterial(const std::shared_ptr<IMaterial>& material);
+            void BindShader(const std::shared_ptr<IShader>& shader);
 
-            inline IShader* getShader() const { return m_shader; }
+            inline IShader* getShader() const { return m_shader.get(); }
 
         private:
-            IMaterial*  m_material = nullptr;     // Current bound material
-            IShader*    m_shader = nullptr;       // Current bound shader
+            std::shared_ptr<IMaterial>  m_material = nullptr;     // Current bound material
+            std::shared_ptr<IShader>    m_shader = nullptr;       // Current bound shader
         } renderContext;
 
-        //----------------------------------------------------------------------
-        D3D11Renderer(const D3D11Renderer& other)               = delete;
-        D3D11Renderer& operator = (const D3D11Renderer& other)  = delete;
-        D3D11Renderer(D3D11Renderer&& other)                    = delete;
-        D3D11Renderer& operator = (D3D11Renderer&& other)       = delete;
+        NULL_COPY_AND_ASSIGN(D3D11Renderer)
     };
 
 

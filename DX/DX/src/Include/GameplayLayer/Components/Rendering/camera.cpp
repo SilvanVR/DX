@@ -84,12 +84,23 @@ namespace Components {
                 renderer->recordGraphicsCommands( tmpBuffer, lerp );
         }
 
-        // Merge all commands buffers into one
-        for ( auto& additionalCmd : m_additionalCommandBuffers )
+        // Merge all geometry commands
+        for (auto& additionalCmd : m_additionalCommandBuffers[CameraEvent::Geometry])
             tmpBuffer.merge( *additionalCmd );
 
         // Sort all commands e.g. based on shader-queue
         _SortRenderCommands( tmpBuffer, transform->position );
+
+        // Merge all post process commands
+        for (auto& additionalCmd : m_additionalCommandBuffers[CameraEvent::PostProcess])
+            m_commandBuffer.merge( *additionalCmd );
+
+        // Merge all gui commands
+        for (auto& additionalCmd : m_additionalCommandBuffers[CameraEvent::Overlay])
+            m_commandBuffer.merge( *additionalCmd );
+
+        // Inject an command which blits last rendered buffer to the screen/render target
+        m_commandBuffer.blit( PREVIOUS_BUFFER, m_camera.isRenderingToScreen() ? SCREEN_BUFFER : getRenderTarget(), RESOURCES.getPostProcessMaterial() );
 
         // Add an end camera command
         m_commandBuffer.endCamera( &m_camera );
@@ -100,6 +111,18 @@ namespace Components {
     //**********************************************************************
     // PUBLIC
     //**********************************************************************
+
+    void Camera::addCommandBuffer(Graphics::CommandBuffer* cmd, CameraEvent evt )
+    { 
+        m_additionalCommandBuffers[evt].push_back( cmd );
+    }
+
+    //----------------------------------------------------------------------
+    void Camera::removeCommandBuffer(Graphics::CommandBuffer* cmd) 
+    { 
+        for (auto& pair : m_additionalCommandBuffers)
+            pair.second.erase( std::remove( pair.second.begin(), pair.second.end(), cmd ) );
+    }
 
     //----------------------------------------------------------------------
     void Camera::setHDRRendering( bool enabled )
@@ -196,7 +219,6 @@ namespace Components {
                 m_commandBuffer.getGPUCommands().push_back( command );
                 break;
             }
-            //case Graphics::GPUCommand::SET_CAMERA: ASSERT(false && "This is invalid"); break;
             }
         }
 
@@ -235,38 +257,8 @@ namespace Components {
             return DirectX::XMVector4Greater( distance1, distance2 );
         } );
 
-        // Add drawcalls to command buffer
-        for (auto& drawCall : transparentDrawcalls)
-            m_commandBuffer.getGPUCommands().push_back( drawCall );
-
-        // These commands are mostly for post processing
-        RenderTexturePtr lastRenderTarget = nullptr;
-        bool hasBlit = false;
-        for (auto& command : cmd.getGPUCommands())
-        {
-            switch (command->getType())
-            {
-            case Graphics::GPUCommand::SET_RENDER_TARGET:
-            case Graphics::GPUCommand::DRAW_FULLSCREEN_QUAD:
-            {
-                m_commandBuffer.getGPUCommands().push_back( command );
-                break;
-            }
-            case Graphics::GPUCommand::BLIT:
-            {
-                auto& cmd = *reinterpret_cast<Graphics::GPUC_Blit*>( command.get() );
-                lastRenderTarget = cmd.dst;
-                hasBlit = true;
-                m_commandBuffer.getGPUCommands().push_back( command );
-                break;
-            }
-            }
-        }
-
-        // Inject an additional blit command which renders the last framebuffer either to screen or back to the cameras rendertarget
-        // This is only necessary when the last post process does not render directly to the screen.
-        if (lastRenderTarget != nullptr || not hasBlit)
-            m_commandBuffer.blit( PREVIOUS_BUFFER, m_camera.isRenderingToScreen() ? SCREEN_BUFFER : getRenderTarget(), RESOURCES.getPostProcessMaterial() );
+        // Add sorted transparent drawcalls to command buffer
+        m_commandBuffer.getGPUCommands().insert( m_commandBuffer.getGPUCommands().end(), transparentDrawcalls.begin(), transparentDrawcalls.end() );
     }
 
     //----------------------------------------------------------------------

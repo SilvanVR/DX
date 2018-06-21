@@ -3,7 +3,6 @@
 #Cull 			Back
 #ZWrite 		On
 #ZTest 			Less
-#Blend 			SrcAlpha OneMinusSrcAlpha
 #Priority 		Geometry
 
 // ----------------------------------------------

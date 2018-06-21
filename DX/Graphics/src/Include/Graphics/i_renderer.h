@@ -93,7 +93,7 @@ namespace Graphics {
         //  "name": The name of this shader to identify it.
         //  "material": The actual material.
         //----------------------------------------------------------------------
-        void addGlobalMaterial(CString name, IMaterial* material);
+        void addGlobalMaterial(CString name, const std::shared_ptr<IMaterial>& material);
 
         //----------------------------------------------------------------------
         // Set a global shader with the given name as active. If a global shader
@@ -122,8 +122,8 @@ namespace Graphics {
         virtual void OnWindowSizeChanged(U16 w, U16 h) = 0;
 
         //----------------------------------------------------------------------
-        HashMap<StringID, IMaterial*>   m_globalMaterials;
-        IMaterial*                      m_activeGlobalMaterial = nullptr; // If this is not null the scene should be rendered just with this material
+        HashMap<StringID, std::shared_ptr<IMaterial>>   m_globalMaterials;
+        std::shared_ptr<IMaterial>                      m_activeGlobalMaterial = nullptr; // If this is not null the scene should be rendered just with this material
 
     private:
         void _OnWindowSizeChanged();

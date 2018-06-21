@@ -109,7 +109,7 @@ namespace Graphics {
                 case GPUCommand::DRAW_MESH:
                 {
                     auto& cmd = *reinterpret_cast<GPUC_DrawMesh*>( command.get() );
-                    _DrawMesh( cmd.mesh.get(), cmd.material.get(), cmd.modelMatrix, cmd.subMeshIndex );
+                    _DrawMesh( cmd.mesh.get(), cmd.material, cmd.modelMatrix, cmd.subMeshIndex );
                     break;
                 }
                 case GPUCommand::COPY_TEXTURE:
@@ -144,19 +144,19 @@ namespace Graphics {
                 {
                     auto& cmd = *reinterpret_cast<GPUC_DrawFullscreenQuad*>( command.get() );
                     D3D11_VIEWPORT vp = { 0, 0, (F32)renderContext.renderTarget->getWidth(), (F32)renderContext.renderTarget->getHeight(), 0, 1 };
-                    _DrawFullScreenQuad( cmd.material.get(), vp );
+                    _DrawFullScreenQuad( cmd.material, vp );
                     break;
                 }
                 case GPUCommand::RENDER_CUBEMAP:
                 {
                     auto& cmd = *reinterpret_cast<GPUC_RenderCubemap*>( command.get() );
-                    _RenderCubemap( cmd.cubemap.get(), cmd.material.get(), cmd.dstMip );
+                    _RenderCubemap( cmd.cubemap.get(), cmd.material, cmd.dstMip );
                     break;
                 }
                 case GPUCommand::BLIT:
                 {
                     auto& cmd = *reinterpret_cast<GPUC_Blit*>( command.get() );
-                    _Blit( cmd.src, cmd.dst, cmd.material.get() );
+                    _Blit( cmd.src, cmd.dst, cmd.material );
                     break;
                 }
                 case GPUCommand::SET_SCISSOR:
@@ -420,7 +420,7 @@ namespace Graphics {
     }
 
     //----------------------------------------------------------------------
-    void D3D11Renderer::_DrawMesh( IMesh* mesh, IMaterial* material, const DirectX::XMMATRIX& modelMatrix, U32 subMeshIndex )
+    void D3D11Renderer::_DrawMesh( IMesh* mesh, const std::shared_ptr<IMaterial>& material, const DirectX::XMMATRIX& modelMatrix, U32 subMeshIndex )
     {
         // Measuring per frame data
         m_frameInfo.drawCalls++;
@@ -437,13 +437,13 @@ namespace Graphics {
 
         if (m_activeGlobalMaterial)
         {
-            renderContext.BindShader( m_activeGlobalMaterial->getShader().get() );
+            renderContext.BindShader( m_activeGlobalMaterial->getShader() );
             renderContext.BindMaterial( m_activeGlobalMaterial );
         }
         else
         {
             // Bind shader + material
-            renderContext.BindShader( material->getShader().get() );
+            renderContext.BindShader( material->getShader() );
             renderContext.BindMaterial( material );
         }
 
@@ -569,7 +569,7 @@ namespace Graphics {
     }
 
     //----------------------------------------------------------------------
-    void D3D11Renderer::_RenderCubemap( ICubemap* cubemap, IMaterial* material, U32 dstMip )
+    void D3D11Renderer::_RenderCubemap( ICubemap* cubemap, const std::shared_ptr<IMaterial>& material, U32 dstMip )
     {
         DirectX::XMVECTOR directions[] = {
             { 1, 0, 0, 0 }, { -1,  0,  0, 0 },
@@ -619,7 +619,7 @@ namespace Graphics {
     }
 
     //----------------------------------------------------------------------
-    void D3D11Renderer::_Blit( RenderTexturePtr src, RenderTexturePtr dst, IMaterial* material )
+    void D3D11Renderer::_Blit( RenderTexturePtr src, RenderTexturePtr dst, const std::shared_ptr<IMaterial>& material )
     {
         if (renderContext.renderTarget == SCREEN_BUFFER && dst == SCREEN_BUFFER)
             LOG_WARN_RENDERING( "D3D11[Blit]: Target texture was previously screen, so the content will probably be overriden. This can"
@@ -664,9 +664,9 @@ namespace Graphics {
     }
 
     //----------------------------------------------------------------------
-    void D3D11Renderer::_DrawFullScreenQuad( IMaterial* material, const D3D11_VIEWPORT& viewport )
+    void D3D11Renderer::_DrawFullScreenQuad( const std::shared_ptr<IMaterial>& material, const D3D11_VIEWPORT& viewport )
     {
-        renderContext.BindShader( material->getShader().get() );
+        renderContext.BindShader( material->getShader() );
         renderContext.BindMaterial( material );
 
         g_pImmediateContext->RSSetViewports( 1, &viewport );
@@ -679,7 +679,7 @@ namespace Graphics {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    void D3D11Renderer::RenderContext::BindShader( IShader* shader )
+    void D3D11Renderer::RenderContext::BindShader( const std::shared_ptr<IShader>& shader )
     {
         // Don't bind same shader shader again
         if(shader == m_shader)
@@ -694,7 +694,7 @@ namespace Graphics {
     }
 
     //----------------------------------------------------------------------
-    void D3D11Renderer::RenderContext::BindMaterial( IMaterial* material )
+    void D3D11Renderer::RenderContext::BindMaterial( const std::shared_ptr<IMaterial>& material )
     {
         // Don't bind same material again
         if (material == m_material)
