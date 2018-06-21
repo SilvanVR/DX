@@ -16,7 +16,7 @@ namespace Core { namespace Input {
 
         //----------------------------------------------------------------------
         Keyboard::Keyboard( OS::Window* window )
-            : IChannelUser((InputChannels)EInputChannel::All), m_window( window )
+            : IChannelUser( (InputChannels)EInputChannel::Default ), m_window( window )
         {
             // Subscribe to all window events
             m_window->setCallbackKey( BIND_THIS_FUNC_3_ARGS( &Keyboard::_KeyCallback ) );

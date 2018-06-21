@@ -67,7 +67,12 @@ namespace Core { namespace Input {
         static InputChannels lastChannelMaskMouse       = ~0;
         static InputChannels lastChannelMaskKeyboard    = ~0;
         static bool lastMouseFPSMode = false;
+        static bool isOpen = false;
 
+        if (isOpen == openConsole)
+            return;
+
+        isOpen = openConsole;
         if ( openConsole )
         {
             lastChannelMaskKeyboard = m_keyboard->getChannelMask();

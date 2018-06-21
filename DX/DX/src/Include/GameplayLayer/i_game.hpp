@@ -25,6 +25,7 @@
 #include "Components/Rendering/point_light.h"
 #include "Components/Rendering/spot_light.h"
 #include "Components/billboard.h"
+#include "Components/Rendering/gui.h"
 
 class IGame : public Core::CoreEngine
 {

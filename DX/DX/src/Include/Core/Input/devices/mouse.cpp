@@ -16,7 +16,7 @@ namespace Core { namespace Input {
 
     //----------------------------------------------------------------------
     Mouse::Mouse( OS::Window* window )
-        : IChannelUser( (InputChannels)EInputChannel::All ), m_window( window )
+        : IChannelUser( (InputChannels)EInputChannel::Default ), m_window( window )
     {
         // Zero out arrays
         memset( m_mouseKeyPressed, 0, MAX_MOUSE_KEYS * sizeof( bool ) );

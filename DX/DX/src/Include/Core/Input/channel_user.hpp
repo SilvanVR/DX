@@ -23,12 +23,27 @@ namespace Core { namespace Input {
         //----------------------------------------------------------------------
         // Modifies the channel mask for this device.
         //----------------------------------------------------------------------
-        inline void setChannels(InputChannels channelMask) { m_channelMask = channelMask; }
+        inline void setChannels(InputChannels channelMask) { m_channelMask; m_channelMask = channelMask; }
 
         //----------------------------------------------------------------------
         // Enables the given channel.
         //----------------------------------------------------------------------
-        inline void setChannel(EInputChannel channel) { m_channelMask |= (U32)channel; }
+        inline void setChannel(EInputChannel channel) {m_channelMask |= (U32)channel; }
+
+        //----------------------------------------------------------------------
+        // Disables the given channel.
+        //----------------------------------------------------------------------
+        inline void unsetChannel(EInputChannel channel) { m_channelMask &= ~((U32)channel); }
+
+        //----------------------------------------------------------------------
+        // Sets the given channel exclusively.
+        //----------------------------------------------------------------------
+        inline void claimChannel(EInputChannel channel) { m_channelMask = (U32)channel; }
+
+        //----------------------------------------------------------------------
+        // Sets the given channel exclusively.
+        //----------------------------------------------------------------------
+        inline void restoreDefault() { m_channelMask = (U32)EInputChannel::Default; }
 
         //----------------------------------------------------------------------
         // @Return: Current channel mask.

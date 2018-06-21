@@ -36,7 +36,9 @@ namespace Core { namespace Input {
         Eight   = 1 << 8,
         Nine    = 1 << 9,
         Ten     = 1 << 10,
+        GUI     = 1 << 30,  // GUI channel
         Console = 1 << 31,  // Console channel. Used exclusively for the console. Basically disables every input except for the console.
+        Default = Master | One | Two | Three | Four | Five | Six | Seven | Eight | Nine | Ten,
         All     = ~0
     };
 

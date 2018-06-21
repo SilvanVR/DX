@@ -156,6 +156,9 @@
     <ClCompile Include="src\Include\Ext\ImGUI\imgui_draw.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Include\GameplayLayer\Components\Rendering\gui.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\stdafx.h">
@@ -345,6 +348,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Include\Ext\ImGUI\stb_truetype.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Include\GameplayLayer\Components\Rendering\gui.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
