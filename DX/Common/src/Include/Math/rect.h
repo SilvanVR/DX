@@ -21,6 +21,6 @@ namespace Math
         String toString() { return "Left: " + TS(left) + " Right: " + TS(right) + " Bottom: " + TS(bottom) + " Top: " + TS(top); }
     };
 
-    using Rect = RectT<long>;
+    using Rect = RectT<I32>;
 
 }

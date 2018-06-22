@@ -28,13 +28,11 @@ namespace ImGui
 namespace Components {
 
     //----------------------------------------------------------------------
-    GUI::GUI()  // Listen on the master + gui-channel. Switch to GUI-channel if imgui wants input
-        : IMouseListener( (Core::Input::InputChannels)Core::Input::EInputChannel::GUI | 
-                          (Core::Input::InputChannels)Core::Input::EInputChannel::Master)
+    GUI::GUI()  // Listen only on gui-channel.
+        : IMouseListener( (Core::Input::InputChannels)Core::Input::EInputChannel::GUI ),
+            IKeyListener( (Core::Input::InputChannels)Core::Input::EInputChannel::GUI )
     {
         m_imguiContext = ImGui::CreateContext();
-        MOUSE.setChannel( Core::Input::EInputChannel::GUI );
-        KEYBOARD.setChannel( Core::Input::EInputChannel::GUI );
     }
 
     //----------------------------------------------------------------------
@@ -56,8 +54,29 @@ namespace Components {
         m_camera->addCommandBuffer( &m_cmd, Components::CameraEvent::Overlay );
 
         // IMGUI
-        ImGui::SetCurrentContext(m_imguiContext);
+        ImGui::SetCurrentContext( m_imguiContext );
         ImGuiIO& io = ImGui::GetIO();
+        io.KeyMap[ImGuiKey_Tab]         = (I32)Key::Tab;
+        io.KeyMap[ImGuiKey_LeftArrow]   = (I32)Key::Left;
+        io.KeyMap[ImGuiKey_RightArrow]  = (I32)Key::Right;
+        io.KeyMap[ImGuiKey_UpArrow]     = (I32)Key::Up;
+        io.KeyMap[ImGuiKey_DownArrow]   = (I32)Key::Down;
+        io.KeyMap[ImGuiKey_PageUp]      = (I32)Key::PageUp;
+        io.KeyMap[ImGuiKey_PageDown]    = (I32)Key::PageDown;
+        io.KeyMap[ImGuiKey_Home]        = (I32)Key::Home;
+        io.KeyMap[ImGuiKey_End]         = (I32)Key::End;
+        io.KeyMap[ImGuiKey_Insert]      = (I32)Key::Insert;
+        io.KeyMap[ImGuiKey_Delete]      = (I32)Key::Delete;
+        io.KeyMap[ImGuiKey_Backspace]   = (I32)Key::Backspace;
+        io.KeyMap[ImGuiKey_Space]       = (I32)Key::Space;
+        io.KeyMap[ImGuiKey_Enter]       = (I32)Key::Enter;
+        io.KeyMap[ImGuiKey_Escape]      = (I32)Key::Escape;
+        io.KeyMap[ImGuiKey_A]           = (I32)Key::A;
+        io.KeyMap[ImGuiKey_C]           = (I32)Key::C;
+        io.KeyMap[ImGuiKey_V]           = (I32)Key::V;
+        io.KeyMap[ImGuiKey_X]           = (I32)Key::X;
+        io.KeyMap[ImGuiKey_Y]           = (I32)Key::Y;
+        io.KeyMap[ImGuiKey_Z]           = (I32)Key::Z;
 
         // Build and load the texture atlas into a texture
         unsigned char* pixels = NULL;
@@ -78,8 +97,8 @@ namespace Components {
     //----------------------------------------------------------------------
     void GUI::preTick( Time::Seconds d )
     {
-        // Needs to be in pretick, so it can disable the input early enough if mouse is over an imgui window
-        _UpdateIMGUI((F32)d);
+        // Needs to be in pretick, so it can disable the input early enough if this gui wants to have the input
+        _UpdateIMGUI( (F32)d );
     }
 
     //----------------------------------------------------------------------
@@ -134,8 +153,8 @@ namespace Components {
                         indices[i] = idx_buffer[i];
 
                     ImVec2 pos = draw_data->DisplayPos;
-                    Math::Rect r = { (long)(pcmd->ClipRect.x - pos.x), (long)(pcmd->ClipRect.y - pos.y), 
-                                     (long)(pcmd->ClipRect.z - pos.x), (long)(pcmd->ClipRect.w - pos.y) };
+                    Math::Rect r = { (I32)(pcmd->ClipRect.x - pos.x), (I32)(pcmd->ClipRect.y - pos.y),
+                                     (I32)(pcmd->ClipRect.z - pos.x), (I32)(pcmd->ClipRect.w - pos.y) };
                     m_cmd.setScissor( r );
 
                     // Create a new material and set texture
@@ -219,6 +238,38 @@ namespace Components {
         io.MouseWheel = delta;
     }
 
+    //----------------------------------------------------------------------
+    void GUI::OnKeyPressed( Key key, KeyMod mod )
+    {
+        ImGui::SetCurrentContext( m_imguiContext );
+        ImGuiIO& io = ImGui::GetIO();
+        if (mod & KeyModBits::CONTROL)  io.KeyCtrl  = true;
+        if (mod & KeyModBits::ALT)      io.KeyAlt   = true;
+        if (mod & KeyModBits::SHIFT)    io.KeyShift = true;
+        io.KeysDown[ (I32)key ] = true;
+    }
+
+
+    //----------------------------------------------------------------------
+    void GUI::OnKeyReleased( Key key, KeyMod mod )
+    {
+        ImGui::SetCurrentContext( m_imguiContext );
+        ImGuiIO& io = ImGui::GetIO();
+        if (mod & KeyModBits::CONTROL)  io.KeyCtrl  = false;
+        if (mod & KeyModBits::ALT)      io.KeyAlt   = false;
+        if (mod & KeyModBits::SHIFT)    io.KeyShift = false;
+        io.KeysDown[ (I32)key ] = false;
+    }
+
+    //----------------------------------------------------------------------
+    void GUI::OnChar( char c )
+    {
+        ImGui::SetCurrentContext( m_imguiContext );
+        ImGuiIO& io = ImGui::GetIO();
+
+        io.AddInputCharacter( c );
+    }
+
     //**********************************************************************
     // PRIVATE
     //**********************************************************************
@@ -226,28 +277,47 @@ namespace Components {
     //----------------------------------------------------------------------
     void GUI::_UpdateIMGUI( F32 delta )
     {
-        ImGui::SetCurrentContext(m_imguiContext);
+        ImGui::SetCurrentContext( m_imguiContext );
         ImGuiIO& io = ImGui::GetIO();
         io.DeltaTime = delta;
 
-        auto& vp = m_camera->getViewport();
         auto& rt = m_camera->getRenderTarget();
         io.DisplaySize.x = (F32)rt->getWidth();
         io.DisplaySize.y = (F32)rt->getHeight();
 
+        // Update mouse-pos @TODO: Transform camera ray to render-target if camera dont render to screen
+        auto& vp = m_camera->getViewport();
+        F32 mouseX = (F32)MOUSE.getMousePos().x - m_camera->getRenderTarget()->getWidth() * vp.topLeftX;
+        F32 mouseY = (F32)MOUSE.getMousePos().y - m_camera->getRenderTarget()->getHeight() * vp.topLeftY;
+
+        io.MousePos.x = mouseX * (1.0f / vp.width);
+        io.MousePos.y = mouseY * (1.0f / vp.height);
+
         using namespace Core::Input;
-        bool consoleIsOpen = MOUSE.getChannelMask() & (InputChannels)EInputChannel::Console;
+        bool consoleIsOpen = KEYBOARD.getChannelMask() & (InputChannels)EInputChannel::Console;
         if ( m_camera->isRenderingToScreen() && not consoleIsOpen )
         {
-            if (io.WantCaptureMouse) // Disable master channel
+            if (io.WantCaptureMouse) // Disable master channel + enable GUI Channel
+            {
+                MOUSE.setChannel( EInputChannel::GUI );
                 MOUSE.unsetChannel( EInputChannel::Master );
+            }
             else
+            {
                 MOUSE.setChannel( EInputChannel::Master );
+                MOUSE.unsetChannel( EInputChannel::GUI );
+            }
 
-            if (io.WantCaptureKeyboard) // Disable master channel
+            if (io.WantCaptureKeyboard) // Disable master channel + enable GUI Channel
+            {
+                KEYBOARD.setChannel( EInputChannel::GUI );
                 KEYBOARD.unsetChannel( EInputChannel::Master );
+            }
             else
+            {
                 KEYBOARD.setChannel( EInputChannel::Master );
+                KEYBOARD.unsetChannel( EInputChannel::GUI );
+            }
         }
     }
 

@@ -1062,6 +1062,20 @@ public:
                 cam->setClearColor(Color(color, true));
         });
 
+        //auto go2 = createGameObject("Camera2");
+        //auto cam2 = go2->addComponent<Components::Camera>();
+        //auto renderTex = RESOURCES.createRenderTexture(1024, 720, Graphics::DepthFormat::None, Graphics::TextureFormat::BGRA32, 2, Graphics::MSAASamples::One);
+        //cam2->setRenderTarget(renderTex);
+        //go2->addComponent<Components::GUI>();
+        //go2->addComponent<Components::GUIDemoWindow>();
+
+        //auto rtGO = createGameObject("GUIScreen");
+        //auto guiScreenMat = RESOURCES.createMaterial(ASSETS.getShader("/shaders/tex.shader"));
+        //guiScreenMat->setTexture("tex", cam2->getRenderTarget()->getColorBuffer());
+        //guiScreenMat->setColor("tintColor", Color::WHITE);
+        //rtGO->addComponent<Components::MeshRenderer>(Core::MeshGenerator::CreatePlane(), guiScreenMat);
+        //rtGO->getTransform()->position = { 0, 1, 0 };
+
         LOG("SceneGUI initialized!", Color::RED);
     }
 

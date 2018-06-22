@@ -24,7 +24,7 @@ namespace Components {
     class Camera;
 
     //**********************************************************************
-    class GUI : public Components::IComponent, public Core::Input::IMouseListener
+    class GUI : public Components::IComponent, public Core::Input::IMouseListener, public Core::Input::IKeyListener
     {
     public:
         GUI();
@@ -44,6 +44,13 @@ namespace Components {
         void OnMousePressed(MouseKey key, KeyMod mod) override;
         void OnMouseReleased(MouseKey key, KeyMod mod) override;
         void OnMouseWheel(I16 delta) override;
+
+        //----------------------------------------------------------------------
+        // IKeyListener Interface
+        //----------------------------------------------------------------------
+        void OnKeyPressed(Key key, KeyMod mod) override;
+        void OnKeyReleased(Key key, KeyMod mod) override;
+        void OnChar(char c) override;
 
     private:
         ImGuiContext*           m_imguiContext = nullptr;
