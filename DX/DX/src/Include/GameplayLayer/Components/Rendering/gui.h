@@ -118,5 +118,12 @@ namespace Components {
         }
     };
 
+    //**********************************************************************
+    class GUIFPS : public Components::ImGUIRenderComponent
+    {
+    public:
+        void OnImGUI() override;
+    };
+
 
 } // End namespaces

@@ -10,6 +10,8 @@
 
 #include "Time/clock.h"
 
+
+
 //----------------------------------------------------------------------
 // SCENES
 //----------------------------------------------------------------------
@@ -87,6 +89,7 @@ public:
 
         go->addComponent<Components::GUI>();
         go->addComponent<Components::GUIImage>(ASSETS.getTexture2D("/textures/nico.jpg"), 0.2f);
+        go->addComponent<Components::GUIFPS>();
 
         LOG("TestScene initialized!", Color::RED);
     }

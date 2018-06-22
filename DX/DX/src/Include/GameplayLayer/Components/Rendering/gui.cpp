@@ -321,5 +321,42 @@ namespace Components {
         }
     }
 
+    //**********************************************************************
+    // GUI COMPONENTS
+    //**********************************************************************
+
+    //----------------------------------------------------------------------
+    void GUIFPS::OnImGUI()
+    {
+        const float DISTANCE = 10.0f;
+        static int corner = 0;
+        ImVec2 window_pos = ImVec2((corner & 1) ? ImGui::GetIO().DisplaySize.x - DISTANCE : DISTANCE, (corner & 2) ? ImGui::GetIO().DisplaySize.y - DISTANCE : DISTANCE);
+        ImVec2 window_pos_pivot = ImVec2((corner & 1) ? 1.0f : 0.0f, (corner & 2) ? 1.0f : 0.0f);
+        if (corner != -1)
+            ImGui::SetNextWindowPos(window_pos, ImGuiCond_Always, window_pos_pivot);
+        ImGui::SetNextWindowBgAlpha(0.3f); // Transparent background
+
+        static bool p_open = false;
+        if (ImGui::Begin("Stats", &p_open, (corner != -1 ? ImGuiWindowFlags_NoMove : 0) | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav))
+        {
+            U32 fps = PROFILER.getFPS();
+            F64 delta = (1000.0 / fps);
+            ImGui::Text("FPS: %u (%.3f ms)", fps, delta);
+            static bool vsync = Locator::getRenderer().isVSyncEnabled();
+            ImGui::Checkbox("Vsync", &vsync); ImGui::SameLine(150);
+            Locator::getRenderer().setVSync(vsync);
+            if (ImGui::BeginPopupContextWindow())
+            {
+                if (ImGui::MenuItem("Custom", NULL, corner == -1)) corner = -1;
+                if (ImGui::MenuItem("Top-left", NULL, corner == 0)) corner = 0;
+                if (ImGui::MenuItem("Top-right", NULL, corner == 1)) corner = 1;
+                if (ImGui::MenuItem("Bottom-left", NULL, corner == 2)) corner = 2;
+                if (ImGui::MenuItem("Bottom-right", NULL, corner == 3)) corner = 3;
+                if (p_open && ImGui::MenuItem("Close")) p_open = false;
+                ImGui::EndPopup();
+            }
+            ImGui::End();
+        }
+    }
 
 } // End namespaces
