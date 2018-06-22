@@ -37,9 +37,8 @@ public:
     //----------------------------------------------------------------------
     // Construct a new color based on the internal representation.
     // Default is BGRA, that means 0xFF0000 = RED, 0x0000FF = BLUE etc.
-    // Alpha will be always set to 255.
     //----------------------------------------------------------------------
-    explicit Color(U32 color);
+    explicit Color(U32 color, bool setAlphaToMax = true);
 
     //----------------------------------------------------------------------
     // Constructs a new color from a hexadecimal representation.

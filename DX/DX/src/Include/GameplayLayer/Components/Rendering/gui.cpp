@@ -136,7 +136,7 @@ namespace Components {
                 auto& vertex = vtx_buffer[v];
                 vertices.push_back( { vertex.pos.x, vertex.pos.y, 0.0f } );
                 uvs.push_back( { vertex.uv.x, vertex.uv.y } );
-                colors.push_back( Color( vertex.col ) );
+                colors.push_back( Color(vertex.col, false) );
             }
 
             for (I32 cmd_i = 0; cmd_i < cmd_list->CmdBuffer.Size; cmd_i++)
@@ -343,8 +343,9 @@ namespace Components {
             F64 delta = (1000.0 / fps);
             ImGui::Text("FPS: %u (%.3f ms)", fps, delta);
             static bool vsync = Locator::getRenderer().isVSyncEnabled();
-            ImGui::Checkbox("Vsync", &vsync); ImGui::SameLine(150);
+            ImGui::Checkbox("Vsync", &vsync);
             Locator::getRenderer().setVSync(vsync);
+
             if (ImGui::BeginPopupContextWindow())
             {
                 if (ImGui::MenuItem("Custom", NULL, corner == -1)) corner = -1;

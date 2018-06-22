@@ -54,10 +54,11 @@ Color::Color() : m_componentsAsInt(~0)
 }
 
 //---------------------------------------------------------------------------
-Color::Color( U32 color )
+Color::Color( U32 color, bool setAlphaToMax )
     : m_componentsAsInt(color)
 {
-    setAlpha( 255 );
+    if (setAlphaToMax)
+        setAlpha( 255 );
 }
 
 //---------------------------------------------------------------------------
