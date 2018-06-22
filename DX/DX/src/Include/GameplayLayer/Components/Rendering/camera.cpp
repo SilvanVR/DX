@@ -11,6 +11,8 @@
 #include "Math/math_utils.h"
 #include "Core/locator.h"
 #include "Core/layer_defines.hpp"
+#include "GameplayLayer/i_scene.h"
+
 
 namespace Components {
 
@@ -52,7 +54,7 @@ namespace Components {
     }
 
     //----------------------------------------------------------------------
-    Graphics::CommandBuffer& Camera::recordGraphicsCommands( F32 lerp, const ArrayList<IRenderComponent*>& rendererComponents )
+    void Camera::render( F32 lerp, const IScene& scene )
     {
         // Update camera 
         auto transform = getGameObject()->getTransform();
@@ -68,7 +70,7 @@ namespace Components {
 
         // Record commands for every rendering component
         Graphics::CommandBuffer tmpBuffer;
-        for ( auto& renderer : rendererComponents )
+        for ( auto& renderer : scene.getComponentManager().getRenderer() )
         {
             if ( not renderer->isActive() )
                 continue;
@@ -105,7 +107,8 @@ namespace Components {
         // Add an end camera command
         m_commandBuffer.endCamera( &m_camera );
 
-        return m_commandBuffer;
+        // Submit command buffer to render engine
+        Locator::getRenderer().dispatch( m_commandBuffer );
     }
 
     //**********************************************************************

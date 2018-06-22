@@ -115,17 +115,9 @@ namespace Core {
         static const StringID TIME_NAME = SID( "_Time" );
         graphicsEngine.setGlobalFloat( TIME_NAME, (F32)TIME.getTime() );
 
-        // Fetch all renderer components
-        auto& renderers = SCENE.getComponentManager().getRenderer();
-
-        // Create rendering commands for each camera and submit them to the rendering engine
+        // Render each camera
         for ( auto& cam : SCENE.getComponentManager().getCameras() )
-        {
-            auto& cmd = cam->recordGraphicsCommands( lerp, renderers );
-
-            // Send command buffer to rendering engine for execution
-            graphicsEngine.dispatch( cmd );
-        }
+            cam->render( lerp, SCENE );
 
         // Present backbuffer to screen
         graphicsEngine.present();

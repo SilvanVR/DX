@@ -12,6 +12,7 @@
 #include "Graphics/camera.h"
 
 namespace Core { class CoreEngine; }
+class IScene;
 
 namespace Components {
 
@@ -22,8 +23,6 @@ namespace Components {
         Overlay,
         MAX_EVENTS
     };
-
-    class IRenderComponent;
 
     //**********************************************************************
     class Camera : public IComponent
@@ -109,6 +108,11 @@ namespace Components {
         //----------------------------------------------------------------------
         bool cull(const Math::Vec3& pos, F32 radius) const;
 
+        //----------------------------------------------------------------------
+        // Renders the given scene
+        //----------------------------------------------------------------------
+        void render(F32 lerp, const IScene& scene);
+
     private:
         Graphics::Camera            m_camera;
 
@@ -127,10 +131,6 @@ namespace Components {
 
         // Additional attached command buffer
         HashMap<CameraEvent, ArrayList<Graphics::CommandBuffer*>> m_additionalCommandBuffers;
-
-        //----------------------------------------------------------------------
-        friend class Core::CoreEngine;
-        Graphics::CommandBuffer& recordGraphicsCommands(F32 lerp, const ArrayList<IRenderComponent*>& rendererComponents);
 
         //----------------------------------------------------------------------
         // Sorts all rendering commands from the given command buffer by material, renderqueue and camera distance

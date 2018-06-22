@@ -80,13 +80,6 @@ public:
         sun->getTransform()->rotation = Math::Quat::LookRotation(Math::Vec3{ 0,-1, 1 });
         //sun->addComponent<ConstantRotation>(15.0f, 0.0f, 0.0f);
 
-        auto depthMapGO = createGameObject("DepthMapGO");
-        auto depthMapMaterial = RESOURCES.createMaterial(ASSETS.getShader("/shaders/tex.shader"));
-        depthMapMaterial->setTexture("tex", ASSETS.getTexture2D("/textures/nico.jpg"));
-        depthMapMaterial->setColor("tintColor", Color::WHITE);
-        depthMapGO->addComponent<Components::MeshRenderer>(Core::MeshGenerator::CreatePlane(), depthMapMaterial);
-        depthMapGO->getTransform()->position = { -5, 1, 0 };
-
         go->addComponent<Components::GUI>();
         go->addComponent<Components::GUIImage>(ASSETS.getTexture2D("/textures/nico.jpg"), 0.2f);
         go->addComponent<Components::GUIFPS>();

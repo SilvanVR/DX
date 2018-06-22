@@ -159,8 +159,8 @@ namespace Graphics { namespace D3D11 {
         // If multisampling was requested create an additional buffer in which we render, but have to resolve it before using it in a shader
         if ( isMultisampled() )
         {
-            textureDesc.SampleDesc      = { m_samplingDescription.count, m_samplingDescription.quality };
-            textureDesc.BindFlags       = D3D11_BIND_RENDER_TARGET;
+            textureDesc.SampleDesc = { m_samplingDescription.count, m_samplingDescription.quality };
+            textureDesc.BindFlags  = D3D11_BIND_RENDER_TARGET;
             HR( g_pDevice->CreateTexture2D( &textureDesc, NULL, &m_pRenderBufferMS ) );
             HR( g_pDevice->CreateRenderTargetView( m_pRenderBufferMS, NULL, &m_pRenderTargetView ) );
         }

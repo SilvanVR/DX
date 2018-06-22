@@ -30,32 +30,21 @@ public:
     virtual void shutdown() = 0;
 
     //----------------------------------------------------------------------
-    const StringID                  getName()           const { return m_name; }
-    U32                             numGameObjects()    const { return static_cast<U32>( m_gameObjects.size() ); }
-    const ArrayList<GameObject*>&   getGameObjects()    const { return m_gameObjects; }
+    const StringID                      getName()               const { return m_name; }
+    U32                                 numGameObjects()        const { return static_cast<U32>( m_gameObjects.size() ); }
+    const ArrayList<GameObject*>&       getGameObjects()        const { return m_gameObjects; }
+    const Components::ComponentManager& getComponentManager()   const { return m_componentManager; }
+    Components::ComponentManager&       getComponentManager()         { return m_componentManager; }
 
     //----------------------------------------------------------------------
-    // Creates a new gameobject, which belongs to this scene.
-    //----------------------------------------------------------------------
-    GameObject*                     createGameObject(CString name = "NO NAME");
-
-    //----------------------------------------------------------------------
-    // Destroy the given gameobject
-    //----------------------------------------------------------------------
-    void                            destroyGameObject(GameObject* go);
-
-    //----------------------------------------------------------------------
-    // Find a gameobject with the given name in this scene.
-    //----------------------------------------------------------------------
-    GameObject*                     findGameObject(CString name);
+    GameObject*     createGameObject(CString name = "NO NAME");
+    void            destroyGameObject(GameObject* go);
+    GameObject*     findGameObject(CString name);
 
     //----------------------------------------------------------------------
     // Returns the first camera component which renders to the screen.
     //----------------------------------------------------------------------
-    Components::Camera*             getMainCamera();
-
-    //----------------------------------------------------------------------
-    Components::ComponentManager&   getComponentManager(){ return m_componentManager; }
+    Components::Camera* getMainCamera();
 
 private:
     StringID                        m_name;
