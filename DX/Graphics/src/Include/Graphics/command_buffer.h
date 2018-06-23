@@ -24,11 +24,16 @@ namespace Graphics {
         ~CommandBuffer() = default;
 
         //----------------------------------------------------------------------
+        // Sorts all commands by their respective order in the type enum.
+        //----------------------------------------------------------------------
+        void sortCommands();
+
+        //----------------------------------------------------------------------
         // Sort the draw commands in the most efficient way:
         //  - All drawLight() commands will come first
         //  - All drawMesh() commands are sorted first by material (less state changes)
         //    > second by camera distance if the material has possibly transparent rendercalls (determine by shaderqueue)
-        //  - Post-Processing commands come last
+        //  - It assumes every draw command is subsequently
         //----------------------------------------------------------------------
         void sortDrawCommands(const Math::Vec3& camPos);
 

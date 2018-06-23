@@ -136,7 +136,7 @@ public:
         Locator::getRenderer().setVSync(true);
         Locator::getRenderer().setGlobalFloat(SID("_Ambient"), 0.5f);
 
-        Locator::getSceneManager().LoadSceneAsync(new TransparencyScene());
+        Locator::getSceneManager().LoadSceneAsync(new TestScene());
     }
 
     //----------------------------------------------------------------------

@@ -34,6 +34,14 @@ namespace Graphics {
     }
 
     //----------------------------------------------------------------------
+    void CommandBuffer::sortCommands()
+    {
+        std::sort( m_gpuCommands.begin(), m_gpuCommands.end(), [](const std::shared_ptr<Graphics::GPUCommandBase>& c1, const std::shared_ptr<Graphics::GPUCommandBase>& c2) {
+            return c1->getType() < c2->getType();
+        } );
+    }
+
+    //----------------------------------------------------------------------
     void CommandBuffer::sortDrawCommands( const Math::Vec3& cameraPos )
     {
         // Sort draw commands by renderqueue first

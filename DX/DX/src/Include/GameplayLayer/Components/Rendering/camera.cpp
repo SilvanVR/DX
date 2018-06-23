@@ -81,7 +81,7 @@ namespace Components {
             // Check if component is visible
             bool isVisible = renderer->cull( *this );
             if (isVisible)
-                renderer->recordGraphicsCommands(cmd, lerp );
+                renderer->recordGraphicsCommands( cmd, lerp );
         }
 
         // Merge all geometry commands

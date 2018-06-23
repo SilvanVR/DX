@@ -27,18 +27,18 @@ namespace Graphics {
     //----------------------------------------------------------------------
     enum class GPUCommand
     {
-        UNKNOWN,
-        DRAW_MESH,
+        UNKNOWN = 0,
         SET_CAMERA,
+        SET_SCISSOR,
+        SET_CAMERA_MATRIX,
+        SET_RENDER_TARGET,
+        DRAW_LIGHT,
+        DRAW_MESH,
         END_CAMERA,
         COPY_TEXTURE,
-        DRAW_LIGHT,
-        SET_RENDER_TARGET,
-        DRAW_FULLSCREEN_QUAD,
         RENDER_CUBEMAP,
+        DRAW_FULLSCREEN_QUAD,
         BLIT,
-        SET_SCISSOR,
-        SET_CAMERA_MATRIX
     };
 
     //**********************************************************************

@@ -25,3 +25,4 @@
 *.sbr
 *.bsc
 /DX/EngineTest/res/models/sponza
+/DX/EngineTest/imgui.ini
