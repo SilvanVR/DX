@@ -24,6 +24,15 @@ namespace Graphics {
         ~CommandBuffer() = default;
 
         //----------------------------------------------------------------------
+        // Sort the draw commands in the most efficient way:
+        //  - All drawLight() commands will come first
+        //  - All drawMesh() commands are sorted first by material (less state changes)
+        //    > second by camera distance if the material has possibly transparent rendercalls (determine by shaderqueue)
+        //  - Post-Processing commands come last
+        //----------------------------------------------------------------------
+        void sortDrawCommands(const Math::Vec3& camPos);
+
+        //----------------------------------------------------------------------
         // Add all commands from the given cmd into this one
         //----------------------------------------------------------------------
         void merge(const CommandBuffer& cmd);
@@ -35,7 +44,6 @@ namespace Graphics {
 
         // <------------------------ GPU COMMANDS ----------------------------->
         const ArrayList<std::shared_ptr<GPUCommandBase>>& getGPUCommands() const { return m_gpuCommands; }
-        ArrayList<std::shared_ptr<GPUCommandBase>>& getGPUCommands() { return m_gpuCommands; }
         void drawMesh(const MeshPtr& mesh, const MaterialPtr& material, const DirectX::XMMATRIX& modelMatrix, I32 subMeshIndex);
         void setCamera(Camera* camera);
         void endCamera(Camera* camera);

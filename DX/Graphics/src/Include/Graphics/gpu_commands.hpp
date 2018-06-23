@@ -49,7 +49,7 @@ namespace Graphics {
         virtual ~GPUCommandBase() = default;
 
         //----------------------------------------------------------------------
-        GPUCommand getType() const { return m_type; }
+        GPUCommand  getType() const { return m_type; }
 
     private:
         GPUCommand m_type = GPUCommand::UNKNOWN;

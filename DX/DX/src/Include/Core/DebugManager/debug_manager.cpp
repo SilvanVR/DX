@@ -188,7 +188,7 @@ namespace Core { namespace Debug {
 
         // Re-Add the command buffer to the new cameras in the scene
         for ( auto& cam : SCENE.getComponentManager().getCameras() )
-            cam->addCommandBuffer( &m_commandBuffer );
+            cam->addCommandBuffer( &m_commandBuffer, Components::CameraEvent::Geometry );
     }
 
     //----------------------------------------------------------------------

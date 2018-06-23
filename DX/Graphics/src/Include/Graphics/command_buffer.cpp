@@ -6,7 +6,26 @@
     date: December 19, 2017
 **********************************************************************/
 
+#include "Logging/logging.h"
+
 namespace Graphics {
+
+    //----------------------------------------------------------------------
+    I32 getRenderQueue( const std::shared_ptr<GPUCommandBase>& cmd )
+    {
+        switch ( cmd->getType() )
+        {
+        case GPUCommand::DRAW_MESH:
+        {
+            auto drawCmd = std::reinterpret_pointer_cast<GPUC_DrawMesh>(cmd);
+            return drawCmd->material->getShader()->getRenderQueue();
+        }
+        case GPUCommand::DRAW_LIGHT:
+            return -8196; // return low enough so it is always before every draw command
+        }
+        LOG_WARN_RENDERING( "CommandBuffer::getRenderQueue(): Expected draw command but was not! Consult your local programmer to fix this!" );
+        return 0;
+    }
 
     //----------------------------------------------------------------------
     CommandBuffer::CommandBuffer()
@@ -15,9 +34,51 @@ namespace Graphics {
     }
 
     //----------------------------------------------------------------------
+    void CommandBuffer::sortDrawCommands( const Math::Vec3& cameraPos )
+    {
+        // Sort draw commands by renderqueue first
+        auto itBeginDraw = m_gpuCommands.begin();
+        while ( itBeginDraw != m_gpuCommands.end() && ((*itBeginDraw)->getType() != GPUCommand::DRAW_MESH && (*itBeginDraw)->getType() != GPUCommand::DRAW_LIGHT) )
+            itBeginDraw++;
+
+        auto itEndDraw = itBeginDraw;
+        while ( itEndDraw != m_gpuCommands.end() && ((*itEndDraw)->getType() == GPUCommand::DRAW_MESH || (*itEndDraw)->getType() == GPUCommand::DRAW_LIGHT) )
+            itEndDraw++;
+
+        std::sort( itBeginDraw, itEndDraw, [] (const std::shared_ptr<Graphics::GPUCommandBase>& c1, const std::shared_ptr<Graphics::GPUCommandBase>& c2) {
+            return getRenderQueue( c1 ) < getRenderQueue( c2 );
+        } );
+
+        // All draw commands are now ordered properly e.g. drawmesh by renderqueue
+        auto itBeginDrawTransparent = itBeginDraw;
+        while (itBeginDrawTransparent != m_gpuCommands.end() && 
+              ((*itBeginDrawTransparent)->getType() == GPUCommand::DRAW_MESH || 
+               (*itBeginDrawTransparent)->getType() == GPUCommand::DRAW_LIGHT) )
+        {
+            if ( getRenderQueue(*itBeginDrawTransparent) >= (I32)Graphics::RenderQueue::BackToFrontBoundary)
+                break;
+            itBeginDrawTransparent++;
+        }
+
+        // Sort transparent draw materials by camera distance
+        std::sort( itBeginDrawTransparent, itEndDraw, [cameraPos](const std::shared_ptr<Graphics::GPUCommandBase>& c1, const std::shared_ptr<Graphics::GPUCommandBase>& c2) {
+            auto d1 = std::reinterpret_pointer_cast<Graphics::GPUC_DrawMesh>( c1 );
+            auto d2 = std::reinterpret_pointer_cast<Graphics::GPUC_DrawMesh>( c2 );
+            auto pos = d1->modelMatrix.r[3];
+            auto pos2 = d2->modelMatrix.r[3];
+
+            auto camPos = DirectX::XMLoadFloat3( &cameraPos );
+            auto distance1 = DirectX::XMVector4LengthSq( DirectX::XMVectorSubtract( camPos, pos ) );
+            auto distance2 = DirectX::XMVector4LengthSq( DirectX::XMVectorSubtract( camPos, pos2 ) );
+
+            return DirectX::XMVector4Greater( distance1, distance2 );
+        } );
+    }
+
+    //----------------------------------------------------------------------
     void CommandBuffer::merge( const CommandBuffer& cmd )
     {
-        auto& commands = cmd.getGPUCommands();
+        auto& commands = cmd.m_gpuCommands;
         m_gpuCommands.insert( m_gpuCommands.end(), commands.begin(), commands.end() );
     }
 

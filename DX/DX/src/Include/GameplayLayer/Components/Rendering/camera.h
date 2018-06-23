@@ -69,14 +69,14 @@ namespace Components {
         // Returns the viewport in which this camera renders.
         // Note that the viewport is in normalized coordinates [0-1].
         //----------------------------------------------------------------------
-        const Graphics::ViewportRect&   getViewport()           const { return m_camera.getViewport(); }
-        Graphics::ViewportRect&         getViewport()                 { return m_camera.getViewport(); }
+        const Graphics::ViewportRect&   getViewport() const { return m_camera.getViewport(); }
+        Graphics::ViewportRect&         getViewport()       { return m_camera.getViewport(); }
 
         //----------------------------------------------------------------------
         // @Return:
         //  Target texture in which this camera renders.
         //----------------------------------------------------------------------
-        const RenderTexturePtr&         getRenderTarget() { return m_camera.getRenderTarget(); }
+        const RenderTexturePtr& getRenderTarget() { return m_camera.getRenderTarget(); }
 
         //----------------------------------------------------------------------
         // Set the render target in which this camera renders.
@@ -90,8 +90,6 @@ namespace Components {
         // Add an additional command buffer to this camera
         //----------------------------------------------------------------------
         void addCommandBuffer(Graphics::CommandBuffer* cmd, CameraEvent evt = CameraEvent::Geometry);
-
-        //----------------------------------------------------------------------
         void removeCommandBuffer(Graphics::CommandBuffer* cmd);
 
         //----------------------------------------------------------------------
@@ -126,16 +124,8 @@ namespace Components {
         enum side { LEFT = 0, RIGHT = 1, TOP = 2, BOTTOM = 3, BACK = 4, FRONT = 5 };
         std::array<Math::Vec4, 6>   m_planes;
 
-        // Contains commands to render one frame by one camera
-        Graphics::CommandBuffer     m_commandBuffer;
-
         // Additional attached command buffer
         HashMap<CameraEvent, ArrayList<Graphics::CommandBuffer*>> m_additionalCommandBuffers;
-
-        //----------------------------------------------------------------------
-        // Sorts all rendering commands from the given command buffer by material, renderqueue and camera distance
-        //----------------------------------------------------------------------
-        inline void _SortRenderCommands(const Graphics::CommandBuffer& cmd, const Math::Vec3& position);
 
         //----------------------------------------------------------------------
         void _UpdateCullingPlanes(const DirectX::XMMATRIX& viewProjection);
