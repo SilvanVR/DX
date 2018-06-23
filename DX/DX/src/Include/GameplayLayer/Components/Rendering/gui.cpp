@@ -148,23 +148,29 @@ namespace Components {
                 }
                 else
                 {
-                    ArrayList<U32> indices( pcmd->ElemCount );
-                    for (U32 i = 0; i < pcmd->ElemCount; i++)
-                        indices[i] = idx_buffer[i];
-
+                    // Set scissor
                     ImVec2 pos = draw_data->DisplayPos;
                     Math::Rect r = { (I32)(pcmd->ClipRect.x - pos.x), (I32)(pcmd->ClipRect.y - pos.y),
                                      (I32)(pcmd->ClipRect.z - pos.x), (I32)(pcmd->ClipRect.w - pos.y) };
                     m_cmd.setScissor( r );
 
-                    // Create a new material and set texture
-                    auto mat = RESOURCES.createMaterial( m_guiShader );
-
-                    TexturePtr* texture = static_cast<TexturePtr*>( pcmd->TextureId );
-                    mat->setTexture( SHADER_GUI_TEX_NAME, *texture );
-
+                    // Set indices
+                    ArrayList<U32> indices( pcmd->ElemCount );
+                    for (U32 i = 0; i < pcmd->ElemCount; i++)
+                        indices[i] = idx_buffer[i];
                     m_dynamicMesh->setIndices( indices, subMesh, Graphics::MeshTopology::Triangles, baseVertex );
-                    m_cmd.drawMesh( m_dynamicMesh, mat, DirectX::XMMatrixIdentity(), subMesh );
+
+                    // Draw mesh / Create material if not already present
+                    TexturePtr* texture = static_cast<TexturePtr*>( pcmd->TextureId );
+                    if ( auto it = m_cachedMaterials.find( texture ) == m_cachedMaterials.end() )
+                    {
+                        // Create a new material and set texture
+                        auto mat = RESOURCES.createMaterial( m_guiShader );
+                        mat->setTexture( SHADER_GUI_TEX_NAME, *texture );
+                        m_cachedMaterials[texture] = mat;
+                    }
+
+                    m_cmd.drawMesh( m_dynamicMesh, m_cachedMaterials[texture], DirectX::XMMatrixIdentity(), subMesh );
                     subMesh++;
                 }
                 idx_buffer += pcmd->ElemCount;

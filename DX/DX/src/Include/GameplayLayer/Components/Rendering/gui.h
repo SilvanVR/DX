@@ -60,6 +60,8 @@ namespace Components {
         Graphics::CommandBuffer m_cmd;
         Components::Camera*     m_camera;
 
+        std::unordered_map<TexturePtr*, MaterialPtr> m_cachedMaterials; // Saves created materials
+
         void _UpdateIMGUI(F32 delta);
 
         NULL_COPY_AND_ASSIGN(GUI)
