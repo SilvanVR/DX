@@ -39,6 +39,10 @@ namespace Components {
     GUI::~GUI()
     {
         ImGui::DestroyContext( m_imguiContext );
+        MOUSE.setChannel( Core::Input::EInputChannel::Master );
+        MOUSE.unsetChannel( Core::Input::EInputChannel::GUI );
+        KEYBOARD.setChannel( Core::Input::EInputChannel::Master );
+        KEYBOARD.unsetChannel( Core::Input::EInputChannel::GUI );
     }
 
     //**********************************************************************

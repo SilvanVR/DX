@@ -44,6 +44,13 @@ namespace Core {
     //----------------------------------------------------------------------
     void SceneManager::OnTick( Time::Seconds delta )
     {
+        // Pop old scene
+        if (popScene)
+        {
+            _PopScene();
+            popScene = false;
+        }
+
         // Transition to new scene if requested
         if (sceneToLoad != nullptr)
         {
@@ -91,11 +98,12 @@ namespace Core {
     void SceneManager::PopScene()
     {
         ASSERT( numScenes() > 0 && "No scene to delete exists." );
-        IScene* curScene = m_sceneStack.back();
-        curScene->shutdown();
-        delete curScene;
-        m_sceneStack.pop_back();
-        popScene = false;
+        if ( numScenes() == 1 )
+        {
+            LOG_WARN( "SceneManager::PopScene(): It's not allowed to pop the last remaining scene." );
+            return;
+        }
+        popScene = true;
     }
 
     //----------------------------------------------------------------------
@@ -123,13 +131,20 @@ namespace Core {
     // PRIVATE
     //**********************************************************************
 
+    //----------------------------------------------------------------------
     void SceneManager::_SwitchToScene( IScene* newScene )
     {
-        if (popScene)
-            PopScene();
-
         // Add new scene
         m_sceneStack.push_back( newScene );
+    }
+
+    //----------------------------------------------------------------------
+    void SceneManager::_PopScene()
+    {
+        IScene* curScene = m_sceneStack.back();
+        curScene->shutdown();
+        delete curScene;
+        m_sceneStack.pop_back();
     }
 
 

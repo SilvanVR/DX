@@ -35,8 +35,9 @@ namespace Core {
         void OnTick(Time::Seconds delta) override;
 
         //----------------------------------------------------------------------
-        IScene&     getCurrentScene()           { return *m_sceneStack.back(); }
-        U32         numScenes()         const   { return static_cast<U32>( m_sceneStack.size() ); }
+        IScene&                     getCurrentScene()           { return *m_sceneStack.back(); }
+        U32                         numScenes()         const   { return static_cast<U32>( m_sceneStack.size() ); }
+        const ArrayList<IScene*>&   getScenes()         const   { return m_sceneStack; }
 
         //----------------------------------------------------------------------
         // Push a new scene onto the scene-stack.
@@ -78,6 +79,7 @@ namespace Core {
 
         //----------------------------------------------------------------------
         void _SwitchToScene(IScene* newScene);
+        void _PopScene();
 
         NULL_COPY_AND_ASSIGN(SceneManager)
     };

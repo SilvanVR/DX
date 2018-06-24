@@ -357,3 +357,27 @@ class Tonemap : public PostProcess
 public:
     Tonemap() : PostProcess(ASSETS.getMaterial("/materials/post processing/tonemap.material")) {}
 };
+
+
+//**********************************************************************
+class GUISceneMenu : public Components::ImGUIRenderComponent
+{
+public:
+    void OnImGUI() override
+    {
+        ImGui::Begin("Scenes");
+        for (auto& scene : m_scenes)
+            if (ImGui::Button(scene.first.c_str()))
+                Locator::getSceneManager().LoadSceneAsync(scene.second());
+        ImGui::End();
+    }
+
+    template <typename T>
+    void registerScene(const String& name)
+    {
+        m_scenes.emplace_back(name, [] { return new T(); });
+    }
+
+private:
+    ArrayList<std::pair<String, std::function<IScene*()>>> m_scenes;
+};

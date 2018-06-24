@@ -2,6 +2,6 @@
 
 "shader" : "/shaders/tex.shader",
 "tintColor" : "#FFFFFF",
-"tex0" : "/textures/nico.jpg"
+"tex" : "/textures/nico.jpg"
 
 }

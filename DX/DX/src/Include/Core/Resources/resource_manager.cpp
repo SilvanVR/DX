@@ -361,7 +361,7 @@ namespace Core { namespace Resources {
             // Post process shader
             m_postProcessShader = ShaderPtr( Locator::getRenderer().createShader(), BIND_THIS_FUNC_1_ARGS( &ResourceManager::_DeleteShader ) );
             m_postProcessShader->setName( SHADER_POST_PROCESS_NAME );
-            m_postProcessShader->setRasterizationState({ Graphics::FillMode::Solid, Graphics::CullMode::None });
+            m_postProcessShader->setRasterizationState({ Graphics::FillMode::Solid, Graphics::CullMode::Front });
             m_postProcessShader->setDepthStencilState({ false, false });
 
             if ( not m_postProcessShader->compileFromSource( Graphics::ShaderSources::POST_PROCESS_VERTEX, Graphics::ShaderSources::POST_PROCESS_FRAGMENT, "main") )

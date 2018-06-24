@@ -103,6 +103,40 @@ public:
     void shutdown() override { LOG("TestScene Shutdown!", Color::RED); }
 };
 
+//----------------------------------------------------------------------
+class SceneGUISelectSceneMenu : public IScene
+{
+public:
+    SceneGUISelectSceneMenu() : IScene("SceneGUISelectSceneMenu") {}
+
+    void init() override
+    {
+        auto gui = createGameObject("GUI");
+        gui->addComponent<Components::Camera>();
+        gui->addComponent<Components::GUI>();
+
+        auto guiSceneMenu = gui->addComponent<GUISceneMenu>();
+        guiSceneMenu->registerScene<VertexGenScene>("Dynamic Vertex Buffer regeneration");
+        guiSceneMenu->registerScene<ScenePostProcessMultiCamera>("Multi Camera Post Processing");
+        guiSceneMenu->registerScene<TestScene>("Test Scene");
+        guiSceneMenu->registerScene<SceneGUI>("GUI Example");
+        guiSceneMenu->registerScene<SceneMirror>("Offscreen rendering on material");
+        guiSceneMenu->registerScene<ManyObjectsScene>("Many Objects!");
+        guiSceneMenu->registerScene<BlinnPhongLightingScene>("Blinn-Phong Lighting");
+        guiSceneMenu->registerScene<ScenePBRSpheres>("PBR Spheres");
+        guiSceneMenu->registerScene<ScenePBRPistol>("PBR Pistol + Dagger");
+        guiSceneMenu->registerScene<SponzaScene>("Sponza");
+        guiSceneMenu->registerScene<TransparencyScene>("Ordered Transparency");
+        guiSceneMenu->registerScene<SceneGraphScene>("SceneGraph");
+        guiSceneMenu->registerScene<BRDFLUTScene>("BRDFLut");
+        guiSceneMenu->registerScene<SceneFrustumVisualization>("Frustum Visualization");
+        guiSceneMenu->registerScene<TexArrayScene>("Texture arrays");
+        guiSceneMenu->registerScene<CubemapScene>("Cubemap");
+
+        LOG("SceneGUISelectSceneMenu initialized!", Color::RED);
+    }
+    void shutdown() override { LOG("SceneGUISelectSceneMenu Shutdown!", Color::RED); }
+};
 
 //----------------------------------------------------------------------
 // GAME
@@ -136,6 +170,7 @@ public:
         Locator::getRenderer().setVSync(true);
         Locator::getRenderer().setGlobalFloat(SID("_Ambient"), 0.5f);
 
+        //Locator::getSceneManager().LoadSceneAsync(new SceneGUISelectSceneMenu());
         Locator::getSceneManager().LoadSceneAsync(new TestScene());
     }
 
@@ -145,6 +180,9 @@ public:
         //clock.tick( delta );
         //LOG( TS( clock.getTime().value ) );
         //auto time = clock.getTime();
+
+        if (KEYBOARD.wasKeyPressed(Key::Backspace))
+            Locator::getSceneManager().LoadSceneAsync(new SceneGUISelectSceneMenu);
 
         if (KEYBOARD.wasKeyPressed(Key::One))
             Locator::getSceneManager().LoadSceneAsync(new VertexGenScene);

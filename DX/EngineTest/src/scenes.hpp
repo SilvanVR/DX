@@ -164,7 +164,7 @@ class ManyObjectsScene : public IScene
     U32 m_numObjects;
 
 public:
-    ManyObjectsScene(U32 numObjects) : IScene("MaterialTestScene"), m_numObjects(numObjects) {}
+    ManyObjectsScene(U32 numObjects = 10000) : IScene("MaterialTestScene"), m_numObjects(numObjects) {}
 
     void init() override
     {
@@ -377,37 +377,6 @@ public:
     void shutdown() override { LOG("TexArrayScene Shutdown!", Color::RED); }
 };
 
-class SceneStarCitizen : public IScene
-{
-public:
-    SceneStarCitizen() : IScene("SceneStarCitizen") {}
-
-    void init() override
-    {
-        // Camera
-        auto go = createGameObject("Camera");
-        auto cam = go->addComponent<Components::Camera>();
-        go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -4);
-        go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA);
-
-        //createGameObject("Grid")->addComponent<GridGeneration>(20);
-
-        auto planeMesh = Core::MeshGenerator::CreatePlane();
-
-        auto mat = ASSETS.getMaterial("/materials/star_citizen.material");
-        mat->getTexture("tex")->setClampMode(Graphics::TextureAddressMode::Clamp);
-
-        // GAMEOBJECT
-        auto go2 = createGameObject("Test2");
-        go2->addComponent<Components::MeshRenderer>(planeMesh, mat);
-        go2->getTransform()->scale = { 1, 1.3f, 1 };
-
-        LOG("SceneStarCitizen initialized!", Color::RED);
-    }
-
-    void shutdown() override { LOG("SceneStarCitizen Shutdown!", Color::RED); }
-};
-
 class SceneGraphScene : public IScene
 {
     GameObject* parent;
@@ -479,10 +448,10 @@ public:
 };
 
 
-class MultiCamera : public IScene
+class SceneFrustumVisualization : public IScene
 {
 public:
-    MultiCamera() : IScene("MultiCamera") {}
+    SceneFrustumVisualization() : IScene("SceneFrustumVisualization") {}
 
     void init() override
     {
@@ -511,10 +480,10 @@ public:
         auto go2 = createGameObject("Obj");
         go2->addComponent<Components::MeshRenderer>(mesh, RESOURCES.getColorMaterial());
 
-        LOG("MultiCamera initialized!", Color::RED);
+        LOG("SceneFrustumVisualization initialized!", Color::RED);
     }
 
-    void shutdown() override { LOG("MultiCamera Shutdown!", Color::RED); }
+    void shutdown() override { LOG("SceneFrustumVisualization Shutdown!", Color::RED); }
 };
 
 
@@ -671,7 +640,7 @@ public:
 
         Assets::BRDFLut brdfLut;
         auto planeMat = ASSETS.getMaterial("/materials/texture.material");
-        planeMat->setTexture("tex0", brdfLut.getTexture());
+        planeMat->setTexture("tex", brdfLut.getTexture());
         auto plane = createGameObject("Plane");
         plane->addComponent<Components::MeshRenderer>(Core::MeshGenerator::CreatePlane(1), planeMat);
 

@@ -198,6 +198,8 @@ namespace Graphics {
     //----------------------------------------------------------------------
     void D3D11Renderer::present()
     {
+        m_pSwapchain->clear( Color::BLACK );
+
         _LockQueue();
         for (auto& cmd : m_pendingCmdQueue)
             _ExecuteCommandBuffer( cmd );
@@ -680,7 +682,7 @@ namespace Graphics {
 
         g_pImmediateContext->RSSetViewports( 1, &viewport );
         g_pImmediateContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP );
-        g_pImmediateContext->Draw( 4, 0 );
+        g_pImmediateContext->Draw( 3, 0 );
     }
 
     //**********************************************************************

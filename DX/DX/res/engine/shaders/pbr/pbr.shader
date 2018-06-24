@@ -111,7 +111,7 @@ float4 main(FragmentIn fin) : SV_Target
 
 	if (albedo.a < 0.1)
 		discard; 
-
+	
 	float4 result = APPLY_LIGHTING( albedo * color, fin.WorldPos, normal, r, m );
 	return result; 
 }

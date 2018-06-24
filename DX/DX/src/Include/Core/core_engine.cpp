@@ -116,8 +116,9 @@ namespace Core {
         graphicsEngine.setGlobalFloat( TIME_NAME, (F32)TIME.getTime() );
 
         // Render each camera
-        for ( auto& cam : SCENE.getComponentManager().getCameras() )
-            cam->render( lerp, SCENE );
+        auto& scene = Locator::getSceneManager().getCurrentScene();
+        for ( auto& cam : scene.getComponentManager().getCameras() )
+            cam->render( lerp, scene );
 
         // Present backbuffer to screen
         graphicsEngine.present();
