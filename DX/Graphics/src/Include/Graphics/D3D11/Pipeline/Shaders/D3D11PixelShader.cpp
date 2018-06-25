@@ -6,14 +6,11 @@
     date: March 17, 2018
 **********************************************************************/
 
+#include "OS/FileSystem/file_system.h"
+#include "OS/FileSystem/file.h"
+
 namespace Graphics { namespace D3D11 {
     
-    //----------------------------------------------------------------------
-    PixelShader::~PixelShader()
-    {
-        SAFE_RELEASE( m_pPixelShader );
-    }
-
     //**********************************************************************
     // PUBLIC
     //**********************************************************************
@@ -21,8 +18,8 @@ namespace Graphics { namespace D3D11 {
     //----------------------------------------------------------------------
     void PixelShader::bind()
     {
-        ASSERT( m_pPixelShader != nullptr );
-        g_pImmediateContext->PSSetShader( m_pPixelShader, NULL, 0 );
+        ASSERT( m_pPixelShader.get() != nullptr );
+        g_pImmediateContext->PSSetShader( m_pPixelShader.get(), NULL, 0 );
     }
 
     //----------------------------------------------------------------------
@@ -32,27 +29,19 @@ namespace Graphics { namespace D3D11 {
     }
 
     //----------------------------------------------------------------------
-    bool PixelShader::compileFromFile( const OS::Path& path, CString entryPoint )
+    void PixelShader::compileFromFile( const OS::Path& path, CString entryPoint )
     {
-        bool compiled = _CompileFromFile<ID3D11PixelShader>( path, entryPoint );
-        if (not compiled)
-            return false;
-
-        _CreateD3D11PixelShader();
-
-        return true;
+        _CompileFromFile( path, entryPoint, [this](const ShaderBlob& shaderBlob) {
+            _CreateD3D11PixelShader(shaderBlob);
+        } );
     }
 
     //----------------------------------------------------------------------
-    bool PixelShader::compileFromSource( const String& source, CString entryPoint )
+    void PixelShader::compileFromSource( const String& source, CString entryPoint )
     {
-        bool compiled = _CompileFromSource<ID3D11PixelShader>( source, entryPoint );
-        if (not compiled)
-            return false;
-
-        _CreateD3D11PixelShader();
-
-        return true;
+        _CompileFromSource( source, entryPoint, [this](const ShaderBlob& shaderBlob) {
+            _CreateD3D11PixelShader( shaderBlob );
+        } );
     }
 
     //**********************************************************************
@@ -60,14 +49,13 @@ namespace Graphics { namespace D3D11 {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    void PixelShader::_CreateD3D11PixelShader()
+    void PixelShader::_CreateD3D11PixelShader( const ShaderBlob& shaderBlob )
     {
-        SAFE_RELEASE( m_pPixelShader );
-        HR( g_pDevice->CreatePixelShader( m_pShaderBlob->GetBufferPointer(), m_pShaderBlob->GetBufferSize(), nullptr, &m_pPixelShader ) );
+        HR( g_pDevice->CreatePixelShader( shaderBlob.data, shaderBlob.size, nullptr, &m_pPixelShader.releaseAndGet() ) );
 
-        // Shader blob + reflection data no longer needed
-        SAFE_RELEASE( m_pShaderBlob );
-        SAFE_RELEASE( m_pShaderReflection );
+        // Shader blob and reflection data no longer needed
+        m_pShaderReflection.release();
     }
+
 
 } } // End namespaces

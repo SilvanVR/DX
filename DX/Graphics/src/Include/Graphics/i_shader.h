@@ -62,10 +62,10 @@ namespace Graphics {
         //  "vertPath": Path to the vertex shader file.
         //  "fragPath": Path to the fragment shader file.
         //  "entryPoint": Entry point of the shader.
-        // @Return:
-        //  True, if compilation was successful, otherwise false and prints what went wrong.
+        // @Throws:
+        //  std::runtime_error if compilation failed.
         //----------------------------------------------------------------------
-        virtual bool compileFromFile(const OS::Path& vertPath, const OS::Path& fragPath, CString entryPoint) = 0;
+        virtual void compileFromFile(const OS::Path& vertPath, const OS::Path& fragPath, CString entryPoint) = 0;
 
         //----------------------------------------------------------------------
         // Try to compile this shader.
@@ -73,42 +73,23 @@ namespace Graphics {
         //  "vertSrc": Source of the vertex shader in ASCII.
         //  "fragSrc": Source of the fragment shader in ASCII.
         //  "entryPoint": Entry point of the shader.
-        // @Return:
-        //  True, if compilation was successful, otherwise false and prints what went wrong.
+        // @Throws:
+        //  std::runtime_error if compilation failed.
         //----------------------------------------------------------------------
-        virtual bool compileFromSource(const String& vertSrc, const String& fragSrc, CString entryPoint) = 0;
+        virtual void compileFromSource(const String& vertSrc, const String& fragSrc, CString entryPoint) = 0;
 
         //----------------------------------------------------------------------
         // Try to compile one shader.
         // @Params:
         //  "src": Source of the shader in ASCII.
         //  "entryPoint": Entry point of the shader.
-        // @Return:
-        //  True, if compilation was successful, otherwise false and prints what went wrong.
+        // @Throws:
+        //  std::runtime_error if compilation failed.
         //----------------------------------------------------------------------
-        virtual bool compileVertexShaderFromSource(const String& src, CString entryPoint) = 0;
-        virtual bool compileFragmentShaderFromSource(const String& src, CString entryPoint) = 0;
-        virtual bool compileGeometryShaderFromSource(const String& src, CString entryPoint) = 0;
+        virtual void compileVertexShaderFromSource(const String& src, CString entryPoint) = 0;
+        virtual void compileFragmentShaderFromSource(const String& src, CString entryPoint) = 0;
+        virtual void compileGeometryShaderFromSource(const String& src, CString entryPoint) = 0;
         //virtual bool compileTessellationShaderFromSource(const String& src, CString entryPoint) = 0;
-
-        //----------------------------------------------------------------------
-        // Recompile all shaders which are not up to date. Does nothing if shader was compiled from source.
-        // @Return:
-        //  List of shader paths, which were recompiled.
-        //----------------------------------------------------------------------
-        virtual ArrayList<OS::Path> recompile() = 0;
-
-        //----------------------------------------------------------------------
-        // @Return:
-        //  True, if all shader files are up-to-date (weren't modified since they were compiled).
-        //----------------------------------------------------------------------
-        virtual bool isUpToDate() = 0;
-
-        //----------------------------------------------------------------------
-        // @Return:
-        //  All shaderpaths used by this shader class.
-        //----------------------------------------------------------------------
-        virtual ArrayList<OS::Path> getShaderPaths() const = 0;
 
         //----------------------------------------------------------------------
         // Change pipeline states for rendering this shader

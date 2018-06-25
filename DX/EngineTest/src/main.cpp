@@ -1,5 +1,6 @@
 #include "scenes.hpp"
 #include "OS/FileSystem/file.h"
+#include "OS/FileSystem/file_system.h"
 #define DISPLAY_CONSOLE 1
 
 #ifdef _DEBUG

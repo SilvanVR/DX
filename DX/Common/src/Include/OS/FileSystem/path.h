@@ -66,6 +66,13 @@ namespace OS {
 
         //----------------------------------------------------------------------
         // @Return:
+        //  The directorys path from the file-path.
+        //  Example: "dir/test/test.png" => { "dir/", "dir/test/" }
+        //----------------------------------------------------------------------
+        ArrayList<String> getDirectoryPaths() const;
+
+        //----------------------------------------------------------------------
+        // @Return:
         //  The system-time when the file was last modified.
         //----------------------------------------------------------------------
         OS::SystemTime getLastWrittenFileTime() const;

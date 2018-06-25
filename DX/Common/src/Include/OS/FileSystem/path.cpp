@@ -53,5 +53,21 @@ namespace OS {
         return FileSystem::getLastWrittenFileTime( m_path.c_str() );
     }
 
+    //----------------------------------------------------------------------
+    ArrayList<String> Path::getDirectoryPaths() const
+    {
+        ArrayList<String> paths;
+
+        I32 currentPos = 0;
+        while ( currentPos < m_path.size() )
+        {
+            currentPos = m_path.find_first_of( "/\\", currentPos + 1 );
+            if (currentPos > 0)
+                paths.push_back( m_path.substr( 0, currentPos ) );
+        }
+
+        return paths;
+    }
+
 } // end namespaces
 

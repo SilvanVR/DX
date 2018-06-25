@@ -15,20 +15,20 @@ namespace Graphics { namespace D3D11 {
     {
     public:
         GeometryShader() : ShaderBase( ShaderType::Geometry ) {}
-        ~GeometryShader();
+        ~GeometryShader() = default;
 
         //----------------------------------------------------------------------
         // ShaderBase Interface
         //----------------------------------------------------------------------
         void bind() override;
         void unbind() override;
-        bool compileFromFile(const OS::Path& path, CString entryPoint) override;
-        bool compileFromSource(const String& shaderSource, CString entryPoint) override;
+        void compileFromFile(const OS::Path& path, CString entryPoint) override;
+        void compileFromSource(const String& shaderSource, CString entryPoint) override;
 
     private:
-        ID3D11GeometryShader* m_pGeometryShader = nullptr;
+        ComPtr<ID3D11GeometryShader> m_pGeometryShader = nullptr;
 
-        void _CreateD3D11GeometryShader();
+        void _CreateD3D11GeometryShader(const ShaderBlob& shaderBlob);
 
         NULL_COPY_AND_ASSIGN(GeometryShader)
     };

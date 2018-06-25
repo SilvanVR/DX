@@ -77,18 +77,9 @@ namespace Assets {
                 {
                     switch ((Graphics::ShaderType)(i-1))
                     {
-                    case Graphics::ShaderType::Vertex:
-                        if ( not shader->compileVertexShaderFromSource( shaderSources[i], "main" ) )
-                            throw std::runtime_error( "Vertex shader compilation failed." );
-                        break;
-                    case Graphics::ShaderType::Fragment:
-                        if ( not shader->compileFragmentShaderFromSource( shaderSources[i], "main" ) )
-                            throw std::runtime_error( "Fragment shader compilation failed." );
-                        break;
-                    case Graphics::ShaderType::Geometry:
-                        if ( not shader->compileGeometryShaderFromSource( shaderSources[i], "main" ) )
-                            throw std::runtime_error( "Geometry shader compilation failed." );
-                        break;
+                    case Graphics::ShaderType::Vertex:   shader->compileVertexShaderFromSource( shaderSources[i], "main" ); break;
+                    case Graphics::ShaderType::Fragment: shader->compileFragmentShaderFromSource( shaderSources[i], "main" ); break;
+                    case Graphics::ShaderType::Geometry: shader->compileGeometryShaderFromSource( shaderSources[i], "main" ); break;
                     case Graphics::ShaderType::Tessellation:
                         ASSERT( "Shadertype not supported yet!" );
                     }

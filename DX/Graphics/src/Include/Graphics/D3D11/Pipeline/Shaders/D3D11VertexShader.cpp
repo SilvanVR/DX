@@ -6,16 +6,11 @@
     date: March 17, 2018
 **********************************************************************/
 
-#include "../../D3D11Defines.hpp"
+#include "D3D11/D3D11Defines.hpp"
+#include "OS/FileSystem/file_system.h"
+#include "OS/FileSystem/file.h"
 
 namespace Graphics { namespace D3D11 {
-
-    //----------------------------------------------------------------------
-    VertexShader::~VertexShader()
-    {
-        SAFE_RELEASE( m_pVertexShader );
-        SAFE_RELEASE( m_pInputLayout );
-    }
 
     //**********************************************************************
     // PUBLIC
@@ -24,9 +19,9 @@ namespace Graphics { namespace D3D11 {
     //----------------------------------------------------------------------
     void VertexShader::bind() 
     { 
-        ASSERT( m_pVertexShader != nullptr );
-        g_pImmediateContext->IASetInputLayout( m_pInputLayout );
-        g_pImmediateContext->VSSetShader( m_pVertexShader, NULL, 0 ); 
+        ASSERT( m_pVertexShader.get() != nullptr );
+        g_pImmediateContext->IASetInputLayout( m_pInputLayout.get() );
+        g_pImmediateContext->VSSetShader( m_pVertexShader.get(), NULL, 0 ); 
     }
 
     //----------------------------------------------------------------------
@@ -36,27 +31,19 @@ namespace Graphics { namespace D3D11 {
     }
 
     //----------------------------------------------------------------------
-    bool VertexShader::compileFromFile( const OS::Path& path, CString entryPoint )
+    void VertexShader::compileFromFile( const OS::Path& path, CString entryPoint )
     {
-        bool compiled = _CompileFromFile<ID3D11VertexShader>( path, entryPoint );
-        if (not compiled)
-            return false;
-
-        _CreateD3D11VertexShader();
-
-        return true;
+        _CompileFromFile( path, entryPoint, [this](const ShaderBlob& shaderBlob) {
+            _CreateD3D11VertexShader( shaderBlob );
+        } );
     }
 
     //----------------------------------------------------------------------
-    bool VertexShader::compileFromSource( const String& shaderSource, CString entryPoint )
+    void VertexShader::compileFromSource( const String& source, CString entryPoint )
     {
-        bool compiled = _CompileFromSource<ID3D11VertexShader>( shaderSource, entryPoint );
-        if (not compiled)
-            return false;
-
-        _CreateD3D11VertexShader();
-
-        return true;
+        _CompileFromSource( source, entryPoint, [this] (const ShaderBlob& shaderBlob) {
+            _CreateD3D11VertexShader( shaderBlob );
+        } );
     }
 
     //**********************************************************************
@@ -64,24 +51,21 @@ namespace Graphics { namespace D3D11 {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    void VertexShader::_CreateD3D11VertexShader()
+    void VertexShader::_CreateD3D11VertexShader( const ShaderBlob& shaderBlob )
     {
         // Clean-Up old vertex-shader and create a new one
-        SAFE_RELEASE( m_pVertexShader );
-        HR( g_pDevice->CreateVertexShader( m_pShaderBlob->GetBufferPointer(), m_pShaderBlob->GetBufferSize(), nullptr, &m_pVertexShader ) );
+        HR( g_pDevice->CreateVertexShader( shaderBlob.data, shaderBlob.size, nullptr, &m_pVertexShader.releaseAndGet() ) );
 
-        _CreateInputLayout( m_pShaderBlob );
+        _CreateInputLayout( shaderBlob.data, shaderBlob.size );
 
-        // Shader blob and reflection data no longer needed
-        SAFE_RELEASE( m_pShaderBlob );
-        SAFE_RELEASE( m_pShaderReflection );
+        // Reflection data no longer needed
+        m_pShaderReflection.release();
     }
 
     //----------------------------------------------------------------------
-    void VertexShader::_CreateInputLayout( ID3DBlob* pShaderBlob )
+    void VertexShader::_CreateInputLayout( const void* pShaderByteCode, Size sizeInBytes )
     {
         // Clean up old data
-        SAFE_RELEASE( m_pInputLayout );
         m_vertexLayout.clear();
 
         // Get shader info
@@ -139,7 +123,7 @@ namespace Graphics { namespace D3D11 {
         {
             // Create Input Layout
             HR( g_pDevice->CreateInputLayout( inputLayoutDesc.data(), (U32)inputLayoutDesc.size(), 
-                                              m_pShaderBlob->GetBufferPointer(), m_pShaderBlob->GetBufferSize(), &m_pInputLayout) );
+                                              pShaderByteCode, sizeInBytes, &m_pInputLayout.releaseAndGet() ) );
         }
     }
 

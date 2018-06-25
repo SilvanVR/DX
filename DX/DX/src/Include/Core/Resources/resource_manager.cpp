@@ -327,18 +327,23 @@ namespace Core { namespace Resources {
             // Error shader
             m_errorShader = ShaderPtr( Locator::getRenderer().createShader(), BIND_THIS_FUNC_1_ARGS( &ResourceManager::_DeleteShader ) );
             m_errorShader->setName( SHADER_ERROR_NAME );
-            if ( not m_errorShader->compileFromSource( Graphics::ShaderSources::ERROR_VERTEX, Graphics::ShaderSources::ERROR_FRAGMENT, "main" ) )
+            try {
+                m_errorShader->compileFromSource( Graphics::ShaderSources::ERROR_VERTEX, Graphics::ShaderSources::ERROR_FRAGMENT, "main" ); 
+            }
+            catch (std::runtime_error&) {
                 LOG_ERROR( "Error shader source didn't compile. This is mandatory!" );
-
+            }
             m_shaders.push_back( m_errorShader.get() );
 
             // Default shader
             m_defaultShader = ShaderPtr( Locator::getRenderer().createShader(), BIND_THIS_FUNC_1_ARGS( &ResourceManager::_DeleteShader ) );
             m_defaultShader->setName( SHADER_DEFAULT_NAME );
-
-            if ( not m_defaultShader->compileFromSource( Graphics::ShaderSources::DEFAULT_VERTEX, Graphics::ShaderSources::DEFAULT_FRAGMENT, "main" ) )
+            try {
+                m_defaultShader->compileFromSource( Graphics::ShaderSources::DEFAULT_VERTEX, Graphics::ShaderSources::DEFAULT_FRAGMENT, "main" );
+            }
+            catch (std::runtime_error&) {
                 LOG_ERROR( "Default shader source didn't compile. This is mandatory!" );
-
+            }
             m_shaders.push_back( m_defaultShader.get() );
 
             // Default wireframe shader
@@ -352,10 +357,12 @@ namespace Core { namespace Resources {
             // Color shader
             m_colorShader = ShaderPtr( Locator::getRenderer().createShader(), BIND_THIS_FUNC_1_ARGS( &ResourceManager::_DeleteShader ) );
             m_colorShader->setName( SHADER_COLOR_NAME );
-
-            if ( not m_colorShader->compileFromSource( Graphics::ShaderSources::COLOR_VERTEX, Graphics::ShaderSources::COLOR_FRAGMENT, "main") )
+            try {
+                m_colorShader->compileFromSource( Graphics::ShaderSources::COLOR_VERTEX, Graphics::ShaderSources::COLOR_FRAGMENT, "main" );
+            }
+            catch (std::runtime_error&) {
                 LOG_ERROR( "Color shader source didn't compile. This is mandatory!" );
-
+            }
             m_shaders.push_back( m_colorShader.get() );
 
             // Post process shader
@@ -363,10 +370,12 @@ namespace Core { namespace Resources {
             m_postProcessShader->setName( SHADER_POST_PROCESS_NAME );
             m_postProcessShader->setRasterizationState({ Graphics::FillMode::Solid, Graphics::CullMode::Front });
             m_postProcessShader->setDepthStencilState({ false, false });
-
-            if ( not m_postProcessShader->compileFromSource( Graphics::ShaderSources::POST_PROCESS_VERTEX, Graphics::ShaderSources::POST_PROCESS_FRAGMENT, "main") )
-                LOG_ERROR( "post process shader source didn't compile. This is mandatory!" );
-
+            try {
+                m_postProcessShader->compileFromSource( Graphics::ShaderSources::POST_PROCESS_VERTEX, Graphics::ShaderSources::POST_PROCESS_FRAGMENT, "main" );
+            }
+            catch (std::runtime_error&) {
+                LOG_ERROR( "Post process shader source didn't compile. This is mandatory!" );
+            }
             m_shaders.push_back( m_postProcessShader.get() );
         }
 

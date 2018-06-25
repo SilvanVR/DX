@@ -557,10 +557,13 @@ namespace Graphics {
                 return float4(1,1,1,1) * _Time;         \
             }";
 
-            Shader* shader = createShader();
-            if ( not shader->compileFragmentShaderFromSource( fragSrc, "main" ) )
+            auto shader = std::unique_ptr<Shader>( createShader() );
+            try {
+                shader->compileFragmentShaderFromSource( fragSrc, "main" );
+            }
+            catch (const std::runtime_error&) {
                 LOG_WARN_RENDERING( "Could not precompile enginePS.hlsl for buffer creation. This might cause some issues." );
-            delete shader;
+            }
         } 
         catch (const std::runtime_error& ex)
         {

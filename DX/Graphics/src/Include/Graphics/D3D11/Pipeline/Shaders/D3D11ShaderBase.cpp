@@ -8,8 +8,20 @@
 
 #include "Common/string_utils.h"
 #include "D3D11/D3D11Defines.hpp"
+#include "OS/FileSystem/file_system.h"
+#include "OS/FileSystem/file.h"
 
 namespace Graphics { namespace D3D11 {
+
+    //----------------------------------------------------------------------
+    UINT GetCompileFlags()
+    {
+        UINT flags = D3DCOMPILE_ENABLE_STRICTNESS | D3DCOMPILE_WARNINGS_ARE_ERRORS;
+#ifdef _DEBUG
+        flags |= (D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION);
+#endif
+        return flags;
+    }
 
     //**********************************************************************
     // PUBLIC
@@ -56,37 +68,6 @@ namespace Graphics { namespace D3D11 {
     }
 
     //----------------------------------------------------------------------
-    bool ShaderBase::isUpToDate() const 
-    { 
-        if ( m_filePath.empty() ) // Compiled shaders from source are always up to date
-            return true;
-
-        try {
-            return m_fileTimeAtCompilation == m_filePath.getLastWrittenFileTime();
-        }
-        catch (...) {
-            // Do nothing, simply return true. Being here means file could not be opened.
-        }
-
-        return true; 
-    }
-
-    //----------------------------------------------------------------------
-    bool ShaderBase::recompile()
-    {
-        // Recompilation only possible on shaders which were compiled by path
-        if ( not m_filePath.toString().empty() )
-            if ( compileFromFile( m_filePath, m_entryPoint.c_str() ) )
-                return true;
-            else
-                return false;
-        else
-            LOG_WARN_RENDERING( "Shader::recompile(): Recompilation not possible because no filepath exists in this class! "
-                                "Maybe the shader was compiled directly from source?" );
-        return false;
-    }
-
-    //----------------------------------------------------------------------
     const ShaderResourceDeclaration* ShaderBase::getResourceDeclaration( StringID name ) const
     {
         for (auto& decl : m_resourceDeclarations)
@@ -102,81 +83,85 @@ namespace Graphics { namespace D3D11 {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    UINT GetCompileFlags()
-    {
-        UINT flags = D3DCOMPILE_ENABLE_STRICTNESS | D3DCOMPILE_WARNINGS_ARE_ERRORS;
-        #ifdef _DEBUG
-            flags |= (D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION);
-        #endif
-        return flags;
-    }
-
-    //----------------------------------------------------------------------
-    bool ShaderBase::_CompileFromSource( const String& source, CString profile )
-    {
-        SAFE_RELEASE( m_pShaderBlob );
-        ID3DBlob* errorBlob = nullptr;
-        HRESULT hr = D3DCompile( source.c_str(), source.size(), NULL, NULL, D3D_COMPILE_STANDARD_FILE_INCLUDE,
-                                 m_entryPoint.c_str(), profile, GetCompileFlags(), 0, &m_pShaderBlob, &errorBlob );
-
-        if ( FAILED( hr ) )
-        {
-            LOG_WARN_RENDERING( "Failed to compile shader from source:\n" + source );
-            if (errorBlob)
-            {
-                LOG_WARN_RENDERING( (const char*)errorBlob->GetBufferPointer() );
-                SAFE_RELEASE( errorBlob );
-            }
-
-            SAFE_RELEASE( m_pShaderBlob );
-
-            return false;
-        }
-
-        _ShaderReflection( m_pShaderBlob );
-        return true;
-    }
-
-    //----------------------------------------------------------------------
-    bool ShaderBase::_CompileFromFile( const OS::Path& path, CString profile )
+    void ShaderBase::_CompileFromFile( const OS::Path& path, CString entryPoint, std::function<void(const ShaderBlob&)> fn )
     {
         if ( not path.exists() )
-        {
-             LOG_WARN_RENDERING( "Missing shader-file: '" + path.toString() + "'.");
-             return false;
-        }
+            throw std::runtime_error("Missing shader-file: '" + path.toString() + "'.");
 
-        SAFE_RELEASE( m_pShaderBlob );
-
-        ID3DBlob* errorBlob = nullptr;
+        ComPtr<ID3DBlob> d3d11ShaderBlob;
+        ComPtr<ID3DBlob> d3D11ErrorBlob;
         HRESULT hr = D3DCompileFromFile( ConvertToWString( path.toString() ).c_str(), NULL, D3D_COMPILE_STANDARD_FILE_INCLUDE,
-                                         m_entryPoint.c_str(), profile, GetCompileFlags(), 0, &m_pShaderBlob, &errorBlob );
+                                         entryPoint, _GetLatestProfile().c_str(), GetCompileFlags(), 0, &d3d11ShaderBlob.get(), &d3D11ErrorBlob.get() );
 
+        String shaderName = _GetShaderTypeName();
         if ( FAILED( hr ) )
         {
-            LOG_WARN_RENDERING( "Failed to compile shader '" + path.toString() + "'." );
-            if (errorBlob)
-            {
-                LOG_WARN_RENDERING( (const char*)errorBlob->GetBufferPointer() );
-                SAFE_RELEASE( errorBlob );
-            }
-
-            SAFE_RELEASE( m_pShaderBlob );
-
-            return false;
+            if (d3D11ErrorBlob)
+                throw std::runtime_error( "Failed to compile "+ shaderName + " shader from source:\n" + (const char*)d3D11ErrorBlob->GetBufferPointer() );
+            throw std::runtime_error( "Failed to compile " + shaderName + " shader from source." );
         }
 
-        _ShaderReflection( m_pShaderBlob );
-        return true;
+        ShaderBlob shaderBlob{ d3d11ShaderBlob->GetBufferPointer(), d3d11ShaderBlob->GetBufferSize() };
+
+        _ShaderReflection( shaderBlob );
+        fn( shaderBlob );
     }
 
     //----------------------------------------------------------------------
-    void ShaderBase::_ShaderReflection( ID3DBlob* pShaderBlob )
+    void ShaderBase::_CompileFromSource( const String& source, CString entryPoint, std::function<void(const ShaderBlob&)> fn )
+    {
+        String shaderName = _GetShaderTypeName();
+
+        StringID hash = SID( source.c_str() );
+
+#ifdef _DEBUG
+        OS::Path binaryShaderPath( "/engine/shaders/bin/debug/" + shaderName + TS( hash.id ) + ".cso" );
+#else
+        OS::Path binaryShaderPath( "/engine/shaders/bin/release/" + shaderName + TS( hash.id ) + ".cso" );
+#endif // DEBUG
+
+        // Precompiled binary file does not exist
+        if ( not OS::FileSystem::exists( binaryShaderPath ) )
+        {
+            ComPtr<ID3DBlob> d3d11ShaderBlob;
+            ComPtr<ID3DBlob> d3D11ErrorBlob;
+            HRESULT hr = D3DCompile( source.c_str(), source.size(), NULL, NULL, NULL,
+                                     entryPoint, _GetLatestProfile().c_str(), GetCompileFlags(), 0, &d3d11ShaderBlob.get(), &d3D11ErrorBlob.get() );
+
+            if ( FAILED( hr ) )
+            {
+                if (d3D11ErrorBlob)
+                    throw std::runtime_error( "Failed to compile "+ shaderName + " shader from source:\n" + (const char*)d3D11ErrorBlob->GetBufferPointer() );
+                throw std::runtime_error( "Failed to compile " + shaderName + " shader from source." );
+            }
+
+            ShaderBlob shaderBlob{ d3d11ShaderBlob->GetBufferPointer(), d3d11ShaderBlob->GetBufferSize() };
+
+            // Store compiled binary data into file
+            OS::BinaryFile binaryShaderFile( binaryShaderPath, OS::EFileMode::WRITE );
+            binaryShaderFile.write( (const Byte*)shaderBlob.data, shaderBlob.size );
+
+            _ShaderReflection( shaderBlob );
+            fn( shaderBlob );
+        }
+        else
+        {
+            // Load compiled binary data from file
+            OS::BinaryFile binaryShaderFile( binaryShaderPath, OS::EFileMode::READ );
+            String content = binaryShaderFile.readAll();
+
+            ShaderBlob shaderBlob{ content.data(), content.size() };
+            _ShaderReflection( shaderBlob );
+            fn( shaderBlob );
+        }
+    }
+
+    //----------------------------------------------------------------------
+    void ShaderBase::_ShaderReflection( const ShaderBlob& shaderBlob )
     {
         // Perform reflection
-        SAFE_RELEASE( m_pShaderReflection );
-        HR( D3DReflect( pShaderBlob->GetBufferPointer(), pShaderBlob->GetBufferSize(),
-                        IID_ID3D11ShaderReflection, (void**)&m_pShaderReflection) );
+        HR( D3DReflect( shaderBlob.data, shaderBlob.size,
+                        IID_ID3D11ShaderReflection, (void**)&m_pShaderReflection.releaseAndGet() ) );
 
         D3D11_SHADER_DESC shaderDesc;
         HR( m_pShaderReflection->GetDesc( &shaderDesc ) );
@@ -300,5 +285,30 @@ namespace Graphics { namespace D3D11 {
         return DataType::Unknown;
     }
 
+    //----------------------------------------------------------------------
+    String ShaderBase::_GetShaderTypeName()
+    {
+        switch (m_shaderType)
+        {
+        case ShaderType::Vertex:    return "vertex";
+        case ShaderType::Fragment:  return "fragment";
+        case ShaderType::Geometry:  return "geometry";
+        ASSERT( false && "Unsupported shader!" );
+        }
+        return "";
+    }
+
+    //----------------------------------------------------------------------
+    String ShaderBase::_GetLatestProfile()
+    {
+        switch (m_shaderType)
+        {
+        case ShaderType::Vertex:    return GetLatestProfile<ID3D11VertexShader>();
+        case ShaderType::Fragment:  return GetLatestProfile<ID3D11PixelShader>();
+        case ShaderType::Geometry:  return GetLatestProfile<ID3D11GeometryShader>();
+        ASSERT( false && "Unsupported shader!" );
+        }
+        return "";
+    }
 
 } } // End namespaces

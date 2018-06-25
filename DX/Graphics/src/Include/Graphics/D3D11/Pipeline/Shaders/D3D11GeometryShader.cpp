@@ -7,12 +7,6 @@
 **********************************************************************/
 
 namespace Graphics { namespace D3D11 {
-    
-    //----------------------------------------------------------------------
-    GeometryShader::~GeometryShader()
-    {
-        SAFE_RELEASE( m_pGeometryShader );
-    }
 
     //**********************************************************************
     // PUBLIC
@@ -21,8 +15,8 @@ namespace Graphics { namespace D3D11 {
     //----------------------------------------------------------------------
     void GeometryShader::bind()
     {
-        ASSERT( m_pGeometryShader != nullptr );
-        g_pImmediateContext->GSSetShader( m_pGeometryShader, NULL, 0 );
+        ASSERT( m_pGeometryShader.get() != nullptr );
+        g_pImmediateContext->GSSetShader( m_pGeometryShader.get(), NULL, 0 );
     }
 
     //----------------------------------------------------------------------
@@ -32,27 +26,19 @@ namespace Graphics { namespace D3D11 {
     }
 
     //----------------------------------------------------------------------
-    bool GeometryShader::compileFromFile( const OS::Path& path, CString entryPoint )
+    void GeometryShader::compileFromFile( const OS::Path& path, CString entryPoint )
     {
-        bool compiled = _CompileFromFile<ID3D11GeometryShader>( path, entryPoint );
-        if (not compiled)
-            return false;
-
-        _CreateD3D11GeometryShader();
-
-        return true;
+        _CompileFromFile( path, entryPoint, [this](const ShaderBlob& shaderBlob) {
+            _CreateD3D11GeometryShader( shaderBlob );
+        } );
     }
 
     //----------------------------------------------------------------------
-    bool GeometryShader::compileFromSource( const String& source, CString entryPoint )
+    void GeometryShader::compileFromSource( const String& source, CString entryPoint )
     {
-        bool compiled = _CompileFromSource<ID3D11GeometryShader>( source, entryPoint );
-        if (not compiled)
-            return false;
-
-        _CreateD3D11GeometryShader();
-
-        return true;
+        _CompileFromSource( source, entryPoint, [this](const ShaderBlob& shaderBlob) {
+            _CreateD3D11GeometryShader( shaderBlob );
+        });
     }
 
     //**********************************************************************
@@ -60,14 +46,12 @@ namespace Graphics { namespace D3D11 {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    void GeometryShader::_CreateD3D11GeometryShader()
+    void GeometryShader::_CreateD3D11GeometryShader( const ShaderBlob& shaderBlob )
     {
-        SAFE_RELEASE( m_pGeometryShader );
-        HR( g_pDevice->CreateGeometryShader( m_pShaderBlob->GetBufferPointer(), m_pShaderBlob->GetBufferSize(), nullptr, &m_pGeometryShader ) );
+        HR( g_pDevice->CreateGeometryShader( shaderBlob.data, shaderBlob.size, nullptr, &m_pGeometryShader.releaseAndGet() ) );
 
-        // Shader blob + reflection data no longer needed
-        SAFE_RELEASE( m_pShaderBlob );
-        SAFE_RELEASE( m_pShaderReflection );
+        // Shader blob and reflection data no longer needed
+        m_pShaderReflection.release();
     }
 
 } } // End namespaces

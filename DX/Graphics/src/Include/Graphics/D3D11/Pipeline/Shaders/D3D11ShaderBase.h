@@ -11,6 +11,7 @@
 #include "OS/FileSystem/path.h"
 #include <d3dcompiler.h>
 #include "shader_resources.hpp"
+#include <functional>
 
 namespace Graphics { namespace D3D11 {
 
@@ -18,33 +19,32 @@ namespace Graphics { namespace D3D11 {
     template<class ShaderCompilerClass>
     String GetLatestProfile();
 
+    struct ShaderBlob
+    {
+        const void* data;
+        Size size;
+    };
+
+    UINT GetCompileFlags();
+
     //**********************************************************************
     class ShaderBase
     {
     public:
-        ShaderBase(ShaderType shaderType) : m_shaderType(shaderType) {};
-        virtual ~ShaderBase() { SAFE_RELEASE( m_pShaderBlob ); SAFE_RELEASE( m_pShaderReflection ); }
+        ShaderBase(ShaderType shaderType) : m_shaderType(shaderType) {}
+        virtual ~ShaderBase() {}
 
         //----------------------------------------------------------------------
         virtual void bind() = 0;
         virtual void unbind() = 0;
-        virtual bool compileFromFile(const OS::Path& path, CString entryPoint) = 0;
-        virtual bool compileFromSource(const String& shaderSource, CString entryPoint) = 0;
+        virtual void compileFromFile(const OS::Path& path, CString entryPoint) = 0;
+        virtual void compileFromSource(const String& shaderSource, CString entryPoint) = 0;
 
         //----------------------------------------------------------------------
         const OS::Path&                                     getFilePath()   const { return m_filePath; }
-        CString                                             getEntryPoint() const { return m_entryPoint.c_str(); }
-        bool                                                recompile();
         const ArrayList<ShaderResourceDeclaration>&         getResourceDeclarations() const { return m_resourceDeclarations; }
         const ArrayList<ShaderUniformBufferDeclaration>&    getConstantBufferBindings() const { return m_constantBuffers; }
         const ShaderResourceDeclaration*                    getResourceDeclaration(StringID name) const;
-
-        //----------------------------------------------------------------------
-        // @Return:
-        //  Whether the shader (if compiled from file) is up to date on disk.
-        //  This returns always true if the shader was compiled from source.
-        //----------------------------------------------------------------------
-        bool isUpToDate() const;
 
         //----------------------------------------------------------------------
         // @Return:
@@ -67,51 +67,29 @@ namespace Graphics { namespace D3D11 {
         const ShaderUniformBufferDeclaration* getShaderBufferDeclaration() const;
 
     protected:
-        ID3DBlob*                               m_pShaderBlob           = nullptr;
-        ID3D11ShaderReflection*                 m_pShaderReflection     = nullptr;
-        String                                  m_entryPoint            = "main";
+        ComPtr<ID3D11ShaderReflection>          m_pShaderReflection     = nullptr;
         ShaderType                              m_shaderType            = ShaderType::Unknown;
         OS::Path                                m_filePath;
-        OS::SystemTime                          m_fileTimeAtCompilation;
 
         // Resources + UBO's bound to this shader
         ArrayList<ShaderUniformBufferDeclaration>   m_constantBuffers;
         ArrayList<ShaderResourceDeclaration>        m_resourceDeclarations;
 
-        //----------------------------------------------------------------------
-        template <typename T>
-        bool _CompileFromFile( const OS::Path& path, CString entryPoint )
-        {
-            m_filePath = path;
-            m_entryPoint = entryPoint;
-            m_fileTimeAtCompilation = m_filePath.getLastWrittenFileTime();
-
-            return _CompileFromFile( m_filePath, GetLatestProfile<T>().c_str() );
-        }
-
-        //----------------------------------------------------------------------
-        template <typename T>
-        bool _CompileFromSource( const String& source, CString entryPoint )
-        {
-            m_entryPoint = entryPoint;
-            return _CompileFromSource( source, GetLatestProfile<T>().c_str() );
-        }
+        void _CompileFromSource(const String& source, CString entryPoint, std::function<void(const ShaderBlob&)>);
+        void _CompileFromFile(const OS::Path& path, CString entryPoint, std::function<void(const ShaderBlob&)>);
 
     private:
         //----------------------------------------------------------------------
-        bool _CompileFromFile(const OS::Path& path, CString profile);
-        bool _CompileFromSource(const String& source, CString profile);
-
-        void _ShaderReflection(ID3DBlob* pShaderBlob);
+        void _ShaderReflection(const ShaderBlob& shaderBlob);
         void _ReflectResources(const D3D11_SHADER_DESC& shaderDesc);
         void _ReflectConstantBuffer(ID3D11ShaderReflectionConstantBuffer* cb, U32 bindSlot);
         DataType _GetDataType(ID3D11ShaderReflectionVariable* var);
 
+        String _GetShaderTypeName();
+        String _GetLatestProfile();
+
         //----------------------------------------------------------------------
-        ShaderBase(const ShaderBase& other)               = delete;
-        ShaderBase& operator = (const ShaderBase& other)  = delete;
-        ShaderBase(ShaderBase&& other)                    = delete;
-        ShaderBase& operator = (ShaderBase&& other)       = delete;
+        NULL_COPY_AND_ASSIGN(ShaderBase)
     };
 
 

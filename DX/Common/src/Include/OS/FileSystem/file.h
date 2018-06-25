@@ -17,7 +17,7 @@ namespace OS {
     // READ                 | open for reading
     // WRITE                | open for writing (file need not exist)
     // APPEND               | open for appending (file need not exist)
-    // READ_WRITE           | open for reading and writing, start at beginning
+    // READ_WRITE           | open for reading and writing, start at beginning (does NOT create a new file if the file doesn't exist)
     // READ_WRITE_OVERWRITE | open for reading and writing (overwrite file)
     // READ_WRITE_APPEND    | open for reading and writing (append if file exists)
     //*********************************************************************

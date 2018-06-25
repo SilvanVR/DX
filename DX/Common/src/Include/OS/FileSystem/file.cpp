@@ -53,8 +53,8 @@ namespace OS {
         ASSERT( not m_exists && "File was already opened!" );
 
         m_filePath  = path;
-        m_exists    = _FileExists( m_filePath.c_str() );
         m_mode      = mode;
+        m_exists    = _FileExists( m_filePath.c_str() );
 
         if ( not m_exists && (mode == EFileMode::READ) )
             throw std::runtime_error( "File '" + path.toString() + "' could not be opened, because it doesn't exist." );
@@ -137,7 +137,7 @@ namespace OS {
         _File_Seek( 0 );
         fread( buffer, sizeof(char), m_fileSize, m_file );
 
-        String str( buffer );
+        String str( buffer, m_fileSize );
         delete[] buffer;
 
         return str;
@@ -235,11 +235,21 @@ namespace OS {
             case EFileMode::READ_WRITE_APPEND:      cmode = binary ? "ab+" : "a+"; break;
         }
 
+        // Create directories if they doesn't exist
+        for (auto& dir : m_filePath.getDirectoryPaths())
+        {
+            if ( not FileSystem::dirExists( dir.c_str() ) )
+                FileSystem::createDirectory( dir.c_str() );
+        }
+
+        // Now open / create file
         m_file = fopen( m_filePath.c_str(), cmode.c_str() );
         if (m_file != nullptr)
             m_writeCursorPos = ftell( m_file );
         else
-            throw std::runtime_error( "File '" + m_filePath.toString() + "' could not be opened/created due to unknown reasons." );
+            throw std::runtime_error( "File '" + m_filePath.toString() + "' could not be opened because file does not exist or whatever reason (fopen failed)." );
+
+        m_exists = _FileExists( m_filePath.c_str() );
 
         _PeekNextCharAndSetEOF();
 

@@ -16,35 +16,31 @@ namespace Graphics { namespace D3D11 {
     {
     public:
         VertexShader() : ShaderBase(ShaderType::Vertex) {}
-        ~VertexShader();
+        ~VertexShader() = default;
 
         //----------------------------------------------------------------------
         // ShaderBase Interface
         //----------------------------------------------------------------------
         void bind() override;
         void unbind() override;
-        bool compileFromFile(const OS::Path& path, CString entryPoint) override;
-        bool compileFromSource(const String& shaderSource, CString entryPoint) override;
+        void compileFromFile(const OS::Path& path, CString entryPoint) override;
+        void compileFromSource(const String& shaderSource, CString entryPoint) override;
 
         //----------------------------------------------------------------------
         const VertexLayout& getVertexLayout() const { return m_vertexLayout; }
 
     private:
-        ID3D11VertexShader* m_pVertexShader = nullptr;
-        ID3D11InputLayout*  m_pInputLayout  = nullptr;
+        ComPtr<ID3D11VertexShader> m_pVertexShader = nullptr;
+        ComPtr<ID3D11InputLayout>  m_pInputLayout  = nullptr;
 
-        VertexLayout        m_vertexLayout;
+        VertexLayout m_vertexLayout;
 
         //----------------------------------------------------------------------
-        void _CreateInputLayout(ID3DBlob* pShaderBlob);
+        void _CreateInputLayout(const void* pShaderByteCode, Size sizeInBytes);
         void _AddToVertexLayout(const String& semanticName, U32 semanticIndex);
-        void _CreateD3D11VertexShader();
+        void _CreateD3D11VertexShader(const ShaderBlob& shaderBlob);
 
-        //----------------------------------------------------------------------
-        VertexShader(const VertexShader& other)               = delete;
-        VertexShader& operator = (const VertexShader& other)  = delete;
-        VertexShader(VertexShader&& other)                    = delete;
-        VertexShader& operator = (VertexShader&& other)       = delete;
+        NULL_COPY_AND_ASSIGN(VertexShader)
     };
 
 } } // End namespaces

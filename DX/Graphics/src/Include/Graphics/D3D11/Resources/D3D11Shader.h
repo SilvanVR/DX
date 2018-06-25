@@ -22,19 +22,16 @@ namespace Graphics { namespace D3D11 {
     {
     public:
         Shader();
-        ~Shader();
+        ~Shader() = default;
 
         //----------------------------------------------------------------------
         // IShader Interface
         //----------------------------------------------------------------------
-        bool                                    compileFromFile(const OS::Path& vertPath, const OS::Path& fragPath, CString entryPoint) override;
-        bool                                    compileFromSource(const String& vertSrc, const String& fragSrc, CString entryPoint) override;
-        bool                                    compileVertexShaderFromSource(const String& src, CString entryPoint) override;
-        bool                                    compileFragmentShaderFromSource(const String& src, CString entryPoint) override;
-        bool                                    compileGeometryShaderFromSource(const String& src, CString entryPoint) override;
-        ArrayList<OS::Path>                     recompile();
-        bool                                    isUpToDate() override;
-        ArrayList<OS::Path>                     getShaderPaths() const override;
+        void                                    compileFromFile(const OS::Path& vertPath, const OS::Path& fragPath, CString entryPoint) override;
+        void                                    compileFromSource(const String& vertSrc, const String& fragSrc, CString entryPoint) override;
+        void                                    compileVertexShaderFromSource(const String& src, CString entryPoint) override;
+        void                                    compileFragmentShaderFromSource(const String& src, CString entryPoint) override;
+        void                                    compileGeometryShaderFromSource(const String& src, CString entryPoint) override;
         const VertexLayout&                     getVertexLayout() const override;
         const ShaderResourceDeclaration*        getShaderResource(StringID name) const override;
         const ShaderUniformBufferDeclaration*   getVSUniformMaterialBuffer() const override;
@@ -65,14 +62,14 @@ namespace Graphics { namespace D3D11 {
         std::unique_ptr<PixelShader>    m_pPixelShader  = nullptr;
         std::unique_ptr<GeometryShader> m_pGeometryShader = nullptr;
 
-        ID3D11DepthStencilState*        m_pDepthStencilState;
-        ID3D11RasterizerState*          m_pRSState;
-        ID3D11BlendState*               m_pBlendState;
+        ComPtr<ID3D11DepthStencilState> m_pDepthStencilState;
+        ComPtr<ID3D11RasterizerState>   m_pRSState;
+        ComPtr<ID3D11BlendState>        m_pBlendState;
 
         // Contains the data in a contiguous block of memory. Will be empty if not used for a shader.
-        MappedConstantBuffer* m_shaderDataVS = nullptr;
-        MappedConstantBuffer* m_shaderDataPS = nullptr;
-        MappedConstantBuffer* m_shaderDataGS = nullptr;
+        std::unique_ptr<MappedConstantBuffer> m_shaderDataVS = nullptr;
+        std::unique_ptr<MappedConstantBuffer> m_shaderDataPS = nullptr;
+        std::unique_ptr<MappedConstantBuffer> m_shaderDataGS = nullptr;
 
         //----------------------------------------------------------------------
         // IShader Interface

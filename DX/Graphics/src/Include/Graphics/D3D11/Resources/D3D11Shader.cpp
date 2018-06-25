@@ -21,17 +21,6 @@ namespace Graphics { namespace D3D11 {
     }
 
     //----------------------------------------------------------------------
-    Shader::~Shader()
-    {
-        SAFE_RELEASE( m_pDepthStencilState );
-        SAFE_RELEASE( m_pRSState );
-        SAFE_RELEASE( m_pBlendState );
-        SAFE_DELETE( m_shaderDataVS );
-        SAFE_DELETE( m_shaderDataPS );
-        SAFE_DELETE( m_shaderDataGS );
-    }
-
-    //----------------------------------------------------------------------
     void Shader::bind()
     {
         // Bind shaders
@@ -50,7 +39,11 @@ namespace Graphics { namespace D3D11 {
         // Bind pipeline states
         g_pImmediateContext->OMSetDepthStencilState( m_pDepthStencilState, 0 );
         g_pImmediateContext->RSSetState( m_pRSState );
-        g_pImmediateContext->OMSetBlendState( m_pBlendState ? m_pBlendState : NULL, m_blendFactors.data(), 0xffffffff );
+
+        if (m_pBlendState)
+            g_pImmediateContext->OMSetBlendState( m_pBlendState, m_blendFactors.data(), 0xffffffff );
+        else
+            g_pImmediateContext->OMSetBlendState( NULL, m_blendFactors.data(), 0xffffffff );
     }
 
     //----------------------------------------------------------------------
@@ -73,128 +66,54 @@ namespace Graphics { namespace D3D11 {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    bool Shader::compileFromFile( const OS::Path& vertPath, const OS::Path& fragPath, CString entryPoint )
+    void Shader::compileFromFile( const OS::Path& vertPath, const OS::Path& fragPath, CString entryPoint )
     {
         m_pVertexShader.reset( new D3D11::VertexShader() );
         m_pPixelShader.reset( new D3D11::PixelShader() );
 
-        bool success = true;
-        if ( not m_pVertexShader->compileFromFile( vertPath, entryPoint ) )
-            success = false;
-        if ( not m_pPixelShader->compileFromFile( fragPath, entryPoint ) )
-            success = false;
-
-        if (success)
-            _CreateConstantBuffers();
-
-        return success;
-    }
-
-    //----------------------------------------------------------------------
-    bool Shader::compileFromSource( const String& vertSrc, const String& fragSrc, CString entryPoint )
-    {
-        bool success = true;
-        if ( not compileVertexShaderFromSource( vertSrc, entryPoint ) )
-            success = false;
-        if ( not compileFragmentShaderFromSource( fragSrc, entryPoint ) )
-            success = false;
-
-        if (success)
-            _CreateConstantBuffers();
-
-        return success;
-    }
-
-    //----------------------------------------------------------------------
-    bool Shader::compileVertexShaderFromSource( const String& src, CString entryPoint )
-    {
-        auto vertShader = new D3D11::VertexShader();
-        if ( not vertShader->compileFromSource( src, entryPoint ) )
-        {
-            delete vertShader;
-            return false;
-        }
-
-        m_pVertexShader.reset( vertShader );
-        _CreateVSConstantBuffer();
-        return true;
-    }
-
-    //----------------------------------------------------------------------
-    bool Shader::compileFragmentShaderFromSource( const String& src, CString entryPoint )
-    {
-        auto pixelShader = new D3D11::PixelShader();
-        if ( not pixelShader->compileFromSource( src, entryPoint ) )
-        {
-            delete pixelShader;
-            return false;
-        }
-
-        m_pPixelShader.reset( pixelShader );
-        _CreatePSConstantBuffer();
-        return true;
-    }
-
-    //----------------------------------------------------------------------
-    bool Shader::compileGeometryShaderFromSource( const String& src, CString entryPoint )
-    {
-        auto geometryShader = new D3D11::GeometryShader();
-        if ( not geometryShader->compileFromSource( src, entryPoint ) )
-        {
-            delete geometryShader;
-            return false;
-        }
-
-        m_pGeometryShader.reset( geometryShader );
-        _CreateGSConstantBuffer();
-        return true;
-    }
-
-    //----------------------------------------------------------------------
-    ArrayList<OS::Path> Shader::recompile()
-    {
-        ArrayList<OS::Path> shaderPaths;
-
-        if (m_pVertexShader)
-            if ( not m_pVertexShader->isUpToDate() )
-                if ( m_pVertexShader->recompile() )
-                    shaderPaths.emplace_back( m_pVertexShader->getFilePath() );
-        if (m_pPixelShader)
-            if ( not m_pPixelShader->isUpToDate() )
-                if ( m_pPixelShader->recompile() )
-                    shaderPaths.emplace_back( m_pPixelShader->getFilePath() );
-        if (m_pGeometryShader)
-            if ( not m_pGeometryShader->isUpToDate() )
-                if (m_pGeometryShader->recompile() )
-                    shaderPaths.emplace_back( m_pGeometryShader->getFilePath() );
+        m_pVertexShader->compileFromFile( vertPath, entryPoint );
+        m_pPixelShader->compileFromFile( fragPath, entryPoint );
 
         _CreateConstantBuffers();
-        return shaderPaths;
     }
 
     //----------------------------------------------------------------------
-    bool Shader::isUpToDate()
+    void Shader::compileFromSource( const String& vertSrc, const String& fragSrc, CString entryPoint )
     {
-        if (m_pVertexShader)
-            if ( not m_pVertexShader->isUpToDate() )
-                return false;
-        if (m_pPixelShader)
-            if ( not m_pPixelShader->isUpToDate() )
-                return false;
-        if (m_pGeometryShader)
-            if ( not m_pGeometryShader->isUpToDate() )
-                return false;
-        return true;
+        compileVertexShaderFromSource( vertSrc, entryPoint );
+        compileFragmentShaderFromSource( fragSrc, entryPoint );
+        _CreateConstantBuffers();
     }
 
     //----------------------------------------------------------------------
-    ArrayList<OS::Path> Shader::getShaderPaths() const
+    void Shader::compileVertexShaderFromSource( const String& src, CString entryPoint )
     {
-        ArrayList<OS::Path> shaderPaths;
-        if (m_pVertexShader)    shaderPaths.emplace_back( m_pVertexShader->getFilePath() );
-        if (m_pPixelShader)     shaderPaths.emplace_back( m_pPixelShader->getFilePath() );
-        if (m_pGeometryShader)  shaderPaths.emplace_back( m_pGeometryShader->getFilePath() );
-        return shaderPaths;
+        auto vertShader = std::make_unique<D3D11::VertexShader>();
+
+        vertShader->compileFromSource( src, entryPoint );
+
+        m_pVertexShader.swap( vertShader );
+        _CreateVSConstantBuffer();
+    }
+
+    //----------------------------------------------------------------------
+    void Shader::compileFragmentShaderFromSource( const String& src, CString entryPoint )
+    {
+        auto pixelShader = std::make_unique<D3D11::PixelShader>();
+        pixelShader->compileFromSource( src, entryPoint );
+
+        m_pPixelShader.swap( pixelShader );
+        _CreatePSConstantBuffer();
+    }
+
+    //----------------------------------------------------------------------
+    void Shader::compileGeometryShaderFromSource( const String& src, CString entryPoint )
+    {
+        auto geometryShader = std::make_unique<D3D11::GeometryShader>();
+        geometryShader->compileFromSource( src, entryPoint );
+
+        m_pGeometryShader.swap( geometryShader );
+        _CreateGSConstantBuffer();
     }
 
     //----------------------------------------------------------------------
@@ -263,8 +182,6 @@ namespace Graphics { namespace D3D11 {
     //----------------------------------------------------------------------
     void Shader::setRasterizationState( const RasterizationState& rzState )
     {
-        SAFE_RELEASE( m_pRSState );
-
         D3D11_RASTERIZER_DESC rsDesc = {};
         switch (rzState.fillMode)
         {
@@ -283,28 +200,24 @@ namespace Graphics { namespace D3D11 {
         rsDesc.MultisampleEnable = true;
         rsDesc.ScissorEnable = rzState.scissorEnable;
 
-        HR( g_pDevice->CreateRasterizerState( &rsDesc, &m_pRSState ) );
+        HR( g_pDevice->CreateRasterizerState( &rsDesc, &m_pRSState.releaseAndGet() ) );
     }
 
     //----------------------------------------------------------------------
     void Shader::setDepthStencilState( const DepthStencilState& dsState )
     {
-        SAFE_RELEASE( m_pDepthStencilState );
-
         D3D11_DEPTH_STENCIL_DESC depthStencilStateDesc = {};
 
         depthStencilStateDesc.DepthEnable       = dsState.depthEnable;
         depthStencilStateDesc.DepthWriteMask    = dsState.depthWrite ? D3D11_DEPTH_WRITE_MASK_ALL : D3D11_DEPTH_WRITE_MASK_ZERO;
         depthStencilStateDesc.DepthFunc         = Utility::TranslateComparisonFunc( dsState.depthFunc );
 
-        HR( g_pDevice->CreateDepthStencilState( &depthStencilStateDesc, &m_pDepthStencilState) );
+        HR( g_pDevice->CreateDepthStencilState( &depthStencilStateDesc, &m_pDepthStencilState.releaseAndGet() ) );
     }
 
     //----------------------------------------------------------------------
     void Shader::setBlendState( const BlendState& bState )
     {
-        SAFE_RELEASE( m_pBlendState );
-
         D3D11_BLEND_DESC blendDesc = {};
         blendDesc.AlphaToCoverageEnable  = bState.alphaToCoverage;
         blendDesc.IndependentBlendEnable = bState.independentBlending;
@@ -322,7 +235,7 @@ namespace Graphics { namespace D3D11 {
             blendDesc.RenderTarget[i].RenderTargetWriteMask = bs.writeMask;
         }
 
-        HR( g_pDevice->CreateBlendState( &blendDesc, &m_pBlendState ) );
+        HR( g_pDevice->CreateBlendState( &blendDesc, &m_pBlendState.releaseAndGet() ) );
     }
 
     //**********************************************************************
@@ -340,27 +253,24 @@ namespace Graphics { namespace D3D11 {
     void Shader::_CreateVSConstantBuffer()
     {
         _ClearAllMaps();
-        SAFE_DELETE( m_shaderDataVS );
         if ( auto cb = getVSUniformShaderBuffer() )
-            m_shaderDataVS = new MappedConstantBuffer( *cb, BufferUsage::LongLived );
+            m_shaderDataVS.reset( new MappedConstantBuffer( *cb, BufferUsage::LongLived ) );
     }
 
     //----------------------------------------------------------------------
     void Shader::_CreatePSConstantBuffer()
     {
         _ClearAllMaps();
-        SAFE_DELETE( m_shaderDataPS );
         if ( auto cb = getFSUniformShaderBuffer() )
-            m_shaderDataPS = new MappedConstantBuffer( *cb, BufferUsage::LongLived );
+            m_shaderDataPS.reset( new MappedConstantBuffer( *cb, BufferUsage::LongLived ) );
     }
 
     //----------------------------------------------------------------------
     void Shader::_CreateGSConstantBuffer()
     {
         _ClearAllMaps();
-        SAFE_DELETE( m_shaderDataGS );
         if ( auto cb = getGSUniformShaderBuffer() )
-            m_shaderDataGS = new MappedConstantBuffer( *cb, BufferUsage::LongLived );
+            m_shaderDataGS.reset( new MappedConstantBuffer( *cb, BufferUsage::LongLived ) );
     }
 
     //----------------------------------------------------------------------

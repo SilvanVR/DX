@@ -15,26 +15,22 @@ namespace Graphics { namespace D3D11 {
     {
     public:
         PixelShader() : ShaderBase(ShaderType::Fragment) {}
-        ~PixelShader();
+        ~PixelShader() = default;
 
         //----------------------------------------------------------------------
         // ShaderBase Interface
         //----------------------------------------------------------------------
         void bind() override;
         void unbind() override;
-        bool compileFromFile(const OS::Path& path, CString entryPoint) override;
-        bool compileFromSource(const String& shaderSource, CString entryPoint) override;
+        void compileFromFile(const OS::Path& path, CString entryPoint) override;
+        void compileFromSource(const String& shaderSource, CString entryPoint) override;
 
     private:
-        ID3D11PixelShader* m_pPixelShader = nullptr;
+        ComPtr<ID3D11PixelShader> m_pPixelShader = nullptr;
 
-        void _CreateD3D11PixelShader();
+        void _CreateD3D11PixelShader(const ShaderBlob& shaderBlob);
 
-        //----------------------------------------------------------------------
-        PixelShader(const PixelShader& other)               = delete;
-        PixelShader& operator = (const PixelShader& other)  = delete;
-        PixelShader(PixelShader&& other)                    = delete;
-        PixelShader& operator = (PixelShader&& other)       = delete;
+        NULL_COPY_AND_ASSIGN(PixelShader)
     };
 
 

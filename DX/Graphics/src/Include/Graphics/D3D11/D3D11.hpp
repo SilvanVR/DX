@@ -34,3 +34,29 @@ extern ID3D11DeviceContext*    g_pImmediateContext;
 #else
     #define HR(x) (x)
 #endif
+
+
+template <typename T>
+class ComPtr
+{
+public:
+    ComPtr(T* data = nullptr) : m_data(data) {}
+    ~ComPtr() { release(); }
+
+    T*&         get()       { return m_data; }
+    const T*&   get() const { return m_data; }
+
+    operator T*&() { return m_data; }
+
+    T*          operator-> ()       { return m_data; }
+    const T*    operator-> () const { return m_data; }
+
+    T*&         releaseAndGet()     { release(); return m_data; }
+
+    void release() { SAFE_RELEASE(m_data); }
+
+private:
+    T* m_data = nullptr;
+
+    NULL_COPY_AND_ASSIGN(ComPtr)
+};
