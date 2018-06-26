@@ -198,9 +198,8 @@ namespace Graphics {
     //----------------------------------------------------------------------
     void D3D11Renderer::present()
     {
-        m_pSwapchain->clear( Color::BLACK );
-
         _LockQueue();
+        m_pSwapchain->clear( Color::BLACK );
         for (auto& cmd : m_pendingCmdQueue)
             _ExecuteCommandBuffer( cmd );
         m_pendingCmdQueue.clear();
