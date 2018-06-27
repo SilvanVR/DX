@@ -8,17 +8,13 @@
     @Description:
     - Creates all components
       > For different component types the method can be overriden
-
-    @Considerations:
-    - Store all components here aswell
-      > For better data locality
-    - Fetch memory from a preallocated pool for components
 **********************************************************************/
 
-#include "Rendering/i_render_component.hpp"
-#include "Rendering/camera.h"
-
 namespace Components {
+
+    class Camera;
+    class IRenderComponent;
+    class ILightComponent;
 
     //**********************************************************************
     class ComponentManager
@@ -30,6 +26,7 @@ namespace Components {
         // <---------------------- COMPONENT STUFF ---------------------------->
         const ArrayList<Camera*>&           getCameras()    const { return m_pCameras; }
         const ArrayList<IRenderComponent*>& getRenderer()   const { return m_pRenderer; }
+        const ArrayList<ILightComponent*>&  getLights()     const { return m_pLights; }
 
         //----------------------------------------------------------------------
         // Creates a new component of type T
@@ -50,6 +47,7 @@ namespace Components {
     private:
         ArrayList<Camera*>              m_pCameras;
         ArrayList<IRenderComponent*>    m_pRenderer;
+        ArrayList<ILightComponent*>     m_pLights;
 
         //----------------------------------------------------------------------
         template <typename T, typename... Args> T*   _Create( Args&&... args );
@@ -82,6 +80,11 @@ namespace Components {
             m_pRenderer.push_back( component );
         }
 
+        if constexpr( std::is_base_of<ILightComponent, T>::value )
+        {
+            m_pLights.push_back( component );
+        }
+
         return component;
     }
 
@@ -97,6 +100,11 @@ namespace Components {
         if constexpr( std::is_base_of<IRenderComponent, T>::value )
         {
             m_pRenderer.erase( std::remove( m_pRenderer.begin(), m_pRenderer.end(), component ) );
+        }
+
+        if constexpr( std::is_base_of<ILightComponent, T>::value )
+        {
+            m_pLights.erase( std::remove(m_pLights.begin(), m_pLights.end(), component ) );
         }
     }
 

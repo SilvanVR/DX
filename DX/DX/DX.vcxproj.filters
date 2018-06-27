@@ -353,5 +353,8 @@
     <ClInclude Include="src\Include\GameplayLayer\Components\Rendering\gui.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Include\GameplayLayer\Components\Rendering\i_light_component.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

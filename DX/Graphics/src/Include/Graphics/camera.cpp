@@ -41,6 +41,7 @@ namespace Graphics {
     //----------------------------------------------------------------------
     F32 Camera::getAspectRatio() const
     {
+        ASSERT( m_renderTarget && "Camera has no render target! Please assign one to it." );
         return m_renderTarget->getAspectRatio() * (m_viewport.width / m_viewport.height);
     }
 

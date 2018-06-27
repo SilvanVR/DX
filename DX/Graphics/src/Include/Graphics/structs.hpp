@@ -25,10 +25,14 @@ namespace Graphics {
     // Rasterizer State
     struct RasterizationState
     {
-        FillMode    fillMode = FillMode::Solid;
-        CullMode    cullMode = CullMode::Back;
-        bool        frontCounterClockwise = false;
-        bool        scissorEnable = false;
+        FillMode    fillMode                = FillMode::Solid;
+        CullMode    cullMode                = CullMode::Back;
+        I32         depthBias               = 0;
+        F32         depthBiasClamp          = 0.0f;
+        F32         slopeScaledDepthBias    = 0.0f;
+        bool        frontCounterClockwise   = false;
+        bool        scissorEnable           = false;
+        bool        depthClipEnable         = true;
     };
 
     // Depth Stencil State

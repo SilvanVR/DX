@@ -24,13 +24,14 @@ namespace Graphics
         virtual ~IRenderTexture() = default;
 
         //----------------------------------------------------------------------
-        inline U32                         getWidth()                  const { return (U32)(getColorBuffer()->getWidth()); }
-        inline U32                         getHeight()                 const { return (U32)(getColorBuffer()->getHeight()); }
+        inline U32                         getWidth()                  const { return (U32)(getBuffer()->getWidth()); }
+        inline U32                         getHeight()                 const { return (U32)(getBuffer()->getHeight()); }
         inline bool                        dynamicScales()             const { return m_dynamicScale; }
         inline F32                         getDynamicScaleFactor()     const { return m_scaleFactor; }
+        inline bool                        hasColorBuffer()            const { return getColorBuffer() != nullptr; }
         inline bool                        hasDepthBuffer()            const { return getDepthBuffer() != nullptr; }
-        inline F32                         getAspectRatio()            const { return getColorBuffer()->getAspectRatio(); }
-        inline SamplingDescription         getSamplingDescription()    const { return getColorBuffer()->getSamplingDescription(); }
+        inline F32                         getAspectRatio()            const { return getBuffer()->getAspectRatio(); }
+        inline SamplingDescription         getSamplingDescription()    const { return getBuffer()->getSamplingDescription(); }
 
         //----------------------------------------------------------------------
         // These set functions will be forwarded to all renderbuffers within this texture.
@@ -50,6 +51,12 @@ namespace Graphics
         //  Depth-Buffer if present, otherwise nullptr.
         //----------------------------------------------------------------------
         inline const RenderBufferPtr& getDepthBuffer() const { return m_renderBuffers[m_bufferIndex].m_depthBuffer; }
+
+        //----------------------------------------------------------------------
+        // @Return:
+        //  First buffer which exists, i.e. colorbuffer if existent, otherwise depthbuffer.
+        //----------------------------------------------------------------------
+        inline const RenderBufferPtr& getBuffer() const { return hasColorBuffer() ? getColorBuffer() : getDepthBuffer(); }
 
         //----------------------------------------------------------------------
         // @Params:

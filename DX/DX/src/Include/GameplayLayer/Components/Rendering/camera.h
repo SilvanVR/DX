@@ -109,7 +109,7 @@ namespace Components {
         //----------------------------------------------------------------------
         // Renders the given scene
         //----------------------------------------------------------------------
-        void render(F32 lerp, const IScene& scene);
+        void render(const IScene& scene, F32 lerp);
 
     private:
         Graphics::Camera            m_camera;

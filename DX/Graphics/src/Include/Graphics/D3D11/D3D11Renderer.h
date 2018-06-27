@@ -14,7 +14,8 @@
 
 namespace Graphics {
 
-    #define MAX_LIGHTS 16
+    #define MAX_LIGHTS      16
+    #define MAX_SHADOWMAPS  4
 
     class Camera;
     class Light;

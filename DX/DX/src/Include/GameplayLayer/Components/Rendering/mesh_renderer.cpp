@@ -68,6 +68,23 @@ namespace Components {
     }
 
     //----------------------------------------------------------------------
+    void MeshRenderer::recordGraphicsCommandsShadows( Graphics::CommandBuffer& cmd, F32 lerp )
+    {
+        auto transform = getGameObject()->getTransform();
+        ASSERT( transform != nullptr );
+
+        static MaterialPtr mat = ASSETS.getMaterial("/engine/materials/shadowmap.material");
+
+        // Draw submesh with appropriate material
+        auto modelMatrix = transform->getWorldMatrix( lerp );
+        for (I32 i = 0; i < m_mesh->getSubMeshCount(); i++)
+        {
+            ASSERT( m_materials[i] != nullptr );
+            cmd.drawMesh( m_mesh, mat, modelMatrix, i );
+        }
+    }
+
+    //----------------------------------------------------------------------
     bool MeshRenderer::cull( const Camera& camera )
     {
         if ( m_mesh == nullptr )

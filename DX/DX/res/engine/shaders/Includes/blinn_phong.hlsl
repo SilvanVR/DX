@@ -2,6 +2,12 @@
 #define SPECULAR_POWER 64
 
 //----------------------------------------------------------------------
+bool inRange( float val )
+{
+	return val >= 0.001 && val < 0.999;
+}
+
+//----------------------------------------------------------------------
 // LIGHTING (Blinn-Phong)
 //----------------------------------------------------------------------
 
@@ -30,14 +36,27 @@ float DoAttenuation( Light light, float d )
 //----------------------------------------------------------------------
 // DIRECTIONAL LIGHT
 //----------------------------------------------------------------------
-float4 DoDirectionalLight( Light light, float3 V, float3 N )
+float4 DoDirectionalLight( Light light, float3 V, float3 P, float3 N )
 {
     float3 L = -light.direction;
  
     float4 diffuse = DoDiffuse( light, L, N );
-    float4 specular = DoSpecular( light, V, L, N );
+    float4 specular = DoSpecular( light, V, L, N );	
+		
+	float shadow = 0.0f;	
+	float4 lightSpace = mul( _LightViewProj[0], float4(P, 1) );
+	float3 projCoords = lightSpace.xyz / lightSpace.w;
+	float2 uv = projCoords.xy * 0.5 + 0.5;
+	uv.y = 1 - uv.y;
+
+	float currentDepth = projCoords.z;
+	if ( inRange(currentDepth) && inRange(uv.x)  && inRange(uv.y) )
+	{	
+		float closestDepth = shadowMap.Sample( shadowMapSampler, uv ).r;
+		shadow = currentDepth < closestDepth ? 0.0 : 1.0;
+	}
  
-    return diffuse + specular;
+    return (diffuse + specular) * (1 - shadow);
 }
 
 //----------------------------------------------------------------------
@@ -102,7 +121,7 @@ float4 APPLY_LIGHTING( float3 P, float3 N )
         switch( _Lights[i].lightType )
         {
         case DIRECTIONAL_LIGHT:
-            totalLight += DoDirectionalLight( _Lights[i], V, normal );
+            totalLight += DoDirectionalLight( _Lights[i], V, P, normal );
             break;
 		case POINT_LIGHT:
             totalLight += DoPointLight( _Lights[i], V, P, normal );

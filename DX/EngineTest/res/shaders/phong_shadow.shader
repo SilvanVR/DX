@@ -1,6 +1,6 @@
 // ----------------------------------------------
 #Fill			Solid
-#Cull 			None
+#Cull 			Back
 #ZWrite 		On
 #ZTest 			Less
 #Queue 			Geometry
@@ -64,10 +64,23 @@ static const float ALPHA_THRESHOLD = 0.1f;
 float4 main(FragmentIn fin) : SV_Target
 {
 	float4 textureColor = albedo.Sample(sampler0, fin.Tex * uvScale);
+	//float4 depth = shadowMap.Sample(shadowMapSampler, fin.Tex);
 	
 	//return float4(fin.Normal,1);
 	if (textureColor.a < ALPHA_THRESHOLD)
 		discard;
+		
+	float4 lightSpace = mul( _LightViewProj[0], float4(fin.WorldPos, 1) );
+	float3 projCoords = lightSpace.xyz / lightSpace.w;
+	float2 uv = projCoords.xy * 0.5 + 0.5;
+	uv.y = 1 - uv.y;
 	
-	return APPLY_LIGHTING( textureColor, fin.WorldPos, fin.Normal ); 
+	float currentDepth = projCoords.z;
+	float closestDepth = shadowMap.Sample( shadowMapSampler, uv ).r;
+	float shadow = currentDepth < closestDepth ? 0.0 : 1.0;
+
+	if ( !inRange(currentDepth) || !inRange(uv.x) || !inRange(uv.y))
+		shadow = 0;
+		
+	return APPLY_LIGHTING( textureColor, fin.WorldPos, fin.Normal );// * (1-shadow); 
 }

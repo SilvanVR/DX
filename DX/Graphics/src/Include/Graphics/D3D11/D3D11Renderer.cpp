@@ -34,6 +34,7 @@ namespace Graphics {
 
     static const StringID LIGHT_COUNT_NAME          = SID( "_LightCount" );
     static const StringID LIGHT_BUFFER_NAME         = SID( "_Lights" );
+    static const StringID LIGHT_VIEW_PROJ_NAME      = SID( "_LightViewProj" );
     static const StringID CAM_POS_NAME              = SID( "_CameraPos" );
     static const StringID POST_PROCESS_INPUT_NAME   = SID( "_MainTex" );
     static const StringID CAM_VIEW_PROJ_NAME        = SID( "_ViewProj" );
@@ -170,7 +171,7 @@ namespace Graphics {
                 {
                     auto& cmd = *reinterpret_cast<GPUC_SetCameraMatrix*>( command.get() );
                     if ( not CAMERA_BUFFER.update( cmd.name, &cmd.matrix ) )
-                        LOG_ERROR_RENDERING( "D3D11: Could not update the camera buffer ["+cmd.name.toString()+"]." );
+                        LOG_WARN_RENDERING( "D3D11: Could not update the camera buffer ["+cmd.name.toString()+"]." );
                     else
                         CAMERA_BUFFER.flush();
                     break;
@@ -498,12 +499,22 @@ namespace Graphics {
             //----------------------------------- (16 byte boundary)
         } lights[MAX_LIGHTS];
 
+        I32 curShadowMapIndex = 0;
+        DirectX::XMMATRIX lightViewProjs[MAX_SHADOWMAPS];
+
         // Update light array
         for (I32 i = 0; i < renderContext.lightCount; i++)
         {
             lights[i].color     = renderContext.lights[i]->getColor().normalized();
             lights[i].intensity = renderContext.lights[i]->getIntensity();
             lights[i].lightType = (I32)renderContext.lights[i]->getLightType();
+
+            if ( renderContext.lights[i]->shadowsEnabled() )
+            {
+                lightViewProjs[curShadowMapIndex++] = renderContext.lights[i]->getShadowViewProjection();
+                D3D11::IBindableTexture* sm = dynamic_cast<D3D11::IBindableTexture*>( renderContext.lights[i]->getShadowMap().get() );
+                sm->bind( Graphics::ShaderType::Fragment, 8 );
+            }
 
             switch ( renderContext.lights[i]->getLightType() )
             {
@@ -534,11 +545,13 @@ namespace Graphics {
             }
         }
 
-        // Update gpu buffer
-        static StringID lightBufferName = SID( LIGHT_BUFFER_NAME );
-        if ( not LIGHT_BUFFER.update( lightBufferName, &lights ) )
+        if ( not LIGHT_BUFFER.update( LIGHT_BUFFER_NAME, &lights ) )
             LOG_ERROR_RENDERING( "Failed to update light-buffer. Something is horribly broken! Fix this!" );
 
+        if ( not LIGHT_BUFFER.update( LIGHT_VIEW_PROJ_NAME, &lightViewProjs ) )
+            LOG_ERROR_RENDERING( "Failed to update light-buffer [ViewProjections]. Something is horribly broken! Fix this!" );
+
+        // Update gpu buffer
         LIGHT_BUFFER.flush();
     }
 

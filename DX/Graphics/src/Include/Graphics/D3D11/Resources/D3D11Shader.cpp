@@ -196,9 +196,12 @@ namespace Graphics { namespace D3D11 {
         }
 
         rsDesc.FrontCounterClockwise = rzState.frontCounterClockwise;
-        rsDesc.DepthClipEnable   = true;
-        rsDesc.MultisampleEnable = true;
-        rsDesc.ScissorEnable = rzState.scissorEnable;
+        rsDesc.DepthClipEnable       = rzState.depthClipEnable;
+        rsDesc.MultisampleEnable     = true;
+        rsDesc.ScissorEnable         = rzState.scissorEnable;
+        rsDesc.DepthBias             = rzState.depthBias;
+        rsDesc.SlopeScaledDepthBias  = rzState.slopeScaledDepthBias;
+        rsDesc.DepthBiasClamp        = rzState.depthBiasClamp;
 
         HR( g_pDevice->CreateRasterizerState( &rsDesc, &m_pRSState.releaseAndGet() ) );
     }

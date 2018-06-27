@@ -106,7 +106,6 @@ namespace Graphics {
     private:
         CameraMode m_cameraMode = CameraMode::Perspective;
 
-
         // Z Clipping Planes
         F32 m_zNear     = 0.1f;
         F32 m_zFar      = 1000.0f;

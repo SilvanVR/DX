@@ -5,6 +5,7 @@
 // "light": Per light constant buffer.
 
 #define MAX_LIGHTS 			16
+#define MAX_SHADOWMAPS		4
 #define DIRECTIONAL_LIGHT 	0
 #define POINT_LIGHT 		1
 #define SPOT_LIGHT 			2
@@ -45,9 +46,13 @@ struct Light
  
 cbuffer cbBufferLights : register(b3)
 {
-	Light 	_Lights[MAX_LIGHTS];
-	int 	_LightCount;
+	Light 		_Lights[MAX_LIGHTS];
+	int 		_LightCount;
+	float4x4 	_LightViewProj[MAX_SHADOWMAPS];
 };
+
+Texture2D shadowMap : register(t8);
+SamplerState shadowMapSampler : register(s8);
 
 // ----------------------------------------------
 float4 TO_LINEAR( float4 color )

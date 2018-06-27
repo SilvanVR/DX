@@ -9,6 +9,7 @@
 #include "Graphics/i_shader.h"
 #include "OS/FileSystem/file.h"
 #include "Common/string_utils.h"
+#include <sstream>
 
 #define SHADER_NAME                     "#shader"
 #define VERTEX_SHADER                   "vertex"
@@ -16,14 +17,18 @@
 #define GEOMETRY_SHADER                 "geometry"
 #define TESSELLATION_SHADER             "tessellation"
 
-#define RASTERIZATION_CULL              "#cull"
-#define RASTERIZATION_CULL_FRONT        "front"
-#define RASTERIZATION_CULL_BACK         "back"
-#define RASTERIZATION_CULL_NONE         "none"
-#define RASTERIZATION_FILL              "#fill"
-#define RASTERIZATION_FILL_SOLID        "solid"
-#define RASTERIZATION_FILL_WIREFRAME    "wireframe"
-#define RASTERIZATION_SCISSOR           "#scissor"
+#define RASTERIZATION_CULL                      "#cull"
+#define RASTERIZATION_CULL_FRONT                "front"
+#define RASTERIZATION_CULL_BACK                 "back"
+#define RASTERIZATION_CULL_NONE                 "none"
+#define RASTERIZATION_FILL                      "#fill"
+#define RASTERIZATION_FILL_SOLID                "solid"
+#define RASTERIZATION_FILL_WIREFRAME            "wireframe"
+#define RASTERIZATION_SCISSOR                   "#scissor"
+#define RASTERIZATION_DEPTH_BIAS                "#depthbias"
+#define RASTERIZATION_SLOPE_SCALED_DEPTH_BIAS   "#dbslopescaled"
+#define RASTERIZATION_DEPTH_BIAS_CLAMP          "#dbclamp"
+#define RASTERIZATION_DEPTH_CLIP                "#depthclip"
 
 #define DEPTH_STENCIL_ZWRITE            "#zwrite"
 #define DEPTH_STENCIL_ZTEST             "#ztest"
@@ -185,6 +190,49 @@ namespace Assets {
                     if (line.find( "on" ) != String::npos)        rzState.scissorEnable = true;
                     else if (line.find( "off" ) != String::npos)  rzState.scissorEnable = false;
                     else LOG_WARN( "Could not read scissor state in shader '" + filePath.toString() + "'." );
+                }
+                // Depth bias
+                else if ( line.find( RASTERIZATION_DEPTH_BIAS ) != String::npos )
+                {
+                    auto pos = line.find( RASTERIZATION_DEPTH_BIAS );
+                    StringUtils::IStringStream ssLine( line.substr( pos + String( RASTERIZATION_DEPTH_BIAS ).size() ) );
+                    ssLine >> rzState.depthBias;
+                    if ( ssLine.failed() )
+                    {
+                        LOG_WARN( "Could not read depth bias in shader '" + filePath.toString() + "'." );
+                        rzState.depthBias = 0;
+                    }
+                }
+                // Depth bias slope scale
+                else if ( line.find( RASTERIZATION_SLOPE_SCALED_DEPTH_BIAS ) != String::npos )
+                {
+                    auto pos = line.find( RASTERIZATION_SLOPE_SCALED_DEPTH_BIAS );
+                    StringUtils::IStringStream ssLine( line.substr( pos + String( RASTERIZATION_SLOPE_SCALED_DEPTH_BIAS ).size() ) );
+                    ssLine >> rzState.slopeScaledDepthBias;
+                    if ( ssLine.failed() )
+                    {
+                        LOG_WARN( "Could not read depth bias slope scale in shader '" + filePath.toString() + "'." );
+                        rzState.slopeScaledDepthBias = 0.0f;
+                    }
+                }
+                // Depth bias clamp
+                else if ( line.find( RASTERIZATION_DEPTH_BIAS_CLAMP ) != String::npos )
+                {
+                    auto pos = line.find( RASTERIZATION_DEPTH_BIAS_CLAMP );
+                    StringUtils::IStringStream ssLine( line.substr( pos + String( RASTERIZATION_DEPTH_BIAS_CLAMP ).size() ) );
+                    ssLine >> rzState.depthBiasClamp;
+                    if ( ssLine.failed() )
+                    {
+                        LOG_WARN( "Could not read depth bias clamp in shader '" + filePath.toString() + "'." );
+                        rzState.depthBiasClamp = 0.0f;
+                    }
+                }
+                // Depth clip
+                else if ( line.find( RASTERIZATION_DEPTH_CLIP ) != String::npos )
+                {
+                    if (line.find("on") != String::npos)        rzState.depthClipEnable = true;
+                    else if (line.find("off") != String::npos)  rzState.depthClipEnable = false;
+                    else LOG_WARN( "Could not read depth clip in shader '" + filePath.toString() + "'." );
                 }
             }
 

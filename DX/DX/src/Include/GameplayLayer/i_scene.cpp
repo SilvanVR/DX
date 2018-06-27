@@ -12,6 +12,7 @@
 
 #include "gameobject.h"
 #include "Components/transform.h"
+#include "Components/Rendering/camera.h"
 
 //----------------------------------------------------------------------
 IScene::IScene( CString name ) 

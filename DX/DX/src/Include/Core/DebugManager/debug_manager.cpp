@@ -16,6 +16,7 @@
 #include "GameplayLayer/i_scene.h"
 #include "Core/mesh_generator.h"
 #include "Graphics/default_shaders.hpp"
+#include "GameplayLayer/Components/Rendering/camera.h"
 
 namespace Core { namespace Debug {
 

@@ -9,34 +9,27 @@
     The direction is determined based on the attached transform component.
 **********************************************************************/
 
-#include "i_render_component.hpp"
+#include "i_light_component.hpp"
 #include "Graphics/Lighting/directional_light.h"
 
 namespace Components {
 
     //**********************************************************************
-    class DirectionalLight : public IRenderComponent
+    class DirectionalLight : public ILightComponent
     {
     public:
         //----------------------------------------------------------------------
         DirectionalLight(F32 intensity = 1.0f, Color color = Color::WHITE);
 
-        //----------------------------------------------------------------------
-        Color   getColor()      const { return m_dirLight.getColor(); }
-        F32     getIntensity()  const { return m_dirLight.getIntensity(); }
-
-        //----------------------------------------------------------------------
-        void setIntensity   (F32 intensity) { m_dirLight.setIntensity(intensity); }
-        void setColor       (Color color)   { m_dirLight.setColor(color); }
-
     private:
-        Graphics::DirectionalLight m_dirLight;
+        Graphics::DirectionalLight* m_dirLight;
 
         //----------------------------------------------------------------------
         // IRendererComponent Interface
         //----------------------------------------------------------------------
         void recordGraphicsCommands(Graphics::CommandBuffer& cmd, F32 lerp) override;
         bool cull(const Camera& camera) override { return true; }
+        void renderShadowMap(const IScene& scene, F32 lerp);
 
         NULL_COPY_AND_ASSIGN(DirectionalLight)
     };

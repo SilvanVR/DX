@@ -13,6 +13,7 @@
 #include "Logging/logging.h"
 #include "Common/string_utils.h"
 #include "GameplayLayer/i_scene.h"
+#include "GameplayLayer/Components/Rendering/camera.h"
 
 namespace Core { 
 

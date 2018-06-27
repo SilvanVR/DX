@@ -12,6 +12,7 @@
 #include "Core/locator.h"
 #include "Core/layer_defines.hpp"
 #include "GameplayLayer/i_scene.h"
+#include "i_light_component.hpp"
 
 
 namespace Components {
@@ -54,7 +55,7 @@ namespace Components {
     }
 
     //----------------------------------------------------------------------
-    void Camera::render( F32 lerp, const IScene& scene )
+    void Camera::render( const IScene& scene, F32 lerp )
     {
         // Update camera 
         auto transform = getGameObject()->getTransform();
@@ -67,6 +68,35 @@ namespace Components {
         // Set camera
         cmd.setCamera( &m_camera );
 
+        // Record commands for every light component
+        ArrayList<ILightComponent*> visibleLights;
+        for ( auto& light : scene.getComponentManager().getLights() )
+        {
+            if ( not light->isActive() )
+                continue;
+
+            // Check if layer matches
+            bool layerMatch = m_cullingMask.isBitSet( light->getGameObject()->getLayers() );
+            if ( not layerMatch )
+                continue;
+
+            // Check if component is visible
+            bool isVisible = light->cull( *this );
+            if (isVisible)
+            {
+                light->recordGraphicsCommands( cmd, lerp );
+                visibleLights.push_back( light );
+            }
+        }
+
+        // Render shadowmap if enabled for a visible light
+        if (visibleLights.size() > 0)
+        {
+            for (auto& light : visibleLights)
+                if ( light->shadowsEnabled() )
+                    light->renderShadowMap( scene, lerp );
+        }
+
         // Record commands for every rendering component
         for ( auto& renderer : scene.getComponentManager().getRenderer() )
         {
@@ -74,7 +104,7 @@ namespace Components {
                 continue;
 
             // Check if layer matches
-            bool layerMatch = ( m_cullingMask & renderer->getGameObject()->getLayers() ).isAnyBitSet();
+            bool layerMatch = m_cullingMask.isBitSet( renderer->getGameObject()->getLayers() );
             if ( not layerMatch )
                 continue;
 
@@ -105,7 +135,7 @@ namespace Components {
         // Add an end camera command
         cmd.endCamera( &m_camera );
 
-        // Submit command buffer to render engine
+        // Submit command buffers to render engine
         Locator::getRenderer().dispatch( cmd );
     }
 
@@ -113,6 +143,7 @@ namespace Components {
     // PUBLIC
     //**********************************************************************
 
+    //----------------------------------------------------------------------
     void Camera::addCommandBuffer(Graphics::CommandBuffer* cmd, CameraEvent evt )
     { 
         m_additionalCommandBuffers[evt].push_back( cmd );

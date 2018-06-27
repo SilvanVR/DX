@@ -77,13 +77,22 @@ public:
 
         // LIGHTS
         auto sun = createGameObject("Sun");
-        sun->addComponent<Components::DirectionalLight>(1.0f, Color::WHITE);
+        auto dl = sun->addComponent<Components::DirectionalLight>(0.3f, Color::WHITE);
         sun->getTransform()->rotation = Math::Quat::LookRotation(Math::Vec3{ 0,-1, 1 });
         //sun->addComponent<ConstantRotation>(15.0f, 0.0f, 0.0f);
 
+        auto pl = createGameObject("PL");
+        pl->addComponent<Components::PointLight>(1.0f, Color::ORANGE);
+        pl->getTransform()->position = { 3, 2, 0 };
+
         go->addComponent<Components::GUI>();
-        go->addComponent<Components::GUIImage>(ASSETS.getTexture2D("/textures/nico.jpg"), 0.2f);
+        go->addComponent<Components::GUIImage>(dl->getShadowMap(), 0.1f);
         go->addComponent<Components::GUIFPS>();
+        go->addComponent<Components::GUICustom>([sun] {
+            static Math::Vec3 deg{45.0f, 0.0f, 0.0f};
+            ImGui::SliderFloat3( "Sun Rotation", &deg.x, 0.0f, 360.0f );
+            sun->getTransform()->rotation = Math::Quat::FromEulerAngles(deg);
+        });
 
         LOG("TestScene initialized!", Color::RED);
     }

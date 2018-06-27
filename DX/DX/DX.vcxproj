@@ -434,6 +434,7 @@
     <ClInclude Include="src\Include\GameplayLayer\Components\Rendering\camera.h" />
     <ClInclude Include="src\Include\GameplayLayer\Components\Rendering\directional_light.h" />
     <ClInclude Include="src\Include\GameplayLayer\Components\Rendering\gui.h" />
+    <ClInclude Include="src\Include\GameplayLayer\Components\Rendering\i_light_component.hpp" />
     <ClInclude Include="src\Include\GameplayLayer\Components\Rendering\i_render_component.hpp" />
     <ClInclude Include="src\Include\GameplayLayer\Components\Rendering\point_light.h" />
     <ClInclude Include="src\Include\GameplayLayer\Components\Rendering\spot_light.h" />

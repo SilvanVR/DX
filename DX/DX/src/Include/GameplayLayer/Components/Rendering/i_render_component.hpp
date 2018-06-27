@@ -1,6 +1,6 @@
 #pragma once
 /**********************************************************************
-    class: IRenderComponent (model_renderer.h)
+    class: IRenderComponent (i_render_component.hpp)
 
     author: S. Hau
     date: March 6, 2018
@@ -23,6 +23,7 @@ namespace Components {
 
         //----------------------------------------------------------------------
         virtual void recordGraphicsCommands(Graphics::CommandBuffer& cmd, F32 lerp) {}
+        virtual void recordGraphicsCommandsShadows(Graphics::CommandBuffer& cmd, F32 lerp) {}
         virtual bool cull(const Camera& camera) { return true; }
 
     private:

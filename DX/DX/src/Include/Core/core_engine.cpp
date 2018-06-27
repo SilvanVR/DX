@@ -118,7 +118,7 @@ namespace Core {
         // Render each camera
         auto& scene = Locator::getSceneManager().getCurrentScene();
         for ( auto& cam : scene.getComponentManager().getCameras() )
-            cam->render( lerp, scene );
+            cam->render( scene, lerp );
 
         // Present backbuffer to screen
         graphicsEngine.present();

@@ -14,8 +14,9 @@ namespace Components {
 
     //----------------------------------------------------------------------
     PointLight::PointLight( F32 intensity, Color color, F32 range )
-        : m_pointLight( intensity, color, {}, range )
+        : ILightComponent( new Graphics::PointLight( intensity, color, {}, range ) )
     {
+        m_pointLight = dynamic_cast<Graphics::PointLight*>( m_light.get() );
     }
 
     //**********************************************************************
@@ -28,9 +29,9 @@ namespace Components {
         auto transform = getGameObject()->getTransform();
         ASSERT( transform != nullptr );
 
-        m_pointLight.setPosition( transform->getWorldPosition() );
+        m_pointLight->setPosition( transform->getWorldPosition() );
 
-        cmd.drawLight( &m_pointLight );
+        cmd.drawLight( m_pointLight );
     }
 
     //----------------------------------------------------------------------

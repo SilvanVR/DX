@@ -14,8 +14,9 @@ namespace Components {
 
     //----------------------------------------------------------------------
     SpotLight::SpotLight( F32 intensity, Color color, F32 spotAngleInDegrees, F32 range )
-        : m_spotLight( intensity, color, { 0, 1, 0 }, spotAngleInDegrees, { 0, 0, 1 }, range )
+        : ILightComponent( new Graphics::SpotLight( intensity, color, { 0, 1, 0 }, spotAngleInDegrees, { 0, 0, 1 }, range ) )
     {
+        m_spotLight = dynamic_cast<Graphics::SpotLight*>( m_light.get() );
     }
 
     //**********************************************************************
@@ -28,10 +29,10 @@ namespace Components {
         auto transform = getGameObject()->getTransform();
         ASSERT( transform != nullptr );
 
-        m_spotLight.setPosition( transform->getWorldPosition());
-        m_spotLight.setDirection( transform->getWorldRotation().getForward() );
+        m_spotLight->setPosition( transform->getWorldPosition());
+        m_spotLight->setDirection( transform->getWorldRotation().getForward() );
 
-        cmd.drawLight( &m_spotLight );
+        cmd.drawLight( m_spotLight );
     }
 
     //----------------------------------------------------------------------

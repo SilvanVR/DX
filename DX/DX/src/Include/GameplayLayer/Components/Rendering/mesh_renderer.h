@@ -50,6 +50,7 @@ namespace Components {
         // IRendererComponent Interface
         //----------------------------------------------------------------------
         void recordGraphicsCommands(Graphics::CommandBuffer& cmd, F32 lerp) override;
+        void recordGraphicsCommandsShadows(Graphics::CommandBuffer& cmd, F32 lerp) override;
         bool cull(const Camera& camera) override;
 
         NULL_COPY_AND_ASSIGN(MeshRenderer)

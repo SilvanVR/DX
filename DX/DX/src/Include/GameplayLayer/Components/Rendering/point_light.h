@@ -9,30 +9,26 @@
     The position is determined based on the attached transform component.
 **********************************************************************/
 
-#include "i_render_component.hpp"
+#include "i_light_component.hpp"
 #include "Graphics/Lighting/point_light.h"
 
 namespace Components {
 
     //**********************************************************************
-    class PointLight : public IRenderComponent
+    class PointLight : public ILightComponent
     {
     public:
         //----------------------------------------------------------------------
         PointLight(F32 intensity = 1.0f, Color color = Color::WHITE, F32 range = 10.0f);
 
         //----------------------------------------------------------------------
-        F32   getIntensity() const { return m_pointLight.getIntensity(); }
-        Color getColor()     const { return m_pointLight.getColor(); }
-        F32   getRange()     const { return m_pointLight.getRange(); }
+        F32 getRange() const { return m_pointLight->getRange(); }
 
         //----------------------------------------------------------------------
-        void setIntensity   (F32 intensity) { m_pointLight.setIntensity(intensity); }
-        void setColor       (Color color)   { m_pointLight.setColor(color); }
-        void setRange       (F32 range)     { m_pointLight.setRange(range); }
+        void setRange(F32 range) { m_pointLight->setRange(range); }
 
     private:
-        Graphics::PointLight m_pointLight;
+        Graphics::PointLight* m_pointLight;
 
         //----------------------------------------------------------------------
         // IRendererComponent Interface

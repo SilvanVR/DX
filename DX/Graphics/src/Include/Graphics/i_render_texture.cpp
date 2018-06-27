@@ -1,6 +1,6 @@
 #include "i_render_texture.h"
 /**********************************************************************
-    class: RenderTexture (render_texture.cpp)
+    class: IRenderTexture (render_texture.cpp)
 
     author: S. Hau
     date: March 4, 2018
@@ -10,7 +10,7 @@ namespace Graphics
 {
 
     //----------------------------------------------------------------------
-    void RenderTexture::setDynamicScreenScale( bool shouldScale, F32 scaleFactor ) 
+    void IRenderTexture::setDynamicScreenScale( bool shouldScale, F32 scaleFactor ) 
     { 
         m_dynamicScale = shouldScale;
         if (scaleFactor != m_scaleFactor)
@@ -26,21 +26,22 @@ namespace Graphics
     }
 
     //----------------------------------------------------------------------
-    void RenderTexture::clear( Color color, F32 depth, U8 stencil )
+    void IRenderTexture::clear( Color color, F32 depth, U8 stencil )
     {
-        m_renderBuffers[m_bufferIndex].m_colorBuffer->clearColor( color );
+        if ( hasColorBuffer() )
+            m_renderBuffers[m_bufferIndex].m_colorBuffer->clearColor( color );
         if ( hasDepthBuffer() )
             m_renderBuffers[m_bufferIndex].m_depthBuffer->clearDepthStencil( depth, stencil );
     }
 
     //----------------------------------------------------------------------
-    void RenderTexture::clearDepthStencil( F32 depth, U8 stencil )
+    void IRenderTexture::clearDepthStencil( F32 depth, U8 stencil )
     {
         m_renderBuffers[m_bufferIndex].m_depthBuffer->clearDepthStencil( depth, stencil );
     }
 
     //----------------------------------------------------------------------
-    void RenderTexture::create( const RenderBufferPtr& colorBuffer, const RenderBufferPtr& depthBuffer )
+    void IRenderTexture::create( const RenderBufferPtr& colorBuffer, const RenderBufferPtr& depthBuffer )
     {
         m_renderBuffers.resize( 1 );
         m_renderBuffers[0].m_colorBuffer = colorBuffer;
@@ -48,7 +49,7 @@ namespace Graphics
     }
 
     //----------------------------------------------------------------------
-    void RenderTexture::create( const ArrayList<RenderBufferPtr>& colorBuffers, const ArrayList<RenderBufferPtr>& depthBuffers )
+    void IRenderTexture::create( const ArrayList<RenderBufferPtr>& colorBuffers, const ArrayList<RenderBufferPtr>& depthBuffers )
     {
         m_renderBuffers.resize( colorBuffers.size() );
         for (I32 i = 0; i < m_renderBuffers.size(); i++)
@@ -59,7 +60,7 @@ namespace Graphics
     }
 
     //----------------------------------------------------------------------
-    void RenderTexture::recreate( U32 w, U32 h, SamplingDescription samplingDesc )
+    void IRenderTexture::recreate( U32 w, U32 h, SamplingDescription samplingDesc )
     {
         for (auto& buffer : m_renderBuffers)
         {
@@ -70,14 +71,14 @@ namespace Graphics
     }
 
     //----------------------------------------------------------------------
-    void RenderTexture::recreate( Graphics::TextureFormat format )
+    void IRenderTexture::recreate( Graphics::TextureFormat format )
     {
         for (auto& buffer : m_renderBuffers)
             buffer.m_colorBuffer->recreate( format );
     }
 
     //----------------------------------------------------------------------
-    void RenderTexture::setFilter( TextureFilter filter )
+    void IRenderTexture::setFilter( TextureFilter filter )
     {
         for (auto& buffer : m_renderBuffers)
         {
@@ -88,7 +89,7 @@ namespace Graphics
     }
 
     //----------------------------------------------------------------------
-    void RenderTexture::setClampMode( TextureAddressMode clampMode )
+    void IRenderTexture::setClampMode( TextureAddressMode clampMode )
     {
         for (auto& buffer : m_renderBuffers)
         {
@@ -99,7 +100,7 @@ namespace Graphics
     }
 
     //----------------------------------------------------------------------
-    void RenderTexture::setAnisoLevel( U32 level )
+    void IRenderTexture::setAnisoLevel( U32 level )
     {
         for (auto& buffer : m_renderBuffers)
         {
@@ -114,7 +115,7 @@ namespace Graphics
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    I32 RenderTexture::_PreviousBufferIndex()
+    I32 IRenderTexture::_PreviousBufferIndex()
     {
         I32 index = (m_bufferIndex - 1);
         if (index < 0)
