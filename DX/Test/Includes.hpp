@@ -1,13 +1,12 @@
 #pragma once
 
-#include "stdafx.h"
-
-#include "Core/OS/PlatformTimer/platform_timer.h"
-#include "Core/MemoryManagement/Allocators/pool_allocator.hpp"
-#include "Core/MemoryManagement/Allocators/pool_list_allocator.hpp"
-#include "Core/MemoryManagement/Allocators/stack_allocator.hpp"
-#include "Core/MemoryManagement/Allocators/universal_allocator.hpp"
-#include "Core/MemoryManagement/Allocators/universal_allocator_defragmented.hpp"
 #include "DX.h"
+#include "OS/PlatformTimer/platform_timer.h"
+#include "Memory/Allocators/pool_allocator.hpp"
+#include "Memory/Allocators/pool_list_allocator.hpp"
+#include "Memory/Allocators/stack_allocator.hpp"
+#include "Memory/Allocators/universal_allocator.hpp"
+#include "Memory/Allocators/universal_allocator_defragmented.hpp"
+
 
 using namespace Core;

@@ -22,7 +22,7 @@ void TestThreading()
     }
 
     OS::JobPtr i = threadPool.addJob([] {
-        WARN("A super awesome job");
+        LOG_WARN("A super awesome job");
     });
 
 }

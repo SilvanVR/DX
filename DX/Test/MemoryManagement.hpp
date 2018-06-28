@@ -3,9 +3,9 @@
 
 
 
-void TestMemoryManagement()
+void TestMemory()
 {
-    MemoryManagement::UniversalAllocator gUniversalAllocator(1000);
+    Memory::UniversalAllocator gUniversalAllocator(1000);
 
     const int SIZE = 1000;
 
@@ -27,7 +27,7 @@ void TestMemoryManagement()
     {
         LOG("MEASURE POOL ALLOCATOR...");
         static A* a2[SIZE];
-        MemoryManagement::PoolAllocator poolAllocator(sizeof(A), SIZE);
+        Memory::PoolAllocator poolAllocator(sizeof(A), SIZE);
         {
             AutoClock clock;
 
@@ -46,7 +46,7 @@ void TestMemoryManagement()
     {
         LOG("MEASURE STACK ALLOCATOR...");
         static A* a3[SIZE];
-        MemoryManagement::StackAllocator stackAllocator(SIZE * sizeof(A) * 2);
+        Memory::StackAllocator stackAllocator(SIZE * sizeof(A) * 2);
         {
             AutoClock clock;
             for (int i = 0; i < SIZE; i++)
@@ -58,7 +58,7 @@ void TestMemoryManagement()
     }
 
     {
-        MemoryManagement::PoolListAllocator poolListAllocator({ 8, 16, 32, 64, 128, 256 }, 32);
+        Memory::PoolListAllocator poolListAllocator({ 8, 16, 32, 64, 128, 256 }, 32);
 
         A* a;
         a = poolListAllocator.allocate<A>();
@@ -72,25 +72,25 @@ void TestMemoryManagement()
     }
 
     {
-        MemoryManagement::UniversalAllocatorDefragmented universalDefragmentedAllocator(1000, 10);
+        Memory::UniversalAllocatorDefragmented universalDefragmentedAllocator(1000, 10);
 
         auto a = universalDefragmentedAllocator.allocate<A>(1);
         A* aRaw = a.getRaw();
         universalDefragmentedAllocator.deallocate(a);
 
-        MemoryManagement::UAPtr<B> b = universalDefragmentedAllocator.allocate<B>(1);
-        MemoryManagement::UAPtr<A> a2 = b;
+        Memory::UAPtr<B> b = universalDefragmentedAllocator.allocate<B>(1);
+        Memory::UAPtr<A> a2 = b;
         universalDefragmentedAllocator.deallocate(a2);
 
         auto raw = universalDefragmentedAllocator.allocateRaw(1);
         Byte* r = raw.getRaw();
         universalDefragmentedAllocator.deallocate(raw);
 
-        MemoryManagement::UAPtr<U32> u32 = universalDefragmentedAllocator.allocate<U32>();
-        //MemoryManagement::UAPtr<Byte> test = u32;
+        Memory::UAPtr<U32> u32 = universalDefragmentedAllocator.allocate<U32>();
+        //Memory::UAPtr<Byte> test = u32;
         universalDefragmentedAllocator.deallocate(u32);
 
-        MemoryManagement::UAPtr<U32> arr[10];
+        Memory::UAPtr<U32> arr[10];
         for (int i = 0; i < 10; i++)
         {
             arr[i] = universalDefragmentedAllocator.allocate<U32>(1);

@@ -29,8 +29,8 @@ namespace Components {
 
     //----------------------------------------------------------------------
     GUI::GUI()  // Listen only on gui-channel.
-        : IMouseListener( (Core::Input::InputChannels)Core::Input::EInputChannel::GUI ),
-            IKeyListener( (Core::Input::InputChannels)Core::Input::EInputChannel::GUI )
+        : IMouseListener( Core::Input::EInputChannel::GUI ),
+            IKeyListener( Core::Input::EInputChannel::GUI )
     {
         m_imguiContext = ImGui::CreateContext();
     }
@@ -304,7 +304,7 @@ namespace Components {
         io.MousePos.y = mouseY * (1.0f / vp.height);
 
         using namespace Core::Input;
-        bool consoleIsOpen = KEYBOARD.getChannelMask() & (InputChannels)EInputChannel::Console;
+        bool consoleIsOpen = KEYBOARD.getChannelMask() & EInputChannel::Console;
         if ( m_camera->isRenderingToScreen() && not consoleIsOpen )
         {
             if (io.WantCaptureMouse) // Disable master channel + enable GUI Channel

@@ -20,9 +20,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="MemoryManagement.hpp">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="TestClasses.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>

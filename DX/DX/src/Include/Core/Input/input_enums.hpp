@@ -36,12 +36,44 @@ namespace Core { namespace Input {
         Eight   = 1 << 8,
         Nine    = 1 << 9,
         Ten     = 1 << 10,
-        GUI     = 1 << 30,  // GUI channel
-        Console = 1 << 31,  // Console channel. Used exclusively for the console. Basically disables every input except for the console.
+        GUI     = 1 << 29,  // GUI channel
+        Console = 1 << 30,  // Console channel. Used exclusively for the console. Basically disables every input except for the console.
         Default = Master | One | Two | Three | Four | Five | Six | Seven | Eight | Nine | Ten,
         All     = ~0
     };
 
     using InputChannels = U32;
+
+    constexpr InputChannels operator & ( EInputChannel e1, EInputChannel e2 )
+    {
+        return static_cast<InputChannels>(e1) & static_cast<InputChannels>(e2);
+    }
+
+    constexpr InputChannels operator | ( EInputChannel e1, EInputChannel e2 )
+    {
+        return static_cast<InputChannels>(e1) | static_cast<InputChannels>(e2);
+    }
+
+    constexpr InputChannels operator & (InputChannels e1, EInputChannel e2)
+    {
+        return static_cast<InputChannels>(e1) & static_cast<InputChannels>(e2);
+    }
+
+    constexpr InputChannels operator | (InputChannels e1, EInputChannel e2)
+    {
+        return static_cast<InputChannels>(e1) | static_cast<InputChannels>(e2);
+    }
+
+    constexpr InputChannels& operator |= (InputChannels& e1, EInputChannel e2)
+    {
+        e1 = (e1 | e2);
+        return e1;
+    }
+
+    constexpr InputChannels& operator &= (InputChannels& e1, EInputChannel e2)
+    {
+        e1 = (e1 & e2);
+        return e1;
+    }
 
 } }

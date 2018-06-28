@@ -28,22 +28,22 @@ namespace Core { namespace Input {
         //----------------------------------------------------------------------
         // Enables the given channel.
         //----------------------------------------------------------------------
-        inline void setChannel(EInputChannel channel) {m_channelMask |= (U32)channel; }
+        inline void setChannel(EInputChannel channel) { m_channelMask |= channel; }
 
         //----------------------------------------------------------------------
         // Disables the given channel.
         //----------------------------------------------------------------------
-        inline void unsetChannel(EInputChannel channel) { m_channelMask &= ~((U32)channel); }
+        inline void unsetChannel(EInputChannel channel) { m_channelMask &= ~((InputChannels)channel); }
 
         //----------------------------------------------------------------------
         // Sets the given channel exclusively.
         //----------------------------------------------------------------------
-        inline void claimChannel(EInputChannel channel) { m_channelMask = (U32)channel; }
+        inline void claimChannel(EInputChannel channel) { m_channelMask = (InputChannels)channel; }
 
         //----------------------------------------------------------------------
         // Sets the given channel exclusively.
         //----------------------------------------------------------------------
-        inline void restoreDefault() { m_channelMask = (U32)EInputChannel::Default; }
+        inline void restoreDefault() { m_channelMask = (InputChannels)EInputChannel::Default; }
 
         //----------------------------------------------------------------------
         // @Return: Current channel mask.
@@ -52,10 +52,7 @@ namespace Core { namespace Input {
 
     protected:
         //----------------------------------------------------------------------
-        bool _IsMasterChannelSet() const
-        {
-            return (m_channelMask & (U32)EInputChannel::Master) != 0;
-        }
+        bool _IsMasterChannelSet() const { return m_channelMask & EInputChannel::Master; }
 
     private:
         InputChannels m_channelMask;

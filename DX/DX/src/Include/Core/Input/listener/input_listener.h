@@ -22,9 +22,6 @@ namespace Core { namespace Input {
     class IDeviceListener : public IChannelUser
     {
     public:
-        // Default channels a listener is listening too
-        static const InputChannels DEFAULT_CHANNELS = (InputChannels)EInputChannel::Master;
-
         //----------------------------------------------------------------------
         IDeviceListener(InputChannels channels) : IChannelUser(channels) {}
         virtual ~IDeviceListener() = default;
@@ -34,7 +31,8 @@ namespace Core { namespace Input {
     class IKeyListener : public IDeviceListener
     {
     public:
-        IKeyListener(InputChannels channels = IDeviceListener::DEFAULT_CHANNELS);
+        IKeyListener(EInputChannel channel = EInputChannel::Master);
+        IKeyListener(InputChannels channels = (InputChannels)EInputChannel::Master);
         virtual ~IKeyListener();
 
     protected:
@@ -48,7 +46,8 @@ namespace Core { namespace Input {
     class IMouseListener : public IDeviceListener
     {
     public:
-        IMouseListener(InputChannels channels = IDeviceListener::DEFAULT_CHANNELS);
+        IMouseListener(EInputChannel channel = EInputChannel::Master);
+        IMouseListener(InputChannels channels = (InputChannels)EInputChannel::Master);
         virtual ~IMouseListener();
 
     protected:
