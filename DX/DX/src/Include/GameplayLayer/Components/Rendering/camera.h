@@ -7,9 +7,9 @@
 **********************************************************************/
 
 #include "../i_component.h"
-#include "Common/bit_mask.hpp"
 #include "Graphics/command_buffer.h"
 #include "Graphics/camera.h"
+#include "GameplayLayer/layers.hpp"
 
 namespace Core { class CoreEngine; }
 class IScene;
@@ -44,7 +44,7 @@ namespace Components {
         const Color&                    getClearColor()             const { return m_camera.getClearColor(); }
         const Graphics::CameraClearMode getClearMode()              const { return m_camera.getClearMode(); }
         F32                             getAspectRatio()            const { return m_camera.getAspectRatio(); }
-        Common::BitMask                 getCullingMask()            const { return m_cullingMask; }
+        const LayerMask                 getCullingMask()            const { return m_cullingMask; }
         const DirectX::XMMATRIX&        getProjectionMatrix()       const { return m_camera.getProjectionMatrix(); }
         const DirectX::XMMATRIX&        getViewProjectionMatrix()   const { return m_camera.getViewProjectionMatrix(); }
 
@@ -56,7 +56,7 @@ namespace Components {
         void setClearColor          (const Color& clearColor)                                       { m_camera.setClearColor(clearColor); }
         void setClearMode           (Graphics::CameraClearMode clearMode)                           { m_camera.setClearMode(clearMode); }
         void setViewport            (const Graphics::ViewportRect& viewport)                        { m_camera.setViewport(viewport); }
-        void setCullingMask         (U32 layers)                                                    { m_cullingMask.unsetAnyBit(); m_cullingMask.setBits(layers); }
+        void setCullingMask         (LayerMask cullingMask)                                         { m_cullingMask = cullingMask; }
         void setOrthoParams         (F32 left, F32 right, F32 bottom, F32 top, F32 zNear, F32 zFar) { m_camera.setOrthoParams(left, right, bottom, top, zNear, zFar); }
         void setPerspectiveParams   (F32 fovAngleYInDegree, F32 zNear, F32 zFar)                    { m_camera.setPerspectiveParams(fovAngleYInDegree, zNear, zFar); }
         void setRenderingToScreen   (bool renderToScreen)                                           { m_camera.setRenderingToScreen(renderToScreen); }
@@ -93,20 +93,6 @@ namespace Components {
         void removeCommandBuffer(Graphics::CommandBuffer* cmd);
 
         //----------------------------------------------------------------------
-        // Cull the aabb with the given world matrix against this camera frustum.
-        // @Return:
-        //  True, when visible.
-        //----------------------------------------------------------------------
-        bool cull(const Math::AABB& aabb, const DirectX::XMMATRIX& modelMatrix) const;
-
-        //----------------------------------------------------------------------
-        // Cull the given sphere against this camera frustum.
-        // @Return:
-        //  True, when visible.
-        //----------------------------------------------------------------------
-        bool cull(const Math::Vec3& pos, F32 radius) const;
-
-        //----------------------------------------------------------------------
         // Renders the given scene
         //----------------------------------------------------------------------
         void render(const IScene& scene, F32 lerp);
@@ -115,20 +101,15 @@ namespace Components {
         Graphics::Camera            m_camera;
 
         // Which layer the camera should render
-        Common::BitMask             m_cullingMask;
+        LayerMask                   m_cullingMask;
 
         // Whether this camera renders into a floating point buffer for HDR rendering or not
         bool                        m_hdr = false;
-
-        // Culling planes
-        enum side { LEFT = 0, RIGHT = 1, TOP = 2, BOTTOM = 3, BACK = 4, FRONT = 5 };
-        std::array<Math::Vec4, 6>   m_planes;
 
         // Additional attached command buffer
         HashMap<CameraEvent, ArrayList<Graphics::CommandBuffer*>> m_additionalCommandBuffers;
 
         //----------------------------------------------------------------------
-        void _UpdateCullingPlanes(const DirectX::XMMATRIX& viewProjection);
         void _CreateRenderTarget(Graphics::MSAASamples sampleCount);
 
         NULL_COPY_AND_ASSIGN(Camera)

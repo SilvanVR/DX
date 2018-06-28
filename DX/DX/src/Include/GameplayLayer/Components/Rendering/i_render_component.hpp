@@ -10,9 +10,9 @@
 
 #include "../i_component.h"
 
-namespace Components {
+namespace Graphics { class Camera; }
 
-    class Camera;
+namespace Components {
 
     //**********************************************************************
     class IRenderComponent : public IComponent
@@ -24,9 +24,16 @@ namespace Components {
         //----------------------------------------------------------------------
         virtual void recordGraphicsCommands(Graphics::CommandBuffer& cmd, F32 lerp) {}
         virtual void recordGraphicsCommandsShadows(Graphics::CommandBuffer& cmd, F32 lerp) {}
-        virtual bool cull(const Camera& camera) { return true; }
+        virtual bool cull(const Graphics::Camera& camera) { return true; }
+
+        //----------------------------------------------------------------------
+        bool castShadows() const { return m_castShadows; }
+
+        //----------------------------------------------------------------------
+        void setCastShadows(bool castShadows) { m_castShadows = castShadows; }
 
     private:
+        bool m_castShadows = true;
 
         NULL_COPY_AND_ASSIGN(IRenderComponent)
     };

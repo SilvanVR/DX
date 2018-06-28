@@ -9,6 +9,7 @@
 #include "Components/i_component.h"
 #include "Components/transform.h"
 #include "Logging/logging.h"
+#include "GameplayLayer/layers.hpp"
 
 //----------------------------------------------------------------------
 template<typename T>
@@ -27,12 +28,15 @@ public:
     ~GameObject();
 
     //----------------------------------------------------------------------
-    inline const StringID           getName()       const   { return m_name; }
-    inline bool                     isActive()      const   { return m_isActive; }
-    inline const Common::BitMask    getLayers()     const   { return m_layerMask; }
-    inline IScene*                  getScene()              { return m_attachedScene; }
-    inline void                     setActive(bool active)  { m_isActive = active; }
-    inline void                     setLayer(U32 newLayer)  { m_layerMask.unsetAnyBit(); m_layerMask.setBits(newLayer); }
+    const StringID       getName()       const              { return m_name; }
+    bool                 isActive()      const              { return m_isActive; }
+    const LayerMask      getLayerMask()  const              { return m_layerMask; }
+    IScene*              getScene()                         { return m_attachedScene; }
+
+    void                 setActive      (bool active)           { m_isActive = active; }
+    void                 setLayerMask   (LayerMask layerMask)   { m_layerMask = layerMask; }
+    void                 addLayer       (Layer layer)           { m_layerMask |= layer; }
+    void                 removeLayer    (Layer layer)           { m_layerMask &= ~((LayerMask)layer); }
 
     // <---------------------- COMPONENT STUFF ---------------------------->
     template<typename T> T*   getComponent();
@@ -51,7 +55,7 @@ private:
     StringID            m_name;
     IScene*             m_attachedScene = nullptr;
     bool                m_isActive = true;
-    Common::BitMask     m_layerMask = Common::BitMask(1);
+    LayerMask           m_layerMask = LAYER_DEFAULT;
 
     std::unordered_map<Hash, Components::IComponent*> m_components;
 

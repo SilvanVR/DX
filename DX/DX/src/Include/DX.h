@@ -15,7 +15,7 @@
 #include "OS/FileSystem/virtual_file_system.h"
 #include "Math/math_utils.h"
 #include "Math/random.h"
-#include "Core/layer_defines.hpp"
+#include "GameplayLayer/layers.hpp"
 #include "Core/mesh_generator.h"
 #include "Assets/environment_map.h"
 #include "Assets/brdf_lut.h"

@@ -8,6 +8,7 @@
 
 #include "i_render_texture.h"
 #include "structs.hpp"
+#include "Math/aabb.h"
 
 namespace Graphics {
 
@@ -103,6 +104,20 @@ namespace Graphics {
         //----------------------------------------------------------------------
         void setViewMatrix(const DirectX::XMMATRIX& model);
 
+        //----------------------------------------------------------------------
+        // Cull the aabb with the given world matrix against this camera frustum.
+        // @Return:
+        //  True, when visible.
+        //----------------------------------------------------------------------
+        bool cull(const Math::AABB& aabb, const DirectX::XMMATRIX& modelMatrix) const;
+
+        //----------------------------------------------------------------------
+        // Cull the given sphere against this camera frustum.
+        // @Return:
+        //  True, when visible.
+        //----------------------------------------------------------------------
+        bool cull(const Math::Vec3& pos, F32 radius) const;
+
     private:
         CameraMode m_cameraMode = CameraMode::Perspective;
 
@@ -137,11 +152,16 @@ namespace Graphics {
         DirectX::XMMATRIX       m_projection;
         DirectX::XMMATRIX       m_viewProjection;
 
+        // Culling planes
+        enum side { LEFT = 0, RIGHT = 1, TOP = 2, BOTTOM = 3, BACK = 4, FRONT = 5 };
+        std::array<Math::Vec4, 6> m_planes;
+
         // Wether the camera is rendering to the screen or not
         bool m_isRenderingToScreen = true;
 
         //----------------------------------------------------------------------
         void _UpdateProjectionMatrix();
+        void _UpdateCullingPlanes(const DirectX::XMMATRIX& viewProjection);
 
         NULL_COPY_AND_ASSIGN(Camera)
     };

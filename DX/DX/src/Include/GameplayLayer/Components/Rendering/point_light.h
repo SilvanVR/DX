@@ -34,7 +34,7 @@ namespace Components {
         // IRendererComponent Interface
         //----------------------------------------------------------------------
         void recordGraphicsCommands(Graphics::CommandBuffer& cmd, F32 lerp) override;
-        bool cull(const Camera& camera) override;
+        bool cull(const Graphics::Camera& camera) override;
 
         NULL_COPY_AND_ASSIGN(PointLight)
     };

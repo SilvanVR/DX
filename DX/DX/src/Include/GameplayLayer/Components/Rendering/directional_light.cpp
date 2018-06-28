@@ -63,7 +63,6 @@ namespace Components {
         auto transform = getGameObject()->getTransform();
         auto modelMatrix = transform->getWorldMatrix(lerp);
         m_camera.setModelMatrix( modelMatrix );
-        //_UpdateCullingPlanes( m_camera.getViewProjectionMatrix() );
 
         m_dirLight->setShadowViewProjection( m_camera.getViewProjectionMatrix() );
 
@@ -73,18 +72,13 @@ namespace Components {
         // Record commands for every rendering component
         for ( auto& renderer : scene.getComponentManager().getRenderer() )
         {
-            if ( not renderer->isActive() )
+            if ( not renderer->isActive() || not renderer->castShadows() )
                 continue;
 
-            // Check if layer matches
-            //bool layerMatch = m_cullingMask.isBitSet( renderer->getGameObject()->getLayers() );
-            //if ( not layerMatch )
-            //    continue;
-
             // Check if component is visible
-            //bool isVisible = renderer->cull( *this );
-            //if (isVisible)
-            renderer->recordGraphicsCommandsShadows( cmd, lerp );
+            bool isVisible = renderer->cull( m_camera );
+            if (isVisible)
+                renderer->recordGraphicsCommandsShadows( cmd, lerp );
         }
 
         cmd.endCamera( &m_camera );

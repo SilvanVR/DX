@@ -85,7 +85,7 @@ namespace Components {
     }
 
     //----------------------------------------------------------------------
-    bool MeshRenderer::cull( const Camera& camera )
+    bool MeshRenderer::cull( const Graphics::Camera& camera )
     {
         if ( m_mesh == nullptr )
             return false;

@@ -36,7 +36,7 @@ namespace Components {
     }
 
     //----------------------------------------------------------------------
-    bool SpotLight::cull( const Camera& camera )
+    bool SpotLight::cull( const Graphics::Camera& camera )
     { 
         return camera.cull( getGameObject()->getTransform()->getWorldPosition(), getRange() );
     }

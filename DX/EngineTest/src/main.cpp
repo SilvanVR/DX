@@ -90,7 +90,7 @@ public:
         go->addComponent<Components::GUIFPS>();
         go->addComponent<Components::GUICustom>([sun] {
             static Math::Vec3 deg{45.0f, 0.0f, 0.0f};
-            ImGui::SliderFloat3( "Sun Rotation", &deg.x, 0.0f, 360.0f );
+            ImGui::SliderFloat2( "Sun Rotation", &deg.x, 0.0f, 360.0f );
             sun->getTransform()->rotation = Math::Quat::FromEulerAngles(deg);
         });
 

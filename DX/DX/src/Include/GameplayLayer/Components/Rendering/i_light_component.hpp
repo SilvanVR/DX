@@ -36,7 +36,7 @@ namespace Components {
 
         //----------------------------------------------------------------------
         virtual void recordGraphicsCommands(Graphics::CommandBuffer& cmd, F32 lerp) {}
-        virtual bool cull(const Camera& camera) { return true; }
+        virtual bool cull(const Graphics::Camera& camera) { return true; }
         virtual void renderShadowMap(const IScene& scene, F32 lerp){}
 
     protected:
