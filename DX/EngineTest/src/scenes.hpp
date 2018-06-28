@@ -29,7 +29,7 @@ public:
         sphere->setColors(sphereColors);
 
         go2 = createGameObject("Mesh");
-        go2->addComponent<Components::MeshRenderer>(sphere, RESOURCES.getColorMaterial());
+        go2->addComponent<Components::MeshRenderer>(sphere, ASSETS.getColorMaterial());
         go2->addComponent<ConstantRotation>(0.0f, 20.0f, 0.0f);
 
         auto& viewport = cam->getViewport();
@@ -129,17 +129,17 @@ public:
         {
             goModel = createGameObject("Test");
             goModel->addComponent<ConstantRotation>(0.0f, 20.0f, 20.0f);
-            auto mr = goModel->addComponent<Components::MeshRenderer>(cube, RESOURCES.getColorMaterial());
+            auto mr = goModel->addComponent<Components::MeshRenderer>(cube, ASSETS.getColorMaterial());
 
             GameObject* goModel2 = createGameObject("Test");
             goModel2->getComponent<Components::Transform>()->position = {5,0,0};
             goModel2->addComponent<ConstantRotation>(20.0f, 20.0f, 0.0f);
-            mr = goModel2->addComponent<Components::MeshRenderer>(sphere, RESOURCES.getColorMaterial());
+            mr = goModel2->addComponent<Components::MeshRenderer>(sphere, ASSETS.getColorMaterial());
 
             GameObject* goModel3 = createGameObject("Test");
             goModel3->getComponent<Components::Transform>()->position = { -5,0,0 };
             goModel3->addComponent<ConstantRotation>(0.0f, 0.0f, 20.0f);
-            mr = goModel3->addComponent<Components::MeshRenderer>(plane, RESOURCES.getColorMaterial());
+            mr = goModel3->addComponent<Components::MeshRenderer>(plane, ASSETS.getColorMaterial());
         }
 
         LOG("VertexGenScene initialized!", Color::RED);
@@ -182,7 +182,7 @@ public:
         for (U32 i = 0; i < m_numObjects; i++)
         {
             auto go = createGameObject("Test");
-            go->addComponent<Components::MeshRenderer>(cube, RESOURCES.getColorMaterial());
+            go->addComponent<Components::MeshRenderer>(cube, ASSETS.getColorMaterial());
             go->getComponent<Components::Transform>()->position = Math::Random::Vec3(-1,1).normalized() * sqrtf((F32)m_numObjects);
         }
 
@@ -211,7 +211,7 @@ public:
         go->addComponent<Components::Skybox>(cubemap);
 
         // Camera 2
-        auto renderTex = RESOURCES.createRenderTexture(1024, 720, Graphics::DepthFormat::D32, Graphics::TextureFormat::BGRA32, 2, Graphics::MSAASamples::Four);
+        auto renderTex = RESOURCES.createRenderTexture(1024, 720, Graphics::DepthFormat::D32, Graphics::TextureFormat::BGRA32, 2, Graphics::MSAASamples::One);
         auto cam2GO = createGameObject("Camera2");
         cam2GO->getComponent<Components::Transform>()->position = Math::Vec3(0, 3, -10);
         cam2GO->addComponent<AutoOrbiting>(10.0f);
@@ -227,12 +227,8 @@ public:
         auto cube = Core::MeshGenerator::CreateCubeUV();
         cube->setColors(cubeColors);
 
-        // SHADER
-        auto texShader = ASSETS.getShader( "/shaders/tex.shader" );
-
         // MATERIAL
-        auto customTexMaterial = RESOURCES.createMaterial();
-        customTexMaterial->setShader(texShader);
+        auto customTexMaterial = RESOURCES.createMaterial(ASSETS.getShader("/shaders/tex.shader"));
         customTexMaterial->setTexture("tex", renderTex->getColorBuffer());
         customTexMaterial->setColor("tintColor", Color::WHITE);
 
@@ -294,7 +290,7 @@ public:
         // MATERIAL
         auto material = RESOURCES.createMaterial();
         material->setShader(texShader);
-        material->setTexture(SID("Cubemap"), RESOURCES.getDefaultCubemap());
+        material->setTexture(SID("Cubemap"), ASSETS.getDefaultCubemap());
 
         // GAMEOBJECT
         auto go2 = createGameObject("Test2");
@@ -478,7 +474,7 @@ public:
         mesh->setColors(cubeColors);
 
         auto go2 = createGameObject("Obj");
-        go2->addComponent<Components::MeshRenderer>(mesh, RESOURCES.getColorMaterial());
+        go2->addComponent<Components::MeshRenderer>(mesh, ASSETS.getColorMaterial());
 
         LOG("SceneFrustumVisualization initialized!", Color::RED);
     }
@@ -705,8 +701,8 @@ public:
                 auto gameobject = createGameObject("Obj");
 
                 auto material = RESOURCES.createMaterial(pbrShader);
-                material->setTexture("albedoMap", RESOURCES.getWhiteTexture());
-                material->setTexture("normalMap", RESOURCES.getNormalTexture());
+                material->setTexture("albedoMap", ASSETS.getWhiteTexture());
+                material->setTexture("normalMap", ASSETS.getNormalTexture());
                 material->setColor("color", Color::WHITE);
                 material->setFloat("roughness", roughness);
                 F32 metallic = (F32)y;
@@ -828,11 +824,11 @@ ArrayList<MaterialPtr> GeneratePBRMaterials(const ShaderPtr& pbrShader, const Me
     {
         auto pbrMat = RESOURCES.createMaterial( pbrShader );
         pbrMat->setColor( "color", Color::WHITE );
-        pbrMat->setTexture( "normalMap", RESOURCES.getNormalTexture() );
+        pbrMat->setTexture( "normalMap", ASSETS.getNormalTexture() );
         pbrMat->setFloat( "useRoughnessMap", 0.0f );
         pbrMat->setFloat( "useMetallicMap", 0.0f );
-        pbrMat->setTexture( "roughnessMap", RESOURCES.getBlackTexture() );
-        pbrMat->setTexture( "metallicMap", RESOURCES.getBlackTexture() );
+        pbrMat->setTexture( "roughnessMap", ASSETS.getBlackTexture() );
+        pbrMat->setTexture( "metallicMap", ASSETS.getBlackTexture() );
         pbrMat->setFloat( "metallic", 0.0f );
         pbrMat->setFloat( "roughness", DEFAULT_ROUGHNESS );
 

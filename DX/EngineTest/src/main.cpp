@@ -11,8 +11,6 @@
 
 #include "Time/clock.h"
 
-
-
 //----------------------------------------------------------------------
 // SCENES
 //----------------------------------------------------------------------
@@ -34,9 +32,13 @@ public:
 
         auto planeMesh = Core::MeshGenerator::CreatePlane();
         auto obj = createGameObject("GO");
-        obj->addComponent<Components::MeshRenderer>(planeMesh, ASSETS.getMaterial("/materials/blinn_phong/grass.material"));
+
+        auto grassMat = ASSETS.getMaterial("/materials/blinn_phong/grass.material");
+        //grassMat->setShadowShader(ASSETS.getShader("/engine/shaders/shadowMap.shader"));
+        obj->addComponent<Components::MeshRenderer>(planeMesh, grassMat);
         obj->getTransform()->rotation *= Math::Quat(Math::Vec3::RIGHT, 90.0f);
         obj->getTransform()->scale = { 20,20,20 };
+
 
         auto obj2 = createGameObject("GO2");
         obj2->addComponent<Components::MeshRenderer>(ASSETS.getMesh("/models/monkey.obj"), ASSETS.getMaterial("/materials/blinn_phong/monkey.material"));
@@ -64,7 +66,7 @@ public:
                 {
                     switch (texture.type)
                     {
-                    case Assets::MaterialTextureType::Albedo: material->setTexture("albedo", ASSETS.getTexture2D(texture.filePath)); break;
+                    case Assets::MaterialTextureType::Albedo: material->setTexture("_MainTex", ASSETS.getTexture2D(texture.filePath)); break;
                     case Assets::MaterialTextureType::Normal: material->setTexture("normalMap", ASSETS.getTexture2D(texture.filePath)); break;
                     case Assets::MaterialTextureType::Shininess: break;
                     case Assets::MaterialTextureType::Specular: break;
@@ -82,7 +84,7 @@ public:
         //sun->addComponent<ConstantRotation>(15.0f, 0.0f, 0.0f);
 
         auto pl = createGameObject("PL");
-        pl->addComponent<Components::PointLight>(1.0f, Color::ORANGE);
+        //pl->addComponent<Components::PointLight>(1.0f, Color::ORANGE);
         pl->getTransform()->position = { 3, 2, 0 };
 
         go->addComponent<Components::GUI>();
@@ -181,7 +183,7 @@ public:
         Locator::getRenderer().setGlobalFloat(SID("_Ambient"), 0.5f);
 
         //Locator::getSceneManager().LoadSceneAsync(new SceneGUISelectSceneMenu());
-        Locator::getSceneManager().LoadSceneAsync(new TestScene());
+        Locator::getSceneManager().LoadSceneAsync(new SceneMirror());
     }
 
     //----------------------------------------------------------------------

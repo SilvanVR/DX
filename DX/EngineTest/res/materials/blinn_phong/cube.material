@@ -1,7 +1,7 @@
 {
 
 "shader" : "/shaders/phong_shadow.shader",
-"albedo" : "/textures/checker.jpg",
+"_MainTex" : "/textures/checker.jpg",
 "uvScale" : 1
 
 }

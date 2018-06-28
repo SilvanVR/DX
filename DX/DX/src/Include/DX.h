@@ -19,3 +19,5 @@
 #include "Core/mesh_generator.h"
 #include "Assets/environment_map.h"
 #include "Assets/brdf_lut.h"
+#include "Events/event_dispatcher.h"
+#include "Events/event_names.hpp"

@@ -28,7 +28,7 @@ namespace Assets {
             m_diffuseIrradianceMap->create( diffuseIrradianceSize, Graphics::TextureFormat::RGBAFloat );
 
             auto shader = ASSETS.getShader( "/engine/shaders/pbr/pbr_diffuse_irradiance.shader" );
-            ASSERT( shader != RESOURCES.getErrorShader() && "Please ensure that the given shader file exists." );
+            ASSERT( shader != ASSETS.getErrorShader() && "Please ensure that the given shader file exists." );
 
             auto diffuseIrradianceMat = RESOURCES.createMaterial( shader );
             diffuseIrradianceMat->setTexture( SHADER_NAME_ENV_MAP, cubemap );
@@ -42,7 +42,7 @@ namespace Assets {
             m_specularReflectionMap->create( specularReflectionSize, Graphics::TextureFormat::RGBAFloat, Graphics::Mips::Create );
 
             auto shader = ASSETS.getShader( "/engine/shaders/pbr/pbr_specular_reflection.shader" );
-            ASSERT( shader != RESOURCES.getErrorShader() && "Please ensure that the given shader file exists." );
+            ASSERT( shader != ASSETS.getErrorShader() && "Please ensure that the given shader file exists." );
 
             // Render into each mipmap
             U32 mipCount = m_specularReflectionMap->getMipCount();

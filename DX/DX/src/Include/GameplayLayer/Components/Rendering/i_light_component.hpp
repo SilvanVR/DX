@@ -34,16 +34,18 @@ namespace Components {
         void setIntensity   (F32 intensity) { m_light->setIntensity(intensity); }
         void setColor       (Color color)   { m_light->setColor(color); }
 
-        //----------------------------------------------------------------------
-        virtual void recordGraphicsCommands(Graphics::CommandBuffer& cmd, F32 lerp) {}
-        virtual bool cull(const Graphics::Camera& camera) { return true; }
-        virtual void renderShadowMap(const IScene& scene, F32 lerp){}
 
     protected:
         std::unique_ptr<Graphics::Light> m_light;
         Graphics::Camera m_camera;
 
     private:
+        //----------------------------------------------------------------------
+        friend class Camera;
+        virtual void recordGraphicsCommands(Graphics::CommandBuffer& cmd, F32 lerp) {}
+        virtual bool cull(const Graphics::Camera& camera) { return true; }
+        virtual void renderShadowMap(const IScene& scene, F32 lerp){}
+
         NULL_COPY_AND_ASSIGN(ILightComponent)
     };
 

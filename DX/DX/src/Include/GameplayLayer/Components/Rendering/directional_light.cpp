@@ -67,21 +67,21 @@ namespace Components {
         m_dirLight->setShadowViewProjection( m_camera.getViewProjectionMatrix() );
 
         // Set camera
-        cmd.setCamera( &m_camera );
+        cmd.setCameraShadow( &m_camera );
 
         // Record commands for every rendering component
         for ( auto& renderer : scene.getComponentManager().getRenderer() )
         {
-            if ( not renderer->isActive() || not renderer->castShadows() )
+            if ( not renderer->isActive() || not renderer->isCastingShadows() )
                 continue;
 
             // Check if component is visible
             bool isVisible = renderer->cull( m_camera );
             if (isVisible)
-                renderer->recordGraphicsCommandsShadows( cmd, lerp );
+                renderer->recordGraphicsCommands( cmd, lerp );
         }
 
-        cmd.endCamera( &m_camera );
+        cmd.endCameraShadow( &m_camera );
 
         Locator::getRenderer().dispatch( cmd );
     }

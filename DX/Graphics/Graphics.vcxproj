@@ -207,7 +207,6 @@
     <ClInclude Include="src\Include\Graphics\D3D11\Resources\D3D11IBindableTexture.h" />
     <ClInclude Include="src\Include\Graphics\D3D11\Resources\D3D11Texture2D.h" />
     <ClInclude Include="src\Include\Graphics\D3D11\Resources\D3D11Texture2DArray.h" />
-    <ClInclude Include="src\Include\Graphics\default_shaders.hpp" />
     <ClInclude Include="src\Include\Graphics\enums.hpp" />
     <ClInclude Include="src\Include\Graphics\i_cubemap.hpp" />
     <ClInclude Include="src\Include\Graphics\i_material.h" />

@@ -1,12 +1,8 @@
 // ----------------------------------------------
-#Fill			Solid
+#Fill			Wireframe
 #Cull 			Back
-#ZWrite 		On
-#ZTest 			Less
+#ZWrite 		Off
 #Queue 			Geometry
-#DepthBias		0
-#DBSlopeScaled  1
-#DBClamp 		0
 
 // ----------------------------------------------
 #shader vertex
@@ -16,44 +12,37 @@
 struct VertexIn
 {
     float3 PosL : POSITION;
-	float2 tex : TEXCOORD0;
+    float4 Color : COLOR;
 };
 
 struct VertexOut
 {
     float4 PosH : SV_POSITION;
-    float2 Tex : TEXCOORD0;
+    float4 Color : COLOR;
 };
 
 VertexOut main(VertexIn vin)
 {
     VertexOut OUT;
 
-    OUT.PosH 		= TO_CLIP_SPACE( vin.PosL );
-	OUT.Tex 		= vin.tex;
-	
+    OUT.PosH = TO_CLIP_SPACE(vin.PosL);
+    OUT.Color = vin.Color;
+
     return OUT;
 }
 
 // ----------------------------------------------
-#shader fragment  
+#shader fragment
 
 #include "/engine/shaders/includes/enginePS.hlsl"
 
 struct FragmentIn
 {
     float4 PosH : SV_POSITION;
-	float2 Tex : TEXCOORD0;
+    float4 Color : COLOR;
 };
 
-Texture2D _MainTex;
-SamplerState sampler0;
-
-static const float ALPHA_THRESHOLD = 0.1f;
-
-void main(FragmentIn fin)
+float4 main(FragmentIn fin) : SV_Target
 {
-	float4 textureColor = _MainTex.Sample(sampler0, fin.Tex);
-	if (textureColor.a < ALPHA_THRESHOLD)
-		discard;
+    return fin.Color;
 }

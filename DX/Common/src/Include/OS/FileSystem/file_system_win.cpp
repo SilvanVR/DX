@@ -39,12 +39,12 @@ namespace OS {
         {
             // Failed to create directory because it already existed.
             printf( "Failed to create the new directory: %s. "
-                    "Reason: Folder already exists.", outputFolder );
+                    "Reason: Folder already exists.\n", outputFolder );
         }
         else
         {
             // Failed to create directory for whatever reason.
-            printf( "Failed to create the new directory: %s", outputFolder );
+            printf( "Failed to create the new directory: %s.\n", outputFolder );
         }
     }
 

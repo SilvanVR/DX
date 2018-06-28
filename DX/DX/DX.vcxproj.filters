@@ -159,6 +159,9 @@
     <ClCompile Include="src\Include\GameplayLayer\Components\Rendering\gui.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Include\GameplayLayer\light_shadow_manager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\stdafx.h">
@@ -354,6 +357,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Include\GameplayLayer\layers.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Include\GameplayLayer\light_shadow_manager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

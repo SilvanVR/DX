@@ -6,5 +6,9 @@
     date: April 2, 2018
 **********************************************************************/
 
-#define EVENT_SCENE_CHANGED SID( "OnSceneChanged" )
-#define EVENT_WINDOW_RESIZE SID( "OnWindowSizeChanged" )
+#define EVENT_SCENE_CHANGED     SID( "OnSceneChanged" )
+#define EVENT_WINDOW_RESIZE     SID( "OnWindowSizeChanged" )
+#define EVENT_GAME_START        SID( "OnGameStart" )
+#define EVENT_GAME_SHUTDOWN     SID( "OnGameShutdown" )
+#define EVENT_FRAME_BEGIN       SID( "OnFrameBegin" )
+#define EVENT_FRAME_END         SID( "OnFrameEnd" )

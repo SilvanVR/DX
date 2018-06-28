@@ -64,6 +64,11 @@ namespace Assets {
                 material->setShader( shader );
                 json.erase( "shader" );
             }
+            else
+            {
+                LOG_WARN( "No [shader] field present in the material. The error shader will be used instead." );
+                material->setShader( ASSETS.getErrorShader() );
+            }
 
             // Now parse all fields and set material data
             for (auto it = json.begin(); it != json.end(); it++)
@@ -219,7 +224,7 @@ namespace Assets {
 
             // Normalmap
             if ( not material->hasTexture( NAME_NORMAL_MAP ) )
-                material->setTexture( NAME_NORMAL_MAP, RESOURCES.getNormalTexture() );
+                material->setTexture( NAME_NORMAL_MAP, ASSETS.getNormalTexture() );
 
             // Roughness
             if ( not material->hasFloat( NAME_ROUGHNESS ) )
@@ -228,7 +233,7 @@ namespace Assets {
             if ( material->hasTexture( NAME_ROUGHNESS_MAP ) )
                 material->setFloat( NAME_USE_ROUGHNESS_MAP, 1.0f );
             else
-                material->setTexture( NAME_ROUGHNESS_MAP, RESOURCES.getBlackTexture() );
+                material->setTexture( NAME_ROUGHNESS_MAP, ASSETS.getBlackTexture() );
 
             // Metallic
             if ( not material->hasFloat( NAME_METALLIC ) )
@@ -237,7 +242,7 @@ namespace Assets {
             if ( material->hasTexture( NAME_METALLIC_MAP ) )
                 material->setFloat( NAME_USE_METALLIC_MAP, 1.0f );
             else
-                material->setTexture( NAME_METALLIC_MAP, RESOURCES.getBlackTexture() );
+                material->setTexture( NAME_METALLIC_MAP, ASSETS.getBlackTexture() );
         }
 
         MaterialParser() = delete;

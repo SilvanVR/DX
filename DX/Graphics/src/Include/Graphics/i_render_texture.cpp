@@ -16,12 +16,7 @@ namespace Graphics
         if (scaleFactor != m_scaleFactor)
         {
             m_scaleFactor = scaleFactor;
-            for (auto& buffer : m_renderBuffers)
-            {
-                buffer.m_colorBuffer->recreate( U32(buffer.m_colorBuffer->getWidth() * m_scaleFactor), U32(buffer.m_colorBuffer->getHeight() * m_scaleFactor) );
-                if ( hasDepthBuffer() )
-                    buffer.m_depthBuffer->recreate( U32(buffer.m_depthBuffer->getWidth() * m_scaleFactor), U32(buffer.m_depthBuffer->getHeight() * m_scaleFactor) );
-            }
+            recreate( getWidth(), getHeight() );
         }
     }
 
@@ -60,13 +55,22 @@ namespace Graphics
     }
 
     //----------------------------------------------------------------------
+    void IRenderTexture::recreate( U32 w, U32 h )
+    {
+        for (auto& buffer : m_renderBuffers)
+        {
+            if ( hasColorBuffer() ) buffer.m_colorBuffer->recreate( U32(w * m_scaleFactor), U32(h * m_scaleFactor) );
+            if ( hasDepthBuffer() ) buffer.m_depthBuffer->recreate( U32(w * m_scaleFactor), U32(h * m_scaleFactor) );
+        }
+    }
+
+    //----------------------------------------------------------------------
     void IRenderTexture::recreate( U32 w, U32 h, SamplingDescription samplingDesc )
     {
         for (auto& buffer : m_renderBuffers)
         {
-            buffer.m_colorBuffer->recreate( U32(w * m_scaleFactor), U32(h * m_scaleFactor), samplingDesc );
-            if ( hasDepthBuffer() )
-                buffer.m_depthBuffer->recreate( U32(w * m_scaleFactor), U32(h * m_scaleFactor), samplingDesc );
+            if ( hasColorBuffer() ) buffer.m_colorBuffer->recreate( U32(w * m_scaleFactor), U32(h * m_scaleFactor), samplingDesc );
+            if ( hasDepthBuffer() ) buffer.m_depthBuffer->recreate( U32(w * m_scaleFactor), U32(h * m_scaleFactor), samplingDesc );
         }
     }
 
@@ -82,9 +86,8 @@ namespace Graphics
     {
         for (auto& buffer : m_renderBuffers)
         {
-            buffer.m_colorBuffer->setFilter( filter );
-            if ( hasDepthBuffer() )
-                buffer.m_depthBuffer->setFilter( filter );
+            if ( hasColorBuffer() ) buffer.m_colorBuffer->setFilter( filter );
+            if ( hasDepthBuffer() ) buffer.m_depthBuffer->setFilter( filter );
         }
     }
 
@@ -93,9 +96,8 @@ namespace Graphics
     {
         for (auto& buffer : m_renderBuffers)
         {
-            buffer.m_colorBuffer->setClampMode( clampMode );
-            if ( hasDepthBuffer() )
-                buffer.m_depthBuffer->setClampMode( clampMode );
+            if ( hasColorBuffer() ) buffer.m_colorBuffer->setClampMode( clampMode );
+            if ( hasDepthBuffer() ) buffer.m_depthBuffer->setClampMode( clampMode );
         }
     }
 
@@ -104,9 +106,8 @@ namespace Graphics
     {
         for (auto& buffer : m_renderBuffers)
         {
-            buffer.m_colorBuffer->setAnisoLevel( level );
-            if ( hasDepthBuffer() )
-                buffer.m_depthBuffer->setAnisoLevel( level );
+            if ( hasColorBuffer() ) buffer.m_colorBuffer->setAnisoLevel( level );
+            if ( hasDepthBuffer() ) buffer.m_depthBuffer->setAnisoLevel( level );
         }
     }
 

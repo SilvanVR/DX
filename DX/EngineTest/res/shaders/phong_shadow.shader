@@ -46,7 +46,7 @@ VertexOut main(VertexIn vin)
 cbuffer cbPerMaterial
 {
 	float uvScale;
-} 
+}
 
 struct FragmentIn
 {
@@ -56,14 +56,14 @@ struct FragmentIn
 	float3 WorldPos : POSITION;
 };
 
-Texture2D albedo;
+Texture2D _MainTex;
 SamplerState sampler0;
 
 static const float ALPHA_THRESHOLD = 0.1f;
 
 float4 main(FragmentIn fin) : SV_Target
 {
-	float4 textureColor = albedo.Sample(sampler0, fin.Tex * uvScale);
+	float4 textureColor = _MainTex.Sample(sampler0, fin.Tex * uvScale);
 	//float4 depth = shadowMap.Sample(shadowMapSampler, fin.Tex);
 	
 	//return float4(fin.Normal,1);

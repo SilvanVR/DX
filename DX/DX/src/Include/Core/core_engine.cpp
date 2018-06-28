@@ -41,6 +41,9 @@ namespace Core {
 
         Locator::getRenderer().setGlobalFloat( SID("_Ambient"), 0.2f );
 
+        // Invoke game start event
+        Events::EventDispatcher::GetEvent( EVENT_GAME_START ).invoke();
+
         // Call virtual init function for game class
         init();
 
@@ -115,10 +118,14 @@ namespace Core {
         static const StringID TIME_NAME = SID( "_Time" );
         graphicsEngine.setGlobalFloat( TIME_NAME, (F32)TIME.getTime() );
 
+        Events::EventDispatcher::GetEvent( EVENT_FRAME_BEGIN ).invoke();
+
         // Render each camera
         auto& scene = Locator::getSceneManager().getCurrentScene();
         for ( auto& cam : scene.getComponentManager().getCameras() )
             cam->render( scene, lerp );
+
+        Events::EventDispatcher::GetEvent( EVENT_FRAME_END ).invoke();
 
         // Present backbuffer to screen
         graphicsEngine.present();
@@ -127,6 +134,9 @@ namespace Core {
     //----------------------------------------------------------------------
     void CoreEngine::_Shutdown()
     {
+        // Invoke game end event
+        Events::EventDispatcher::GetEvent( EVENT_GAME_SHUTDOWN ).invoke();
+
         // Deinitialize game class
         shutdown();
 

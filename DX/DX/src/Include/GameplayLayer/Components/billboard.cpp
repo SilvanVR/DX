@@ -16,12 +16,8 @@ namespace Components {
     //----------------------------------------------------------------------
     void Billboard::addedToGameObject(GameObject* go)
     {
-        m_billboardGO = go->getScene()->createGameObject( "Billboard" );
-        go->getTransform()->addChild( m_billboardGO->getTransform(), false );
-
         // Create billboard shader
         auto billboardShader = ASSETS.getShader( "/engine/shaders/geometry_billboard.shader" );
-
         if ( not billboardShader )
         {
             LOG_WARN( "Components::Billboard: Billboard shader does not exist, therefore this component will not work." );
@@ -45,9 +41,9 @@ namespace Components {
         billboardMesh->setBounds( customBounds );
 
         // Create gameobject which renders the billboard
-        auto mr = m_billboardGO->addComponent<Components::MeshRenderer>();
-        mr->setMesh( billboardMesh );
-        mr->setMaterial( billboardMaterial );
+        m_billboardGO = go->getScene()->createGameObject( "Billboard" );
+        go->getTransform()->addChild( m_billboardGO->getTransform(), false );
+        auto mr = m_billboardGO->addComponent<Components::MeshRenderer>( billboardMesh, billboardMaterial );
     }
 
 }

@@ -99,6 +99,8 @@ namespace Graphics {
     //----------------------------------------------------------------------
     void CommandBuffer::drawMesh( const MeshPtr& mesh, const MaterialPtr& material, const DirectX::XMMATRIX& modelMatrix, I32 subMeshIndex )
     {
+        ASSERT( mesh && "Mesh is null, which is not allowed!" );
+        ASSERT( material && "Material is null, which is not allowed!" );
         m_gpuCommands.push_back( std::make_unique<GPUC_DrawMesh>( mesh, material, modelMatrix, subMeshIndex ) );
     }
 
@@ -109,9 +111,21 @@ namespace Graphics {
     }
 
     //----------------------------------------------------------------------
+    void CommandBuffer::setCameraShadow( Camera* camera )
+    {
+        m_gpuCommands.push_back( std::make_unique<GPUC_SetCameraShadow>( camera ) );
+    }
+
+    //----------------------------------------------------------------------
     void CommandBuffer::endCamera( Camera* camera )
     {
         m_gpuCommands.push_back( std::make_unique<GPUC_EndCamera>( camera ) );
+    }
+
+    //----------------------------------------------------------------------
+    void CommandBuffer::endCameraShadow( Camera* camera )
+    {
+        m_gpuCommands.push_back( std::make_unique<GPUC_EndCameraShadow>( camera ) );
     }
 
     ////----------------------------------------------------------------------

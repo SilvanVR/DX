@@ -23,10 +23,13 @@ namespace Graphics {
         virtual ~IMaterial() {}
 
         //----------------------------------------------------------------------
-        ShaderPtr           getShader() const { return m_shader; }
-        const String&       getName()   const { return m_name; }
-        void                setShader(const ShaderPtr& shader);
-        void                setName(const String& name) { m_name = name; }
+        const ShaderPtr&    getShader()         const { return m_shader; }
+        const ShaderPtr&    getShadowShader()   const { return m_shadowShader; }
+        const String&       getName()           const { return m_name; }
+
+        void                setShader       (const ShaderPtr& shader);
+        void                setShadowShader (const ShaderPtr& shader) { m_shadowShader = shader; }
+        void                setName         (const String& name) { m_name = name; }
 
         //**********************************************************************
         // MATERIAL PARAMETERS
@@ -78,7 +81,8 @@ namespace Graphics {
         inline bool hasTexture(CString name)   const { return hasTexture(SID(name)); }
 
     protected:
-        ShaderPtr   m_shader = nullptr;
+        ShaderPtr   m_shader = nullptr;         // Shader used to render this material
+        ShaderPtr   m_shadowShader = nullptr;   // Shader used to render into shadowmap
         String      m_name = "NO NAME";
 
         // Data maps

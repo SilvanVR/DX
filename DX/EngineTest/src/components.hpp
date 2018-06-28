@@ -55,7 +55,7 @@ public:
         mesh->setColors(planeColors);
         mesh->setBufferUsage(Graphics::BufferUsage::Frequently);
 
-        mr = go->addComponent<Components::MeshRenderer>(mesh, RESOURCES.getColorMaterial());
+        mr = go->addComponent<Components::MeshRenderer>(mesh, ASSETS.getColorMaterial());
     }
 
     void tick(Time::Seconds delta)
@@ -96,7 +96,7 @@ public:
         transform->rotation = Math::Quat(Math::Vec3::RIGHT, 90);
         transform->position = Math::Vec3(-(width/2.0f), -2.0f, -(height/2.0f));
 
-        mr = go->addComponent<Components::MeshRenderer>(mesh, RESOURCES.getColorMaterial());
+        mr = go->addComponent<Components::MeshRenderer>(mesh, ASSETS.getColorMaterial());
     }
 
     void tick(Time::Seconds delta)
@@ -143,7 +143,7 @@ public:
     void addedToGameObject(GameObject* go) override
     {
         auto mesh = Core::MeshGenerator::CreateGrid(m_size);
-        go->addComponent<Components::MeshRenderer>(mesh, RESOURCES.getColorMaterial());
+        go->addComponent<Components::MeshRenderer>(mesh, ASSETS.getColorMaterial());
     }
 
 private:
@@ -186,7 +186,7 @@ public:
         auto mesh = Core::MeshGenerator::CreateFrustum( Math::Vec3(0), Math::Vec3::UP, Math::Vec3::RIGHT, Math::Vec3::FORWARD,
                                                         cam->getFOV(), cam->getZNear(), cam->getZFar(), cam->getAspectRatio(), Color::GREEN );
 
-        auto mr = go->addComponent<Components::MeshRenderer>(mesh, RESOURCES.getColorMaterial());
+        auto mr = go->addComponent<Components::MeshRenderer>(mesh, ASSETS.getColorMaterial());
     }
 };
 
@@ -232,7 +232,7 @@ public:
 
         auto normalGO = go->getScene()->createGameObject( "NormalsVisualizer" );
         normalGO->getTransform()->setParent( go->getTransform() );
-        normalGO->addComponent<Components::MeshRenderer>( normalMesh, RESOURCES.getColorMaterial() );
+        normalGO->addComponent<Components::MeshRenderer>( normalMesh, ASSETS.getColorMaterial() );
     }
 };
 
@@ -277,7 +277,7 @@ public:
 
         auto meshGO = go->getScene()->createGameObject("TangentVisualizer");
         meshGO->getTransform()->setParent(go->getTransform());
-        meshGO->addComponent<Components::MeshRenderer>(tangentMesh, RESOURCES.getColorMaterial());
+        meshGO->addComponent<Components::MeshRenderer>(tangentMesh, ASSETS.getColorMaterial());
     }
 };
 

@@ -15,7 +15,6 @@
 #include "Events/event_names.hpp"
 #include "GameplayLayer/i_scene.h"
 #include "Core/mesh_generator.h"
-#include "Graphics/default_shaders.hpp"
 #include "GameplayLayer/Components/Rendering/camera.h"
 
 namespace Core { namespace Debug {
@@ -31,16 +30,13 @@ namespace Core { namespace Debug {
         evt.addListener( BIND_THIS_FUNC_0_ARGS( &DebugManager::_OnSceneChanged ) );
 
         // Create both shaders with / withot depth-test
-        m_colorShaderWireframe = RESOURCES.createShader();
-        m_colorShaderWireframe->setName( "DEBUG - DEPTH" );
-        m_colorShaderWireframe->setRasterizationState( { Graphics::FillMode::Wireframe, Graphics::CullMode::None } );
-        m_colorShaderWireframe->compileFromSource( Graphics::ShaderSources::COLOR_VERTEX, Graphics::ShaderSources::COLOR_FRAGMENT, "main" );
+        m_colorShaderWireframe = ASSETS.getShader( "/engine/shaders/color_wireframe.shader" );
+        if ( m_colorShaderWireframe == ASSETS.getErrorShader() )
+            LOG_WARN( "Failed to load the color shader (wireframe) shader. Please ensure that the shader exists and compiles. Will be set to the error shader." );
 
-        m_colorShaderWireframeNoDepthTest = RESOURCES.createShader();
-        m_colorShaderWireframeNoDepthTest->setName( "DEBUG - NO DEPTH" );
-        m_colorShaderWireframeNoDepthTest->setRasterizationState( { Graphics::FillMode::Wireframe, Graphics::CullMode::None } );
-        m_colorShaderWireframeNoDepthTest->setDepthStencilState( { false } );
-        m_colorShaderWireframeNoDepthTest->compileFromSource( Graphics::ShaderSources::COLOR_VERTEX, Graphics::ShaderSources::COLOR_FRAGMENT, "main" );
+        m_colorShaderWireframeNoDepthTest = ASSETS.getShader( "/engine/shaders/color_wireframe_no_depth.shader" );
+        if ( m_colorShaderWireframeNoDepthTest == ASSETS.getErrorShader() )
+            LOG_WARN( "Failed to load the color shader (wireframe-nodepth) shader. Please ensure that the shader exists and compiles. Will be set to the error shader." );
 
         // Create material from both shaders
         m_colorMaterial = RESOURCES.createMaterial( m_colorShaderWireframe );

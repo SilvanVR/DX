@@ -94,6 +94,7 @@ namespace Graphics {
             I32          lightCount = 0;
             const Light* lights[MAX_LIGHTS];
             bool         lightsUpdated = false; // Set to true whenever a new light has been added
+            bool         shadowPass = false;
 
             void Reset();
             void BindMaterial(const std::shared_ptr<IMaterial>& material);

@@ -11,6 +11,7 @@
 #include "../transform.h"
 #include "Core/locator.h"
 #include "camera.h"
+#include "GameplayLayer/light_shadow_manager.h"
 
 namespace Components {
 
@@ -37,7 +38,7 @@ namespace Components {
             m_materials.resize( m_mesh->getSubMeshCount() );
             for ( I32 i = 0; i < m_materials.size(); i++ )
                 if (m_materials[i] == nullptr)
-                    m_materials[i] = RESOURCES.getDefaultMaterial();
+                    m_materials[i] = ASSETS.getErrorMaterial();
         }
     }
 
@@ -45,7 +46,7 @@ namespace Components {
     void MeshRenderer::setMaterial( const MaterialPtr& m, U32 subMeshIndex )
     { 
         ASSERT( subMeshIndex < m_materials.size() && "MeshRenderer::setMaterial(): INVALID INDEX." );
-        m_materials[subMeshIndex] = (m == nullptr ? RESOURCES.getDefaultMaterial() : m);
+        m_materials[subMeshIndex] = (m == nullptr ? ASSETS.getErrorMaterial() : m);
     }
 
     //**********************************************************************
@@ -61,27 +62,7 @@ namespace Components {
         // Draw submesh with appropriate material
         auto modelMatrix = transform->getWorldMatrix( lerp );
         for (I32 i = 0; i < m_mesh->getSubMeshCount(); i++)
-        {
-            ASSERT( m_materials[i] != nullptr );
             cmd.drawMesh( m_mesh, m_materials[i], modelMatrix, i );
-        }
-    }
-
-    //----------------------------------------------------------------------
-    void MeshRenderer::recordGraphicsCommandsShadows( Graphics::CommandBuffer& cmd, F32 lerp )
-    {
-        auto transform = getGameObject()->getTransform();
-        ASSERT( transform != nullptr );
-
-        static MaterialPtr mat = ASSETS.getMaterial("/engine/materials/shadowmap.material");
-
-        // Draw submesh with appropriate material
-        auto modelMatrix = transform->getWorldMatrix( lerp );
-        for (I32 i = 0; i < m_mesh->getSubMeshCount(); i++)
-        {
-            ASSERT( m_materials[i] != nullptr );
-            cmd.drawMesh( m_mesh, mat, modelMatrix, i );
-        }
     }
 
     //----------------------------------------------------------------------

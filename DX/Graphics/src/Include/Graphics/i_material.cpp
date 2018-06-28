@@ -21,7 +21,10 @@ namespace Graphics {
         m_vec4Map.clear();
         m_matrixMap.clear();
         m_textureMap.clear();
-        _ChangedShader(); 
+        _ChangedShader();
+
+        if (m_shadowShader == nullptr)
+            m_shadowShader = m_shader;
     }
 
     //**********************************************************************

@@ -11,6 +11,7 @@
 #include "shader_parser.hpp"
 #include "material_parser.hpp"
 #include "assimp_loader.h"
+#include "Core/mesh_generator.h"
 
 namespace Assets {
 
@@ -20,6 +21,7 @@ namespace Assets {
     //----------------------------------------------------------------------
     void AssetManager::init()
     {
+        _CreateDefaultAssets();
     }
 
     //----------------------------------------------------------------------
@@ -62,7 +64,7 @@ namespace Assets {
         {
             LOG_WARN( "LoadTexture(): Texture '" + filePath.toString() + "' could not be loaded. Reason: " 
                       + e.what() + ". Returning the default texture instead." );
-            return RESOURCES.getWhiteTexture();
+            return getWhiteTexture();
         }
     }
 
@@ -108,7 +110,7 @@ namespace Assets {
         {
             LOG_WARN( "LoadCubemap():  At least one of the specified cubemap faces couldn't be loaded! Positive X-Face path was  '" + posX.toString() + "' could not be loaded. "
                       "Reason: " + e.what() + "Returning the default texture instead." );
-            return RESOURCES.getDefaultCubemap();
+            return getDefaultCubemap();
         }
     }
 
@@ -143,7 +145,7 @@ namespace Assets {
         {
             LOG_WARN( "LoadCubemap(): Cubemap " + path.toString() + " couldn't be loaded. "
                       "Reason: " + e.what() + " Returning the default cubemap instead." );
-            return RESOURCES.getDefaultCubemap();
+            return getDefaultCubemap();
         }
     }
 
@@ -218,7 +220,7 @@ namespace Assets {
         {
             LOG_WARN( "AssetManager::getShader(): Shader '" + filePath.toString() + "' could not be loaded. Reason: " 
                       + e.what() +  " Returning the error shader instead." );
-            return RESOURCES.getErrorShader();
+            return getErrorShader();
         }
     }
 
@@ -253,7 +255,7 @@ namespace Assets {
         {
             LOG_WARN( "AssetManager::getMaterial(): Material '" + filePath.toString() + "' could not be loaded. Reason: " 
                       + e.what() +  " Returning the default material instead." );
-            return RESOURCES.getDefaultMaterial();
+            return getErrorMaterial();
         }
     }
 
@@ -288,7 +290,7 @@ namespace Assets {
         {
             LOG_WARN( "AssetManager::getMesh(): Mesh '" + filePath.toString() + "' could not be loaded. Reason: " 
                       + e.what() +  " Returning the default mesh instead." );
-            return RESOURCES.getDefaultMesh();
+            return getDefaultMesh();
         }
     }
 
@@ -389,7 +391,7 @@ namespace Assets {
 
         OS::Path shaderPath = "/engine/shaders/hdr_to_cube.shader";
         auto shader = getShader( shaderPath );
-        if ( shader == RESOURCES.getErrorShader() )
+        if ( shader == getErrorShader() )
             throw std::runtime_error( "Can't load '" + shaderPath.toString() + ". This is required in order to create a cubemap from a hdr file." );
 
         I32 width, height, bpp;
@@ -474,6 +476,87 @@ namespace Assets {
 
         }, HOT_RELOAD_INTERVAL_MILLIS);
     }
+
+    //----------------------------------------------------------------------
+    void AssetManager::_CreateDefaultAssets()
+    {
+        // SHADERS
+        {
+            // Error shader
+            m_errorShader = getShader( "/engine/shaders/error.shader" );
+            if ( not m_errorShader )
+                LOG_WARN( "Failed to load the error shader. Please ensure that the shader exists and compiles." );
+
+            // Wireframe shader
+            m_wireframeShader = getShader( "/engine/shaders/wireframe.shader" );
+            if ( m_wireframeShader == getErrorShader() )
+                LOG_WARN( "Failed to load the wireframe shader. Please ensure that the shader exists and compiles. Will be set to the error shader." );
+
+            // Color shader
+            m_colorShader = getShader( "/engine/shaders/color.shader" );
+            if ( m_colorShader == getErrorShader() )
+                LOG_WARN( "Failed to load the color shader. Please ensure that the shader exists and compiles. Will be set to the error shader." );
+
+            // Post process shader
+            m_postProcessShader = getShader( "/engine/shaders/postprocess.shader" );
+            if ( m_postProcessShader == getErrorShader() )
+                LOG_ERROR( "Failed to load the post process shader. Please ensure that the shader exists and compiles." );
+
+            // Shadowmap shader
+            m_shadowMapShader = getShader("/engine/shaders/shadowmap.shader");
+            if ( m_shadowMapShader == getErrorShader() )
+                LOG_WARN( "Failed to load the shadowmap shader. Please ensure that the shader exists and compiles. Will be set to the error shader." );
+        }
+
+        // MATERIALS
+        {
+            m_errorMaterial = RESOURCES.createMaterial( m_errorShader );
+            m_errorMaterial->setName( "Error Material" );
+
+            m_wireframeMaterial = RESOURCES.createMaterial( m_wireframeShader );
+            m_wireframeMaterial->setName( "Wireframe Material" );
+
+            m_colorMaterial = RESOURCES.createMaterial( m_colorShader );
+            m_colorMaterial->setName( "Color Material" );
+
+            m_postProcessMaterial = RESOURCES.createMaterial( m_postProcessShader );
+            m_postProcessMaterial->setName( "Post Process Material" );
+
+            Locator::getRenderer().addGlobalMaterial( "Wireframe", m_wireframeMaterial );
+        }
+
+        // TEXTURES
+        {
+            Color blacks[4] = { Color::BLACK, Color::BLACK, Color::BLACK, Color::BLACK };
+            m_black = RESOURCES.createTexture2D( 2, 2, Graphics::TextureFormat::BGRA32, blacks );
+
+            Color whites[4] = { Color::WHITE, Color::WHITE, Color::WHITE, Color::WHITE };
+            m_white = RESOURCES.createTexture2D( 2, 2, Graphics::TextureFormat::BGRA32, whites );
+
+            Color normalColor = Color( 128, 127, 255 );
+            Color normals[4] = { normalColor, normalColor, normalColor, normalColor };
+            m_normal = RESOURCES.createTexture2D( 2, 2, Graphics::TextureFormat::BGRA32, normals );
+        }
+
+        // CUBEMAPS
+        {
+            const I32 size = 2;
+            m_defaultCubemap = RESOURCES.createCubemap();
+            m_defaultCubemap->setFilter( Graphics::TextureFilter::Point );
+            m_defaultCubemap->create( size, Graphics::TextureFormat::BGRA32 );
+
+            Color colorsPerFace[6] = { Color::WHITE, Color::GREEN, Color::RED, Color::BLUE, Color::ORANGE, Color::VIOLET };
+            for (int i = 0; i < 6; i++)
+                m_defaultCubemap->setPixels( (Graphics::CubemapFace)i, ArrayList<Color>( size*size, colorsPerFace[i] ).data() );
+            m_defaultCubemap->apply();
+        }
+
+        // Mesh
+        {
+            m_defaultMesh = Core::MeshGenerator::CreatePlane( 1.0f, Color::RED );
+        }
+    }
+
 
     //**********************************************************************
     // PRIVATE - ASSET INFOS
@@ -576,5 +659,7 @@ namespace Assets {
             }
         }
     }
+
+
 
 } // End namespaces

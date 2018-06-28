@@ -111,6 +111,20 @@ namespace Assets {
         //----------------------------------------------------------------------
         void setHotReloading(bool enabled);
 
+        //----------------------------------------------------------------------
+        const ShaderPtr&        getColorShader()        const { return m_colorShader; }
+        const ShaderPtr&        getErrorShader()        const { return m_errorShader; }
+        const ShaderPtr&        getPostProcessShader()  const { return m_postProcessShader; }
+        const ShaderPtr&        getShadowMapShader()    const { return m_shadowMapShader; }
+        const MaterialPtr&      getColorMaterial()      const { return m_colorMaterial; }
+        const MaterialPtr&      getErrorMaterial()      const { return m_errorMaterial; }
+        const MaterialPtr&      getPostProcessMaterial()const { return m_postProcessMaterial; }
+        const Texture2DPtr&     getBlackTexture()       const { return m_black; }
+        const Texture2DPtr&     getWhiteTexture()       const { return m_white; }
+        const Texture2DPtr&     getNormalTexture()      const { return m_normal; }
+        const CubemapPtr&       getDefaultCubemap()     const { return m_defaultCubemap; }
+        const MeshPtr&          getDefaultMesh()        const { return m_defaultMesh; }
+
     private:
         CallbackID m_hotReloadingCallback = 0;
         bool m_hotReloading = false;
@@ -167,6 +181,27 @@ namespace Assets {
         HashMap<StringID, MaterialAssetInfo>    m_materialCache;
         HashMap<StringID, MeshAssetInfo>        m_meshCache;
 
+        // Default resources loaded / created upon start
+        //ShaderPtr       m_defaultShader;
+        ShaderPtr       m_errorShader;
+        ShaderPtr       m_wireframeShader;
+        ShaderPtr       m_colorShader;
+        ShaderPtr       m_postProcessShader;
+        ShaderPtr       m_shadowMapShader;
+
+        MaterialPtr     m_errorMaterial;
+        MaterialPtr     m_wireframeMaterial;
+        MaterialPtr     m_colorMaterial;
+        MaterialPtr     m_postProcessMaterial;
+
+        Texture2DPtr    m_black;
+        Texture2DPtr    m_white;
+        Texture2DPtr    m_normal;
+
+        CubemapPtr      m_defaultCubemap;
+
+        MeshPtr         m_defaultMesh;
+
         //----------------------------------------------------------------------
         inline Texture2DPtr _LoadTexture2D(const OS::Path& filePath, bool generateMips);
         inline CubemapPtr _LoadCubemap(const OS::Path& posX, const OS::Path& negX, 
@@ -174,6 +209,7 @@ namespace Assets {
                                        const OS::Path& posZ, const OS::Path& negZ, bool generateMips);
         inline CubemapPtr _LoadCubemap(const OS::Path& path, I32 sizePerFace, bool generateMips);
         void _EnableHotReloading();
+        void _CreateDefaultAssets();
 
         NULL_COPY_AND_ASSIGN(AssetManager)
     };

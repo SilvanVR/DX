@@ -20,7 +20,6 @@
 #include "Lighting/point_light.h"
 #include "Lighting/spot_light.h"
 #include "OS/FileSystem/file.h"
-#include "default_shaders.hpp"
 #include "D3D11Utility.h"
 
 using namespace DirectX;
@@ -101,7 +100,15 @@ namespace Graphics {
                     _SetCamera( cmd.camera );
                     break;
                 }
+                case GPUCommand::SET_CAMERA_SHADOW:
+                {
+                    auto& cmd = *reinterpret_cast<GPUC_SetCamera*>( command.get() );
+                    renderContext.shadowPass = true;
+                    _SetCamera( cmd.camera );
+                    break;
+                }
                 case GPUCommand::END_CAMERA:
+                case GPUCommand::END_CAMERA_SHADOW:
                 {
                     auto& cmd = *reinterpret_cast<GPUC_EndCamera*>( command.get() );
                     renderContext.Reset();
@@ -364,7 +371,6 @@ namespace Graphics {
             return;
         }
 
-        renderContext.Reset();
         renderContext.camera = camera;
         renderContext.renderTarget = renderTarget;
 
@@ -454,7 +460,7 @@ namespace Graphics {
         else
         {
             // Bind shader + material
-            renderContext.BindShader( material->getShader() );
+            renderContext.BindShader( renderContext.shadowPass ? material->getShadowShader() : material->getShader() );
             renderContext.BindMaterial( material );
         }
 
@@ -708,7 +714,7 @@ namespace Graphics {
     void D3D11Renderer::RenderContext::BindShader( const std::shared_ptr<IShader>& shader )
     {
         // Don't bind same shader shader again
-        if(shader == m_shader)
+        if (shader == m_shader)
             return;
 
         // Unbind previous shader
@@ -739,6 +745,7 @@ namespace Graphics {
         lightCount = 0;
         lightsUpdated = false;
         renderTarget = nullptr;
+        shadowPass = false;
     }
 
 } // End namespaces

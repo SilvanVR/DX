@@ -160,6 +160,63 @@ namespace Graphics { namespace ShaderSources {
         return color;                                   \
     }";
 
+    const String SHADOWMAP_VERTEX = "\
+    cbuffer cbPerCamera : register( b0 )            \
+    {                                               \
+        float4x4 _View;                             \
+        float4x4 _Proj;                             \
+        float4x4 _ViewProj;                         \
+        float3 _CameraPos;                          \
+        float _zNear;                               \
+        float _zFar;                                \
+    };                                              \
+                                                    \
+    cbuffer cbPerObject : register( b1 )            \
+    {                                               \
+        float4x4 _World;                            \
+    };                                              \
+                                                    \
+    struct VertexIn                                 \
+    {                                               \
+        float3 PosL : POSITION;                     \
+        float2 UV : TEXCOORD0;                      \
+    };                                              \
+                                                    \
+    struct VertexOut                                \
+    {                                               \
+        float4 PosH : SV_POSITION;                  \
+        float2 UV : TEXCOORD0;                      \
+    };                                              \
+                                                    \
+    VertexOut main(VertexIn vin)                    \
+    {                                               \
+        VertexOut OUT;                              \
+                                                    \
+        float4x4 mvp = mul(_ViewProj, _World);      \
+        OUT.PosH = mul(mvp, float4(vin.PosL, 1.0f));\
+        OUT.UV = vin.UV;                            \
+                                                    \
+        return OUT;                                 \
+    }";
+
+    const String SHADOWMAP_FRAGMENT = "\
+    struct FragmentIn                               \
+    {                                               \
+        float4 PosH : SV_POSITION;                  \
+        float2 UV : TEXCOORD0;                      \
+    };                                              \
+                                                    \
+    Texture2D _MainTex;                             \
+    SamplerState sampler0;                          \
+                                                    \
+    static const float ALPHA_THRESHOLD = 0.1f;      \
+    void main(FragmentIn fin)                       \
+    {                                               \
+        float4 col = _MainTex.Sample(sampler0, fin.UV);\
+        if (col.a < ALPHA_THRESHOLD)                \
+            discard;                                \
+    }";
+
 #elif
     static_assert("Default shader for every graphics api must be set here as a string.")
 #endif

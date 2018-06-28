@@ -31,6 +31,7 @@ namespace Components {
 
         // Create gameobject which renders the skybox
         auto mr = m_gameObject->addComponent<Components::MeshRenderer>();
+        mr->setCastShadows( false );
         mr->setMesh( m_skyboxMesh );
         mr->setMaterial( m_skyboxMaterial );
     }

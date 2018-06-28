@@ -22,7 +22,7 @@ namespace Assets {
         cmd.setRenderTarget( m_brdfLut );
 
         auto shader = ASSETS.getShader( "/engine/shaders/pbr/pbr_brdfLut.shader" );
-        ASSERT( shader != RESOURCES.getErrorShader() && "Please ensure that the given shader file exists." );
+        ASSERT( shader != ASSETS.getErrorShader() && "Please ensure that the given shader file exists." );
         auto brdfMat = RESOURCES.createMaterial( shader );
 
         cmd.drawFullscreenQuad( brdfMat );

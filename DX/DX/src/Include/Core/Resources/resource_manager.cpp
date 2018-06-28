@@ -11,7 +11,6 @@
 **********************************************************************/
 
 #include "Core/locator.h"
-#include "Graphics/default_shaders.hpp"
 #include "Core/mesh_generator.h"
 #include "Events/event_dispatcher.h"
 #include "Events/event_names.hpp"
@@ -28,27 +27,11 @@ namespace Core { namespace Resources {
         // Register to resize window event
         Events::Event& evt = Events::EventDispatcher::GetEvent( EVENT_WINDOW_RESIZE );
         evt.addListener( BIND_THIS_FUNC_0_ARGS( &ResourceManager::_OnWindowSizeChanged ) );
-
-        _CreateDefaultAssets();
     }
 
     //----------------------------------------------------------------------
     void ResourceManager::shutdown()
     {
-        // Must be deleted here, cause the shared_ptr can be deconstructed after their containing arraylists, which crashes the program
-        m_defaultShader.reset();
-        m_errorShader.reset();
-        m_wireframeShader.reset();
-        m_colorShader.reset();
-
-        m_defaultMaterial.reset();
-        m_wireframeMaterial.reset();
-        m_colorMaterial.reset();
-
-        m_black.reset();
-        m_white.reset();
-
-        m_defaultCubemap.reset();
     }
 
     //**********************************************************************
@@ -88,7 +71,11 @@ namespace Core { namespace Resources {
     MaterialPtr ResourceManager::createMaterial( const ShaderPtr& shader )
     {
         auto material = Locator::getRenderer().createMaterial();
-        material->setShader( shader ? shader : m_defaultShader );
+        if (shader)
+            material->setShader( shader );
+
+        // The resourcemanager really shouldn't access the asset manager, but for now this is fine
+        material->setShadowShader( ASSETS.getShadowMapShader() ); 
 
         m_materials.push_back( material );
 
@@ -317,115 +304,6 @@ namespace Core { namespace Resources {
         #endif
         m_audioClips.erase( std::remove( m_audioClips.begin(), m_audioClips.end(), clip ) );
         SAFE_DELETE( clip );
-    }
-
-    //----------------------------------------------------------------------
-    void ResourceManager::_CreateDefaultAssets()
-    {
-        // SHADERS
-        {
-            // Error shader
-            m_errorShader = ShaderPtr( Locator::getRenderer().createShader(), BIND_THIS_FUNC_1_ARGS( &ResourceManager::_DeleteShader ) );
-            m_errorShader->setName( SHADER_ERROR_NAME );
-            try {
-                m_errorShader->compileFromSource( Graphics::ShaderSources::ERROR_VERTEX, Graphics::ShaderSources::ERROR_FRAGMENT, "main" ); 
-            }
-            catch (std::runtime_error&) {
-                LOG_ERROR( "Error shader source didn't compile. This is mandatory!" );
-            }
-            m_shaders.push_back( m_errorShader.get() );
-
-            // Default shader
-            m_defaultShader = ShaderPtr( Locator::getRenderer().createShader(), BIND_THIS_FUNC_1_ARGS( &ResourceManager::_DeleteShader ) );
-            m_defaultShader->setName( SHADER_DEFAULT_NAME );
-            try {
-                m_defaultShader->compileFromSource( Graphics::ShaderSources::DEFAULT_VERTEX, Graphics::ShaderSources::DEFAULT_FRAGMENT, "main" );
-            }
-            catch (std::runtime_error&) {
-                LOG_ERROR( "Default shader source didn't compile. This is mandatory!" );
-            }
-            m_shaders.push_back( m_defaultShader.get() );
-
-            // Default wireframe shader
-            m_wireframeShader = ShaderPtr( Locator::getRenderer().createShader(), BIND_THIS_FUNC_1_ARGS( &ResourceManager::_DeleteShader ) );
-            m_wireframeShader->setName( SHADER_WIREFRAME_NAME );
-            m_wireframeShader->setRasterizationState( { Graphics::FillMode::Wireframe } );
-            m_wireframeShader->compileFromSource( Graphics::ShaderSources::DEFAULT_VERTEX, Graphics::ShaderSources::DEFAULT_FRAGMENT, "main" );
-
-            m_shaders.push_back( m_wireframeShader.get() );
-
-            // Color shader
-            m_colorShader = ShaderPtr( Locator::getRenderer().createShader(), BIND_THIS_FUNC_1_ARGS( &ResourceManager::_DeleteShader ) );
-            m_colorShader->setName( SHADER_COLOR_NAME );
-            try {
-                m_colorShader->compileFromSource( Graphics::ShaderSources::COLOR_VERTEX, Graphics::ShaderSources::COLOR_FRAGMENT, "main" );
-            }
-            catch (std::runtime_error&) {
-                LOG_ERROR( "Color shader source didn't compile. This is mandatory!" );
-            }
-            m_shaders.push_back( m_colorShader.get() );
-
-            // Post process shader
-            m_postProcessShader = ShaderPtr( Locator::getRenderer().createShader(), BIND_THIS_FUNC_1_ARGS( &ResourceManager::_DeleteShader ) );
-            m_postProcessShader->setName( SHADER_POST_PROCESS_NAME );
-            m_postProcessShader->setRasterizationState({ Graphics::FillMode::Solid, Graphics::CullMode::Front });
-            m_postProcessShader->setDepthStencilState({ false, false });
-            try {
-                m_postProcessShader->compileFromSource( Graphics::ShaderSources::POST_PROCESS_VERTEX, Graphics::ShaderSources::POST_PROCESS_FRAGMENT, "main" );
-            }
-            catch (std::runtime_error&) {
-                LOG_ERROR( "Post process shader source didn't compile. This is mandatory!" );
-            }
-            m_shaders.push_back( m_postProcessShader.get() );
-        }
-
-        // MATERIALS
-        {
-            m_defaultMaterial = createMaterial( m_defaultShader );
-            m_defaultMaterial->setName( "Default Material" );
-
-            m_wireframeMaterial = createMaterial( m_wireframeShader );
-            m_wireframeMaterial->setName( "Wireframe Material" );
-
-            m_colorMaterial = createMaterial( m_colorShader );
-            m_colorMaterial->setName( "Color Material" );
-
-            m_postProcessMaterial = createMaterial( m_postProcessShader );
-            m_postProcessMaterial->setName( "Post Process Material" );
-
-            Locator::getRenderer().addGlobalMaterial( "Wireframe", m_wireframeMaterial );
-        }
-
-        // TEXTURES
-        {
-            Color blacks[4] = { Color::BLACK, Color::BLACK, Color::BLACK, Color::BLACK };
-            m_black = createTexture2D( 2, 2, Graphics::TextureFormat::BGRA32, blacks );
-
-            Color whites[4] = { Color::WHITE, Color::WHITE, Color::WHITE, Color::WHITE };
-            m_white = createTexture2D( 2, 2, Graphics::TextureFormat::BGRA32, whites );
-
-            Color normalColor = Color( 128, 127, 255 );
-            Color normals[4] = { normalColor, normalColor, normalColor, normalColor };
-            m_normal = createTexture2D( 2, 2, Graphics::TextureFormat::BGRA32, normals );
-        }
-
-        // CUBEMAPS
-        {
-            const I32 size = 2;
-            m_defaultCubemap = createCubemap();
-            m_defaultCubemap->setFilter( Graphics::TextureFilter::Point );
-            m_defaultCubemap->create( size, Graphics::TextureFormat::BGRA32 );
-
-            Color colorsPerFace[6] = { Color::WHITE, Color::GREEN, Color::RED, Color::BLUE, Color::ORANGE, Color::VIOLET };
-            for (int i = 0; i < 6; i++)
-                m_defaultCubemap->setPixels( (Graphics::CubemapFace)i, ArrayList<Color>( size*size, colorsPerFace[i] ).data() );
-            m_defaultCubemap->apply();
-        }
-
-        // Mesh
-        {
-            m_defaultMesh = MeshGenerator::CreatePlane( 1.0f, Color::RED );
-        }
     }
 
     //----------------------------------------------------------------------
