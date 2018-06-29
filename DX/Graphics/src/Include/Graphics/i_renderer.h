@@ -47,6 +47,7 @@ namespace Graphics {
 
         //----------------------------------------------------------------------
         const OS::Window* getWindow() const { return m_window; }
+        const U64 getFrameCount() const { return m_frameCount; }
 
         //----------------------------------------------------------------------
         // Dispatches the given command buffer for execution on the gpu.
@@ -61,7 +62,6 @@ namespace Graphics {
         //----------------------------------------------------------------------
         virtual void setVSync(bool enabled) = 0;
         virtual bool isVSyncEnabled() const = 0;
-
 
         //----------------------------------------------------------------------
         virtual IMesh*              createMesh() = 0;
@@ -111,6 +111,7 @@ namespace Graphics {
         void resetFrameInfo() { m_frameInfo = {}; }
 
     protected:
+        U64                         m_frameCount = 0;
         OS::Window*                 m_window;
         FrameInfo                   m_frameInfo = {};
         ArrayList<CommandBuffer>    m_pendingCmdQueue;

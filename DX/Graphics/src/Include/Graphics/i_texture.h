@@ -60,6 +60,7 @@ namespace Graphics
     private:
         friend class IMaterial;
         friend class IShader;
+        friend class IRenderTexture;
         virtual void bind(ShaderType shaderType, U32 bindSlot) = 0;
 
         NULL_COPY_AND_ASSIGN(ITexture)

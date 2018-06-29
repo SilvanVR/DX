@@ -6,6 +6,8 @@
     date: March 4, 2018
 **********************************************************************/
 
+#include "Logging/logging.h"
+
 namespace Graphics
 {
 
@@ -109,6 +111,13 @@ namespace Graphics
             if ( hasColorBuffer() ) buffer.m_colorBuffer->setAnisoLevel( level );
             if ( hasDepthBuffer() ) buffer.m_depthBuffer->setAnisoLevel( level );
         }
+    }
+
+    //----------------------------------------------------------------------
+    void IRenderTexture::bind( ShaderType shaderType, U32 bindSlot )
+    {
+        auto prev = _PreviousBufferIndex();
+        m_renderBuffers[prev].m_colorBuffer->bind( shaderType, bindSlot );
     }
 
     //**********************************************************************

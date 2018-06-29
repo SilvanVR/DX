@@ -145,7 +145,7 @@ namespace Graphics {
                 {
                     auto& cmd = *reinterpret_cast<GPUC_SetRenderTarget*>( command.get() );
                     renderContext.renderTarget = cmd.target;
-                    renderContext.renderTarget->bindForRendering();
+                    renderContext.renderTarget->bindForRendering( m_frameCount );
                     break;
                 }
                 case GPUCommand::DRAW_FULLSCREEN_QUAD:
@@ -214,6 +214,7 @@ namespace Graphics {
         _UnlockQueue();
 
         m_pSwapchain->present( m_vsync );
+        m_frameCount++;
     }
 
     //----------------------------------------------------------------------
@@ -377,7 +378,7 @@ namespace Graphics {
         // Unbind all shader resources, because the render target might be used as a srv
         ID3D11ShaderResourceView* resourceViews[16] = {};
         g_pImmediateContext->PSSetShaderResources( 0, 16, resourceViews );
-        renderTarget->bindForRendering();
+        renderTarget->bindForRendering( m_frameCount );
 
         // Clear rendertarget
         switch ( camera->getClearMode() )
@@ -690,7 +691,7 @@ namespace Graphics {
             ID3D11ShaderResourceView* resourceViews[16] = {};
             g_pImmediateContext->PSSetShaderResources( 0, 16, resourceViews );
             vp = { 0, 0, (F32)renderContext.renderTarget->getWidth(), (F32)renderContext.renderTarget->getHeight(), 0, 1 };
-            dst->bindForRendering();
+            dst->bindForRendering( m_frameCount );
         }
         _DrawFullScreenQuad( material, vp );
     }

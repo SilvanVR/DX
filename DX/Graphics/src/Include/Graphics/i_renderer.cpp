@@ -14,8 +14,6 @@
 
 namespace Graphics {
 
-    static std::mutex s_renderQueueMutex;
-
     //----------------------------------------------------------------------
     IRenderer::IRenderer( OS::Window* window )
         : m_window( window )
@@ -62,6 +60,7 @@ namespace Graphics {
     //----------------------------------------------------------------------
     // PROTECTED
     //----------------------------------------------------------------------
+    static std::mutex s_renderQueueMutex;
 
     //----------------------------------------------------------------------
     void IRenderer::_LockQueue()

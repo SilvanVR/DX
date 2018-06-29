@@ -11,7 +11,6 @@
 #include "../transform.h"
 #include "Core/locator.h"
 #include "camera.h"
-#include "GameplayLayer/light_shadow_manager.h"
 
 namespace Components {
 

@@ -26,14 +26,10 @@ namespace Graphics { namespace D3D11 {
         //----------------------------------------------------------------------
         // IRenderTexture Interface
         //----------------------------------------------------------------------
-        void bindForRendering() override;
+        void bindForRendering(U64 frameIndex) override;
 
     private:
-        //----------------------------------------------------------------------
-        RenderTexture(const RenderTexture& other)               = delete;
-        RenderTexture& operator = (const RenderTexture& other)  = delete;
-        RenderTexture(RenderTexture&& other)                    = delete;
-        RenderTexture& operator = (RenderTexture&& other)       = delete;
+        NULL_COPY_AND_ASSIGN(RenderTexture)
     };
 
 } } // End namespaces

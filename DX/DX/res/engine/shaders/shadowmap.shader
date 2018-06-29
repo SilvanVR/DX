@@ -29,8 +29,8 @@ VertexOut main(VertexIn vin)
 {
     VertexOut OUT;
 
-    OUT.PosH 		= TO_CLIP_SPACE( vin.PosL );
-	OUT.Tex 		= vin.tex;
+    OUT.PosH = TO_CLIP_SPACE( vin.PosL );
+	OUT.Tex = vin.tex;
 	
     return OUT;
 }

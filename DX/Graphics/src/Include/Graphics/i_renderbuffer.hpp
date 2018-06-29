@@ -70,7 +70,6 @@ namespace Graphics
         bool                m_isDepthBuffer;
         DepthFormat         m_depthFormat;
 
-
     private:
         //----------------------------------------------------------------------
         // Binds this renderbuffer to the output merger.

@@ -12,26 +12,27 @@
 **********************************************************************/
 
 #include "i_renderbuffer.hpp"
+#include "i_texture.h"
 
 namespace Graphics
 {
 
     //**********************************************************************
-    class IRenderTexture
+    class IRenderTexture : public ITexture
     {
     public:
-        IRenderTexture() {}
+        IRenderTexture() : ITexture(TextureDimension::Tex2DArray) {}
         virtual ~IRenderTexture() = default;
 
         //----------------------------------------------------------------------
-        inline U32                         getWidth()                  const { return (U32)(getBuffer()->getWidth()); }
-        inline U32                         getHeight()                 const { return (U32)(getBuffer()->getHeight()); }
-        inline bool                        dynamicScales()             const { return m_dynamicScale; }
-        inline F32                         getDynamicScaleFactor()     const { return m_scaleFactor; }
-        inline bool                        hasColorBuffer()            const { return getColorBuffer() != nullptr; }
-        inline bool                        hasDepthBuffer()            const { return getDepthBuffer() != nullptr; }
-        inline F32                         getAspectRatio()            const { return getBuffer()->getAspectRatio(); }
-        inline SamplingDescription         getSamplingDescription()    const { return getBuffer()->getSamplingDescription(); }
+        U32                 getWidth()                  const { return (U32)(getBuffer()->getWidth()); }
+        U32                 getHeight()                 const { return (U32)(getBuffer()->getHeight()); }
+        bool                dynamicScales()             const { return m_dynamicScale; }
+        F32                 getDynamicScaleFactor()     const { return m_scaleFactor; }
+        bool                hasColorBuffer()            const { return getColorBuffer() != nullptr; }
+        bool                hasDepthBuffer()            const { return getDepthBuffer() != nullptr; }
+        F32                 getAspectRatio()            const { return getBuffer()->getAspectRatio(); }
+        SamplingDescription getSamplingDescription()    const { return getBuffer()->getSamplingDescription(); }
 
         //----------------------------------------------------------------------
         // These set functions will be forwarded to all renderbuffers within this texture.
@@ -44,19 +45,19 @@ namespace Graphics
         // @Return:
         //  Color-Buffer if present, otherwise nullptr.
         //----------------------------------------------------------------------
-        inline const RenderBufferPtr& getColorBuffer() const { return m_renderBuffers[m_bufferIndex].m_colorBuffer; }
+        const RenderBufferPtr& getColorBuffer() const { return m_renderBuffers[m_bufferIndex].m_colorBuffer; }
 
         //----------------------------------------------------------------------
         // @Return:
         //  Depth-Buffer if present, otherwise nullptr.
         //----------------------------------------------------------------------
-        inline const RenderBufferPtr& getDepthBuffer() const { return m_renderBuffers[m_bufferIndex].m_depthBuffer; }
+        const RenderBufferPtr& getDepthBuffer() const { return m_renderBuffers[m_bufferIndex].m_depthBuffer; }
 
         //----------------------------------------------------------------------
         // @Return:
         //  First buffer which exists, i.e. colorbuffer if existent, otherwise depthbuffer.
         //----------------------------------------------------------------------
-        inline const RenderBufferPtr& getBuffer() const { return hasColorBuffer() ? getColorBuffer() : getDepthBuffer(); }
+        const RenderBufferPtr& getBuffer() const { return hasColorBuffer() ? getColorBuffer() : getDepthBuffer(); }
 
         //----------------------------------------------------------------------
         // @Params:
@@ -102,14 +103,25 @@ namespace Graphics
         // Framebuffer index. Only used if this render texture contains a SET of renderbuffers.
         I32 m_bufferIndex = 0;
 
+        // Saves in which frame we are, because the buffer index has to be advanced only once per frame (Yes its a hack).
+        U64 m_curFrameIndex = 0;
+
         I32 _PreviousBufferIndex();
 
     private:
         //----------------------------------------------------------------------
         // Bind this color and/or depth buffer to the output merger for rendering.
+        // @Params:
+        //  "frameIndex": The current frame index.
         //----------------------------------------------------------------------
         friend class D3D11Renderer;
-        virtual void bindForRendering() = 0;
+        virtual void bindForRendering(U64 frameIndex) = 0;
+
+        //----------------------------------------------------------------------
+        // ITexture Interface
+        //----------------------------------------------------------------------
+        void _UpdateSampler() override {}
+        void bind(ShaderType shaderType, U32 bindSlot) override;
 
         NULL_COPY_AND_ASSIGN(IRenderTexture)
     };

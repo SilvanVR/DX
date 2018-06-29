@@ -211,14 +211,16 @@ public:
         go->addComponent<Components::Skybox>(cubemap);
 
         // Camera 2
-        auto renderTex = RESOURCES.createRenderTexture(1024, 720, Graphics::DepthFormat::D32, Graphics::TextureFormat::BGRA32, 2, Graphics::MSAASamples::One);
+        auto renderTex = RESOURCES.createRenderTexture(1024, 720, Graphics::DepthFormat::D32, Graphics::TextureFormat::BGRA32, 2, Graphics::MSAASamples::Four);
         auto cam2GO = createGameObject("Camera2");
         cam2GO->getComponent<Components::Transform>()->position = Math::Vec3(0, 3, -10);
-        cam2GO->addComponent<AutoOrbiting>(10.0f);
+        cam2GO->getTransform()->lookAt({});
+        //cam2GO->addComponent<AutoOrbiting>(10.0f);
 
         auto cam2 = cam2GO->addComponent<Components::Camera>();
         cam2->setRenderTarget(renderTex);
         cam2->setClearColor(Color::GREEN);
+        cam2GO->addComponent<PostProcess>(ASSETS.getMaterial("/materials/post processing/color_grading.material"));
 
         auto grid = createGameObject("Grid");
         grid->addComponent<GridGeneration>(20);
@@ -229,7 +231,7 @@ public:
 
         // MATERIAL
         auto customTexMaterial = RESOURCES.createMaterial(ASSETS.getShader("/shaders/tex.shader"));
-        customTexMaterial->setTexture("tex", renderTex->getColorBuffer());
+        customTexMaterial->setTexture("tex", renderTex);
         customTexMaterial->setColor("tintColor", Color::WHITE);
 
         // GAMEOBJECT

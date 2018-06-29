@@ -127,8 +127,12 @@ namespace Components {
         for (auto& additionalCmd : m_additionalCommandBuffers[CameraEvent::Overlay])
             cmd.merge( *additionalCmd );
 
-        // Inject an command which blits last rendered buffer to the screen/render target
-        cmd.blit( PREVIOUS_BUFFER, m_camera.isRenderingToScreen() ? SCREEN_BUFFER : getRenderTarget(), ASSETS.getPostProcessMaterial() );
+        // Inject an command which blits last rendered buffer to the screen/render target if we
+        // have at least one post processing command buffer attached or we are rendering to the screen.
+        if( m_camera.isRenderingToScreen() )
+            cmd.blit( PREVIOUS_BUFFER, SCREEN_BUFFER, ASSETS.getPostProcessMaterial() );
+        else if (m_additionalCommandBuffers[CameraEvent::PostProcess].size() > 0)
+            cmd.blit( PREVIOUS_BUFFER, getRenderTarget(), ASSETS.getPostProcessMaterial() );
 
         // Add an end camera command
         cmd.endCamera( &m_camera );

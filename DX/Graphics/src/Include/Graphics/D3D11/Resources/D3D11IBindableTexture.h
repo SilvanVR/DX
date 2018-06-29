@@ -28,9 +28,9 @@ namespace Graphics { namespace D3D11 {
 
         //----------------------------------------------------------------------
         // @Return:
-        //  D3D11Texture for this texture. (Virtual cause some render-textures needs more than one)
+        //  D3D11Texture for this texture.
         //----------------------------------------------------------------------
-        virtual ID3D11Texture2D* getD3D11Texture() { return m_pTexture; }
+        ID3D11Texture2D* getD3D11Texture() { return m_pTexture; }
 
     protected:
         ID3D11SamplerState*         m_pSampleState      = nullptr;
