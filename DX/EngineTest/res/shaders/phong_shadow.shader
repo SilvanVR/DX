@@ -59,8 +59,6 @@ struct FragmentIn
 Texture2D _MainTex;
 SamplerState sampler0;
 
-static const float ALPHA_THRESHOLD = 0.1f;
-
 float4 main(FragmentIn fin) : SV_Target
 {
 	float4 textureColor = _MainTex.Sample(sampler0, fin.Tex * uvScale);

@@ -16,11 +16,13 @@
 struct VertexIn
 {
     float3 PosL : POSITION;
+	float2 tex : TEXCOORD0;
 };
 
 struct VertexOut
 {
     float4 PosH : SV_POSITION;
+    float2 Tex : TEXCOORD0;
 };
 
 VertexOut main(VertexIn vin)
@@ -28,6 +30,7 @@ VertexOut main(VertexIn vin)
     VertexOut OUT;
 
     OUT.PosH = TO_CLIP_SPACE( vin.PosL );
+	OUT.Tex = vin.tex;
 	
     return OUT;
 }
@@ -40,8 +43,15 @@ VertexOut main(VertexIn vin)
 struct FragmentIn
 {
     float4 PosH : SV_POSITION;
+	float2 Tex : TEXCOORD0;
 };
+
+Texture2D _MainTex;
+SamplerState sampler0;
 
 void main(FragmentIn fin)
 {
+	float4 textureColor = _MainTex.Sample(sampler0, fin.Tex);
+	if (textureColor.a < ALPHA_THRESHOLD)
+		discard;
 }

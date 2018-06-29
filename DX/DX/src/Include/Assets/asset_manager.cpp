@@ -506,6 +506,11 @@ namespace Assets {
             m_shadowMapShader = getShader("/engine/shaders/shadowmap.shader");
             if ( m_shadowMapShader == getErrorShader() )
                 LOG_WARN( "Failed to load the shadowmap shader. Please ensure that the shader exists and compiles. Will be set to the error shader." );
+
+            // Shadowmap shader (UV)
+            m_shadowMapShaderUV = getShader( "/engine/shaders/shadowmap_uv.shader" );
+            if ( m_shadowMapShaderUV == getErrorShader() )
+                LOG_WARN( "Failed to load the shadowmap-uv shader. Please ensure that the shader exists and compiles. Will be set to the error shader." );
         }
 
         // MATERIALS

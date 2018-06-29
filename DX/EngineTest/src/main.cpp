@@ -72,6 +72,7 @@ public:
                     case Assets::MaterialTextureType::Specular: break;
                     }
                 }
+                material->setShadowShader(ASSETS.getShadowMapShaderUV());
                 mr->setMaterial(material, i);
             }
         }
@@ -183,7 +184,7 @@ public:
         Locator::getRenderer().setGlobalFloat(SID("_Ambient"), 0.5f);
 
         //Locator::getSceneManager().LoadSceneAsync(new SceneGUISelectSceneMenu());
-        Locator::getSceneManager().LoadSceneAsync(new SceneMirror());
+        Locator::getSceneManager().LoadSceneAsync(new TestScene());
     }
 
     //----------------------------------------------------------------------

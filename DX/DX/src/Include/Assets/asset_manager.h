@@ -116,6 +116,7 @@ namespace Assets {
         const ShaderPtr&        getErrorShader()        const { return m_errorShader; }
         const ShaderPtr&        getPostProcessShader()  const { return m_postProcessShader; }
         const ShaderPtr&        getShadowMapShader()    const { return m_shadowMapShader; }
+        const ShaderPtr&        getShadowMapShaderUV()  const { return m_shadowMapShaderUV; }
         const MaterialPtr&      getColorMaterial()      const { return m_colorMaterial; }
         const MaterialPtr&      getErrorMaterial()      const { return m_errorMaterial; }
         const MaterialPtr&      getPostProcessMaterial()const { return m_postProcessMaterial; }
@@ -188,6 +189,7 @@ namespace Assets {
         ShaderPtr       m_colorShader;
         ShaderPtr       m_postProcessShader;
         ShaderPtr       m_shadowMapShader;
+        ShaderPtr       m_shadowMapShaderUV; // Shadowmap shader for material which requires discarding fragments for transparency
 
         MaterialPtr     m_errorMaterial;
         MaterialPtr     m_wireframeMaterial;

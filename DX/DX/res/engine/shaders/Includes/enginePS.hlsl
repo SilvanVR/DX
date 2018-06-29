@@ -11,6 +11,7 @@
 #define SPOT_LIGHT 			2
 #define PI					3.14159265359
 #define GAMMA				2.2
+#define ALPHA_THRESHOLD  	0.1f
 
 cbuffer cbPerCamera : register(b0)
 {	
