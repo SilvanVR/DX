@@ -119,7 +119,6 @@ namespace Core {
         graphicsEngine.setGlobalFloat( TIME_NAME, (F32)TIME.getTime() );
 
         Events::EventDispatcher::GetEvent( EVENT_FRAME_BEGIN ).invoke();
-        LOG("NEW FRAME", Color::VIOLET);
 
         // Render each camera
         auto& scene = Locator::getSceneManager().getCurrentScene();

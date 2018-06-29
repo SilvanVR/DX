@@ -32,7 +32,7 @@ namespace Core { namespace Input {
     {
     public:
         IKeyListener(EInputChannel channel = EInputChannel::Master);
-        IKeyListener(InputChannels channels = (InputChannels)EInputChannel::Master);
+        IKeyListener(InputChannels channels);
         virtual ~IKeyListener();
 
     protected:
@@ -47,7 +47,7 @@ namespace Core { namespace Input {
     {
     public:
         IMouseListener(EInputChannel channel = EInputChannel::Master);
-        IMouseListener(InputChannels channels = (InputChannels)EInputChannel::Master);
+        IMouseListener(InputChannels channels);
         virtual ~IMouseListener();
 
     protected:
