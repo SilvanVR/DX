@@ -38,12 +38,12 @@ namespace Components {
         void setIntensity       (F32 intensity) { m_light->setIntensity(intensity); }
         void setColor           (Color color)   { m_light->setColor(color); }
         void setShadowMapQuality(Graphics::ShadowMapQuality quality);
-        void setShadowsEnabled  (bool enabled);
+        void setShadows         (bool enabled);
 
     protected:
-        std::unique_ptr<Graphics::Light>  m_light = nullptr;
-        std::unique_ptr<Graphics::Camera> m_camera = nullptr;
-        Graphics::ShadowMapQuality  m_shadowMapQuality = Graphics::ShadowMapQuality::High;
+        std::unique_ptr<Graphics::Light>    m_light             = nullptr;
+        std::unique_ptr<Graphics::Camera>   m_camera            = nullptr;
+        Graphics::ShadowMapQuality          m_shadowMapQuality  = Graphics::ShadowMapQuality::High;
 
         virtual void renderShadowMap(const IScene& scene, F32 lerp);
         virtual void _CreateShadowMap(Graphics::ShadowMapQuality) = 0;

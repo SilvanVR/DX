@@ -166,15 +166,15 @@ namespace Components {
 
                     // Draw mesh / Create material if not already present
                     TexturePtr* texture = static_cast<TexturePtr*>( pcmd->TextureId );
-                    if ( auto it = m_cachedMaterials.find( texture ) == m_cachedMaterials.end() )
+                    if ( auto it = m_cachedMaterials.find( texture->get() ) == m_cachedMaterials.end() )
                     {
                         // Create a new material and set texture
                         auto mat = RESOURCES.createMaterial( m_guiShader );
                         mat->setTexture( SHADER_GUI_TEX_NAME, *texture );
-                        m_cachedMaterials[texture] = mat;
+                        m_cachedMaterials[texture->get()] = mat;
                     }
 
-                    m_cmd.drawMesh( m_dynamicMesh, m_cachedMaterials[texture], DirectX::XMMatrixIdentity(), subMesh );
+                    m_cmd.drawMesh( m_dynamicMesh, m_cachedMaterials[texture->get()], DirectX::XMMatrixIdentity(), subMesh );
                     subMesh++;
                 }
                 idx_buffer += pcmd->ElemCount;

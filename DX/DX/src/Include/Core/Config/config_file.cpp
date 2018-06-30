@@ -23,15 +23,18 @@ namespace Core { namespace Config {
     const char* ConfigFile::DEFAULT_CATEGORY_NAME = "Default";
 
     //----------------------------------------------------------------------
-    ConfigFile::ConfigFile(const char* vpath, bool flushOnDeconstruct) 
+    ConfigFile::ConfigFile( const char* vpath, bool flushOnDeconstruct ) 
         : m_flushOnDeconstruct( flushOnDeconstruct )
     {
-        m_configFile = new OS::TextFile( vpath, OS::EFileMode::READ_WRITE );
-
-        if ( m_configFile->exists() )
+        try
+        {
+            m_configFile = new OS::TextFile( vpath, OS::EFileMode::READ_WRITE );
             _Read();
-        else
+        }
+        catch (const std::runtime_error&)
+        {
             LOG_WARN( "ConfigFile: File " + String( vpath ) + " does not exist." );
+        }
     }
 
     //----------------------------------------------------------------------

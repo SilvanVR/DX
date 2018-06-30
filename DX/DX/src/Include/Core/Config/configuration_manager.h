@@ -10,6 +10,7 @@
 
 #include "Common/i_subsystem.hpp"
 #include "config_file.h"
+#include "Graphics/Lighting/lights.h"
 
 namespace Core { namespace Config {
 
@@ -33,8 +34,27 @@ namespace Core { namespace Config {
         //----------------------------------------------------------------------
         ConfigFile& getEngineIni() { return (*m_engineIni); }
 
+        //----------------------------------------------------------------------
+        // @Return: Shadowmap quality read from engine.ini
+        //----------------------------------------------------------------------
+        const Graphics::ShadowMapQuality getShadowMapQuality() const { return m_shadowMapQuality; }
+
+        //----------------------------------------------------------------------
+        // Sets the shadowmap quality for ALL shadowmaps.
+        //----------------------------------------------------------------------
+        void setShadowMapQuality(Graphics::ShadowMapQuality quality);
+
+        //----------------------------------------------------------------------
+        // Actives/Deactives shadows for all lights in the scene.
+        //----------------------------------------------------------------------        
+        void setShadows(bool enabled);
+
     private:
-        ConfigFile* m_engineIni = nullptr;
+        ConfigFile*                 m_engineIni = nullptr;
+        Graphics::ShadowMapQuality  m_shadowMapQuality;
+
+        //----------------------------------------------------------------------
+        Graphics::ShadowMapQuality _ReadShadowQuality();
 
         NULL_COPY_AND_ASSIGN(ConfigurationManager)
     };

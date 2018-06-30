@@ -50,6 +50,7 @@
 #define DEBUG                   Locator::getDebugManager()
 #define ASSETS                  Locator::getAssetManager()
 #define WINDOW                  Locator::getWindow()
+#define CONFIG                  Locator::getConfiguration()
 
 //*********************************************************************
 // Retrieve / Change every subsystem via a static method.

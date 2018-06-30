@@ -19,8 +19,7 @@ namespace Components {
     {
     public:
         //----------------------------------------------------------------------
-        SpotLight(F32 intensity = 1.0f, Color color = Color::WHITE, F32 spotAngleInDegrees = 45.0f, F32 range = 10.0f);
-        SpotLight(F32 intensity , Color color, F32 spotAngleInDegrees, F32 range, Graphics::ShadowMapQuality quality);
+        SpotLight(F32 intensity = 1.0f, Color color = Color::WHITE, F32 spotAngleInDegrees = 45.0f, F32 range = 10.0f, bool shadowsEnabled = true);
 
         //----------------------------------------------------------------------
         F32     getRange()      const { return m_spotLight->getRange(); }

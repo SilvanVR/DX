@@ -21,18 +21,13 @@ namespace Components {
     #define Z_FAR                   20
 
     //----------------------------------------------------------------------
-    DirectionalLight::DirectionalLight( F32 intensity, Color color )
+    DirectionalLight::DirectionalLight( F32 intensity, Color color, bool shadowsEnabled )
         : ILightComponent( new Graphics::DirectionalLight( intensity, color ) )
     {
         m_dirLight = dynamic_cast<Graphics::DirectionalLight*>( m_light.get() );
-    }
 
-    //----------------------------------------------------------------------
-    DirectionalLight::DirectionalLight( F32 intensity, Color color, Graphics::ShadowMapQuality quality )
-        : ILightComponent( new Graphics::DirectionalLight( intensity, color ), quality )
-    {
-        m_dirLight = dynamic_cast<Graphics::DirectionalLight*>( m_light.get() );
-        _CreateShadowMap( quality );
+        if (shadowsEnabled)
+            _CreateShadowMap( CONFIG.getShadowMapQuality() );
     }
 
     //----------------------------------------------------------------------

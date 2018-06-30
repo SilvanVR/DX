@@ -376,7 +376,6 @@
     <ClCompile Include="src\Include\Core\locator.cpp" />
     <ClCompile Include="src\Include\Core\subsystem_manager.cpp" />
     <ClCompile Include="src\Include\Core\ThreadManager\thread_manager.cpp" />
-    <ClCompile Include="src\Include\GameplayLayer\light_manager.cpp" />
     <ClCompile Include="src\Include\Physics\ray.cpp" />
     <ClCompile Include="src\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -454,7 +453,6 @@
     <ClInclude Include="src\Include\Core\ThreadManager\thread_manager.h" />
     <ClInclude Include="src\Include\DX.h" />
     <ClInclude Include="src\Include\GameplayLayer\i_game.hpp" />
-    <ClInclude Include="src\Include\GameplayLayer\light_manager.h" />
     <ClInclude Include="src\Include\Physics\ray.h" />
     <ClInclude Include="src\stdafx.h" />
   </ItemGroup>

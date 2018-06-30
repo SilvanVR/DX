@@ -173,9 +173,8 @@ namespace Core
     //----------------------------------------------------------------------
     void SubSystemManager::_InitVirtualFilePaths()
     {
-        OS::VirtualFileSystem::mount( "config",   "../DX/res" );
-        OS::VirtualFileSystem::mount( "cursors",  "../DX/res/engine/cursors" );
-        OS::VirtualFileSystem::mount( "engine",   "../DX/res/engine" );
+        OS::VirtualFileSystem::mount( "cursors",  "../DX/res/cursors" );
+        OS::VirtualFileSystem::mount( "engine",   "../DX/res" );
 
         OS::VirtualFileSystem::mount( "logs",      "res/logs" );
         OS::VirtualFileSystem::mount( "textures",  "res/textures" );

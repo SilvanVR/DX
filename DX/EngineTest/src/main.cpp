@@ -82,7 +82,7 @@ public:
 
         // LIGHTS
         auto sun = createGameObject("Sun");
-        auto dl = sun->addComponent<Components::DirectionalLight>(0.3f, Color::WHITE, Graphics::ShadowMapQuality::High);
+        auto dl = sun->addComponent<Components::DirectionalLight>(0.3f, Color::WHITE);
         sun->getTransform()->rotation = Math::Quat::LookRotation(Math::Vec3{ 0,-1, 1 });
         //sun->addComponent<ConstantRotation>(15.0f, 0.0f, 0.0f);
 
@@ -95,7 +95,7 @@ public:
         pl->getTransform()->position = { 3, 2, 0 };
 
         auto slg = createGameObject("PL");
-        auto sl = slg->addComponent<Components::SpotLight>(1.0f, Color::WHITE, 25.0f, 20.0f, Graphics::ShadowMapQuality::High);
+        auto sl = slg->addComponent<Components::SpotLight>(1.0f, Color::WHITE, 25.0f, 20.0f);
         slg->getTransform()->position = { 0, 2, -5 };
         slg->getTransform()->rotation = Math::Quat::LookRotation(Math::Vec3{ 0,-1, 1 });
 
@@ -107,19 +107,17 @@ public:
             ImGui::SliderFloat2( "Sun Rotation", &deg.x, 0.0f, 360.0f );
             sun->getTransform()->rotation = Math::Quat::FromEulerAngles(deg);
 
-            static bool shadowsActive = dl->shadowsEnabled();
+            static bool shadowsActive = true;
             if (ImGui::RadioButton("Shadows", shadowsActive))
                 shadowsActive = !shadowsActive;
-            dl->setShadowsEnabled(shadowsActive);
+            CONFIG.setShadows(shadowsActive);
 
-            if (ImGui::Button("Low")) dl->setShadowMapQuality(Graphics::ShadowMapQuality::Low);
-            if (ImGui::Button("Medium")) dl->setShadowMapQuality(Graphics::ShadowMapQuality::Medium);
-            if (ImGui::Button("High")) dl->setShadowMapQuality(Graphics::ShadowMapQuality::High);
-            if (ImGui::Button("Insane")) dl->setShadowMapQuality(Graphics::ShadowMapQuality::Insane);
-            shadowsActive = dl->shadowsEnabled();
+            if (ImGui::Button("Low"))       CONFIG.setShadowMapQuality(Graphics::ShadowMapQuality::Low);
+            if (ImGui::Button("Medium"))    CONFIG.setShadowMapQuality(Graphics::ShadowMapQuality::Medium);
+            if (ImGui::Button("High"))      CONFIG.setShadowMapQuality(Graphics::ShadowMapQuality::High);
+            if (ImGui::Button("Insane"))    CONFIG.setShadowMapQuality(Graphics::ShadowMapQuality::Insane);
 
-            //if (dl->shadowsEnabled())
-            //    imgComp->setTexture(dl->getShadowMap());
+            imgComp->setTexture(dl->getShadowMap());
 
             static F32 ambient = 0.4f;
             ImGui::SliderFloat("Ambient", &ambient, 0.0f, 1.0f);

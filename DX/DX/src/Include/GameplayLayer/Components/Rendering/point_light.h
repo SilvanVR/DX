@@ -19,8 +19,7 @@ namespace Components {
     {
     public:
         //----------------------------------------------------------------------
-        PointLight(F32 intensity = 1.0f, Color color = Color::WHITE, F32 range = 10.0f);
-        PointLight(F32 intensity, Color color, F32 range, Graphics::ShadowMapQuality quality);
+        PointLight(F32 intensity = 1.0f, Color color = Color::WHITE, F32 range = 10.0f, bool shadowsEnabled = true);
 
         //----------------------------------------------------------------------
         F32 getRange() const { return m_pointLight->getRange(); }

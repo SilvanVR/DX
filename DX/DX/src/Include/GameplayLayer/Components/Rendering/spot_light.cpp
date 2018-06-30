@@ -16,18 +16,12 @@ namespace Components {
     #define DEPTH_STENCIL_FORMAT    Graphics::DepthFormat::D32
 
     //----------------------------------------------------------------------
-    SpotLight::SpotLight( F32 intensity, Color color, F32 spotAngleInDegrees, F32 range )
+    SpotLight::SpotLight( F32 intensity, Color color, F32 spotAngleInDegrees, F32 range, bool shadowsEnabled )
         : ILightComponent( new Graphics::SpotLight( intensity, color, { 0, 1, 0 }, spotAngleInDegrees, { 0, 0, 1 }, range ) )
     {
         m_spotLight = dynamic_cast<Graphics::SpotLight*>( m_light.get() );
-    }
-
-    //----------------------------------------------------------------------
-    SpotLight::SpotLight( F32 intensity, Color color, F32 spotAngleInDegrees, F32 range, Graphics::ShadowMapQuality quality )
-        : ILightComponent( new Graphics::SpotLight( intensity, color, { 0, 1, 0 }, spotAngleInDegrees, { 0, 0, 1 }, range ), quality )
-    {
-        m_spotLight = dynamic_cast<Graphics::SpotLight*>( m_light.get() );
-        _CreateShadowMap( quality );
+        if (shadowsEnabled)
+            _CreateShadowMap( CONFIG.getShadowMapQuality() );
     }
 
     //----------------------------------------------------------------------

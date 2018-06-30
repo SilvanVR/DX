@@ -17,7 +17,7 @@ namespace Components {
 
     //----------------------------------------------------------------------
     ILightComponent::ILightComponent( Graphics::Light* light )
-        : m_light{ light }
+        : m_light{ light }, m_shadowMapQuality{ CONFIG.getShadowMapQuality() }
     {
     }
 
@@ -39,12 +39,12 @@ namespace Components {
     }
 
     //----------------------------------------------------------------------
-    void ILightComponent::setShadowsEnabled( bool enabled )
+    void ILightComponent::setShadows( bool enabled )
     { 
         if (enabled)
             if ( not m_light->getShadowMap() )
                 _CreateShadowMap( m_shadowMapQuality );
-        m_light->setShadowsEnabled( enabled ); 
+        m_light->setShadows( enabled );
     }
 
     //**********************************************************************

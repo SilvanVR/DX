@@ -16,18 +16,12 @@ namespace Components {
     #define DEPTH_STENCIL_FORMAT Graphics::DepthFormat::D32
 
     //----------------------------------------------------------------------
-    PointLight::PointLight( F32 intensity, Color color, F32 range )
+    PointLight::PointLight( F32 intensity, Color color, F32 range, bool shadowsEnabled )
         : ILightComponent( new Graphics::PointLight( intensity, color, {}, range ) )
     {
         m_pointLight = dynamic_cast<Graphics::PointLight*>( m_light.get() );
-    }
-
-    //----------------------------------------------------------------------
-    PointLight::PointLight( F32 intensity, Color color, F32 range, Graphics::ShadowMapQuality quality )
-        : ILightComponent( new Graphics::PointLight( intensity, color, {}, range ), quality )
-    {
-        m_pointLight = dynamic_cast<Graphics::PointLight*>( m_light.get() );
-        _CreateShadowMap( quality );
+        if (shadowsEnabled)
+            _CreateShadowMap( CONFIG.getShadowMapQuality() );
     }
 
     //----------------------------------------------------------------------

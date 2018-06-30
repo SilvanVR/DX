@@ -19,8 +19,7 @@ namespace Components {
     {
     public:
         //----------------------------------------------------------------------
-        DirectionalLight(F32 intensity = 1.0f, Color color = Color::WHITE);
-        DirectionalLight(F32 intensity, Color color, Graphics::ShadowMapQuality quality);
+        DirectionalLight(F32 intensity = 1.0f, Color color = Color::WHITE, bool shadowsEnabled = true);
 
     private:
         Graphics::DirectionalLight* m_dirLight;

@@ -47,9 +47,9 @@ namespace Graphics
         //----------------------------------------------------------------------
         void        setColor            (Color color)   { m_color = color; }
         void        setIntensity        (F32 intensity) { m_intensity = intensity; }
-        void        setShadowsEnabled   (bool enabled)  { m_shadowsEnabled = enabled; }
-        void        enableShadows       ()              { setShadowsEnabled(true); }
-        void        disableShadows      ()              { setShadowsEnabled(false); }
+        void        setShadows          (bool enabled)  { m_shadowsEnabled = enabled; }
+        void        enableShadows       ()              { setShadows(true); }
+        void        disableShadows      ()              { setShadows(false); }
 
         void        setShadowMap            (const RenderBufferPtr& shadowMap)  { m_shadowsEnabled = true; m_shadowMap = shadowMap; }
         void        setShadowViewProjection (const DirectX::XMMATRIX& vp)       { m_shadowViewProjection  = vp; }
