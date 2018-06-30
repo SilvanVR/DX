@@ -337,6 +337,7 @@
     <ClCompile Include="src\Include\Core\Audio\audio_manager.cpp" />
     <ClCompile Include="src\Include\Core\Audio\wav_clip.cpp" />
     <ClCompile Include="src\Include\Core\DebugManager\debug_manager.cpp" />
+    <ClCompile Include="src\Include\Core\render_system.cpp" />
     <ClCompile Include="src\Include\Ext\ImGUI\imgui.cpp" />
     <ClCompile Include="src\Include\Ext\ImGUI\imgui_demo.cpp" />
     <ClCompile Include="src\Include\Ext\ImGUI\imgui_draw.cpp" />
@@ -363,6 +364,7 @@
     <ClCompile Include="src\Include\GameplayLayer\Components\Rendering\camera.cpp" />
     <ClCompile Include="src\Include\GameplayLayer\Components\Rendering\directional_light.cpp" />
     <ClCompile Include="src\Include\GameplayLayer\Components\Rendering\gui.cpp" />
+    <ClCompile Include="src\Include\GameplayLayer\Components\Rendering\i_light_component.cpp" />
     <ClCompile Include="src\Include\GameplayLayer\Components\Rendering\point_light.cpp" />
     <ClCompile Include="src\Include\GameplayLayer\Components\Rendering\spot_light.cpp" />
     <ClCompile Include="src\Include\GameplayLayer\Components\skybox.cpp" />
@@ -374,7 +376,7 @@
     <ClCompile Include="src\Include\Core\locator.cpp" />
     <ClCompile Include="src\Include\Core\subsystem_manager.cpp" />
     <ClCompile Include="src\Include\Core\ThreadManager\thread_manager.cpp" />
-    <ClCompile Include="src\Include\GameplayLayer\light_shadow_manager.cpp" />
+    <ClCompile Include="src\Include\GameplayLayer\light_manager.cpp" />
     <ClCompile Include="src\Include\Physics\ray.cpp" />
     <ClCompile Include="src\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -399,6 +401,8 @@
     <ClInclude Include="src\Include\Core\Audio\audio_manager.h" />
     <ClInclude Include="src\Include\Core\Audio\wav_clip.h" />
     <ClInclude Include="src\Include\Core\Input\channel_user.hpp" />
+    <ClInclude Include="src\Include\Core\render_system.h" />
+    <ClInclude Include="src\Include\GameplayLayer\Components\Rendering\i_light_component.h" />
     <ClInclude Include="src\Include\GameplayLayer\layers.hpp" />
     <ClInclude Include="src\Include\Core\DebugManager\debug_manager.h" />
     <ClInclude Include="src\Include\Core\mesh_generator.h" />
@@ -435,7 +439,6 @@
     <ClInclude Include="src\Include\GameplayLayer\Components\Rendering\camera.h" />
     <ClInclude Include="src\Include\GameplayLayer\Components\Rendering\directional_light.h" />
     <ClInclude Include="src\Include\GameplayLayer\Components\Rendering\gui.h" />
-    <ClInclude Include="src\Include\GameplayLayer\Components\Rendering\i_light_component.hpp" />
     <ClInclude Include="src\Include\GameplayLayer\Components\Rendering\i_render_component.hpp" />
     <ClInclude Include="src\Include\GameplayLayer\Components\Rendering\point_light.h" />
     <ClInclude Include="src\Include\GameplayLayer\Components\Rendering\spot_light.h" />
@@ -451,7 +454,7 @@
     <ClInclude Include="src\Include\Core\ThreadManager\thread_manager.h" />
     <ClInclude Include="src\Include\DX.h" />
     <ClInclude Include="src\Include\GameplayLayer\i_game.hpp" />
-    <ClInclude Include="src\Include\GameplayLayer\light_shadow_manager.h" />
+    <ClInclude Include="src\Include\GameplayLayer\light_manager.h" />
     <ClInclude Include="src\Include\Physics\ray.h" />
     <ClInclude Include="src\stdafx.h" />
   </ItemGroup>

@@ -159,7 +159,13 @@
     <ClCompile Include="src\Include\GameplayLayer\Components\Rendering\gui.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Include\GameplayLayer\light_shadow_manager.cpp">
+    <ClCompile Include="src\Include\GameplayLayer\light_manager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Include\Core\render_system.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Include\GameplayLayer\Components\Rendering\i_light_component.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -353,13 +359,16 @@
     <ClInclude Include="src\Include\GameplayLayer\Components\Rendering\gui.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Include\GameplayLayer\Components\Rendering\i_light_component.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\Include\GameplayLayer\layers.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Include\GameplayLayer\light_shadow_manager.h">
+    <ClInclude Include="src\Include\GameplayLayer\light_manager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Include\Core\render_system.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Include\GameplayLayer\Components\Rendering\i_light_component.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

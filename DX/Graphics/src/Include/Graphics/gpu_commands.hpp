@@ -9,14 +9,8 @@
       be put into a command buffer.
 **********************************************************************/
 
-#include "structs.hpp"
-#include "i_mesh.h"
-#include "i_material.h"
-#include "i_cubemap.hpp"
-#include "i_render_texture.h"
-#include "Lighting/light.h"
-#include "camera.h"
 #include "Math/rect.h"
+#include "forward_declarations.hpp"
 
 namespace Graphics {
 

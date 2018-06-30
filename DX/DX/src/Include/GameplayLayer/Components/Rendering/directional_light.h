@@ -9,8 +9,8 @@
     The direction is determined based on the attached transform component.
 **********************************************************************/
 
-#include "i_light_component.hpp"
-#include "Graphics/Lighting/directional_light.h"
+#include "i_light_component.h"
+#include "Graphics/Lighting/lights.h"
 
 namespace Components {
 
@@ -20,16 +20,18 @@ namespace Components {
     public:
         //----------------------------------------------------------------------
         DirectionalLight(F32 intensity = 1.0f, Color color = Color::WHITE);
+        DirectionalLight(F32 intensity, Color color, Graphics::ShadowMapQuality quality);
 
     private:
         Graphics::DirectionalLight* m_dirLight;
 
         //----------------------------------------------------------------------
-        // IRendererComponent Interface
+        // ILightComponent Interface
         //----------------------------------------------------------------------
         void recordGraphicsCommands(Graphics::CommandBuffer& cmd, F32 lerp) override;
         bool cull(const Graphics::Camera& camera) override { return true; }
-        void renderShadowMap(const IScene& scene, F32 lerp);
+        void renderShadowMap(const IScene& scene, F32 lerp) override;
+        void _CreateShadowMap(Graphics::ShadowMapQuality) override;
 
         NULL_COPY_AND_ASSIGN(DirectionalLight)
     };

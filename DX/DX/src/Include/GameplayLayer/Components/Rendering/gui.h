@@ -84,15 +84,23 @@ namespace Components {
     //**********************************************************************
     class GUIImage : public ImGUIRenderComponent
     {
-        TexturePtr m_tex;
-        F32 m_scale;
+        TexturePtr  m_tex   = nullptr;
+        F32         m_scale = 0;
+        Math::Vec2  m_size  = { 0, 0 };
 
     public:
-        GUIImage(TexturePtr tex, F32 scale = 1.0f) : m_tex(tex), m_scale(scale) {}
+        GUIImage(const TexturePtr& tex, F32 scale = 1.0f) : m_tex(tex), m_scale(scale) {}
+        GUIImage(const TexturePtr& tex, const Math::Vec2& size) : m_tex(tex), m_size(size) {}
+
+        void setTexture(const TexturePtr& tex) { m_tex = tex; }
 
         void OnImGUI() override
         {
-            ImGui::Image(m_tex, { m_tex->getWidth() * m_scale, m_tex->getHeight() * m_scale });
+            if (m_tex)
+            {
+                (m_scale > 0.0f) ? ImGui::Image(m_tex, { m_tex->getWidth() * m_scale, m_tex->getHeight() * m_scale }) :
+                                   ImGui::Image(m_tex, m_size);
+            }
         }
     };
 

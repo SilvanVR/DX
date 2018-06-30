@@ -176,6 +176,7 @@
     <ClCompile Include="src\Include\Graphics\i_renderer.cpp" />
     <ClCompile Include="src\Include\Graphics\i_render_texture.cpp" />
     <ClCompile Include="src\Include\Graphics\i_shader.cpp" />
+    <ClCompile Include="src\Include\Graphics\Lighting\lights.cpp" />
     <ClCompile Include="src\Include\Graphics\Utils\utils.cpp" />
     <ClCompile Include="src\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -208,6 +209,7 @@
     <ClInclude Include="src\Include\Graphics\D3D11\Resources\D3D11Texture2D.h" />
     <ClInclude Include="src\Include\Graphics\D3D11\Resources\D3D11Texture2DArray.h" />
     <ClInclude Include="src\Include\Graphics\enums.hpp" />
+    <ClInclude Include="src\Include\Graphics\forward_declarations.hpp" />
     <ClInclude Include="src\Include\Graphics\i_cubemap.hpp" />
     <ClInclude Include="src\Include\Graphics\i_material.h" />
     <ClInclude Include="src\Include\Graphics\i_mesh.h" />
@@ -222,10 +224,7 @@
     <ClInclude Include="src\Include\Graphics\i_texture.h" />
     <ClInclude Include="src\Include\Graphics\i_texture2d.hpp" />
     <ClInclude Include="src\Include\Graphics\i_texture2d_array.hpp" />
-    <ClInclude Include="src\Include\Graphics\Lighting\directional_light.h" />
-    <ClInclude Include="src\Include\Graphics\Lighting\light.h" />
-    <ClInclude Include="src\Include\Graphics\Lighting\point_light.h" />
-    <ClInclude Include="src\Include\Graphics\Lighting\spot_light.h" />
+    <ClInclude Include="src\Include\Graphics\Lighting\lights.h" />
     <ClInclude Include="src\Include\Graphics\shader_resources.hpp" />
     <ClInclude Include="src\Include\Graphics\structs.hpp" />
     <ClInclude Include="src\Include\Graphics\Utils\utils.h" />

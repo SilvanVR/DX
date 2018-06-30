@@ -6,8 +6,8 @@
     date: March 12, 2018
 **********************************************************************/
 
-#include "../../i_material.h"
-#include "../Pipeline/Buffers/D3D11MappedConstantBuffer.h"
+#include "i_material.h"
+#include "D3D11/Pipeline/Buffers/D3D11MappedConstantBuffer.h"
 
 namespace Graphics { namespace D3D11 {
 

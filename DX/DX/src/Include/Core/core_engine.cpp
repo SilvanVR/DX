@@ -15,6 +15,7 @@
 #include "GameplayLayer/Components/Rendering/camera.h"
 #include "Events/event_dispatcher.h"
 #include "Events/event_names.hpp"
+#include "render_system.h"
 
 namespace Core {
 
@@ -120,10 +121,7 @@ namespace Core {
 
         Events::EventDispatcher::GetEvent( EVENT_FRAME_BEGIN ).invoke();
 
-        // Render each camera
-        auto& scene = Locator::getSceneManager().getCurrentScene();
-        for ( auto& cam : scene.getComponentManager().getCameras() )
-            cam->render( scene, lerp );
+        RenderSystem::Instance().execute( lerp );
 
         Events::EventDispatcher::GetEvent( EVENT_FRAME_END ).invoke();
 

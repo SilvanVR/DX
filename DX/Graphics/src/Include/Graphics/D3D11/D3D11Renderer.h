@@ -14,14 +14,16 @@
 
 namespace Graphics {
 
+    //----------------------------------------------------------------------
     #define MAX_LIGHTS      16
     #define MAX_SHADOWMAPS  4
 
+    //----------------------------------------------------------------------
     class Camera;
     class Light;
 
     //**********************************************************************
-    // D3D11 Renderer Subsystem.
+    // D3D11 Renderer
     //**********************************************************************
     class D3D11Renderer : public IRenderer
     {
@@ -34,8 +36,6 @@ namespace Graphics {
         void init() override;
         void shutdown() override;
         void present() override;
-        void setVSync(bool enabled) override { m_vsync = enabled; }
-        bool isVSyncEnabled() const { return m_vsync; }
 
         IMesh*              createMesh() override;
         IMaterial*          createMaterial() override;
@@ -54,7 +54,6 @@ namespace Graphics {
 
     private:
         D3D11::Swapchain*   m_pSwapchain    = nullptr;
-        bool                m_vsync         = false;
         IMesh*              m_cubeMesh      = nullptr;
 
         //----------------------------------------------------------------------

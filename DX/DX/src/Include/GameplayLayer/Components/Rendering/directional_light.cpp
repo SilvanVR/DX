@@ -8,13 +8,13 @@
 
 #include "Graphics/command_buffer.h"
 #include "GameplayLayer/gameobject.h"
-#include "Core/locator.h"
 #include "GameplayLayer/i_scene.h"
 #include "i_render_component.hpp"
+#include "Graphics/camera.h"
+#include "Core/locator.h"
 
 namespace Components {
 
-    #define SHADOW_MAP_SIZE         2048
     #define DEPTH_STENCIL_FORMAT    Graphics::DepthFormat::D32
     #define ORTHO_SIZE              10
     #define Z_NEAR_OFFSET           10
@@ -25,22 +25,46 @@ namespace Components {
         : ILightComponent( new Graphics::DirectionalLight( intensity, color ) )
     {
         m_dirLight = dynamic_cast<Graphics::DirectionalLight*>( m_light.get() );
+    }
 
-        // Create shadowmap
-        auto shadowMap = RESOURCES.createRenderBuffer();
-        shadowMap->create( SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, DEPTH_STENCIL_FORMAT );
-        shadowMap->setFilter( Graphics::TextureFilter::Point );
-        shadowMap->setClampMode( Graphics::TextureAddressMode::Clamp );
-        m_dirLight->setShadowMap( shadowMap );
+    //----------------------------------------------------------------------
+    DirectionalLight::DirectionalLight( F32 intensity, Color color, Graphics::ShadowMapQuality quality )
+        : ILightComponent( new Graphics::DirectionalLight( intensity, color ), quality )
+    {
+        m_dirLight = dynamic_cast<Graphics::DirectionalLight*>( m_light.get() );
+        _CreateShadowMap( quality );
+    }
 
-        // Create rendertexture
-        auto rt = RESOURCES.createRenderTexture();
-        rt->create( nullptr, m_dirLight->getShadowMap() );
+    //----------------------------------------------------------------------
+    void DirectionalLight::_CreateShadowMap( Graphics::ShadowMapQuality quality )
+    {
+        U32 shadowMapSize = 0;
+        switch (quality)
+        {
+            case Graphics::ShadowMapQuality::Low:     shadowMapSize = 512;  break;
+            case Graphics::ShadowMapQuality::Medium:  shadowMapSize = 1024; break;
+            case Graphics::ShadowMapQuality::High:    shadowMapSize = 2048; break;
+            case Graphics::ShadowMapQuality::Insane:  shadowMapSize = 4096; break;
+        }
 
-        // Configure camera
-        m_camera.setRenderTarget( rt, false );
-        m_camera.setCameraMode( Graphics::CameraMode::Orthographic );
-        m_camera.setOrthoParams( -ORTHO_SIZE, ORTHO_SIZE, -ORTHO_SIZE, ORTHO_SIZE, -Z_NEAR_OFFSET, Z_FAR);
+        if (shadowMapSize > 0)
+        {
+            // Create shadowmap
+            auto shadowMap = RESOURCES.createRenderBuffer();
+            shadowMap->create( shadowMapSize, shadowMapSize, DEPTH_STENCIL_FORMAT );
+            shadowMap->setAnisoLevel( 1 );
+            shadowMap->setFilter( Graphics::TextureFilter::Point );
+            shadowMap->setClampMode( Graphics::TextureAddressMode::Clamp );
+            m_light->setShadowMap( shadowMap );
+
+            // Create rendertexture
+            auto rt = RESOURCES.createRenderTexture();
+            rt->create( nullptr, m_light->getShadowMap() );
+
+            // Configure camera
+            m_camera.reset( new Graphics::Camera( -ORTHO_SIZE, ORTHO_SIZE, -ORTHO_SIZE, ORTHO_SIZE, -Z_NEAR_OFFSET, Z_FAR ) );
+            m_camera->setRenderTarget( rt, false );
+        }
     }
 
     //----------------------------------------------------------------------
@@ -57,33 +81,9 @@ namespace Components {
     //----------------------------------------------------------------------
     void DirectionalLight::renderShadowMap( const IScene& scene, F32 lerp )
     {
-        Graphics::CommandBuffer cmd;
+        //@TODO: Adjust camera frustum
 
-        // Update camera 
-        auto transform = getGameObject()->getTransform();
-        auto modelMatrix = transform->getWorldMatrix(lerp);
-        m_camera.setModelMatrix( modelMatrix );
-
-        m_dirLight->setShadowViewProjection( m_camera.getViewProjectionMatrix() );
-
-        // Set camera
-        cmd.setCameraShadow( &m_camera );
-
-        // Record commands for every rendering component
-        for ( auto& renderer : scene.getComponentManager().getRenderer() )
-        {
-            if ( not renderer->isActive() || not renderer->isCastingShadows() )
-                continue;
-
-            // Check if component is visible
-            bool isVisible = renderer->cull( m_camera );
-            if (isVisible)
-                renderer->recordGraphicsCommands( cmd, lerp );
-        }
-
-        cmd.endCameraShadow( &m_camera );
-
-        Locator::getRenderer().dispatch( cmd );
+        ILightComponent::renderShadowMap( scene, lerp );
     }
 
 

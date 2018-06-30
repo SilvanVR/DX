@@ -36,6 +36,13 @@ namespace Graphics {
         U32 numLights;
     };
 
+    //----------------------------------------------------------------------
+    struct Limits
+    {
+        U32 maxLights     = 16;
+        U32 maxShadowmaps = 4;
+    };
+
     //**********************************************************************
     // Interface-Class for a Renderer-Subsystem
     //**********************************************************************
@@ -46,22 +53,24 @@ namespace Graphics {
         virtual ~IRenderer() {}
 
         //----------------------------------------------------------------------
-        const OS::Window* getWindow() const { return m_window; }
-        const U64 getFrameCount() const { return m_frameCount; }
+        const OS::Window*   getWindow()         const { return m_window; }
+        const U64           getFrameCount()     const { return m_frameCount; }
+        const Limits&       getLimits()         const { return m_limits; }
+        bool                isVSyncEnabled()    const { return m_vsync; }
+
+        //----------------------------------------------------------------------
+        void setVSync(bool enabled) { m_vsync = enabled; }
 
         //----------------------------------------------------------------------
         // Dispatches the given command buffer for execution on the gpu.
         //----------------------------------------------------------------------
         void dispatch(const CommandBuffer& cmd);
+        void dispatch(const CommandBuffer&& cmd);
 
         //----------------------------------------------------------------------
         // Presents the latest backbuffer to the screen.
         //----------------------------------------------------------------------
         virtual void present() = 0;
-
-        //----------------------------------------------------------------------
-        virtual void setVSync(bool enabled) = 0;
-        virtual bool isVSyncEnabled() const = 0;
 
         //----------------------------------------------------------------------
         virtual IMesh*              createMesh() = 0;
@@ -115,7 +124,10 @@ namespace Graphics {
         OS::Window*                 m_window;
         FrameInfo                   m_frameInfo = {};
         ArrayList<CommandBuffer>    m_pendingCmdQueue;
+        Limits                      m_limits;
+        bool                        m_vsync = false;
 
+        //----------------------------------------------------------------------
         void _LockQueue();
         void _UnlockQueue();
 

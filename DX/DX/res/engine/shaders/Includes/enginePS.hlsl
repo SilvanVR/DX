@@ -41,7 +41,8 @@ struct Light
     //----------------------------------- (16 byte boundary)
     float       spotAngle;              // 4 bytes
     float       range;					// 4 bytes
-	float2		PADDING;				// 8 bytes	
+    int       	shadowMapIndex;			// 4 bytes
+	float		PADDING;				// 4 bytes	
     //----------------------------------- (16 byte boundary)
 };  // Total:                           // 80 bytes (4 * 16)
  
@@ -52,10 +53,60 @@ cbuffer cbBufferLights : register(b3)
 	float4x4 	_LightViewProj[MAX_SHADOWMAPS];
 };
 
-Texture2D shadowMap : register(t8);
-SamplerState shadowMapSampler : register(s8);
+Texture2D shadowMap0 : register(t9);
+SamplerState shadowMapSampler0 : register(s9);
 
-// ----------------------------------------------
+Texture2D shadowMap1 : register(t10);
+SamplerState shadowMapSampler1 : register(s10);
+
+Texture2D shadowMap2 : register(t11);
+SamplerState shadowMapSampler2 : register(s11);
+
+Texture2D shadowMap3 : register(t12);
+SamplerState shadowMapSampler3 : register(s12);
+
+//-----------------------------------------------
+float SAMPLE_SHADOWMAP( int index, float2 uv )
+{
+	float result = 0;
+	switch(index)
+	{
+		case 0:	result = shadowMap0.Sample( shadowMapSampler0, uv ).r; break;
+		case 1: result = shadowMap1.Sample( shadowMapSampler1, uv ).r; break;
+		case 2: result = shadowMap2.Sample( shadowMapSampler2, uv ).r; break;
+		case 3: result = shadowMap3.Sample( shadowMapSampler3, uv ).r; break;
+	}
+	return result;
+}
+
+//----------------------------------------------------------------------
+bool inRange( float val )
+{
+	return val >= 0.001 && val < 0.999;
+}
+
+//-----------------------------------------------
+float CALCULATE_SHADOW( float3 P,  int shadowMapIndex )
+{
+	float shadow = 1.0f;		
+	if (shadowMapIndex >= 0)
+	{
+		float4 lightSpace = mul( _LightViewProj[shadowMapIndex], float4( P, 1 ) );
+		float3 projCoords = lightSpace.xyz / lightSpace.w;
+		float2 uv = projCoords.xy * 0.5 + 0.5;
+		uv.y = 1 - uv.y;
+
+		float currentDepth = projCoords.z;
+		if ( inRange(currentDepth) && inRange(uv.x) && inRange(uv.y) )
+		{	
+			float closestDepth = SAMPLE_SHADOWMAP( shadowMapIndex, uv );
+			shadow = currentDepth < closestDepth ? 1.0 : 0.0;
+		}
+	}	
+	return shadow;
+}
+
+//-----------------------------------------------
 float4 TO_LINEAR( float4 color )
 {
 	return float4( pow( abs( color.rgb ), GAMMA ), color.a );

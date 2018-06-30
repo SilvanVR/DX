@@ -7,6 +7,8 @@
 **********************************************************************/
 
 #include "Logging/logging.h"
+#include "i_material.h"
+#include "i_shader.h"
 
 namespace Graphics {
 

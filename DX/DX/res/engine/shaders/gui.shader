@@ -2,6 +2,7 @@
 #Fill			Solid
 #Cull 			None
 #ZWrite 		Off
+#ZTest			Off
 #Blend 			SrcAlpha OneMinusSrcAlpha
 #Scissor		On
 #Queue			Overlay

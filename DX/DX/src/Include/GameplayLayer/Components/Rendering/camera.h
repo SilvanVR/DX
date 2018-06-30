@@ -11,7 +11,7 @@
 #include "Graphics/camera.h"
 #include "GameplayLayer/layers.hpp"
 
-namespace Core { class CoreEngine; }
+namespace Core { class RenderSystem; }
 class IScene;
 
 namespace Components {
@@ -47,6 +47,7 @@ namespace Components {
         const LayerMask                 getCullingMask()            const { return m_cullingMask; }
         const DirectX::XMMATRIX&        getProjectionMatrix()       const { return m_camera.getProjectionMatrix(); }
         const DirectX::XMMATRIX&        getViewProjectionMatrix()   const { return m_camera.getViewProjectionMatrix(); }
+        const Graphics::Camera&         getNativeCamera()           const { return m_camera; }
 
         //----------------------------------------------------------------------
         void setCameraMode          (Graphics::CameraMode mode)                                     { m_camera.setCameraMode(mode); }
@@ -92,11 +93,6 @@ namespace Components {
         void addCommandBuffer(Graphics::CommandBuffer* cmd, CameraEvent evt = CameraEvent::Geometry);
         void removeCommandBuffer(Graphics::CommandBuffer* cmd);
 
-        //----------------------------------------------------------------------
-        // Renders the given scene
-        //----------------------------------------------------------------------
-        void render(const IScene& scene, F32 lerp);
-
     private:
         Graphics::Camera            m_camera;
 
@@ -108,6 +104,8 @@ namespace Components {
 
         // Additional attached command buffer
         HashMap<CameraEvent, ArrayList<Graphics::CommandBuffer*>> m_additionalCommandBuffers;
+
+        friend class Core::RenderSystem;
 
         //----------------------------------------------------------------------
         void _CreateRenderTarget(Graphics::MSAASamples sampleCount);

@@ -10,6 +10,7 @@
 
 #include "../i_component.h"
 
+namespace Core { class RenderSystem; }
 namespace Graphics { class Camera; }
 
 namespace Components {
@@ -31,8 +32,8 @@ namespace Components {
         bool m_castShadows = true;
 
         //----------------------------------------------------------------------
-        friend class Camera;
-        friend class DirectionalLight; friend class SpotLight; friend class PointLight;
+        friend class Core::RenderSystem;
+        friend class ILightComponent; friend class DirectionalLight; friend class SpotLight; friend class PointLight;
         virtual void recordGraphicsCommands(Graphics::CommandBuffer& cmd, F32 lerp) {}
         virtual bool cull(const Graphics::Camera& camera) { return true; }
 

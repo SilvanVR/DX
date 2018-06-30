@@ -6,7 +6,7 @@
     date: November 28, 2017
 **********************************************************************/
 
-#include "../command_buffer.h"
+#include "command_buffer.h"
 #include "Resources/D3D11Mesh.h"
 #include "Resources/D3D11Material.h"
 #include "Resources/D3D11Shader.h"
@@ -16,15 +16,16 @@
 #include "Resources/D3D11Texture2DArray.h"
 #include "Resources/D3D11RenderBuffer.h"
 #include "D3D11ConstantBufferManager.h"
-#include "Lighting/directional_light.h"
-#include "Lighting/point_light.h"
-#include "Lighting/spot_light.h"
 #include "OS/FileSystem/file.h"
+#include "Lighting/lights.h"
 #include "D3D11Utility.h"
+#include "camera.h"
 
 using namespace DirectX;
 
 namespace Graphics {
+
+    #define SHADOW_MAP_SLOT_BEGIN 9
 
     #define GLOBAL_BUFFER D3D11::ConstantBufferManager::getGlobalBuffer()
     #define OBJECT_BUFFER D3D11::ConstantBufferManager::getObjectBuffer()
@@ -69,12 +70,22 @@ namespace Graphics {
     //----------------------------------------------------------------------
     void D3D11Renderer::init()
     {
+        m_limits.maxLights      = MAX_LIGHTS;
+        m_limits.maxShadowmaps  = MAX_SHADOWMAPS;
+
         _InitD3D11();
 
         _CreateGlobalBuffer();
         m_cubeMesh = createMesh();
         m_cubeMesh->setVertices( cubeVertices );
         m_cubeMesh->setIndices( cubeIndices );
+
+        // Gets rid of the warning that a texture is not bound to a shadowmap slot
+        auto tex = createTexture2D();
+        tex->create(2, 2, Graphics::TextureFormat::RGBA32, false);
+        for (auto i = SHADOW_MAP_SLOT_BEGIN; i < SHADOW_MAP_SLOT_BEGIN + MAX_SHADOWMAPS; i++)
+            tex->bind(Graphics::ShaderType::Fragment, i);
+        delete tex;
     } 
 
     //----------------------------------------------------------------------
@@ -502,7 +513,8 @@ namespace Graphics {
             //----------------------------------- (16 byte boundary)
             F32         spotAngle;              // 4 bytes
             F32         range;                  // 4 bytes
-            Math::Vec2  PADDING;                // 8 bytes
+            I32         shadowMapIndex;         // 4 bytes
+            F32         PADDING;                // 4 bytes
             //----------------------------------- (16 byte boundary)
         } lights[MAX_LIGHTS];
 
@@ -515,12 +527,14 @@ namespace Graphics {
             lights[i].color     = renderContext.lights[i]->getColor().normalized();
             lights[i].intensity = renderContext.lights[i]->getIntensity();
             lights[i].lightType = (I32)renderContext.lights[i]->getLightType();
+            lights[i].shadowMapIndex = -1;
 
-            if ( renderContext.lights[i]->shadowsEnabled() )
+            if ( renderContext.lights[i]->shadowsEnabled() && curShadowMapIndex < MAX_SHADOWMAPS )
             {
-                lightViewProjs[curShadowMapIndex++] = renderContext.lights[i]->getShadowViewProjection();
-                D3D11::IBindableTexture* sm = dynamic_cast<D3D11::IBindableTexture*>( renderContext.lights[i]->getShadowMap().get() );
-                sm->bind( Graphics::ShaderType::Fragment, 8 );
+                lights[i].shadowMapIndex = curShadowMapIndex;
+                lightViewProjs[curShadowMapIndex] = renderContext.lights[i]->getShadowViewProjection();
+                renderContext.lights[i]->getShadowMap()->bind( Graphics::ShaderType::Fragment, SHADOW_MAP_SLOT_BEGIN + curShadowMapIndex);
+                curShadowMapIndex++;
             }
 
             switch ( renderContext.lights[i]->getLightType() )
