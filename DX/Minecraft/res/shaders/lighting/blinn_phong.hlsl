@@ -30,14 +30,16 @@ float DoAttenuation( Light light, float d )
 //----------------------------------------------------------------------
 // DIRECTIONAL LIGHT
 //----------------------------------------------------------------------
-float4 DoDirectionalLight( Light light, float3 V, float3 N )
+float4 DoDirectionalLight( Light light, float3 V, float3 P, float3 N )
 {
     float3 L = -light.direction;
-	
-    float4 diffuse = DoDiffuse( light, L, N );
-    //float4 specular = DoSpecular( light, V, L, N );	
  
-    return diffuse;// + specular;
+    float4 diffuse = DoDiffuse( light, L, N );
+    //float4 specular = DoSpecular( light, V, L, N );
+		 
+	float shadow = CALCULATE_SHADOW( P, light.shadowMapIndex );
+
+    return diffuse * shadow;
 }
 
 //----------------------------------------------------------------------
@@ -54,7 +56,7 @@ float4 DoPointLight( Light light, float3 V, float3 P, float3 N )
     float4 diffuse = DoDiffuse( light, L, N ) * attenuation;
     float4 specular = DoSpecular( light, V, L, N ) * attenuation;
  
-    return diffuse;// + specular;
+    return diffuse + specular;
 }
 
 //----------------------------------------------------------------------
@@ -80,7 +82,10 @@ float4 DoSpotLight( Light light, float3 V, float3 P, float3 N )
     float4 diffuse = DoDiffuse( light, L, N ) * attenuation * spotIntensity;
     float4 specular = DoSpecular( light, V, L, N ) * attenuation * spotIntensity;
  
-    return diffuse;// + specular;
+	// Attenuation must be multiplied with the shadow
+	float shadow = CALCULATE_SHADOW( P, light.shadowMapIndex ) * attenuation;
+ 
+    return (diffuse + specular) * shadow;
 }
 
 //----------------------------------------------------------------------
@@ -102,7 +107,7 @@ float4 APPLY_LIGHTING( float3 P, float3 N )
         switch( _Lights[i].lightType )
         {
         case DIRECTIONAL_LIGHT:
-            totalLight += DoDirectionalLight( _Lights[i], V, normal );
+            totalLight += DoDirectionalLight( _Lights[i], V, P, normal );
             break;
 		case POINT_LIGHT:
             totalLight += DoPointLight( _Lights[i], V, P, normal );

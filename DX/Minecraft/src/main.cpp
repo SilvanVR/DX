@@ -476,7 +476,7 @@ class Sun : public Components::IComponent
 public:
     void addedToGameObject(GameObject* go) override
     {
-        go->addComponent<Components::DirectionalLight>(0.75f, Color::WHITE);
+        go->addComponent<Components::DirectionalLight>(0.75f, Color::WHITE, true);
         go->getTransform()->rotation = Math::Quat::LookRotation( Math::Vec3{ 0, -1, 0 }, Math::Vec3::RIGHT );
         //getGameObject()->getTransform()->rotation *= Math::Quat(Math::Vec3::RIGHT, 90.0f);
     }
@@ -509,7 +509,7 @@ public:
         fpsCam->setActive(false);
         //player->addComponent<Minimap>(500.0f, 10.0f);
         player->addComponent<Components::AudioListener>();
-        lamp = player->addComponent<Components::SpotLight>(2.0f, Color::WHITE, 25.0f, 20.0f);
+        lamp = player->addComponent<Components::SpotLight>(2.0f, Color::WHITE, 25.0f, 20.0f, false);
         lamp->setActive(false);
         cam->setClearColor(Color::BLUE);
 

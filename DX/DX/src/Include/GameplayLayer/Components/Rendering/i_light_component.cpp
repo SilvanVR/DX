@@ -34,6 +34,9 @@ namespace Components {
     //----------------------------------------------------------------------
     void ILightComponent::setShadowMapQuality( Graphics::ShadowMapQuality quality )
     { 
+        if ( not shadowsEnabled() )
+            return;
+
         m_shadowMapQuality = quality;
         _CreateShadowMap( m_shadowMapQuality );
     }
