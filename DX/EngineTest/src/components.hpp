@@ -198,6 +198,7 @@ public:
             mesh = Core::MeshGenerator::CreateFrustum( Math::Vec3(0), cam->getLeft(), cam->getRight(), cam->getBottom(), cam->getTop(), cam->getZNear(), cam->getZFar() );
 
         auto mr = go->addComponent<Components::MeshRenderer>(mesh, ASSETS.getColorMaterial());
+        mr->setCastShadows(false);
     }
 };
 
@@ -391,4 +392,22 @@ public:
 
 private:
     ArrayList<std::pair<String, std::function<IScene*()>>> m_scenes;
+};
+
+class VisualizeLightRange : public Components::IComponent
+{
+public:
+    void addedToGameObject(GameObject* go) override
+    {
+        F32 range = 0.0f;
+        if (auto lightComponent = go->getComponent<Components::PointLight>())
+            range = lightComponent->getRange();
+        else if (auto lightComponent = go->getComponent<Components::SpotLight>())
+            range = lightComponent->getRange();
+
+        MeshPtr mesh = Core::MeshGenerator::CreateUVSphere({}, range, 10, 10);
+
+        auto mr = go->addComponent<Components::MeshRenderer>(mesh, ASSETS.getWireframeMaterial());
+        mr->setCastShadows(false);
+    }
 };

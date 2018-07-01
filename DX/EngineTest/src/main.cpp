@@ -91,13 +91,15 @@ public:
         //sun2->getTransform()->rotation = Math::Quat::LookRotation(Math::Vec3{ 0,-1, -1 });
 
         auto pl = createGameObject("PL");
-        //pl->addComponent<Components::PointLight>(1.0f, Color::ORANGE);
+        pl->addComponent<Components::PointLight>(1.0f, Color::ORANGE);
         pl->getTransform()->position = { 3, 2, 0 };
+        pl->addComponent<VisualizeLightRange>();
 
         auto slg = createGameObject("PL");
         auto sl = slg->addComponent<Components::SpotLight>(1.0f, Color::WHITE, 25.0f, 20.0f);
         slg->getTransform()->position = { 0, 2, -5 };
         slg->getTransform()->rotation = Math::Quat::LookRotation(Math::Vec3{ 0,-1, 1 });
+        //slg->addComponent<DrawFrustum>();
 
         go->addComponent<Components::GUI>();
         auto imgComp = go->addComponent<Components::GUIImage>(dl->getShadowMap(), Math::Vec2{200, 200});

@@ -326,6 +326,17 @@ namespace Core {
     }
 
     //----------------------------------------------------------------------
+    MeshPtr MeshGenerator::CreateUVSphere( const Math::Vec3& center, F32 size, U32 meridians, U32 parallels, Color color )
+    {
+        auto mesh = CreateUVSphere( center, size, meridians, parallels );
+
+        ArrayList<Color> colors( mesh->getVertexCount(), color );
+        mesh->setColors( colors );
+
+        return mesh;
+    }
+
+    //----------------------------------------------------------------------
     // Credits @https://github.com/caosdoar/spheres
     MeshPtr MeshGenerator::CreateUVSphere( U32 meridians, U32 parallels )
     {

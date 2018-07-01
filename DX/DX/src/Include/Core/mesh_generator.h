@@ -70,6 +70,7 @@ namespace Core {
         static MeshPtr CreateUVSphere(U32 meridians, U32 parallels);
         static MeshPtr CreateUVSphere(U32 meridians, U32 parallels, Color color);
         static MeshPtr CreateUVSphere(const Math::Vec3& center, F32 radius, U32 meridians, U32 parallels);
+        static MeshPtr CreateUVSphere(const Math::Vec3& center, F32 radius, U32 meridians, U32 parallels, Color color);
 
         //----------------------------------------------------------------------
         // Generates a new grid mesh in the XZ plane.

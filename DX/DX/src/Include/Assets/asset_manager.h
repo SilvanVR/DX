@@ -118,6 +118,7 @@ namespace Assets {
         const ShaderPtr&        getShadowMapShader()    const { return m_shadowMapShader; }
         const ShaderPtr&        getShadowMapShaderUV()  const { return m_shadowMapShaderUV; }
         const MaterialPtr&      getColorMaterial()      const { return m_colorMaterial; }
+        const MaterialPtr&      getWireframeMaterial()  const { return m_wireframeMaterial; }
         const MaterialPtr&      getErrorMaterial()      const { return m_errorMaterial; }
         const MaterialPtr&      getPostProcessMaterial()const { return m_postProcessMaterial; }
         const Texture2DPtr&     getBlackTexture()       const { return m_black; }
@@ -183,7 +184,6 @@ namespace Assets {
         HashMap<StringID, MeshAssetInfo>        m_meshCache;
 
         // Default resources loaded / created upon start
-        //ShaderPtr       m_defaultShader;
         ShaderPtr       m_errorShader;
         ShaderPtr       m_wireframeShader;
         ShaderPtr       m_colorShader;
