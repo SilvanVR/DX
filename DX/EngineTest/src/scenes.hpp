@@ -461,11 +461,9 @@ public:
         go->addComponent<DrawFrustum>();
 
         auto go3 = createGameObject("Camera2");
-        auto cam2 = go3->addComponent<Components::Camera>();
+        auto cam2 = go3->addComponent<Components::Camera>(-10.0f, 10.0f, -10.0f, 10.0f, -10.0f, 20.0f);
         go3->getComponent<Components::Transform>()->position = Math::Vec3(0, 5, -10);
         go3->addComponent<AutoOrbiting>(10.0f);
-        //cam2->setClearMode(Graphics::CameraClearMode::None);
-        cam2->setZFar(20.0f);
         cam2->getViewport().width = 0.25f;
         cam2->getViewport().height = 0.25f;
         go3->addComponent<DrawFrustum>();

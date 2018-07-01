@@ -48,6 +48,10 @@ namespace Components {
         const DirectX::XMMATRIX&        getProjectionMatrix()       const { return m_camera.getProjectionMatrix(); }
         const DirectX::XMMATRIX&        getViewProjectionMatrix()   const { return m_camera.getViewProjectionMatrix(); }
         const Graphics::Camera&         getNativeCamera()           const { return m_camera; }
+        F32                             getLeft()                   const { return m_camera.getLeft(); }
+        F32                             getRight()                  const { return m_camera.getRight(); }
+        F32                             getTop()                    const { return m_camera.getTop(); }
+        F32                             getBottom()                 const { return m_camera.getBottom(); }
 
         //----------------------------------------------------------------------
         void setCameraMode          (Graphics::CameraMode mode)                                     { m_camera.setCameraMode(mode); }

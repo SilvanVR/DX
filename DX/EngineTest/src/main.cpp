@@ -29,7 +29,7 @@ public:
         cam = go->addComponent<Components::Camera>();
         go->getComponent<Components::Transform>()->position = Math::Vec3(0, 3, -8);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 0.1f);
-
+        cam->setClearColor(Color(66, 134, 244));
         //createGameObject("Grid")->addComponent<GridGeneration>(20);
 
         auto planeMesh = Core::MeshGenerator::CreatePlane();
@@ -40,7 +40,6 @@ public:
         obj->addComponent<Components::MeshRenderer>(planeMesh, grassMat);
         obj->getTransform()->rotation *= Math::Quat(Math::Vec3::RIGHT, 90.0f);
         obj->getTransform()->scale = { 20,20,20 };
-
 
         auto obj2 = createGameObject("GO2");
         obj2->addComponent<Components::MeshRenderer>(ASSETS.getMesh("/models/monkey.obj"), ASSETS.getMaterial("/materials/blinn_phong/monkey.material"));
@@ -85,9 +84,10 @@ public:
         auto dl = sun->addComponent<Components::DirectionalLight>(0.3f, Color::WHITE);
         sun->getTransform()->rotation = Math::Quat::LookRotation(Math::Vec3{ 0,-1, 1 });
         //sun->addComponent<ConstantRotation>(15.0f, 0.0f, 0.0f);
+        sun->addComponent<DrawFrustum>();
 
         //auto sun2 = createGameObject("Sun2");
-        //sun2->addComponent<Components::DirectionalLight>(0.3f, Color::WHITE, Graphics::ShadowMapQuality::High);
+        //sun2->addComponent<Components::DirectionalLight>(0.3f, Color::WHITE);
         //sun2->getTransform()->rotation = Math::Quat::LookRotation(Math::Vec3{ 0,-1, -1 });
 
         auto pl = createGameObject("PL");

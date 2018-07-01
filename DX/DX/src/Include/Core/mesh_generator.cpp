@@ -395,6 +395,7 @@ namespace Core {
         return mesh;
     }
 
+    //----------------------------------------------------------------------
     MeshPtr MeshGenerator::CreateFrustum( const Math::Vec3& pos, const Math::Vec3& up, const Math::Vec3& right, const Math::Vec3& forward,
                                           F32 fovAngleYDeg, F32 zNear, F32 zFar, F32 aspectRatio, Color color )
     {
@@ -425,7 +426,63 @@ namespace Core {
         mesh->setVertices( vertices );
         mesh->setIndices( indices, 0, Graphics::MeshTopology::Lines );
 
-        ArrayList<Color> colors( indices.size(), color );
+        ArrayList<Color> colors( vertices.size(), color );
+        mesh->setColors( colors );
+
+        return mesh;
+    }
+
+    //----------------------------------------------------------------------
+    MeshPtr MeshGenerator::CreateFrustum(const Math::Vec3& pos, F32 left, F32 right, F32 bottom, F32 top, F32 zNear, F32 zFar, Color color)
+    {
+        return CreateFrustum( pos, Math::Vec3::FORWARD, Math::Vec3::UP, left, right, bottom, top, zNear, zFar, color );
+    }
+
+    //----------------------------------------------------------------------
+    MeshPtr MeshGenerator::CreateFrustum( const Math::Vec3& pos, const Math::Vec3& forwardVec, const Math::Vec3& upVec, F32 left, F32 right, F32 bottom, F32 top, F32 zNear, F32 zFar, Color color )
+    {
+        enum corner {
+            NEAR_TOP_LEFT = 0, NEAR_TOP_RIGHT = 1, NEAR_BOTTOM_LEFT = 2, NEAR_BOTTOM_RIGHT = 3,
+            FAR_TOP_LEFT = 4, FAR_TOP_RIGHT = 5, FAR_BOTTOM_LEFT = 6, FAR_BOTTOM_RIGHT = 7
+        };
+
+        auto nearCenter = pos + forwardVec * zNear;
+        auto farCenter = pos + forwardVec * zFar;
+
+        Math::Vec3 rightVec = forwardVec.cross( upVec );
+
+        std::array<Math::Vec3, 8> frustumCorners;
+        frustumCorners[NEAR_TOP_LEFT]     = nearCenter + upVec * top + rightVec * left;
+        frustumCorners[NEAR_TOP_RIGHT]    = nearCenter + upVec * top + rightVec * right;
+        frustumCorners[NEAR_BOTTOM_LEFT]  = nearCenter + upVec * bottom + rightVec * left;
+        frustumCorners[NEAR_BOTTOM_RIGHT] = nearCenter + upVec * bottom + rightVec * right;
+        frustumCorners[FAR_TOP_LEFT]      = farCenter + upVec * top + rightVec * left;
+        frustumCorners[FAR_TOP_RIGHT]     = farCenter + upVec * top + rightVec * right;
+        frustumCorners[FAR_BOTTOM_LEFT]   = farCenter + upVec * bottom + rightVec * left;
+        frustumCorners[FAR_BOTTOM_RIGHT]  = farCenter + upVec * bottom + rightVec * right;
+
+        ArrayList<Math::Vec3> vertices( frustumCorners.begin(), frustumCorners.end() );
+
+        ArrayList<U32> indices = {
+            NEAR_TOP_LEFT, NEAR_TOP_RIGHT,
+            NEAR_BOTTOM_LEFT, NEAR_BOTTOM_RIGHT,
+            NEAR_TOP_LEFT, NEAR_BOTTOM_LEFT,
+            NEAR_TOP_RIGHT, NEAR_BOTTOM_RIGHT,
+            FAR_TOP_LEFT, FAR_TOP_RIGHT,
+            FAR_BOTTOM_LEFT, FAR_BOTTOM_RIGHT,
+            FAR_TOP_LEFT, FAR_BOTTOM_LEFT,
+            FAR_TOP_RIGHT, FAR_BOTTOM_RIGHT,
+            NEAR_TOP_LEFT, FAR_TOP_LEFT,
+            NEAR_TOP_RIGHT, FAR_TOP_RIGHT,
+            NEAR_BOTTOM_LEFT, FAR_BOTTOM_LEFT,
+            NEAR_BOTTOM_RIGHT, FAR_BOTTOM_RIGHT
+        };
+
+        auto mesh = RESOURCES.createMesh();
+        mesh->setVertices( vertices );
+        mesh->setIndices( indices, 0, Graphics::MeshTopology::Lines );
+
+        ArrayList<Color> colors( vertices.size(), color );
         mesh->setColors( colors );
 
         return mesh;

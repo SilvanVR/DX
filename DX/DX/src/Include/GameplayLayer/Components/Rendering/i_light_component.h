@@ -33,6 +33,7 @@ namespace Components {
         bool                        shadowsEnabled()        const { return m_light->shadowsEnabled(); }
         const RenderBufferPtr&      getShadowMap()          const { return m_light->getShadowMap(); }
         Graphics::ShadowMapQuality  getShadowMapQuality()   const { return m_shadowMapQuality; }
+        const Graphics::Camera&     getNativeCamera()       const { return *m_camera; }
 
         //----------------------------------------------------------------------
         void setIntensity       (F32 intensity) { m_light->setIntensity(intensity); }

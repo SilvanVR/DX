@@ -79,10 +79,12 @@ namespace Core {
         static MeshPtr CreateGrid(U32 size);
 
         //----------------------------------------------------------------------
-        // Generates a new perspective frustum mesh (Lines only).
+        // Generates a new frustum mesh (Lines only).
         //----------------------------------------------------------------------
-        static MeshPtr CreateFrustum(const Math::Vec3& pos, const Math::Vec3& up, const Math::Vec3& right, const Math::Vec3& forward,
+        static MeshPtr CreateFrustum(const Math::Vec3& pos, const Math::Vec3& up, const Math::Vec3& right, const Math::Vec3& forwardW,
                                      F32 fovAngleYDeg, F32 zNear, F32 zFar, F32 aspectRatio, Color color = Color::WHITE);
+        static MeshPtr CreateFrustum(const Math::Vec3& pos, F32 left, F32 right, F32 bottom, F32 top, F32 zNear, F32 zFar, Color color = Color::WHITE);
+        static MeshPtr CreateFrustum(const Math::Vec3& pos, const Math::Vec3& forward, const Math::Vec3& up, F32 left, F32 right, F32 bottom, F32 top, F32 zNear, F32 zFar, Color color = Color::WHITE);
 
     private:
         MeshGenerator() = delete;
