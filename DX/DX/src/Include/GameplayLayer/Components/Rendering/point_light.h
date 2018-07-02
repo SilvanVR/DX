@@ -19,7 +19,7 @@ namespace Components {
     {
     public:
         //----------------------------------------------------------------------
-        PointLight(F32 intensity = 1.0f, Color color = Color::WHITE, F32 range = 10.0f, bool shadowsEnabled = true);
+        PointLight(F32 intensity = 1.0f, Color color = Color::WHITE, F32 range = 10.0f, bool shadowsEnabled = false);
 
         //----------------------------------------------------------------------
         F32 getRange() const { return m_pointLight->getRange(); }
@@ -35,6 +35,7 @@ namespace Components {
         //----------------------------------------------------------------------
         void recordGraphicsCommands(Graphics::CommandBuffer& cmd, F32 lerp) override;
         bool cull(const Graphics::Camera& camera) override;
+        void renderShadowMap(const IScene& scene, F32 lerp) override;
         void _CreateShadowMap(Graphics::ShadowMapQuality) override;
 
         NULL_COPY_AND_ASSIGN(PointLight)

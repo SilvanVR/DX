@@ -73,7 +73,8 @@ public:
                     case Assets::MaterialTextureType::Specular: break;
                     }
                 }
-                material->setShadowShader(ASSETS.getShadowMapShaderUV());
+                material->setReplacementShader( TAG_SHADOW_PASS, ASSETS.getShadowMapShaderAlpha() );
+                material->setReplacementShader( TAG_SHADOW_PASS_LINEAR, ASSETS.getShadowMapShaderLinearAlpha() );
                 mr->setMaterial(material, i);
             }
         }
@@ -90,10 +91,12 @@ public:
         //sun2->addComponent<Components::DirectionalLight>(0.3f, Color::WHITE);
         //sun2->getTransform()->rotation = Math::Quat::LookRotation(Math::Vec3{ 0,-1, -1 });
 
-        auto pl = createGameObject("PL");
-        pl->addComponent<Components::PointLight>(1.0f, Color::ORANGE);
-        pl->getTransform()->position = { 3, 2, 0 };
-        pl->addComponent<VisualizeLightRange>();
+        auto plg = createGameObject("PL");
+        auto pl = plg->addComponent<Components::PointLight>(1.0f, Color::ORANGE, 5.0f, true);
+        plg->getTransform()->position = { 3, 2, 0 };
+        //plg->addComponent<VisualizeLightRange>();
+        plg->addComponent<Components::Billboard>(ASSETS.getTexture2D("/textures/pointLight.png"), 0.5f);
+        go->addComponent<Components::Skybox>(pl->getShadowMap());
 
         auto slg = createGameObject("PL");
         auto sl = slg->addComponent<Components::SpotLight>(1.0f, Color::WHITE, 25.0f, 20.0f);
@@ -104,7 +107,7 @@ public:
         go->addComponent<Components::GUI>();
         auto imgComp = go->addComponent<Components::GUIImage>(dl->getShadowMap(), Math::Vec2{200, 200});
         go->addComponent<Components::GUIFPS>();
-        go->addComponent<Components::GUICustom>([sun, dl, imgComp] {
+        go->addComponent<Components::GUICustom>([sun, dl, imgComp, plg, pl] {
             static Math::Vec3 deg{45.0f, 0.0f, 0.0f};
             ImGui::SliderFloat2( "Sun Rotation", &deg.x, 0.0f, 360.0f );
             sun->getTransform()->rotation = Math::Quat::FromEulerAngles(deg);
@@ -124,20 +127,20 @@ public:
             static F32 ambient = 0.4f;
             ImGui::SliderFloat("Ambient", &ambient, 0.0f, 1.0f);
             Locator::getRenderer().setGlobalFloat(SID("_Ambient"), ambient);
-        });
 
-        //I32 loop2 = 2;
-        //F32 distance2 = 5.0f;
-        //for (I32 x = -loop2; x <= loop2; x++)
-        //{
-        //    for (I32 z = -loop2; z <= loop2; z++)
-        //    {
-        //        auto gameobject = createGameObject("Obj");
-        //        gameobject->addComponent<Components::PointLight>(2.0f, Math::Random::Color());
-        //        gameobject->getTransform()->position = Math::Vec3(x * distance2, 1.0f, z * distance2);
-        //        gameobject->addComponent<Components::Billboard>(ASSETS.getTexture2D("/textures/pointLight.png"), 0.5f);
-        //    }
-        //}
+            static Math::Vec3 pos{ 0, 1, -1 };
+            ImGui::SliderFloat3("PointLight Position", &pos.x, -3.0f, 3.0f);
+            plg->getTransform()->position = pos;
+
+            static F32 range = 5.0f;
+            ImGui::SliderFloat("PointLight Range", &range, 5.0f, 50.0f);
+
+            static F32 intensity = 1.0f;
+            ImGui::SliderFloat("PointLight Intensity", &intensity, 1.0f, 50.0f);
+
+            pl->setIntensity(intensity);
+            pl->setRange(range);
+        });
 
         LOG("TestScene initialized!", Color::RED);
     }

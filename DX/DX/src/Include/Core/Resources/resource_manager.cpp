@@ -74,9 +74,6 @@ namespace Core { namespace Resources {
         if (shader)
             material->setShader( shader );
 
-        // The resourcemanager really shouldn't access the asset manager, but for now this is fine
-        material->setShadowShader( ASSETS.getShadowMapShader() ); 
-
         m_materials.push_back( material );
 
         return MaterialPtr( material, BIND_THIS_FUNC_1_ARGS( &ResourceManager::_DeleteMaterial ) );

@@ -13,7 +13,7 @@
 
 namespace Components {
 
-    #define DEPTH_STENCIL_FORMAT    Graphics::DepthFormat::D32
+    #define DEPTH_STENCIL_FORMAT    Graphics::DepthFormat::D16
 
     //----------------------------------------------------------------------
     SpotLight::SpotLight( F32 intensity, Color color, F32 spotAngleInDegrees, F32 range, bool shadowsEnabled )
@@ -80,11 +80,12 @@ namespace Components {
 
             // Create rendertexture
             auto rt = RESOURCES.createRenderTexture();
-            rt->create( nullptr, m_light->getShadowMap() );
+            rt->create( nullptr, shadowMap );
 
             // Configure camera
             m_camera.reset( new Graphics::Camera( getAngle() * 2.0f, 0.1f, getRange() ) );
             m_camera->setRenderTarget( rt, false );
+            m_camera->setReplacementShader( ASSETS.getShadowMapShader(), TAG_SHADOW_PASS );
         }
     }
 

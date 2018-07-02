@@ -5,7 +5,8 @@
 // "light": Per light constant buffer.
 
 #define MAX_LIGHTS 			16
-#define MAX_SHADOWMAPS		4
+#define MAX_SHADOWMAPS_2D	4
+#define MAX_SHADOWMAPS_3D 	1
 #define DIRECTIONAL_LIGHT 	0
 #define POINT_LIGHT 		1
 #define SPOT_LIGHT 			2
@@ -50,7 +51,7 @@ cbuffer cbBufferLights : register(b3)
 {
 	Light 		_Lights[MAX_LIGHTS];
 	int 		_LightCount;
-	float4x4 	_LightViewProj[MAX_SHADOWMAPS];
+	float4x4 	_LightViewProj[MAX_SHADOWMAPS_2D];
 };
 
 Texture2D shadowMap0 : register(t9);
@@ -65,8 +66,11 @@ SamplerState shadowMapSampler2 : register(s11);
 Texture2D shadowMap3 : register(t12);
 SamplerState shadowMapSampler3 : register(s12);
 
+TextureCube<float4> shadowMapCube0 : register(t13);
+SamplerState shadowMapCubeSampler0 : register(s13);
+
 //-----------------------------------------------
-float SAMPLE_SHADOWMAP( int index, float2 uv )
+float SAMPLE_SHADOWMAP_2D( int index, float2 uv )
 {
 	float result = 0;
 	switch(index)
@@ -86,7 +90,7 @@ bool inRange( float val )
 }
 
 //-----------------------------------------------
-float CALCULATE_SHADOW( float3 P,  int shadowMapIndex )
+float CALCULATE_SHADOW_2D( float3 P,  int shadowMapIndex )
 {
 	float shadow = 1.0f;		
 	if (shadowMapIndex >= 0)
@@ -99,9 +103,41 @@ float CALCULATE_SHADOW( float3 P,  int shadowMapIndex )
 		float currentDepth = projCoords.z;
 		if ( inRange(currentDepth) && inRange(uv.x) && inRange(uv.y) )
 		{	
-			float closestDepth = SAMPLE_SHADOWMAP( shadowMapIndex, uv );
+			float closestDepth = SAMPLE_SHADOWMAP_2D( shadowMapIndex, uv );
 			shadow = currentDepth < closestDepth ? 1.0 : 0.0;
 		}
+	}	
+	return shadow;
+}
+
+//-----------------------------------------------
+float SAMPLE_SHADOWMAP_3D( int index, float3 uvw )
+{
+	float result = 0;
+	switch(index)
+	{
+		case 0:	result = shadowMapCube0.Sample( shadowMapCubeSampler0, uvw ).r; break;
+	}
+	return result;
+}
+
+//-----------------------------------------------
+float CALCULATE_SHADOW_3D( float3 P, float3 L, float range, int shadowMapIndex )
+{
+	float shadow = 1.0f;		
+	if (shadowMapIndex >= 0)
+	{
+		float3 ld = P - L;
+		float currentDepth = length( ld );	
+		
+		float closestDepth = shadowMapCube0.Sample( shadowMapCubeSampler0, ld ).r;
+		
+		// Map back from [0,1] to world coordinates (range is equivalent to zfar)
+		closestDepth *= range;
+				
+		// Give a higher bias the farther away the depth sample is
+		float bias = closestDepth * 0.1;
+		shadow = currentDepth < closestDepth + bias ? 1.0 : 0.0;
 	}	
 	return shadow;
 }

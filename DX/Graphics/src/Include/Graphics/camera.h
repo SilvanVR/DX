@@ -6,11 +6,15 @@
     date: March 4, 2018
 **********************************************************************/
 
+#include "forward_declarations.hpp"
 #include "i_render_texture.h"
 #include "structs.hpp"
 #include "Math/aabb.h"
 
 namespace Graphics {
+
+    #define TAG_SHADOW_PASS         SID("_ShadowPass")
+    #define TAG_SHADOW_PASS_LINEAR  SID("_ShadowPassLinear")
 
     //----------------------------------------------------------------------
     enum class CameraClearMode
@@ -48,19 +52,22 @@ namespace Graphics {
         inline void setRenderingToScreen    (bool renderToScreen)                    { m_isRenderingToScreen = renderToScreen; }
 
         //----------------------------------------------------------------------
-        inline const CameraMode&       getCameraMode()         const { return m_cameraMode; }
-        inline F32                     getZNear()              const { return m_zNear; }
-        inline F32                     getZFar()               const { return m_zFar; }
-        inline F32                     getFOV()                const { return m_fov; }
-        inline bool                    isOrthographic()        const { return m_cameraMode == CameraMode::Orthographic; }
-        inline const Color&            getClearColor()         const { return m_clearColor; }
-        inline F32                     getLeft()               const { return m_ortho.left; }
-        inline F32                     getRight()              const { return m_ortho.right; }
-        inline F32                     getTop()                const { return m_ortho.top; }
-        inline F32                     getBottom()             const { return m_ortho.bottom; }
-        inline CameraClearMode         getClearMode()          const { return m_clearMode; }
-        inline bool                    isRenderingToScreen()   const { return m_isRenderingToScreen; }
-        inline F32                     getAspectRatio()        const;
+        inline const CameraMode&   getCameraMode()              const { return m_cameraMode; }
+        inline F32                 getZNear()                   const { return m_zNear; }
+        inline F32                 getZFar()                    const { return m_zFar; }
+        inline F32                 getFOV()                     const { return m_fov; }
+        inline bool                isOrthographic()             const { return m_cameraMode == CameraMode::Orthographic; }
+        inline const Color&        getClearColor()              const { return m_clearColor; }
+        inline F32                 getLeft()                    const { return m_ortho.left; }
+        inline F32                 getRight()                   const { return m_ortho.right; }
+        inline F32                 getTop()                     const { return m_ortho.top; }
+        inline F32                 getBottom()                  const { return m_ortho.bottom; }
+        inline CameraClearMode     getClearMode()               const { return m_clearMode; }
+        inline bool                isRenderingToScreen()        const { return m_isRenderingToScreen; }
+        inline F32                 getAspectRatio()             const;
+        inline const ShaderPtr&    getReplacementShader()       const { return m_replacementShader; }
+        inline StringID            getReplacementShaderTag()    const { return m_replacementShaderTag; }
+        inline bool                hasReplacementShader()       const { return m_replacementShader != nullptr; }
 
         //----------------------------------------------------------------------
         // @Return
@@ -118,7 +125,18 @@ namespace Graphics {
         //----------------------------------------------------------------------
         bool cull(const Math::Vec3& pos, F32 radius) const;
 
+        //----------------------------------------------------------------------
+        // Set the replacement shader with a given tag
+        //----------------------------------------------------------------------
+        void setReplacementShader(const ShaderPtr& shader, StringID tag){ m_replacementShader = shader; m_replacementShaderTag = tag; }
+
     private:
+        // Matrices
+        DirectX::XMMATRIX       m_model;
+        DirectX::XMMATRIX       m_view;
+        DirectX::XMMATRIX       m_projection;
+        DirectX::XMMATRIX       m_viewProjection;
+
         CameraMode m_cameraMode = CameraMode::Perspective;
 
         // Z Clipping Planes
@@ -143,18 +161,16 @@ namespace Graphics {
         CameraClearMode         m_clearMode     = CameraClearMode::Color;
         Color                   m_clearColor    = Color::BLACK;
 
-        // Target render texture (nullptr means camera renders to screen)
+        // Target render texture
         RenderTexturePtr        m_renderTarget = nullptr;
-
-        // Matrices
-        DirectX::XMMATRIX       m_model;
-        DirectX::XMMATRIX       m_view;
-        DirectX::XMMATRIX       m_projection;
-        DirectX::XMMATRIX       m_viewProjection;
 
         // Culling planes
         enum side { LEFT = 0, RIGHT = 1, TOP = 2, BOTTOM = 3, BACK = 4, FRONT = 5 };
         std::array<Math::Vec4, 6> m_planes;
+
+        // If not null, materials will use this shader if not overriden
+        ShaderPtr m_replacementShader = nullptr;
+        StringID m_replacementShaderTag;
 
         // Wether the camera is rendering to the screen or not
         bool m_isRenderingToScreen = true;
@@ -162,8 +178,6 @@ namespace Graphics {
         //----------------------------------------------------------------------
         void _UpdateProjectionMatrix();
         void _UpdateCullingPlanes(const DirectX::XMMATRIX& viewProjection);
-
-        NULL_COPY_AND_ASSIGN(Camera)
     };
 
 }

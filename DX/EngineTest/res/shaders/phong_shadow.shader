@@ -49,24 +49,24 @@ cbuffer cbPerMaterial
 }
 
 struct FragmentIn
-{
+{ 
     float4 PosH : SV_POSITION;
 	float2 Tex : TEXCOORD0;
 	float3 Normal : NORMAL;      
 	float3 WorldPos : POSITION;
-};
-
+}; 
+ 
 Texture2D _MainTex;
 SamplerState sampler0; 
-
+        
 float4 main(FragmentIn fin) : SV_Target
-{
+{            
 	float4 textureColor = _MainTex.Sample(sampler0, fin.Tex * uvScale);
 	//float4 depth = shadowMap.Sample(shadowMapSampler, fin.Tex);
 	
 	//return float4(fin.Normal,1);   
 	if (textureColor.a < ALPHA_THRESHOLD) 
-		discard; 
+		discard;        
 		
 	return APPLY_LIGHTING( textureColor, fin.WorldPos, fin.Normal ); 
 }

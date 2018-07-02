@@ -25,7 +25,8 @@ using namespace DirectX;
 
 namespace Graphics {
 
-    #define SHADOW_MAP_SLOT_BEGIN 9
+    #define SHADOW_MAP_2D_SLOT_BEGIN 9
+    #define SHADOW_MAP_3D_SLOT_BEGIN 13
 
     #define GLOBAL_BUFFER D3D11::ConstantBufferManager::getGlobalBuffer()
     #define OBJECT_BUFFER D3D11::ConstantBufferManager::getObjectBuffer()
@@ -71,7 +72,7 @@ namespace Graphics {
     void D3D11Renderer::init()
     {
         m_limits.maxLights      = MAX_LIGHTS;
-        m_limits.maxShadowmaps  = MAX_SHADOWMAPS;
+        m_limits.maxShadowmaps  = MAX_SHADOWMAPS_2D + MAX_SHADOWMAPS_3D;
 
         _InitD3D11();
 
@@ -80,12 +81,18 @@ namespace Graphics {
         m_cubeMesh->setVertices( cubeVertices );
         m_cubeMesh->setIndices( cubeIndices );
 
-        // Gets rid of the warning that a texture is not bound to a shadowmap slot
+        // Gets rid of the warnings that a texture is not bound to a shadowmap slot
         auto tex = createTexture2D();
-        tex->create(2, 2, Graphics::TextureFormat::RGBA32, false);
-        for (auto i = SHADOW_MAP_SLOT_BEGIN; i < SHADOW_MAP_SLOT_BEGIN + MAX_SHADOWMAPS; i++)
+        tex->create(2, 2, Graphics::TextureFormat::R8, false);
+        for (auto i = SHADOW_MAP_2D_SLOT_BEGIN; i < SHADOW_MAP_2D_SLOT_BEGIN + MAX_SHADOWMAPS_2D; i++)
             tex->bind(Graphics::ShaderType::Fragment, i);
         delete tex;
+
+        auto cube = createCubemap();
+        cube->create(2, Graphics::TextureFormat::R8);
+        for (auto i = SHADOW_MAP_3D_SLOT_BEGIN; i < SHADOW_MAP_3D_SLOT_BEGIN + MAX_SHADOWMAPS_3D; i++)
+            cube->bind(Graphics::ShaderType::Fragment, i);
+        delete cube;
     } 
 
     //----------------------------------------------------------------------
@@ -108,18 +115,10 @@ namespace Graphics {
                 case GPUCommand::SET_CAMERA:
                 {
                     auto& cmd = *reinterpret_cast<GPUC_SetCamera*>( command.get() );
-                    _SetCamera( cmd.camera );
-                    break;
-                }
-                case GPUCommand::SET_CAMERA_SHADOW:
-                {
-                    auto& cmd = *reinterpret_cast<GPUC_SetCamera*>( command.get() );
-                    renderContext.shadowPass = true;
-                    _SetCamera( cmd.camera );
+                    _SetCamera( &cmd.camera );
                     break;
                 }
                 case GPUCommand::END_CAMERA:
-                case GPUCommand::END_CAMERA_SHADOW:
                 {
                     auto& cmd = *reinterpret_cast<GPUC_EndCamera*>( command.get() );
                     renderContext.Reset();
@@ -471,8 +470,22 @@ namespace Graphics {
         }
         else
         {
-            // Bind shader + material
-            renderContext.BindShader( renderContext.shadowPass ? material->getShadowShader() : material->getShader() );
+            // Bind shader, possibly a replacement shader
+            auto shader = material->getShader();
+            if (renderContext.camera)
+            {
+                if ( auto& camShader = renderContext.camera->getReplacementShader() )
+                {
+                    if ( auto& matShader = material->getReplacementShader( renderContext.camera->getReplacementShaderTag() ) )
+                        shader = matShader;
+                    else
+                        shader = camShader;
+                }
+            }
+
+            renderContext.BindShader( shader );
+
+            // Bind material
             renderContext.BindMaterial( material );
         }
 
@@ -514,12 +527,13 @@ namespace Graphics {
             F32         spotAngle;              // 4 bytes
             F32         range;                  // 4 bytes
             I32         shadowMapIndex;         // 4 bytes
-            F32         PADDING;                // 4 bytes
+            F32         zFar;                   // 4 bytes
             //----------------------------------- (16 byte boundary)
         } lights[MAX_LIGHTS];
 
-        I32 curShadowMapIndex = 0;
-        DirectX::XMMATRIX lightViewProjs[MAX_SHADOWMAPS];
+        I32 curShadowMap2DIndex = 0;
+        I32 curShadowMap3DIndex = 0;
+        DirectX::XMMATRIX lightViewProjs[MAX_SHADOWMAPS_2D];
 
         // Update light array
         for (I32 i = 0; i < renderContext.lightCount; i++)
@@ -528,14 +542,6 @@ namespace Graphics {
             lights[i].intensity = renderContext.lights[i]->getIntensity();
             lights[i].lightType = (I32)renderContext.lights[i]->getLightType();
             lights[i].shadowMapIndex = -1;
-
-            if ( renderContext.lights[i]->shadowsEnabled() && curShadowMapIndex < MAX_SHADOWMAPS )
-            {
-                lights[i].shadowMapIndex = curShadowMapIndex;
-                lightViewProjs[curShadowMapIndex] = renderContext.lights[i]->getShadowViewProjection();
-                renderContext.lights[i]->getShadowMap()->bind( Graphics::ShaderType::Fragment, SHADOW_MAP_SLOT_BEGIN + curShadowMapIndex);
-                curShadowMapIndex++;
-            }
 
             switch ( renderContext.lights[i]->getLightType() )
             {
@@ -564,6 +570,34 @@ namespace Graphics {
             default:
                 ASSERT( false && "Unknown light type!" );
             }
+
+            // Shadow information
+            switch ( renderContext.lights[i]->getLightType() )
+            {
+            case LightType::Directional:
+            case LightType::Spot:
+            {
+                if ( renderContext.lights[i]->shadowsEnabled() && curShadowMap2DIndex < MAX_SHADOWMAPS_2D )
+                {
+                    lights[i].shadowMapIndex = curShadowMap2DIndex;
+                    lightViewProjs[curShadowMap2DIndex] = renderContext.lights[i]->getShadowViewProjection();
+                    renderContext.lights[i]->getShadowMap()->bind( Graphics::ShaderType::Fragment, SHADOW_MAP_2D_SLOT_BEGIN + curShadowMap2DIndex );
+                    curShadowMap2DIndex++;
+                }
+                break;
+            }
+            case LightType::Point:
+            {
+                if ( renderContext.lights[i]->shadowsEnabled() && curShadowMap3DIndex < MAX_SHADOWMAPS_3D )
+                {
+                    lights[i].shadowMapIndex = curShadowMap3DIndex;
+                    renderContext.lights[i]->getShadowMap()->bind( Graphics::ShaderType::Fragment, SHADOW_MAP_3D_SLOT_BEGIN + curShadowMap3DIndex );
+                    curShadowMap3DIndex++;
+                }
+                break;
+            }
+            }
+
         }
 
         if ( not LIGHT_BUFFER.update( LIGHT_BUFFER_NAME, &lights ) )
@@ -760,7 +794,6 @@ namespace Graphics {
         lightCount = 0;
         lightsUpdated = false;
         renderTarget = nullptr;
-        shadowPass = false;
     }
 
 } // End namespaces

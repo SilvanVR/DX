@@ -112,20 +112,22 @@ namespace Assets {
         void setHotReloading(bool enabled);
 
         //----------------------------------------------------------------------
-        const ShaderPtr&        getColorShader()        const { return m_colorShader; }
-        const ShaderPtr&        getErrorShader()        const { return m_errorShader; }
-        const ShaderPtr&        getPostProcessShader()  const { return m_postProcessShader; }
-        const ShaderPtr&        getShadowMapShader()    const { return m_shadowMapShader; }
-        const ShaderPtr&        getShadowMapShaderUV()  const { return m_shadowMapShaderUV; }
-        const MaterialPtr&      getColorMaterial()      const { return m_colorMaterial; }
-        const MaterialPtr&      getWireframeMaterial()  const { return m_wireframeMaterial; }
-        const MaterialPtr&      getErrorMaterial()      const { return m_errorMaterial; }
-        const MaterialPtr&      getPostProcessMaterial()const { return m_postProcessMaterial; }
-        const Texture2DPtr&     getBlackTexture()       const { return m_black; }
-        const Texture2DPtr&     getWhiteTexture()       const { return m_white; }
-        const Texture2DPtr&     getNormalTexture()      const { return m_normal; }
-        const CubemapPtr&       getDefaultCubemap()     const { return m_defaultCubemap; }
-        const MeshPtr&          getDefaultMesh()        const { return m_defaultMesh; }
+        const ShaderPtr&        getColorShader()                const { return m_colorShader; }
+        const ShaderPtr&        getErrorShader()                const { return m_errorShader; }
+        const ShaderPtr&        getPostProcessShader()          const { return m_postProcessShader; }
+        const ShaderPtr&        getShadowMapShader()            const { return m_shadowMapShader; }
+        const ShaderPtr&        getShadowMapShaderAlpha()       const { return m_shadowMapShaderAlpha; }
+        const ShaderPtr&        getShadowMapShaderLinear()      const { return m_shadowMapShaderLinear; }
+        const ShaderPtr&        getShadowMapShaderLinearAlpha() const { return m_shadowMapShaderLinearAlpha; }
+        const MaterialPtr&      getColorMaterial()              const { return m_colorMaterial; }
+        const MaterialPtr&      getWireframeMaterial()          const { return m_wireframeMaterial; }
+        const MaterialPtr&      getErrorMaterial()              const { return m_errorMaterial; }
+        const MaterialPtr&      getPostProcessMaterial()        const { return m_postProcessMaterial; }
+        const Texture2DPtr&     getBlackTexture()               const { return m_black; }
+        const Texture2DPtr&     getWhiteTexture()               const { return m_white; }
+        const Texture2DPtr&     getNormalTexture()              const { return m_normal; }
+        const CubemapPtr&       getDefaultCubemap()             const { return m_defaultCubemap; }
+        const MeshPtr&          getDefaultMesh()                const { return m_defaultMesh; }
 
     private:
         CallbackID m_hotReloadingCallback = 0;
@@ -189,7 +191,9 @@ namespace Assets {
         ShaderPtr       m_colorShader;
         ShaderPtr       m_postProcessShader;
         ShaderPtr       m_shadowMapShader;
-        ShaderPtr       m_shadowMapShaderUV; // Shadowmap shader for material which requires discarding fragments for transparency
+        ShaderPtr       m_shadowMapShaderAlpha; // Shadowmap shader for material which requires discarding fragments for transparency
+        ShaderPtr       m_shadowMapShaderLinear;
+        ShaderPtr       m_shadowMapShaderLinearAlpha;
 
         MaterialPtr     m_errorMaterial;
         MaterialPtr     m_wireframeMaterial;

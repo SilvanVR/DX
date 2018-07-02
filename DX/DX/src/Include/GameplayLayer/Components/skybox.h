@@ -10,10 +10,7 @@
 **********************************************************************/
 
 #include "i_component.h"
-#include "Graphics/i_cubemap.hpp"
-#include "Graphics/i_material.h"
-#include "Graphics/i_shader.h"
-#include "Graphics/i_mesh.h"
+#include "Graphics/forward_declarations.hpp"
 
 namespace Components {
 
@@ -21,7 +18,7 @@ namespace Components {
     class Skybox : public Components::IComponent
     {
     public:
-        Skybox(TexturePtr cubemap) : m_cubemap( cubemap ) {}
+        Skybox(TexturePtr cubemap) : m_cubemap(cubemap) {}
 
         //----------------------------------------------------------------------
         // IComponent Interface

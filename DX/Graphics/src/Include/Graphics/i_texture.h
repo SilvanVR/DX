@@ -21,15 +21,15 @@ namespace Graphics
         virtual ~ITexture() = default;
 
         //----------------------------------------------------------------------
-        inline U32                  getWidth()          const { return m_width; }
-        inline U32                  getHeight()         const { return m_height; }
-        inline F32                  getAspectRatio()    const { return (F32)getWidth() / getHeight(); }
-        inline U32                  getMipCount()       const { return m_mipCount; }
-        inline U32                  getAnisoLevel()     const { return m_anisoLevel; }
-        inline TextureFormat        getFormat()         const { return m_format; }
-        inline TextureDimension     getDimension()      const { return m_dimension; }
-        inline TextureFilter        getFilter()         const { return m_filter; }
-        inline TextureAddressMode   getClampMode()      const { return m_clampMode; }
+        U32                  getWidth()          const { return m_width; }
+        U32                  getHeight()         const { return m_height; }
+        F32                  getAspectRatio()    const { return (F32)getWidth() / getHeight(); }
+        U32                  getMipCount()       const { return m_mipCount; }
+        U32                  getAnisoLevel()     const { return m_anisoLevel; }
+        TextureFormat        getFormat()         const { return m_format; }
+        TextureDimension     getDimension()      const { return m_dimension; }
+        TextureFilter        getFilter()         const { return m_filter; }
+        TextureAddressMode   getClampMode()      const { return m_clampMode; }
 
         //----------------------------------------------------------------------
         // Set the filter mode for this texture. Note that this has no effect if

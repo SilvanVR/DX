@@ -508,9 +508,20 @@ namespace Assets {
                 LOG_WARN( "Failed to load the shadowmap shader. Please ensure that the shader exists and compiles. Will be set to the error shader." );
 
             // Shadowmap shader (UV)
-            m_shadowMapShaderUV = getShader( "/engine/shaders/shadowmap_uv.shader" );
-            if ( m_shadowMapShaderUV == getErrorShader() )
-                LOG_WARN( "Failed to load the shadowmap-uv shader. Please ensure that the shader exists and compiles. Will be set to the error shader." );
+            m_shadowMapShaderAlpha = getShader( "/engine/shaders/shadowmap_alpha.shader" );
+            if ( m_shadowMapShaderAlpha == getErrorShader() )
+                LOG_WARN( "Failed to load the shadowmap-alpha shader. Please ensure that the shader exists and compiles. Will be set to the error shader." );
+
+            
+            // Shadowmap shader
+            m_shadowMapShaderLinear = getShader("/engine/shaders/shadowmap_linear.shader");
+            if ( m_shadowMapShaderLinear == getErrorShader() )
+                LOG_WARN( "Failed to load the shadowmap(linear) shader. Please ensure that the shader exists and compiles. Will be set to the error shader." );
+
+            // Shadowmap shader (UV)
+            m_shadowMapShaderLinearAlpha = getShader( "/engine/shaders/shadowmap_linear_alpha.shader" );
+            if ( m_shadowMapShaderLinearAlpha == getErrorShader() )
+                LOG_WARN( "Failed to load the shadowmap-alpha(linear) shader. Please ensure that the shader exists and compiles. Will be set to the error shader." );
         }
 
         // MATERIALS

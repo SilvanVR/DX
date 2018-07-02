@@ -10,6 +10,7 @@
 **********************************************************************/
 
 #include "Math/rect.h"
+#include "camera.h"
 #include "forward_declarations.hpp"
 
 namespace Graphics {
@@ -23,14 +24,12 @@ namespace Graphics {
     {
         UNKNOWN = 0,
         SET_CAMERA,
-        SET_CAMERA_SHADOW,
         SET_SCISSOR,
         SET_CAMERA_MATRIX,
         SET_RENDER_TARGET,
         DRAW_LIGHT,
         DRAW_MESH,
         END_CAMERA,
-        END_CAMERA_SHADOW,
         COPY_TEXTURE,
         RENDER_CUBEMAP,
         DRAW_FULLSCREEN_QUAD,
@@ -67,41 +66,18 @@ namespace Graphics {
     //**********************************************************************
     struct GPUC_SetCamera : public GPUCommandBase
     {
-        GPUC_SetCamera( Camera* camera )
+        GPUC_SetCamera( const Camera& camera )
             : GPUCommandBase( GPUCommand::SET_CAMERA ), 
             camera( camera ) {}
 
-        Camera* camera;
-    };
-
-    //**********************************************************************
-    struct GPUC_SetCameraShadow : public GPUCommandBase
-    {
-        GPUC_SetCameraShadow( Camera* camera )
-            : GPUCommandBase( GPUCommand::SET_CAMERA_SHADOW ), 
-            camera( camera ) {}
-
-        Camera* camera;
+        Camera camera;
     };
 
     //**********************************************************************
     struct GPUC_EndCamera : public GPUCommandBase
     {
-        GPUC_EndCamera( Camera* camera )
-            : GPUCommandBase( GPUCommand::END_CAMERA ),
-            camera( camera ) {}
-
-        Camera* camera;
-    };
-
-    //**********************************************************************
-    struct GPUC_EndCameraShadow : public GPUCommandBase
-    {
-        GPUC_EndCameraShadow( Camera* camera )
-            : GPUCommandBase( GPUCommand::END_CAMERA_SHADOW ),
-            camera( camera ) {}
-
-        Camera* camera;
+        GPUC_EndCamera()
+            : GPUCommandBase( GPUCommand::END_CAMERA ) {}
     };
 
     //**********************************************************************

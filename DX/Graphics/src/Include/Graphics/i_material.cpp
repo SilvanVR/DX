@@ -22,9 +22,6 @@ namespace Graphics {
         m_matrixMap.clear();
         m_textureMap.clear();
         _ChangedShader();
-
-        if (m_shadowShader == nullptr)
-            m_shadowShader = m_shader;
     }
 
     //**********************************************************************

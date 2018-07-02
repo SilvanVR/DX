@@ -67,7 +67,7 @@ namespace Components {
         m_light->setShadowViewProjection( m_camera->getViewProjectionMatrix() );
 
         // Set camera
-        cmd.setCameraShadow( m_camera.get() );
+        cmd.setCamera( *m_camera );
 
         // Record commands for every rendering component
         for ( auto& renderer : scene.getComponentManager().getRenderer() )
@@ -81,7 +81,7 @@ namespace Components {
                 renderer->recordGraphicsCommands( cmd, lerp );
         }
 
-        cmd.endCameraShadow( m_camera.get() );
+        cmd.endCamera();
 
         Locator::getRenderer().dispatch( cmd );
     }

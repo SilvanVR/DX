@@ -24,12 +24,13 @@ namespace Graphics {
 
         //----------------------------------------------------------------------
         const ShaderPtr&    getShader()         const { return m_shader; }
-        const ShaderPtr&    getShadowShader()   const { return m_shadowShader; }
         const String&       getName()           const { return m_name; }
+        const ShaderPtr     getReplacementShader(StringID tag) const { return hasReplacementShader(tag) ? m_replacementShaders.at(tag) : nullptr; }
+        bool                hasReplacementShader(StringID tag) const { return m_replacementShaders.find(tag) != m_replacementShaders.end(); }
 
-        void                setShader       (const ShaderPtr& shader);
-        void                setShadowShader (const ShaderPtr& shader) { m_shadowShader = shader; }
-        void                setName         (const String& name) { m_name = name; }
+        void                setShader               (const ShaderPtr& shader);
+        void                setName                 (const String& name)                    { m_name = name; }
+        void                setReplacementShader    (StringID tag, const ShaderPtr& shader) { m_replacementShaders[tag] = shader; }
 
         //**********************************************************************
         // MATERIAL PARAMETERS
@@ -82,7 +83,6 @@ namespace Graphics {
 
     protected:
         ShaderPtr   m_shader = nullptr;         // Shader used to render this material
-        ShaderPtr   m_shadowShader = nullptr;   // Shader used to render into shadowmap
         String      m_name = "NO NAME";
 
         // Data maps
@@ -91,6 +91,9 @@ namespace Graphics {
         HashMap<StringID, Math::Vec4>                   m_vec4Map;
         HashMap<StringID, DirectX::XMMATRIX>            m_matrixMap;
         HashMap<StringID, TexturePtr>                   m_textureMap;
+
+        // List of replacement shaders
+        HashMap<StringID, ShaderPtr>                    m_replacementShaders;
 
         // Each API should decide themselves how to efficiently update their data
         virtual void _SetInt(StringID name, I32 val) = 0;

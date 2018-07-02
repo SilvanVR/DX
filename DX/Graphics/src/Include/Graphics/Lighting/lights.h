@@ -41,7 +41,7 @@ namespace Graphics
         Color                       getColor()                  const { return m_color; }
         F32                         getIntensity()              const { return m_intensity; }
         bool                        shadowsEnabled()            const { return m_shadowsEnabled; }
-        const RenderBufferPtr&      getShadowMap()              const { return m_shadowMap; }
+        const TexturePtr&           getShadowMap()              const { return m_shadowMap; }
         const DirectX::XMMATRIX&    getShadowViewProjection()   const { return m_shadowViewProjection; }
 
         //----------------------------------------------------------------------
@@ -51,15 +51,15 @@ namespace Graphics
         void        enableShadows       ()              { setShadows(true); }
         void        disableShadows      ()              { setShadows(false); }
 
-        void        setShadowMap            (const RenderBufferPtr& shadowMap)  { m_shadowsEnabled = true; m_shadowMap = shadowMap; }
-        void        setShadowViewProjection (const DirectX::XMMATRIX& vp)       { m_shadowViewProjection  = vp; }
+        void        setShadowMap            (const TexturePtr& shadowMap) { m_shadowsEnabled = true; m_shadowMap = shadowMap; }
+        void        setShadowViewProjection (const DirectX::XMMATRIX& vp) { m_shadowViewProjection  = vp; }
 
     protected:
         F32                 m_intensity         = 1.0f;
         Color               m_color             = Color::WHITE;
         LightType           m_lightType         = LightType::Unknown;
         bool                m_shadowsEnabled    = false;
-        RenderBufferPtr     m_shadowMap         = nullptr;
+        TexturePtr          m_shadowMap         = nullptr;
         DirectX::XMMATRIX   m_shadowViewProjection;
 
     private:

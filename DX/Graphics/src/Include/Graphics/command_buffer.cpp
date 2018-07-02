@@ -107,41 +107,29 @@ namespace Graphics {
     }
 
     //----------------------------------------------------------------------
-    void CommandBuffer::setCamera( Camera* camera )
+    void CommandBuffer::setCamera( const Camera& camera )
     {
         m_gpuCommands.push_back( std::make_unique<GPUC_SetCamera>( camera ) );
     }
 
     //----------------------------------------------------------------------
-    void CommandBuffer::setCameraShadow( Camera* camera )
+    void CommandBuffer::endCamera()
     {
-        m_gpuCommands.push_back( std::make_unique<GPUC_SetCameraShadow>( camera ) );
+        m_gpuCommands.push_back( std::make_unique<GPUC_EndCamera>() );
     }
 
     //----------------------------------------------------------------------
-    void CommandBuffer::endCamera( Camera* camera )
+    void CommandBuffer::copyTexture( const TexturePtr& srcTex, const TexturePtr& dstTex )
     {
-        m_gpuCommands.push_back( std::make_unique<GPUC_EndCamera>( camera ) );
+        copyTexture( srcTex, 0, 0, dstTex, 0, 0 );
     }
 
     //----------------------------------------------------------------------
-    void CommandBuffer::endCameraShadow( Camera* camera )
+    void CommandBuffer::copyTexture( const TexturePtr& srcTex, I32 srcElement, I32 srcMip, const TexturePtr& dstTex, I32 dstElement, I32 dstMip )
     {
-        m_gpuCommands.push_back( std::make_unique<GPUC_EndCameraShadow>( camera ) );
+        ASSERT( srcTex->getWidth() == dstTex->getWidth() && srcTex->getHeight() == dstTex->getHeight() && "Textures must be of same size" );
+        m_gpuCommands.push_back( std::make_unique<GPUC_CopyTexture>( srcTex, srcElement, srcMip, dstTex, dstElement, dstMip ) );
     }
-
-    ////----------------------------------------------------------------------
-    //void CommandBuffer::copyTexture( const TexturePtr& srcTex, const TexturePtr& dstTex )
-    //{
-    //    copyTexture( srcTex, 0, 0, dstTex, 0, 0 );
-    //}
-
-    ////----------------------------------------------------------------------
-    //void CommandBuffer::copyTexture( const TexturePtr& srcTex, I32 srcElement, I32 srcMip, const TexturePtr& dstTex, I32 dstElement, I32 dstMip )
-    //{
-    //    ASSERT( srcTex->getWidth() == dstTex->getWidth() && srcTex->getHeight() == dstTex->getHeight() && "Textures must be of same size" );
-    //    m_gpuCommands.push_back( std::make_unique<GPUC_CopyTexture>( srcTex, srcElement, srcMip, dstTex, dstElement, dstMip ) );
-    //}
 
     //----------------------------------------------------------------------
     void CommandBuffer::drawLight( const Light* light )

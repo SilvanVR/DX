@@ -39,9 +39,11 @@ namespace Core {
             auto camWorldPos = transform->getWorldPosition();
             cam->m_camera.setModelMatrix( modelMatrix );
 
+            constexpr Size s = sizeof(cam->m_camera);
+
             // Set camera
             Graphics::CommandBuffer cmd;
-            cmd.setCamera( &cam->m_camera );
+            cmd.setCamera( cam->m_camera );
 
             // Lights
             {
@@ -136,7 +138,7 @@ namespace Core {
                 cmd.blit( PREVIOUS_BUFFER, cam->getRenderTarget(), ASSETS.getPostProcessMaterial() );
 
             // Add an end camera command
-            cmd.endCamera( &cam->m_camera );
+            cmd.endCamera();
 
             // Submit command buffer to render engine
             renderer.dispatch( std::move( cmd ) );

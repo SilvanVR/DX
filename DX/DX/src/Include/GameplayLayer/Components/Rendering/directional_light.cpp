@@ -15,7 +15,7 @@
 
 namespace Components {
 
-    #define DEPTH_STENCIL_FORMAT    Graphics::DepthFormat::D32
+    #define DEPTH_STENCIL_FORMAT    Graphics::DepthFormat::D24S8
     #define ORTHO_SIZE              10
     #define Z_NEAR_OFFSET           10
     #define Z_FAR                   20
@@ -54,11 +54,12 @@ namespace Components {
 
             // Create rendertexture
             auto rt = RESOURCES.createRenderTexture();
-            rt->create( nullptr, m_light->getShadowMap() );
+            rt->create( nullptr, shadowMap );
 
             // Configure camera
             m_camera.reset( new Graphics::Camera( -ORTHO_SIZE, ORTHO_SIZE, -ORTHO_SIZE, ORTHO_SIZE, -Z_NEAR_OFFSET, Z_FAR ) );
             m_camera->setRenderTarget( rt, false );
+            m_camera->setReplacementShader( ASSETS.getShadowMapShader(), TAG_SHADOW_PASS );
         }
     }
 

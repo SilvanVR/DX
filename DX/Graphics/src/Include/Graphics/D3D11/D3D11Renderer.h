@@ -15,8 +15,9 @@
 namespace Graphics {
 
     //----------------------------------------------------------------------
-    #define MAX_LIGHTS      16
-    #define MAX_SHADOWMAPS  4
+    #define MAX_LIGHTS          16
+    #define MAX_SHADOWMAPS_2D   4
+    #define MAX_SHADOWMAPS_3D   1
 
     //----------------------------------------------------------------------
     class Camera;
@@ -93,7 +94,6 @@ namespace Graphics {
             I32          lightCount = 0;
             const Light* lights[MAX_LIGHTS];
             bool         lightsUpdated = false; // Set to true whenever a new light has been added
-            bool         shadowPass = false;
 
             void Reset();
             void BindMaterial(const std::shared_ptr<IMaterial>& material);
