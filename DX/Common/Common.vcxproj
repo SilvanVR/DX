@@ -167,11 +167,12 @@
     <ClInclude Include="src\Include\Math\rect.h" />
     <ClInclude Include="src\Include\Memory\Allocators\iallocator.h" />
     <ClInclude Include="src\Include\Memory\Allocators\include.hpp" />
-    <ClInclude Include="src\Include\Memory\Allocators\pool_allocator.hpp" />
+    <ClInclude Include="src\Include\Memory\Allocators\pool_allocator.h" />
     <ClInclude Include="src\Include\Memory\Allocators\pool_list_allocator.hpp" />
+    <ClInclude Include="src\Include\Memory\Allocators\stack_allocator.h" />
     <ClInclude Include="src\Include\Memory\Allocators\stack_allocator.hpp" />
-    <ClInclude Include="src\Include\Memory\Allocators\universal_allocator.hpp" />
-    <ClInclude Include="src\Include\Memory\Allocators\universal_allocator_defragmented.hpp" />
+    <ClInclude Include="src\Include\Memory\Allocators\universal_allocator.h" />
+    <ClInclude Include="src\Include\Memory\Allocators\universal_allocator_defragmented.h" />
     <ClInclude Include="src\Include\Memory\memory_structs.h" />
     <ClInclude Include="src\Include\Common\color.h" />
     <ClInclude Include="src\Include\Common\variant_type.h" />
@@ -210,6 +211,10 @@
     <ClCompile Include="src\Include\Math\dxmath_wrapper.cpp" />
     <ClCompile Include="src\Include\Math\math_utils.cpp" />
     <ClCompile Include="src\Include\Memory\Allocators\iallocator.cpp" />
+    <ClCompile Include="src\Include\Memory\Allocators\pool_allocator.cpp" />
+    <ClCompile Include="src\Include\Memory\Allocators\stack_allocator.cpp" />
+    <ClCompile Include="src\Include\Memory\Allocators\universal_allocator.cpp" />
+    <ClCompile Include="src\Include\Memory\Allocators\universal_allocator_defragmented.cpp" />
     <ClCompile Include="src\Include\Memory\memory_structs.cpp" />
     <ClCompile Include="src\Include\Common\color.cpp" />
     <ClCompile Include="src\Include\Common\variant_type.cpp" />

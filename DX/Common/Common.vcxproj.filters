@@ -111,19 +111,10 @@
     <ClInclude Include="src\Include\Memory\Allocators\include.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Include\Memory\Allocators\pool_allocator.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\Include\Memory\Allocators\pool_list_allocator.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Include\Memory\Allocators\stack_allocator.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Include\Memory\Allocators\universal_allocator.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Include\Memory\Allocators\universal_allocator_defragmented.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Include\Memory\memory_structs.h">
@@ -163,6 +154,18 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Include\Math\rect.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Include\Memory\Allocators\stack_allocator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Include\Memory\Allocators\pool_allocator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Include\Memory\Allocators\universal_allocator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Include\Memory\Allocators\universal_allocator_defragmented.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -267,6 +270,18 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Include\Math\aabb.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Include\Memory\Allocators\stack_allocator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Include\Memory\Allocators\pool_allocator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Include\Memory\Allocators\universal_allocator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Include\Memory\Allocators\universal_allocator_defragmented.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
