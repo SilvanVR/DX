@@ -24,14 +24,14 @@ namespace Core { namespace MemoryManagement {
     {
         ASSERT ( size < ( 1024i64 * 1024i64 * 1024i64 * 32i64) ); // Less than 32GB
 
-        Size allocationSize = size + sizeof( Size );
+        Size allocationSize = size + 2 * sizeof( Size );
         Byte* mem = (Byte*) std::malloc( allocationSize );
 
         memset( mem, 0, allocationSize );
 
         // [&AllocationSize - &RealMemory]
         memcpy( mem, &allocationSize, sizeof( Size ));
-        mem += sizeof( Size );
+        mem += 2 * sizeof( Size ); // Keep allocations 16 byte aligned
 
         std::lock_guard<std::mutex> lock( getMutex() );
         MemoryTracker::getAllocationMemoryInfo().addAllocation( allocationSize );
@@ -46,7 +46,7 @@ namespace Core { namespace MemoryManagement {
             return;
 
         Byte* mem = reinterpret_cast<Byte*>( memory );
-        mem -= sizeof( Size );
+        mem -= 2 * sizeof( Size );
 
         Size allocatedSize = *(reinterpret_cast<Size*>( mem ));
         std::lock_guard<std::mutex> lock( getMutex() );
