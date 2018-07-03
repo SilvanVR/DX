@@ -37,7 +37,7 @@ float4 DoDirectionalLight( Light light, float3 V, float3 P, float3 N )
     float4 diffuse = DoDiffuse( light, L, N );
     //float4 specular = DoSpecular( light, V, L, N );
 		 
-	float shadow = CALCULATE_SHADOW( P, light.shadowMapIndex );
+	float shadow = CALCULATE_SHADOW_DIR( P, light.range, light.shadowMapIndex );
 
     return diffuse * shadow;
 }
@@ -56,7 +56,9 @@ float4 DoPointLight( Light light, float3 V, float3 P, float3 N )
     float4 diffuse = DoDiffuse( light, L, N ) * attenuation;
     float4 specular = DoSpecular( light, V, L, N ) * attenuation;
  
-    return diffuse + specular;
+	float shadow = CALCULATE_SHADOW_3D( P, light.position, light.range, light.shadowMapIndex ) * attenuation;
+ 
+    return (diffuse + specular) * shadow;
 }
 
 //----------------------------------------------------------------------
@@ -83,7 +85,7 @@ float4 DoSpotLight( Light light, float3 V, float3 P, float3 N )
     float4 specular = DoSpecular( light, V, L, N ) * attenuation * spotIntensity;
  
 	// Attenuation must be multiplied with the shadow
-	float shadow = CALCULATE_SHADOW( P, light.shadowMapIndex ) * attenuation;
+	float shadow = CALCULATE_SHADOW_2D( P, light.shadowMapIndex ) * attenuation;
  
     return (diffuse + specular) * shadow;
 }

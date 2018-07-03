@@ -153,7 +153,8 @@ public:
         auto shader = ASSETS.getShader("/shaders/previewBlock.shader");
 
         previewBlockMaterial = RESOURCES.createMaterial(shader);
-        previewBlock->addComponent<Components::MeshRenderer>(Core::MeshGenerator::CreateCubeUV(), previewBlockMaterial);
+        auto renderer = previewBlock->addComponent<Components::MeshRenderer>(Core::MeshGenerator::CreateCubeUV(), previewBlockMaterial);
+        renderer->setCastShadows(false);
 
         // Adjust transform
         auto transform = previewBlock->getTransform();
@@ -455,7 +456,8 @@ public:
         mat->setFloat("opacity", 0.8f);
 
         auto water = go->getScene()->createGameObject();
-        water->addComponent<Components::MeshRenderer>(Core::MeshGenerator::CreatePlane(1000.0f), mat);
+        auto mr = water->addComponent<Components::MeshRenderer>(Core::MeshGenerator::CreatePlane(1000.0f), mat);
+        mr->setCastShadows(false);
         transform = water->getTransform();
         transform->rotation *= Math::Quat(Math::Vec3::RIGHT, 90);
     }
@@ -476,7 +478,9 @@ class Sun : public Components::IComponent
 public:
     void addedToGameObject(GameObject* go) override
     {
-        go->addComponent<Components::DirectionalLight>(0.75f, Color::WHITE, true);
+        auto dirLight = go->addComponent<Components::DirectionalLight>(0.75f, Color::WHITE, true);
+        dirLight->setShadowRange(50.0f);
+
         go->getTransform()->rotation = Math::Quat::LookRotation( Math::Vec3{ 0, -1, 0 }, Math::Vec3::RIGHT );
         //getGameObject()->getTransform()->rotation *= Math::Quat(Math::Vec3::RIGHT, 90.0f);
     }

@@ -19,8 +19,6 @@
 namespace Components {
 
     #define DEPTH_STENCIL_FORMAT    Graphics::DepthFormat::D24S8
-    #define Z_NEAR_OFFSET           8
-    #define Z_FAR                   15
     #define DEBUG_FRUSTUM           1
 
     //----------------------------------------------------------------------
@@ -59,7 +57,7 @@ namespace Components {
             rt->create( nullptr, shadowMap );
 
             // Configure camera
-            m_camera.reset( new Graphics::Camera( -10, 10, -10, 10, -Z_NEAR_OFFSET, Z_FAR ) );
+            m_camera.reset( new Graphics::Camera( -10, 10, -10, 10, -m_shadowZNearOffset, m_dirLight->getShadowRange() ) );
             m_camera->setRenderTarget( rt, false );
             m_camera->setReplacementShader( ASSETS.getShadowMapShader(), TAG_SHADOW_PASS );
         }
@@ -79,11 +77,16 @@ namespace Components {
     //----------------------------------------------------------------------
     void DirectionalLight::renderShadowMap( const IScene& scene, F32 lerp )
     {
-        // Set the shadowmap range. We can set it only to Z_FAR because this is the maximum distance we can be sure
-        // we have shadows, even though we actually waste a lot of space in some orientations
-        m_dirLight->setShadowRange( Z_FAR );
+        // Adapt view frustum so it follows the main camera around
+        _AdaptOrthographicViewFrustum();
 
-        // Adapt position of the camera frustum
+        ILightComponent::renderShadowMap( scene, lerp );
+    }
+
+    //----------------------------------------------------------------------
+    void DirectionalLight::_AdaptOrthographicViewFrustum()
+    {
+                // Adapt position of the camera frustum
         auto mainCamera = SCENE.getMainCamera();
         auto mainCameraTransform = mainCamera->getGameObject()->getTransform();
         auto transform = getGameObject()->getTransform();
@@ -92,7 +95,8 @@ namespace Components {
         auto mainCameraFrustumCornersWS = Math::CalculateFrustumCorners( mainCameraTransform->position, 
                                                                          mainCameraTransform->rotation, 
                                                                          mainCamera->getFOV(), 
-                                                                         mainCamera->getZNear(), Z_FAR, mainCamera->getAspectRatio() );
+                                                                         mainCamera->getZNear(), m_dirLight->getShadowRange(), 
+                                                                         mainCamera->getAspectRatio() );
 
         // Transform frustum corners in light space and retrieve min/max for the frustum
         auto worldToLight = DirectX::XMMatrixInverse( nullptr, transform->getWorldMatrix() );
@@ -119,6 +123,7 @@ namespace Components {
             maxZ = std::max( maxZ, cornerLightSpace.z );
         }
 
+        // Snap the orthographic frustum to texel-size, otherwise we will have a very noticeable artifact
         F32 shadowMapWidth = (F32)m_dirLight->getShadowMap()->getWidth();
 
         F32 shadowLengthX = maxX - minX;
@@ -131,20 +136,11 @@ namespace Components {
         minY = worldTexelSizeY * std::floor(minY / worldTexelSizeY);
         maxY = worldTexelSizeY * std::floor(maxY / worldTexelSizeY);
 
-        //LOG(TS(shadowLengthX) + ", " + TS(shadowLengthY) + ", " + TS(shadowLengthZ) );
-        //lightSpaceCameraPos.x = worldTexelSize * std::floor(lightSpaceCameraPos.x / worldTexelSize);
-        //lightSpaceCameraPos.y = worldTexelSize * std::floor(lightSpaceCameraPos.y / worldTexelSize);
+        // @TODO: Shadow swimming still happens when camera rotates / the light moves. This is because a larger/smaller amount
+        // of the world maps to the x and/or y axes. (shadowLengthX + shadowLengthY changes)
+        //LOG(TS(shadowLengthX) + ", " + TS(shadowLengthY));
 
-        m_camera->setOrthoParams( minX, maxX, minY, maxY, minZ - Z_NEAR_OFFSET, maxZ );
-
-        //// Snap the camera-position to texel-size to fix "Shadow-Swimming" coming from the fitting-algorithm
-        //F32 worldTexelSize = (shadowDistance / m_light->getShadowMap()->getWidth());
-
-        //auto lightSpaceCameraPos = transform->rotation.conjugate() * tempPosition;
-        //lightSpaceCameraPos.x = worldTexelSize * std::floor(lightSpaceCameraPos.x / worldTexelSize);
-        //lightSpaceCameraPos.y = worldTexelSize * std::floor(lightSpaceCameraPos.y / worldTexelSize);
-
-        //transform->position = transform->rotation * lightSpaceCameraPos;
+        m_camera->setOrthoParams( minX, maxX, minY, maxY, minZ - m_shadowZNearOffset, maxZ );
 
 #if DEBUG_FRUSTUM
         DEBUG.drawFrustum({}, transform->rotation, m_camera->getLeft(), m_camera->getRight(), 
@@ -152,7 +148,7 @@ namespace Components {
                                                     m_camera->getZNear(), m_camera->getZFar(), Color::BLUE, 0);
 
         DEBUG.drawFrustum(mainCameraTransform->position, mainCameraTransform->rotation.getForward(), mainCameraTransform->rotation.getUp(), 
-                          mainCamera->getFOV(), mainCamera->getZNear(), Z_FAR, mainCamera->getAspectRatio(), Color::GREEN, 0);
+                          mainCamera->getFOV(), mainCamera->getZNear(), m_dirLight->getShadowRange(), mainCamera->getAspectRatio(), Color::GREEN, 0);
 
         // Snapshot of current frustums
         if (KEYBOARD.wasKeyReleased(Key::F))
@@ -162,14 +158,9 @@ namespace Components {
                                                        m_camera->getZNear(), m_camera->getZFar(), Color::BLUE, 10);
 
             DEBUG.drawFrustum(mainCameraTransform->position, mainCameraTransform->rotation.getForward(), mainCameraTransform->rotation.getUp(), 
-                              mainCamera->getFOV(), mainCamera->getZNear(), Z_FAR, mainCamera->getAspectRatio(), Color::GREEN, 10);
+                              mainCamera->getFOV(), mainCamera->getZNear(), m_dirLight->getShadowRange(), mainCamera->getAspectRatio(), Color::GREEN, 10);
         }
 #endif
-
-
-
-        ILightComponent::renderShadowMap( scene, lerp );
     }
-
 
 } // End namespaces

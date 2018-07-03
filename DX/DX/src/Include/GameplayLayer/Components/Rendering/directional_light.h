@@ -18,11 +18,18 @@ namespace Components {
     class DirectionalLight : public ILightComponent
     {
     public:
-        //----------------------------------------------------------------------
         DirectionalLight(F32 intensity = 1.0f, Color color = Color::WHITE, bool shadowsEnabled = true);
+
+        //----------------------------------------------------------------------
+        F32 getShadowRange()        const { return m_dirLight->getShadowRange(); }
+        F32 getShadowZNearOffset()  const { return m_shadowZNearOffset; }
+
+        void setShadowRange        (F32 shadowRange)   { m_dirLight->setShadowRange( shadowRange ); }
+        void setShadowZNearOffset  (F32 offset)        { m_shadowZNearOffset = offset; }
 
     private:
         Graphics::DirectionalLight* m_dirLight;
+        F32 m_shadowZNearOffset = 8;
 
         //----------------------------------------------------------------------
         // ILightComponent Interface
@@ -31,6 +38,9 @@ namespace Components {
         bool cull(const Graphics::Camera& camera) override { return true; }
         void renderShadowMap(const IScene& scene, F32 lerp) override;
         void _CreateShadowMap(Graphics::ShadowMapQuality) override;
+
+        //----------------------------------------------------------------------
+        void _AdaptOrthographicViewFrustum();
 
         NULL_COPY_AND_ASSIGN(DirectionalLight)
     };

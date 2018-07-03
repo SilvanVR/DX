@@ -84,7 +84,7 @@ namespace Graphics
 
     private:
         Math::Vec3  m_direction;
-        F32         m_shadowRange;
+        F32         m_shadowRange = 30.0f;
 
         NULL_COPY_AND_ASSIGN(DirectionalLight)
     };

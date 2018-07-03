@@ -527,7 +527,7 @@ namespace Graphics {
             F32         spotAngle;              // 4 bytes
             F32         range;                  // 4 bytes
             I32         shadowMapIndex;         // 4 bytes
-            F32         zFar;                   // 4 bytes
+            F32         PADDING;                // 4 bytes
             //----------------------------------- (16 byte boundary)
         } lights[MAX_LIGHTS];
 
