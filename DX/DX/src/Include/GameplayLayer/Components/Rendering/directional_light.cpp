@@ -12,13 +12,16 @@
 #include "i_render_component.hpp"
 #include "Graphics/camera.h"
 #include "Core/locator.h"
+#include "camera.h"
+#include "Math/math_utils.h"
+#include <limits>
 
 namespace Components {
 
     #define DEPTH_STENCIL_FORMAT    Graphics::DepthFormat::D24S8
-    #define ORTHO_SIZE              10
-    #define Z_NEAR_OFFSET           10
-    #define Z_FAR                   20
+    #define Z_NEAR_OFFSET           8
+    #define Z_FAR                   15
+    #define DEBUG_FRUSTUM           1
 
     //----------------------------------------------------------------------
     DirectionalLight::DirectionalLight( F32 intensity, Color color, bool shadowsEnabled )
@@ -57,7 +60,7 @@ namespace Components {
             rt->create( nullptr, shadowMap );
 
             // Configure camera
-            m_camera.reset( new Graphics::Camera( -ORTHO_SIZE, ORTHO_SIZE, -ORTHO_SIZE, ORTHO_SIZE, -Z_NEAR_OFFSET, Z_FAR ) );
+            m_camera.reset( new Graphics::Camera( -10, 10, -10, 10, -Z_NEAR_OFFSET, Z_FAR ) );
             m_camera->setRenderTarget( rt, false );
             m_camera->setReplacementShader( ASSETS.getShadowMapShader(), TAG_SHADOW_PASS );
         }
@@ -77,7 +80,94 @@ namespace Components {
     //----------------------------------------------------------------------
     void DirectionalLight::renderShadowMap( const IScene& scene, F32 lerp )
     {
-        //@TODO: Adjust camera frustum
+        // Adapt position of the camera frustum
+        auto mainCamera = SCENE.getMainCamera();
+        auto mainCameraTransform = mainCamera->getGameObject()->getTransform();
+        auto transform = getGameObject()->getTransform();
+
+        // Calculate frustum corners in view space
+        auto mainCameraFrustumCornersWS = Math::CalculateFrustumCorners( mainCameraTransform->position, 
+                                                                         mainCameraTransform->rotation, 
+                                                                         mainCamera->getFOV(), 
+                                                                         mainCamera->getZNear(), Z_FAR, mainCamera->getAspectRatio() );
+
+        // Transform frustum corners in light space and retrieve min/max for the frustum
+        auto worldToLight = DirectX::XMMatrixInverse( nullptr, transform->getWorldMatrix() );
+
+        F32 minX = std::numeric_limits<F32>::max();
+        F32 maxX = std::numeric_limits<F32>::lowest();
+        F32 minY = std::numeric_limits<F32>::max();
+        F32 maxY = std::numeric_limits<F32>::lowest();
+        F32 minZ = std::numeric_limits<F32>::max();
+        F32 maxZ = std::numeric_limits<F32>::lowest();
+        for (auto i = 0; i < mainCameraFrustumCornersWS.size(); i++)
+        {
+            auto corner = DirectX::XMLoadFloat3( &mainCameraFrustumCornersWS[i] );
+            auto cornerLS = DirectX::XMVector4Transform( corner, worldToLight );
+
+            Math::Vec3 cornerLightSpace;
+            DirectX::XMStoreFloat3( &cornerLightSpace, cornerLS );
+
+            minX = std::min( minX, cornerLightSpace.x );
+            maxX = std::max( maxX, cornerLightSpace.x );
+            minY = std::min( minY, cornerLightSpace.y );
+            maxY = std::max( maxY, cornerLightSpace.y );
+            minZ = std::min( minZ, cornerLightSpace.z );
+            maxZ = std::max( maxZ, cornerLightSpace.z );
+        }
+
+        F32 shadowMapWidth = (F32)m_light->getShadowMap()->getWidth();
+
+
+        F32 shadowLengthX = maxX - minX;
+        F32 worldTexelSizeX = (shadowLengthX / shadowMapWidth);
+        minX = worldTexelSizeX * std::floor(minX / worldTexelSizeX);
+        maxX = worldTexelSizeX * std::floor(maxX / worldTexelSizeX);
+
+        F32 shadowLengthY = maxY - minY;
+        F32 worldTexelSizeY = (shadowLengthY / shadowMapWidth);
+        minY = worldTexelSizeY * std::floor(minY / worldTexelSizeY);
+        maxY = worldTexelSizeY * std::floor(maxY / worldTexelSizeY);
+
+        F32 shadowLengthZ = maxZ - minZ;
+        F32 worldTexelSizeZ = (shadowLengthZ / shadowMapWidth);
+        minZ = worldTexelSizeZ * std::floor(minZ / worldTexelSizeZ);
+        maxZ = worldTexelSizeZ * std::floor(maxZ / worldTexelSizeZ);
+
+        LOG(TS(shadowLengthX) + ", " + TS(shadowLengthY) + ", " + TS(shadowLengthZ) );
+        //lightSpaceCameraPos.x = worldTexelSize * std::floor(lightSpaceCameraPos.x / worldTexelSize);
+        //lightSpaceCameraPos.y = worldTexelSize * std::floor(lightSpaceCameraPos.y / worldTexelSize);
+
+        m_camera->setOrthoParams( minX, maxX, minY, maxY, minZ - Z_NEAR_OFFSET, maxZ );
+
+#if DEBUG_FRUSTUM
+        DEBUG.drawFrustum({}, transform->rotation, m_camera->getLeft(), m_camera->getRight(), 
+                                                    m_camera->getBottom(), m_camera->getTop(), 
+                                                    m_camera->getZNear(), m_camera->getZFar(), Color::BLUE, 0);
+
+        DEBUG.drawFrustum(mainCameraTransform->position, mainCameraTransform->rotation.getForward(), mainCameraTransform->rotation.getUp(), 
+                          mainCamera->getFOV(), mainCamera->getZNear(), Z_FAR, mainCamera->getAspectRatio(), Color::GREEN, 0);
+
+        // Snapshot of current frustums
+        if (KEYBOARD.wasKeyReleased(Key::F))
+        {
+            DEBUG.drawFrustum({}, transform->rotation, m_camera->getLeft(), m_camera->getRight(), 
+                                                       m_camera->getBottom(), m_camera->getTop(), 
+                                                       m_camera->getZNear(), m_camera->getZFar(), Color::BLUE, 10);
+
+            DEBUG.drawFrustum(mainCameraTransform->position, mainCameraTransform->rotation.getForward(), mainCameraTransform->rotation.getUp(), 
+                              mainCamera->getFOV(), mainCamera->getZNear(), Z_FAR, mainCamera->getAspectRatio(), Color::GREEN, 10);
+        }
+#endif
+
+        //// Snap the camera-position to texel-size to fix "Shadow-Swimming" coming from the fitting-algorithm
+        //F32 worldTexelSize = (shadowDistance / m_light->getShadowMap()->getWidth());
+
+        //auto lightSpaceCameraPos = transform->rotation.conjugate() * tempPosition;
+        //lightSpaceCameraPos.x = worldTexelSize * std::floor(lightSpaceCameraPos.x / worldTexelSize);
+        //lightSpaceCameraPos.y = worldTexelSize * std::floor(lightSpaceCameraPos.y / worldTexelSize);
+
+        //transform->position = transform->rotation * lightSpaceCameraPos;
 
         ILightComponent::renderShadowMap( scene, lerp );
     }

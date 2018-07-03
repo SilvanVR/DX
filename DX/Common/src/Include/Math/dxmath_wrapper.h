@@ -151,6 +151,7 @@ namespace Math {
         F32         magnitude() const;
         Quaternion  normalized() const;
         Vector3F    toEulerAngles() const;
+        Quaternion  conjugate() const;
 
         // Returns the axis angle representation with the x,y,z as the axis and w as the angle in DEGREES
         Vector4F    toAxisAngle() const;

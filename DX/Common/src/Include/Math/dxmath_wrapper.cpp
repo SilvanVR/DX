@@ -298,6 +298,17 @@ namespace Math {
     }
 
     //----------------------------------------------------------------------
+    Quaternion Quaternion::conjugate() const
+    {
+        auto quat = XMLoadFloat4( this );
+        auto conjugate = XMQuaternionConjugate( quat );
+
+        Quaternion result;
+        XMStoreFloat4( &result, conjugate );
+        return result;
+    }
+
+    //----------------------------------------------------------------------
     Quaternion Quaternion::LookRotation( const Vector3F& forward, const Vector3F& up )
     {
         // Code from https://pastebin.com/ubATCxJY

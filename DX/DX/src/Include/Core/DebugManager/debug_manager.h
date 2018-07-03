@@ -42,11 +42,18 @@ namespace Core { namespace Debug {
         void drawSphere(const Math::Vec3& center, F32 radius, Color color, Time::Seconds duration, bool depthTest = true);
 
         //----------------------------------------------------------------------
-        // Draws a frustum in wireframe.
+        // Draws a perspective frustum in wireframe.
         //----------------------------------------------------------------------
-        void drawFrustum(const Math::Vec3& pos, const Math::Vec3& up, const Math::Vec3& right, const Math::Vec3& forward,
+        void drawFrustum(const Math::Vec3& pos, const Math::Vec3& forward, const Math::Vec3& up,
                          F32 fovAngleYDeg, F32 zNear, F32 zFar, F32 aspectRatio,
                          Color color, Time::Seconds duration, bool depthTest = true);
+
+        //----------------------------------------------------------------------
+        // Draws an orthographic frustum in wireframe.
+        //----------------------------------------------------------------------
+        void drawFrustum(const Math::Vec3& pos, const Math::Vec3& forward, const Math::Vec3& up, F32 left, F32 right, F32 bottom, F32 top, F32 zNear, F32 zFar, Color color, Time::Seconds duration, bool depthTest = true);
+        void drawFrustum(const Math::Vec3& pos, const Math::Quaternion& quat, F32 left, F32 right, F32 bottom, F32 top, F32 zNear, F32 zFar, Color color, Time::Seconds duration, bool depthTest = true);
+
 
     private:
         // Stores rendering commands for drawing the entire debug stuff

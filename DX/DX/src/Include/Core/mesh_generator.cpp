@@ -460,7 +460,7 @@ namespace Core {
         auto nearCenter = pos + forwardVec * zNear;
         auto farCenter = pos + forwardVec * zFar;
 
-        Math::Vec3 rightVec = forwardVec.cross( upVec );
+        Math::Vec3 rightVec = upVec.cross( forwardVec );
 
         std::array<Math::Vec3, 8> frustumCorners;
         frustumCorners[NEAR_TOP_LEFT]     = nearCenter + upVec * top + rightVec * left;

@@ -152,12 +152,26 @@ namespace Core { namespace Debug {
     }
 
     //----------------------------------------------------------------------
-    void DebugManager::drawFrustum( const Math::Vec3& pos, const Math::Vec3& up, const Math::Vec3& right, const Math::Vec3& forward, 
+    void DebugManager::drawFrustum( const Math::Vec3& pos, const Math::Vec3& forward, const Math::Vec3& up, 
                                     F32 fovAngleYDeg, F32 zNear, F32 zFar, F32 aspectRatio,
                                     Color color, Time::Seconds duration, bool depthTest )
     {
+        auto right = up.cross( forward );
         auto mesh = Core::MeshGenerator::CreateFrustum( pos, up, right, forward, fovAngleYDeg, zNear, zFar, aspectRatio, color );
         _AddMesh( mesh, duration, depthTest );
+    }
+
+    //----------------------------------------------------------------------
+    void DebugManager::drawFrustum( const Math::Vec3& pos, const Math::Vec3& forward, const Math::Vec3& up, F32 left, F32 right, F32 bottom, F32 top, F32 zNear, F32 zFar, Color color, Time::Seconds duration, bool depthTest )
+    {
+        auto mesh = Core::MeshGenerator::CreateFrustum( pos, forward, up, left, right, bottom, top, zNear, zFar, color );
+        _AddMesh( mesh, duration, depthTest );
+    }
+
+    //----------------------------------------------------------------------
+    void DebugManager::drawFrustum( const Math::Vec3& pos, const Math::Quat& q, F32 left, F32 right, F32 bottom, F32 top, F32 zNear, F32 zFar, Color color, Time::Seconds duration, bool depthTest)
+    {
+        drawFrustum( pos, q.getForward(), q.getUp(), left, right, bottom, top, zNear, zFar, color, duration, depthTest );
     }
 
     //**********************************************************************

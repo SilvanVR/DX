@@ -58,9 +58,9 @@ namespace Math {
     }
 
     //----------------------------------------------------------------------
-    std::array<Vec3, 8> CalculateFrustumCorners( const Vec3& pos, const Quat& rot, F32 fovAngleYRad, F32 zNear, F32 zFar, F32 aspectRatio )
+    std::array<Vec3, 8> CalculateFrustumCorners( const Vec3& pos, const Quat& rot, F32 fovAngleYDeg, F32 zNear, F32 zFar, F32 aspectRatio )
     {
-        return CalculateFrustumCorners( pos, rot.getUp(), rot.getRight(), rot.getForward(), fovAngleYRad, zNear, zFar, aspectRatio );
+        return CalculateFrustumCorners( pos, rot.getUp(), rot.getRight(), rot.getForward(), fovAngleYDeg, zNear, zFar, aspectRatio );
     }
 
 }

@@ -85,7 +85,6 @@ public:
         auto dl = sun->addComponent<Components::DirectionalLight>(0.3f, Color::WHITE);
         sun->getTransform()->rotation = Math::Quat::LookRotation(Math::Vec3{ 0,-1, 1 });
         //sun->addComponent<ConstantRotation>(15.0f, 0.0f, 0.0f);
-        sun->addComponent<DrawFrustum>();
 
         //auto sun2 = createGameObject("Sun2");
         //sun2->addComponent<Components::DirectionalLight>(0.3f, Color::WHITE);
