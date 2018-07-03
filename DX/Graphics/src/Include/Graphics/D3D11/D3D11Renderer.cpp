@@ -549,6 +549,7 @@ namespace Graphics {
             {
                 auto dirLight = reinterpret_cast<const DirectionalLight*>( renderContext.lights[i] );
                 lights[i].direction = dirLight->getDirection();
+                lights[i].range     = dirLight->getShadowRange();
                 break;
             }
             case LightType::Point:

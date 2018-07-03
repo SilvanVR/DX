@@ -4,15 +4,16 @@
 // "camera": Per camera constant buffer.
 // "light": Per light constant buffer.
 
-#define MAX_LIGHTS 			16
-#define MAX_SHADOWMAPS_2D	4
-#define MAX_SHADOWMAPS_3D 	1
-#define DIRECTIONAL_LIGHT 	0
-#define POINT_LIGHT 		1
-#define SPOT_LIGHT 			2
-#define PI					3.14159265359
-#define GAMMA				2.2
-#define ALPHA_THRESHOLD  	0.1f
+#define MAX_LIGHTS 					16
+#define MAX_SHADOWMAPS_2D			4
+#define MAX_SHADOWMAPS_3D 			1
+#define DIRECTIONAL_LIGHT 			0
+#define POINT_LIGHT 				1
+#define SPOT_LIGHT 					2
+#define PI							3.14159265359
+#define GAMMA						2.2
+#define ALPHA_THRESHOLD  			0.1
+#define SHADOW_TRANSITION_DISTANCE 	5
 
 cbuffer cbPerCamera : register(b0)
 {	
@@ -90,7 +91,37 @@ bool inRange( float val )
 }
 
 //-----------------------------------------------
-float CALCULATE_SHADOW_2D( float3 P,  int shadowMapIndex )
+// @Returns: 0 if in shadow (0-1 if on edge), 1 if in light
+//-----------------------------------------------
+float CALCULATE_SHADOW_DIR( float3 P, float shadowDistance, int shadowMapIndex )
+{
+	float shadow = 1.0f;		
+	if (shadowMapIndex >= 0)
+	{
+		float4 lightSpace = mul( _LightViewProj[shadowMapIndex], float4( P, 1 ) );
+		float3 projCoords = lightSpace.xyz / lightSpace.w;
+		float2 uv = projCoords.xy * 0.5 + 0.5;
+		uv.y = 1 - uv.y;
+
+		float currentDepth = projCoords.z;
+		//if ( inRange(currentDepth) && inRange(uv.x) && inRange(uv.y) )
+		{	
+			float closestDepth = SAMPLE_SHADOWMAP_2D( shadowMapIndex, uv );
+			
+			float distanceToCamera = length(P - _CameraPos);
+			float shadowFactor = (shadowDistance - distanceToCamera) / SHADOW_TRANSITION_DISTANCE;
+			shadowFactor = 1 - saturate(shadowFactor);
+			
+			shadow = currentDepth < closestDepth ? 1.0 : shadowFactor;		
+		}
+	}	
+	return shadow;
+}
+
+//-----------------------------------------------
+// @Returns: 0 if in shadow, 1 otherwise
+//-----------------------------------------------
+float CALCULATE_SHADOW_2D( float3 P, int shadowMapIndex )
 {
 	float shadow = 1.0f;		
 	if (shadowMapIndex >= 0)
@@ -122,6 +153,8 @@ float SAMPLE_SHADOWMAP_3D( int index, float3 uvw )
 }
 
 //-----------------------------------------------
+// @Returns: 0 if in shadow, 1 otherwise
+//-----------------------------------------------
 float CALCULATE_SHADOW_3D( float3 P, float3 L, float range, int shadowMapIndex )
 {
 	float shadow = 1.0f;		
@@ -135,7 +168,7 @@ float CALCULATE_SHADOW_3D( float3 P, float3 L, float range, int shadowMapIndex )
 		// Map back from [0,1] to world coordinates (range is equivalent to zfar)
 		closestDepth *= range;
 				
-		// Give a higher bias the farther away the depth sample is
+		// Give a higher bias the further away the depth sample is
 		float bias = closestDepth * 0.1;
 		shadow = currentDepth < closestDepth + bias ? 1.0 : 0.0;
 	}	

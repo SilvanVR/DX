@@ -75,13 +75,16 @@ namespace Graphics
         ~DirectionalLight() = default;
 
         //----------------------------------------------------------------------
-        const Math::Vec3& getDirection() const { return m_direction; }
+        const Math::Vec3&   getDirection()      const { return m_direction; }
+        F32                 getShadowRange()    const { return m_shadowRange; }
 
         //----------------------------------------------------------------------
         void setDirection(const Math::Vec3& dir) { m_direction = dir; }
+        void setShadowRange(F32 shadowRange) { m_shadowRange = shadowRange; }
 
     private:
-        Math::Vec3 m_direction;
+        Math::Vec3  m_direction;
+        F32         m_shadowRange;
 
         NULL_COPY_AND_ASSIGN(DirectionalLight)
     };

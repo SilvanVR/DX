@@ -52,7 +52,6 @@ namespace Components {
             shadowMap->create( shadowMapSize, shadowMapSize, DEPTH_STENCIL_FORMAT );
             shadowMap->setAnisoLevel( 1 );
             shadowMap->setFilter( Graphics::TextureFilter::Point );
-            shadowMap->setClampMode( Graphics::TextureAddressMode::Clamp );
             m_light->setShadowMap( shadowMap );
 
             // Create rendertexture
@@ -129,12 +128,10 @@ namespace Components {
         minY = worldTexelSizeY * std::floor(minY / worldTexelSizeY);
         maxY = worldTexelSizeY * std::floor(maxY / worldTexelSizeY);
 
-        F32 shadowLengthZ = maxZ - minZ;
-        F32 worldTexelSizeZ = (shadowLengthZ / shadowMapWidth);
-        minZ = worldTexelSizeZ * std::floor(minZ / worldTexelSizeZ);
-        maxZ = worldTexelSizeZ * std::floor(maxZ / worldTexelSizeZ);
+        F32 shadowDistance = maxZ - minZ;
+        m_dirLight->setShadowRange( Z_FAR );
 
-        LOG(TS(shadowLengthX) + ", " + TS(shadowLengthY) + ", " + TS(shadowLengthZ) );
+        //LOG(TS(shadowLengthX) + ", " + TS(shadowLengthY) + ", " + TS(shadowLengthZ) );
         //lightSpaceCameraPos.x = worldTexelSize * std::floor(lightSpaceCameraPos.x / worldTexelSize);
         //lightSpaceCameraPos.y = worldTexelSize * std::floor(lightSpaceCameraPos.y / worldTexelSize);
 
@@ -153,10 +150,10 @@ namespace Components {
         {
             DEBUG.drawFrustum({}, transform->rotation, m_camera->getLeft(), m_camera->getRight(), 
                                                        m_camera->getBottom(), m_camera->getTop(), 
-                                                       m_camera->getZNear(), m_camera->getZFar(), Color::BLUE, 10);
+                                                       m_camera->getZNear(), m_camera->getZFar(), Color::BLUE, 1000);
 
             DEBUG.drawFrustum(mainCameraTransform->position, mainCameraTransform->rotation.getForward(), mainCameraTransform->rotation.getUp(), 
-                              mainCamera->getFOV(), mainCamera->getZNear(), Z_FAR, mainCamera->getAspectRatio(), Color::GREEN, 10);
+                              mainCamera->getFOV(), mainCamera->getZNear(), Z_FAR, mainCamera->getAspectRatio(), Color::GREEN, 1000);
         }
 #endif
 

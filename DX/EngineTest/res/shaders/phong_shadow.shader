@@ -36,7 +36,7 @@ VertexOut main(VertexIn vin)
 	
     return OUT;
 }
-
+                     
 // ----------------------------------------------
 #shader fragment  
 
@@ -45,7 +45,7 @@ VertexOut main(VertexIn vin)
 
 cbuffer cbPerMaterial
 {
-	float uvScale;
+	float uvScale;               
 }
 
 struct FragmentIn

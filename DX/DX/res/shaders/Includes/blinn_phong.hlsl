@@ -37,8 +37,8 @@ float4 DoDirectionalLight( Light light, float3 V, float3 P, float3 N )
     float4 diffuse = DoDiffuse( light, L, N );
     float4 specular = DoSpecular( light, V, L, N );
 		 
-	float shadow = CALCULATE_SHADOW_2D( P, light.shadowMapIndex );
-
+	float shadow = CALCULATE_SHADOW_DIR( P, light.range, light.shadowMapIndex );
+		
     return (diffuse + specular) * shadow;
 }
 
