@@ -36,7 +36,7 @@ VertexOut main(VertexIn vin)
 	
     return OUT;
 }
-                     
+
 // ----------------------------------------------
 #shader fragment  
 

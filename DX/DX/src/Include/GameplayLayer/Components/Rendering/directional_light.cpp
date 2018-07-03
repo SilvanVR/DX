@@ -79,12 +79,16 @@ namespace Components {
     //----------------------------------------------------------------------
     void DirectionalLight::renderShadowMap( const IScene& scene, F32 lerp )
     {
+        // Set the shadowmap range. We can set it only to Z_FAR because this is the maximum distance we can be sure
+        // we have shadows, even though we actually waste a lot of space in some orientations
+        m_dirLight->setShadowRange( Z_FAR );
+
         // Adapt position of the camera frustum
         auto mainCamera = SCENE.getMainCamera();
         auto mainCameraTransform = mainCamera->getGameObject()->getTransform();
         auto transform = getGameObject()->getTransform();
 
-        // Calculate frustum corners in view space
+        // Calculate frustum corners in world space
         auto mainCameraFrustumCornersWS = Math::CalculateFrustumCorners( mainCameraTransform->position, 
                                                                          mainCameraTransform->rotation, 
                                                                          mainCamera->getFOV(), 
@@ -115,8 +119,7 @@ namespace Components {
             maxZ = std::max( maxZ, cornerLightSpace.z );
         }
 
-        F32 shadowMapWidth = (F32)m_light->getShadowMap()->getWidth();
-
+        F32 shadowMapWidth = (F32)m_dirLight->getShadowMap()->getWidth();
 
         F32 shadowLengthX = maxX - minX;
         F32 worldTexelSizeX = (shadowLengthX / shadowMapWidth);
@@ -128,14 +131,20 @@ namespace Components {
         minY = worldTexelSizeY * std::floor(minY / worldTexelSizeY);
         maxY = worldTexelSizeY * std::floor(maxY / worldTexelSizeY);
 
-        F32 shadowDistance = maxZ - minZ;
-        m_dirLight->setShadowRange( Z_FAR );
-
         //LOG(TS(shadowLengthX) + ", " + TS(shadowLengthY) + ", " + TS(shadowLengthZ) );
         //lightSpaceCameraPos.x = worldTexelSize * std::floor(lightSpaceCameraPos.x / worldTexelSize);
         //lightSpaceCameraPos.y = worldTexelSize * std::floor(lightSpaceCameraPos.y / worldTexelSize);
 
         m_camera->setOrthoParams( minX, maxX, minY, maxY, minZ - Z_NEAR_OFFSET, maxZ );
+
+        //// Snap the camera-position to texel-size to fix "Shadow-Swimming" coming from the fitting-algorithm
+        //F32 worldTexelSize = (shadowDistance / m_light->getShadowMap()->getWidth());
+
+        //auto lightSpaceCameraPos = transform->rotation.conjugate() * tempPosition;
+        //lightSpaceCameraPos.x = worldTexelSize * std::floor(lightSpaceCameraPos.x / worldTexelSize);
+        //lightSpaceCameraPos.y = worldTexelSize * std::floor(lightSpaceCameraPos.y / worldTexelSize);
+
+        //transform->position = transform->rotation * lightSpaceCameraPos;
 
 #if DEBUG_FRUSTUM
         DEBUG.drawFrustum({}, transform->rotation, m_camera->getLeft(), m_camera->getRight(), 
@@ -150,21 +159,14 @@ namespace Components {
         {
             DEBUG.drawFrustum({}, transform->rotation, m_camera->getLeft(), m_camera->getRight(), 
                                                        m_camera->getBottom(), m_camera->getTop(), 
-                                                       m_camera->getZNear(), m_camera->getZFar(), Color::BLUE, 1000);
+                                                       m_camera->getZNear(), m_camera->getZFar(), Color::BLUE, 10);
 
             DEBUG.drawFrustum(mainCameraTransform->position, mainCameraTransform->rotation.getForward(), mainCameraTransform->rotation.getUp(), 
-                              mainCamera->getFOV(), mainCamera->getZNear(), Z_FAR, mainCamera->getAspectRatio(), Color::GREEN, 1000);
+                              mainCamera->getFOV(), mainCamera->getZNear(), Z_FAR, mainCamera->getAspectRatio(), Color::GREEN, 10);
         }
 #endif
 
-        //// Snap the camera-position to texel-size to fix "Shadow-Swimming" coming from the fitting-algorithm
-        //F32 worldTexelSize = (shadowDistance / m_light->getShadowMap()->getWidth());
 
-        //auto lightSpaceCameraPos = transform->rotation.conjugate() * tempPosition;
-        //lightSpaceCameraPos.x = worldTexelSize * std::floor(lightSpaceCameraPos.x / worldTexelSize);
-        //lightSpaceCameraPos.y = worldTexelSize * std::floor(lightSpaceCameraPos.y / worldTexelSize);
-
-        //transform->position = transform->rotation * lightSpaceCameraPos;
 
         ILightComponent::renderShadowMap( scene, lerp );
     }

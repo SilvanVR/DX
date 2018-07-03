@@ -13,7 +13,7 @@
 #define PI							3.14159265359
 #define GAMMA						2.2
 #define ALPHA_THRESHOLD  			0.1
-#define SHADOW_TRANSITION_DISTANCE 	5
+#define SHADOW_TRANSITION_DISTANCE 	2
 
 cbuffer cbPerCamera : register(b0)
 {	
@@ -104,16 +104,13 @@ float CALCULATE_SHADOW_DIR( float3 P, float shadowDistance, int shadowMapIndex )
 		uv.y = 1 - uv.y;
 
 		float currentDepth = projCoords.z;
-		//if ( inRange(currentDepth) && inRange(uv.x) && inRange(uv.y) )
-		{	
-			float closestDepth = SAMPLE_SHADOWMAP_2D( shadowMapIndex, uv );
-			
-			float distanceToCamera = length(P - _CameraPos);
-			float shadowFactor = (shadowDistance - distanceToCamera) / SHADOW_TRANSITION_DISTANCE;
-			shadowFactor = 1 - saturate(shadowFactor);
-			
-			shadow = currentDepth < closestDepth ? 1.0 : shadowFactor;		
-		}
+		float closestDepth = SAMPLE_SHADOWMAP_2D( shadowMapIndex, uv );
+		
+		float distanceToCamera = length(P - _CameraPos);
+		float shadowFactor = (shadowDistance - distanceToCamera) / SHADOW_TRANSITION_DISTANCE;
+		shadowFactor = 1 - saturate(shadowFactor);
+		
+		shadow = currentDepth < closestDepth ? 1.0 : shadowFactor;		
 	}	
 	return shadow;
 }
