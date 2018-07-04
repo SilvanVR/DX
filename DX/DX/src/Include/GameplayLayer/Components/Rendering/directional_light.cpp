@@ -57,7 +57,7 @@ namespace Components {
             rt->create( nullptr, shadowMap );
 
             // Configure camera
-            m_camera.reset( new Graphics::Camera( -10, 10, -10, 10, -m_shadowZNearOffset, m_dirLight->getShadowRange() ) );
+            m_camera.reset( new Graphics::Camera( -10, 10, -10, 10, 0, m_dirLight->getShadowRange() ) );
             m_camera->setRenderTarget( rt, false );
             m_camera->setReplacementShader( ASSETS.getShadowMapShader(), TAG_SHADOW_PASS );
         }
@@ -86,7 +86,7 @@ namespace Components {
     //----------------------------------------------------------------------
     void DirectionalLight::_AdaptOrthographicViewFrustum()
     {
-                // Adapt position of the camera frustum
+        // Adapt position of the camera frustum
         auto mainCamera = SCENE.getMainCamera();
         auto mainCameraTransform = mainCamera->getGameObject()->getTransform();
         auto transform = getGameObject()->getTransform();
@@ -126,12 +126,24 @@ namespace Components {
         // Snap the orthographic frustum to texel-size, otherwise we will have a very noticeable artifact
         F32 shadowMapWidth = (F32)m_dirLight->getShadowMap()->getWidth();
 
+        F32 shadowRange = m_dirLight->getShadowRange();
+
         F32 shadowLengthX = maxX - minX;
+        //F32 toMuchX = shadowLengthX - shadowRange;
+        //maxX -= toMuchX /2;
+        //minX += toMuchX /2;
+        //shadowLengthX = maxX - minX;
+
         F32 worldTexelSizeX = (shadowLengthX / shadowMapWidth);
         minX = worldTexelSizeX * std::floor(minX / worldTexelSizeX);
         maxX = worldTexelSizeX * std::floor(maxX / worldTexelSizeX);
 
         F32 shadowLengthY = maxY - minY;
+        //F32 toMuchY = shadowLengthY - shadowRange;
+        //maxY -= toMuchY / 2;
+        //minY += toMuchY / 2;
+        //shadowLengthY = maxY - minY;
+
         F32 worldTexelSizeY = (shadowLengthY / shadowMapWidth);
         minY = worldTexelSizeY * std::floor(minY / worldTexelSizeY);
         maxY = worldTexelSizeY * std::floor(maxY / worldTexelSizeY);
@@ -140,7 +152,7 @@ namespace Components {
         // of the world maps to the x and/or y axes. (shadowLengthX + shadowLengthY changes)
         //LOG(TS(shadowLengthX) + ", " + TS(shadowLengthY));
 
-        m_camera->setOrthoParams( minX, maxX, minY, maxY, minZ - m_shadowZNearOffset, maxZ );
+        m_camera->setOrthoParams( minX, maxX, minY, maxY, minZ, maxZ );
 
 #if DEBUG_FRUSTUM
         DEBUG.drawFrustum({}, transform->rotation, m_camera->getLeft(), m_camera->getRight(), 

@@ -7,6 +7,7 @@
 #DepthBias		3
 #DBSlopeScaled  1
 #DBClamp 		0
+#DepthClip		Off
 
 // ----------------------------------------------
 #shader vertex

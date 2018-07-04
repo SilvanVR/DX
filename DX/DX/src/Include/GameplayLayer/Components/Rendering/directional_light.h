@@ -22,14 +22,11 @@ namespace Components {
 
         //----------------------------------------------------------------------
         F32 getShadowRange()        const { return m_dirLight->getShadowRange(); }
-        F32 getShadowZNearOffset()  const { return m_shadowZNearOffset; }
 
         void setShadowRange        (F32 shadowRange)   { m_dirLight->setShadowRange( shadowRange ); }
-        void setShadowZNearOffset  (F32 offset)        { m_shadowZNearOffset = offset; }
 
     private:
         Graphics::DirectionalLight* m_dirLight;
-        F32 m_shadowZNearOffset = 8;
 
         //----------------------------------------------------------------------
         // ILightComponent Interface
