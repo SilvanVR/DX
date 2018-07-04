@@ -148,10 +148,10 @@ public:
             {
                 if (ImGui::TreeNode("Directional Light"))
                 {
-                    CString type[] = { "None", "Hard", "Soft", "CSM" };
+                    CString type[] = { "None", "Hard", "Soft", "CSM", "CSMSoft" };
                     static I32 type_current = 1;
                     type_current = (I32)dl->getShadowType(); 
-                    if (ImGui::Combo("Shadow Type", &type_current, type, 4))
+                    if (ImGui::Combo("Shadow Type", &type_current, type, 5))
                         dl->setShadowType((Graphics::ShadowType)(type_current));
 
                     CString qualities[] = { "Low", "Medium", "High", "Insane" };

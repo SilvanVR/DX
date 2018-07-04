@@ -71,6 +71,7 @@ namespace Components {
                 break;
             }
             case Graphics::ShadowType::CSM:
+            case Graphics::ShadowType::CSMSoft:
             {
                 U32 splitCount = (U32)m_dirLight->getCSMSplits().size();
                 ASSERT(splitCount <= Locator::getRenderer().getLimits().maxCascades);
@@ -89,6 +90,8 @@ namespace Components {
                 renderBuffer = shadowMapRender;
                 break;
             }
+            default:
+                ASSERT( "Unknown shadow type. Can't create a shadowmap!" );
             }
 
             // Create rendertexture
@@ -126,6 +129,8 @@ namespace Components {
             ILightComponent::renderShadowMap( scene, lerp );
             break;
         case Graphics::ShadowType::CSM:
+        case Graphics::ShadowType::CSMSoft:
+        {
             Graphics::CommandBuffer cmd;
 
             auto& splits = m_dirLight->getCSMSplits();
@@ -166,6 +171,9 @@ namespace Components {
             }
             Locator::getRenderer().dispatch( cmd );
             break;
+        }
+        default:
+            ASSERT( "This should never happen!" );
         }
     }
 

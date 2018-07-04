@@ -23,6 +23,7 @@ namespace Graphics {
         case ShadowType::Hard:
         case ShadowType::Soft:
         case ShadowType::CSM:
+        case ShadowType::CSMSoft:
             return true;
         }
         return false; 

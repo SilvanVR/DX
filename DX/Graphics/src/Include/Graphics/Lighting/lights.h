@@ -34,7 +34,8 @@ namespace Graphics
         None,
         Hard,
         Soft,
-        CSM
+        CSM,
+        CSMSoft
     };
 
     //----------------------------------------------------------------------

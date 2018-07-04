@@ -20,6 +20,7 @@
 #define SHADOW_TYPE_HARD 			1
 #define SHADOW_TYPE_SOFT			2
 #define SHADOW_TYPE_CSM				3
+#define SHADOW_TYPE_CSM_SOFT		4
 
 cbuffer cbPerCamera : register(b0)
 {	
@@ -337,8 +338,55 @@ float CALCULATE_SHADOW_CSM( float3 P, int shadowMapIndex )
 				break;
 			}		
 		}		
+	}	
+	return 1-shadow;
+}
 
+//-----------------------------------------------
+float CALCULATE_SHADOW_CSM_SOFT( float3 P, int shadowMapIndex )
+{
+	float shadow = 0.0f;		
+	if (shadowMapIndex >= 0)
+	{
+		float distanceToCamera = length(P - _CameraPos);
 		
+		int width, height, elements;
+		shadowMapCascades.GetDimensions( width, height, elements );
+		for (int cascade = 0; cascade < elements; ++cascade)
+		{
+			if (distanceToCamera < _CSMSplits[cascade].range)
+			{
+				float4 lightSpace = mul( _CSMSplits[cascade].vp, float4( P, 1 ) );
+				float3 projCoords = lightSpace.xyz / lightSpace.w;
+				float2 uv = projCoords.xy * 0.5 + 0.5;
+				uv.y = 1 - uv.y;
+				
+				// Poisson sampling soft shadows
+				float currentDepth = projCoords.z;
+				
+				float invisibleSamples = 0;
+				for (int i=0; i<POISSON_DISK_SAMPLES; ++i){
+					float2 uvMod = uv + poissonDisk[i]/2048.0;
+					float3 uvw = float3( uvMod, cascade );
+					float depthSample = shadowMapCascades.SampleLevel( shadowMapCascadesSampler, uvw, 0 ).r;
+					
+					if ( currentDepth > depthSample )
+						invisibleSamples++;
+				}	
+				shadow = invisibleSamples / POISSON_DISK_SAMPLES;
+				
+				// Smoothly transition shadow to nothing in last cascade
+				if (cascade == (elements-1))
+				{
+					// Transition factor: 0 to 1 from [SHADOW-DISTANCE-TRANSITION, SHADOW-DISTANCE]
+					const float transitionDistance = 30.0f;
+					float transitionFactor = (_CSMSplits[cascade].range - distanceToCamera) / transitionDistance;
+					transitionFactor = saturate( transitionFactor );
+					shadow *= transitionFactor;	
+				}			
+				break;
+			}		
+		}		
 	}	
 	return 1-shadow;
 }

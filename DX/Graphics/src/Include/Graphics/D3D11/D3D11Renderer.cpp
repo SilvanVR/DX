@@ -572,6 +572,7 @@ namespace Graphics {
                         }
                         break;
                     case ShadowType::CSM:
+                    case ShadowType::CSMSoft:
                         if (curShadowMapArrayIndex < MAX_SHADOWMAPS_ARRAY)
                         {
                             lights[i].shadowMapIndex = curShadowMapArrayIndex;
@@ -611,6 +612,7 @@ namespace Graphics {
                         }
                         break;
                     case ShadowType::CSM:
+                    case ShadowType::CSMSoft:
                         LOG_WARN_RENDERING( "ShadowType CSM in Spot-Light, which is not supported!" );
                     }
                 }
@@ -636,6 +638,7 @@ namespace Graphics {
                         }
                         break;
                     case ShadowType::CSM:
+                    case ShadowType::CSMSoft:
                         LOG_WARN_RENDERING( "ShadowType CSM in Point-Light, which is not supported!" );
                     }
                 }
