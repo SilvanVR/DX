@@ -27,17 +27,15 @@ public:
         // Camera 1
         auto go = createGameObject("Camera");
         cam = go->addComponent<Components::Camera>();
-        go->getComponent<Components::Transform>()->position = Math::Vec3(0, 3, -8);
+        go->getComponent<Components::Transform>()->position = Math::Vec3(0, 10, -25);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 0.1f);
         cam->setClearColor(Color(66, 134, 244));
+        //go->addComponent<AutoOrbiting>(15.0f);
+        //auto camSpot = go->addComponent<Components::SpotLight>(1.0f, Color::WHITE, 25.0f, 20.0f);
+
         //createGameObject("Grid")->addComponent<GridGeneration>(20);
-
-        auto planeMesh = Core::MeshGenerator::CreatePlane();
         auto obj = createGameObject("GO");
-
-        auto grassMat = ASSETS.getMaterial("/materials/blinn_phong/grass.material");
-        //grassMat->setShadowShader(ASSETS.getShader("/engine/shaders/shadowMap.shader"));
-        obj->addComponent<Components::MeshRenderer>(planeMesh, grassMat);
+        obj->addComponent<Components::MeshRenderer>(Core::MeshGenerator::CreatePlane(), ASSETS.getMaterial("/materials/blinn_phong/grass.material"));
         obj->getTransform()->rotation *= Math::Quat(Math::Vec3::RIGHT, 90.0f);
         obj->getTransform()->scale = { 20,20,20 };
 
@@ -47,14 +45,14 @@ public:
 
         auto cubeGO = createGameObject("GO3");
         cubeGO->addComponent<Components::MeshRenderer>(Core::MeshGenerator::CreateCubeUV(0.3f), ASSETS.getMaterial("/materials/blinn_phong/cube.material"));
-        cubeGO->getTransform()->position = { 0.0f, 0.3001f, -3.0f };
+        cubeGO->getTransform()->position = { -5.0f, 0.3001f, 0.0f };
+        cubeGO->addComponent<ConstantRotation>(0.0f, 10.0f, 0.0f);
 
         Assets::MeshMaterialInfo matInfo;
         auto treeMesh = ASSETS.getMesh("/models/tree/tree.obj", &matInfo);
 
         auto treeGO = createGameObject("Tree");
         auto mr = treeGO->addComponent<Components::MeshRenderer>(treeMesh);
-        //treeGO->getTransform()->scale = { 0.01f };
 
         if (matInfo.isValid())
         {
@@ -93,20 +91,19 @@ public:
         auto plg = createGameObject("PL");
         auto pl = plg->addComponent<Components::PointLight>(1.0f, Color::ORANGE, 5.0f, true);
         plg->getTransform()->position = { 3, 2, 0 };
-        //plg->addComponent<VisualizeLightRange>();
         plg->addComponent<Components::Billboard>(ASSETS.getTexture2D("/textures/pointLight.png"), 0.5f);
         go->addComponent<Components::Skybox>(pl->getShadowMap());
 
         auto slg = createGameObject("PL");
         auto sl = slg->addComponent<Components::SpotLight>(1.0f, Color::WHITE, 25.0f, 20.0f);
-        slg->getTransform()->position = { 0, 2, -5 };
+        slg->getTransform()->position = { -5, 2, -2 };
         slg->getTransform()->rotation = Math::Quat::LookRotation(Math::Vec3{ 0,-1, 1 });
         //slg->addComponent<DrawFrustum>();
 
         go->addComponent<Components::GUI>();
         auto imgComp = go->addComponent<Components::GUIImage>(dl->getShadowMap(), Math::Vec2{200, 200});
         go->addComponent<Components::GUIFPS>();
-        go->addComponent<Components::GUICustom>([sun, dl, imgComp, plg, pl] {
+        go->addComponent<Components::GUICustom>([=] {
             static Math::Vec3 deg{45.0f, 0.0f, 0.0f};
             ImGui::SliderFloat2( "Sun Rotation", &deg.x, 0.0f, 360.0f );
             sun->getTransform()->rotation = Math::Quat::FromEulerAngles(deg);
@@ -120,29 +117,28 @@ public:
             if (ImGui::Button("Medium"))    CONFIG.setShadowMapQuality(Graphics::ShadowMapQuality::Medium);
             if (ImGui::Button("High"))      CONFIG.setShadowMapQuality(Graphics::ShadowMapQuality::High);
             if (ImGui::Button("Insane"))    CONFIG.setShadowMapQuality(Graphics::ShadowMapQuality::Insane);
+            imgComp->setTexture(dl->getShadowMap()); // Must be set new if shadowmap gets recreated
 
-            imgComp->setTexture(dl->getShadowMap());
+            static F32 dlRange = 30.0f;
+            ImGui::SliderFloat("DL Shadow Range", &dlRange, 5.0f, 50.0f);
+            dl->setShadowRange(dlRange);
 
             static F32 ambient = 0.4f;
             ImGui::SliderFloat("Ambient", &ambient, 0.0f, 1.0f);
             Locator::getRenderer().setGlobalFloat(SID("_Ambient"), ambient);
 
-            static Math::Vec3 pos{ 0, 1, -1 };
+            static Math::Vec3 pos{ 0, 2.5, -1 };
             ImGui::SliderFloat3("PointLight Position", &pos.x, -3.0f, 3.0f);
             plg->getTransform()->position = pos;
 
-            static F32 range = 5.0f;
+            static F32 range = 25.0f;
             ImGui::SliderFloat("PointLight Range", &range, 5.0f, 50.0f);
 
             static F32 intensity = 1.0f;
-            ImGui::SliderFloat("PointLight Intensity", &intensity, 1.0f, 50.0f);
+            ImGui::SliderFloat("PointLight Intensity", &intensity, 0.5f, 5.0f);
 
             pl->setIntensity(intensity);
             pl->setRange(range);
-
-            static F32 dlRange = 30.0f;
-            ImGui::SliderFloat("DL Shadow Range", &dlRange, 1.0f, 50.0f);
-            dl->setShadowRange(dlRange);
         });
 
         LOG("TestScene initialized!", Color::RED);

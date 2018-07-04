@@ -50,6 +50,7 @@ namespace Components {
             shadowMap->create( shadowMapSize, shadowMapSize, DEPTH_STENCIL_FORMAT );
             shadowMap->setAnisoLevel( 1 );
             shadowMap->setFilter( Graphics::TextureFilter::Point );
+            shadowMap->setClampMode( Graphics::TextureAddressMode::Clamp );
             m_light->setShadowMap( shadowMap );
 
             // Create rendertexture
