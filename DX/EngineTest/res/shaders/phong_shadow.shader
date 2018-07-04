@@ -52,7 +52,7 @@ struct FragmentIn
 {
     float4 PosH : SV_POSITION;
 	float2 Tex : TEXCOORD0;
-	float3 Normal : NORMAL;      
+	float3 Normal : NORMAL;   
 	float3 WorldPos : POSITION;
 }; 
 

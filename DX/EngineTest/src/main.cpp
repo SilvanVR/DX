@@ -89,10 +89,10 @@ public:
         //sun2->getTransform()->rotation = Math::Quat::LookRotation(Math::Vec3{ 0,-1, -1 });
 
         auto plg = createGameObject("PL");
-        auto pl = plg->addComponent<Components::PointLight>(1.0f, Color::ORANGE, 5.0f, true);
+        auto pl = plg->addComponent<Components::PointLight>(1.0f, Color::ORANGE, 5.0f, false);
         plg->getTransform()->position = { 3, 2, 0 };
         plg->addComponent<Components::Billboard>(ASSETS.getTexture2D("/textures/pointLight.png"), 0.5f);
-        go->addComponent<Components::Skybox>(pl->getShadowMap());
+        //go->addComponent<Components::Skybox>(pl->getShadowMap());
 
         auto slg = createGameObject("PL");
         auto sl = slg->addComponent<Components::SpotLight>(1.0f, Color::WHITE, 25.0f, 20.0f);
@@ -110,8 +110,10 @@ public:
 
             static bool shadowsActive = true;
             if (ImGui::RadioButton("Shadows", shadowsActive))
+            {
                 shadowsActive = !shadowsActive;
-            CONFIG.setShadows(shadowsActive);
+                CONFIG.setShadows(shadowsActive);
+            }
 
             if (ImGui::Button("Low"))       CONFIG.setShadowMapQuality(Graphics::ShadowMapQuality::Low);
             if (ImGui::Button("Medium"))    CONFIG.setShadowMapQuality(Graphics::ShadowMapQuality::Medium);
