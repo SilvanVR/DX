@@ -25,8 +25,9 @@ using namespace DirectX;
 
 namespace Graphics {
 
-    #define SHADOW_MAP_2D_SLOT_BEGIN 9
-    #define SHADOW_MAP_3D_SLOT_BEGIN 13
+    #define SHADOW_MAP_2D_SLOT_BEGIN    9
+    #define SHADOW_MAP_3D_SLOT_BEGIN    13
+    #define SHADOW_MAP_ARRAY_SLOT_BEGIN 14
 
     #define GLOBAL_BUFFER D3D11::ConstantBufferManager::getGlobalBuffer()
     #define OBJECT_BUFFER D3D11::ConstantBufferManager::getObjectBuffer()
@@ -72,7 +73,7 @@ namespace Graphics {
     void D3D11Renderer::init()
     {
         m_limits.maxLights      = MAX_LIGHTS;
-        m_limits.maxShadowmaps  = MAX_SHADOWMAPS_2D + MAX_SHADOWMAPS_3D;
+        m_limits.maxShadowmaps  = MAX_SHADOWMAPS_2D + MAX_SHADOWMAPS_3D + MAX_SHADOWMAPS_ARRAY;
 
         _InitD3D11();
 
@@ -598,7 +599,6 @@ namespace Graphics {
                 break;
             }
             }
-
         }
 
         if ( not LIGHT_BUFFER.update( LIGHT_BUFFER_NAME, &lights ) )

@@ -39,8 +39,6 @@ namespace Core {
             auto camWorldPos = transform->getWorldPosition();
             cam->m_camera.setModelMatrix( modelMatrix );
 
-            constexpr Size s = sizeof(cam->m_camera);
-
             // Set camera
             Graphics::CommandBuffer cmd;
             cmd.setCamera( cam->m_camera );
@@ -65,7 +63,7 @@ namespace Core {
                         visibleLights.push_back( light );
                 }
 
-                // Sort lights by distance, so lights nearest to camera will be drawn first (or not culled due to light limit)
+                // Sort lights by distance, so lights nearest to camera will be drawn first (or even not culled due to light limit)
                 std::sort( visibleLights.begin(), visibleLights.end(), [camWorldPos](Components::ILightComponent*& l1, Components::ILightComponent*& l2) {
                     auto pos = l1->getGameObject()->getTransform()->getWorldPosition();
                     auto pos2 = l2->getGameObject()->getTransform()->getWorldPosition();

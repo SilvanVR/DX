@@ -102,7 +102,7 @@ namespace Components {
         // Transform frustum corners in light space and calculate the center from the sphere
         auto worldToLight = DirectX::XMMatrixInverse( nullptr, transform->getWorldMatrix() );
 
-        Math::Vec3 sphereCenter{0,0,0};
+        Math::Vec3 sphereCenter{ 0, 0, 0 };
         for (auto i = 0; i < mainCameraFrustumCornersWS.size(); i++)
         {
             auto corner = DirectX::XMLoadFloat3( &mainCameraFrustumCornersWS[i] );
@@ -118,17 +118,17 @@ namespace Components {
 
         // Get the min and max bounds in lightspace. (The radius is rather ad-hoc but works pretty well!)
         F32 radius = (mainCameraFrustumCornersWS[0] - mainCameraFrustumCornersWS[7]).magnitude() * 0.5f;
-        auto min = sphereCenter - Math::Vec3{radius, radius, radius};
-        auto max = sphereCenter + Math::Vec3{radius, radius, radius};
+        auto min = sphereCenter - Math::Vec3{ radius, radius, radius };
+        auto max = sphereCenter + Math::Vec3{ radius, radius, radius };
 
         // Snap the orthographic frustum to texel-size, otherwise we will have a very noticeable artifact (shadow shimmering)
         F32 shadowMapWidth = (F32)m_dirLight->getShadowMap()->getWidth();
         F32 worldTexelSize = (2.0f*radius / shadowMapWidth);
 
-        min.x = worldTexelSize * std::floor(min.x / worldTexelSize);
-        max.x = worldTexelSize * std::floor(max.x / worldTexelSize);
-        min.y = worldTexelSize * std::floor(min.y / worldTexelSize);
-        max.y = worldTexelSize * std::floor(max.y / worldTexelSize);
+        min.x = worldTexelSize * std::floor( min.x / worldTexelSize );
+        max.x = worldTexelSize * std::floor( max.x / worldTexelSize );
+        min.y = worldTexelSize * std::floor( min.y / worldTexelSize );
+        max.y = worldTexelSize * std::floor( max.y / worldTexelSize );
 
         m_camera->setOrthoParams( min.x, max.x, min.y, max.y, min.z, max.z );
 

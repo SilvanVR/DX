@@ -71,6 +71,9 @@ SamplerState shadowMapSampler3 : register(s12);
 TextureCube<float4> shadowMapCube0 : register(t13);
 SamplerState shadowMapCubeSampler0 : register(s13);
 
+Texture2DArray shadowMapCascades : register(t14);
+SamplerState shadowMapCascadesSampler : register(s14);
+
 //**********************************************************************
 // 2D SHADOWS (Dirlight + Spotlight)
 //**********************************************************************
