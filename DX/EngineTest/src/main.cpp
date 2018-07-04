@@ -92,7 +92,7 @@ public:
         auto pl = plg->addComponent<Components::PointLight>(1.0f, Color::ORANGE, 5.0f, true);
         plg->getTransform()->position = { 3, 2, 0 };
         plg->addComponent<Components::Billboard>(ASSETS.getTexture2D("/textures/pointLight.png"), 0.5f);
-        //go->addComponent<Components::Skybox>(pl->getShadowMap());
+        go->addComponent<Components::Skybox>(pl->getShadowMap());
 
         auto slg = createGameObject("PL");
         auto sl = slg->addComponent<Components::SpotLight>(1.0f, Color::WHITE, 25.0f, 20.0f);
@@ -101,7 +101,7 @@ public:
         //slg->addComponent<DrawFrustum>();
 
         go->addComponent<Components::GUI>();
-        //auto imgComp = go->addComponent<Components::GUIImage>(dl->getShadowMap(), Math::Vec2{200, 200});
+        //auto imgComp = go->addComponent<Components::GUIImage>(dl->getShadowMap(), 0, Math::Vec2{200, 200});
         go->addComponent<Components::GUIFPS>();
         go->addComponent<Components::GUICustom>([=] {
             static F32 ambient = 0.4f;
@@ -164,10 +164,21 @@ public:
                     ImGui::SliderFloat2("Rotation", &deg.x, 0.0f, 360.0f);
                     sun->getTransform()->rotation = Math::Quat::FromEulerAngles(deg);
 
-                    static F32 dlRange = 30.0f;
-                    ImGui::SliderFloat("Shadow Range", &dlRange, 5.0f, 100.0f);
-                    dl->setShadowRange(dlRange);
-                        
+                    if (type_current > 0 && type_current <= 2)
+                    {
+                        static F32 dlRange = 30.0f;
+                        ImGui::SliderFloat("Shadow Range", &dlRange, 5.0f, 100.0f);
+                        dl->setShadowRange(dlRange);
+                        ImGui::Image(dl->getShadowMap(), 0, Math::Vec2{ 200, 200 });
+                    }
+                    else if (type_current > 2)
+                    {
+                        ImGui::Text("Shadow-maps");
+                        for (I32 i = 0; i < dl->getCascadeCount(); ++i)
+                            ImGui::Image(dl->getShadowMap(), i, Math::Vec2{ 200, 200 });
+                    }
+
+
                     ImGui::TreePop();
                 }
 
@@ -190,39 +201,6 @@ public:
                 }
             }
         });
-
-        // SHADER
-        auto texShader = ASSETS.getShader("/shaders/textureArray.shader");
-
-        // MATERIAL
-        auto material = RESOURCES.createMaterial();
-        material->setShader(texShader);
-        material->setTexture("texArray", dl->getShadowMap());
-        material->setInt("texIndex", 0);
-
-        auto material2 = RESOURCES.createMaterial();
-        material2->setShader(texShader);
-        material2->setTexture("texArray", dl->getShadowMap());
-        material2->setInt("texIndex", 1);
-
-        auto material3 = RESOURCES.createMaterial();
-        material3->setShader(texShader);
-        material3->setTexture("texArray", dl->getShadowMap());
-        material3->setInt("texIndex", 2);
-
-        // GAMEOBJECTS
-        auto plane = Core::MeshGenerator::CreatePlane();
-        auto go2 = createGameObject("Test2");
-        go2->addComponent<Components::MeshRenderer>(plane, material);
-        go2->getComponent<Components::Transform>()->position = {-2,10,0};
-
-        auto go3 = createGameObject("Test3");
-        go3->addComponent<Components::MeshRenderer>(plane, material2);
-        go3->getComponent<Components::Transform>()->position = {0,10,0};
-
-        auto go4 = createGameObject("Test4");
-        go4->addComponent<Components::MeshRenderer>(plane, material3);
-        go4->getComponent<Components::Transform>()->position = { 2,10,0 };
 
         LOG("TestScene initialized!", Color::RED);
     }

@@ -49,11 +49,16 @@ struct FragmentIn
 	float4 color : COLOR;
 };
 
-Texture2D _MainTex;
+cbuffer cbPerMaterial
+{
+	int slice;
+};
+
+Texture2DArray _MainTex;
 SamplerState sampler0;
 
 float4 main(FragmentIn fin) : SV_Target
 {
-	float4 textureColor = _MainTex.Sample( sampler0, fin.tex );
+	float4 textureColor = _MainTex.Sample( sampler0, float3(fin.tex, slice) );
 	return textureColor * fin.color;
 }

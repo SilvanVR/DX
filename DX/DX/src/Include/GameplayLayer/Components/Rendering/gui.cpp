@@ -9,19 +9,30 @@
 #include "GameplayLayer/gameobject.h"
 #include "Core/locator.h"
 #include "camera.h"
+#include "Events/event_dispatcher.h"
+#include "Events/event_names.hpp"
 
-#define SHADER_GUI_TEX_NAME "tex"
+#define SHADER_GUI_TEX_NAME     "_MainTex"
+#define SHADER_GUI_SLICE_NAME   "slice"
 
 namespace ImGui
 {
-    void Image(const TexturePtr& tex)
+
+    void Image( const MaterialPtr& mat, const Math::Vec2& size )
     {
-        ImGui::Image((void*)&tex, { (F32)tex->getWidth(), (F32)tex->getHeight() });
+        ImGui::Image( (void*)&mat, { size.x, size.y } );
     }
 
-    void Image(const TexturePtr& tex, const Math::Vec2& size)
+    void Image( const TexturePtr& tex, const Math::Vec2& size )
     {
-        ImGui::Image((void*)&tex, { size.x, size.y });
+        auto& matRef = Components::ImGUIMaterialCache::Instance().AddTexture( tex );
+        ImGui::Image( (void*)&matRef, { size.x, size.y } );
+    }
+
+    void Image( const TexturePtr& texArray, I32 slice, const Math::Vec2& size )
+    {
+        auto& matRef = Components::ImGUIMaterialCache::Instance().AddTexture( texArray, slice );
+        ImGui::Image( (void*)&matRef, { size.x, size.y } );
     }
 }
 
@@ -87,7 +98,9 @@ namespace Components {
         I32 width, height;
         io.Fonts->GetTexDataAsRGBA32( &pixels, &width, &height );
         m_fontAtlas = RESOURCES.createTexture2D( width, height, Graphics::TextureFormat::RGBA32, pixels );
-        io.Fonts->TexID = &m_fontAtlas;
+        m_fontAtlasMaterial = RESOURCES.createMaterial( ASSETS.getShader( "/engine/shaders/gui.shader" ) );
+        m_fontAtlasMaterial->setTexture( SHADER_GUI_TEX_NAME, m_fontAtlas );
+        io.Fonts->TexID = &m_fontAtlasMaterial;
 
         // Mesh containing all the vertex/index data
         m_dynamicMesh = RESOURCES.createMesh();
@@ -164,17 +177,9 @@ namespace Components {
                         indices[i] = idx_buffer[i];
                     m_dynamicMesh->setIndices( indices, subMesh, Graphics::MeshTopology::Triangles, baseVertex );
 
-                    // Draw mesh / Create material if not already present
-                    TexturePtr* texture = static_cast<TexturePtr*>( pcmd->TextureId );
-                    if ( auto it = m_cachedMaterials.find( texture->get() ) == m_cachedMaterials.end() )
-                    {
-                        // Create a new material and set texture
-                        auto mat = RESOURCES.createMaterial( m_guiShader );
-                        mat->setTexture( SHADER_GUI_TEX_NAME, *texture );
-                        m_cachedMaterials[texture->get()] = mat;
-                    }
-
-                    m_cmd.drawMesh( m_dynamicMesh, m_cachedMaterials[texture->get()], DirectX::XMMatrixIdentity(), subMesh );
+                    // Draw mesh with given material
+                    MaterialPtr* material = static_cast<MaterialPtr*>( pcmd->TextureId );
+                    m_cmd.drawMesh( m_dynamicMesh, *material, DirectX::XMMatrixIdentity(), subMesh );
                     subMesh++;
                 }
                 idx_buffer += pcmd->ElemCount;
@@ -336,6 +341,49 @@ namespace Components {
     //**********************************************************************
 
     //----------------------------------------------------------------------
+    ImGUIMaterialCache::ImGUIMaterialCache()
+    {
+        Events::EventDispatcher::GetEvent( EVENT_GAME_SHUTDOWN ).addListener( BIND_THIS_FUNC_0_ARGS( &ImGUIMaterialCache::_OnGameShutdown ) );
+    }
+
+    //----------------------------------------------------------------------
+    void ImGUIMaterialCache::_OnGameShutdown()
+    {
+        m_cachedMaterials.clear();
+    }
+
+    //----------------------------------------------------------------------
+    const MaterialPtr& ImGUIMaterialCache::AddTexture( const TexturePtr& tex )
+    {
+        auto memAsValue = reinterpret_cast<Size>(tex.get() );
+        auto it = m_cachedMaterials.find( memAsValue );
+        if ( it != m_cachedMaterials.end())
+            return it->second;
+
+        auto shader = ASSETS.getShader( "/engine/shaders/gui.shader" );
+        auto mat = RESOURCES.createMaterial( shader );
+        mat->setTexture( SHADER_GUI_TEX_NAME, tex );
+        m_cachedMaterials[memAsValue] = mat;
+        return m_cachedMaterials[memAsValue];
+    }
+
+    //----------------------------------------------------------------------
+    const MaterialPtr& ImGUIMaterialCache::AddTexture( const TexturePtr& texArray, I32 slice )
+    {
+        auto memAsValue = reinterpret_cast<Size>( texArray.get() ) << slice;
+        auto it = m_cachedMaterials.find( memAsValue );
+        if ( it != m_cachedMaterials.end())
+            return it->second;
+
+        auto shader = ASSETS.getShader( "/engine/shaders/gui_texture_array.shader" );
+        auto mat = RESOURCES.createMaterial( shader );
+        mat->setTexture( SHADER_GUI_TEX_NAME, texArray );
+        mat->setInt( SHADER_GUI_SLICE_NAME, slice );
+        m_cachedMaterials[memAsValue] = mat;
+        return m_cachedMaterials[memAsValue];
+    }
+
+    //----------------------------------------------------------------------
     void GUIFPS::OnImGUI()
     {
         const float DISTANCE = 10.0f;
@@ -367,6 +415,47 @@ namespace Components {
                 ImGui::EndPopup();
             }
             ImGui::End();
+        }
+    }
+
+    //----------------------------------------------------------------------
+    GUIImage::GUIImage( const TexturePtr& tex, F32 scale )
+        : m_scale( scale )
+    {
+        m_mat = RESOURCES.createMaterial(  ASSETS.getShader("/engine/shaders/gui.shader") );
+        setTexture( tex );
+    }
+
+    //----------------------------------------------------------------------
+    GUIImage::GUIImage( const TexturePtr& tex, const Math::Vec2& size ) 
+        : m_size( size ) 
+    {
+        m_mat = RESOURCES.createMaterial( ASSETS.getShader("/engine/shaders/gui.shader") );
+        setTexture( tex );
+    }
+
+    //----------------------------------------------------------------------
+    GUIImage::GUIImage( const TexturePtr& tex, I32 arraySlice, const Math::Vec2& size )
+        : m_size( size )
+    {
+        m_mat = RESOURCES.createMaterial( ASSETS.getShader("/engine/shaders/gui_texture_array.shader") );
+        setTexture( tex );
+        m_mat->setInt( SHADER_GUI_SLICE_NAME, arraySlice );
+    }
+
+    //----------------------------------------------------------------------
+    void GUIImage::setTexture( const TexturePtr& tex )
+    { 
+        m_mat->setTexture( SHADER_GUI_TEX_NAME, tex );
+    }
+
+    //----------------------------------------------------------------------
+    void GUIImage::OnImGUI()
+    {
+        if ( auto& tex = m_mat->getTexture( SHADER_GUI_TEX_NAME ) )
+        {
+            (m_scale > 0.0f) ? ImGui::Image( m_mat, { tex->getWidth() * m_scale, tex->getHeight() * m_scale } ) :
+                               ImGui::Image( m_mat, m_size );
         }
     }
 

@@ -10,13 +10,15 @@
 #include "Graphics/command_buffer.h"
 #include "Graphics/i_texture2d.hpp"
 #include "Core/Input/listener/input_listener.h"
+#include "Graphics/forward_declarations.hpp"
 
 #include "Ext/ImGUI/imgui.h"
 
 namespace ImGui
 {
-    void Image(const TexturePtr& tex);
+    void Image(const MaterialPtr& mat, const Math::Vec2& size);
     void Image(const TexturePtr& tex, const Math::Vec2& size);
+    void Image(const TexturePtr& texArray, I32 slice, const Math::Vec2& size);
 }
 
 namespace Components {
@@ -59,8 +61,7 @@ namespace Components {
         ShaderPtr               m_guiShader;
         Graphics::CommandBuffer m_cmd;
         Components::Camera*     m_camera;
-
-        std::unordered_map<Graphics::ITexture*, MaterialPtr> m_cachedMaterials; // Saves created materials
+        MaterialPtr             m_fontAtlasMaterial;
 
         void _UpdateIMGUI(F32 delta);
 
@@ -84,24 +85,18 @@ namespace Components {
     //**********************************************************************
     class GUIImage : public ImGUIRenderComponent
     {
-        TexturePtr  m_tex   = nullptr;
+        MaterialPtr m_mat;
         F32         m_scale = 0;
         Math::Vec2  m_size  = { 0, 0 };
 
     public:
-        GUIImage(const TexturePtr& tex, F32 scale = 1.0f) : m_tex(tex), m_scale(scale) {}
-        GUIImage(const TexturePtr& tex, const Math::Vec2& size) : m_tex(tex), m_size(size) {}
+        GUIImage(const TexturePtr& tex, F32 scale = 1.0f);
+        GUIImage(const TexturePtr& tex, const Math::Vec2& size);
+        GUIImage(const TexturePtr& tex, I32 arraySlice, const Math::Vec2& size);
 
-        void setTexture(const TexturePtr& tex) { m_tex = tex; }
+        void setTexture(const TexturePtr& tex);
 
-        void OnImGUI() override
-        {
-            if (m_tex)
-            {
-                (m_scale > 0.0f) ? ImGui::Image(m_tex, { m_tex->getWidth() * m_scale, m_tex->getHeight() * m_scale }) :
-                                   ImGui::Image(m_tex, m_size);
-            }
-        }
+        void OnImGUI() override;
     };
 
     //**********************************************************************
@@ -133,6 +128,31 @@ namespace Components {
     {
     public:
         void OnImGUI() override;
+    };
+
+    //**********************************************************************
+    // This is a little helper class in order to store material creates by
+    // custom immediate function e.g. ImGUI::Image(tex). The function
+    // creates a material and stores it in this class.
+    //**********************************************************************
+    class ImGUIMaterialCache
+    {
+    public:
+        static ImGUIMaterialCache& Instance()
+        {
+            static ImGUIMaterialCache instance;
+            return instance;
+        }
+
+        const MaterialPtr& AddTexture(const TexturePtr& tex);
+        const MaterialPtr& AddTexture(const TexturePtr& tex, I32 slice);
+
+    private:
+        ImGUIMaterialCache();
+
+        HashMap<Size, MaterialPtr> m_cachedMaterials;
+
+        void _OnGameShutdown();
     };
 
 
