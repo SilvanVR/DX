@@ -177,8 +177,6 @@ public:
                         for (I32 i = 0; i < dl->getCascadeCount(); ++i)
                             ImGui::Image(dl->getShadowMap(), i, Math::Vec2{ 200, 200 });
                     }
-
-
                     ImGui::TreePop();
                 }
 

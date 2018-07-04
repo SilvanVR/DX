@@ -15,6 +15,13 @@
 #define SHADER_GUI_TEX_NAME     "_MainTex"
 #define SHADER_GUI_SLICE_NAME   "slice"
 
+//----------------------------------------------------------------------
+std::mutex& getMutex()
+{
+    static std::mutex mutex; // Ensures that the mutex will be first initialized when needed
+    return mutex;
+}
+
 namespace ImGui
 {
 
@@ -69,6 +76,7 @@ namespace Components {
         m_camera->addCommandBuffer( &m_cmd, Components::CameraEvent::Overlay );
 
         // IMGUI
+        std::lock_guard<std::mutex> lock( getMutex() );
         ImGui::SetCurrentContext( m_imguiContext );
         ImGuiIO& io = ImGui::GetIO();
         io.KeyMap[ImGuiKey_Tab]         = (I32)Key::Tab;
@@ -121,6 +129,7 @@ namespace Components {
     //----------------------------------------------------------------------
     void GUI::lateTick( Time::Seconds d )
     {
+        std::lock_guard<std::mutex> lock( getMutex() );
         ImGui::SetCurrentContext( m_imguiContext );
         ImGui::NewFrame();
         for (auto renderComponent : getGameObject()->getComponents<ImGUIRenderComponent>())
