@@ -42,12 +42,23 @@ namespace Components {
     }
 
     //----------------------------------------------------------------------
-    void ILightComponent::setShadows( Graphics::ShadowType shadowType )
+    void ILightComponent::setShadowType( Graphics::ShadowType shadowType )
     { 
-        if (shadowType != Graphics::ShadowType::None)
-            if ( not m_light->getShadowMap() )
+        if ( m_light->supportsShadowType( shadowType ) )
+        {
+            m_light->setShadowType( shadowType );
+            if (shadowType != Graphics::ShadowType::None)
                 _CreateShadowMap( m_shadowMapQuality );
-        m_light->setShadows( shadowType );
+        }
+    }
+
+    //----------------------------------------------------------------------
+    void ILightComponent::setShadowTypeAndQuality( Graphics::ShadowType shadowType, Graphics::ShadowMapQuality quality )
+    {
+        m_shadowMapQuality = quality;
+        if ( m_light->supportsShadowType( shadowType ) )
+            m_light->setShadowType( shadowType );
+        _CreateShadowMap( m_shadowMapQuality );
     }
 
     //**********************************************************************

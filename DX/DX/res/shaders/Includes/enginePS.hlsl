@@ -54,14 +54,20 @@ struct Light
     //----------------------------------- (16 byte boundary)
 };  // Total:                           // 80 bytes (4 * 16)
  
+ 
+struct CSMSplit
+{
+	float4x4 vp;
+	float range;
+};
+
 cbuffer cbBufferLights : register(b3)
 {
-	Light 		_Lights[MAX_LIGHTS];
-	int 		_LightCount;
-	float4x4 	_LightViewProj[MAX_SHADOWMAPS_2D];
-	float4x4 	_CSMLightViewProj[MAX_CSM_SPLITS];
-	float		_CSMSplitRanges[MAX_CSM_SPLITS];
-	float 		_CSMSplitCount;
+	Light 		_Lights[MAX_LIGHTS]; // 16 * 80 = 1280 bytes (somehow 1024 bytes?!)
+	float4x4 	_LightViewProj[MAX_SHADOWMAPS_2D]; // 4 * 64 = 256 bytes
+	//float4x4 	_CSMLightViewProj[MAX_CSM_SPLITS]; // 4 * 64 = 256 bytes
+	CSMSplit	_CSMSplits[MAX_CSM_SPLITS];
+	int 		_LightCount; // 4 bytes
 };
 
 Texture2D shadowMap0 : register(t9);
@@ -286,6 +292,77 @@ float CALCULATE_SHADOW_3D_SOFT( float3 P, float3 L, float range, int shadowMapIn
 		shadow /= float(NUM_SAMPLES); 
 	}	
 	return 1-shadow;
+}
+
+//**********************************************************************
+// CASCADED SHADOW MAPPING
+//**********************************************************************
+
+//-----------------------------------------------
+// @Returns: 0 if in shadow (0-1 if on edge), 1 if in light
+//-----------------------------------------------
+float CALCULATE_SHADOW_CSM( float3 P, int shadowMapIndex )
+{
+	float shadow = 0.0f;		
+	if (shadowMapIndex >= 0)
+	{
+		float distanceToCamera = length(P - _CameraPos);
+		
+		int width, height, elements;
+		shadowMapCascades.GetDimensions( width, height, elements );
+		for (int cascade = 0; cascade < elements; ++cascade)
+		{
+			if (distanceToCamera < _CSMSplits[cascade].range)
+			{
+				float4 lightSpace = mul( _CSMSplits[cascade].vp, float4( P, 1 ) );
+				float3 projCoords = lightSpace.xyz / lightSpace.w;
+				float2 uv = projCoords.xy * 0.5 + 0.5;
+				uv.y = 1 - uv.y;
+					
+				float3 uvw = float3( uv, cascade );
+				float depthSample = shadowMapCascades.SampleLevel( shadowMapCascadesSampler, uvw, 0 ).r;
+				
+				float currentDepth = projCoords.z;				
+				shadow = currentDepth > depthSample ? 1.0 : 0.0;
+				
+				// Smoothly transition shadow to nothing in last cascade
+				if (cascade == (elements-1))
+				{
+					// Transition factor: 0 to 1 from [SHADOW-DISTANCE-TRANSITION, SHADOW-DISTANCE]
+					const float transitionDistance = 30.0f;
+					float transitionFactor = (_CSMSplits[cascade].range - distanceToCamera) / transitionDistance;
+					transitionFactor = saturate( transitionFactor );
+					shadow *= transitionFactor;	
+				}			
+				break;
+			}		
+		}		
+
+		
+	}	
+	return 1-shadow;
+}
+
+//-----------------------------------------------
+float4 VISUALIZE_CASCADES( float3 P )
+{
+	float4 colors[] = {
+		float4(1,0,0,1),
+		float4(0,1,0,1),
+		float4(0,0,1,1),
+		float4(1,1,0,1)
+	};
+
+	float distanceToCamera = length(P - _CameraPos);
+	
+	int width, height, elements;
+	shadowMapCascades.GetDimensions( width, height, elements );	
+	for (int cascade = 0; cascade < elements; cascade++)
+	{
+		if (distanceToCamera < _CSMSplits[cascade].range)
+			return colors[cascade];
+	}	
+	return float4(1,1,1,1);
 }
 
 //**********************************************************************

@@ -42,7 +42,9 @@ float4 DoDirectionalLight( Light light, float3 V, float3 P, float3 N )
 		shadow = CALCULATE_SHADOW_DIR( P, light.range, light.shadowMapIndex );
 	else if (light.shadowType == SHADOW_TYPE_SOFT)
 		shadow = CALCULATE_SHADOW_DIR_SOFT( P, light.range, light.shadowMapIndex );
-			
+	else if (light.shadowType == SHADOW_TYPE_CSM)
+		shadow = CALCULATE_SHADOW_CSM( P, light.shadowMapIndex );
+		
     return (diffuse + specular) * shadow;
 }
 

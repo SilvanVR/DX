@@ -45,10 +45,17 @@ namespace Core { namespace Config {
     }
 
     //----------------------------------------------------------------------
-    void ConfigurationManager::setShadows( Graphics::ShadowType shadowType )
+    void ConfigurationManager::setShadowType( Graphics::ShadowType shadowType )
     {
         for (auto& light : SCENE.getComponentManager().getLights() )
-            light->setShadows( shadowType );
+            light->setShadowType( shadowType );
+    }
+
+    //----------------------------------------------------------------------
+    void ConfigurationManager::setShadowTypeAndQuality( Graphics::ShadowType shadowType, Graphics::ShadowMapQuality quality )
+    {
+        for (auto& light : SCENE.getComponentManager().getLights() )
+            light->setShadowTypeAndQuality( shadowType, quality );
     }
 
     //**********************************************************************

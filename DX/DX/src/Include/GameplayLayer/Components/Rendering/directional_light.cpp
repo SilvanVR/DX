@@ -18,17 +18,25 @@
 
 namespace Components {
 
-    #define DEPTH_STENCIL_FORMAT    Graphics::DepthFormat::D24S8
-    #define DEBUG_FRUSTUM           1
+    #define DEPTH_STENCIL_FORMAT    Graphics::DepthFormat::D32
+    #define DEBUG_FRUSTUM           0
 
     //----------------------------------------------------------------------
-    DirectionalLight::DirectionalLight( F32 intensity, Color color, bool shadowsEnabled )
+    DirectionalLight::DirectionalLight( F32 intensity, Color color, Graphics::ShadowType shadowType, const ArrayList<F32>& splitRangesWorldSpace )
         : ILightComponent( new Graphics::DirectionalLight( intensity, color ) )
     {
         m_dirLight = dynamic_cast<Graphics::DirectionalLight*>( m_light.get() );
+        m_dirLight->setShadowType( shadowType );
+        m_dirLight->setCSMSplitRanges( splitRangesWorldSpace );
 
-        if (shadowsEnabled)
+        if (shadowType != Graphics::ShadowType::None)
             _CreateShadowMap( CONFIG.getShadowMapQuality() );
+    }
+
+    //----------------------------------------------------------------------
+    DirectionalLight::DirectionalLight( F32 intensity, Color color, Graphics::ShadowType shadowType )
+        : DirectionalLight( intensity, color, shadowType, { 5.0f, 30.0f, 60.0f, 200.0f } )
+    {
     }
 
     //----------------------------------------------------------------------
@@ -45,22 +53,51 @@ namespace Components {
 
         if (shadowMapSize > 0)
         {
-            // Create shadowmap
-            auto shadowMap = RESOURCES.createRenderBuffer();
-            shadowMap->create( shadowMapSize, shadowMapSize, DEPTH_STENCIL_FORMAT );
-            shadowMap->setAnisoLevel( 1 );
-            shadowMap->setFilter( Graphics::TextureFilter::Point );
-            shadowMap->setClampMode( Graphics::TextureAddressMode::Clamp );
-            m_light->setShadowMap( shadowMap );
+            RenderBufferPtr renderBuffer;
+            switch ( m_dirLight->getShadowType() )
+            {
+            case Graphics::ShadowType::Hard:
+            case Graphics::ShadowType::Soft:
+            {
+                // Create shadowmap
+                auto shadowMap = RESOURCES.createRenderBuffer();
+                shadowMap->create( shadowMapSize, shadowMapSize, DEPTH_STENCIL_FORMAT );
+                shadowMap->setAnisoLevel( 1 );
+                shadowMap->setFilter( Graphics::TextureFilter::Point );
+                shadowMap->setClampMode( Graphics::TextureAddressMode::Clamp );
+                m_light->setShadowMap( shadowMap );
+
+                renderBuffer = shadowMap;
+                break;
+            }
+            case Graphics::ShadowType::CSM:
+            {
+                U32 splitCount = (U32)m_dirLight->getCSMSplits().size();
+                ASSERT(splitCount <= Locator::getRenderer().getLimits().maxCascades);
+
+                // Create shadowmap
+                auto shadowMap = RESOURCES.createTexture2DArray( shadowMapSize, shadowMapSize, splitCount,
+                                                                 Graphics::TextureFormat::RFloat, false );
+                shadowMap->setAnisoLevel( 1 );
+                shadowMap->setFilter( Graphics::TextureFilter::Point );
+                shadowMap->setClampMode( Graphics::TextureAddressMode::Clamp );
+                m_dirLight->setShadowMap( shadowMap );
+
+                // Create shadowmap (rendertarget, which gets copied to each slice)
+                auto shadowMapRender = RESOURCES.createRenderBuffer();
+                shadowMapRender->create( shadowMapSize, shadowMapSize, DEPTH_STENCIL_FORMAT );
+                renderBuffer = shadowMapRender;
+                break;
+            }
+            }
 
             // Create rendertexture
             auto rt = RESOURCES.createRenderTexture();
-            rt->create( nullptr, shadowMap );
+            rt->create( nullptr, renderBuffer );
 
-            // Configure camera
-            m_camera.reset( new Graphics::Camera( -10, 10, -10, 10, 0, m_dirLight->getShadowRange() ) );
-            m_camera->setRenderTarget( rt, false );
+            m_camera.reset( new Graphics::Camera( -10, 10, -10, 10, 0, 10 ) );
             m_camera->setReplacementShader( ASSETS.getShadowMapShader(), TAG_SHADOW_PASS );
+            m_camera->setRenderTarget( rt, false );
         }
     }
 
@@ -78,28 +115,73 @@ namespace Components {
     //----------------------------------------------------------------------
     void DirectionalLight::renderShadowMap( const IScene& scene, F32 lerp )
     {
-        // Adapt view frustum so it follows the main camera around
-        _AdaptOrthographicViewFrustum();
+        auto mainCamera = SCENE.getMainCamera();
 
-        ILightComponent::renderShadowMap( scene, lerp );
+        switch (m_dirLight->getShadowType())
+        {
+        case Graphics::ShadowType::Hard:
+        case Graphics::ShadowType::Soft:
+            // Adapt view frustum so it follows the main camera around
+            _AdaptOrthographicViewFrustum( mainCamera, mainCamera->getZNear(), m_dirLight->getShadowRange() );
+            ILightComponent::renderShadowMap( scene, lerp );
+            break;
+        case Graphics::ShadowType::CSM:
+            Graphics::CommandBuffer cmd;
+
+            auto& splits = m_dirLight->getCSMSplits();
+            for (auto cascade = 0; cascade < splits.size(); ++cascade)
+            {
+                // Adapt orthographic frustum for this cascade
+                F32 zNear = mainCamera->getZNear();
+                if (cascade != 0) // First cascade starts at zNear
+                    zNear = splits[cascade-1].range;
+                F32 zFar = splits[cascade].range;
+
+                _AdaptOrthographicViewFrustum( mainCamera, zNear, zFar );
+
+                // Record commands
+                auto transform = getGameObject()->getTransform();
+                auto modelMatrix = transform->getWorldMatrix( lerp );
+                m_camera->setModelMatrix( modelMatrix );
+
+                // Set light-view projection for this cascade
+                m_dirLight->setCSMShadowViewProjection( cascade, m_camera->getViewProjectionMatrix() );
+
+                // Set camera and record commands for every rendering component
+                cmd.setCamera( *m_camera );
+                for ( auto& renderer : scene.getComponentManager().getRenderer() )
+                {
+                    if ( not renderer->isActive() || not renderer->isCastingShadows() )
+                        continue;
+
+                    // Check if component is visible
+                    bool isVisible = renderer->cull( *m_camera );
+                    if (isVisible)
+                        renderer->recordGraphicsCommands( cmd, lerp );
+                }
+                cmd.endCamera();
+
+                // Copy rendering into appropriate array slice
+                cmd.copyTexture( m_camera->getRenderTarget()->getBuffer(), 0, 0, m_dirLight->getShadowMap(), cascade, 0 );
+            }
+            Locator::getRenderer().dispatch( cmd );
+            break;
+        }
     }
 
     //----------------------------------------------------------------------
-    void DirectionalLight::_AdaptOrthographicViewFrustum()
+    void DirectionalLight::_AdaptOrthographicViewFrustum( Components::Camera* mainCamera, F32 zNear, F32 zFar )
     {
-        // Adapt position of the camera frustum
-        auto mainCamera = SCENE.getMainCamera();
-        auto mainCameraTransform = mainCamera->getGameObject()->getTransform();
-        auto transform = getGameObject()->getTransform();
-
         // Calculate frustum corners in world space
+        auto mainCameraTransform = mainCamera->getGameObject()->getTransform();
         auto mainCameraFrustumCornersWS = Math::CalculateFrustumCorners( mainCameraTransform->position, 
                                                                          mainCameraTransform->rotation, 
                                                                          mainCamera->getFOV(), 
-                                                                         mainCamera->getZNear(), m_dirLight->getShadowRange(), 
+                                                                         zNear, zFar,
                                                                          mainCamera->getAspectRatio() );
 
         // Transform frustum corners in light space and calculate the center from the sphere
+        auto transform = getGameObject()->getTransform();
         auto worldToLight = DirectX::XMMatrixInverse( nullptr, transform->getWorldMatrix() );
 
         Math::Vec3 sphereCenter{ 0, 0, 0 };

@@ -45,9 +45,14 @@ namespace Core { namespace Config {
         void setShadowMapQuality(Graphics::ShadowMapQuality quality);
 
         //----------------------------------------------------------------------
+        // Change the shadow-type for all shadows.
+        //----------------------------------------------------------------------        
+        void setShadowType(Graphics::ShadowType shadowType);
+
+        //----------------------------------------------------------------------
         // Actives/Deactives shadows for all lights in the scene.
         //----------------------------------------------------------------------        
-        void setShadows(Graphics::ShadowType shadowType);
+        void setShadowTypeAndQuality(Graphics::ShadowType shadowType, Graphics::ShadowMapQuality quality);
 
     private:
         ConfigFile*                 m_engineIni = nullptr;

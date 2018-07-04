@@ -34,12 +34,14 @@ namespace Components {
         const TexturePtr&           getShadowMap()          const { return m_light->getShadowMap(); }
         Graphics::ShadowMapQuality  getShadowMapQuality()   const { return m_shadowMapQuality; }
         const Graphics::Camera&     getNativeCamera()       const { return *m_camera; }
+        Graphics::ShadowType        getShadowType()         const { return m_light->getShadowType(); }
 
         //----------------------------------------------------------------------
-        void setIntensity       (F32 intensity) { m_light->setIntensity(intensity); }
-        void setColor           (Color color)   { m_light->setColor(color); }
-        void setShadowMapQuality(Graphics::ShadowMapQuality quality);
-        void setShadows         (Graphics::ShadowType shadowType);
+        void setIntensity           (F32 intensity) { m_light->setIntensity(intensity); }
+        void setColor               (Color color)   { m_light->setColor(color); }
+        void setShadowMapQuality    (Graphics::ShadowMapQuality quality);
+        void setShadowType          (Graphics::ShadowType shadowType);
+        void setShadowTypeAndQuality(Graphics::ShadowType shadowType, Graphics::ShadowMapQuality quality);
 
     protected:
         std::unique_ptr<Graphics::Light>    m_light             = nullptr;

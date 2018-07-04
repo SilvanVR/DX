@@ -41,6 +41,7 @@ namespace Graphics {
     {
         U32 maxLights     = 16;
         U32 maxShadowmaps = 4;
+        U32 maxCascades   = 4;
     };
 
     //**********************************************************************

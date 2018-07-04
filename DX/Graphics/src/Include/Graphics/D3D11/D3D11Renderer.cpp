@@ -34,16 +34,17 @@ namespace Graphics {
     #define CAMERA_BUFFER D3D11::ConstantBufferManager::getCameraBuffer()
     #define LIGHT_BUFFER  D3D11::ConstantBufferManager::getLightBuffer()
 
-    static const StringID LIGHT_COUNT_NAME          = SID( "_LightCount" );
-    static const StringID LIGHT_BUFFER_NAME         = SID( "_Lights" );
-    static const StringID LIGHT_VIEW_PROJ_NAME      = SID( "_LightViewProj" );
-    static const StringID CAM_POS_NAME              = SID( "_CameraPos" );
-    static const StringID POST_PROCESS_INPUT_NAME   = SID( "_MainTex" );
-    static const StringID CAM_VIEW_PROJ_NAME        = SID( "_ViewProj" );
-    static const StringID CAM_ZNEAR_NAME            = SID( "_zNear" );
-    static const StringID CAM_ZFAR_NAME             = SID( "_zFar" );
-    static const StringID CAM_VIEW_MATRIX_NAME      = SID( "_View" );
-    static const StringID CAM_PROJ_MATRIX_NAME      = SID( "_Proj" );
+    static const StringID LIGHT_COUNT_NAME              = SID( "_LightCount" );
+    static const StringID LIGHT_BUFFER_NAME             = SID( "_Lights" );
+    static const StringID LIGHT_VIEW_PROJ_NAME          = SID( "_LightViewProj" );
+    static const StringID LIGHT_CSM_SPLITS_NAME         = SID( "_CSMSplits" );
+    static const StringID CAM_POS_NAME                  = SID( "_CameraPos" );
+    static const StringID POST_PROCESS_INPUT_NAME       = SID( "_MainTex" );
+    static const StringID CAM_VIEW_PROJ_NAME            = SID( "_ViewProj" );
+    static const StringID CAM_ZNEAR_NAME                = SID( "_zNear" );
+    static const StringID CAM_ZFAR_NAME                 = SID( "_zFar" );
+    static const StringID CAM_VIEW_MATRIX_NAME          = SID( "_View" );
+    static const StringID CAM_PROJ_MATRIX_NAME          = SID( "_Proj" );
 
     ArrayList<Math::Vec3> cubeVertices =
     {
@@ -74,6 +75,7 @@ namespace Graphics {
     {
         m_limits.maxLights      = MAX_LIGHTS;
         m_limits.maxShadowmaps  = MAX_SHADOWMAPS_2D + MAX_SHADOWMAPS_3D + MAX_SHADOWMAPS_ARRAY;
+        m_limits.maxCascades    = MAX_CSM_SPLITS;
 
         _InitD3D11();
 
@@ -536,9 +538,6 @@ namespace Graphics {
         I32 curShadowMap3DIndex = 0;
         I32 curShadowMapArrayIndex = 0;
         DirectX::XMMATRIX lightViewProjs[MAX_SHADOWMAPS_2D];
-        DirectX::XMMATRIX csmLightViewProjs[MAX_CSM_SPLITS];
-        F32 csmSplitRanges[MAX_CSM_SPLITS];
-        F32 csmSplitCount = 0;
 
         // Update light array
         for (I32 i = 0; i < renderContext.lightCount; ++i)
@@ -555,14 +554,38 @@ namespace Graphics {
             {
                 auto dirLight = reinterpret_cast<const DirectionalLight*>( renderContext.lights[i] );
                 lights[i].direction = dirLight->getDirection();
-                lights[i].range     = dirLight->getShadowRange();
-                break;
-            }
-            case LightType::Point:
-            {
-                auto pointLight = reinterpret_cast<const PointLight*>( renderContext.lights[i] );
-                lights[i].position  = pointLight->getPosition();
-                lights[i].range     = pointLight->getRange();
+
+                if ( dirLight->shadowsEnabled() )
+                {
+                    lights[i].range = dirLight->getShadowRange();
+
+                    switch ( dirLight->getShadowType() )
+                    {
+                    case ShadowType::Hard:
+                    case ShadowType::Soft:
+                        if ( curShadowMap2DIndex < MAX_SHADOWMAPS_2D )
+                        {
+                            lights[i].shadowMapIndex = curShadowMap2DIndex;
+                            lightViewProjs[curShadowMap2DIndex] = renderContext.lights[i]->getShadowViewProjection();
+                            renderContext.lights[i]->getShadowMap()->bind( Graphics::ShaderType::Fragment, SHADOW_MAP_2D_SLOT_BEGIN + curShadowMap2DIndex );
+                            curShadowMap2DIndex++;
+                        }
+                        break;
+                    case ShadowType::CSM:
+                        if (curShadowMapArrayIndex < MAX_SHADOWMAPS_ARRAY)
+                        {
+                            lights[i].shadowMapIndex = curShadowMapArrayIndex;
+
+                            auto& splits = dirLight->getCSMSplits();                            
+                            if ( not LIGHT_BUFFER.update( LIGHT_CSM_SPLITS_NAME, splits.data() ) )
+                                LOG_ERROR_RENDERING( "Failed to update light-buffer. Something is horribly broken! Fix this!" );
+
+                            renderContext.lights[i]->getShadowMap()->bind( Graphics::ShaderType::Fragment, SHADOW_MAP_ARRAY_SLOT_BEGIN + curShadowMapArrayIndex);
+                            curShadowMapArrayIndex++;
+                        }
+                        break;
+                    }
+                }
                 break;
             }
             case LightType::Spot:
@@ -572,67 +595,54 @@ namespace Graphics {
                 lights[i].range     = spotLight->getRange();
                 lights[i].spotAngle = spotLight->getAngle();
                 lights[i].direction = spotLight->getDirection();
-                break;
-            }
-            default:
-                ASSERT( false && "Unknown light type!" );
-            }
 
-            if ( not renderContext.lights[i]->shadowsEnabled() )
-                continue;
-
-            // Shadow information
-            switch ( renderContext.lights[i]->getLightType() )
-            {
-            case LightType::Directional:
-            {
-                switch ( renderContext.lights[i]->getShadowType() )
+                if ( spotLight->shadowsEnabled() )
                 {
-                case ShadowType::None: break;
-                case ShadowType::Hard:
-                case ShadowType::Soft:
-                    if ( curShadowMap2DIndex < MAX_SHADOWMAPS_2D )
+                    switch ( spotLight->getShadowType() )
                     {
-                        lights[i].shadowMapIndex = curShadowMap2DIndex;
-                        lightViewProjs[curShadowMap2DIndex] = renderContext.lights[i]->getShadowViewProjection();
-                        renderContext.lights[i]->getShadowMap()->bind( Graphics::ShaderType::Fragment, SHADOW_MAP_2D_SLOT_BEGIN + curShadowMap2DIndex );
-                        curShadowMap2DIndex++;
+                    case ShadowType::Hard:
+                    case ShadowType::Soft:
+                        if ( curShadowMap2DIndex < MAX_SHADOWMAPS_2D )
+                        {
+                            lights[i].shadowMapIndex = curShadowMap2DIndex;
+                            lightViewProjs[curShadowMap2DIndex] = renderContext.lights[i]->getShadowViewProjection();
+                            renderContext.lights[i]->getShadowMap()->bind( Graphics::ShaderType::Fragment, SHADOW_MAP_2D_SLOT_BEGIN + curShadowMap2DIndex );
+                            curShadowMap2DIndex++;
+                        }
+                        break;
+                    case ShadowType::CSM:
+                        LOG_WARN_RENDERING( "ShadowType CSM in Spot-Light, which is not supported!" );
                     }
-                    break;
-                case ShadowType::CSM: break;
-                    if (curShadowMapArrayIndex < MAX_SHADOWMAPS_ARRAY)
-                    {
-                        lights[i].shadowMapIndex = curShadowMapArrayIndex;
-                        //lightViewProjs[curShadowMap2DIndex] = renderContext.lights[i]->getShadowViewProjection();
-                        // Update split-count, split-ranges, lightViewProjections
-
-                        renderContext.lights[i]->getShadowMap()->bind( Graphics::ShaderType::Fragment, SHADOW_MAP_ARRAY_SLOT_BEGIN + curShadowMapArrayIndex);
-                        curShadowMapArrayIndex++;
-                    }
-                }
-                break;
-            }
-            case LightType::Spot:
-            {
-                if ( curShadowMap2DIndex < MAX_SHADOWMAPS_2D )
-                {
-                    lights[i].shadowMapIndex = curShadowMap2DIndex;
-                    lightViewProjs[curShadowMap2DIndex] = renderContext.lights[i]->getShadowViewProjection();
-                    renderContext.lights[i]->getShadowMap()->bind( Graphics::ShaderType::Fragment, SHADOW_MAP_2D_SLOT_BEGIN + curShadowMap2DIndex );
-                    curShadowMap2DIndex++;
                 }
                 break;
             }
             case LightType::Point:
             {
-                if ( curShadowMap3DIndex < MAX_SHADOWMAPS_3D )
+                auto pointLight = reinterpret_cast<const PointLight*>( renderContext.lights[i] );
+                lights[i].position  = pointLight->getPosition();
+                lights[i].range = pointLight->getRange();
+
+                if ( pointLight->shadowsEnabled() )
                 {
-                    lights[i].shadowMapIndex = curShadowMap3DIndex;
-                    renderContext.lights[i]->getShadowMap()->bind( Graphics::ShaderType::Fragment, SHADOW_MAP_3D_SLOT_BEGIN + curShadowMap3DIndex );
-                    curShadowMap3DIndex++;
+                    switch ( pointLight->getShadowType() )
+                    {
+                    case ShadowType::Hard:
+                    case ShadowType::Soft:
+                        if ( curShadowMap3DIndex < MAX_SHADOWMAPS_3D )
+                        {
+                            lights[i].shadowMapIndex = curShadowMap3DIndex;
+                            renderContext.lights[i]->getShadowMap()->bind( Graphics::ShaderType::Fragment, SHADOW_MAP_3D_SLOT_BEGIN + curShadowMap3DIndex );
+                            curShadowMap3DIndex++;
+                        }
+                        break;
+                    case ShadowType::CSM:
+                        LOG_WARN_RENDERING( "ShadowType CSM in Point-Light, which is not supported!" );
+                    }
                 }
                 break;
             }
+            default:
+                ASSERT( false && "Unknown light type!" );
             }
         }
 

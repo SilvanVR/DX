@@ -80,7 +80,7 @@ public:
 
         // LIGHTS
         auto sun = createGameObject("Sun");
-        auto dl = sun->addComponent<Components::DirectionalLight>(0.3f, Color::WHITE, true);
+        auto dl = sun->addComponent<Components::DirectionalLight>(0.3f, Color::WHITE, Graphics::ShadowType::CSM, ArrayList<F32>{5.0f, 30.0f, 80.0f, 200.0f});
         sun->getTransform()->rotation = Math::Quat::LookRotation(Math::Vec3{ 0,-1, 1 });
         //sun->addComponent<ConstantRotation>(5.0f, 0.0f, 0.0f);
 
@@ -101,7 +101,7 @@ public:
         //slg->addComponent<DrawFrustum>();
 
         go->addComponent<Components::GUI>();
-        auto imgComp = go->addComponent<Components::GUIImage>(dl->getShadowMap(), Math::Vec2{200, 200});
+        //auto imgComp = go->addComponent<Components::GUIImage>(dl->getShadowMap(), Math::Vec2{200, 200});
         go->addComponent<Components::GUIFPS>();
         go->addComponent<Components::GUICustom>([=] {
             static F32 ambient = 0.4f;
@@ -110,7 +110,7 @@ public:
 
             if (ImGui::CollapsingHeader("Shadows"))
             {
-                static bool changedSettings = true;
+                static bool changedSettings = false;
 
                 static bool shadowsActive = true;
                 if (ImGui::RadioButton("Enabled", shadowsActive))
@@ -134,13 +134,12 @@ public:
                     changedSettings = false;
                     if (not shadowsActive)
                     {
-                        CONFIG.setShadows(Graphics::ShadowType::None);
+                        CONFIG.setShadowType(Graphics::ShadowType::None);
                     }
                     else
                     {
-                        CONFIG.setShadowMapQuality(Graphics::ShadowMapQuality(quality_current));
-                        CONFIG.setShadows(Graphics::ShadowType(type_current+1));
-                        imgComp->setTexture(dl->getShadowMap()); // Must be set new if shadowmap gets recreated
+                        CONFIG.setShadowTypeAndQuality(Graphics::ShadowType(type_current + 1), Graphics::ShadowMapQuality(quality_current));
+                        //imgComp->setTexture(dl->getShadowMap()); // Must be set new if shadowmap gets recreated
                     }
                 }
             }
@@ -149,12 +148,24 @@ public:
             {
                 if (ImGui::TreeNode("Directional Light"))
                 {
+                    CString type[] = { "None", "Hard", "Soft", "CSM" };
+                    static I32 type_current = 1;
+                    type_current = (I32)dl->getShadowType(); 
+                    if (ImGui::Combo("Shadow Type", &type_current, type, 4))
+                        dl->setShadowType((Graphics::ShadowType)(type_current));
+
+                    CString qualities[] = { "Low", "Medium", "High", "Insane" };
+                    static I32 quality_current = 2;
+                    quality_current = (I32)dl->getShadowMapQuality();
+                    if (ImGui::Combo("Quality", &quality_current, qualities, 4))
+                        dl->setShadowMapQuality((Graphics::ShadowMapQuality)(quality_current));
+
                     static Math::Vec3 deg{ 45.0f, 0.0f, 0.0f };
                     ImGui::SliderFloat2("Rotation", &deg.x, 0.0f, 360.0f);
                     sun->getTransform()->rotation = Math::Quat::FromEulerAngles(deg);
 
                     static F32 dlRange = 30.0f;
-                    ImGui::SliderFloat("Shadow Range", &dlRange, 5.0f, 50.0f);
+                    ImGui::SliderFloat("Shadow Range", &dlRange, 5.0f, 100.0f);
                     dl->setShadowRange(dlRange);
                         
                     ImGui::TreePop();
@@ -178,9 +189,40 @@ public:
                     ImGui::TreePop();
                 }
             }
-
-
         });
+
+        // SHADER
+        auto texShader = ASSETS.getShader("/shaders/textureArray.shader");
+
+        // MATERIAL
+        auto material = RESOURCES.createMaterial();
+        material->setShader(texShader);
+        material->setTexture("texArray", dl->getShadowMap());
+        material->setInt("texIndex", 0);
+
+        auto material2 = RESOURCES.createMaterial();
+        material2->setShader(texShader);
+        material2->setTexture("texArray", dl->getShadowMap());
+        material2->setInt("texIndex", 1);
+
+        auto material3 = RESOURCES.createMaterial();
+        material3->setShader(texShader);
+        material3->setTexture("texArray", dl->getShadowMap());
+        material3->setInt("texIndex", 2);
+
+        // GAMEOBJECTS
+        auto plane = Core::MeshGenerator::CreatePlane();
+        auto go2 = createGameObject("Test2");
+        go2->addComponent<Components::MeshRenderer>(plane, material);
+        go2->getComponent<Components::Transform>()->position = {-2,10,0};
+
+        auto go3 = createGameObject("Test3");
+        go3->addComponent<Components::MeshRenderer>(plane, material2);
+        go3->getComponent<Components::Transform>()->position = {0,10,0};
+
+        auto go4 = createGameObject("Test4");
+        go4->addComponent<Components::MeshRenderer>(plane, material3);
+        go4->getComponent<Components::Transform>()->position = { 2,10,0 };
 
         LOG("TestScene initialized!", Color::RED);
     }
