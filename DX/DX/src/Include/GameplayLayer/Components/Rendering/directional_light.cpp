@@ -98,61 +98,38 @@ namespace Components {
                                                                          mainCamera->getZNear(), m_dirLight->getShadowRange(), 
                                                                          mainCamera->getAspectRatio() );
 
-        // Transform frustum corners in light space and retrieve min/max for the frustum
+        // Transform frustum corners in light space and calculate the center from the sphere
         auto worldToLight = DirectX::XMMatrixInverse( nullptr, transform->getWorldMatrix() );
 
-        F32 minX = std::numeric_limits<F32>::max();
-        F32 maxX = std::numeric_limits<F32>::lowest();
-        F32 minY = std::numeric_limits<F32>::max();
-        F32 maxY = std::numeric_limits<F32>::lowest();
-        F32 minZ = std::numeric_limits<F32>::max();
-        F32 maxZ = std::numeric_limits<F32>::lowest();
+        Math::Vec3 sphereCenter{0,0,0};
         for (auto i = 0; i < mainCameraFrustumCornersWS.size(); i++)
         {
             auto corner = DirectX::XMLoadFloat3( &mainCameraFrustumCornersWS[i] );
-            auto cornerLS = DirectX::XMVector4Transform( corner, worldToLight );
+            auto cornerV = DirectX::XMVector4Transform( corner, worldToLight );
 
             Math::Vec3 cornerLightSpace;
-            DirectX::XMStoreFloat3( &cornerLightSpace, cornerLS );
+            DirectX::XMStoreFloat3( &cornerLightSpace, cornerV );
 
-            minX = std::min( minX, cornerLightSpace.x );
-            maxX = std::max( maxX, cornerLightSpace.x );
-            minY = std::min( minY, cornerLightSpace.y );
-            maxY = std::max( maxY, cornerLightSpace.y );
-            minZ = std::min( minZ, cornerLightSpace.z );
-            maxZ = std::max( maxZ, cornerLightSpace.z );
+            sphereCenter += cornerLightSpace;
         }
 
-        // Snap the orthographic frustum to texel-size, otherwise we will have a very noticeable artifact
+        sphereCenter *= (1.0f / 8.0f);
+
+        // Get the min and max bounds in lightspace. (The radius is rather ad-hoc but works pretty well!)
+        F32 radius = (mainCameraFrustumCornersWS[0] - mainCameraFrustumCornersWS[7]).magnitude() * 0.5f;
+        auto min = sphereCenter - Math::Vec3{radius, radius, radius};
+        auto max = sphereCenter + Math::Vec3{radius, radius, radius};
+
+        // Snap the orthographic frustum to texel-size, otherwise we will have a very noticeable artifact (shadow shimmering)
         F32 shadowMapWidth = (F32)m_dirLight->getShadowMap()->getWidth();
+        F32 worldTexelSize = (2.0f*radius / shadowMapWidth);
 
-        F32 shadowRange = m_dirLight->getShadowRange();
+        min.x = worldTexelSize * std::floor(min.x / worldTexelSize);
+        max.x = worldTexelSize * std::floor(max.x / worldTexelSize);
+        min.y = worldTexelSize * std::floor(min.y / worldTexelSize);
+        max.y = worldTexelSize * std::floor(max.y / worldTexelSize);
 
-        F32 shadowLengthX = maxX - minX;
-        //F32 toMuchX = shadowLengthX - shadowRange;
-        //maxX -= toMuchX /2;
-        //minX += toMuchX /2;
-        //shadowLengthX = maxX - minX;
-
-        F32 worldTexelSizeX = (shadowLengthX / shadowMapWidth);
-        minX = worldTexelSizeX * std::floor(minX / worldTexelSizeX);
-        maxX = worldTexelSizeX * std::floor(maxX / worldTexelSizeX);
-
-        F32 shadowLengthY = maxY - minY;
-        //F32 toMuchY = shadowLengthY - shadowRange;
-        //maxY -= toMuchY / 2;
-        //minY += toMuchY / 2;
-        //shadowLengthY = maxY - minY;
-
-        F32 worldTexelSizeY = (shadowLengthY / shadowMapWidth);
-        minY = worldTexelSizeY * std::floor(minY / worldTexelSizeY);
-        maxY = worldTexelSizeY * std::floor(maxY / worldTexelSizeY);
-
-        // @TODO: Shadow swimming still happens when camera rotates / the light moves. This is because a larger/smaller amount
-        // of the world maps to the x and/or y axes. (shadowLengthX + shadowLengthY changes)
-        //LOG(TS(shadowLengthX) + ", " + TS(shadowLengthY));
-
-        m_camera->setOrthoParams( minX, maxX, minY, maxY, minZ, maxZ );
+        m_camera->setOrthoParams( min.x, max.x, min.y, max.y, min.z, max.z );
 
 #if DEBUG_FRUSTUM
         DEBUG.drawFrustum({}, transform->rotation, m_camera->getLeft(), m_camera->getRight(), 

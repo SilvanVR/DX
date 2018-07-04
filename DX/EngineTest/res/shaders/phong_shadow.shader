@@ -46,7 +46,7 @@ VertexOut main(VertexIn vin)
 cbuffer cbPerMaterial
 {
 	float uvScale;               
-}
+} 
 
 struct FragmentIn
 { 

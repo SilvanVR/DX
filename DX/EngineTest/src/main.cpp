@@ -84,7 +84,7 @@ public:
         auto sun = createGameObject("Sun");
         auto dl = sun->addComponent<Components::DirectionalLight>(0.3f, Color::WHITE);
         sun->getTransform()->rotation = Math::Quat::LookRotation(Math::Vec3{ 0,-1, 1 });
-        //sun->addComponent<ConstantRotation>(15.0f, 0.0f, 0.0f);
+        //sun->addComponent<ConstantRotation>(5.0f, 0.0f, 0.0f);
 
         //auto sun2 = createGameObject("Sun2");
         //sun2->addComponent<Components::DirectionalLight>(0.3f, Color::WHITE);
@@ -139,6 +139,10 @@ public:
 
             pl->setIntensity(intensity);
             pl->setRange(range);
+
+            static F32 dlRange = 30.0f;
+            ImGui::SliderFloat("DL Shadow Range", &dlRange, 1.0f, 50.0f);
+            dl->setShadowRange(dlRange);
         });
 
         LOG("TestScene initialized!", Color::RED);

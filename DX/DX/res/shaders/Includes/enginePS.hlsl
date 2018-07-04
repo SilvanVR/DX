@@ -129,7 +129,7 @@ float CALCULATE_SHADOW_2D( float3 P, int shadowMapIndex )
 		uv.y = 1 - uv.y;
 
 		float currentDepth = projCoords.z;
-		if ( inRange(currentDepth) && inRange(uv.x) && inRange(uv.y) )
+		if ( inRange(currentDepth) && inRange(uv.x) && inRange(uv.y) ) // Do i need this?
 		{	
 			float closestDepth = SAMPLE_SHADOWMAP_2D( shadowMapIndex, uv );
 			shadow = currentDepth < closestDepth ? 1.0 : 0.0;
