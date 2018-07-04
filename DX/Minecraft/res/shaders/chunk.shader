@@ -33,7 +33,7 @@ VertexOut main(VertexIn vin)
 // ----------------------------------------------
 #shader fragment
 
-#include "/engine/shaders/includes/enginePS.hlsl"
+#include "/shaders/includes/enginePS.hlsl"
 #include "/shaders/lighting/blinn_phong.hlsl"
 
 struct FragmentIn
