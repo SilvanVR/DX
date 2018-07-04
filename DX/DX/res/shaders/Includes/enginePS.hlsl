@@ -237,7 +237,7 @@ float SAMPLE_SHADOWMAP_3D( int index, float3 uvw )
 	float result = 0;
 	switch(index)
 	{
-		case 0:	result = shadowMapCube0.Sample( shadowMapCubeSampler0, uvw ).r; break;
+		case 0:	result = shadowMapCube0.SampleLevel( shadowMapCubeSampler0, uvw, 0 ).r; break;
 	}
 	return result;
 }
@@ -267,7 +267,7 @@ float CALCULATE_SHADOW_3D( float3 P, float3 L, float range, int shadowMapIndex )
 float CALCULATE_SHADOW_3D_SOFT( float3 P, float3 L, float range, int shadowMapIndex )
 {
 	static const int NUM_SAMPLES = 20;
-	float3 sampleOffsetDirections[NUM_SAMPLES] = {
+	float3 sampleOffsetDirections[20] = {
 	   float3( 1,  1,  1), float3( 1, -1,  1), float3(-1, -1,  1), float3(-1,  1,  1), 
 	   float3( 1,  1, -1), float3( 1, -1, -1), float3(-1, -1, -1), float3(-1,  1, -1),
 	   float3( 1,  1,  0), float3( 1, -1,  0), float3(-1, -1,  0), float3(-1,  1,  0),
@@ -281,7 +281,7 @@ float CALCULATE_SHADOW_3D_SOFT( float3 P, float3 L, float range, int shadowMapIn
 		float3 fragToLight = P - L;
 		float currentDepth = length( fragToLight );	
 
-		float diskRadius = 0.005; 
+		float diskRadius = 0.005;
 		for(int i = 0; i < NUM_SAMPLES; ++i)
 		{
 			float closestDepth = SAMPLE_SHADOWMAP_3D( shadowMapIndex, fragToLight + sampleOffsetDirections[i] * diskRadius);
@@ -291,7 +291,7 @@ float CALCULATE_SHADOW_3D_SOFT( float3 P, float3 L, float range, int shadowMapIn
 				shadow += 1.0;
 		}
 		shadow /= float(NUM_SAMPLES); 
-	}	
+	}
 	return 1-shadow;
 }
 

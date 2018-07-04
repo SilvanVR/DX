@@ -37,8 +37,16 @@ float4 DoDirectionalLight( Light light, float3 V, float3 P, float3 N )
     float4 diffuse = DoDiffuse( light, L, N );
     //float4 specular = DoSpecular( light, V, L, N );
 		 
-	float shadow = CALCULATE_SHADOW_DIR( P, light.range, light.shadowMapIndex );
-
+	float shadow = 1.0;
+	if (light.shadowType == SHADOW_TYPE_HARD)
+		shadow = CALCULATE_SHADOW_DIR( P, light.range, light.shadowMapIndex );
+	else if (light.shadowType == SHADOW_TYPE_SOFT)
+		shadow = CALCULATE_SHADOW_DIR_SOFT( P, light.range, light.shadowMapIndex );
+	else if (light.shadowType == SHADOW_TYPE_CSM)
+		shadow = CALCULATE_SHADOW_CSM( P, light.shadowMapIndex );
+	else if (light.shadowType == SHADOW_TYPE_CSM_SOFT)
+		shadow = CALCULATE_SHADOW_CSM( P, light.shadowMapIndex );
+		
     return diffuse * shadow;
 }
 
@@ -56,8 +64,14 @@ float4 DoPointLight( Light light, float3 V, float3 P, float3 N )
     float4 diffuse = DoDiffuse( light, L, N ) * attenuation;
     float4 specular = DoSpecular( light, V, L, N ) * attenuation;
  
-	float shadow = CALCULATE_SHADOW_3D( P, light.position, light.range, light.shadowMapIndex ) * attenuation;
- 
+	float shadow = 1.0;
+	if (light.shadowType == SHADOW_TYPE_HARD)
+		shadow = CALCULATE_SHADOW_3D( P, light.position, light.range, light.shadowMapIndex );
+	else if (light.shadowType == SHADOW_TYPE_SOFT)
+		shadow = CALCULATE_SHADOW_3D_SOFT( P, light.position, light.range, light.shadowMapIndex );
+		
+	shadow *= attenuation;
+		
     return (diffuse + specular) * shadow;
 }
 
@@ -84,9 +98,15 @@ float4 DoSpotLight( Light light, float3 V, float3 P, float3 N )
     float4 diffuse = DoDiffuse( light, L, N ) * attenuation * spotIntensity;
     float4 specular = DoSpecular( light, V, L, N ) * attenuation * spotIntensity;
  
-	// Attenuation must be multiplied with the shadow
-	float shadow = CALCULATE_SHADOW_2D( P, light.shadowMapIndex ) * attenuation;
- 
+	// Attenuation must be multiplied with the shadow in order to smoothly fade out the shadow
+	float shadow = 1.0;
+	if (light.shadowType == SHADOW_TYPE_HARD)
+		shadow = CALCULATE_SHADOW_2D( P, light.shadowMapIndex );
+	else if (light.shadowType == SHADOW_TYPE_SOFT)
+		shadow = CALCULATE_SHADOW_2D_SOFT( P, light.shadowMapIndex );
+			
+	shadow *= attenuation;
+			
     return (diffuse + specular) * shadow;
 }
 

@@ -478,7 +478,8 @@ class Sun : public Components::IComponent
 public:
     void addedToGameObject(GameObject* go) override
     {
-        auto dirLight = go->addComponent<Components::DirectionalLight>(0.75f, Color::WHITE, true);
+        ArrayList<F32> splitRanges{10.0f, 30.0f, 100.0f, 350.0f};
+        auto dirLight = go->addComponent<Components::DirectionalLight>(0.75f, Color::WHITE, Graphics::ShadowType::CSMSoft, splitRanges);
         dirLight->setShadowRange(50.0f);
 
         go->getTransform()->rotation = Math::Quat::LookRotation( Math::Vec3{ 0, -1, 0 }, Math::Vec3::RIGHT );
@@ -487,7 +488,7 @@ public:
 
     void tick(Time::Seconds delta) override
     {
-        getGameObject()->getTransform()->rotation *= Math::Quat(Math::Vec3::RIGHT, 5.0f * (F32)delta);
+        getGameObject()->getTransform()->rotation *= Math::Quat(Math::Vec3::RIGHT, 0.5f * (F32)delta);
     }
 };
 

@@ -80,7 +80,7 @@ public:
 
         // LIGHTS
         auto sun = createGameObject("Sun");
-        auto dl = sun->addComponent<Components::DirectionalLight>(0.3f, Color::WHITE, Graphics::ShadowType::CSM, ArrayList<F32>{5.0f, 30.0f, 80.0f, 200.0f});
+        auto dl = sun->addComponent<Components::DirectionalLight>(0.3f, Color::WHITE, Graphics::ShadowType::CSMSoft, ArrayList<F32>{10.0f, 30.0f, 80.0f, 200.0f});
         sun->getTransform()->rotation = Math::Quat::LookRotation(Math::Vec3{ 0,-1, 1 });
         //sun->addComponent<ConstantRotation>(5.0f, 0.0f, 0.0f);
 
