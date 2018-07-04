@@ -47,7 +47,7 @@ namespace Core { namespace Config {
         //----------------------------------------------------------------------
         // Actives/Deactives shadows for all lights in the scene.
         //----------------------------------------------------------------------        
-        void setShadows(bool enabled);
+        void setShadows(Graphics::ShadowType shadowType);
 
     private:
         ConfigFile*                 m_engineIni = nullptr;

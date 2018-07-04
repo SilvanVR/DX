@@ -528,21 +528,26 @@ namespace Graphics {
             F32         spotAngle;              // 4 bytes
             F32         range;                  // 4 bytes
             I32         shadowMapIndex;         // 4 bytes
-            F32         PADDING;                // 4 bytes
+            I32         shadowType;             // 4 bytes
             //----------------------------------- (16 byte boundary)
         } lights[MAX_LIGHTS];
 
         I32 curShadowMap2DIndex = 0;
         I32 curShadowMap3DIndex = 0;
+        I32 curShadowMapArrayIndex = 0;
         DirectX::XMMATRIX lightViewProjs[MAX_SHADOWMAPS_2D];
+        DirectX::XMMATRIX csmLightViewProjs[MAX_CSM_SPLITS];
+        F32 csmSplitRanges[MAX_CSM_SPLITS];
+        F32 csmSplitCount = 0;
 
         // Update light array
-        for (I32 i = 0; i < renderContext.lightCount; i++)
+        for (I32 i = 0; i < renderContext.lightCount; ++i)
         {
             lights[i].color     = renderContext.lights[i]->getColor().normalized();
             lights[i].intensity = renderContext.lights[i]->getIntensity();
             lights[i].lightType = (I32)renderContext.lights[i]->getLightType();
             lights[i].shadowMapIndex = -1;
+            lights[i].shadowType = (I32)renderContext.lights[i]->getShadowType();
 
             switch ( renderContext.lights[i]->getLightType() )
             {
@@ -573,13 +578,43 @@ namespace Graphics {
                 ASSERT( false && "Unknown light type!" );
             }
 
+            if ( not renderContext.lights[i]->shadowsEnabled() )
+                continue;
+
             // Shadow information
             switch ( renderContext.lights[i]->getLightType() )
             {
             case LightType::Directional:
+            {
+                switch ( renderContext.lights[i]->getShadowType() )
+                {
+                case ShadowType::None: break;
+                case ShadowType::Hard:
+                case ShadowType::Soft:
+                    if ( curShadowMap2DIndex < MAX_SHADOWMAPS_2D )
+                    {
+                        lights[i].shadowMapIndex = curShadowMap2DIndex;
+                        lightViewProjs[curShadowMap2DIndex] = renderContext.lights[i]->getShadowViewProjection();
+                        renderContext.lights[i]->getShadowMap()->bind( Graphics::ShaderType::Fragment, SHADOW_MAP_2D_SLOT_BEGIN + curShadowMap2DIndex );
+                        curShadowMap2DIndex++;
+                    }
+                    break;
+                case ShadowType::CSM: break;
+                    if (curShadowMapArrayIndex < MAX_SHADOWMAPS_ARRAY)
+                    {
+                        lights[i].shadowMapIndex = curShadowMapArrayIndex;
+                        //lightViewProjs[curShadowMap2DIndex] = renderContext.lights[i]->getShadowViewProjection();
+                        // Update split-count, split-ranges, lightViewProjections
+
+                        renderContext.lights[i]->getShadowMap()->bind( Graphics::ShaderType::Fragment, SHADOW_MAP_ARRAY_SLOT_BEGIN + curShadowMapArrayIndex);
+                        curShadowMapArrayIndex++;
+                    }
+                }
+                break;
+            }
             case LightType::Spot:
             {
-                if ( renderContext.lights[i]->shadowsEnabled() && curShadowMap2DIndex < MAX_SHADOWMAPS_2D )
+                if ( curShadowMap2DIndex < MAX_SHADOWMAPS_2D )
                 {
                     lights[i].shadowMapIndex = curShadowMap2DIndex;
                     lightViewProjs[curShadowMap2DIndex] = renderContext.lights[i]->getShadowViewProjection();
@@ -590,7 +625,7 @@ namespace Graphics {
             }
             case LightType::Point:
             {
-                if ( renderContext.lights[i]->shadowsEnabled() && curShadowMap3DIndex < MAX_SHADOWMAPS_3D )
+                if ( curShadowMap3DIndex < MAX_SHADOWMAPS_3D )
                 {
                     lights[i].shadowMapIndex = curShadowMap3DIndex;
                     renderContext.lights[i]->getShadowMap()->bind( Graphics::ShaderType::Fragment, SHADOW_MAP_3D_SLOT_BEGIN + curShadowMap3DIndex );

@@ -80,7 +80,7 @@ public:
 
         // LIGHTS
         auto sun = createGameObject("Sun");
-        auto dl = sun->addComponent<Components::DirectionalLight>(0.3f, Color::WHITE);
+        auto dl = sun->addComponent<Components::DirectionalLight>(0.3f, Color::WHITE, true);
         sun->getTransform()->rotation = Math::Quat::LookRotation(Math::Vec3{ 0,-1, 1 });
         //sun->addComponent<ConstantRotation>(5.0f, 0.0f, 0.0f);
 
@@ -89,7 +89,7 @@ public:
         //sun2->getTransform()->rotation = Math::Quat::LookRotation(Math::Vec3{ 0,-1, -1 });
 
         auto plg = createGameObject("PL");
-        auto pl = plg->addComponent<Components::PointLight>(1.0f, Color::ORANGE, 5.0f, false);
+        auto pl = plg->addComponent<Components::PointLight>(1.0f, Color::ORANGE, 5.0f, true);
         plg->getTransform()->position = { 3, 2, 0 };
         plg->addComponent<Components::Billboard>(ASSETS.getTexture2D("/textures/pointLight.png"), 0.5f);
         //go->addComponent<Components::Skybox>(pl->getShadowMap());
@@ -104,43 +104,82 @@ public:
         auto imgComp = go->addComponent<Components::GUIImage>(dl->getShadowMap(), Math::Vec2{200, 200});
         go->addComponent<Components::GUIFPS>();
         go->addComponent<Components::GUICustom>([=] {
-            static Math::Vec3 deg{45.0f, 0.0f, 0.0f};
-            ImGui::SliderFloat2( "Sun Rotation", &deg.x, 0.0f, 360.0f );
-            sun->getTransform()->rotation = Math::Quat::FromEulerAngles(deg);
-
-            static bool shadowsActive = true;
-            if (ImGui::RadioButton("Shadows", shadowsActive))
-            {
-                shadowsActive = !shadowsActive;
-                CONFIG.setShadows(shadowsActive);
-            }
-
-            if (ImGui::Button("Low"))       CONFIG.setShadowMapQuality(Graphics::ShadowMapQuality::Low);
-            if (ImGui::Button("Medium"))    CONFIG.setShadowMapQuality(Graphics::ShadowMapQuality::Medium);
-            if (ImGui::Button("High"))      CONFIG.setShadowMapQuality(Graphics::ShadowMapQuality::High);
-            if (ImGui::Button("Insane"))    CONFIG.setShadowMapQuality(Graphics::ShadowMapQuality::Insane);
-            imgComp->setTexture(dl->getShadowMap()); // Must be set new if shadowmap gets recreated
-
-            static F32 dlRange = 30.0f;
-            ImGui::SliderFloat("DL Shadow Range", &dlRange, 5.0f, 50.0f);
-            dl->setShadowRange(dlRange);
-
             static F32 ambient = 0.4f;
             ImGui::SliderFloat("Ambient", &ambient, 0.0f, 1.0f);
             Locator::getRenderer().setGlobalFloat(SID("_Ambient"), ambient);
 
-            static Math::Vec3 pos{ 0, 2.5, -1 };
-            ImGui::SliderFloat3("PointLight Position", &pos.x, -3.0f, 3.0f);
-            plg->getTransform()->position = pos;
+            if (ImGui::CollapsingHeader("Shadows"))
+            {
+                static bool changedSettings = true;
 
-            static F32 range = 25.0f;
-            ImGui::SliderFloat("PointLight Range", &range, 5.0f, 50.0f);
+                static bool shadowsActive = true;
+                if (ImGui::RadioButton("Enabled", shadowsActive))
+                {
+                    shadowsActive = !shadowsActive;
+                    changedSettings = true;
+                }
 
-            static F32 intensity = 1.0f;
-            ImGui::SliderFloat("PointLight Intensity", &intensity, 0.5f, 5.0f);
+                CString type[] = { "Hard", "Soft" };
+                static I32 type_current = 1;
+                if (ImGui::Combo("Type", &type_current, type, 2))
+                    changedSettings = true;
 
-            pl->setIntensity(intensity);
-            pl->setRange(range);
+                CString qualities[] = { "Low", "Medium", "High", "Insane" };
+                static I32 quality_current = 2;
+                if (ImGui::Combo("Quality", &quality_current, qualities, 4))
+                    changedSettings = true;
+
+                if (changedSettings)
+                {
+                    changedSettings = false;
+                    if (not shadowsActive)
+                    {
+                        CONFIG.setShadows(Graphics::ShadowType::None);
+                    }
+                    else
+                    {
+                        CONFIG.setShadowMapQuality(Graphics::ShadowMapQuality(quality_current));
+                        CONFIG.setShadows(Graphics::ShadowType(type_current+1));
+                        imgComp->setTexture(dl->getShadowMap()); // Must be set new if shadowmap gets recreated
+                    }
+                }
+            }
+
+            if (ImGui::CollapsingHeader("Lights"))
+            {
+                if (ImGui::TreeNode("Directional Light"))
+                {
+                    static Math::Vec3 deg{ 45.0f, 0.0f, 0.0f };
+                    ImGui::SliderFloat2("Rotation", &deg.x, 0.0f, 360.0f);
+                    sun->getTransform()->rotation = Math::Quat::FromEulerAngles(deg);
+
+                    static F32 dlRange = 30.0f;
+                    ImGui::SliderFloat("Shadow Range", &dlRange, 5.0f, 50.0f);
+                    dl->setShadowRange(dlRange);
+                        
+                    ImGui::TreePop();
+                }
+
+                if (ImGui::TreeNode("Point Light"))
+                {
+                    static Math::Vec3 pos{ 0, 2.5, -1 };
+                    ImGui::SliderFloat3("Position", &pos.x, -3.0f, 3.0f);
+                    plg->getTransform()->position = pos;
+
+                    static F32 range = 25.0f;
+                    ImGui::SliderFloat("Range", &range, 5.0f, 50.0f);
+
+                    static F32 intensity = 1.0f;
+                    ImGui::SliderFloat("Intensity", &intensity, 0.5f, 5.0f);
+
+                    pl->setIntensity(intensity);
+                    pl->setRange(range);
+
+                    ImGui::TreePop();
+                }
+            }
+
+
         });
 
         LOG("TestScene initialized!", Color::RED);

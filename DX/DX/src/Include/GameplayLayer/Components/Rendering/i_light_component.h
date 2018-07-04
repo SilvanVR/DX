@@ -39,7 +39,7 @@ namespace Components {
         void setIntensity       (F32 intensity) { m_light->setIntensity(intensity); }
         void setColor           (Color color)   { m_light->setColor(color); }
         void setShadowMapQuality(Graphics::ShadowMapQuality quality);
-        void setShadows         (bool enabled);
+        void setShadows         (Graphics::ShadowType shadowType);
 
     protected:
         std::unique_ptr<Graphics::Light>    m_light             = nullptr;

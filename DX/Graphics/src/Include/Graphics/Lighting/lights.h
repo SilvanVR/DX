@@ -28,6 +28,15 @@ namespace Graphics
         Insane
     };
 
+    //----------------------------------------------------------------------
+    enum class ShadowType
+    {
+        None,
+        Hard,
+        Soft,
+        CSM
+    };
+
     //**********************************************************************
     class Light
     {
@@ -40,25 +49,26 @@ namespace Graphics
         LightType                   getLightType()              const { return m_lightType; }
         Color                       getColor()                  const { return m_color; }
         F32                         getIntensity()              const { return m_intensity; }
-        bool                        shadowsEnabled()            const { return m_shadowsEnabled; }
+        bool                        shadowsEnabled()            const { return m_shadowType != ShadowType::None; }
         const TexturePtr&           getShadowMap()              const { return m_shadowMap; }
         const DirectX::XMMATRIX&    getShadowViewProjection()   const { return m_shadowViewProjection; }
+        ShadowType                  getShadowType()             const { return m_shadowType; }
 
         //----------------------------------------------------------------------
-        void        setColor            (Color color)   { m_color = color; }
-        void        setIntensity        (F32 intensity) { m_intensity = intensity; }
-        void        setShadows          (bool enabled)  { m_shadowsEnabled = enabled; }
-        void        enableShadows       ()              { setShadows(true); }
-        void        disableShadows      ()              { setShadows(false); }
+        void        setColor            (Color color)           { m_color = color; }
+        void        setIntensity        (F32 intensity)         { m_intensity = intensity; }
+        void        setShadows          (ShadowType shadowType) { m_shadowType = shadowType; }
+        void        enableShadows       ()                      { setShadows(ShadowType::Soft); }
+        void        disableShadows      ()                      { setShadows(ShadowType::None); }
 
-        void        setShadowMap            (const TexturePtr& shadowMap) { m_shadowsEnabled = true; m_shadowMap = shadowMap; }
+        void        setShadowMap            (const TexturePtr& shadowMap) { m_shadowType = ShadowType::Soft; m_shadowMap = shadowMap; }
         void        setShadowViewProjection (const DirectX::XMMATRIX& vp) { m_shadowViewProjection  = vp; }
 
     protected:
         F32                 m_intensity         = 1.0f;
         Color               m_color             = Color::WHITE;
         LightType           m_lightType         = LightType::Unknown;
-        bool                m_shadowsEnabled    = false;
+        ShadowType          m_shadowType        = ShadowType::None;
         TexturePtr          m_shadowMap         = nullptr;
         DirectX::XMMATRIX   m_shadowViewProjection;
 

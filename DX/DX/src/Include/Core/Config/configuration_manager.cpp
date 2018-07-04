@@ -45,10 +45,10 @@ namespace Core { namespace Config {
     }
 
     //----------------------------------------------------------------------
-    void ConfigurationManager::setShadows( bool enabled )
+    void ConfigurationManager::setShadows( Graphics::ShadowType shadowType )
     {
         for (auto& light : SCENE.getComponentManager().getLights() )
-            light->setShadows( enabled );
+            light->setShadows( shadowType );
     }
 
     //**********************************************************************

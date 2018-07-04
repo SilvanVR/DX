@@ -15,6 +15,11 @@
 #define ALPHA_THRESHOLD  			0.1
 #define SHADOW_TRANSITION_DISTANCE 	1
 #define POISSON_DISK_SAMPLES 		16
+#define MAX_CSM_SPLITS				4	
+#define SHADOW_TYPE_NONE 			0
+#define SHADOW_TYPE_HARD 			1
+#define SHADOW_TYPE_SOFT			2
+#define SHADOW_TYPE_CSM				3
 
 cbuffer cbPerCamera : register(b0)
 {	
@@ -45,7 +50,7 @@ struct Light
     float       spotAngle;              // 4 bytes
     float       range;					// 4 bytes
     int       	shadowMapIndex;			// 4 bytes
-	float		PADDING;				// 4 bytes	
+	int			shadowType;				// 4 bytes	
     //----------------------------------- (16 byte boundary)
 };  // Total:                           // 80 bytes (4 * 16)
  
@@ -54,6 +59,9 @@ cbuffer cbBufferLights : register(b3)
 	Light 		_Lights[MAX_LIGHTS];
 	int 		_LightCount;
 	float4x4 	_LightViewProj[MAX_SHADOWMAPS_2D];
+	float4x4 	_CSMLightViewProj[MAX_CSM_SPLITS];
+	float		_CSMSplitRanges[MAX_CSM_SPLITS];
+	float 		_CSMSplitCount;
 };
 
 Texture2D shadowMap0 : register(t9);
@@ -112,11 +120,11 @@ static const float2 poissonDisk[POISSON_DISK_SAMPLES] = {
 //-----------------------------------------------
 // @Return: 1 if completely in light, otherwise <1 depending on how much samples are visible
 //-----------------------------------------------
-float PoisonDiskSampling( float currentDepth, float2 uv, int shadowMapIndex )
+float PoisonDiskSampling( float currentDepth, float2 uv, int shadowMapIndex, float spacing )
 {
 	float invisibleSamples = 0;
 	for (int i=0; i<POISSON_DISK_SAMPLES; ++i){
-		float depthSample = SAMPLE_SHADOWMAP_2D( shadowMapIndex, uv + poissonDisk[i]/2048.0 );
+		float depthSample = SAMPLE_SHADOWMAP_2D( shadowMapIndex, uv + poissonDisk[i]/spacing );
 		if ( currentDepth > depthSample )
 			invisibleSamples++;
 	}	
@@ -163,7 +171,7 @@ float CALCULATE_SHADOW_DIR_SOFT( float3 P, float shadowDistance, int shadowMapIn
 		float currentDepth = projCoords.z;
 		
 		// Poisson sampling soft shadows
-		shadow = PoisonDiskSampling( currentDepth, uv, shadowMapIndex );
+		shadow = PoisonDiskSampling( currentDepth, uv, shadowMapIndex, 2048.0 );
 						
 		// Transition factor: 0 to 1 from [SHADOW-DISTANCE-TRANSITION, SHADOW-DISTANCE]
 		float distanceToCamera = length(P - _CameraPos);
@@ -207,7 +215,7 @@ float CALCULATE_SHADOW_2D_SOFT( float3 P, int shadowMapIndex )
 		float currentDepth = projCoords.z;
 
 		// Poisson sampling soft shadows
-		shadow = PoisonDiskSampling( currentDepth, uv, shadowMapIndex );
+		shadow = PoisonDiskSampling( currentDepth, uv, shadowMapIndex, 512 );
 	}	
 	return 1-shadow;
 }
