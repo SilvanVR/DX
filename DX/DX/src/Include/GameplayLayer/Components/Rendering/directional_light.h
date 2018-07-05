@@ -22,6 +22,9 @@ namespace Components {
         DirectionalLight(F32 intensity, Color color, Graphics::ShadowType shadowType, const ArrayList<F32>& splitRangesWorldSpace);
 
         //----------------------------------------------------------------------
+        void tick(Time::Seconds d) override;
+
+        //----------------------------------------------------------------------
         Math::Vec3  getDirection()      const { return m_dirLight->getDirection(); }
         F32         getShadowRange()    const { return m_dirLight->getShadowRange(); }
         I32         getCascadeCount()   const { return static_cast<I32>( m_dirLight->getCSMSplits().size() ); }

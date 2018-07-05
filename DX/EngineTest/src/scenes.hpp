@@ -1064,6 +1064,12 @@ public:
         cam->setClearColor(Color(66, 134, 244));
         //go->addComponent<AutoOrbiting>(15.0f);
 
+        auto player = createGameObject("Player");
+        player->addComponent<Components::MeshRenderer>(ASSETS.getMesh("/models/monkey.obj"), ASSETS.getMaterial("/materials/normals.material"));
+        player->getTransform()->setParent(go->getTransform(), false);
+        player->getTransform()->position = { 0, 0, -0.5f };
+        player->getTransform()->rotation *= Math::Quat(Math::Vec3::UP, 180.0f);
+
         auto obj = createGameObject("GO");
         obj->addComponent<Components::MeshRenderer>(Core::MeshGenerator::CreatePlane(), ASSETS.getMaterial("/materials/blinn_phong/grass.material"));
         obj->getTransform()->rotation *= Math::Quat(Math::Vec3::RIGHT, 90.0f);
@@ -1077,6 +1083,10 @@ public:
         cubeGO->addComponent<Components::MeshRenderer>(Core::MeshGenerator::CreateCubeUV(0.3f), ASSETS.getMaterial("/materials/blinn_phong/cube.material"));
         cubeGO->getTransform()->position = { -5.0f, 0.3001f, 0.0f };
         cubeGO->addComponent<ConstantRotation>(0.0f, 10.0f, 0.0f);
+
+        auto cubeGO2 = createGameObject("GO3");
+        cubeGO2->addComponent<Components::MeshRenderer>(Core::MeshGenerator::CreateCubeUV(0.3f), ASSETS.getMaterial("/materials/blinn_phong/cube.material"));
+        cubeGO2->getTransform()->position = { -8.0f, 0.3001f, 0.0f };
 
         Assets::MeshMaterialInfo matInfo;
         auto treeMesh = ASSETS.getMesh("/models/tree/tree.obj", &matInfo);
@@ -1110,6 +1120,7 @@ public:
         // LIGHTS
         auto sun = createGameObject("Sun");
         auto dl = sun->addComponent<Components::DirectionalLight>(0.3f, Color::WHITE, Graphics::ShadowType::CSMSoft, ArrayList<F32>{10.0f, 30.0f, 80.0f, 200.0f});
+        //auto dl = sun->addComponent<Components::DirectionalLight>(0.0f, Color::WHITE);
         sun->getTransform()->rotation = Math::Quat::LookRotation(Math::Vec3{ 0,-1, 1 });
         //sun->addComponent<ConstantRotation>(5.0f, 0.0f, 0.0f);
 
@@ -1137,6 +1148,8 @@ public:
             ImGui::SliderFloat("Ambient", &ambient, 0.0f, 1.0f);
             Locator::getRenderer().setGlobalFloat(SID("_Ambient"), ambient);
 
+            obj2->getTransform()->position.x = 5 + std::sin((F64)TIME.getTime());
+
             if (ImGui::CollapsingHeader("Shadows"))
             {
                 CString type[] = { "None", "Hard", "Soft" };
@@ -1154,6 +1167,18 @@ public:
             {
                 if (ImGui::TreeNode("Directional Light"))
                 {
+                    static F32 animateSpeed = 0.0f;
+                    ImGui::SliderFloat("Speed", &animateSpeed, -20.0f, 20.0f);
+                    dl->getGameObject()->getTransform()->rotation *= Math::Quat(Math::Vec3::RIGHT, animateSpeed * (F32)PROFILER.getDelta());
+
+                    static Math::Vec3 deg{ 45.0f, 0.0f, 0.0f };
+                    if (ImGui::SliderFloat2("Rotation", &deg.x, 0.0f, 360.0f))
+                        sun->getTransform()->rotation = Math::Quat::FromEulerAngles(deg);
+
+                    static F32 color[4] = { 1,1,1,1 };
+                    if (ImGui::ColorEdit4("Color", color))
+                        dl->setColor(Color(color));
+
                     CString type[] = { "None", "Hard", "Soft", "CSM", "CSMSoft" };
                     static I32 type_current = 1;
                     type_current = (I32)dl->getShadowType();
@@ -1165,10 +1190,6 @@ public:
                     quality_current = (I32)dl->getShadowMapQuality();
                     if (ImGui::Combo("Quality", &quality_current, qualities, 4))
                         dl->setShadowMapQuality((Graphics::ShadowMapQuality)(quality_current));
-
-                    static Math::Vec3 deg{ 45.0f, 0.0f, 0.0f };
-                    if (ImGui::SliderFloat2("Rotation", &deg.x, 0.0f, 360.0f))
-                        sun->getTransform()->rotation = Math::Quat::FromEulerAngles(deg);
 
                     if (type_current > 0 && type_current <= 2)
                     {
@@ -1214,7 +1235,9 @@ public:
                     quality_current = (I32)pl->getShadowMapQuality();
                     if (ImGui::Combo("Quality", &quality_current, qualities, 4))
                         pl->setShadowMapQuality((Graphics::ShadowMapQuality)(quality_current));
-
+                    static F32 color[4] = { 1,1,1,1 };
+                    if (ImGui::ColorEdit4("Color", color))
+                        pl->setColor(Color(color));
                     ImGui::TreePop();
                 }
 
@@ -1246,7 +1269,9 @@ public:
                     quality_current = (I32)sl->getShadowMapQuality();
                     if (ImGui::Combo("Quality", &quality_current, qualities, 4))
                         sl->setShadowMapQuality((Graphics::ShadowMapQuality)(quality_current));
-
+                    static F32 color[4] = { 1,1,1,1 };
+                    if (ImGui::ColorEdit4("Color", color))
+                        sl->setColor(Color(color));
                     ImGui::TreePop();
                 }
             }

@@ -27,7 +27,13 @@ namespace Core { namespace Profiling {
     }
 
     //----------------------------------------------------------------------
-    void Profiler::OnUpdate(  Time::Seconds delta )
+    void Profiler::OnTick( Time::Seconds delta )
+    {
+        m_tickDelta = delta;
+    }
+
+    //----------------------------------------------------------------------
+    void Profiler::OnUpdate( Time::Seconds delta )
     {
         static U32 frameCounter = 0;
         static Time::Seconds secTimer = 0;

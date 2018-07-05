@@ -27,9 +27,9 @@ public:
         // Camera 1
         auto go = createGameObject("Camera");
         cam = go->addComponent<Components::Camera>();
-        go->getComponent<Components::Transform>()->position = Math::Vec3(0, 5, -3);
+        go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -3);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 0.1f);
-        cam->setClearColor(Color(66, 134, 244));     
+        cam->setClearColor(Color(66, 134, 244));
 
         createGameObject("Grid")->addComponent<GridGeneration>(20);
 
@@ -134,24 +134,6 @@ public:
         if (KEYBOARD.wasKeyPressed(Key::Backspace))
             Locator::getSceneManager().LoadSceneAsync(new SceneGUISelectSceneMenu);
 
-        if (KEYBOARD.wasKeyPressed(Key::One))
-            Locator::getSceneManager().LoadSceneAsync(new VertexGenScene);
-        if (KEYBOARD.wasKeyPressed(Key::Two))
-            Locator::getSceneManager().LoadSceneAsync(new ScenePostProcessMultiCamera);
-        if (KEYBOARD.wasKeyPressed(Key::Three))
-            Locator::getSceneManager().LoadSceneAsync(new SceneMirror);
-        if (KEYBOARD.wasKeyPressed(Key::Four))
-            Locator::getSceneManager().LoadSceneAsync(new ManyObjectsScene(10000));
-        if (KEYBOARD.wasKeyPressed(Key::Five))
-            Locator::getSceneManager().LoadSceneAsync(new BlinnPhongLightingScene());
-        if (KEYBOARD.wasKeyPressed(Key::Six))
-            Locator::getSceneManager().LoadSceneAsync(new ScenePBRSpheres());
-        if (KEYBOARD.wasKeyPressed(Key::Seven))
-            Locator::getSceneManager().LoadSceneAsync(new TransparencyScene());
-        if (KEYBOARD.wasKeyPressed(Key::Eight))
-            Locator::getSceneManager().LoadSceneAsync(new SponzaScene());
-        if (KEYBOARD.wasKeyPressed(Key::Nine))
-            Locator::getSceneManager().LoadSceneAsync(new ScenePBRPistol());
         if (KEYBOARD.wasKeyPressed(Key::Zero))
             Locator::getSceneManager().LoadSceneAsync(new TestScene());
 

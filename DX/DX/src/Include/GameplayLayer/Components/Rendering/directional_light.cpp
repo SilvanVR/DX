@@ -18,6 +18,7 @@
 namespace Components {
 
     #define DEBUG_FRUSTUM           0
+    #define KEY_DEBUG_SNAPSHOT      Key::F
 
     //----------------------------------------------------------------------
     DirectionalLight::DirectionalLight( F32 intensity, Color color, Graphics::ShadowType shadowType, const ArrayList<F32>& splitRangesWorldSpace )
@@ -117,13 +118,17 @@ namespace Components {
     }
 
     //----------------------------------------------------------------------
-    void DirectionalLight::recordGraphicsCommands( Graphics::CommandBuffer& cmd, F32 lerp )
+    void DirectionalLight::tick( Time::Seconds d )
     {
         auto transform = getGameObject()->getTransform();
         ASSERT( transform != nullptr );
 
         m_dirLight->setDirection( transform->rotation.getForward() );
+    }
 
+    //----------------------------------------------------------------------
+    void DirectionalLight::recordGraphicsCommands( Graphics::CommandBuffer& cmd, F32 lerp )
+    {
         cmd.drawLight( m_dirLight );
     }
 
@@ -251,7 +256,7 @@ namespace Components {
         }
 
         // Snapshot of current frustums
-        if (KEYBOARD.wasKeyReleased(Key::F))
+        if (KEYBOARD.wasKeyReleased(KEY_DEBUG_SNAPSHOT))
         {
             snapShotTimeCounter = snapShotTime;
             DEBUG.drawFrustum( {}, transform->rotation, m_camera->getLeft(), m_camera->getRight(), 

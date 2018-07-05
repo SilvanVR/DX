@@ -266,8 +266,34 @@ float CALCULATE_SHADOW_3D( float3 P, float3 L, float range, int shadowMapIndex )
 }
 float CALCULATE_SHADOW_3D_SOFT( float3 P, float3 L, float range, int shadowMapIndex )
 {
-	float shadow = 0.0f;
-	// Fails to compile on mc project
+	// THIS FUNCTION PREVENTS SOME SHADERS FROM COMPILING DUE TO AN WEIRD ERROR
+	// "Shader-gradient blabla"
+	static const int NUM_SAMPLES = 20;
+	float3 sampleOffsetDirections[20] = {
+	   float3( 1,  1,  1), float3( 1, -1,  1), float3(-1, -1,  1), float3(-1,  1,  1), 
+	   float3( 1,  1, -1), float3( 1, -1, -1), float3(-1, -1, -1), float3(-1,  1, -1),
+	   float3( 1,  1,  0), float3( 1, -1,  0), float3(-1, -1,  0), float3(-1,  1,  0),
+	   float3( 1,  0,  1), float3(-1,  0,  1), float3( 1,  0, -1), float3(-1,  0, -1),
+	   float3( 0,  1,  1), float3( 0, -1,  1), float3( 0, -1, -1), float3( 0,  1, -1)
+	}; 
+
+	float shadow = 0.0f;		
+	if (shadowMapIndex >= 0)
+	{
+		float3 fragToLight = P - L;
+		float currentDepth = length( fragToLight );	
+
+		//float diskRadius = 0.005;
+		//for(int i = 0; i < NUM_SAMPLES; ++i)
+		//{
+		//	float closestDepth = SAMPLE_SHADOWMAP_3D( shadowMapIndex, fragToLight + sampleOffsetDirections[i] * //diskRadius);
+		//	closestDepth *= range; // Undo mapping [0;1]
+		//	float bias = closestDepth * 0.1;
+		//	if(currentDepth - bias > closestDepth)
+		//		shadow += 1.0;
+		//}
+		//shadow /= float(NUM_SAMPLES); 
+	}
 	return 1-shadow;
 }
 

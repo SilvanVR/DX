@@ -475,20 +475,28 @@ public:
 //**********************************************************************
 class Sun : public Components::IComponent
 {
+    Components::DirectionalLight* dirLight;
 public:
     void addedToGameObject(GameObject* go) override
     {
-        ArrayList<F32> splitRanges{10.0f, 30.0f, 100.0f, 350.0f};
-        auto dirLight = go->addComponent<Components::DirectionalLight>(0.75f, Color::WHITE, Graphics::ShadowType::CSMSoft, splitRanges);
+        ArrayList<F32> splitRanges{5.0f, 20.0f, 70.0f, 200.0f};
+        dirLight = go->addComponent<Components::DirectionalLight>(0.75f, Color::WHITE, Graphics::ShadowType::CSM, splitRanges);
+        dirLight->setShadowMapQuality(Graphics::ShadowMapQuality::Low);
         dirLight->setShadowRange(50.0f);
 
         go->getTransform()->rotation = Math::Quat::LookRotation( Math::Vec3{ 0, -1, 0 }, Math::Vec3::RIGHT );
         //getGameObject()->getTransform()->rotation *= Math::Quat(Math::Vec3::RIGHT, 90.0f);
     }
 
+    Components::DirectionalLight* getDirLight() { return dirLight; }
+
     void tick(Time::Seconds delta) override
     {
-        getGameObject()->getTransform()->rotation *= Math::Quat(Math::Vec3::RIGHT, 0.5f * (F32)delta);
+        F32 speed = 1.0f;
+        if (KEYBOARD.isKeyDown(Key::E))
+            getGameObject()->getTransform()->rotation *= Math::Quat(Math::Vec3::RIGHT, speed * (F32)delta);
+        if (KEYBOARD.isKeyDown(Key::Q))
+            getGameObject()->getTransform()->rotation *= Math::Quat(Math::Vec3::RIGHT, -speed * (F32)delta);
     }
 };
 
@@ -549,6 +557,60 @@ public:
         // Sun
         auto sun = createGameObject("Sun");
         sun->addComponent<Sun>();
+        auto dl = sun->getComponent<Sun>()->getDirLight();
+
+        player->addComponent<Components::GUI>();
+        player->addComponent<Components::GUICustom>([=] {
+            static F32 ambient = 0.4f;
+            ImGui::SliderFloat("Ambient", &ambient, 0.0f, 1.0f);
+            Locator::getRenderer().setGlobalFloat(SID("_Ambient"), ambient);
+
+            if (ImGui::TreeNode("Directional Light"))
+            {
+                static F32 animateSpeed = 0.0f;
+                ImGui::SliderFloat("Speed", &animateSpeed, -20.0f, 20.0f);
+                dl->getGameObject()->getTransform()->rotation *= Math::Quat(Math::Vec3::RIGHT, animateSpeed * (F32)PROFILER.getDelta());
+
+                static Math::Vec3 deg{ 45.0f, 0.0f, 0.0f };
+                if (ImGui::SliderFloat2("Rotation", &deg.x, 0.0f, 360.0f))
+                    sun->getTransform()->rotation = Math::Quat::FromEulerAngles(deg);
+
+                static F32 color[4] = { 1,1,1,1 };
+                if (ImGui::ColorEdit4("Color", color))
+                    dl->setColor(Color(color));
+
+                CString type[] = { "None", "Hard", "Soft", "CSM", "CSMSoft" };
+                static I32 type_current = 1;
+                type_current = (I32)dl->getShadowType();
+                if (ImGui::Combo("Shadow Type", &type_current, type, 5))
+                    dl->setShadowType((Graphics::ShadowType)(type_current));
+
+                CString qualities[] = { "Low", "Medium", "High", "Insane" };
+                static I32 quality_current = 2;
+                quality_current = (I32)dl->getShadowMapQuality();
+                if (ImGui::Combo("Quality", &quality_current, qualities, 4))
+                    dl->setShadowMapQuality((Graphics::ShadowMapQuality)(quality_current));
+
+                static F32 size = 200.0f;
+                ImGui::SliderFloat("ShadowMap Display Size", &size, 100.0f, 1000.0f);
+
+                if (type_current > 0 && type_current <= 2)
+                {
+                    static F32 dlRange;
+                    dlRange = dl->getShadowRange();
+                    if (ImGui::SliderFloat("Shadow Range", &dlRange, 5.0f, 100.0f))
+                        dl->setShadowRange(dlRange);
+                    ImGui::Image(dl->getShadowMap(), 0, Math::Vec2{ size, size });
+                }
+                else if (type_current > 2)
+                {
+                    ImGui::Text("Shadow-maps");
+                    for (I32 i = 0; i < dl->getCascadeCount(); ++i)
+                        ImGui::Image(dl->getShadowMap(), i, Math::Vec2{ size, size });
+                }
+                ImGui::TreePop();
+            }
+        });
     }
 
     void tick(Time::Seconds delta) override

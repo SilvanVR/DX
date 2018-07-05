@@ -1,11 +1,11 @@
 // ----------------------------------------------
 #Fill			Solid
-#Cull 			Back
+#Cull 			None
 #ZWrite 		On
 #ZTest 			Less
 #Queue 			Geometry
 #DepthBias		3
-#DBSlopeScaled  3 
+#DBSlopeScaled  3
 #DBClamp 		0
 #DepthClip		Off
 
@@ -22,7 +22,6 @@ struct VertexIn
 struct VertexOut
 {
     float4 PosH : SV_POSITION;
-	float3 WorldPos : POSITION;
 };
 
 VertexOut main(VertexIn vin)
@@ -30,7 +29,6 @@ VertexOut main(VertexIn vin)
     VertexOut OUT;
 
     OUT.PosH = TO_CLIP_SPACE( vin.PosL );
-	OUT.WorldPos = TO_WORLD_SPACE( vin.PosL );
 	
     return OUT;
 }
@@ -43,7 +41,6 @@ VertexOut main(VertexIn vin)
 struct FragmentIn
 {
     float4 PosH : SV_POSITION;
-	float3 WorldPos : POSITION;
 };
 
 void main(FragmentIn fin)

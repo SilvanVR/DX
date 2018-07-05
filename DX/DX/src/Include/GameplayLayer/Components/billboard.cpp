@@ -44,6 +44,7 @@ namespace Components {
         m_billboardGO = go->getScene()->createGameObject( "Billboard" );
         go->getTransform()->addChild( m_billboardGO->getTransform(), false );
         auto mr = m_billboardGO->addComponent<Components::MeshRenderer>( billboardMesh, billboardMaterial );
+        mr->setCastShadows( false );
     }
 
 }
