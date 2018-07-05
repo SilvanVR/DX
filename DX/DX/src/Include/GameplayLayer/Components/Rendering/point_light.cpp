@@ -15,7 +15,8 @@
 
 namespace Components {
 
-    #define DEPTH_STENCIL_FORMAT Graphics::DepthFormat::D32
+    #define DEPTH_STENCIL_FORMAT    Graphics::DepthFormat::D32      // Must be compatible with the format below
+    #define TEMP_RT_FORMAT          Graphics::TextureFormat::RFloat // Must be compatible with the format above
 
     //----------------------------------------------------------------------
     PointLight::PointLight( F32 intensity, Color color, F32 range, bool shadowsEnabled )
@@ -117,7 +118,7 @@ namespace Components {
         {
             // Create cubemap
             auto shadowMap = RESOURCES.createCubemap();
-            shadowMap->create( shadowMapSize, Graphics::TextureFormat::RFloat, Graphics::Mips::None );
+            shadowMap->create( shadowMapSize, TEMP_RT_FORMAT, Graphics::Mips::None );
             shadowMap->setAnisoLevel( 1 );
             shadowMap->setFilter( Graphics::TextureFilter::Point );
             shadowMap->setClampMode( Graphics::TextureAddressMode::Clamp );
@@ -132,7 +133,6 @@ namespace Components {
             rt->create( nullptr, shadowMapRender );
 
             // Configure camera
-            auto r = getRange();
             m_camera.reset( new Graphics::Camera( 90.0f, 0.1f, getRange() ) );
             m_camera->setRenderTarget( rt, false );
             m_camera->setReplacementShader( ASSETS.getShadowMapShaderLinear(), TAG_SHADOW_PASS_LINEAR );

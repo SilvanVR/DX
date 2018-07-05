@@ -27,7 +27,7 @@ namespace Components {
 
         //----------------------------------------------------------------------
         void setRange       (F32 range)     { m_spotLight->setRange(range); }
-        void setAngle       (F32 angle)     { m_spotLight->setAngle(angle); }
+        void setAngle       (F32 angle);
 
     private:
         Graphics::SpotLight* m_spotLight;

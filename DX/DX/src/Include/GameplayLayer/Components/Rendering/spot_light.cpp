@@ -13,8 +13,6 @@
 
 namespace Components {
 
-    #define DEPTH_STENCIL_FORMAT    Graphics::DepthFormat::D16
-
     //----------------------------------------------------------------------
     SpotLight::SpotLight( F32 intensity, Color color, F32 spotAngleInDegrees, F32 range, bool shadowsEnabled )
         : ILightComponent( new Graphics::SpotLight( intensity, color, { 0, 1, 0 }, spotAngleInDegrees, { 0, 0, 1 }, range ) )
@@ -52,6 +50,14 @@ namespace Components {
         return Math::Rad2Deg( m_spotLight->getAngle() ); 
     }
 
+    //----------------------------------------------------------------------
+    void SpotLight::setAngle( F32 angle ) 
+    { 
+        m_spotLight->setAngle( angle ); 
+        if ( shadowsEnabled() ) // Must recreate shadowmap if angle changes
+            _CreateShadowMap( m_shadowMapQuality ); 
+    }
+
     //**********************************************************************
     // PRIVATE
     //**********************************************************************
@@ -60,19 +66,20 @@ namespace Components {
     void SpotLight::_CreateShadowMap( Graphics::ShadowMapQuality quality )
     {
         U32 shadowMapSize = 0;
+        Graphics::DepthFormat depthFormat;
         switch (quality)
         {
-            case Graphics::ShadowMapQuality::Low:     shadowMapSize = 512;  break;
-            case Graphics::ShadowMapQuality::Medium:  shadowMapSize = 1024; break;
-            case Graphics::ShadowMapQuality::High:    shadowMapSize = 2048; break;
-            case Graphics::ShadowMapQuality::Insane:  shadowMapSize = 4096; break;
+            case Graphics::ShadowMapQuality::Low:     shadowMapSize = 512;  depthFormat = Graphics::DepthFormat::D16; break;
+            case Graphics::ShadowMapQuality::Medium:  shadowMapSize = 1024; depthFormat = Graphics::DepthFormat::D16; break;
+            case Graphics::ShadowMapQuality::High:    shadowMapSize = 2048; depthFormat = Graphics::DepthFormat::D32; break;
+            case Graphics::ShadowMapQuality::Insane:  shadowMapSize = 4096; depthFormat = Graphics::DepthFormat::D32; break;
         }
 
         if (shadowMapSize > 0)
         {
             // Create shadowmap
             auto shadowMap = RESOURCES.createRenderBuffer();
-            shadowMap->create( shadowMapSize, shadowMapSize, DEPTH_STENCIL_FORMAT );
+            shadowMap->create( shadowMapSize, shadowMapSize, depthFormat );
             shadowMap->setAnisoLevel( 1 );
             shadowMap->setFilter( Graphics::TextureFilter::Point );
             shadowMap->setClampMode( Graphics::TextureAddressMode::Clamp );

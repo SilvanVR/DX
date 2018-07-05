@@ -14,11 +14,9 @@
 #include "Core/locator.h"
 #include "camera.h"
 #include "Math/math_utils.h"
-#include <limits>
 
 namespace Components {
 
-    #define DEPTH_STENCIL_FORMAT    Graphics::DepthFormat::D32
     #define DEBUG_FRUSTUM           0
 
     //----------------------------------------------------------------------
@@ -43,12 +41,26 @@ namespace Components {
     void DirectionalLight::_CreateShadowMap( Graphics::ShadowMapQuality quality )
     {
         U32 shadowMapSize = 0;
+        Graphics::DepthFormat depthFormat;
+        Graphics::TextureFormat tempRTFormat; // Used for CSM, must be compatible with "depthFormat"
         switch (quality)
         {
-            case Graphics::ShadowMapQuality::Low:     shadowMapSize = 512;  break;
-            case Graphics::ShadowMapQuality::Medium:  shadowMapSize = 1024; break;
-            case Graphics::ShadowMapQuality::High:    shadowMapSize = 2048; break;
-            case Graphics::ShadowMapQuality::Insane:  shadowMapSize = 4096; break;
+            case Graphics::ShadowMapQuality::Low:
+                shadowMapSize = 512;
+                depthFormat   = Graphics::DepthFormat::D16; 
+                tempRTFormat  = Graphics::TextureFormat::R16; break;
+            case Graphics::ShadowMapQuality::Medium:
+                shadowMapSize = 1024; 
+                depthFormat   = Graphics::DepthFormat::D16;
+                tempRTFormat  = Graphics::TextureFormat::R16; break;
+            case Graphics::ShadowMapQuality::High:
+                shadowMapSize = 2048; 
+                depthFormat   = Graphics::DepthFormat::D32;
+                tempRTFormat  = Graphics::TextureFormat::RFloat; break;
+            case Graphics::ShadowMapQuality::Insane:
+                shadowMapSize = 4096; 
+                depthFormat   = Graphics::DepthFormat::D32;
+                tempRTFormat  = Graphics::TextureFormat::RFloat; break;
         }
 
         if (shadowMapSize > 0)
@@ -61,7 +73,7 @@ namespace Components {
             {
                 // Create shadowmap
                 auto shadowMap = RESOURCES.createRenderBuffer();
-                shadowMap->create( shadowMapSize, shadowMapSize, DEPTH_STENCIL_FORMAT );
+                shadowMap->create( shadowMapSize, shadowMapSize, depthFormat );
                 shadowMap->setAnisoLevel( 1 );
                 shadowMap->setFilter( Graphics::TextureFilter::Point );
                 shadowMap->setClampMode( Graphics::TextureAddressMode::Clamp );
@@ -78,7 +90,7 @@ namespace Components {
 
                 // Create shadowmap
                 auto shadowMap = RESOURCES.createTexture2DArray( shadowMapSize, shadowMapSize, splitCount,
-                                                                 Graphics::TextureFormat::RFloat, false );
+                                                                 tempRTFormat, false );
                 shadowMap->setAnisoLevel( 1 );
                 shadowMap->setFilter( Graphics::TextureFilter::Point );
                 shadowMap->setClampMode( Graphics::TextureAddressMode::Clamp );
@@ -86,7 +98,7 @@ namespace Components {
 
                 // Create shadowmap (rendertarget, which gets copied to each slice)
                 auto shadowMapRender = RESOURCES.createRenderBuffer();
-                shadowMapRender->create( shadowMapSize, shadowMapSize, DEPTH_STENCIL_FORMAT );
+                shadowMapRender->create( shadowMapSize, shadowMapSize, depthFormat );
                 renderBuffer = shadowMapRender;
                 break;
             }
@@ -203,8 +215,7 @@ namespace Components {
 
             sphereCenter += cornerLightSpace;
         }
-
-        sphereCenter *= (1.0f / 8.0f);
+        sphereCenter *= ( 1.0f / (F32)mainCameraFrustumCornersWS.size() );
 
         // Get the min and max bounds in lightspace. (The radius is rather ad-hoc but works pretty well!)
         F32 radius = (mainCameraFrustumCornersWS[0] - mainCameraFrustumCornersWS[7]).magnitude() * 0.5f;
@@ -213,7 +224,8 @@ namespace Components {
 
         // Snap the orthographic frustum to texel-size, otherwise we will have a very noticeable artifact (shadow shimmering)
         F32 shadowMapWidth = (F32)m_dirLight->getShadowMap()->getWidth();
-        F32 worldTexelSize = (2.0f*radius / shadowMapWidth);
+        F32 diameter = 2.0f * radius;
+        F32 worldTexelSize = (diameter / shadowMapWidth);
 
         min.x = worldTexelSize * std::floor( min.x / worldTexelSize );
         max.x = worldTexelSize * std::floor( max.x / worldTexelSize );
@@ -223,22 +235,34 @@ namespace Components {
         m_camera->setOrthoParams( min.x, max.x, min.y, max.y, min.z, max.z );
 
 #if DEBUG_FRUSTUM
-        DEBUG.drawFrustum({}, transform->rotation, m_camera->getLeft(), m_camera->getRight(), 
-                                                    m_camera->getBottom(), m_camera->getTop(), 
-                                                    m_camera->getZNear(), m_camera->getZFar(), Color::BLUE, 0);
+        static const Time::Seconds snapShotTime = 10;
+        static Time::Seconds snapShotTimeCounter;
 
-        DEBUG.drawFrustum(mainCameraTransform->position, mainCameraTransform->rotation.getForward(), mainCameraTransform->rotation.getUp(), 
-                          mainCamera->getFOV(), mainCamera->getZNear(), m_dirLight->getShadowRange(), mainCamera->getAspectRatio(), Color::GREEN, 0);
+        if (snapShotTimeCounter > Time::Seconds(0))
+        {
+            DEBUG.drawFrustum({}, transform->rotation, m_camera->getLeft(), m_camera->getRight(), 
+                                                        m_camera->getBottom(), m_camera->getTop(), 
+                                                        m_camera->getZNear(), m_camera->getZFar(), Color::BLUE, 0);
+
+            DEBUG.drawFrustum(mainCameraTransform->position, mainCameraTransform->rotation.getForward(), mainCameraTransform->rotation.getUp(), 
+                              mainCamera->getFOV(), zNear, zFar, mainCamera->getAspectRatio(), Color::GREEN, 0);
+
+            snapShotTimeCounter -= static_cast<Time::Seconds>( PROFILER.getUpdateDelta() );
+        }
 
         // Snapshot of current frustums
         if (KEYBOARD.wasKeyReleased(Key::F))
         {
-            DEBUG.drawFrustum({}, transform->rotation, m_camera->getLeft(), m_camera->getRight(), 
+            snapShotTimeCounter = snapShotTime;
+            DEBUG.drawFrustum( {}, transform->rotation, m_camera->getLeft(), m_camera->getRight(), 
                                                        m_camera->getBottom(), m_camera->getTop(), 
-                                                       m_camera->getZNear(), m_camera->getZFar(), Color::BLUE, 10);
+                                                       m_camera->getZNear(), m_camera->getZFar(), Color::BLUE, snapShotTime );
 
-            DEBUG.drawFrustum(mainCameraTransform->position, mainCameraTransform->rotation.getForward(), mainCameraTransform->rotation.getUp(), 
-                              mainCamera->getFOV(), mainCamera->getZNear(), m_dirLight->getShadowRange(), mainCamera->getAspectRatio(), Color::GREEN, 10);
+            DEBUG.drawFrustum( mainCameraTransform->position, mainCameraTransform->rotation.getForward(), mainCameraTransform->rotation.getUp(), 
+                               mainCamera->getFOV(), zNear, zFar, mainCamera->getAspectRatio(), Color::GREEN, snapShotTime );
+
+            //DEBUG.drawSphere( sphereCenter, radius, Color::VIOLET, snapShotTime );
+            //DEBUG.drawLine( mainCameraTransform->position, sphereCenter, Color::GREEN, snapShotTime );
         }
 #endif
     }

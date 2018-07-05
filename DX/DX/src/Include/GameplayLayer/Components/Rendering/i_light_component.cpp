@@ -38,7 +38,8 @@ namespace Components {
             return;
 
         m_shadowMapQuality = quality;
-        _CreateShadowMap( m_shadowMapQuality );
+        if ( shadowsEnabled() )
+            _CreateShadowMap( m_shadowMapQuality );
     }
 
     //----------------------------------------------------------------------
@@ -47,7 +48,7 @@ namespace Components {
         if ( m_light->supportsShadowType( shadowType ) )
         {
             m_light->setShadowType( shadowType );
-            if (shadowType != Graphics::ShadowType::None)
+            if ( shadowsEnabled() )
                 _CreateShadowMap( m_shadowMapQuality );
         }
     }
@@ -58,7 +59,8 @@ namespace Components {
         m_shadowMapQuality = quality;
         if ( m_light->supportsShadowType( shadowType ) )
             m_light->setShadowType( shadowType );
-        _CreateShadowMap( m_shadowMapQuality );
+        if ( shadowsEnabled() )
+            _CreateShadowMap( m_shadowMapQuality );
     }
 
     //**********************************************************************

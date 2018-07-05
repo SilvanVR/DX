@@ -1,7 +1,0 @@
-{
-
-"shader" : "/shaders/tex.shader",
-"tintColor" : "#FFFFFF",
-"tex" : "/textures/star_citizen.png"
-
-}

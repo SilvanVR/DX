@@ -1,7 +1,7 @@
 {
 
 "shader" : "/engine/shaders/pbr/pbr.shader",
-"albedoMap" : "/textures/white.jpg",
+"albedoMap" : "/engine/textures/white.jpg",
 "metallic": 0,
 "roughness": 0.1,
 "color": "#FF00FF"

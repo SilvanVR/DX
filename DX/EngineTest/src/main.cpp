@@ -91,13 +91,14 @@ public:
         auto plg = createGameObject("PL");
         auto pl = plg->addComponent<Components::PointLight>(1.0f, Color::ORANGE, 5.0f, true);
         plg->getTransform()->position = { 3, 2, 0 };
-        plg->addComponent<Components::Billboard>(ASSETS.getTexture2D("/textures/pointLight.png"), 0.5f);
+        plg->addComponent<Components::Billboard>(ASSETS.getTexture2D("/engine/textures/pointLight.png"), 0.5f);
         go->addComponent<Components::Skybox>(pl->getShadowMap());
 
         auto slg = createGameObject("PL");
         auto sl = slg->addComponent<Components::SpotLight>(1.0f, Color::WHITE, 25.0f, 20.0f);
         slg->getTransform()->position = { -5, 2, -2 };
         slg->getTransform()->rotation = Math::Quat::LookRotation(Math::Vec3{ 0,-1, 1 });
+        slg->addComponent<Components::Billboard>(ASSETS.getTexture2D("/engine/textures/spotLight.png"), 0.5f);
         //slg->addComponent<DrawFrustum>();
 
         go->addComponent<Components::GUI>();
@@ -112,16 +113,9 @@ public:
             {
                 static bool changedSettings = false;
 
-                static bool shadowsActive = true;
-                if (ImGui::RadioButton("Enabled", shadowsActive))
-                {
-                    shadowsActive = !shadowsActive;
-                    changedSettings = true;
-                }
-
-                CString type[] = { "Hard", "Soft" };
-                static I32 type_current = 1;
-                if (ImGui::Combo("Type", &type_current, type, 2))
+                CString type[] = { "None", "Hard", "Soft" };
+                static I32 type_current = 2;
+                if (ImGui::Combo("Type", &type_current, type, 3))
                     changedSettings = true;
 
                 CString qualities[] = { "Low", "Medium", "High", "Insane" };
@@ -132,15 +126,7 @@ public:
                 if (changedSettings)
                 {
                     changedSettings = false;
-                    if (not shadowsActive)
-                    {
-                        CONFIG.setShadowType(Graphics::ShadowType::None);
-                    }
-                    else
-                    {
-                        CONFIG.setShadowTypeAndQuality(Graphics::ShadowType(type_current + 1), Graphics::ShadowMapQuality(quality_current));
-                        //imgComp->setTexture(dl->getShadowMap()); // Must be set new if shadowmap gets recreated
-                    }
+                    CONFIG.setShadowTypeAndQuality(Graphics::ShadowType(type_current), Graphics::ShadowMapQuality(quality_current));
                 }
             }
 
@@ -161,8 +147,8 @@ public:
                         dl->setShadowMapQuality((Graphics::ShadowMapQuality)(quality_current));
 
                     static Math::Vec3 deg{ 45.0f, 0.0f, 0.0f };
-                    ImGui::SliderFloat2("Rotation", &deg.x, 0.0f, 360.0f);
-                    sun->getTransform()->rotation = Math::Quat::FromEulerAngles(deg);
+                    if (ImGui::SliderFloat2("Rotation", &deg.x, 0.0f, 360.0f))
+                        sun->getTransform()->rotation = Math::Quat::FromEulerAngles(deg);
 
                     if (type_current > 0 && type_current <= 2)
                     {
@@ -182,18 +168,58 @@ public:
 
                 if (ImGui::TreeNode("Point Light"))
                 {
-                    static Math::Vec3 pos{ 0, 2.5, -1 };
-                    ImGui::SliderFloat3("Position", &pos.x, -3.0f, 3.0f);
-                    plg->getTransform()->position = pos;
+                    static Math::Vec3 plPos{ 0, 2.5, -1 };
+                    if(ImGui::SliderFloat3("Position", &plPos.x, -3.0f, 3.0f))
+                        plg->getTransform()->position = plPos;
 
-                    static F32 range = 25.0f;
-                    ImGui::SliderFloat("Range", &range, 5.0f, 50.0f);
+                    static F32 plRange = 25.0f;
+                    if(ImGui::SliderFloat("Range", &plRange, 5.0f, 50.0f))
+                        pl->setRange(plRange);
 
-                    static F32 intensity = 1.0f;
-                    ImGui::SliderFloat("Intensity", &intensity, 0.5f, 5.0f);
+                    static F32 plIntensity = 1.0f;
+                    if (ImGui::SliderFloat("Intensity", &plIntensity, 0.1f, 3.0f))
+                        pl->setIntensity(plIntensity);
 
-                    pl->setIntensity(intensity);
-                    pl->setRange(range);
+                    CString type[] = { "None", "Hard", "Soft" };
+                    static I32 type_current = 1;
+                    type_current = (I32)pl->getShadowType();
+                    if (ImGui::Combo("Shadow Type", &type_current, type, 3))
+                        pl->setShadowType((Graphics::ShadowType)(type_current));
+
+                    CString qualities[] = { "Low", "Medium", "High", "Insane" };
+                    static I32 quality_current = 2;
+                    quality_current = (I32)pl->getShadowMapQuality();
+                    if (ImGui::Combo("Quality", &quality_current, qualities, 4))
+                        pl->setShadowMapQuality((Graphics::ShadowMapQuality)(quality_current));
+
+                    ImGui::TreePop();
+                }
+
+                if (ImGui::TreeNode("Spot Light"))
+                {
+                    static F32 spotRange = 25.0f;
+                    if(ImGui::SliderFloat("Range", &spotRange, 5.0f, 50.0f))
+                        sl->setRange(spotRange);
+
+                    static F32 spotIntensity = 1.0f;
+                    if (ImGui::SliderFloat("Intensity", &spotIntensity, 0.1f, 3.0f))
+                        sl->setIntensity(spotIntensity);
+
+                    static F32 spotAngle = 25.0f;
+                    if (ImGui::SliderFloat("Angle", &spotAngle, 5.0f, 90.0f))
+                        sl->setAngle(spotAngle);
+
+                    CString type[] = { "None", "Hard", "Soft" };
+                    static I32 type_current = 1;
+                    type_current = (I32)sl->getShadowType();
+                    if (ImGui::Combo("Shadow Type", &type_current, type, 3))
+                        sl->setShadowType((Graphics::ShadowType)(type_current));
+
+                    CString qualities[] = { "Low", "Medium", "High", "Insane" };
+                    static I32 quality_current = 2;
+                    quality_current = (I32)sl->getShadowMapQuality();
+                    if (ImGui::Combo("Quality", &quality_current, qualities, 4))
+                        sl->setShadowMapQuality((Graphics::ShadowMapQuality)(quality_current));
 
                     ImGui::TreePop();
                 }

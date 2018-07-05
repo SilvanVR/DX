@@ -571,7 +571,7 @@ public:
                 auto gameobject = createGameObject("Obj");
                 gameobject->addComponent<Components::PointLight>(2.0f, Math::Random::Color());
                 gameobject->getTransform()->position = Math::Vec3(x * distance2, 1.0f, z * distance2);
-                gameobject->addComponent<Components::Billboard>(ASSETS.getTexture2D("/textures/pointLight.png"), 0.5f);
+                gameobject->addComponent<Components::Billboard>(ASSETS.getTexture2D("/engine/textures/pointLight.png"), 0.5f);
             }
         }
 
@@ -582,7 +582,7 @@ public:
         auto pl = createGameObject("PointLight");
         pl->addComponent<Components::PointLight>(2.0f, Color::GREEN);
         pl->getTransform()->position = { 3, 1, 0 };
-        pl->addComponent<Components::Billboard>(ASSETS.getTexture2D("/textures/pointLight.png"), 0.5f);
+        pl->addComponent<Components::Billboard>(ASSETS.getTexture2D("/engine/textures/pointLight.png"), 0.5f);
         pl->addComponent<AutoOrbiting>(20.0f);
 
         LOG("BlinnPhongLightingScene initialized!", Color::RED);
@@ -722,7 +722,7 @@ public:
         auto pl = createGameObject("PointLight");
         pl->addComponent<Components::PointLight>(3.0f, Color::WHITE);
         pl->getTransform()->position = { 5, 2, 0 };
-        pl->addComponent<Components::Billboard>(ASSETS.getTexture2D("/textures/pointLight.png"), 0.5f);
+        pl->addComponent<Components::Billboard>(ASSETS.getTexture2D("/engine/textures/pointLight.png"), 0.5f);
         pl->addComponent<AutoOrbiting>(20.0f);
 
         F32 intensity = 5.0f;
@@ -730,22 +730,22 @@ public:
         //auto pl2 = createGameObject("PointLight");
         //pl2->addComponent<Components::PointLight>(intensity, Math::Random::Color(), range);
         //pl2->getTransform()->position = { -5, 3, -3 };
-        //pl2->addComponent<Components::Billboard>(ASSETS.getTexture2D("/textures/pointLight.png"), 0.5f);
+        //pl2->addComponent<Components::Billboard>(ASSETS.getTexture2D("/engine/textures/pointLight.png"), 0.5f);
 
         //auto pl3 = createGameObject("PointLight");
         //pl3->addComponent<Components::PointLight>(intensity, Math::Random::Color(), range);
         //pl3->getTransform()->position = { 5, 3, -3 };
-        //pl3->addComponent<Components::Billboard>(ASSETS.getTexture2D("/textures/pointLight.png"), 0.5f);
+        //pl3->addComponent<Components::Billboard>(ASSETS.getTexture2D("/engine/textures/pointLight.png"), 0.5f);
 
         //auto pl4 = createGameObject("PointLight");
         //pl4->addComponent<Components::PointLight>(intensity, Math::Random::Color(), range);
         //pl4->getTransform()->position = { -5, -3, -3 };
-        //pl4->addComponent<Components::Billboard>(ASSETS.getTexture2D("/textures/pointLight.png"), 0.5f);
+        //pl4->addComponent<Components::Billboard>(ASSETS.getTexture2D("/engine/textures/pointLight.png"), 0.5f);
 
         //auto pl5 = createGameObject("PointLight");
         //pl5->addComponent<Components::PointLight>(intensity, Math::Random::Color(), range);
         //pl5->getTransform()->position = { 5, -3, -3 };
-        //pl5->addComponent<Components::Billboard>(ASSETS.getTexture2D("/textures/pointLight.png"), 0.3f);
+        //pl5->addComponent<Components::Billboard>(ASSETS.getTexture2D("/engine/textures/pointLight.png"), 0.3f);
 
         LOG("PBRSpheres initialized!", Color::RED);
     }
@@ -916,7 +916,7 @@ public:
         auto pl = createGameObject("PointLight");
         pl->addComponent<Components::PointLight>(15.0f, Color::WHITE, 30.0f);
         pl->getTransform()->position = { 5, 2, 0 };
-        pl->addComponent<Components::Billboard>(ASSETS.getTexture2D("/textures/pointLight.png"), 0.5f);
+        pl->addComponent<Components::Billboard>(ASSETS.getTexture2D("/engine/textures/pointLight.png"), 0.5f);
         pl->addComponent<AutoOrbiting>(20.0f);
 
         LOG("SponzaScene initialized!", Color::RED);
