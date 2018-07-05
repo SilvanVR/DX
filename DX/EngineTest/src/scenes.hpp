@@ -1048,3 +1048,212 @@ public:
 
     void shutdown() override { LOG("SceneGUI Shutdown!", Color::RED); }
 };
+
+class ShadowScene : public IScene
+{
+public:
+    ShadowScene() : IScene("ShadowScene") {}
+
+    void init() override
+    {
+        // Camera 1
+        auto go = createGameObject("Camera");
+        auto cam = go->addComponent<Components::Camera>();
+        go->getComponent<Components::Transform>()->position = Math::Vec3(0, 10, -25);
+        go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 0.1f);
+        cam->setClearColor(Color(66, 134, 244));
+        //go->addComponent<AutoOrbiting>(15.0f);
+
+        auto obj = createGameObject("GO");
+        obj->addComponent<Components::MeshRenderer>(Core::MeshGenerator::CreatePlane(), ASSETS.getMaterial("/materials/blinn_phong/grass.material"));
+        obj->getTransform()->rotation *= Math::Quat(Math::Vec3::RIGHT, 90.0f);
+        obj->getTransform()->scale = { 20,20,20 };
+
+        auto obj2 = createGameObject("GO2");
+        obj2->addComponent<Components::MeshRenderer>(ASSETS.getMesh("/models/monkey.obj"), ASSETS.getMaterial("/materials/blinn_phong/monkey.material"));
+        obj2->getTransform()->position = { 5, 1, 0 };
+
+        auto cubeGO = createGameObject("GO3");
+        cubeGO->addComponent<Components::MeshRenderer>(Core::MeshGenerator::CreateCubeUV(0.3f), ASSETS.getMaterial("/materials/blinn_phong/cube.material"));
+        cubeGO->getTransform()->position = { -5.0f, 0.3001f, 0.0f };
+        cubeGO->addComponent<ConstantRotation>(0.0f, 10.0f, 0.0f);
+
+        Assets::MeshMaterialInfo matInfo;
+        auto treeMesh = ASSETS.getMesh("/models/tree/tree.obj", &matInfo);
+
+        auto treeGO = createGameObject("Tree");
+        auto mr = treeGO->addComponent<Components::MeshRenderer>(treeMesh);
+
+        if (matInfo.isValid())
+        {
+            for (I32 i = 0; i < treeMesh->getSubMeshCount(); i++)
+            {
+                auto material = RESOURCES.createMaterial(ASSETS.getShader("/shaders/phong_shadow.shader"));
+                material->setFloat("uvScale", 1.0f);
+
+                for (auto& texture : matInfo[i].textures)
+                {
+                    switch (texture.type)
+                    {
+                    case Assets::MaterialTextureType::Albedo: material->setTexture("_MainTex", ASSETS.getTexture2D(texture.filePath)); break;
+                    case Assets::MaterialTextureType::Normal: material->setTexture("normalMap", ASSETS.getTexture2D(texture.filePath)); break;
+                    case Assets::MaterialTextureType::Shininess: break;
+                    case Assets::MaterialTextureType::Specular: break;
+                    }
+                }
+                material->setReplacementShader(TAG_SHADOW_PASS, ASSETS.getShadowMapShaderAlpha());
+                material->setReplacementShader(TAG_SHADOW_PASS_LINEAR, ASSETS.getShadowMapShaderLinearAlpha());
+                mr->setMaterial(material, i);
+            }
+        }
+
+        // LIGHTS
+        auto sun = createGameObject("Sun");
+        auto dl = sun->addComponent<Components::DirectionalLight>(0.3f, Color::WHITE, Graphics::ShadowType::CSMSoft, ArrayList<F32>{10.0f, 30.0f, 80.0f, 200.0f});
+        sun->getTransform()->rotation = Math::Quat::LookRotation(Math::Vec3{ 0,-1, 1 });
+        //sun->addComponent<ConstantRotation>(5.0f, 0.0f, 0.0f);
+
+        //auto sun2 = createGameObject("Sun2");
+        //sun2->addComponent<Components::DirectionalLight>(0.3f, Color::WHITE);
+        //sun2->getTransform()->rotation = Math::Quat::LookRotation(Math::Vec3{ 0,-1, -1 });
+
+        auto plg = createGameObject("PL");
+        auto pl = plg->addComponent<Components::PointLight>(1.0f, Color::ORANGE, 5.0f, true);
+        plg->getTransform()->position = { 3, 2, 0 };
+        plg->addComponent<Components::Billboard>(ASSETS.getTexture2D("/engine/textures/pointLight.png"), 0.5f);
+        go->addComponent<Components::Skybox>(pl->getShadowMap());
+
+        auto slg = createGameObject("PL");
+        auto sl = slg->addComponent<Components::SpotLight>(1.0f, Color::WHITE, 25.0f, 20.0f);
+        slg->getTransform()->position = { -5, 2, -2 };
+        slg->getTransform()->rotation = Math::Quat::LookRotation(Math::Vec3{ 0,-1, 1 });
+        slg->addComponent<Components::Billboard>(ASSETS.getTexture2D("/engine/textures/spotLight.png"), 0.5f);
+        //slg->addComponent<DrawFrustum>();
+
+        go->addComponent<Components::GUI>();
+        go->addComponent<Components::GUIFPS>();
+        go->addComponent<Components::GUICustom>([=] {
+            static F32 ambient = 0.4f;
+            ImGui::SliderFloat("Ambient", &ambient, 0.0f, 1.0f);
+            Locator::getRenderer().setGlobalFloat(SID("_Ambient"), ambient);
+
+            if (ImGui::CollapsingHeader("Shadows"))
+            {
+                CString type[] = { "None", "Hard", "Soft" };
+                static I32 type_current = 2;
+                if (ImGui::Combo("Type", &type_current, type, 3))
+                    CONFIG.setShadowType(Graphics::ShadowType(type_current));
+
+                CString qualities[] = { "Low", "Medium", "High", "Insane" };
+                static I32 quality_current = 2;
+                if (ImGui::Combo("Quality", &quality_current, qualities, 4))
+                    CONFIG.setShadowMapQuality(Graphics::ShadowMapQuality(quality_current));
+            }
+
+            if (ImGui::CollapsingHeader("Lights"))
+            {
+                if (ImGui::TreeNode("Directional Light"))
+                {
+                    CString type[] = { "None", "Hard", "Soft", "CSM", "CSMSoft" };
+                    static I32 type_current = 1;
+                    type_current = (I32)dl->getShadowType();
+                    if (ImGui::Combo("Shadow Type", &type_current, type, 5))
+                        dl->setShadowType((Graphics::ShadowType)(type_current));
+
+                    CString qualities[] = { "Low", "Medium", "High", "Insane" };
+                    static I32 quality_current = 2;
+                    quality_current = (I32)dl->getShadowMapQuality();
+                    if (ImGui::Combo("Quality", &quality_current, qualities, 4))
+                        dl->setShadowMapQuality((Graphics::ShadowMapQuality)(quality_current));
+
+                    static Math::Vec3 deg{ 45.0f, 0.0f, 0.0f };
+                    if (ImGui::SliderFloat2("Rotation", &deg.x, 0.0f, 360.0f))
+                        sun->getTransform()->rotation = Math::Quat::FromEulerAngles(deg);
+
+                    if (type_current > 0 && type_current <= 2)
+                    {
+                        static F32 dlRange;
+                        dlRange = dl->getShadowRange();
+                        if (ImGui::SliderFloat("Shadow Range", &dlRange, 5.0f, 100.0f))
+                            dl->setShadowRange(dlRange);
+                        ImGui::Image(dl->getShadowMap(), 0, Math::Vec2{ 200, 200 });
+                    }
+                    else if (type_current > 2)
+                    {
+                        ImGui::Text("Shadow-maps");
+                        for (I32 i = 0; i < dl->getCascadeCount(); ++i)
+                            ImGui::Image(dl->getShadowMap(), i, Math::Vec2{ 200, 200 });
+                    }
+                    ImGui::TreePop();
+                }
+
+                if (ImGui::TreeNode("Point Light"))
+                {
+                    static Math::Vec3 plPos{ 0, 2.5, -1 };
+                    if (ImGui::SliderFloat3("Position", &plPos.x, -3.0f, 3.0f))
+                        plg->getTransform()->position = plPos;
+
+                    static F32 plRange;
+                    plRange = pl->getRange();
+                    if (ImGui::SliderFloat("Range", &plRange, 5.0f, 50.0f))
+                        pl->setRange(plRange);
+
+                    static F32 plIntensity = 1.0f;
+                    plIntensity = pl->getIntensity();
+                    if (ImGui::SliderFloat("Intensity", &plIntensity, 0.1f, 3.0f))
+                        pl->setIntensity(plIntensity);
+
+                    CString type[] = { "None", "Hard", "Soft" };
+                    static I32 type_current = 1;
+                    type_current = (I32)pl->getShadowType();
+                    if (ImGui::Combo("Shadow Type", &type_current, type, 3))
+                        pl->setShadowType((Graphics::ShadowType)(type_current));
+
+                    CString qualities[] = { "Low", "Medium", "High", "Insane" };
+                    static I32 quality_current = 2;
+                    quality_current = (I32)pl->getShadowMapQuality();
+                    if (ImGui::Combo("Quality", &quality_current, qualities, 4))
+                        pl->setShadowMapQuality((Graphics::ShadowMapQuality)(quality_current));
+
+                    ImGui::TreePop();
+                }
+
+                if (ImGui::TreeNode("Spot Light"))
+                {
+                    static F32 spotRange;
+                    spotRange = sl->getRange();
+                    if (ImGui::SliderFloat("Range", &spotRange, 5.0f, 50.0f))
+                        sl->setRange(spotRange);
+
+                    static F32 spotIntensity;
+                    spotIntensity = sl->getIntensity();
+                    if (ImGui::SliderFloat("Intensity", &spotIntensity, 0.1f, 3.0f))
+                        sl->setIntensity(spotIntensity);
+
+                    static F32 spotAngle;
+                    spotAngle = sl->getAngle();
+                    if (ImGui::SliderFloat("Angle", &spotAngle, 5.0f, 90.0f))
+                        sl->setAngle(spotAngle);
+
+                    CString type[] = { "None", "Hard", "Soft" };
+                    static I32 type_current = 1;
+                    type_current = (I32)sl->getShadowType();
+                    if (ImGui::Combo("Shadow Type", &type_current, type, 3))
+                        sl->setShadowType((Graphics::ShadowType)(type_current));
+
+                    CString qualities[] = { "Low", "Medium", "High", "Insane" };
+                    static I32 quality_current = 2;
+                    quality_current = (I32)sl->getShadowMapQuality();
+                    if (ImGui::Combo("Quality", &quality_current, qualities, 4))
+                        sl->setShadowMapQuality((Graphics::ShadowMapQuality)(quality_current));
+
+                    ImGui::TreePop();
+                }
+            }
+        });
+
+        LOG("ShadowScene initialized!", Color::RED);
+    }
+
+    void shutdown() override { LOG("ShadowScene Shutdown!", Color::RED); }
+};

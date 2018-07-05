@@ -15,9 +15,6 @@
 
 namespace Components {
 
-    #define DEPTH_STENCIL_FORMAT    Graphics::DepthFormat::D32      // Must be compatible with the format below
-    #define TEMP_RT_FORMAT          Graphics::TextureFormat::RFloat // Must be compatible with the format above
-
     //----------------------------------------------------------------------
     PointLight::PointLight( F32 intensity, Color color, F32 range, bool shadowsEnabled )
         : ILightComponent( new Graphics::PointLight( intensity, color, {}, range ) )
@@ -106,19 +103,33 @@ namespace Components {
     void PointLight::_CreateShadowMap( Graphics::ShadowMapQuality quality )
     {
         U32 shadowMapSize = 0;
+        Graphics::DepthFormat tempRTFormat;
+        Graphics::TextureFormat cubeMapFormat;
         switch (quality)
         {
-            case Graphics::ShadowMapQuality::Low:     shadowMapSize = 256;  break;
-            case Graphics::ShadowMapQuality::Medium:  shadowMapSize = 512;  break;
-            case Graphics::ShadowMapQuality::High:    shadowMapSize = 1024; break;
-            case Graphics::ShadowMapQuality::Insane:  shadowMapSize = 2048; break;
+        case Graphics::ShadowMapQuality::Low:
+            shadowMapSize = 256;
+            tempRTFormat = Graphics::DepthFormat::D16;
+            cubeMapFormat = Graphics::TextureFormat::R16; break;
+        case Graphics::ShadowMapQuality::Medium:
+            shadowMapSize = 512;
+            tempRTFormat = Graphics::DepthFormat::D16;
+            cubeMapFormat = Graphics::TextureFormat::R16; break;
+        case Graphics::ShadowMapQuality::High:
+            shadowMapSize = 1024;
+            tempRTFormat = Graphics::DepthFormat::D32;
+            cubeMapFormat = Graphics::TextureFormat::RFloat; break;
+        case Graphics::ShadowMapQuality::Insane:
+            shadowMapSize = 2048;
+            tempRTFormat = Graphics::DepthFormat::D32;
+            cubeMapFormat = Graphics::TextureFormat::RFloat; break;
         }
 
         if (shadowMapSize > 0)
         {
             // Create cubemap
             auto shadowMap = RESOURCES.createCubemap();
-            shadowMap->create( shadowMapSize, TEMP_RT_FORMAT, Graphics::Mips::None );
+            shadowMap->create( shadowMapSize, cubeMapFormat, Graphics::Mips::None );
             shadowMap->setAnisoLevel( 1 );
             shadowMap->setFilter( Graphics::TextureFilter::Point );
             shadowMap->setClampMode( Graphics::TextureAddressMode::Clamp );
@@ -126,7 +137,7 @@ namespace Components {
 
             // Create shadowmap (rendertarget, which gets copied to each face)
             auto shadowMapRender = RESOURCES.createRenderBuffer();
-            shadowMapRender->create( shadowMapSize, shadowMapSize, DEPTH_STENCIL_FORMAT );
+            shadowMapRender->create( shadowMapSize, shadowMapSize, tempRTFormat );
 
             // Create rendertexture
             auto rt = RESOURCES.createRenderTexture();
