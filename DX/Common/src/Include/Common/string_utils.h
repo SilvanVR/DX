@@ -45,6 +45,12 @@ namespace StringUtils {
     //----------------------------------------------------------------------
     std::vector<String> splitString(const String& str, const char delim);
 
+    //----------------------------------------------------------------------
+    // @Return: 
+    //   String representing the given formatted string.
+    //   e.g. format("Hello %d", 42); // "Hello 42"
+    //----------------------------------------------------------------------
+    String format(CString s, ...);
 
     //**********************************************************************
     // Class for extracting different data from a string

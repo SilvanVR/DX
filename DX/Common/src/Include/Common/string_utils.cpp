@@ -102,6 +102,18 @@ namespace StringUtils {
         return array;
     }
 
+    //----------------------------------------------------------------------
+    String format( CString str, ... )
+    {
+        char buffer[256]{};
+        va_list args;
+        va_start( args, str );
+        vsnprintf( buffer, 256, str, args );
+        va_end( args );
+
+        return String( buffer );
+    }
+
     //**********************************************************************
     // IStringStream
     //**********************************************************************

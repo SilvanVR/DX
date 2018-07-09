@@ -21,3 +21,4 @@
 #include "Assets/brdf_lut.h"
 #include "Events/event_dispatcher.h"
 #include "Events/event_names.hpp"
+#include "Common/string_utils.h"
