@@ -64,9 +64,8 @@ struct CSMSplit
 
 cbuffer cbBufferLights : register(b3)
 {
-	Light 		_Lights[MAX_LIGHTS]; // 16 * 80 = 1280 bytes (somehow 1024 bytes?!)
-	float4x4 	_LightViewProj[MAX_SHADOWMAPS_2D]; // 4 * 64 = 256 bytes
-	//float4x4 	_CSMLightViewProj[MAX_CSM_SPLITS]; // 4 * 64 = 256 bytes
+	Light 		_Lights[MAX_LIGHTS];
+	float4x4 	_LightViewProj[MAX_SHADOWMAPS_2D];
 	CSMSplit	_CSMSplits[MAX_CSM_SPLITS];
 	int 		_LightCount; // 4 bytes
 };

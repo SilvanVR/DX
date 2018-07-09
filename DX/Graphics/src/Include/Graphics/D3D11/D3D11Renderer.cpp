@@ -46,26 +46,6 @@ namespace Graphics {
     static const StringID CAM_VIEW_MATRIX_NAME          = SID( "_View" );
     static const StringID CAM_PROJ_MATRIX_NAME          = SID( "_Proj" );
 
-    ArrayList<Math::Vec3> cubeVertices =
-    {
-        Math::Vec3(-1.0f, -1.0f, -1.0f),
-        Math::Vec3(-1.0f,  1.0f, -1.0f),
-        Math::Vec3(1.0f,  1.0f, -1.0f),
-        Math::Vec3(1.0f, -1.0f, -1.0f),
-        Math::Vec3(-1.0f, -1.0f,  1.0f),
-        Math::Vec3(-1.0f,  1.0f,  1.0f),
-        Math::Vec3(1.0f,  1.0f,  1.0f),
-        Math::Vec3(1.0f, -1.0f,  1.0f)
-    };
-    ArrayList<U32> cubeIndices = {
-        0, 1, 3, 3, 1, 2,
-        4, 6, 5, 4, 7, 6,
-        4, 5, 1, 4, 1, 0,
-        3, 2, 6, 3, 6, 7,
-        1, 5, 6, 1, 6, 2,
-        4, 0, 3, 4, 3, 7
-    };
-
     //**********************************************************************
     // INIT STUFF
     //**********************************************************************
@@ -73,29 +53,25 @@ namespace Graphics {
     //----------------------------------------------------------------------
     void D3D11Renderer::init()
     {
-        m_limits.maxLights      = MAX_LIGHTS;
-        m_limits.maxShadowmaps  = MAX_SHADOWMAPS_2D + MAX_SHADOWMAPS_3D + MAX_SHADOWMAPS_ARRAY;
-        m_limits.maxCascades    = MAX_CSM_SPLITS;
-
+        _SetLimits();
         _InitD3D11();
-
         _CreateGlobalBuffer();
-        m_cubeMesh = createMesh();
-        m_cubeMesh->setVertices( cubeVertices );
-        m_cubeMesh->setIndices( cubeIndices );
+        _CreateCubeMesh();
 
         // Gets rid of the warnings that a texture is not bound to a shadowmap slot
-        auto tex = createTexture2D();
-        tex->create(2, 2, Graphics::TextureFormat::R8, false);
-        for (auto i = SHADOW_MAP_2D_SLOT_BEGIN; i < SHADOW_MAP_2D_SLOT_BEGIN + MAX_SHADOWMAPS_2D; i++)
-            tex->bind(Graphics::ShaderType::Fragment, i);
-        delete tex;
+        {
+            auto tex = createTexture2D();
+            tex->create(2, 2, Graphics::TextureFormat::R8, false);
+            for (auto i = SHADOW_MAP_2D_SLOT_BEGIN; i < SHADOW_MAP_2D_SLOT_BEGIN + MAX_SHADOWMAPS_2D; i++)
+                tex->bind(Graphics::ShaderType::Fragment, i);
+            delete tex;
 
-        auto cube = createCubemap();
-        cube->create(2, Graphics::TextureFormat::R8);
-        for (auto i = SHADOW_MAP_3D_SLOT_BEGIN; i < SHADOW_MAP_3D_SLOT_BEGIN + MAX_SHADOWMAPS_3D; i++)
-            cube->bind(Graphics::ShaderType::Fragment, i);
-        delete cube;
+            auto cube = createCubemap();
+            cube->create(2, Graphics::TextureFormat::R8);
+            for (auto i = SHADOW_MAP_3D_SLOT_BEGIN; i < SHADOW_MAP_3D_SLOT_BEGIN + MAX_SHADOWMAPS_3D; i++)
+                cube->bind(Graphics::ShaderType::Fragment, i);
+            delete cube;
+        }
     } 
 
     //----------------------------------------------------------------------
@@ -314,8 +290,9 @@ namespace Graphics {
     {
         _CreateDeviceAndContext();
         _CreateSwapchain( 1 );
+        _SetGPUDescription();
 
-        LOG_RENDERING( "Done initializing D3D11..." );
+        LOG_RENDERING( "Done initializing D3D11... (Using " + getGPUDescription().name + ")" );
     }
 
     //----------------------------------------------------------------------
@@ -369,6 +346,33 @@ namespace Graphics {
         HR( g_pDevice->QueryInterface( __uuidof( ID3D11Debug ), reinterpret_cast<void**>( &pDebugDevice ) ) );
         HR( pDebugDevice->ReportLiveDeviceObjects( D3D11_RLDO_DETAIL ) );
         SAFE_RELEASE( pDebugDevice );
+    }
+
+    //----------------------------------------------------------------------
+    void D3D11Renderer::_SetLimits()
+    {
+        m_limits.maxLights      = MAX_LIGHTS;
+        m_limits.maxShadowmaps  = MAX_SHADOWMAPS_2D + MAX_SHADOWMAPS_3D + MAX_SHADOWMAPS_ARRAY;
+        m_limits.maxCascades    = MAX_CSM_SPLITS;
+    }
+
+    //----------------------------------------------------------------------
+    void D3D11Renderer::_SetGPUDescription()
+    {
+        ComPtr<IDXGIDevice2> pDXGIDevice;
+        HR( g_pDevice->QueryInterface( __uuidof(IDXGIDevice2), (void **)&pDXGIDevice.get() ) );
+
+        ComPtr<IDXGIAdapter> pDXGIAdapter;
+        HR( pDXGIDevice->GetAdapter( &pDXGIAdapter.get() ) );
+
+        ComPtr<IDXGIFactory2> pIDXGIFactory;
+        HR( pDXGIAdapter->GetParent( __uuidof(IDXGIFactory2), (void **)&pIDXGIFactory.get() ) );
+
+        DXGI_ADAPTER_DESC adapterDesc;
+        HR( pDXGIAdapter->GetDesc( &adapterDesc ) );
+
+        m_gpuDescription.name = ConvertToString( adapterDesc.Description );
+        m_gpuDescription.maxDedicatedMemoryMB = adapterDesc.DedicatedVideoMemory / 1024 / 1024;
     }
 
     //**********************************************************************
@@ -685,6 +689,33 @@ namespace Graphics {
         {
             LOG_WARN_RENDERING( String( "Could not open enginePS.hlsl. This might cause some issues. Reason: " ) + ex.what() );
         }
+    }
+
+    //----------------------------------------------------------------------
+    void D3D11Renderer::_CreateCubeMesh()
+    {
+        ArrayList<Math::Vec3> cubeVertices =
+        {
+            Math::Vec3(-1.0f, -1.0f, -1.0f),
+            Math::Vec3(-1.0f,  1.0f, -1.0f),
+            Math::Vec3(1.0f,  1.0f, -1.0f),
+            Math::Vec3(1.0f, -1.0f, -1.0f),
+            Math::Vec3(-1.0f, -1.0f,  1.0f),
+            Math::Vec3(-1.0f,  1.0f,  1.0f),
+            Math::Vec3(1.0f,  1.0f,  1.0f),
+            Math::Vec3(1.0f, -1.0f,  1.0f)
+        };
+        ArrayList<U32> cubeIndices = {
+            0, 1, 3, 3, 1, 2,
+            4, 6, 5, 4, 7, 6,
+            4, 5, 1, 4, 1, 0,
+            3, 2, 6, 3, 6, 7,
+            1, 5, 6, 1, 6, 2,
+            4, 0, 3, 4, 3, 7
+        };
+        m_cubeMesh = createMesh();
+        m_cubeMesh->setVertices( cubeVertices );
+        m_cubeMesh->setIndices( cubeIndices );
     }
 
     //----------------------------------------------------------------------

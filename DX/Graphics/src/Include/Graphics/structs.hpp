@@ -13,6 +13,13 @@
 
 namespace Graphics {
 
+    // GPU Information
+    struct GPUDescription
+    {
+        String name;
+        Size maxDedicatedMemoryMB;
+    };
+
     // Coordinates specified in [0-1] Range
     struct ViewportRect
     {

@@ -73,13 +73,13 @@ namespace Graphics {
 
         void _CreateDeviceAndContext();
         void _CreateSwapchain( U32 numSamples );
-
+        void _SetGPUDescription();
         void _ReportLiveObjects();
+        void _CreateGlobalBuffer();
+        void _CreateCubeMesh();
+        void _SetLimits();
 
         void _FlushLightBuffer();
-
-        void _CreateGlobalBuffer();
-
         void _ExecuteCommandBuffer(const CommandBuffer& cmd);
 
         //----------------------------------------------------------------------

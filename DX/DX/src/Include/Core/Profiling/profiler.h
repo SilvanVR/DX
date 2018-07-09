@@ -5,8 +5,6 @@
     author: S. Hau
     date: October 28, 2017
 
-    @TODO:
-      - Add gpu profiling
 **********************************************************************/
 
 #include "Common/i_subsystem.hpp"

@@ -40,7 +40,10 @@ namespace Core {
         // Initialize all subsystems
         m_subSystemManager.init();
 
-        Locator::getRenderer().setGlobalFloat( SID("_Ambient"), 0.2f );
+        F32 ambient = 0.2f;
+        if ( auto amb = CONFIG.getEngineIni()["General"]["Ambient"] )
+            ambient = amb;
+        Locator::getRenderer().setGlobalFloat( SID("_Ambient"), ambient );
 
         // Invoke game start event
         Events::EventDispatcher::GetEvent( EVENT_GAME_START ).invoke();

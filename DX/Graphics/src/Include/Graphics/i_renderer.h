@@ -54,10 +54,11 @@ namespace Graphics {
         virtual ~IRenderer() {}
 
         //----------------------------------------------------------------------
-        const OS::Window*   getWindow()         const { return m_window; }
-        const U64           getFrameCount()     const { return m_frameCount; }
-        const Limits&       getLimits()         const { return m_limits; }
-        bool                isVSyncEnabled()    const { return m_vsync; }
+        const OS::Window*       getWindow()         const { return m_window; }
+        const U64               getFrameCount()     const { return m_frameCount; }
+        const Limits&           getLimits()         const { return m_limits; }
+        bool                    isVSyncEnabled()    const { return m_vsync; }
+        const GPUDescription&   getGPUDescription() const { return m_gpuDescription; }
 
         //----------------------------------------------------------------------
         void setVSync(bool enabled) { m_vsync = enabled; }
@@ -127,6 +128,7 @@ namespace Graphics {
         ArrayList<CommandBuffer>    m_pendingCmdQueue;
         Limits                      m_limits;
         bool                        m_vsync = false;
+        GPUDescription              m_gpuDescription;
 
         //----------------------------------------------------------------------
         void _LockQueue();

@@ -61,6 +61,8 @@ namespace Common {
         EVariantType    getType() const { return m_type; }
         bool            isValid() const { return m_type != EVariantType::UNKNOWN; }
 
+        operator bool() const { return isValid(); }
+
         //----------------------------------------------------------------------
         template <typename T> T get() const { return _GetVal<T>(); }
         template <typename T> operator T () const { return _GetVal<T>(); }

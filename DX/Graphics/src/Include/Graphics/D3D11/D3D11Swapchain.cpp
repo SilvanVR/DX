@@ -12,7 +12,6 @@ namespace Graphics { namespace D3D11 {
 
     //----------------------------------------------------------------------
     #define FORMAT                  DXGI_FORMAT_R8G8B8A8_UNORM
-    #define DEPTH_STENCIL_FORMAT    DXGI_FORMAT_D24_UNORM_S8_UINT
     #define NUM_BACKBUFFERS         1
 
     //----------------------------------------------------------------------
@@ -94,19 +93,16 @@ namespace Graphics { namespace D3D11 {
         sd.AlphaMode    = DXGI_ALPHA_MODE_IGNORE;
         sd.Flags        = 0;
 
-        IDXGIDevice2* pDXGIDevice;
-        HR( g_pDevice->QueryInterface( __uuidof( IDXGIDevice2 ), (void **)&pDXGIDevice ) ) ;
+        ComPtr<IDXGIDevice2> pDXGIDevice;
+        HR( g_pDevice->QueryInterface( __uuidof( IDXGIDevice2 ), (void **)&pDXGIDevice.get() ) ) ;
 
-        IDXGIAdapter* pDXGIAdapter;
-        HR( pDXGIDevice->GetAdapter( &pDXGIAdapter ) );
+        ComPtr<IDXGIAdapter> pDXGIAdapter;
+        HR( pDXGIDevice->GetAdapter( &pDXGIAdapter.get() ) );
 
-        IDXGIFactory2* pIDXGIFactory;
-        HR( pDXGIAdapter->GetParent( __uuidof( IDXGIFactory2 ), (void **)&pIDXGIFactory ) );
+        ComPtr<IDXGIFactory2> pIDXGIFactory;
+        HR( pDXGIAdapter->GetParent( __uuidof( IDXGIFactory2 ), (void **)&pIDXGIFactory.get()) );
 
         HR( pIDXGIFactory->CreateSwapChainForHwnd( g_pDevice, hwnd, &sd, NULL, NULL, &m_pSwapChain ) );
-        SAFE_RELEASE( pDXGIDevice );
-        SAFE_RELEASE( pDXGIAdapter );
-        SAFE_RELEASE( pIDXGIFactory );
     }
 
     //----------------------------------------------------------------------
