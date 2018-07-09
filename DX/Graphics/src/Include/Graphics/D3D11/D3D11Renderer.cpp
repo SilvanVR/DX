@@ -389,6 +389,9 @@ namespace Graphics {
             return;
         }
 
+        // Reset frame info struct
+        camera->getFrameInfo() = {};
+
         renderContext.camera = camera;
         renderContext.renderTarget = renderTarget;
 
@@ -458,9 +461,13 @@ namespace Graphics {
     void D3D11Renderer::_DrawMesh( IMesh* mesh, const std::shared_ptr<IMaterial>& material, const DirectX::XMMATRIX& modelMatrix, U32 subMeshIndex )
     {
         // Measuring per frame data
-        m_frameInfo.drawCalls++;
-        m_frameInfo.numTriangles += mesh->getIndexCount( subMeshIndex ) / 3;
-        m_frameInfo.numVertices += mesh->getVertexCount(); // This is actually not correct, cause i need the vertex-count from the submesh
+        if (renderContext.camera)
+        {
+            auto& camInfo = renderContext.camera->getFrameInfo();
+            camInfo.drawCalls++;
+            camInfo.numTriangles += mesh->getIndexCount( subMeshIndex ) / 3;
+            camInfo.numVertices += mesh->getVertexCount(); // This is actually not correct, cause i need the vertex-count from the submesh
+        }
 
         // Update global buffer if necessary
         if ( D3D11::ConstantBufferManager::hasGlobalBuffer() )
@@ -514,7 +521,7 @@ namespace Graphics {
             return;
         renderContext.lightsUpdated = false;
 
-        m_frameInfo.numLights = renderContext.lightCount;
+        renderContext.camera->getFrameInfo().numLights = renderContext.lightCount;
 
         // Update light count
         static StringID lightCountName = SID( LIGHT_COUNT_NAME );

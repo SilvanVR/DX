@@ -20,6 +20,15 @@ namespace Graphics {
         Size maxDedicatedMemoryMB;
     };
 
+    // Collected render information (per camera)
+    struct FrameInfo
+    {
+        U32 drawCalls;
+        U32 numVertices;
+        U32 numTriangles;
+        U32 numLights;
+    };
+
     // Coordinates specified in [0-1] Range
     struct ViewportRect
     {

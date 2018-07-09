@@ -52,6 +52,7 @@ namespace Components {
         F32                             getRight()                  const { return m_camera.getRight(); }
         F32                             getTop()                    const { return m_camera.getTop(); }
         F32                             getBottom()                 const { return m_camera.getBottom(); }
+        const Graphics::FrameInfo&      getFrameInfo()              const { return m_camera.getFrameInfo(); }
 
         //----------------------------------------------------------------------
         void setCameraMode          (Graphics::CameraMode mode)                                     { m_camera.setCameraMode(mode); }

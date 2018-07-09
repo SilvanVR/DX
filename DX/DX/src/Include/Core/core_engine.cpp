@@ -116,7 +116,6 @@ namespace Core {
     void CoreEngine::_Render( F32 lerp )
     {
         auto& graphicsEngine = Locator::getRenderer();
-        graphicsEngine.resetFrameInfo();
 
         // Update global buffer
         static const StringID TIME_NAME = SID( "_Time" );

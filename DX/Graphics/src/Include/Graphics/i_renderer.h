@@ -28,15 +28,6 @@ namespace Graphics {
     class IMesh;
 
     //----------------------------------------------------------------------
-    struct FrameInfo
-    {
-        U32 drawCalls;
-        U32 numVertices;
-        U32 numTriangles;
-        U32 numLights;
-    };
-
-    //----------------------------------------------------------------------
     struct Limits
     {
         U32 maxLights     = 16;
@@ -114,17 +105,9 @@ namespace Graphics {
         //----------------------------------------------------------------------
         void setGlobalMaterialActive(CString name = "NONE");
 
-        //----------------------------------------------------------------------
-        // @Return:
-        //  Global information about the last rendered frame.
-        //----------------------------------------------------------------------
-        const FrameInfo& getLastFrameInfo() const { return m_frameInfo; }
-        void resetFrameInfo() { m_frameInfo = {}; }
-
     protected:
         U64                         m_frameCount = 0;
         OS::Window*                 m_window;
-        FrameInfo                   m_frameInfo = {};
         ArrayList<CommandBuffer>    m_pendingCmdQueue;
         Limits                      m_limits;
         bool                        m_vsync = false;

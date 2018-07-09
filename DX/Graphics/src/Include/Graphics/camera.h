@@ -68,6 +68,8 @@ namespace Graphics {
         inline const ShaderPtr&    getReplacementShader()       const { return m_replacementShader; }
         inline StringID            getReplacementShaderTag()    const { return m_replacementShaderTag; }
         inline bool                hasReplacementShader()       const { return m_replacementShader != nullptr; }
+        inline const FrameInfo&    getFrameInfo()               const { return *m_frameInfo.get(); }
+        inline FrameInfo&          getFrameInfo()                     { return *m_frameInfo.get(); }
 
         //----------------------------------------------------------------------
         // @Return
@@ -136,6 +138,8 @@ namespace Graphics {
         DirectX::XMMATRIX       m_view;
         DirectX::XMMATRIX       m_projection;
         DirectX::XMMATRIX       m_viewProjection;
+
+        std::shared_ptr<FrameInfo> m_frameInfo;
 
         CameraMode m_cameraMode = CameraMode::Perspective;
 

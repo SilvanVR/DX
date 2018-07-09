@@ -14,6 +14,8 @@
 #include "Core/locator.h"
 #include "Logging/logging.h"
 #include "OS/PlatformTimer/platform_timer.h"
+#include "GameplayLayer/i_scene.h"
+#include "GameplayLayer/Components/Rendering/camera.h"
 
 namespace Core { namespace Profiling {
 
@@ -104,22 +106,28 @@ namespace Core { namespace Profiling {
         }
         else
         {
-            LOG( "No Profiling results.", LOGCOLOR );
+            LOG( "No Standard Profiling results.", LOGCOLOR );
         }
     }
 
     //----------------------------------------------------------------------
     void Profiler::logGPU()
     {
-        auto& renderer = Locator::getRenderer();
-        auto frameInfo = renderer.getLastFrameInfo();
-        auto gpuDesc = renderer.getGPUDescription();
-        String str = "--- " + gpuDesc.name + " (" + TS( gpuDesc.maxDedicatedMemoryMB ) + "MB) ---\n"
-            "<<< Last Frame Info >>>\n"
-            "Drawcalls: " + TS( frameInfo.drawCalls ) + "\n"
-            "Vertices: " + TS( frameInfo.numVertices ) + "\n"
-            "Triangles: " + TS( frameInfo.numTriangles ) + "\n"
-            "Lights: " + TS( frameInfo.numLights );
+        auto gpuDesc = Locator::getRenderer().getGPUDescription();
+        String str = "--- " + gpuDesc.name + " (" + TS( gpuDesc.maxDedicatedMemoryMB ) + "MB) ---\n";
+
+        // Print stats from all cameras
+        auto cameras = SCENE.getComponentManager().getCameras();
+        I32 cameraIndex = 0;
+        for ( auto& cam : cameras )
+        {
+            auto& frameInfo = cam->getFrameInfo();
+            str += "<<< Camera #" + TS( cameraIndex++ ) + " >>>\n";
+            str += "Drawcalls: " + TS( frameInfo.drawCalls ) + "\n";
+            str += "Vertices: " + TS( frameInfo.numVertices ) + "\n";
+            str += "Triangles: " + TS( frameInfo.numTriangles ) + "\n";
+            str += "Lights: " + TS( frameInfo.numLights ) + "\n";
+        }
         LOG( str, LOGCOLOR );
     }
 

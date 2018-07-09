@@ -11,6 +11,7 @@ namespace Graphics {
     //----------------------------------------------------------------------
     Camera::Camera( F32 fovAngleYInDegree, F32 zNear, F32 zFar )
     {
+        m_frameInfo.reset(new FrameInfo);
         m_cameraMode = CameraMode::Perspective;
         setPerspectiveParams( fovAngleYInDegree, zNear, zFar );
     }
@@ -18,6 +19,7 @@ namespace Graphics {
     //----------------------------------------------------------------------
     Camera::Camera( F32 left, F32 right, F32 bottom, F32 top, F32 zNear, F32 zFar )
     {
+        m_frameInfo.reset(new FrameInfo);
         m_cameraMode = CameraMode::Orthographic;
         setOrthoParams( left, right, bottom, top, zNear, zFar );
     }

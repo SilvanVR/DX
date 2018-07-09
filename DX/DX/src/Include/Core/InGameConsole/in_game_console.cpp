@@ -31,6 +31,7 @@ namespace Core {
     void Profile()
     {
         Locator::getProfiler().log();
+        Locator::getProfiler().logGPU();
     }
 
     //----------------------------------------------------------------------
