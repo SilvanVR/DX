@@ -125,3 +125,27 @@ namespace Time {
 
 
 } // end namespaces
+
+//----------------------------------------------------------------------
+Time::Seconds operator""_s( unsigned long long val )
+{
+    return Time::Seconds( static_cast<F64>(val) );
+}
+
+//----------------------------------------------------------------------
+Time::Milliseconds operator""_ms( unsigned long long val )
+{
+    return Time::Milliseconds( static_cast<F64>(val) );
+}
+
+//----------------------------------------------------------------------
+Time::Microseconds operator""_us( unsigned long long val )
+{
+    return Time::Microseconds( static_cast<F64>(val) );
+}
+
+//----------------------------------------------------------------------
+Time::Nanoseconds operator""_ns( unsigned long long val )
+{
+    return Time::Nanoseconds( static_cast<F64>(val) );
+}

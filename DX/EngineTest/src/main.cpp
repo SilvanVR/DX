@@ -117,6 +117,8 @@ public:
 
         ASSETS.setHotReloading(true);
 
+        IGC_REGISTER_COMMAND_WITH_NAME( "menu", BIND_THIS_FUNC_0_ARGS(&Game::_OpenMenu) );
+
         Locator::getRenderer().setVSync(true);
         Locator::getRenderer().setGlobalFloat(SID("_Ambient"), 0.5f);
 
@@ -132,7 +134,7 @@ public:
         //auto time = clock.getTime();
 
         if (KEYBOARD.wasKeyPressed(Key::Backspace))
-            Locator::getSceneManager().LoadSceneAsync(new SceneGUISelectSceneMenu);
+            _OpenMenu();
 
         if (KEYBOARD.wasKeyPressed(Key::Zero))
             Locator::getSceneManager().LoadSceneAsync(new TestScene());
@@ -153,6 +155,13 @@ public:
     void shutdown() override 
     {
         LOG( "Shutdown game..." );
+    }
+
+private:
+    //----------------------------------------------------------------------
+    void _OpenMenu() const
+    {
+        Locator::getSceneManager().LoadSceneAsync(new SceneGUISelectSceneMenu);
     }
 };
 

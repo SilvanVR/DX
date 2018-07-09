@@ -145,5 +145,10 @@ namespace Time {
         String toString() const { return TS( value ) + " ns"; }
     };
 
-
 } // end namespaces
+
+//----------------------------------------------------------------------
+Time::Seconds operator""_s(unsigned long long val);
+Time::Milliseconds operator""_ms(unsigned long long val);
+Time::Microseconds operator""_us(unsigned long long val);
+Time::Nanoseconds operator""_ns(unsigned long long val);

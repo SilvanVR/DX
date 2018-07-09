@@ -1148,7 +1148,7 @@ public:
             ImGui::SliderFloat("Ambient", &ambient, 0.0f, 1.0f);
             Locator::getRenderer().setGlobalFloat(SID("_Ambient"), ambient);
 
-            obj2->getTransform()->position.x = 5 + std::sin((F64)TIME.getTime());
+            obj2->getTransform()->position.x = 5.0f + std::sinf((F32)TIME.getTime());
 
             if (ImGui::CollapsingHeader("Shadows"))
             {
