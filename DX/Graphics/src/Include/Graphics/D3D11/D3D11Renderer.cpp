@@ -78,6 +78,7 @@ namespace Graphics {
     void D3D11Renderer::shutdown()
     {
         SAFE_DELETE( m_cubeMesh );
+        renderContext.Reset();
         D3D11::ConstantBufferManager::Destroy();
         _DeinitD3D11();
     }

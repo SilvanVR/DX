@@ -27,11 +27,16 @@ public:
         // Camera 1
         auto go = createGameObject("Camera");
         cam = go->addComponent<Components::Camera>();
-        go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -3);
+        go->getComponent<Components::Transform>()->position = Math::Vec3(0, 1, -5);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 0.1f);
-        cam->setClearColor(Color(66, 134, 244));
 
         createGameObject("Grid")->addComponent<GridGeneration>(20);
+
+        auto ps = createGameObject("ParticleSystem");
+        //ps->addComponent<Components::ParticleSystem>(ASSETS.getParticleSystem("/particleSystems/test.ps"));
+
+        auto shader = ASSETS.getShader("/shaders/particle_system.shader");
+
 
         LOG("TestScene initialized!", Color::RED);
     }
@@ -43,7 +48,7 @@ public:
             static int index = 0;
             U32 mscounts[]{ 1,2,4,8 };
             U32 newmscount = mscounts[index];
-            index = (index + 1) % (sizeof(mscounts) / sizeof(int));
+            index = (index + 1) % (sizeof(mscounts) / sizeof(U32));
             cam->setMultiSamples((Graphics::MSAASamples) newmscount);
             LOG("New Multisample-Count: " + TS(newmscount), Color::GREEN);
         }

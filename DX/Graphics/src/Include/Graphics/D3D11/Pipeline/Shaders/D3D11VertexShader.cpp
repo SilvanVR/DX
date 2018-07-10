@@ -7,8 +7,6 @@
 **********************************************************************/
 
 #include "D3D11/D3D11Defines.hpp"
-#include "OS/FileSystem/file_system.h"
-#include "OS/FileSystem/file.h"
 
 namespace Graphics { namespace D3D11 {
 
@@ -74,12 +72,11 @@ namespace Graphics { namespace D3D11 {
 
         // Read input layout description from shader info
         ArrayList<D3D11_INPUT_ELEMENT_DESC> inputLayoutDesc;
-        for (U32 i = 0; i< shaderDesc.InputParameters; i++)
+        for (U32 i = 0; i < shaderDesc.InputParameters; i++)
         {
             D3D11_SIGNATURE_PARAMETER_DESC paramDesc;
             HR( m_pShaderReflection->GetInputParameterDesc( i, &paramDesc ) );
 
-            // Fill out input element desc
             D3D11_INPUT_ELEMENT_DESC elementDesc;
             elementDesc.SemanticName            = paramDesc.SemanticName;
             elementDesc.SemanticIndex           = paramDesc.SemanticIndex;
@@ -88,7 +85,21 @@ namespace Graphics { namespace D3D11 {
             elementDesc.InputSlotClass          = D3D11_INPUT_PER_VERTEX_DATA;
             elementDesc.InstanceDataStepRate    = 0;
 
-            _AddToVertexLayout( paramDesc.SemanticName, paramDesc.SemanticIndex );
+            // Check if semanticName ends with "SEMANTIC_INSTANCED" 
+            String semanticName = paramDesc.SemanticName;
+            Size pos = semanticName.find( SEMANTIC_INSTANCED );
+            constexpr Size sizeOfInstancedName = (sizeof(SEMANTIC_INSTANCED) / sizeof(char)) - 1;
+            Size posIfNameIsAtEnd = semanticName.size() - sizeOfInstancedName;
+            if ( (pos != String::npos) && (pos == posIfNameIsAtEnd) )
+            {
+                // Cut-off the "SEMANTIC_INSTANCED" for _AddToVertexLayout()
+                semanticName = semanticName.substr( 0, pos );
+
+                elementDesc.InputSlotClass          = D3D11_INPUT_PER_INSTANCE_DATA;
+                elementDesc.InstanceDataStepRate    = 1;
+            }
+
+            _AddToVertexLayout( semanticName.c_str(), paramDesc.SemanticIndex );
 
             // determine DXGI format
             if (paramDesc.Mask == 1)
@@ -130,7 +141,7 @@ namespace Graphics { namespace D3D11 {
     //----------------------------------------------------------------------
     void VertexShader::_AddToVertexLayout( const String& semanticName, U32 semanticIndex )
     {
-        if (semanticName.substr(0,3) == "SV_") // Skip system semantics
+        if (semanticName.substr(0,3) == SEMANTIC_SYSTEM) // Skip system semantics
             return;
 
         bool nameExists = false;

@@ -27,7 +27,7 @@ namespace Graphics {
     // Description for one vertex input
     struct InputLayoutDescription
     {
-        InputLayoutType     type;
+        InputLayoutType type;
     };
 
     //**********************************************************************
@@ -54,11 +54,7 @@ namespace Graphics {
     private:
         ArrayList<InputLayoutDescription> m_layoutDescription;
 
-        //----------------------------------------------------------------------
-        VertexLayout(const VertexLayout& other)               = delete;
-        VertexLayout& operator = (const VertexLayout& other)  = delete;
-        VertexLayout(VertexLayout&& other)                    = delete;
-        VertexLayout& operator = (VertexLayout&& other)       = delete;
+        NULL_COPY_AND_ASSIGN(VertexLayout)
     };
 
 } // End namespaces
