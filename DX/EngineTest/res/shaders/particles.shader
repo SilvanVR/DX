@@ -1,7 +1,7 @@
 // ----------------------------------------------
 #Fill			Solid
 #Cull 			None
-#ZWrite 		On
+#ZWrite 		Offw
 #ZTest 			Less
 #Blend 			SrcAlpha OneMinusSrcAlpha
 #Priority 		Transparent
@@ -28,8 +28,8 @@ VertexOut main(VertexIn vin)
 {
     VertexOut OUT;
 
-    OUT.PosH = TO_CLIP_SPACE(vin.PosL);
-	OUT.tex = vin.tex;
+    OUT.PosH = TO_CLIP_SPACE(vin.PosL + float3(vin.tex * 100,0));
+	OUT.tex = 1-vin.tex;
 	
     return OUT;
 }
@@ -39,22 +39,17 @@ VertexOut main(VertexIn vin)
 
 #include "/engine/shaders/includes/enginePS.hlsl"
 
-cbuffer cbPerMaterial
-{
-	float4 tintColor;
-};
-
 struct FragmentIn
 {
     float4 PosH : SV_POSITION;
 	float2 tex : TEXCOORD0;
 };
 
-Texture2D tex;
+Texture2D _MainTex;
 SamplerState sampler0;
 
 float4 main(FragmentIn fin) : SV_Target
 {
-	float4 textureColor = tex.Sample(sampler0, fin.tex);	
-	return textureColor * tintColor;
+	float4 textureColor = _MainTex.Sample(sampler0, fin.tex);	
+	return textureColor;
 }

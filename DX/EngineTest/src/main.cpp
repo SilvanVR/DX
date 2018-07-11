@@ -30,13 +30,11 @@ public:
         go->getComponent<Components::Transform>()->position = Math::Vec3(0, 1, -5);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 0.1f);
 
-        createGameObject("Grid")->addComponent<GridGeneration>(20);
+        //createGameObject("Grid")->addComponent<GridGeneration>(20);
 
         auto ps = createGameObject("ParticleSystem");
         //ps->addComponent<Components::ParticleSystem>(ASSETS.getParticleSystem("/particleSystems/test.ps"));
-
-        auto shader = ASSETS.getShader("/shaders/particle_system.shader");
-
+        ps->addComponent<Components::ParticleSystem>(ASSETS.getMaterial("/materials/particles.material"));
 
         LOG("TestScene initialized!", Color::RED);
     }

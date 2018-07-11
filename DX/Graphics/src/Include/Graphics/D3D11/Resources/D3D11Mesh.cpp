@@ -116,21 +116,21 @@ namespace Graphics { namespace D3D11 {
     void Mesh::_CreateUVBuffer( const ArrayList<Math::Vec2>& uvs )
     {
         ASSERT( m_pUVBuffer == nullptr );
-        m_pUVBuffer = new VertexBuffer( uvs.data(), getVertexCount() * sizeof( Math::Vec2 ), m_bufferUsage );
+        m_pUVBuffer = new VertexBuffer( uvs.data(), U32( uvs.size() * sizeof( Math::Vec2 ) ), m_bufferUsage );
     }
 
     //----------------------------------------------------------------------
     void Mesh::_CreateNormalBuffer( const ArrayList<Math::Vec3>& normals )
     {
         ASSERT( m_pNormalBuffer == nullptr );
-        m_pNormalBuffer = new VertexBuffer( normals.data(), getVertexCount() * sizeof( Math::Vec3 ), m_bufferUsage );
+        m_pNormalBuffer = new VertexBuffer( normals.data(), U32( normals.size() * sizeof( Math::Vec3 ) ), m_bufferUsage );
     }
 
     //----------------------------------------------------------------------
     void Mesh::_CreateTangentBuffer( const ArrayList<Math::Vec4>& tangents )
     {
         ASSERT( m_pTangentBuffer == nullptr);
-        m_pTangentBuffer = new VertexBuffer( tangents.data(), getVertexCount() * sizeof( Math::Vec4 ), m_bufferUsage );
+        m_pTangentBuffer = new VertexBuffer( tangents.data(), U32( tangents.size() * sizeof( Math::Vec4 ) ), m_bufferUsage );
     }
 
     //----------------------------------------------------------------------

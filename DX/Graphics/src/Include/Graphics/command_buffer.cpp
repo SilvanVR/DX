@@ -107,6 +107,15 @@ namespace Graphics {
     }
 
     //----------------------------------------------------------------------
+    void CommandBuffer::drawMeshInstanced( const MeshPtr& mesh, const MaterialPtr& material, const DirectX::XMMATRIX& modelMatrix, I32 instanceCount )
+    {
+        ASSERT( mesh && "Mesh is null, which is not allowed!" );
+        ASSERT( material && "Material is null, which is not allowed!" );
+        ASSERT( instanceCount > 0 && "Material is null, which is not allowed!" );
+        m_gpuCommands.push_back( std::make_unique<GPUC_DrawMeshInstanced>( mesh, material, modelMatrix, instanceCount ) );
+    }
+
+    //----------------------------------------------------------------------
     void CommandBuffer::setCamera( const Camera& camera )
     {
         m_gpuCommands.push_back( std::make_unique<GPUC_SetCamera>( camera ) );

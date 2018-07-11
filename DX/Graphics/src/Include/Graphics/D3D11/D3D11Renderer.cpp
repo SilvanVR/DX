@@ -110,6 +110,12 @@ namespace Graphics {
                     _DrawMesh( cmd.mesh.get(), cmd.material, cmd.modelMatrix, cmd.subMeshIndex );
                     break;
                 }
+                case GPUCommand::DRAW_MESH_INSTANCED:
+                {
+                    auto& cmd = *reinterpret_cast<GPUC_DrawMeshInstanced*>( command.get() );
+                    _DrawMeshInstanced( cmd.mesh.get(), cmd.material, cmd.modelMatrix, cmd.instanceCount );
+                    break;
+                }
                 case GPUCommand::COPY_TEXTURE:
                 {
                     auto& cmd = *dynamic_cast<GPUC_CopyTexture*>( command.get() );
@@ -459,7 +465,7 @@ namespace Graphics {
     }
 
     //----------------------------------------------------------------------
-    void D3D11Renderer::_DrawMesh( IMesh* mesh, const std::shared_ptr<IMaterial>& material, const DirectX::XMMATRIX& modelMatrix, U32 subMeshIndex )
+    void D3D11Renderer::_DrawMesh( IMesh* mesh, const std::shared_ptr<IMaterial>& material, const DirectX::XMMATRIX& modelMatrix, I32 subMeshIndex )
     {
         // Measuring per frame data
         if (renderContext.camera)
@@ -513,6 +519,54 @@ namespace Graphics {
 
         // Submit draw call
         g_pImmediateContext->DrawIndexed( mesh->getIndexCount( subMeshIndex ), 0, mesh->getBaseVertex( subMeshIndex ) );
+    }
+
+    //----------------------------------------------------------------------
+    void D3D11Renderer::_DrawMeshInstanced( IMesh* mesh, const std::shared_ptr<IMaterial>& material, const DirectX::XMMATRIX& modelMatrix, I32 instanceCount )
+    {
+        // Measuring per frame data
+        if (renderContext.camera)
+        {
+            auto& camInfo = renderContext.camera->getFrameInfo();
+            camInfo.drawCalls++;
+            camInfo.numTriangles += (mesh->getIndexCount(0) / 3) * instanceCount;
+            camInfo.numVertices += mesh->getVertexCount() * instanceCount; // This is actually not correct, cause i need the vertex-count from the submesh
+        }
+
+        // Update global buffer if necessary
+        if ( D3D11::ConstantBufferManager::hasGlobalBuffer() )
+            GLOBAL_BUFFER.flush();
+
+        // Update light buffer if necessary
+        if ( D3D11::ConstantBufferManager::hasLightBuffer() )
+            _FlushLightBuffer();
+
+        // Bind shader, possibly a replacement shader
+        auto shader = material->getShader();
+        if (renderContext.camera)
+        {
+            if ( auto& camShader = renderContext.camera->getReplacementShader() )
+            {
+                if ( auto& matShader = material->getReplacementShader( renderContext.camera->getReplacementShaderTag() ) )
+                    shader = matShader;
+                else
+                    shader = camShader;
+            }
+        }
+        renderContext.BindShader( shader );
+
+        // Bind material
+        renderContext.BindMaterial( material );
+
+        // Update per object buffer
+        OBJECT_BUFFER.update( &modelMatrix, sizeof( DirectX::XMMATRIX ) );
+
+        // Bind mesh
+        auto d3d11Mesh = reinterpret_cast<D3D11::Mesh*>( mesh );
+        d3d11Mesh->bind( renderContext.getShader()->getVertexLayout() );
+
+        // Submit draw call
+        g_pImmediateContext->DrawIndexedInstanced( mesh->getIndexCount(0), instanceCount, 0, mesh->getBaseVertex(0), 0 );
     }
 
     //----------------------------------------------------------------------

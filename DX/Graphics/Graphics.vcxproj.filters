@@ -242,8 +242,5 @@
     <ClInclude Include="src\Include\Graphics\forward_declarations.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Include\Graphics\i_particle_system.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
 </Project>

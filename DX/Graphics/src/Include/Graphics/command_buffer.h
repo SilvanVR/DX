@@ -50,6 +50,7 @@ namespace Graphics {
         // <------------------------ GPU COMMANDS ----------------------------->
         const ArrayList<std::shared_ptr<GPUCommandBase>>& getGPUCommands() const { return m_gpuCommands; }
         void drawMesh(const MeshPtr& mesh, const MaterialPtr& material, const DirectX::XMMATRIX& modelMatrix, I32 subMeshIndex);
+        void drawMeshInstanced(const MeshPtr& mesh, const MaterialPtr& material, const DirectX::XMMATRIX& modelMatrix, I32 instanceCount);
         void setCamera(const Camera& camera);
         void endCamera();
         void copyTexture(const TexturePtr& srcTex, const TexturePtr& dstTex);

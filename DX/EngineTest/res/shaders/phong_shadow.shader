@@ -1,9 +1,10 @@
 // ----------------------------------------------
 #Fill			Solid
-#Cull 			Back
+#Cull 			None
 #ZWrite 		On
 #ZTest 			Less
 #Queue 			Geometry
+#AlphaToMask 	On
 
 // ----------------------------------------------
 #shader vertex

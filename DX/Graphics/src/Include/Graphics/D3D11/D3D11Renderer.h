@@ -61,7 +61,8 @@ namespace Graphics {
 
         //----------------------------------------------------------------------
         inline void _SetCamera(Camera* camera);
-        inline void _DrawMesh(IMesh* mesh, const std::shared_ptr<IMaterial>& material, const DirectX::XMMATRIX& model, U32 subMeshIndex);
+        inline void _DrawMesh(IMesh* mesh, const std::shared_ptr<IMaterial>& material, const DirectX::XMMATRIX& model, I32 subMeshIndex);
+        inline void _DrawMeshInstanced(IMesh* mesh, const std::shared_ptr<IMaterial>& material, const DirectX::XMMATRIX& model, I32 instanceCount);
         inline void _CopyTexture(ITexture* srcTex, I32 srcElement, I32 srcMip, ITexture* dstTex, I32 dstElement, I32 dstMip);
         inline void _RenderCubemap(ICubemap* cubemap, const std::shared_ptr<IMaterial>& material, U32 dstMip);
         inline void _Blit(RenderTexturePtr src, RenderTexturePtr dst, const std::shared_ptr<IMaterial>& material);

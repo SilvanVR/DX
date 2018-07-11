@@ -1,0 +1,6 @@
+{
+
+"shader" : "/shaders/particles.shader",
+"_MainTex" : "/textures/nico.jpg"
+
+}

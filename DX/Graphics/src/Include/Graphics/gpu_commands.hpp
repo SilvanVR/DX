@@ -29,6 +29,7 @@ namespace Graphics {
         SET_RENDER_TARGET,
         DRAW_LIGHT,
         DRAW_MESH,
+        DRAW_MESH_INSTANCED,
         END_CAMERA,
         COPY_TEXTURE,
         RENDER_CUBEMAP,
@@ -61,6 +62,19 @@ namespace Graphics {
         MeshPtr             mesh;
         MaterialPtr         material;
         I32                 subMeshIndex;
+    };
+
+    //**********************************************************************
+    struct GPUC_DrawMeshInstanced : public GPUCommandBase
+    {
+        GPUC_DrawMeshInstanced( const MeshPtr& mesh, const MaterialPtr& material, const DirectX::XMMATRIX& modelMatrix, I32 instanceCount )
+            : GPUCommandBase( GPUCommand::DRAW_MESH_INSTANCED ),
+            material( material ), mesh( mesh ), modelMatrix( modelMatrix ), instanceCount( instanceCount ) {}
+
+        DirectX::XMMATRIX   modelMatrix;
+        MeshPtr             mesh;
+        MaterialPtr         material;
+        I32                 instanceCount;
     };
 
     //**********************************************************************

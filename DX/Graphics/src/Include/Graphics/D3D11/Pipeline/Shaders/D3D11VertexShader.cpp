@@ -85,21 +85,25 @@ namespace Graphics { namespace D3D11 {
             elementDesc.InputSlotClass          = D3D11_INPUT_PER_VERTEX_DATA;
             elementDesc.InstanceDataStepRate    = 0;
 
+            bool instanced = false;
+
             // Check if semanticName ends with "SEMANTIC_INSTANCED" 
             String semanticName = paramDesc.SemanticName;
             Size pos = semanticName.find( SEMANTIC_INSTANCED );
             constexpr Size sizeOfInstancedName = (sizeof(SEMANTIC_INSTANCED) / sizeof(char)) - 1;
             Size posIfNameIsAtEnd = semanticName.size() - sizeOfInstancedName;
-            if ( (pos != String::npos) && (pos == posIfNameIsAtEnd) )
+            instanced = (pos != String::npos) && (pos == posIfNameIsAtEnd);
+            if (instanced)
             {
                 // Cut-off the "SEMANTIC_INSTANCED" for _AddToVertexLayout()
                 semanticName = semanticName.substr( 0, pos );
 
+                elementDesc.AlignedByteOffset       = 0;
                 elementDesc.InputSlotClass          = D3D11_INPUT_PER_INSTANCE_DATA;
                 elementDesc.InstanceDataStepRate    = 1;
             }
 
-            _AddToVertexLayout( semanticName.c_str(), paramDesc.SemanticIndex );
+            _AddToVertexLayout( semanticName.c_str(), paramDesc.SemanticIndex, instanced );
 
             // determine DXGI format
             if (paramDesc.Mask == 1)
@@ -139,7 +143,7 @@ namespace Graphics { namespace D3D11 {
     }
 
     //----------------------------------------------------------------------
-    void VertexShader::_AddToVertexLayout( const String& semanticName, U32 semanticIndex )
+    void VertexShader::_AddToVertexLayout( const String& semanticName, U32 semanticIndex, bool instanced )
     {
         if (semanticName.substr(0,3) == SEMANTIC_SYSTEM) // Skip system semantics
             return;
@@ -147,12 +151,12 @@ namespace Graphics { namespace D3D11 {
         bool nameExists = false;
         if (semanticName == SEMANTIC_POSITION)
         {
-            m_vertexLayout.add( { InputLayoutType::POSITION } );
+            m_vertexLayout.add( { InputLayoutType::POSITION, instanced } );
             nameExists = true;
         }
         else if (semanticName == SEMANTIC_COLOR)
         {
-            m_vertexLayout.add( { InputLayoutType::COLOR } );
+            m_vertexLayout.add( { InputLayoutType::COLOR, instanced } );
             nameExists = true;
         }
         else if (semanticName == SEMANTIC_TEXCOORD)
@@ -160,25 +164,25 @@ namespace Graphics { namespace D3D11 {
             nameExists = true;
             switch (semanticIndex)
             {
-            case 0: m_vertexLayout.add( { InputLayoutType::TEXCOORD0 } ); break;
-            case 1: m_vertexLayout.add( { InputLayoutType::TEXCOORD1 } ); break;
-            case 2: m_vertexLayout.add( { InputLayoutType::TEXCOORD2 } ); break;
-            case 3: m_vertexLayout.add( { InputLayoutType::TEXCOORD3 } ); break;
+            case 0: m_vertexLayout.add( { InputLayoutType::TEXCOORD0, instanced } ); break;
+            case 1: m_vertexLayout.add( { InputLayoutType::TEXCOORD1, instanced } ); break;
+            case 2: m_vertexLayout.add( { InputLayoutType::TEXCOORD2, instanced } ); break;
+            case 3: m_vertexLayout.add( { InputLayoutType::TEXCOORD3, instanced } ); break;
             default: nameExists = false;
             }
         }
         else if (semanticName == SEMANTIC_NORMAL)
         {
-            m_vertexLayout.add({ InputLayoutType::NORMAL });
+            m_vertexLayout.add({ InputLayoutType::NORMAL, instanced });
             nameExists = true;
         }
         else if (semanticName == SEMANTIC_TANGENT)
         {
-            m_vertexLayout.add({ InputLayoutType::TANGENT });
+            m_vertexLayout.add({ InputLayoutType::TANGENT, instanced });
             nameExists = true;
         }
         if (not nameExists)
-            LOG_WARN_RENDERING( "D3D11VertexShader: Semantic name '" + semanticName + "' for shader '" + getFilePath().toString() + "' does not exist.");
+            LOG_WARN_RENDERING( "D3D11VertexShader: Semantic name '" + semanticName + "' for recent compiled vertex shader does not exist.");
     }
 
 

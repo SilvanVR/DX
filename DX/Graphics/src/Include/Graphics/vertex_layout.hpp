@@ -28,6 +28,7 @@ namespace Graphics {
     struct InputLayoutDescription
     {
         InputLayoutType type;
+        bool instanced = false;
     };
 
     //**********************************************************************

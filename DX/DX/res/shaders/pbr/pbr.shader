@@ -4,6 +4,7 @@
 #ZWrite 		On
 #ZTest 			Less
 #Queue 			Geometry
+#AlphaToMask 	On
 
 // ----------------------------------------------
 #shader vertex
