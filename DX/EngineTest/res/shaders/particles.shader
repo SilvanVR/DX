@@ -1,7 +1,7 @@
 // ----------------------------------------------
 #Fill			Solid
 #Cull 			None
-#ZWrite 		Offw
+#ZWrite 		On
 #ZTest 			Less
 #Blend 			SrcAlpha OneMinusSrcAlpha
 #Priority 		Transparent
@@ -15,21 +15,26 @@
 struct VertexIn
 {
     float3 PosL : POSITION;
-	float2 tex : TEXCOORD_INSTANCED;
+	float3 pos : NORMAL_INSTANCED;
+	float2 tex : TEXCOORD;
+	float3 color : COLOR_INSTANCED;
 };
 
 struct VertexOut
 {
     float4 PosH : SV_POSITION;
     float2 tex : TEXCOORD0;
+	float3 color : COLOR;
 };
 
 VertexOut main(VertexIn vin)
 {
     VertexOut OUT;
 
-    OUT.PosH = TO_CLIP_SPACE(vin.PosL + float3(vin.tex * 100,0));
-	OUT.tex = 1-vin.tex;
+    //OUT.PosH = TO_CLIP_SPACE(vin.PosL + float3(vin.tex * 100,0));
+	OUT.PosH = TO_CLIP_SPACE(vin.PosL + vin.pos);
+	OUT.tex = vin.tex;
+	OUT.color = vin.color;
 	
     return OUT;
 }
@@ -43,6 +48,7 @@ struct FragmentIn
 {
     float4 PosH : SV_POSITION;
 	float2 tex : TEXCOORD0;
+	float3 color : COLOR;
 };
 
 Texture2D _MainTex;
@@ -51,5 +57,5 @@ SamplerState sampler0;
 float4 main(FragmentIn fin) : SV_Target
 {
 	float4 textureColor = _MainTex.Sample(sampler0, fin.tex);	
-	return textureColor;
+	return textureColor * float4(fin.color, 1);
 }

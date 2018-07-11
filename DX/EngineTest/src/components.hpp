@@ -300,6 +300,8 @@ class GaussianBlur : public Components::IComponent
     MaterialPtr verticalBlur;
 
 public:
+    ~GaussianBlur() { getGameObject()->getComponent<Components::Camera>()->removeCommandBuffer(&cmd); }
+
     void addedToGameObject(GameObject* go)
     {
         // Create rendertarget
@@ -323,6 +325,8 @@ class Fog : public Components::IComponent
 {
     Graphics::CommandBuffer cmd;
 public:
+    ~Fog() { getGameObject()->getComponent<Components::Camera>()->removeCommandBuffer(&cmd); }
+
     void addedToGameObject(GameObject* go)
     {
         auto cam = go->getComponent<Components::Camera>();
@@ -350,10 +354,16 @@ class PostProcess : public Components::IComponent
 
 public:
     PostProcess(const MaterialPtr& material, bool hdr = false) : m_material(material), m_hdr(hdr) {}
+    ~PostProcess() { getGameObject()->getComponent<Components::Camera>()->removeCommandBuffer(&cmd); }
 
     void addedToGameObject(GameObject* go)
     {
         auto cam = go->getComponent<Components::Camera>();
+        if (!cam)
+        {
+            LOG_WARN("Post Process component requires an attached camera component!");
+            return;
+        }
 
         // Apply post processing
         auto rt = RESOURCES.createRenderTexture(WINDOW.getWidth(), WINDOW.getHeight(), m_hdr ? Graphics::TextureFormat::RGBAFloat : Graphics::TextureFormat::RGBA32, true);

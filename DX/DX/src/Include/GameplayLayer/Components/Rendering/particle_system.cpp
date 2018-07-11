@@ -10,6 +10,7 @@
 #include "GameplayLayer/Components/transform.h"
 #include "Graphics/command_buffer.h"
 #include "Core/mesh_generator.h"
+#include "OS/FileSystem/file.h"
 #include "Core/locator.h"
 #include "Math/random.h"
 #include "camera.h"
@@ -17,26 +18,43 @@
 namespace Components {
 
     //----------------------------------------------------------------------
-    //ParticleSystem::ParticleSystem( const ParticleSystemPtr& ps )
-    //    : m_particleSystem( ps )
-    //{
-    //}
+    ParticleSystem::ParticleSystem( const OS::Path& path )
+    {
+        try
+        {
+           OS::TextFile psFile( path, OS::EFileMode::READ );
+        }
+        catch (const std::runtime_error& e)
+        {
+            LOG_WARN( "ParticleSystem: Failed to open '" + path.toString() + "'. Reason: " + e.what() );
+        }
+    }
 
     //----------------------------------------------------------------------
     ParticleSystem::ParticleSystem( const MaterialPtr& material )
         : m_material( material )
     {
-        m_maxParticles = 10000;
+        m_maxParticles = 5000;
 
-        m_particleSystem = Core::MeshGenerator::CreatePlane();
+        m_particleSystem = Core::MeshGenerator::CreateCubeUV();
         m_particleSystem->setBufferUsage( Graphics::BufferUsage::Frequently );
 
         auto& vertLayout = m_material->getShader()->getVertexLayout();
 
-        ArrayList<Math::Vec2> uvs(m_maxParticles);
+        //ArrayList<Math::Vec2> uvs(m_maxParticles);
+        //for (U32 i = 0; i < m_maxParticles; i++)
+        //    uvs[i] = { Math::Random::Float(1.0f), Math::Random::Float(1.0f) };
+        //m_particleSystem->setUVs(uvs);
+
+        ArrayList<Math::Vec3> positions(m_maxParticles);
         for (U32 i = 0; i < m_maxParticles; i++)
-            uvs[i] = { Math::Random::Float(1.0f), Math::Random::Float(1.0f) };
-        m_particleSystem->setUVs(uvs);
+            positions[i] = Math::Vec3{ Math::Random::Float(-1.0f, 1.0f), Math::Random::Float(-1.0f,1.0f), Math::Random::Float(-1.0f,1.0f) } * 50.0f;
+        m_particleSystem->setNormals(positions);
+
+        ArrayList<Color> colors(m_maxParticles);
+        for (U32 i = 0; i < m_maxParticles; i++)
+            colors[i] = Math::Random::Color();
+        m_particleSystem->setColors( colors );
     }
 
     //**********************************************************************
@@ -66,10 +84,10 @@ namespace Components {
     //----------------------------------------------------------------------
     bool ParticleSystem::cull( const Graphics::Camera& camera )
     {
+        if ( m_particleSystem == nullptr )
+            return false;
         return true;
-        //if ( m_particleSystem == nullptr )
-        //    return false;
-        //
+        
         //auto modelMatrix = getGameObject()->getTransform()->getWorldMatrix();
         //return camera.cull( m_particleSystem->getBounds(), modelMatrix );
     }

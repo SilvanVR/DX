@@ -49,7 +49,7 @@ namespace Components {
     void Camera::removeCommandBuffer( Graphics::CommandBuffer* cmd ) 
     { 
         for (auto& pair : m_additionalCommandBuffers)
-            pair.second.erase( std::remove( pair.second.begin(), pair.second.end(), cmd ) );
+            pair.second.erase( std::remove(pair.second.begin(), pair.second.end(), cmd ), pair.second.end() );
     }
 
     //----------------------------------------------------------------------

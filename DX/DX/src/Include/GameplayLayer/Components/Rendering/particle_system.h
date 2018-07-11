@@ -17,6 +17,7 @@ namespace Components {
     {
     public:
         ParticleSystem(const MaterialPtr& material);
+        ParticleSystem(const OS::Path& path);
 
         //----------------------------------------------------------------------
         void tick(Time::Seconds delta) override;

@@ -18,6 +18,7 @@
 class TestScene : public IScene
 {
     Components::Camera* cam;
+    GameObject* go;
 
 public:
     TestScene() : IScene("TestScene") {}
@@ -25,7 +26,7 @@ public:
     void init() override
     {
         // Camera 1
-        auto go = createGameObject("Camera");
+        go = createGameObject("Camera");
         cam = go->addComponent<Components::Camera>();
         go->getComponent<Components::Transform>()->position = Math::Vec3(0, 1, -5);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 0.1f);
@@ -33,7 +34,7 @@ public:
         //createGameObject("Grid")->addComponent<GridGeneration>(20);
 
         auto ps = createGameObject("ParticleSystem");
-        //ps->addComponent<Components::ParticleSystem>(ASSETS.getParticleSystem("/particleSystems/test.ps"));
+        //ps->addComponent<Components::ParticleSystem>("res/particles/test.ps");
         ps->addComponent<Components::ParticleSystem>(ASSETS.getMaterial("/materials/particles.material"));
 
         LOG("TestScene initialized!", Color::RED);
