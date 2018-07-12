@@ -33,12 +33,22 @@ namespace Time {
     class Clock
     {
     public:
-        Clock(Milliseconds duration = INFINITY_DURATION);
+        Clock(Milliseconds duration = INFINITY_DURATION, bool isLooping = true);
         ~Clock() = default;
 
         //----------------------------------------------------------------------
         Seconds     getDuration()       const { return m_curTime.getUpperBound(); }
         bool        ticksBackwards()    const { return (m_tickModifier < 0); }
+        bool        isLooping()         const { return m_isLooping; }
+
+        //----------------------------------------------------------------------
+        void setIsLooping   (bool looping)          { m_isLooping = looping; }
+        void setDuration    (Milliseconds duration) { m_curTime.setUpperBound(duration); }
+
+        //----------------------------------------------------------------------
+        // Sets the current clock time explicitly. Will be clamped it not in bounds.
+        //----------------------------------------------------------------------
+        void        setTime(Milliseconds time) { m_curTime.setValue(time); }
 
         //----------------------------------------------------------------------
         // Change the tickrate of the clock. A negative number means the clock
@@ -62,7 +72,7 @@ namespace Time {
         //        negative, it starts from the end and goes backwards.
         //  "freq": Determines if the function should be called once or repeated.
         //----------------------------------------------------------------------
-        CallbackID  attachCallback(const std::function<void()>& func, Milliseconds ms, ECallFrequency freq = ECallFrequency::REPEAT );
+        CallbackID  attachCallback(const std::function<void()>& func, Milliseconds ms, ECallFrequency freq = ECallFrequency::REPEAT);
 
         //----------------------------------------------------------------------
         // Remove a callback from this clock.
@@ -72,13 +82,16 @@ namespace Time {
         //----------------------------------------------------------------------
         // !!!!! Call this function every frame / update !!!!!
         // Updates the clock and calls callback functions if required.
+        // @Return:
+        //  false, if the clock is not looping and the time exceeded the duration.
         //----------------------------------------------------------------------
-        void        tick(Seconds delta);
+        bool        tick(Seconds delta);
 
     private:
         Common::FiniteRange<Milliseconds>   m_curTime;
         Milliseconds                        m_lastTime      = 0;
         F32                                 m_tickModifier  = 1.0f;
+        bool                                m_isLooping     = true;
 
         struct AttachedCallback
         {

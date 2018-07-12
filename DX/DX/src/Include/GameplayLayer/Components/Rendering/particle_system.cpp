@@ -34,7 +34,7 @@ namespace Components {
     ParticleSystem::ParticleSystem( const MaterialPtr& material )
         : m_material( material )
     {
-        m_maxParticles = 5000;
+        m_maxParticleCount = m_currentParticleCount = 5000;
 
         m_particleSystem = Core::MeshGenerator::CreateCubeUV();
         m_particleSystem->setBufferUsage( Graphics::BufferUsage::Frequently );
@@ -46,15 +46,31 @@ namespace Components {
         //    uvs[i] = { Math::Random::Float(1.0f), Math::Random::Float(1.0f) };
         //m_particleSystem->setUVs(uvs);
 
-        ArrayList<Math::Vec3> positions(m_maxParticles);
-        for (U32 i = 0; i < m_maxParticles; i++)
+        ArrayList<Math::Vec3> positions(m_maxParticleCount);
+        ArrayList<Color> colors(m_maxParticleCount);
+        for (U32 i = 0; i < m_maxParticleCount; i++)
+        {
             positions[i] = Math::Vec3{ Math::Random::Float(-1.0f, 1.0f), Math::Random::Float(-1.0f,1.0f), Math::Random::Float(-1.0f,1.0f) } * 50.0f;
-        m_particleSystem->setNormals(positions);
-
-        ArrayList<Color> colors(m_maxParticles);
-        for (U32 i = 0; i < m_maxParticles; i++)
             colors[i] = Math::Random::Color();
+        }
+        m_particleSystem->setNormals(positions);
         m_particleSystem->setColors( colors );
+    }
+
+    //----------------------------------------------------------------------
+    void ParticleSystem::tick( Time::Seconds delta )
+    {
+        if ( m_clock.tick( delta ) )
+        {
+            // Kill particles
+
+            // Spawn particles
+
+            // Update particles
+
+            // Sort particles
+
+        }
     }
 
     //**********************************************************************
@@ -62,8 +78,12 @@ namespace Components {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    void ParticleSystem::tick( Time::Seconds delta )
+    void ParticleSystem::play()
     {
+        // @TODO: Kill all particles
+
+
+        m_clock.setTime( 0_ms );
     }
 
     //**********************************************************************
@@ -78,7 +98,7 @@ namespace Components {
 
         // Draw instanced mesh with appropriate material
         auto modelMatrix = transform->getWorldMatrix( lerp );
-        cmd.drawMeshInstanced( m_particleSystem, m_material, modelMatrix, m_maxParticles );
+        cmd.drawMeshInstanced( m_particleSystem, m_material, modelMatrix, m_currentParticleCount );
     }
 
     //----------------------------------------------------------------------

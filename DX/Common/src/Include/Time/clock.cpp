@@ -38,18 +38,28 @@ namespace Time {
     }
 
     //----------------------------------------------------------------------
-    Clock::Clock( Milliseconds duration )
-        : m_curTime( 0, duration )
+    Clock::Clock( Milliseconds duration, bool isLooping )
+        : m_curTime( 0, duration ), m_isLooping( isLooping )
     {
     }
 
     //----------------------------------------------------------------------
-    void Clock::tick( Seconds delta )
+    bool Clock::tick( Seconds delta )
     {
         m_lastTime = m_curTime.value();
         m_curTime += (delta * m_tickModifier);
 
+        // Check whether we finished one cycle
+        bool cycle = ticksBackwards() ? (m_curTime.value() > m_lastTime) : (m_curTime.value() < m_lastTime);
+        if (not isLooping() && cycle)
+        {
+            // Reset time back to max or min
+            m_curTime.setValue( ticksBackwards() ? m_curTime.getLowerBound() : m_curTime.getUpperBound() );
+            return false;
+        }
+
         _CheckCallbacks();
+        return true;
     }
 
     //----------------------------------------------------------------------

@@ -11,7 +11,7 @@ namespace Common {
     //**********************************************************************
     // Represents a finite range of a value.
     // It is guaranteed that the value never exceeds or fall below the bounds.
-    // Possible range: [min, max) - (max is always equal min)
+    // Possible range: [min, max]
     // Do NOT use UNSIGNED types. (Or a class with unsigned types in it)
     // Limited support for different operators yet.
     //**********************************************************************
@@ -44,8 +44,9 @@ namespace Common {
         template <typename T2> T2 getValueInRange(T2 val) const { return _MoveInRange( val ); }
 
         //----------------------------------------------------------------------
-        void    setLowerBound(T minBound) { m_lowerBound = minBound; ASSERT( m_lowerBound < m_upperBound && "Min-Bound must be less than Max-Bound." ); }
-        void    setUpperBound(T maxBound) { m_upperBound = maxBound; ASSERT( m_lowerBound < m_upperBound && "Min-Bound must be less than Max-Bound." ); }
+        void    setLowerBound   (T minBound)    { m_lowerBound = minBound; ASSERT( m_lowerBound < m_upperBound && "Min-Bound must be less than Max-Bound." ); }
+        void    setUpperBound   (T maxBound)    { m_upperBound = maxBound; ASSERT( m_lowerBound < m_upperBound && "Min-Bound must be less than Max-Bound." ); }
+        void    setValue        (T val)         { m_value = _MoveInRange(val); }
 
         T       value()         const { return m_value; }
         T       getLowerBound() const { return m_lowerBound; }
@@ -65,7 +66,7 @@ namespace Common {
         inline T _MoveInRange( T val ) const
         {
             // Check upper bound
-            while ( val >= m_upperBound )
+            while ( val > m_upperBound )
                 val -= getRange();
 
             // Check lower bound

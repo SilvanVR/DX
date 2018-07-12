@@ -25,7 +25,6 @@ public:
 
     void init() override
     {
-        LOG_ERROR("ERROR");
         // Camera 1
         go = createGameObject("Camera");
         cam = go->addComponent<Components::Camera>();
@@ -34,9 +33,39 @@ public:
 
         //createGameObject("Grid")->addComponent<GridGeneration>(20);
 
-        auto ps = createGameObject("ParticleSystem");
-        //ps->addComponent<Components::ParticleSystem>("res/particles/test.ps");
-        ps->addComponent<Components::ParticleSystem>(ASSETS.getMaterial("/materials/particles.material"));
+        auto psGO = createGameObject("ParticleSystem");
+        //psGO->addComponent<Components::ParticleSystem>("res/particles/test.ps");
+        auto ps = psGO->addComponent<Components::ParticleSystem>(ASSETS.getMaterial("/materials/particles.material"));
+
+        go->addComponent<Components::GUI>();
+        go->addComponent<Components::GUIFPS>();
+        go->addComponent<Components::GUICustom>([ps] () mutable {
+            ImGui::Begin("Particle System Demo", nullptr);
+            {
+                if (ImGui::TreeNode("Particle System 0"))
+                {
+                    ImGui::Text("Clock time: %.2fs", (F32)ps->getClock().getTime());
+                    static F32 duration;
+                    duration = (F32)ps->getClock().getDuration();
+                    if (ImGui::SliderFloat("Duration", &duration, 0.1f, 50.0f, "%.2f"))
+                        ps->getClock().setDuration(Time::Seconds(duration));
+
+                    static F32 tickMod = 1.0f;
+                    if (ImGui::SliderFloat("Tick Mod", &tickMod, -5.0f, 5.0f, "%.2f"))
+                        ps->getClock().setTickModifier(tickMod);
+
+                    static bool looping;
+                    looping = ps->getClock().isLooping();
+                    if (ImGui::Checkbox("Looping", &looping))
+                        ps->getClock().setIsLooping(looping);
+
+
+
+                    ImGui::TreePop();
+                }
+            }
+            ImGui::End();
+        });
 
         LOG("TestScene initialized!", Color::RED);
     }
