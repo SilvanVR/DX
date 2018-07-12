@@ -734,9 +734,9 @@ namespace Graphics {
             OS::BinaryFile file( "/engine/shaders/includes/enginePS.hlsl" );
 
             String fragSrc = file.readAll();
-            fragSrc += "float4 main() : SV_Target       \
-            {                                           \
-                return float4(1,1,1,1) * _Time;         \
+            fragSrc += "float4 main() : SV_Target                       \
+            {                                                           \
+                return float4(1,1,1,1) * _Time * _zNear * _LightCount;  \
             }";
 
             auto shader = std::unique_ptr<Shader>( createShader() );

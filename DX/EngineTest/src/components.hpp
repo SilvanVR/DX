@@ -300,7 +300,7 @@ class GaussianBlur : public Components::IComponent
     MaterialPtr verticalBlur;
 
 public:
-    ~GaussianBlur() { getGameObject()->getComponent<Components::Camera>()->removeCommandBuffer(&cmd); }
+    ~GaussianBlur() { if (auto cam = getGameObject()->getComponent<Components::Camera>()) cam->removeCommandBuffer(&cmd); }
 
     void addedToGameObject(GameObject* go)
     {
@@ -325,7 +325,7 @@ class Fog : public Components::IComponent
 {
     Graphics::CommandBuffer cmd;
 public:
-    ~Fog() { getGameObject()->getComponent<Components::Camera>()->removeCommandBuffer(&cmd); }
+    ~Fog() { if (auto cam = getGameObject()->getComponent<Components::Camera>()) cam->removeCommandBuffer(&cmd); }
 
     void addedToGameObject(GameObject* go)
     {
@@ -354,7 +354,7 @@ class PostProcess : public Components::IComponent
 
 public:
     PostProcess(const MaterialPtr& material, bool hdr = false) : m_material(material), m_hdr(hdr) {}
-    ~PostProcess() { getGameObject()->getComponent<Components::Camera>()->removeCommandBuffer(&cmd); }
+    ~PostProcess() { if (auto cam = getGameObject()->getComponent<Components::Camera>()) cam->removeCommandBuffer(&cmd); }
 
     void addedToGameObject(GameObject* go)
     {
