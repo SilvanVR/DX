@@ -39,6 +39,31 @@ namespace Components {
         m_particleSystem = Core::MeshGenerator::CreateCubeUV();
         m_particleSystem->setBufferUsage( Graphics::BufferUsage::Frequently );
 
+        play();
+    }
+
+    //----------------------------------------------------------------------
+    void ParticleSystem::tick( Time::Seconds delta )
+    {
+        if ( m_clock.tick( delta ) )
+        {
+            _KillParticles();
+            _SpawnParticles();
+            _UpdateParticles();
+            _SortParticles( m_sortMode );
+        }
+    }
+
+    //**********************************************************************
+    // PUBLIC
+    //**********************************************************************
+
+    //----------------------------------------------------------------------
+    void ParticleSystem::play()
+    {
+        // @TODO: Kill all particles
+        m_clock.setTime( 0_ms );
+
         auto& vertLayout = m_material->getShader()->getVertexLayout();
 
         //ArrayList<Math::Vec2> uvs(m_maxParticles);
@@ -54,36 +79,7 @@ namespace Components {
             colors[i] = Math::Random::Color();
         }
         m_particleSystem->setNormals(positions);
-        m_particleSystem->setColors( colors );
-    }
-
-    //----------------------------------------------------------------------
-    void ParticleSystem::tick( Time::Seconds delta )
-    {
-        if ( m_clock.tick( delta ) )
-        {
-            // Kill particles
-
-            // Spawn particles
-
-            // Update particles
-
-            // Sort particles
-
-        }
-    }
-
-    //**********************************************************************
-    // PUBLIC
-    //**********************************************************************
-
-    //----------------------------------------------------------------------
-    void ParticleSystem::play()
-    {
-        // @TODO: Kill all particles
-
-
-        m_clock.setTime( 0_ms );
+        m_particleSystem->setColors(colors);
     }
 
     //**********************************************************************
@@ -98,17 +94,49 @@ namespace Components {
 
         // Draw instanced mesh with appropriate material
         auto modelMatrix = transform->getWorldMatrix( lerp );
-        cmd.drawMeshInstanced( m_particleSystem, m_material, modelMatrix, m_currentParticleCount );
+        cmd.drawMeshInstanced( m_particleSystem, m_material, modelMatrix, m_maxParticleCount);
     }
 
     //----------------------------------------------------------------------
     bool ParticleSystem::cull( const Graphics::Camera& camera )
     {
-        if ( m_particleSystem == nullptr )
+        if ( m_particleSystem == nullptr || (m_maxParticleCount == 0) )
             return false;
         return true;
         
         //auto modelMatrix = getGameObject()->getTransform()->getWorldMatrix();
         //return camera.cull( m_particleSystem->getBounds(), modelMatrix );
     }
+
+    //----------------------------------------------------------------------
+    void ParticleSystem::_KillParticles()
+    {
+
+    }
+
+    //----------------------------------------------------------------------
+    void ParticleSystem::_SpawnParticles()
+    {
+
+    }
+
+    //----------------------------------------------------------------------
+    void ParticleSystem::_UpdateParticles()
+    {
+
+    }
+
+    //----------------------------------------------------------------------
+    void ParticleSystem::_SortParticles( PSSortMode sortMode )
+    {
+        switch (sortMode)
+        {
+        case PSSortMode::ByDistance:
+        {
+            break;
+        }
+        case PSSortMode::None: break;
+        }
+    }
+
 }

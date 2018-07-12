@@ -189,7 +189,7 @@ namespace Graphics {
                 _CreateNormalBuffer( m_normals );
             }
 
-            // Copy new uv data into uv array
+            // Copy new normal data into normal array
             memcpy( m_normals.data(), normals.data(), normals.size() * sizeof( Math::Vec3 ) );
 
             m_queuedBufferUpdates.push({ MeshBufferType::Normal });
@@ -221,7 +221,7 @@ namespace Graphics {
                 _CreateTangentBuffer( m_tangents );
             }
 
-            // Copy new uv data into uv array
+            // Copy new tangent data into tangent array
             memcpy( m_tangents.data(), tangents.data(), tangents.size() * sizeof( Math::Vec4 ) );
 
             m_queuedBufferUpdates.push({ MeshBufferType::Tangent });

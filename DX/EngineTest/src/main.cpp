@@ -42,13 +42,13 @@ public:
         go->addComponent<Components::GUICustom>([ps] () mutable {
             ImGui::Begin("Particle System Demo", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
             {
-                if (ImGui::TreeNode("Particle System 0"))
+                if (ImGui::CollapsingHeader("Particle System 0", ImGuiTreeNodeFlags_DefaultOpen))
                 {
                     {
                         ImGui::Text("Particles: %d", ps->getCurrentParticleCount());
                         static I32 maxParticles;
                         maxParticles = ps->getMaxParticleCount();
-                        if (ImGui::SliderInt("Max Particles", &maxParticles, 0, 1000000))
+                        if (ImGui::SliderInt("Max Particles", &maxParticles, 0, 100000))
                             ps->setMaxParticleCount(maxParticles);
 
                         static I32 emissionRate;
@@ -62,9 +62,29 @@ public:
                     if (ImGui::SliderFloat("Gravity", &gravity, -5.0f, 5.0f, "%.2f"))
                         ps->setGravity(gravity);
 
+                    {
+                        CString type[] = { "None", "By Distance" };
+                        static I32 type_current = 0;
+                        if (ImGui::Combo("Sort Mode", &type_current, type, sizeof(type) / sizeof(CString)))
+                            ps->setSortMode((Components::PSSortMode)type_current);
+                    }
+
+                    {
+                        CString type[] = { "None", "View" };
+                        static I32 type_current = 0;
+                        if (ImGui::Combo("Particle Alignment", &type_current, type, sizeof(type) / sizeof(CString)))
+                            ps->setParticleAlignment((Components::PSParticleAlignment)type_current);
+                    }
+
                     if (ImGui::TreeNode("Clock"))
                     {
                         ImGui::Text("Clock time: %.2fs", (F32)ps->getClock().getTime());
+                        ImGui::SameLine();
+                        static bool looping;
+                        looping = ps->getClock().isLooping();
+                        if (ImGui::Checkbox("Looping", &looping))
+                            ps->getClock().setIsLooping(looping);
+
                         static F32 duration;
                         duration = (F32)ps->getClock().getDuration();
                         if (ImGui::SliderFloat("Duration", &duration, 0.1f, 50.0f, "%.2f"))
@@ -74,10 +94,6 @@ public:
                         if (ImGui::SliderFloat("Tick Mod", &tickMod, -5.0f, 5.0f, "%.2f"))
                             ps->getClock().setTickModifier(tickMod);
 
-                        static bool looping;
-                        looping = ps->getClock().isLooping();
-                        if (ImGui::Checkbox("Looping", &looping))
-                            ps->getClock().setIsLooping(looping);
                         ImGui::TreePop();
                     }
 
@@ -106,8 +122,6 @@ public:
                         }
                         ImGui::TreePop();
                     }
-
-                    ImGui::TreePop();
                 }
             }
             ImGui::End();
