@@ -40,26 +40,72 @@ public:
         go->addComponent<Components::GUI>();
         go->addComponent<Components::GUIFPS>();
         go->addComponent<Components::GUICustom>([ps] () mutable {
-            ImGui::Begin("Particle System Demo", nullptr);
+            ImGui::Begin("Particle System Demo", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
             {
                 if (ImGui::TreeNode("Particle System 0"))
                 {
-                    ImGui::Text("Clock time: %.2fs", (F32)ps->getClock().getTime());
-                    static F32 duration;
-                    duration = (F32)ps->getClock().getDuration();
-                    if (ImGui::SliderFloat("Duration", &duration, 0.1f, 50.0f, "%.2f"))
-                        ps->getClock().setDuration(Time::Seconds(duration));
+                    {
+                        ImGui::Text("Particles: %d", ps->getCurrentParticleCount());
+                        static I32 maxParticles;
+                        maxParticles = ps->getMaxParticleCount();
+                        if (ImGui::SliderInt("Max Particles", &maxParticles, 0, 1000000))
+                            ps->setMaxParticleCount(maxParticles);
 
-                    static F32 tickMod = 1.0f;
-                    if (ImGui::SliderFloat("Tick Mod", &tickMod, -5.0f, 5.0f, "%.2f"))
-                        ps->getClock().setTickModifier(tickMod);
+                        static I32 emissionRate;
+                        emissionRate = ps->getEmissionRate();
+                        if (ImGui::SliderInt("Emission Rate", &emissionRate, 0, 10000))
+                            ps->setEmissionRate(emissionRate);
+                    }
 
-                    static bool looping;
-                    looping = ps->getClock().isLooping();
-                    if (ImGui::Checkbox("Looping", &looping))
-                        ps->getClock().setIsLooping(looping);
+                    static F32 gravity;
+                    gravity = ps->getGravity();
+                    if (ImGui::SliderFloat("Gravity", &gravity, -5.0f, 5.0f, "%.2f"))
+                        ps->setGravity(gravity);
 
+                    if (ImGui::TreeNode("Clock"))
+                    {
+                        ImGui::Text("Clock time: %.2fs", (F32)ps->getClock().getTime());
+                        static F32 duration;
+                        duration = (F32)ps->getClock().getDuration();
+                        if (ImGui::SliderFloat("Duration", &duration, 0.1f, 50.0f, "%.2f"))
+                            ps->getClock().setDuration(Time::Seconds(duration));
 
+                        static F32 tickMod = 1.0f;
+                        if (ImGui::SliderFloat("Tick Mod", &tickMod, -5.0f, 5.0f, "%.2f"))
+                            ps->getClock().setTickModifier(tickMod);
+
+                        static bool looping;
+                        looping = ps->getClock().isLooping();
+                        if (ImGui::Checkbox("Looping", &looping))
+                            ps->getClock().setIsLooping(looping);
+                        ImGui::TreePop();
+                    }
+
+                    if (ImGui::TreeNode("Lifetime"))
+                    {
+                        CString type[] = { "Constant", "Random Between Two Constants" };
+                        static I32 type_current = 0;
+                        ImGui::Combo("Value Setting", &type_current, type, sizeof(type)/sizeof(CString));
+
+                        switch ((Components::PSValueSetting)type_current)
+                        {
+                        case Components::PSValueSetting::Constant:
+                        {
+                            static F32 lifeTime = 1.0f;
+                            if (ImGui::SliderFloat("Lifetime", &lifeTime, 0.0f, 10.0f, "%.2f"));
+                            break;
+                        }
+                        case Components::PSValueSetting::RandomBetweenTwoConstants:
+                        {
+                            static F32 lifeTimeStart = 0.0f;
+                            if (ImGui::SliderFloat("Lifetime Start", &lifeTimeStart, 0.0f, 10.0f, "%.2f"));
+                            static F32 lifeTimeEnd = 10.0f;
+                            if (ImGui::SliderFloat("Lifetime End", &lifeTimeEnd, 0.0f, 10.0f, "%.2f"));
+                            break;
+                        }
+                        }
+                        ImGui::TreePop();
+                    }
 
                     ImGui::TreePop();
                 }
