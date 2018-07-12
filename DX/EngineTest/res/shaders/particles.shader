@@ -15,8 +15,8 @@
 struct VertexIn
 {
     float3 PosL : POSITION;
-	float3 pos : NORMAL_INSTANCED;
 	float2 tex : TEXCOORD;
+	float3 pos : NORMAL_INSTANCED;
 	float3 color : COLOR_INSTANCED;
 };
 

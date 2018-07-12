@@ -25,6 +25,7 @@ public:
 
     void init() override
     {
+        LOG_ERROR("ERROR");
         // Camera 1
         go = createGameObject("Camera");
         cam = go->addComponent<Components::Camera>();

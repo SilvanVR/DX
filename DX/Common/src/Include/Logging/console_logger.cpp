@@ -97,12 +97,14 @@ namespace Logging {
             _DumpToDisk();
         }
 
+#ifdef _DEBUG
         #ifdef _WIN32
             system( "pause" );
             __debugbreak();
         #elif
             ASSERT( false );
         #endif
+#endif
     }
 
     //----------------------------------------------------------------------
