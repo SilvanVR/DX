@@ -65,16 +65,14 @@ public:
     void tick(Time::Seconds delta)
     {
         U32 i = 0;
-        auto& vertexStream = mesh->getVertexStream<Math::Vec3>(Graphics::SID_VERTEX_POSITION);
-        auto& colorStream = mesh->getVertexStream<Math::Vec4>(Graphics::SID_VERTEX_COLOR);
-        while (i < vertexStream.size())
+        for (auto& pos : mesh->getPositionStream())
         {
             F32 newY = (F32)sin(TIME.getTime().value);
-            vertexStream[i].z = (i % 2 == 0 ? newY : -newY);
+            pos.z = (i % 2 == 0 ? newY : -newY);
             i++;
         }
 
-        for (auto& color : colorStream)
+        for (auto& color : mesh->getColorStream())
             color.y = ((sinf((F32)TIME.getTime().value) + 1) / 2);
     }
 

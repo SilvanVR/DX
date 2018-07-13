@@ -53,20 +53,24 @@ namespace Graphics {
         VertexStream(U32 maxObjects) : m_data(maxObjects) {}
         VertexStream(const ArrayList<T>& data) : m_data{ data } {}
 
+        //----------------------------------------------------------------------
+        const ArrayList<T>& get() const { return m_data; }
+        void resize(U32 newSize) { m_data.resize(newSize); }
+
         T&          operator[] (I32 i)          { setWasUpdated(true); return m_data[i]; }
         const T&    operator[] (I32 i) const    { return m_data[i]; }
-
-        const void* data()      const override { return m_data.data(); }
-        U32         dataSize()  const override { return static_cast<U32>( m_data.size() ) * sizeof(T); }
-        U32         size()      const override { return static_cast<U32>( m_data.size() ); }
 
         // Allows for-each loop
         using iterator = typename std::vector<T>::iterator;
         iterator begin()    { setWasUpdated(true); return m_data.begin(); }
         iterator end()      { setWasUpdated(true); return m_data.end(); }
 
-        const ArrayList<T>& getList() const { return m_data; }
-        void resize(U32 newSize) { m_data.resize(newSize); }
+        //----------------------------------------------------------------------
+        // VertexStreamBase Interface
+        //----------------------------------------------------------------------
+        const void* data()      const override { return m_data.data(); }
+        U32         dataSize()  const override { return static_cast<U32>( m_data.size() ) * sizeof(T); }
+        U32         size()      const override { return static_cast<U32>( m_data.size() ); }
 
     private:
         ArrayList<T> m_data;
@@ -74,7 +78,6 @@ namespace Graphics {
         NULL_COPY_AND_ASSIGN(VertexStream)
     };
 
-    using VertexStreamPtr = std::shared_ptr<VertexStreamBase>;
 
     //**********************************************************************
     class IMesh
@@ -209,8 +212,15 @@ namespace Graphics {
         const ArrayList<Math::Vec3>&    getNormals() const;
         const ArrayList<Math::Vec4>&    getTangents() const;
         bool                            hasVertexStream(StringID name) const { return m_vertexStreams.find(name) != m_vertexStreams.end(); }
+        VertexStream<Math::Vec3>&       getPositionStream() { return getVertexStream<Math::Vec3>(SID_VERTEX_POSITION); }
+        VertexStream<Math::Vec4>&       getColorStream()    { return getVertexStream<Math::Vec4>(SID_VERTEX_COLOR); }
+        VertexStream<Math::Vec2>&       getUVStream()       { return getVertexStream<Math::Vec2>(SID_VERTEX_UV); }
+        VertexStream<Math::Vec3>&       getNormalStream()   { return getVertexStream<Math::Vec3>(SID_VERTEX_NORMAL); }
+        VertexStream<Math::Vec4>&       getTangentStream()  { return getVertexStream<Math::Vec4>(SID_VERTEX_TANGENT); }
+
 
     protected:
+        using VertexStreamPtr = std::shared_ptr<VertexStreamBase>;
         HashMap<StringID, VertexStreamPtr>  m_vertexStreams;
         BufferUsage                         m_bufferUsage = BufferUsage::Immutable;
         Math::AABB                          m_bounds;

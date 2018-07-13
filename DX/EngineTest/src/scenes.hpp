@@ -1021,8 +1021,10 @@ public:
 
         static F32 color[4] = {};
         go->addComponent<Components::GUICustom>([=] {
+            ImGui::Begin("Color is cool!");
             if (ImGui::ColorPicker4("Clear color", color))
                 cam->setClearColor(Color(color, true));
+            ImGui::End();
         });
 
         //auto go2 = createGameObject("Camera2");

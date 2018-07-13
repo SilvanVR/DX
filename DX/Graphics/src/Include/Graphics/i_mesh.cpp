@@ -45,7 +45,7 @@ namespace Graphics {
         VertexStream<Math::Vec3>* vs = dynamic_cast<VertexStream<Math::Vec3>*>( vsBase.get() );
         if (not vs)
             LOG_ERROR_RENDERING( "IMesh::getVertexPositions(): Something went horribly wrong. Investigate this!" );
-        return vs->getList();
+        return vs->get();
     }
 
     //----------------------------------------------------------------------
@@ -57,7 +57,7 @@ namespace Graphics {
         VertexStream<Math::Vec2>* vs = dynamic_cast<VertexStream<Math::Vec2>*>( vsBase.get() );
         if (not vs)
             LOG_ERROR_RENDERING( "IMesh::getUVs(): Something went horribly wrong. Investigate this!" );
-        return vs->getList();
+        return vs->get();
     }
 
     //----------------------------------------------------------------------
@@ -69,7 +69,7 @@ namespace Graphics {
         VertexStream<Math::Vec3>* vs = dynamic_cast<VertexStream<Math::Vec3>*>( vsBase.get() );
         if (not vs)
             LOG_ERROR_RENDERING( "IMesh::getNormals(): Something went horribly wrong. Investigate this!" );
-        return vs->getList();
+        return vs->get();
     }
 
     //----------------------------------------------------------------------
@@ -81,7 +81,7 @@ namespace Graphics {
         VertexStream<Math::Vec4>* vs = dynamic_cast<VertexStream<Math::Vec4>*>( vsBase.get() );
         if (not vs)
             LOG_ERROR_RENDERING( "IMesh::getTangents(): Something went horribly wrong. Investigate this!" );
-        return vs->getList();
+        return vs->get();
     }
 
     //----------------------------------------------------------------------
@@ -92,7 +92,7 @@ namespace Graphics {
                     "Either change the buffer usage via setBufferUsage() or call clear() to reset the whole mesh." );
 
         auto& vsStream = createVertexStream<Math::Vec3>( SID_VERTEX_POSITION, vertices );
-        _RecalculateBounds( vsStream.getList() );
+        _RecalculateBounds( vsStream.get() );
         return vsStream;
     }
 

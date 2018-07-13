@@ -18,6 +18,8 @@
 
 namespace Components {
 
+static const StringID SHADER_NAME_MODEL_MATRIX = SID("MODEL");
+
     //----------------------------------------------------------------------
     ParticleSystem::ParticleSystem( const OS::Path& path )
     {
@@ -67,12 +69,11 @@ namespace Components {
 
         auto& vertLayout = m_material->getShader()->getVertexLayout();
 
-        ArrayList<Color> colors(m_maxParticleCount);
+        auto& colorStream = m_particleSystem->createVertexStream<Math::Vec4>(Graphics::SID_VERTEX_COLOR, m_maxParticleCount);
         for (U32 i = 0; i < m_maxParticleCount; i++)
-            colors[i] = Math::Random::Color();
-        m_particleSystem->setColors(colors);
+            colorStream[i] = Math::Random::Color().normalized();
 
-        auto& modelMatrixStream = m_particleSystem->createVertexStream<DirectX::XMMATRIX>(SID("MODEL"), m_maxParticleCount);
+        auto& modelMatrixStream = m_particleSystem->createVertexStream<DirectX::XMMATRIX>(SHADER_NAME_MODEL_MATRIX, m_maxParticleCount);
         for (U32 i = 0; i < m_maxParticleCount; i++)
         {
             F32 scale = Math::Random::Float(0.1f, 2.0f);
