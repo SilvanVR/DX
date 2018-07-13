@@ -181,6 +181,7 @@ namespace Graphics {
         //----------------------------------------------------------------------
         // Binds this mesh to the pipeline. Subsequent drawcalls render this mesh.
         //----------------------------------------------------------------------
+        friend class D3D11Renderer;
         virtual void bind(const VertexLayout& vertLayout, U32 subMesh = 0) = 0;
 
         //----------------------------------------------------------------------

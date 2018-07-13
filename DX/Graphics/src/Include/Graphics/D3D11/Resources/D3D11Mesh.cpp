@@ -39,7 +39,7 @@ namespace Graphics { namespace D3D11 {
         }
 
         _SetTopology( subMeshIndex );
-        _BindVertexBuffer( vertLayout, subMeshIndex ); 
+        _BindVertexBuffer( vertLayout ); 
         _BindIndexBuffer( subMeshIndex );
     }
 
@@ -266,7 +266,7 @@ namespace Graphics { namespace D3D11 {
     }
 
     //----------------------------------------------------------------------
-    void Mesh::_BindVertexBuffer( const VertexLayout& vertLayout, U32 subMesh )
+    void Mesh::_BindVertexBuffer( const VertexLayout& vertLayout )
     {
         #define MAX_BUFFERS 8
         auto& vertexDescription = vertLayout.getLayoutDescription();

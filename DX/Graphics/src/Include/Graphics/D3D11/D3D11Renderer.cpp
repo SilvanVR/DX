@@ -520,8 +520,7 @@ namespace Graphics {
         OBJECT_BUFFER.update( &modelMatrix, sizeof( DirectX::XMMATRIX ) );
 
         // Bind mesh
-        auto d3d11Mesh = reinterpret_cast<D3D11::Mesh*>( mesh );
-        d3d11Mesh->bind( renderContext.getShader()->getVertexLayout(), subMeshIndex );
+        mesh->bind( renderContext.getShader()->getVertexLayout(), subMeshIndex );
 
         // Submit draw call
         g_pImmediateContext->DrawIndexed( mesh->getIndexCount( subMeshIndex ), 0, mesh->getBaseVertex( subMeshIndex ) );
@@ -568,8 +567,7 @@ namespace Graphics {
         OBJECT_BUFFER.update( &modelMatrix, sizeof( DirectX::XMMATRIX ) );
 
         // Bind mesh
-        auto d3d11Mesh = reinterpret_cast<D3D11::Mesh*>( mesh );
-        d3d11Mesh->bind( renderContext.getShader()->getVertexLayout() );
+        mesh->bind( shader->getVertexLayout() );
 
         // Submit draw call
         g_pImmediateContext->DrawIndexedInstanced( mesh->getIndexCount(0), instanceCount, 0, mesh->getBaseVertex(0), 0 );
