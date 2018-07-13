@@ -9,6 +9,7 @@
 #include "GameplayLayer/gameobject.h"
 #include "GameplayLayer/Components/transform.h"
 #include "Graphics/command_buffer.h"
+#include "GameplayLayer/i_scene.h"
 #include "Core/mesh_generator.h"
 #include "OS/FileSystem/file.h"
 #include "Core/locator.h"
@@ -36,7 +37,7 @@ namespace Components {
     {
         m_maxParticleCount = m_currentParticleCount = 5000;
 
-        m_particleSystem = Core::MeshGenerator::CreateCubeUV();
+        m_particleSystem = Core::MeshGenerator::CreatePlane();
         m_particleSystem->setBufferUsage( Graphics::BufferUsage::Frequently );
 
         play();
@@ -81,6 +82,16 @@ namespace Components {
         m_particleSystem->setNormals(positions);
         m_particleSystem->setColors(colors);
         m_particleSystem->setTangents({ {0,0,0,1} });
+
+        ArrayList<DirectX::XMMATRIX> modelMatrices(m_maxParticleCount);
+        for (U32 i = 0; i < m_maxParticleCount; i++)
+        {
+            DirectX::XMVECTOR s{ Math::Random::Float(0.5f, 2.0f) };
+            DirectX::XMVECTOR r{ DirectX::XMQuaternionIdentity() };
+            DirectX::XMVECTOR p{ Math::Random::Float(-1.0f, 1.0f), Math::Random::Float(-1.0f, 1.0f), Math::Random::Float(-1.0f, 1.0f) };
+            modelMatrices[i] = DirectX::XMMatrixAffineTransformation( s, DirectX::XMQuaternionIdentity(), r, p );
+        }
+        //m_particleSystem->set
 
         //m_particleSystem->setVertexStream("Positions", positions);
     }
@@ -127,6 +138,10 @@ namespace Components {
     void ParticleSystem::_UpdateParticles()
     {
 
+        //auto pos = DirectX::XMLoadFloat3(&transform->getWorldPosition());
+        //auto eyePos = DirectX::XMLoadFloat3(&SCENE.getMainCamera()->getGameObject()->getTransform()->getWorldPosition());
+        //auto mat = DirectX::XMMatrixLookAtLH(pos, eyePos, { 0, 1, 0 });
+        //mat = DirectX::XMMatrixTranspose(mat);
     }
 
     //----------------------------------------------------------------------

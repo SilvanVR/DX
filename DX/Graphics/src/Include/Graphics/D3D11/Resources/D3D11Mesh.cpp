@@ -290,7 +290,7 @@ namespace Graphics { namespace D3D11 {
             }
             else
             {
-                LOG_ERROR_RENDERING( "Missing vertex buffer stream '" + binding.name.toString() + "' in a mesh. Fix this!" );
+                LOG_WARN_RENDERING( "Missing vertex buffer stream '" + binding.name.toString() + "' in a mesh. Fix this!" );
             }
         }
 

@@ -31,7 +31,7 @@ public:
         go->getComponent<Components::Transform>()->position = Math::Vec3(0, 1, -5);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 0.1f);
 
-        //createGameObject("Grid")->addComponent<GridGeneration>(20);
+        createGameObject("Grid")->addComponent<GridGeneration>(20);
 
         auto psGO = createGameObject("ParticleSystem");
         //psGO->addComponent<Components::ParticleSystem>("res/particles/test.ps");
