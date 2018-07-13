@@ -39,7 +39,7 @@ namespace Graphics {
     //----------------------------------------------------------------------
     const ArrayList<Math::Vec3>& IMesh::getVertexPositions() const
     {
-        ASSERT( hasVertexStream(SID_VERTEX_POSITION) && "Mesh has no position stream." );
+        ASSERT( hasVertexStream(SID_VERTEX_POSITION) && "Mesh hasn't this stream." );
 
         auto& vsBase = m_vertexStreams.at( SID_VERTEX_POSITION );
         VertexStream<Math::Vec3>* vs = dynamic_cast<VertexStream<Math::Vec3>*>( vsBase.get() );
@@ -51,7 +51,7 @@ namespace Graphics {
     //----------------------------------------------------------------------
     const ArrayList<Math::Vec2>& IMesh::getUVs() const
     {
-        ASSERT( hasVertexStream( SID_VERTEX_UV ) && "Mesh has no uv stream." );
+        ASSERT( hasVertexStream( SID_VERTEX_UV ) && "Mesh hasn't this stream." );
 
         auto& vsBase = m_vertexStreams.at( SID_VERTEX_UV );
         VertexStream<Math::Vec2>* vs = dynamic_cast<VertexStream<Math::Vec2>*>( vsBase.get() );
@@ -63,7 +63,7 @@ namespace Graphics {
     //----------------------------------------------------------------------
     const ArrayList<Math::Vec3>& IMesh::getNormals() const
     {
-        ASSERT( hasVertexStream( SID_VERTEX_NORMAL ) && "Mesh has no position stream." );
+        ASSERT( hasVertexStream( SID_VERTEX_NORMAL ) && "Mesh hasn't this stream." );
 
         auto& vsBase = m_vertexStreams.at( SID_VERTEX_NORMAL );
         VertexStream<Math::Vec3>* vs = dynamic_cast<VertexStream<Math::Vec3>*>( vsBase.get() );
@@ -75,7 +75,7 @@ namespace Graphics {
     //----------------------------------------------------------------------
     const ArrayList<Math::Vec4>& IMesh::getTangents() const
     {
-        ASSERT( hasVertexStream( SID_VERTEX_TANGENT ) && "Mesh has no position stream." );
+        ASSERT( hasVertexStream( SID_VERTEX_TANGENT ) && "Mesh hasn't this stream." );
 
         auto& vsBase = m_vertexStreams.at( SID_VERTEX_TANGENT );
         VertexStream<Math::Vec4>* vs = dynamic_cast<VertexStream<Math::Vec4>*>( vsBase.get() );

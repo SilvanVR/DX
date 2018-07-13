@@ -115,9 +115,9 @@ namespace Components {
         m_dynamicMesh->setBufferUsage( Graphics::BufferUsage::Frequently );
 
         // Create vertex streams
-        m_dynamicMesh->createVertexStream<Math::Vec3>(Graphics::SID_VERTEX_POSITION, { {} });
-        m_dynamicMesh->createVertexStream<Math::Vec2>(Graphics::SID_VERTEX_UV, { {} });
-        m_dynamicMesh->createVertexStream<Math::Vec4>(Graphics::SID_VERTEX_COLOR, { {} });
+        m_dynamicMesh->createVertexStream<Math::Vec3>( Graphics::SID_VERTEX_POSITION );
+        m_dynamicMesh->createVertexStream<Math::Vec2>( Graphics::SID_VERTEX_UV );
+        m_dynamicMesh->createVertexStream<Math::Vec4>( Graphics::SID_VERTEX_COLOR );
 
         // Retrieve GUI shader
         m_guiShader = ASSETS.getShader( "/engine/shaders/gui.shader" );
@@ -150,9 +150,9 @@ namespace Components {
         static const StringID PROJ_NAME = SID( "_Proj" );
         m_cmd.setCameraMatrix( PROJ_NAME, proj );
 
-        auto& positionStream = m_dynamicMesh->getVertexStream<Math::Vec3>(Graphics::SID_VERTEX_POSITION);
-        auto& uvStream = m_dynamicMesh->getVertexStream<Math::Vec2>(Graphics::SID_VERTEX_UV);
-        auto& colorStream = m_dynamicMesh->getVertexStream<Math::Vec4>(Graphics::SID_VERTEX_COLOR);
+        auto& positionStream = m_dynamicMesh->getVertexStream<Math::Vec3>( Graphics::SID_VERTEX_POSITION );
+        auto& uvStream       = m_dynamicMesh->getVertexStream<Math::Vec2>( Graphics::SID_VERTEX_UV );
+        auto& colorStream    = m_dynamicMesh->getVertexStream<Math::Vec4>( Graphics::SID_VERTEX_COLOR );
 
         I32 subMesh = 0;
         U32 baseVertex = 0;

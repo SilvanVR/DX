@@ -161,7 +161,7 @@ namespace Graphics {
         //  "maxObjects": The maximum amount of objects for this vertex stream.
         //----------------------------------------------------------------------
         template<typename T>
-        VertexStream<T>& createVertexStream(StringID name, U32 maxObjects)
+        VertexStream<T>& createVertexStream(StringID name, U32 maxObjects = 1)
         {
             auto vs = std::make_shared<VertexStream<T>>(maxObjects);
             _SetVertexStream(name, vs);
@@ -188,7 +188,9 @@ namespace Graphics {
         template<typename T>
         VertexStream<T>& getVertexStream(StringID name)
         {
-            return *std::dynamic_pointer_cast<VertexStream<T>>(m_vertexStreams[name]); 
+            auto stream = std::dynamic_pointer_cast<VertexStream<T>>(m_vertexStreams[name]);
+            ASSERT( stream && "Stream does not exist. This should never happen!" );
+            return *stream; 
         }
 
         //----------------------------------------------------------------------
