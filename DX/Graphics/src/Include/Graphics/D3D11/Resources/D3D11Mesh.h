@@ -22,6 +22,12 @@ namespace Graphics { namespace D3D11 {
         Mesh() = default;
         ~Mesh();
 
+    private:
+        HashMap<StringID, VertexBuffer*> m_pVertexBuffers;
+
+        // Array of index buffer. One indexbuffer for each submesh.
+        ArrayList<IndexBuffer*> m_pIndexBuffers;
+
         //----------------------------------------------------------------------
         // IMesh Interface
         //----------------------------------------------------------------------
@@ -31,12 +37,6 @@ namespace Graphics { namespace D3D11 {
 
         void _CreateBuffer(StringID name, const VertexStreamPtr& vs) override;
         void _DestroyBuffer(StringID name) override;
-
-    private:
-        HashMap<StringID, VertexBuffer*> m_pVertexBuffers;
-
-        // Array of index buffer. One indexbuffer for each submesh.
-        ArrayList<IndexBuffer*> m_pIndexBuffers;
 
         //----------------------------------------------------------------------
         // IMesh Interface

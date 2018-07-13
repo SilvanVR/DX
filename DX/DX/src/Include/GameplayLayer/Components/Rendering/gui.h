@@ -11,7 +11,6 @@
 #include "Graphics/i_texture2d.hpp"
 #include "Core/Input/listener/input_listener.h"
 #include "Graphics/forward_declarations.hpp"
-
 #include "Ext/ImGUI/imgui.h"
 
 namespace ImGui

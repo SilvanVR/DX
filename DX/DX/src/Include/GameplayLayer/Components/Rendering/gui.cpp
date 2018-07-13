@@ -114,6 +114,11 @@ namespace Components {
         m_dynamicMesh = RESOURCES.createMesh();
         m_dynamicMesh->setBufferUsage( Graphics::BufferUsage::Frequently );
 
+        // Create vertex streams
+        m_dynamicMesh->createVertexStream<Math::Vec3>(Graphics::SID_VERTEX_POSITION, { {} });
+        m_dynamicMesh->createVertexStream<Math::Vec2>(Graphics::SID_VERTEX_UV, { {} });
+        m_dynamicMesh->createVertexStream<Math::Vec4>(Graphics::SID_VERTEX_COLOR, { {} });
+
         // Retrieve GUI shader
         m_guiShader = ASSETS.getShader( "/engine/shaders/gui.shader" );
         m_guiShader->setName( "GUI" );
@@ -145,9 +150,9 @@ namespace Components {
         static const StringID PROJ_NAME = SID( "_Proj" );
         m_cmd.setCameraMatrix( PROJ_NAME, proj );
 
-        ArrayList<Math::Vec3>   vertices;
-        ArrayList<Math::Vec2>   uvs;
-        ArrayList<Color>        colors;
+        auto& positionStream = m_dynamicMesh->getVertexStream<Math::Vec3>(Graphics::SID_VERTEX_POSITION);
+        auto& uvStream = m_dynamicMesh->getVertexStream<Math::Vec2>(Graphics::SID_VERTEX_UV);
+        auto& colorStream = m_dynamicMesh->getVertexStream<Math::Vec4>(Graphics::SID_VERTEX_COLOR);
 
         I32 subMesh = 0;
         U32 baseVertex = 0;
@@ -157,12 +162,25 @@ namespace Components {
             const ImDrawVert*   vtx_buffer = cmd_list->VtxBuffer.Data;
             const ImDrawIdx*    idx_buffer = cmd_list->IdxBuffer.Data;
 
+            U32 requiredSize = baseVertex + cmd_list->VtxBuffer.Size;
+            if ( positionStream.size() < requiredSize )
+            {
+                positionStream.resize( requiredSize );
+                uvStream.resize( requiredSize );
+                colorStream.resize( requiredSize );
+            }
+
             for (I32 v = 0; v < cmd_list->VtxBuffer.Size; v++)
             {
                 auto& vertex = vtx_buffer[v];
-                vertices.push_back( { vertex.pos.x, vertex.pos.y, 0.0f } );
-                uvs.push_back( { vertex.uv.x, vertex.uv.y } );
-                colors.push_back( Color(vertex.col, false) );
+                positionStream[baseVertex + v].x = vertex.pos.x;
+                positionStream[baseVertex + v].y = vertex.pos.y;
+
+                uvStream[baseVertex + v].x = vertex.uv.x;
+                uvStream[baseVertex + v].y = vertex.uv.y;
+
+                auto col = ImGui::ColorConvertU32ToFloat4( vertex.col );
+                colorStream[baseVertex + v] = { col.x, col.y, col.z, col.w };
             }
 
             for (I32 cmd_i = 0; cmd_i < cmd_list->CmdBuffer.Size; cmd_i++)
@@ -194,13 +212,6 @@ namespace Components {
                 idx_buffer += pcmd->ElemCount;
             }
             baseVertex += cmd_list->VtxBuffer.Size;
-        }
-
-        if (vertices.size() > 0)
-        {
-            m_dynamicMesh->setVertices( vertices );
-            m_dynamicMesh->setColors( colors );
-            m_dynamicMesh->setUVs( uvs );
         }
     }
 

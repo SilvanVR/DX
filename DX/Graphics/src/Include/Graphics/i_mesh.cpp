@@ -10,11 +10,11 @@
 
 namespace Graphics {
 
-    const StringID SID_VERTEX_POSITION   = StringID("POSITION");
-    const StringID SID_VERTEX_COLOR      = StringID("COLOR");
-    const StringID SID_VERTEX_UV         = StringID("TEXCOORD");
-    const StringID SID_VERTEX_NORMAL     = StringID("NORMAL");
-    const StringID SID_VERTEX_TANGENT    = StringID("TANGENT");
+    const StringID SID_VERTEX_POSITION   = SID("POSITION");
+    const StringID SID_VERTEX_COLOR      = SID("COLOR");
+    const StringID SID_VERTEX_UV         = SID("TEXCOORD");
+    const StringID SID_VERTEX_NORMAL     = SID("NORMAL");
+    const StringID SID_VERTEX_TANGENT    = SID("TANGENT");
 
     //----------------------------------------------------------------------
     // PUBLIC
@@ -29,7 +29,7 @@ namespace Graphics {
     }
 
     //----------------------------------------------------------------------
-    void IMesh::setVertexStream( StringID name, const VertexStreamPtr& vs )
+    void IMesh::_SetVertexStream( StringID name, const VertexStreamPtr& vs )
     {
         m_vertexStreams[name] = vs;
         _DestroyBuffer( name );
@@ -85,16 +85,15 @@ namespace Graphics {
     }
 
     //----------------------------------------------------------------------
-    void IMesh::setVertices( const ArrayList<Math::Vec3>& vertices )
+    VertexStream<Math::Vec3>& IMesh::setVertices( const ArrayList<Math::Vec3>& vertices )
     {
         if ( hasVertexStream( SID_VERTEX_POSITION ) )
             ASSERT( not isImmutable() && "Mesh is immutable! It can't be updated. "
                     "Either change the buffer usage via setBufferUsage() or call clear() to reset the whole mesh." );
 
-        auto vsStream = std::make_shared<VertexStream<Math::Vec3>>( vertices );
-        setVertexStream( SID_VERTEX_POSITION, vsStream );
-
-        _RecalculateBounds( vsStream->getList() );
+        auto& vsStream = createVertexStream<Math::Vec3>( SID_VERTEX_POSITION, vertices );
+        _RecalculateBounds( vsStream.getList() );
+        return vsStream;
     }
 
     //----------------------------------------------------------------------
@@ -139,7 +138,7 @@ namespace Graphics {
     }
 
     //----------------------------------------------------------------------
-    void IMesh::setColors( const ArrayList<Color>& colors )
+    VertexStream<Math::Vec4>& IMesh::setColors( const ArrayList<Color>& colors )
     {
         if ( hasVertexStream( SID_VERTEX_COLOR ) )
             ASSERT( not isImmutable() && "Mesh is immutable! It can't be updated. "
@@ -152,41 +151,37 @@ namespace Graphics {
             colorsNormalized[i] = { normalized[0], normalized[1], normalized[2], normalized[3] };
         }
 
-        auto vsStream = std::make_shared<VertexStream<Math::Vec4>>( colorsNormalized );
-        setVertexStream( SID_VERTEX_COLOR, vsStream );
+        return createVertexStream<Math::Vec4>( SID_VERTEX_COLOR, colorsNormalized );
     }
 
     //----------------------------------------------------------------------
-    void IMesh::setUVs( const ArrayList<Math::Vec2>& uvs )
+    VertexStream<Math::Vec2>& IMesh::setUVs( const ArrayList<Math::Vec2>& uvs )
     {
         if ( hasVertexStream( SID_VERTEX_UV ) )
             ASSERT( not isImmutable() && "Mesh is immutable! It can't be updated. "
                     "Either change the buffer usage via setBufferUsage() or call clear() to reset the whole mesh." );
 
-        auto vsStream = std::make_shared<VertexStream<Math::Vec2>>( uvs );
-        setVertexStream( SID_VERTEX_UV, vsStream );
+        return createVertexStream<Math::Vec2>( SID_VERTEX_UV, uvs );
     }
 
     //----------------------------------------------------------------------
-    void IMesh::setNormals( const ArrayList<Math::Vec3>& normals )
+    VertexStream<Math::Vec3>& IMesh::setNormals( const ArrayList<Math::Vec3>& normals )
     {
         if ( hasVertexStream( SID_VERTEX_NORMAL ) )
             ASSERT( not isImmutable() && "Mesh is immutable! It can't be updated. "
                     "Either change the buffer usage via setBufferUsage() or call clear() to reset the whole mesh." );
 
-        auto vsStream = std::make_shared<VertexStream<Math::Vec3>>( normals );
-        setVertexStream( SID_VERTEX_NORMAL, vsStream );
+        return createVertexStream<Math::Vec3>( SID_VERTEX_NORMAL, normals );
     }
 
     //----------------------------------------------------------------------
-    void IMesh::setTangents( const ArrayList<Math::Vec4>& tangents )
+    VertexStream<Math::Vec4>& IMesh::setTangents( const ArrayList<Math::Vec4>& tangents )
     {
         if ( hasVertexStream( SID_VERTEX_TANGENT ) )
             ASSERT( not isImmutable() && "Mesh is immutable! It can't be updated. "
                     "Either change the buffer usage via setBufferUsage() or call clear() to reset the whole mesh." );
 
-        auto vsStream = std::make_shared<VertexStream<Math::Vec4>>( tangents );
-        setVertexStream( SID_VERTEX_TANGENT, vsStream );
+        return createVertexStream<Math::Vec4>( SID_VERTEX_TANGENT, tangents);
     }
 
     //----------------------------------------------------------------------

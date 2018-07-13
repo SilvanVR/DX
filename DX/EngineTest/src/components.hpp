@@ -48,9 +48,6 @@ class VertexGeneration : public Components::IComponent
     MeshPtr                     mesh;
     Components::MeshRenderer*   mr;
 
-    std::shared_ptr<Graphics::VertexStream<Math::Vec3>> vertexStream;
-    std::shared_ptr<Graphics::VertexStream<Math::Vec4>> colorStream;
-
     const U32 width  = 20;
     const U32 height = 20;
 
@@ -63,21 +60,21 @@ public:
         transform->position = Math::Vec3(-(width/2.0f), -2.0f, -(height/2.0f));
 
         mr = go->addComponent<Components::MeshRenderer>(mesh, ASSETS.getColorMaterial());
-        vertexStream = mesh->getVertexStream<Math::Vec3>( Graphics::SID_VERTEX_POSITION );
-        colorStream = mesh->getVertexStream<Math::Vec4>( Graphics::SID_VERTEX_COLOR );
     }
 
     void tick(Time::Seconds delta)
     {
         U32 i = 0;
-        while (i < vertexStream->size())
+        auto& vertexStream = mesh->getVertexStream<Math::Vec3>(Graphics::SID_VERTEX_POSITION);
+        auto& colorStream = mesh->getVertexStream<Math::Vec4>(Graphics::SID_VERTEX_COLOR);
+        while (i < vertexStream.size())
         {
             F32 newY = (F32)sin(TIME.getTime().value);
-            (*vertexStream)[i].z = (i % 2 == 0 ? newY : -newY);
+            vertexStream[i].z = (i % 2 == 0 ? newY : -newY);
             i++;
         }
 
-        for (auto& color : *colorStream)
+        for (auto& color : colorStream)
             color.y = ((sinf((F32)TIME.getTime().value) + 1) / 2);
     }
 

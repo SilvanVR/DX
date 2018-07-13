@@ -66,9 +66,12 @@ namespace Graphics {
         iterator end()      { setWasUpdated(true); return m_data.end(); }
 
         const ArrayList<T>& getList() const { return m_data; }
+        void resize(U32 newSize) { m_data.resize(newSize); }
 
     private:
         ArrayList<T> m_data;
+
+        NULL_COPY_AND_ASSIGN(VertexStream)
     };
 
     using VertexStreamPtr = std::shared_ptr<VertexStreamBase>;
@@ -82,26 +85,14 @@ namespace Graphics {
 
         //----------------------------------------------------------------------
         // Destroys all buffers on the gpu. This can be called every frame, but
-        // is very expensive. Note that all buffers dynamically grow, but to free
-        // up space its useful to call this function occasionally.
+        // is very expensive.
         //----------------------------------------------------------------------
         void clear();
 
         //----------------------------------------------------------------------
-        // Add a new vertex stream. This destroys the old buffer and creates a
-        // new one, so use this function only once and update per stream object if needed.
-        // @Params:
-        //  "name": The name of the vertex stream. Must be equal to the name in the shader.
-        //  "vs": The vertex-stream object over which vertex-data can be updated efficiently.
+        // Sets the vertices for this mesh. Note that this is a slow operation.
         //----------------------------------------------------------------------
-        void setVertexStream(StringID name, const VertexStreamPtr& vs);
-
-        //----------------------------------------------------------------------
-        // Sets the vertices for this mesh. If a vertex buffer was not created,
-        // it will be created to fit the amount of data given. Otherwise, the gpu
-        // buffer will just be updated (and grows if necessary). Note that this is a slow operation.
-        //----------------------------------------------------------------------
-        void setVertices(const ArrayList<Math::Vec3>& vertices);
+        VertexStream<Math::Vec3>& setVertices(const ArrayList<Math::Vec3>& vertices);
 
         //----------------------------------------------------------------------
         // Set the index-buffer for this mesh. The buffer grows if necessary. Note that this is a slow operation.
@@ -115,29 +106,29 @@ namespace Graphics {
                         MeshTopology topology = MeshTopology::Triangles, U32 baseVertex = 0);
 
         //----------------------------------------------------------------------
-        // Set the color-buffer for this mesh. The buffer grows if necessary.
+        // Set the color-buffer for this mesh.
         //----------------------------------------------------------------------
-        void setColors(const ArrayList<Color>& colors);
+        VertexStream<Math::Vec4>& setColors(const ArrayList<Color>& colors);
 
         //----------------------------------------------------------------------
-        // Set the uv-buffer for this mesh. The buffer grows if necessary.
+        // Set the uv-buffer for this mesh.
         //----------------------------------------------------------------------
-        void setUVs(const ArrayList<Math::Vec2>& uvs);
+        VertexStream<Math::Vec2>& setUVs(const ArrayList<Math::Vec2>& uvs);
 
         //----------------------------------------------------------------------
-        // Sets the normals for this mesh. The buffer grows if necessary.
+        // Sets the normals for this mesh.
         //----------------------------------------------------------------------
-        void setNormals(const ArrayList<Math::Vec3>& normals);
+        VertexStream<Math::Vec3>& setNormals(const ArrayList<Math::Vec3>& normals);
 
         //----------------------------------------------------------------------
-        // Sets the tangents for this mesh. The buffer grows if necessary.
+        // Sets the tangents for this mesh.
         //----------------------------------------------------------------------
-        void setTangents(const ArrayList<Math::Vec4>& tangents);
+        VertexStream<Math::Vec4>& setTangents(const ArrayList<Math::Vec4>& tangents);
 
         //----------------------------------------------------------------------
         // @Return: Buffer usage, which determines if it can be updated or not.
         //----------------------------------------------------------------------
-        BufferUsage getBufferUsage()    const { return m_bufferUsage; }
+        BufferUsage getBufferUsage() const { return m_bufferUsage; }
 
         //----------------------------------------------------------------------
         // Change the buffer usage for this mesh. All existing buffers gets 
@@ -164,9 +155,45 @@ namespace Graphics {
         void setBounds(const Math::AABB& bounds) { m_bounds = bounds; }
 
         //----------------------------------------------------------------------
+        // Creates a new vertex stream and returns a reference to it.
+        // @Params:
+        //  "name": The name of the vertex stream
+        //  "maxObjects": The maximum amount of objects for this vertex stream.
+        //----------------------------------------------------------------------
+        template<typename T>
+        VertexStream<T>& createVertexStream(StringID name, U32 maxObjects)
+        {
+            auto vs = std::make_shared<VertexStream<T>>(maxObjects);
+            _SetVertexStream(name, vs);
+            return *vs.get();
+        }
+
+        //----------------------------------------------------------------------
+        // Creates a new vertex stream and returns a reference to it.
+        // @Params:
+        //  "name": The name of the vertex stream
+        //  "data": The initial data for this vertex stream.
+        //----------------------------------------------------------------------
+        template<typename T>
+        VertexStream<T>& createVertexStream(StringID name, const ArrayList<T>& data)
+        {
+            auto vs = std::make_shared<VertexStream<T>>(data);
+            _SetVertexStream(name, vs);
+            return *vs.get();
+        }
+
+        //----------------------------------------------------------------------
+        // @Return: Vertex-Stream with the given name. Nullptr if not present.
+        //----------------------------------------------------------------------
+        template<typename T>
+        VertexStream<T>& getVertexStream(StringID name)
+        {
+            return *std::dynamic_pointer_cast<VertexStream<T>>(m_vertexStreams[name]); 
+        }
+
+        //----------------------------------------------------------------------
         U16                             getSubMeshCount()   const { return static_cast<U32>( m_subMeshes.size() ); }
         bool                            isImmutable()       const { return m_bufferUsage == BufferUsage::Immutable; }
-
         U32                             getVertexCount()             const { return (U32)getVertexPositions().size(); }
         const ArrayList<U32>&           getIndices(U32 subMesh = 0)  const { return m_subMeshes[subMesh].indices; }
         U32                             getIndexCount(U32 subMesh)   const { return m_subMeshes[subMesh].indexCount; }
@@ -180,9 +207,6 @@ namespace Graphics {
         const ArrayList<Math::Vec3>&    getNormals() const;
         const ArrayList<Math::Vec4>&    getTangents() const;
         bool                            hasVertexStream(StringID name) const { return m_vertexStreams.find(name) != m_vertexStreams.end(); }
-
-        template<typename T>
-        std::shared_ptr<VertexStream<T>> getVertexStream(StringID name) { return std::dynamic_pointer_cast<VertexStream<T>>( m_vertexStreams[name] ); }
 
     protected:
         HashMap<StringID, VertexStreamPtr>  m_vertexStreams;
@@ -198,6 +222,9 @@ namespace Graphics {
             U32                 indexCount; // Real index-count. "Indices" can contain more indices e.g. when the submesh index-buffer was updated with less indices than before
         };
         ArrayList<SubMesh>      m_subMeshes;
+
+        // Buffer updates are queued. This way its safe to update buffers on different threads.
+        std::queue<U32> m_queuedIndexBufferUpdates;
 
         //----------------------------------------------------------------------
         // Recreate all existing buffers. Called when the buffer-usage changes.
@@ -215,10 +242,9 @@ namespace Graphics {
         virtual void _CreateIndexBuffer(const SubMesh& subMesh, I32 index) = 0;
         virtual void _DestroyIndexBuffer(I32 index) = 0;
 
-        // Buffer updates are queued. This way its safe to update buffers on different threads.
-        std::queue<U32> m_queuedIndexBufferUpdates;
-
     private:
+        void _SetVertexStream(StringID name, const VertexStreamPtr& vs);
+
         //----------------------------------------------------------------------
         // Binds this mesh to the pipeline. Subsequent drawcalls render this mesh.
         //----------------------------------------------------------------------

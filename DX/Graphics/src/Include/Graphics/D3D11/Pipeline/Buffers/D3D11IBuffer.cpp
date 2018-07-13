@@ -12,6 +12,7 @@ namespace Graphics { namespace D3D11 {
     IBuffer::IBuffer( UINT bindFlags, BufferUsage usage, U32 size, const void* pData ) 
         : m_usage( usage ), m_size( size )
     {
+        ASSERT( size > 0 );
         D3D11_BUFFER_DESC bd = {};
         bd.ByteWidth    = size;
         bd.BindFlags    = bindFlags;

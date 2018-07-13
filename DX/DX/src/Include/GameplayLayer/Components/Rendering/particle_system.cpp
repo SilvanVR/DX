@@ -67,32 +67,20 @@ namespace Components {
 
         auto& vertLayout = m_material->getShader()->getVertexLayout();
 
-        //ArrayList<Math::Vec2> uvs(m_maxParticles);
-        //for (U32 i = 0; i < m_maxParticles; i++)
-        //    uvs[i] = { Math::Random::Float(1.0f), Math::Random::Float(1.0f) };
-        //m_particleSystem->setUVs(uvs);
-
         ArrayList<Color> colors(m_maxParticleCount);
         for (U32 i = 0; i < m_maxParticleCount; i++)
             colors[i] = Math::Random::Color();
         m_particleSystem->setColors(colors);
 
-        auto positionStream = std::make_shared<Graphics::VertexStream<Math::Vec3>>(m_maxParticleCount);
-        for (U32 i = 0; i < m_maxParticleCount; i++)
-            (*positionStream)[i] = Math::Vec3{ Math::Random::Float(-1.0f, 1.0f), Math::Random::Float(-1.0f,1.0f), Math::Random::Float(-1.0f,1.0f) } * 50.0f;
-        m_particleSystem->setVertexStream( SID("POS"), positionStream );
-
-        auto modelMatrixStream = std::make_shared<Graphics::VertexStream<DirectX::XMMATRIX>>(m_maxParticleCount);
+        auto& modelMatrixStream = m_particleSystem->createVertexStream<DirectX::XMMATRIX>(SID("MODEL"), m_maxParticleCount);
         for (U32 i = 0; i < m_maxParticleCount; i++)
         {
-            F32 scale = Math::Random::Float(0.5f, 5.0f);
+            F32 scale = Math::Random::Float(0.1f, 2.0f);
             DirectX::XMVECTOR s{ scale, scale, scale };
-            DirectX::XMVECTOR r{ DirectX::XMQuaternionIdentity() };
+            DirectX::XMVECTOR r{ DirectX::XMQuaternionRotationRollPitchYaw(Math::Random::Float(0, 6.28f),Math::Random::Float(0, 6.28f), Math::Random::Float(0, 6.28f) ) };
             DirectX::XMVECTOR p{ Math::Random::Float(-1.0f, 1.0f) * 50.0f, Math::Random::Float(-1.0f, 1.0f)* 50.0f, Math::Random::Float(-1.0f, 1.0f)* 50.0f };
-            (*modelMatrixStream)[i] = DirectX::XMMatrixAffineTransformation( s, DirectX::XMQuaternionIdentity(), r, p );
-            //(*modelMatrixStream)[i] = DirectX::XMMatrixIdentity();
+            modelMatrixStream[i] = DirectX::XMMatrixAffineTransformation( s, DirectX::XMQuaternionIdentity(), r, p );
         }
-        m_particleSystem->setVertexStream( SID("MODEL"), modelMatrixStream );
     }
 
     //**********************************************************************

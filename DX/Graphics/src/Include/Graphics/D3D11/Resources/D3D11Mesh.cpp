@@ -27,7 +27,16 @@ namespace Graphics { namespace D3D11 {
         {
             if ( vsStream->wasUpdated() )
             {
-                m_pVertexBuffers[name]->update( vsStream->data(), vsStream->dataSize() );
+                auto bufferSize = vsStream->dataSize();
+                if ( bufferSize > m_pVertexBuffers[name]->getSize() )
+                {
+                    _DestroyBuffer( name );
+                    _CreateBuffer( name, vsStream );
+                }
+                else
+                {
+                    m_pVertexBuffers[name]->update( vsStream->data(), vsStream->dataSize() );
+                }
                 vsStream->setWasUpdated( false );
             }
         }
@@ -45,7 +54,7 @@ namespace Graphics { namespace D3D11 {
     }
 
     //**********************************************************************
-    // PUBLIC
+    // PRIVATE
     //**********************************************************************
 
     //----------------------------------------------------------------------
@@ -62,11 +71,11 @@ namespace Graphics { namespace D3D11 {
     void Mesh::_CreateBuffer( StringID name, const VertexStreamPtr& vs )
     {
         ASSERT( m_pVertexBuffers[name] == nullptr && "Buffer already exists!" );
-        m_pVertexBuffers[name] = new VertexBuffer( vs->data(), static_cast<U32>( vs->dataSize() ), m_bufferUsage );
+        m_pVertexBuffers[name] = new VertexBuffer( vs->data(), vs->dataSize(), m_bufferUsage );
     }
 
     //----------------------------------------------------------------------
-    void Mesh::_DestroyBuffer(StringID name)
+    void Mesh::_DestroyBuffer( StringID name )
     {
         SAFE_DELETE( m_pVertexBuffers[name] );
     }
@@ -102,11 +111,10 @@ namespace Graphics { namespace D3D11 {
     }
 
     //----------------------------------------------------------------------
-    void Mesh::_DestroyIndexBuffer(I32 index)   { SAFE_DELETE( m_pIndexBuffers[index] ); }
-
-    //**********************************************************************
-    // PRIVATE
-    //**********************************************************************
+    void Mesh::_DestroyIndexBuffer( I32 index ) 
+    { 
+        SAFE_DELETE( m_pIndexBuffers[index] ); 
+    }
 
     //----------------------------------------------------------------------
     void Mesh::_UpdateIndexBuffer( U32 index )
