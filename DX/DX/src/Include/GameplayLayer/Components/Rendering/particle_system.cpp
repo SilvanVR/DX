@@ -37,7 +37,7 @@ namespace Components {
     {
         m_maxParticleCount = m_currentParticleCount = 5000;
 
-        m_particleSystem = Core::MeshGenerator::CreatePlane();
+        m_particleSystem = Core::MeshGenerator::CreateCubeUV();
         m_particleSystem->setBufferUsage( Graphics::BufferUsage::Frequently );
 
         play();
@@ -72,28 +72,27 @@ namespace Components {
         //    uvs[i] = { Math::Random::Float(1.0f), Math::Random::Float(1.0f) };
         //m_particleSystem->setUVs(uvs);
 
-        ArrayList<Math::Vec3> positions(m_maxParticleCount);
         ArrayList<Color> colors(m_maxParticleCount);
         for (U32 i = 0; i < m_maxParticleCount; i++)
-        {
-            positions[i] = Math::Vec3{ Math::Random::Float(-1.0f, 1.0f), Math::Random::Float(-1.0f,1.0f), Math::Random::Float(-1.0f,1.0f) } * 50.0f;
             colors[i] = Math::Random::Color();
-        }
-        m_particleSystem->setNormals(positions);
         m_particleSystem->setColors(colors);
-        m_particleSystem->setTangents({ {0,0,0,1} });
 
-        ArrayList<DirectX::XMMATRIX> modelMatrices(m_maxParticleCount);
+        auto positionStream = std::make_shared<Graphics::VertexStream<Math::Vec3>>(m_maxParticleCount);
+        for (U32 i = 0; i < m_maxParticleCount; i++)
+            (*positionStream)[i] = Math::Vec3{ Math::Random::Float(-1.0f, 1.0f), Math::Random::Float(-1.0f,1.0f), Math::Random::Float(-1.0f,1.0f) } * 50.0f;
+        m_particleSystem->setVertexStream( SID("POS"), positionStream );
+
+        auto modelMatrixStream = std::make_shared<Graphics::VertexStream<DirectX::XMMATRIX>>(m_maxParticleCount);
         for (U32 i = 0; i < m_maxParticleCount; i++)
         {
-            DirectX::XMVECTOR s{ Math::Random::Float(0.5f, 2.0f) };
+            F32 scale = Math::Random::Float(0.5f, 5.0f);
+            DirectX::XMVECTOR s{ scale, scale, scale };
             DirectX::XMVECTOR r{ DirectX::XMQuaternionIdentity() };
-            DirectX::XMVECTOR p{ Math::Random::Float(-1.0f, 1.0f), Math::Random::Float(-1.0f, 1.0f), Math::Random::Float(-1.0f, 1.0f) };
-            modelMatrices[i] = DirectX::XMMatrixAffineTransformation( s, DirectX::XMQuaternionIdentity(), r, p );
+            DirectX::XMVECTOR p{ Math::Random::Float(-1.0f, 1.0f) * 50.0f, Math::Random::Float(-1.0f, 1.0f)* 50.0f, Math::Random::Float(-1.0f, 1.0f)* 50.0f };
+            (*modelMatrixStream)[i] = DirectX::XMMatrixAffineTransformation( s, DirectX::XMQuaternionIdentity(), r, p );
+            //(*modelMatrixStream)[i] = DirectX::XMMatrixIdentity();
         }
-        //m_particleSystem->set
-
-        //m_particleSystem->setVertexStream("Positions", positions);
+        m_particleSystem->setVertexStream( SID("MODEL"), modelMatrixStream );
     }
 
     //**********************************************************************

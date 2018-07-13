@@ -8,8 +8,7 @@
     D3D11 implementation of an mesh.
 **********************************************************************/
 
-#include "../../i_mesh.h"
-#include <unordered_map>
+#include "i_mesh.h"
 
 namespace Graphics { namespace D3D11 {
 
@@ -27,19 +26,11 @@ namespace Graphics { namespace D3D11 {
         // IMesh Interface
         //----------------------------------------------------------------------
         void _Clear() override;
-        void _CreateVertexBuffer(const ArrayList<Math::Vec3>& vertices) override;
         void _CreateIndexBuffer(const SubMesh& subMesh, I32 index) override;
-        void _CreateUVBuffer(const ArrayList<Math::Vec2>& uvs) override;
-        void _CreateColorBuffer(const ArrayList<Color>& colors) override;
-        void _CreateNormalBuffer(const ArrayList<Math::Vec3>& normals) override;
-        void _CreateTangentBuffer(const ArrayList<Math::Vec4>& tangents) override;
-
-        void _DestroyVertexBuffer() override;
         void _DestroyIndexBuffer(I32 index) override;
-        void _DestroyColorBuffer() override;
-        void _DestroyUVBuffer() override;
-        void _DestroyNormalBuffer() override;
-        void _DestroyTangentBuffer() override;
+
+        void _CreateBuffer(StringID name, const VertexStreamPtr& vs) override;
+        void _DestroyBuffer(StringID name) override;
 
     private:
         HashMap<StringID, VertexBuffer*> m_pVertexBuffers;
@@ -57,12 +48,7 @@ namespace Graphics { namespace D3D11 {
         inline void _SetTopology(U32 subMesh);
         inline void _BindVertexBuffer(const VertexLayout& vertLayout);
         inline void _BindIndexBuffer(U32 subMesh);
-        inline void _UpdateUVBuffer();
-        inline void _UpdateVertexBuffer();
-        inline void _UpdateColorBuffer();
         inline void _UpdateIndexBuffer(U32 index);
-        inline void _UpdateNormalBuffer();
-        inline void _UpdateTangentBuffer();
 
         NULL_COPY_AND_ASSIGN(Mesh)
     };

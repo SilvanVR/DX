@@ -72,6 +72,7 @@ namespace Graphics { namespace D3D11 {
 
         // Read input layout description from shader info
         ArrayList<D3D11_INPUT_ELEMENT_DESC> inputLayoutDesc;
+        HashMap<String, U32> inputSlotMap; // This ensures every float4x4 matrix has the same input slot
         for (U32 i = 0; i < shaderDesc.InputParameters; i++)
         {
             D3D11_SIGNATURE_PARAMETER_DESC paramDesc;
@@ -80,8 +81,7 @@ namespace Graphics { namespace D3D11 {
             D3D11_INPUT_ELEMENT_DESC elementDesc;
             elementDesc.SemanticName            = paramDesc.SemanticName;
             elementDesc.SemanticIndex           = paramDesc.SemanticIndex;
-            elementDesc.InputSlot               = i;
-            elementDesc.AlignedByteOffset       = (i == 0 ? 0 : D3D11_APPEND_ALIGNED_ELEMENT);
+            elementDesc.AlignedByteOffset       = D3D11_APPEND_ALIGNED_ELEMENT;
             elementDesc.InputSlotClass          = D3D11_INPUT_PER_VERTEX_DATA;
             elementDesc.InstanceDataStepRate    = 0;
 
@@ -98,14 +98,17 @@ namespace Graphics { namespace D3D11 {
                 // Cut-off the "SEMANTIC_INSTANCED" for _AddToVertexLayout()
                 semanticName = semanticName.substr( 0, pos );
 
-                elementDesc.AlignedByteOffset       = 0;
                 elementDesc.InputSlotClass          = D3D11_INPUT_PER_INSTANCE_DATA;
                 elementDesc.InstanceDataStepRate    = 1;
             }
 
-            U32 sizeInBytes = 0;
+            // Store increasing slot number in map and set input slot
+            if ( inputSlotMap.find(semanticName) == inputSlotMap.end() )
+                inputSlotMap[semanticName] = static_cast<U32>( inputSlotMap.size() );
+            elementDesc.InputSlot = inputSlotMap[semanticName];
 
             // determine DXGI format
+            U32 sizeInBytes = 0;
             if (paramDesc.Mask == 1)
             {
                 if (paramDesc.ComponentType == D3D_REGISTER_COMPONENT_UINT32) elementDesc.Format = DXGI_FORMAT_R32_UINT;

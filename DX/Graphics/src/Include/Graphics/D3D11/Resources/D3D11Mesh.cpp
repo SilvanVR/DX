@@ -22,20 +22,21 @@ namespace Graphics { namespace D3D11 {
     //----------------------------------------------------------------------
     void Mesh::bind( const VertexLayout& vertLayout, U32 subMeshIndex )
     {
-        while ( not m_queuedBufferUpdates.empty() )
+        // Check if an vertex stream has been updated and perform necessary task
+        for (auto& [name, vsStream] : m_vertexStreams)
         {
-            auto buffUpdate = m_queuedBufferUpdates.front();
-            switch ( buffUpdate.type )
+            if ( vsStream->wasUpdated() )
             {
-            case MeshBufferType::Vertex:    _UpdateVertexBuffer();                  break;
-            case MeshBufferType::TexCoord:  _UpdateUVBuffer();                      break;
-            case MeshBufferType::Color:     _UpdateColorBuffer();                   break;
-            case MeshBufferType::Index:     _UpdateIndexBuffer(buffUpdate.index);   break;
-            case MeshBufferType::Normal:    _UpdateNormalBuffer();                  break;
-            case MeshBufferType::Tangent:   _UpdateTangentBuffer();                 break;
-            default: ASSERT( false && "Unknown buffer type!" );
+                m_pVertexBuffers[name]->update( vsStream->data(), vsStream->dataSize() );
+                vsStream->setWasUpdated( false );
             }
-            m_queuedBufferUpdates.pop();
+        }
+
+        while ( not m_queuedIndexBufferUpdates.empty() )
+        {
+            auto subMeshIndex = m_queuedIndexBufferUpdates.front();
+            _UpdateIndexBuffer( subMeshIndex );
+            m_queuedIndexBufferUpdates.pop();
         }
 
         _SetTopology( subMeshIndex );
@@ -58,10 +59,16 @@ namespace Graphics { namespace D3D11 {
     }
 
     //----------------------------------------------------------------------
-    void Mesh::_CreateVertexBuffer( const ArrayList<Math::Vec3>& vertices )
+    void Mesh::_CreateBuffer( StringID name, const VertexStreamPtr& vs )
     {
-        ASSERT( m_pVertexBuffers[SID_VERTEX_POSITION] == nullptr );
-        m_pVertexBuffers[SID_VERTEX_POSITION] = new VertexBuffer( vertices.data(), (U32)(vertices.size() * sizeof( Math::Vec3 )), m_bufferUsage );
+        ASSERT( m_pVertexBuffers[name] == nullptr && "Buffer already exists!" );
+        m_pVertexBuffers[name] = new VertexBuffer( vs->data(), static_cast<U32>( vs->dataSize() ), m_bufferUsage );
+    }
+
+    //----------------------------------------------------------------------
+    void Mesh::_DestroyBuffer(StringID name)
+    {
+        SAFE_DELETE( m_pVertexBuffers[name] );
     }
 
     //----------------------------------------------------------------------
@@ -95,59 +102,11 @@ namespace Graphics { namespace D3D11 {
     }
 
     //----------------------------------------------------------------------
-    void Mesh::_CreateColorBuffer( const ArrayList<Color>& colors )
-    {
-        ASSERT( m_pVertexBuffers[SID_VERTEX_COLOR] == nullptr );
-        ArrayList<F32> colorsNormalized( colors.size() * 4 );
-        for (U32 i = 0; i < colors.size(); i++)
-        {
-            auto normalized = colors[i].normalized();
-            colorsNormalized[i * 4 + 0] = normalized[0];
-            colorsNormalized[i * 4 + 1] = normalized[1];
-            colorsNormalized[i * 4 + 2] = normalized[2];
-            colorsNormalized[i * 4 + 3] = normalized[3];
-        }
-        m_pVertexBuffers[SID_VERTEX_COLOR] = new VertexBuffer( colorsNormalized.data(), static_cast<U32>( colorsNormalized.size() ) * sizeof( F32 ), m_bufferUsage );
-    }
-
-    //----------------------------------------------------------------------
-    void Mesh::_CreateUVBuffer( const ArrayList<Math::Vec2>& uvs )
-    {
-        ASSERT( m_pVertexBuffers[SID_VERTEX_UV] == nullptr );
-        m_pVertexBuffers[SID_VERTEX_UV] = new VertexBuffer( uvs.data(), U32( uvs.size() * sizeof( Math::Vec2 ) ), m_bufferUsage );
-    }
-
-    //----------------------------------------------------------------------
-    void Mesh::_CreateNormalBuffer( const ArrayList<Math::Vec3>& normals )
-    {
-        ASSERT( m_pVertexBuffers[SID_VERTEX_NORMAL] == nullptr );
-        m_pVertexBuffers[SID_VERTEX_NORMAL] = new VertexBuffer( normals.data(), U32( normals.size() * sizeof( Math::Vec3 ) ), m_bufferUsage );
-    }
-
-    //----------------------------------------------------------------------
-    void Mesh::_CreateTangentBuffer( const ArrayList<Math::Vec4>& tangents )
-    {
-        ASSERT( m_pVertexBuffers[SID_VERTEX_TANGENT] == nullptr );
-        m_pVertexBuffers[SID_VERTEX_TANGENT] = new VertexBuffer( tangents.data(), U32( tangents.size() * sizeof( Math::Vec4 ) ), m_bufferUsage );
-    }
-
-    //----------------------------------------------------------------------
-    void Mesh::_DestroyVertexBuffer()           { SAFE_DELETE( m_pVertexBuffers[SID_VERTEX_POSITION] ); }
     void Mesh::_DestroyIndexBuffer(I32 index)   { SAFE_DELETE( m_pIndexBuffers[index] ); }
-    void Mesh::_DestroyColorBuffer()            { SAFE_DELETE( m_pVertexBuffers[SID_VERTEX_COLOR] ); }
-    void Mesh::_DestroyUVBuffer()               { SAFE_DELETE( m_pVertexBuffers[SID_VERTEX_UV] ); }
-    void Mesh::_DestroyNormalBuffer()           { SAFE_DELETE( m_pVertexBuffers[SID_VERTEX_NORMAL] ); }
-    void Mesh::_DestroyTangentBuffer()          { SAFE_DELETE( m_pVertexBuffers[SID_VERTEX_TANGENT] ); }
 
     //**********************************************************************
     // PRIVATE
     //**********************************************************************
-
-    //----------------------------------------------------------------------
-    void Mesh::_UpdateVertexBuffer()
-    {
-        m_pVertexBuffers[SID_VERTEX_POSITION]->update( m_vertices.data(), m_vertices.size() * sizeof( Math::Vec3 ) );
-    }
 
     //----------------------------------------------------------------------
     void Mesh::_UpdateIndexBuffer( U32 index )
@@ -170,74 +129,13 @@ namespace Graphics { namespace D3D11 {
     }
 
     //----------------------------------------------------------------------
-    void Mesh::_UpdateUVBuffer()
-    {
-        m_pVertexBuffers[SID_VERTEX_UV]->update( m_uvs0.data(), m_uvs0.size() * sizeof( Math::Vec2 ) );
-    }
-
-    //----------------------------------------------------------------------
-    void Mesh::_UpdateColorBuffer()
-    {
-        ArrayList<F32> colorsNormalized( m_colors.size() * 4 );
-        for (U32 i = 0; i < m_colors.size(); i++)
-        {
-            auto normalized = m_colors[i].normalized();
-            colorsNormalized[i * 4 + 0] = normalized[0];
-            colorsNormalized[i * 4 + 1] = normalized[1];
-            colorsNormalized[i * 4 + 2] = normalized[2];
-            colorsNormalized[i * 4 + 3] = normalized[3];
-        }
-        m_pVertexBuffers[SID_VERTEX_COLOR]->update( colorsNormalized.data(), static_cast<U32>( colorsNormalized.size() ) * sizeof( F32 ) );
-    }
-
-    //----------------------------------------------------------------------
-    void Mesh::_UpdateNormalBuffer()
-    {
-        m_pVertexBuffers[SID_VERTEX_NORMAL]->update( m_normals.data(), m_normals.size() * sizeof( Math::Vec3 ) );
-    }
-
-    //----------------------------------------------------------------------
-    void Mesh::_UpdateTangentBuffer()
-    {
-        m_pVertexBuffers[SID_VERTEX_TANGENT]->update( m_tangents.data(), m_tangents.size() * sizeof( Math::Vec4 ) );
-    }
-
-    //----------------------------------------------------------------------
     void Mesh::_RecreateBuffers()
     {
-        // Recreate vertex buffer
-        if (m_pVertexBuffers.find( SID_VERTEX_POSITION ) != m_pVertexBuffers.end())
+        // Recreate all vertex buffers
+        for (auto& [name, vsStream] : m_vertexStreams)
         {
-            _DestroyVertexBuffer();
-            _CreateVertexBuffer( m_vertices );
-        }
-
-        // Recreate color buffer
-        if (m_pVertexBuffers.find( SID_VERTEX_COLOR ) != m_pVertexBuffers.end())
-        {
-            _DestroyColorBuffer();
-            _CreateColorBuffer( m_colors );
-        }
-
-        // Recreate uv buffer
-        if (m_pVertexBuffers.find( SID_VERTEX_UV ) != m_pVertexBuffers.end())
-        {
-            _DestroyUVBuffer();
-            _CreateUVBuffer( m_uvs0 );
-        }
-
-        // Recreate normal buffer
-        if (m_pVertexBuffers.find( SID_VERTEX_NORMAL ) != m_pVertexBuffers.end())
-        {
-            _DestroyNormalBuffer();
-            _CreateNormalBuffer( m_normals );
-        }
-
-        // Recreate tangent buffer
-        if (m_pVertexBuffers.find( SID_VERTEX_TANGENT ) != m_pVertexBuffers.end())
-        {
-            _DestroyTangentBuffer();
-            _CreateTangentBuffer( m_tangents );
+            _DestroyBuffer( name );
+            _CreateBuffer( name, vsStream );
         }
 
         // Recreate index buffers

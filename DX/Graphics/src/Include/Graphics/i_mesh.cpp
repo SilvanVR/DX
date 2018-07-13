@@ -10,6 +10,12 @@
 
 namespace Graphics {
 
+    const StringID SID_VERTEX_POSITION   = StringID("POSITION");
+    const StringID SID_VERTEX_COLOR      = StringID("COLOR");
+    const StringID SID_VERTEX_UV         = StringID("TEXCOORD");
+    const StringID SID_VERTEX_NORMAL     = StringID("NORMAL");
+    const StringID SID_VERTEX_TANGENT    = StringID("TANGENT");
+
     //----------------------------------------------------------------------
     // PUBLIC
     //----------------------------------------------------------------------
@@ -17,46 +23,78 @@ namespace Graphics {
     //----------------------------------------------------------------------
     void IMesh::clear()
     {
-        m_vertices.clear();
-        m_colors.clear();
-        m_uvs0.clear();
-        m_normals.clear();
-        m_tangents.clear();
+        m_vertexStreams.clear();
         m_subMeshes.clear();
         _Clear();
     }
 
     //----------------------------------------------------------------------
+    void IMesh::setVertexStream( StringID name, const VertexStreamPtr& vs )
+    {
+        m_vertexStreams[name] = vs;
+        _DestroyBuffer( name );
+        _CreateBuffer( name, vs );
+    }
+
+    //----------------------------------------------------------------------
+    const ArrayList<Math::Vec3>& IMesh::getVertexPositions() const
+    {
+        ASSERT( hasVertexStream(SID_VERTEX_POSITION) && "Mesh has no position stream." );
+
+        auto& vsBase = m_vertexStreams.at( SID_VERTEX_POSITION );
+        VertexStream<Math::Vec3>* vs = dynamic_cast<VertexStream<Math::Vec3>*>( vsBase.get() );
+        if (not vs)
+            LOG_ERROR_RENDERING( "IMesh::getVertexPositions(): Something went horribly wrong. Investigate this!" );
+        return vs->getList();
+    }
+
+    //----------------------------------------------------------------------
+    const ArrayList<Math::Vec2>& IMesh::getUVs() const
+    {
+        ASSERT( hasVertexStream( SID_VERTEX_UV ) && "Mesh has no uv stream." );
+
+        auto& vsBase = m_vertexStreams.at( SID_VERTEX_UV );
+        VertexStream<Math::Vec2>* vs = dynamic_cast<VertexStream<Math::Vec2>*>( vsBase.get() );
+        if (not vs)
+            LOG_ERROR_RENDERING( "IMesh::getUVs(): Something went horribly wrong. Investigate this!" );
+        return vs->getList();
+    }
+
+    //----------------------------------------------------------------------
+    const ArrayList<Math::Vec3>& IMesh::getNormals() const
+    {
+        ASSERT( hasVertexStream( SID_VERTEX_NORMAL ) && "Mesh has no position stream." );
+
+        auto& vsBase = m_vertexStreams.at( SID_VERTEX_NORMAL );
+        VertexStream<Math::Vec3>* vs = dynamic_cast<VertexStream<Math::Vec3>*>( vsBase.get() );
+        if (not vs)
+            LOG_ERROR_RENDERING( "IMesh::getNormals(): Something went horribly wrong. Investigate this!" );
+        return vs->getList();
+    }
+
+    //----------------------------------------------------------------------
+    const ArrayList<Math::Vec4>& IMesh::getTangents() const
+    {
+        ASSERT( hasVertexStream( SID_VERTEX_TANGENT ) && "Mesh has no position stream." );
+
+        auto& vsBase = m_vertexStreams.at( SID_VERTEX_TANGENT );
+        VertexStream<Math::Vec4>* vs = dynamic_cast<VertexStream<Math::Vec4>*>( vsBase.get() );
+        if (not vs)
+            LOG_ERROR_RENDERING( "IMesh::getTangents(): Something went horribly wrong. Investigate this!" );
+        return vs->getList();
+    }
+
+    //----------------------------------------------------------------------
     void IMesh::setVertices( const ArrayList<Math::Vec3>& vertices )
     {
-        bool hasBuffer = not m_vertices.empty();
-
-        if ( not hasBuffer )
-        {
-            m_vertices = vertices;
-            _CreateVertexBuffer( vertices );
-        }
-        else
-        {
+        if ( hasVertexStream( SID_VERTEX_POSITION ) )
             ASSERT( not isImmutable() && "Mesh is immutable! It can't be updated. "
                     "Either change the buffer usage via setBufferUsage() or call clear() to reset the whole mesh." );
 
-            // Buffer always grows but never shrink
-            bool enoughCapacity = vertices.size() <= m_vertices.size();
-            if (not enoughCapacity)
-            {
-                m_vertices.resize( vertices.size() );
+        auto vsStream = std::make_shared<VertexStream<Math::Vec3>>( vertices );
+        setVertexStream( SID_VERTEX_POSITION, vsStream );
 
-                _DestroyVertexBuffer();
-                _CreateVertexBuffer( m_vertices );
-            }
-
-            // Copy new vertex data into vertex array
-            memcpy( m_vertices.data(), vertices.data(), vertices.size() * sizeof( Math::Vec3 ) );
-
-            m_queuedBufferUpdates.push({ MeshBufferType::Vertex });
-        }
-        _RecalculateBounds();
+        _RecalculateBounds( vsStream->getList() );
     }
 
     //----------------------------------------------------------------------
@@ -96,142 +134,66 @@ namespace Graphics {
             // Copy new index data into index array
             memcpy( subMesh.indices.data(), indices.data(), indices.size() * sizeof( U32 ) );
 
-            m_queuedBufferUpdates.push({ MeshBufferType::Index, subMeshIndex });
+            m_queuedIndexBufferUpdates.push( subMeshIndex );
         }
     }
 
     //----------------------------------------------------------------------
     void IMesh::setColors( const ArrayList<Color>& colors )
     {
-        bool hasBuffer = not m_colors.empty();
-
-        if ( not hasBuffer )
-        {
-            m_colors = colors;
-            _CreateColorBuffer( colors );
-        }
-        else
-        {
+        if ( hasVertexStream( SID_VERTEX_COLOR ) )
             ASSERT( not isImmutable() && "Mesh is immutable! It can't be updated. "
                     "Either change the buffer usage via setBufferUsage() or call clear() to reset the whole mesh." );
 
-            // Buffer always grows but never shrink
-            bool enoughCapacity = colors.size() <= m_colors.size();
-            if (not enoughCapacity)
-            {
-                m_colors.resize( colors.size() );
-
-                _DestroyColorBuffer();
-                _CreateColorBuffer( m_colors );
-            }
-
-            // Copy new color data into color array
-            memcpy( m_colors.data(), colors.data(), colors.size() * sizeof( Color ) );
-
-            m_queuedBufferUpdates.push({ MeshBufferType::Color });
+        ArrayList<Math::Vec4> colorsNormalized( colors.size() );
+        for (U32 i = 0; i < colors.size(); i++)
+        {
+            auto normalized = colors[i].normalized();
+            colorsNormalized[i] = { normalized[0], normalized[1], normalized[2], normalized[3] };
         }
+
+        auto vsStream = std::make_shared<VertexStream<Math::Vec4>>( colorsNormalized );
+        setVertexStream( SID_VERTEX_COLOR, vsStream );
     }
 
     //----------------------------------------------------------------------
     void IMesh::setUVs( const ArrayList<Math::Vec2>& uvs )
     {
-        bool hasBuffer = not m_uvs0.empty();
-
-        if ( not hasBuffer )
-        {
-            m_uvs0 = uvs;
-            _CreateUVBuffer( uvs );
-        }
-        else
-        {
+        if ( hasVertexStream( SID_VERTEX_UV ) )
             ASSERT( not isImmutable() && "Mesh is immutable! It can't be updated. "
                     "Either change the buffer usage via setBufferUsage() or call clear() to reset the whole mesh." );
 
-            // Buffer always grows but never shrink
-            bool enoughCapacity = uvs.size() <= m_uvs0.size();
-            if (not enoughCapacity)
-            {
-                m_uvs0.resize( uvs.size() );
-
-                _DestroyUVBuffer();
-                _CreateUVBuffer( m_uvs0 );
-            }
-
-            // Copy new uv data into uv array
-            memcpy( m_uvs0.data(), uvs.data(), uvs.size() * sizeof( Math::Vec2 ) );
-
-            m_queuedBufferUpdates.push({ MeshBufferType::TexCoord });
-        }
+        auto vsStream = std::make_shared<VertexStream<Math::Vec2>>( uvs );
+        setVertexStream( SID_VERTEX_UV, vsStream );
     }
 
     //----------------------------------------------------------------------
     void IMesh::setNormals( const ArrayList<Math::Vec3>& normals )
     {
-        bool hasBuffer = not m_normals.empty();
-
-        if ( not hasBuffer )
-        {
-            m_normals = normals;
-            _CreateNormalBuffer( m_normals );
-        }
-        else
-        {
+        if ( hasVertexStream( SID_VERTEX_NORMAL ) )
             ASSERT( not isImmutable() && "Mesh is immutable! It can't be updated. "
                     "Either change the buffer usage via setBufferUsage() or call clear() to reset the whole mesh." );
 
-            // Buffer always grows but never shrink
-            bool enoughCapacity = normals.size() <= m_normals.size();
-            if (not enoughCapacity)
-            {
-                m_normals.resize( normals.size() );
-
-                _DestroyNormalBuffer();
-                _CreateNormalBuffer( m_normals );
-            }
-
-            // Copy new normal data into normal array
-            memcpy( m_normals.data(), normals.data(), normals.size() * sizeof( Math::Vec3 ) );
-
-            m_queuedBufferUpdates.push({ MeshBufferType::Normal });
-        }
+        auto vsStream = std::make_shared<VertexStream<Math::Vec3>>( normals );
+        setVertexStream( SID_VERTEX_NORMAL, vsStream );
     }
 
     //----------------------------------------------------------------------
     void IMesh::setTangents( const ArrayList<Math::Vec4>& tangents )
     {
-        bool hasBuffer = not m_tangents.empty();
-
-        if ( not hasBuffer )
-        {
-            m_tangents = tangents;
-            _CreateTangentBuffer( m_tangents );
-        }
-        else
-        {
+        if ( hasVertexStream( SID_VERTEX_TANGENT ) )
             ASSERT( not isImmutable() && "Mesh is immutable! It can't be updated. "
                     "Either change the buffer usage via setBufferUsage() or call clear() to reset the whole mesh." );
 
-            // Buffer always grows but never shrink
-            bool enoughCapacity = tangents.size() <= m_tangents.size();
-            if (not enoughCapacity)
-            {
-                m_tangents.resize( tangents.size() );
-
-                _DestroyTangentBuffer();
-                _CreateTangentBuffer( m_tangents );
-            }
-
-            // Copy new tangent data into tangent array
-            memcpy( m_tangents.data(), tangents.data(), tangents.size() * sizeof( Math::Vec4 ) );
-
-            m_queuedBufferUpdates.push({ MeshBufferType::Tangent });
-        }
+        auto vsStream = std::make_shared<VertexStream<Math::Vec4>>( tangents );
+        setVertexStream( SID_VERTEX_TANGENT, vsStream );
     }
 
     //----------------------------------------------------------------------
     void IMesh::recalculateNormals()
     {
-        ArrayList<Math::Vec3> normals( m_vertices.size(), Math::Vec3( 0.0f ) );
+        const auto& vertices = getVertexPositions();
+        ArrayList<Math::Vec3> normals( vertices.size(), Math::Vec3( 0.0f ) );
 
         // Calculate normals
         for (auto& subMesh : m_subMeshes)
@@ -248,9 +210,9 @@ namespace Graphics {
                 U32 index1 = subMesh.indices[ i + 1 ];
                 U32 index2 = subMesh.indices[ i + 2 ];
 
-                auto vert0 = m_vertices[ index0 ];
-                auto vert1 = m_vertices[ index1 ];
-                auto vert2 = m_vertices[ index2 ];
+                auto vert0 = vertices[ index0 ];
+                auto vert1 = vertices[ index1 ];
+                auto vert2 = vertices[ index2 ];
 
                 auto edge0 = vert1 - vert0;
                 auto edge1 = vert2 - vert0;
@@ -272,9 +234,11 @@ namespace Graphics {
     //----------------------------------------------------------------------
     void IMesh::recalculateTangents( bool invertBinormal )
     {
-        ArrayList<Math::Vec3> tangents( m_vertices.size(), Math::Vec3( 0.0f ) );
+        const auto& vertices = getVertexPositions();
+        ArrayList<Math::Vec3> tangents( vertices.size(), Math::Vec3( 0.0f ) );
 
         // Calculate normals
+        const auto& uvs = getUVs();
         for (auto& subMesh : m_subMeshes)
         {
             if (subMesh.topology != MeshTopology::Triangles)
@@ -289,17 +253,17 @@ namespace Graphics {
                 U32 index1 = subMesh.indices[i + 1];
                 U32 index2 = subMesh.indices[i + 2];
 
-                auto vert0 = m_vertices[index0];
-                auto vert1 = m_vertices[index1];
-                auto vert2 = m_vertices[index2];
+                auto vert0 = vertices[index0];
+                auto vert1 = vertices[index1];
+                auto vert2 = vertices[index2];
 
                 auto edge0 = vert1 - vert0;
                 auto edge1 = vert2 - vert0;
 
-                F32 deltaU1 = m_uvs0[index1].x - m_uvs0[index0].x;
-                F32 deltaV1 = m_uvs0[index1].y - m_uvs0[index0].y;
-                F32 deltaU2 = m_uvs0[index2].x - m_uvs0[index0].x;
-                F32 deltaV2 = m_uvs0[index2].y - m_uvs0[index0].y;
+                F32 deltaU1 = uvs[index1].x - uvs[index0].x;
+                F32 deltaV1 = uvs[index1].y - uvs[index0].y;
+                F32 deltaU2 = uvs[index2].x - uvs[index0].x;
+                F32 deltaV2 = uvs[index2].y - uvs[index0].y;
 
                 F32 f = 1.0f / (deltaU1*deltaV2 - deltaU2*deltaV1);
 
@@ -350,9 +314,9 @@ namespace Graphics {
     }
 
     //----------------------------------------------------------------------
-    void IMesh::_RecalculateBounds()
+    void IMesh::_RecalculateBounds( const ArrayList<Math::Vec3>& vertexPositions )
     {
-        for (auto& vert : m_vertices)
+        for (auto& vert : vertexPositions)
         {
             m_bounds.getMin() = vert.minVec( m_bounds.getMin() );
             m_bounds.getMax() = vert.maxVec( m_bounds.getMax() );

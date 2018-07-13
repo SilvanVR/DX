@@ -18,6 +18,60 @@
 namespace Graphics {
 
     class IShader;
+    
+    extern const StringID SID_VERTEX_POSITION;
+    extern const StringID SID_VERTEX_COLOR;
+    extern const StringID SID_VERTEX_UV;
+    extern const StringID SID_VERTEX_NORMAL;
+    extern const StringID SID_VERTEX_TANGENT;
+
+    //**********************************************************************
+    class VertexStreamBase
+    {
+    public:
+        VertexStreamBase() = default;
+        virtual ~VertexStreamBase() = default;
+
+        virtual const void* data() const = 0;
+        virtual U32         dataSize() const = 0;
+        virtual U32         size() const = 0;
+
+        bool wasUpdated() const { return m_wasUpdated; }
+        void setWasUpdated(bool b) { m_wasUpdated = b; }
+
+    private:
+        bool m_wasUpdated = false;
+
+        NULL_COPY_AND_ASSIGN(VertexStreamBase)
+    };
+
+    //**********************************************************************
+    template <typename T>
+    class VertexStream : public VertexStreamBase
+    {
+    public:
+        VertexStream(U32 maxObjects) : m_data(maxObjects) {}
+        VertexStream(const ArrayList<T>& data) : m_data{ data } {}
+
+        T&          operator[] (I32 i)          { setWasUpdated(true); return m_data[i]; }
+        const T&    operator[] (I32 i) const    { return m_data[i]; }
+
+        const void* data()      const override { return m_data.data(); }
+        U32         dataSize()  const override { return static_cast<U32>( m_data.size() ) * sizeof(T); }
+        U32         size()      const override { return static_cast<U32>( m_data.size() ); }
+
+        // Allows for-each loop
+        using iterator = typename std::vector<T>::iterator;
+        iterator begin()    { setWasUpdated(true); return m_data.begin(); }
+        iterator end()      { setWasUpdated(true); return m_data.end(); }
+
+        const ArrayList<T>& getList() const { return m_data; }
+
+    private:
+        ArrayList<T> m_data;
+    };
+
+    using VertexStreamPtr = std::shared_ptr<VertexStreamBase>;
 
     //**********************************************************************
     class IMesh
@@ -32,6 +86,15 @@ namespace Graphics {
         // up space its useful to call this function occasionally.
         //----------------------------------------------------------------------
         void clear();
+
+        //----------------------------------------------------------------------
+        // Add a new vertex stream. This destroys the old buffer and creates a
+        // new one, so use this function only once and update per stream object if needed.
+        // @Params:
+        //  "name": The name of the vertex stream. Must be equal to the name in the shader.
+        //  "vs": The vertex-stream object over which vertex-data can be updated efficiently.
+        //----------------------------------------------------------------------
+        void setVertexStream(StringID name, const VertexStreamPtr& vs);
 
         //----------------------------------------------------------------------
         // Sets the vertices for this mesh. If a vertex buffer was not created,
@@ -80,7 +143,7 @@ namespace Graphics {
         // Change the buffer usage for this mesh. All existing buffers gets 
         // recreated, keep that in mind!
         //----------------------------------------------------------------------
-        void        setBufferUsage(BufferUsage usage) { m_bufferUsage = usage; _RecreateBuffers(); }
+        void setBufferUsage(BufferUsage usage) { m_bufferUsage = usage; _RecreateBuffers(); }
 
         //----------------------------------------------------------------------
         // Recalculates the normals from the vertices
@@ -101,15 +164,10 @@ namespace Graphics {
         void setBounds(const Math::AABB& bounds) { m_bounds = bounds; }
 
         //----------------------------------------------------------------------
-        const ArrayList<Math::Vec3>&    getVertices()       const { return m_vertices; }
-        const ArrayList<Color>&         getColors()         const { return m_colors; }
-        const ArrayList<Math::Vec2>&    getUVs0()           const { return m_uvs0; }
-        const ArrayList<Math::Vec3>&    getNormals()        const { return m_normals; }
-        const ArrayList<Math::Vec4>&    getTangents()       const { return m_tangents; }
-        U32                             getVertexCount()    const { return static_cast<U32>( m_vertices.size() ); }
         U16                             getSubMeshCount()   const { return static_cast<U32>( m_subMeshes.size() ); }
         bool                            isImmutable()       const { return m_bufferUsage == BufferUsage::Immutable; }
 
+        U32                             getVertexCount()             const { return (U32)getVertexPositions().size(); }
         const ArrayList<U32>&           getIndices(U32 subMesh = 0)  const { return m_subMeshes[subMesh].indices; }
         U32                             getIndexCount(U32 subMesh)   const { return m_subMeshes[subMesh].indexCount; }
         IndexFormat                     getIndexFormat(U32 subMesh)  const { return m_subMeshes[subMesh].indexFormat; }
@@ -117,15 +175,19 @@ namespace Graphics {
         bool                            hasSubMesh(U32 subMesh)      const { return subMesh < getSubMeshCount(); }
         MeshTopology                    getMeshTopology(U32 subMesh) const { return m_subMeshes[subMesh].topology; }
         const Math::AABB&               getBounds()                  const { return m_bounds; }
+        const ArrayList<Math::Vec3>&    getVertexPositions() const;
+        const ArrayList<Math::Vec2>&    getUVs() const;
+        const ArrayList<Math::Vec3>&    getNormals() const;
+        const ArrayList<Math::Vec4>&    getTangents() const;
+        bool                            hasVertexStream(StringID name) const { return m_vertexStreams.find(name) != m_vertexStreams.end(); }
+
+        template<typename T>
+        std::shared_ptr<VertexStream<T>> getVertexStream(StringID name) { return std::dynamic_pointer_cast<VertexStream<T>>( m_vertexStreams[name] ); }
 
     protected:
-        ArrayList<Math::Vec3>   m_vertices;
-        ArrayList<Color>        m_colors;
-        ArrayList<Math::Vec2>   m_uvs0;
-        ArrayList<Math::Vec3>   m_normals;
-        ArrayList<Math::Vec4>   m_tangents;
-        BufferUsage             m_bufferUsage = BufferUsage::Immutable;
-        Math::AABB              m_bounds;
+        HashMap<StringID, VertexStreamPtr>  m_vertexStreams;
+        BufferUsage                         m_bufferUsage = BufferUsage::Immutable;
+        Math::AABB                          m_bounds;
 
         struct SubMesh
         {
@@ -137,23 +199,6 @@ namespace Graphics {
         };
         ArrayList<SubMesh>      m_subMeshes;
 
-        // Buffer updates are queued. This way its safe to update buffers on different threads.
-        enum class MeshBufferType
-        {
-            Vertex,
-            Color,
-            TexCoord,
-            Normal,
-            Index,
-            Tangent
-        };
-        struct BufferUpdateInformation
-        {
-            MeshBufferType  type;
-            U32             index = 0; // Only used for some types e.g. submesh index for index-buffer updates
-        };
-        std::queue<BufferUpdateInformation> m_queuedBufferUpdates;
-
         //----------------------------------------------------------------------
         // Recreate all existing buffers. Called when the buffer-usage changes.
         //----------------------------------------------------------------------
@@ -163,19 +208,15 @@ namespace Graphics {
         // Overrides for an API dependant mesh class
         //----------------------------------------------------------------------
         virtual void _Clear() = 0;
-        virtual void _CreateVertexBuffer(const ArrayList<Math::Vec3>& vertices) = 0;
-        virtual void _CreateIndexBuffer(const SubMesh& subMesh, I32 index) = 0;
-        virtual void _CreateColorBuffer(const ArrayList<Color>& colors) = 0;
-        virtual void _CreateUVBuffer(const ArrayList<Math::Vec2>& uvs) = 0;
-        virtual void _CreateNormalBuffer(const ArrayList<Math::Vec3>& normals) = 0;
-        virtual void _CreateTangentBuffer(const ArrayList<Math::Vec4>& tangents) = 0;
 
-        virtual void _DestroyVertexBuffer() = 0;
+        virtual void _CreateBuffer(StringID name, const VertexStreamPtr& vs) = 0;
+        virtual void _DestroyBuffer(StringID name) = 0;
+
+        virtual void _CreateIndexBuffer(const SubMesh& subMesh, I32 index) = 0;
         virtual void _DestroyIndexBuffer(I32 index) = 0;
-        virtual void _DestroyColorBuffer() = 0;
-        virtual void _DestroyUVBuffer() = 0;
-        virtual void _DestroyNormalBuffer() = 0;
-        virtual void _DestroyTangentBuffer() = 0;
+
+        // Buffer updates are queued. This way its safe to update buffers on different threads.
+        std::queue<U32> m_queuedIndexBufferUpdates;
 
     private:
         //----------------------------------------------------------------------
@@ -195,7 +236,7 @@ namespace Graphics {
         //----------------------------------------------------------------------
         // Recalculate the AABB for this mesh
         //----------------------------------------------------------------------
-        void _RecalculateBounds();
+        void _RecalculateBounds(const ArrayList<Math::Vec3>& vertexPositions);
 
         NULL_COPY_AND_ASSIGN(IMesh)
     };

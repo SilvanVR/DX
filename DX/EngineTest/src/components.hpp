@@ -43,47 +43,13 @@ public:
     }
 };
 
-class WorldGeneration : public Components::IComponent
-{
-    MeshPtr                     mesh;
-    Components::MeshRenderer*   mr;
-
-public:
-    void addedToGameObject(GameObject* go) override
-    {
-        mesh = Core::MeshGenerator::CreatePlane();
-        mesh->setColors(planeColors);
-        mesh->setBufferUsage(Graphics::BufferUsage::Frequently);
-
-        mr = go->addComponent<Components::MeshRenderer>(mesh, ASSETS.getColorMaterial());
-    }
-
-    void tick(Time::Seconds delta)
-    {
-        auto newVertices = mesh->getVertices();
-        auto indices = mesh->getIndices();
-
-        int i = 0;
-        while (i < newVertices.size())
-        {
-            F32 newZ = newVertices[i].z = (F32)sin(TIME.getTime().value);
-            newVertices[i].z = i % 2 == 0 ? newZ : -newZ;
-            i++;
-        }
-
-        auto newColors = mesh->getColors();
-        for(auto& color : newColors)
-            color.setRed( (Byte) ( (sin(TIME.getTime().value) + 1) / 2 * 255 ) );
-
-        mesh->setVertices( newVertices );
-        mesh->setColors( newColors );
-    }
-};
-
 class VertexGeneration : public Components::IComponent
 {
     MeshPtr                     mesh;
     Components::MeshRenderer*   mr;
+
+    std::shared_ptr<Graphics::VertexStream<Math::Vec3>> vertexStream;
+    std::shared_ptr<Graphics::VertexStream<Math::Vec4>> colorStream;
 
     const U32 width  = 20;
     const U32 height = 20;
@@ -97,27 +63,22 @@ public:
         transform->position = Math::Vec3(-(width/2.0f), -2.0f, -(height/2.0f));
 
         mr = go->addComponent<Components::MeshRenderer>(mesh, ASSETS.getColorMaterial());
+        vertexStream = mesh->getVertexStream<Math::Vec3>( Graphics::SID_VERTEX_POSITION );
+        colorStream = mesh->getVertexStream<Math::Vec4>( Graphics::SID_VERTEX_COLOR );
     }
 
     void tick(Time::Seconds delta)
     {
-        auto newVertices = mesh->getVertices();
-        auto indices = mesh->getIndices();
-
-        int i = 0;
-        while (i < newVertices.size())
+        U32 i = 0;
+        while (i < vertexStream->size())
         {
             F32 newY = (F32)sin(TIME.getTime().value);
-            newVertices[i].z = (i % 2 == 0 ? newY : -newY);
+            (*vertexStream)[i].z = (i % 2 == 0 ? newY : -newY);
             i++;
         }
 
-        ArrayList<Color> newColors = mesh->getColors();
-        for (auto& color : newColors)
-            color.setBlue((Byte)((sin(TIME.getTime().value) + 1) / 2 * 255));
-
-        mesh->setVertices(newVertices);
-        mesh->setColors(newColors);
+        for (auto& color : *colorStream)
+            color.y = ((sinf((F32)TIME.getTime().value) + 1) / 2);
     }
 
 private:
@@ -220,7 +181,7 @@ public:
 
         auto mesh = mr->getMesh();
         auto& meshNormals = mesh->getNormals();
-        auto& meshVertices = mesh->getVertices();
+        auto& meshVertices = mesh->getVertexPositions();
 
         ArrayList<Math::Vec3> vertices;
         ArrayList<U32> indices;
@@ -265,7 +226,7 @@ public:
 
         auto mesh = mr->getMesh();
         auto& meshTangents = mesh->getTangents();
-        auto& meshVertices = mesh->getVertices();
+        auto& meshVertices = mesh->getVertexPositions();
 
         ArrayList<Math::Vec3> vertices;
         ArrayList<U32> indices;

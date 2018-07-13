@@ -107,10 +107,6 @@ public:
         //go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA);
         go->addComponent<AutoOrbiting>(15.0f);
 
-        auto worldGO = createGameObject("World");
-        worldGO->getComponent<Components::Transform>()->position = Math::Vec3(0, 3, 0);
-        worldGO->addComponent<WorldGeneration>();
-
         auto wavesGO = createGameObject("Waves");
         wavesGO->addComponent<VertexGeneration>();
 
