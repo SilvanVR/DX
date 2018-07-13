@@ -103,7 +103,7 @@ namespace Graphics { namespace D3D11 {
                 elementDesc.InstanceDataStepRate    = 1;
             }
 
-            _AddToVertexLayout( semanticName.c_str(), paramDesc.SemanticIndex, instanced );
+            U32 sizeInBytes = 0;
 
             // determine DXGI format
             if (paramDesc.Mask == 1)
@@ -111,25 +111,31 @@ namespace Graphics { namespace D3D11 {
                 if (paramDesc.ComponentType == D3D_REGISTER_COMPONENT_UINT32) elementDesc.Format = DXGI_FORMAT_R32_UINT;
                 else if (paramDesc.ComponentType == D3D_REGISTER_COMPONENT_SINT32) elementDesc.Format = DXGI_FORMAT_R32_SINT;
                 else if (paramDesc.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32) elementDesc.Format = DXGI_FORMAT_R32_FLOAT;
+                sizeInBytes = 4;
             }
             else if (paramDesc.Mask <= 3)
             {
                 if (paramDesc.ComponentType == D3D_REGISTER_COMPONENT_UINT32) elementDesc.Format = DXGI_FORMAT_R32G32_UINT;
                 else if (paramDesc.ComponentType == D3D_REGISTER_COMPONENT_SINT32) elementDesc.Format = DXGI_FORMAT_R32G32_SINT;
                 else if (paramDesc.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32) elementDesc.Format = DXGI_FORMAT_R32G32_FLOAT;
+                sizeInBytes = 8;
             }
             else if (paramDesc.Mask <= 7)
             {
                 if (paramDesc.ComponentType == D3D_REGISTER_COMPONENT_UINT32) elementDesc.Format = DXGI_FORMAT_R32G32B32_UINT;
                 else if (paramDesc.ComponentType == D3D_REGISTER_COMPONENT_SINT32) elementDesc.Format = DXGI_FORMAT_R32G32B32_SINT;
                 else if (paramDesc.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32) elementDesc.Format = DXGI_FORMAT_R32G32B32_FLOAT;
+                sizeInBytes = 12;
             }
             else if (paramDesc.Mask <= 15)
             {
                 if (paramDesc.ComponentType == D3D_REGISTER_COMPONENT_UINT32) elementDesc.Format = DXGI_FORMAT_R32G32B32A32_UINT;
                 else if (paramDesc.ComponentType == D3D_REGISTER_COMPONENT_SINT32) elementDesc.Format = DXGI_FORMAT_R32G32B32A32_SINT;
                 else if (paramDesc.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32) elementDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+                sizeInBytes = 16;
             }
+
+            _AddToVertexLayout( semanticName.c_str(), paramDesc.SemanticIndex, sizeInBytes, instanced );
 
             inputLayoutDesc.push_back( elementDesc );
         }
@@ -143,46 +149,30 @@ namespace Graphics { namespace D3D11 {
     }
 
     //----------------------------------------------------------------------
-    void VertexShader::_AddToVertexLayout( const String& semanticName, U32 semanticIndex, bool instanced )
+    void VertexShader::_AddToVertexLayout( const String& semanticName, U32 semanticIndex, U32 sizeInBytes, bool instanced )
     {
-        if (semanticName.substr(0,3) == SEMANTIC_SYSTEM) // Skip system semantics
+        if ( semanticName.substr(0,3) == SEMANTIC_SYSTEM ) // Skip system semantics
             return;
 
-        bool nameExists = false;
-        if (semanticName == SEMANTIC_POSITION)
+        ASSERT( sizeInBytes > 0 && "This should never happen" );
+
+        auto nameAsID = SID( semanticName.c_str() );
+        if (semanticIndex > 0) // e.g. float4x4 has four semantic-indices, so we just add the size to that input
         {
-            m_vertexLayout.add( { InputLayoutType::POSITION, instanced } );
-            nameExists = true;
+            for (auto& input : m_vertexLayout.getLayoutDescription())
+                if (input.name == nameAsID)
+                {
+                    input.sizeInBytes += sizeInBytes;
+                    return;
+                }
+            ASSERT( false && "This should logically never happen" );
         }
-        else if (semanticName == SEMANTIC_COLOR)
-        {
-            m_vertexLayout.add( { InputLayoutType::COLOR, instanced } );
-            nameExists = true;
-        }
-        else if (semanticName == SEMANTIC_TEXCOORD)
-        {
-            nameExists = true;
-            switch (semanticIndex)
-            {
-            case 0: m_vertexLayout.add( { InputLayoutType::TEXCOORD0, instanced } ); break;
-            case 1: m_vertexLayout.add( { InputLayoutType::TEXCOORD1, instanced } ); break;
-            case 2: m_vertexLayout.add( { InputLayoutType::TEXCOORD2, instanced } ); break;
-            case 3: m_vertexLayout.add( { InputLayoutType::TEXCOORD3, instanced } ); break;
-            default: nameExists = false;
-            }
-        }
-        else if (semanticName == SEMANTIC_NORMAL)
-        {
-            m_vertexLayout.add({ InputLayoutType::NORMAL, instanced });
-            nameExists = true;
-        }
-        else if (semanticName == SEMANTIC_TANGENT)
-        {
-            m_vertexLayout.add({ InputLayoutType::TANGENT, instanced });
-            nameExists = true;
-        }
-        if (not nameExists)
-            LOG_WARN_RENDERING( "D3D11VertexShader: Semantic name '" + semanticName + "' for recent compiled vertex shader does not exist.");
+
+        InputLayoutDescription input;
+        input.instanced     = instanced;
+        input.sizeInBytes   = sizeInBytes;
+        input.name          = nameAsID;
+        m_vertexLayout.add( input );
     }
 
 

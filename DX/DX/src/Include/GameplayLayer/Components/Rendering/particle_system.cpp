@@ -80,6 +80,7 @@ namespace Components {
         }
         m_particleSystem->setNormals(positions);
         m_particleSystem->setColors(colors);
+        m_particleSystem->setTangents({ {0,0,0,1} });
     }
 
     //**********************************************************************

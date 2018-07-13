@@ -37,7 +37,7 @@ namespace Graphics { namespace D3D11 {
 
         //----------------------------------------------------------------------
         void _CreateInputLayout(const void* pShaderByteCode, Size sizeInBytes);
-        void _AddToVertexLayout(const String& semanticName, U32 semanticIndex, bool instanced);
+        void _AddToVertexLayout(const String& semanticName, U32 semanticIndex, U32 sizeInBytes, bool instanced);
         void _CreateD3D11VertexShader(const ShaderBlob& shaderBlob);
 
         NULL_COPY_AND_ASSIGN(VertexShader)

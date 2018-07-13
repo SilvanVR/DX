@@ -54,7 +54,7 @@ namespace Common {
         VariantType(F32 val)            : m_f32( val ),  m_type( EVariantType::F32 ) {}
         VariantType(F64 val)            : m_f64( val ),  m_type( EVariantType::F64 ) {}
         VariantType(StringID val)       : m_str( val ),  m_type( EVariantType::String ) {}
-        VariantType(const char* val)    : m_str( StringID(val) ), m_type(EVariantType::String) {}
+        VariantType(const char* val)    : m_str( SID(val) ), m_type(EVariantType::String) {}
         ~VariantType() {}
 
         //----------------------------------------------------------------------

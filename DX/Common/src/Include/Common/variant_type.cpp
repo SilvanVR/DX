@@ -26,7 +26,7 @@ namespace Common {
 
         // Could not parse the given string as a number, so just use it as a string
         m_type = EVariantType::String;
-        m_str = StringID( string.c_str() );
+        m_str = SID( string.c_str() );
     }
 
     //----------------------------------------------------------------------

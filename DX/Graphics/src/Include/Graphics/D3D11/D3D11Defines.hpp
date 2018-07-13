@@ -6,12 +6,13 @@
     date: March 25, 2018
 **********************************************************************/
 
+static constexpr StringID SID_VERTEX_POSITION   = StringID("POSITION");
+static constexpr StringID SID_VERTEX_COLOR      = StringID("COLOR");
+static constexpr StringID SID_VERTEX_UV         = StringID("TEXCOORD");
+static constexpr StringID SID_VERTEX_NORMAL     = StringID("NORMAL");
+static constexpr StringID SID_VERTEX_TANGENT    = StringID("TANGENT");
+
 #define SEMANTIC_SYSTEM         "SV_"
-#define SEMANTIC_POSITION       "POSITION"
-#define SEMANTIC_COLOR          "COLOR"
-#define SEMANTIC_TEXCOORD       "TEXCOORD"
-#define SEMANTIC_NORMAL         "NORMAL"
-#define SEMANTIC_TANGENT        "TANGENT"
 
 // If a semantic ends with this (sem-index excluded) it will be treated as an instance attribute
 #define SEMANTIC_INSTANCED      "_INSTANCED"

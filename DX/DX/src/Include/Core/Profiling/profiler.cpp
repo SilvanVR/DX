@@ -63,7 +63,7 @@ namespace Core { namespace Profiling {
     //----------------------------------------------------------------------
     void Profiler::profileCodeSectionBegin( const char* name )
     {
-        StringID id = StringID( name );
+        StringID id = SID( name );
         U64 beginTicks = OS::PlatformTimer::getTicks();
         m_entries[id] = beginTicks;
     }
@@ -71,7 +71,7 @@ namespace Core { namespace Profiling {
     //----------------------------------------------------------------------
     void Profiler::profileCodeSectionEnd( const char* name )
     {
-        StringID id = StringID( name );
+        StringID id = SID( name );
         ASSERT( m_entries.count(id) != 0 );
 
         U64 endTicks = OS::PlatformTimer::getTicks();
@@ -81,7 +81,7 @@ namespace Core { namespace Profiling {
     //----------------------------------------------------------------------
     F64 Profiler::getCodeSectionTime( const char* name )
     {
-        StringID id = StringID(name);
+        StringID id = SID( name );
         ASSERT( m_entries.count(id) != 0 );
 
         return OS::PlatformTimer::ticksToMilliSeconds( m_entries[id] );

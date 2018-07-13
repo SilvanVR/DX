@@ -533,7 +533,7 @@ public:
         go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -10);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA);
 
-        spot = go->addComponent<Components::SpotLight>(2.0f, Color::RED, 25.0f);
+        spot = go->addComponent<Components::SpotLight>(2.0f, Color::RED, 25.0f, 20.0f, false);
 
         createGameObject("Grid")->addComponent<GridGeneration>(20);
 

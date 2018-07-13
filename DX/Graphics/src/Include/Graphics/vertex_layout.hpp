@@ -11,23 +11,11 @@
 
 namespace Graphics {
 
-    // Possible layout types for vertex-data
-    enum class InputLayoutType
-    {
-        POSITION,
-        COLOR,
-        TEXCOORD0,
-        TEXCOORD1,
-        TEXCOORD2,
-        TEXCOORD3,
-        NORMAL,
-        TANGENT
-    };
-
     // Description for one vertex input
     struct InputLayoutDescription
     {
-        InputLayoutType type;
+        StringID name;
+        U32 sizeInBytes;
         bool instanced = false;
     };
 
@@ -40,6 +28,7 @@ namespace Graphics {
 
         //----------------------------------------------------------------------
         const ArrayList<InputLayoutDescription>& getLayoutDescription() const { return m_layoutDescription; }
+        ArrayList<InputLayoutDescription>& getLayoutDescription() { return m_layoutDescription; }
         bool isEmpty() const { return m_layoutDescription.empty(); }
 
         //----------------------------------------------------------------------

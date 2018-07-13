@@ -34,17 +34,17 @@ namespace Graphics {
     #define CAMERA_BUFFER D3D11::ConstantBufferManager::getCameraBuffer()
     #define LIGHT_BUFFER  D3D11::ConstantBufferManager::getLightBuffer()
 
-    static const StringID LIGHT_COUNT_NAME              = SID( "_LightCount" );
-    static const StringID LIGHT_BUFFER_NAME             = SID( "_Lights" );
-    static const StringID LIGHT_VIEW_PROJ_NAME          = SID( "_LightViewProj" );
-    static const StringID LIGHT_CSM_SPLITS_NAME         = SID( "_CSMSplits" );
-    static const StringID CAM_POS_NAME                  = SID( "_CameraPos" );
-    static const StringID POST_PROCESS_INPUT_NAME       = SID( "_MainTex" );
-    static const StringID CAM_VIEW_PROJ_NAME            = SID( "_ViewProj" );
-    static const StringID CAM_ZNEAR_NAME                = SID( "_zNear" );
-    static const StringID CAM_ZFAR_NAME                 = SID( "_zFar" );
-    static const StringID CAM_VIEW_MATRIX_NAME          = SID( "_View" );
-    static const StringID CAM_PROJ_MATRIX_NAME          = SID( "_Proj" );
+    static constexpr StringID LIGHT_COUNT_NAME              = StringID( "_LightCount" );
+    static constexpr StringID LIGHT_BUFFER_NAME             = StringID( "_Lights" );
+    static constexpr StringID LIGHT_VIEW_PROJ_NAME          = StringID( "_LightViewProj" );
+    static constexpr StringID LIGHT_CSM_SPLITS_NAME         = StringID( "_CSMSplits" );
+    static constexpr StringID CAM_POS_NAME                  = StringID( "_CameraPos" );
+    static constexpr StringID POST_PROCESS_INPUT_NAME       = StringID( "_MainTex" );
+    static constexpr StringID CAM_VIEW_PROJ_NAME            = StringID( "_ViewProj" );
+    static constexpr StringID CAM_ZNEAR_NAME                = StringID( "_zNear" );
+    static constexpr StringID CAM_ZFAR_NAME                 = StringID( "_zFar" );
+    static constexpr StringID CAM_VIEW_MATRIX_NAME          = StringID( "_View" );
+    static constexpr StringID CAM_PROJ_MATRIX_NAME          = StringID( "_Proj" );
 
     //**********************************************************************
     // INIT STUFF
@@ -71,6 +71,12 @@ namespace Graphics {
             for (auto i = SHADOW_MAP_3D_SLOT_BEGIN; i < SHADOW_MAP_3D_SLOT_BEGIN + MAX_SHADOWMAPS_3D; i++)
                 cube->bind(Graphics::ShaderType::Fragment, i);
             delete cube;
+
+            auto texArray = createTexture2DArray();
+            texArray->create(2, 2, 1, Graphics::TextureFormat::R8);
+            for (auto i = SHADOW_MAP_2D_SLOT_BEGIN; i < SHADOW_MAP_ARRAY_SLOT_BEGIN + MAX_SHADOWMAPS_ARRAY; i++)
+                texArray->bind(Graphics::ShaderType::Fragment, i);
+            delete texArray;
         }
     } 
 
@@ -333,7 +339,7 @@ namespace Graphics {
 
         D3D_FEATURE_LEVEL featureLevel;
         HR( D3D11CreateDevice( NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, createDeviceFlags,
-                               featureLevels, _countof( featureLevels ), D3D11_SDK_VERSION,
+                               featureLevels, sizeof(featureLevels) / sizeof(D3D_FEATURE_LEVEL), D3D11_SDK_VERSION,
                                &g_pDevice, &featureLevel, &g_pImmediateContext ) );
 
         if ( featureLevel != featureLevels[0] )
@@ -579,8 +585,7 @@ namespace Graphics {
         renderContext.camera->getFrameInfo().numLights = renderContext.lightCount;
 
         // Update light count
-        static StringID lightCountName = SID( LIGHT_COUNT_NAME );
-        if ( not LIGHT_BUFFER.update( lightCountName, &renderContext.lightCount ) )
+        if ( not LIGHT_BUFFER.update( LIGHT_COUNT_NAME, &renderContext.lightCount ) )
             LOG_ERROR_RENDERING( "Failed to update light-count. Something is horribly broken! Fix this!" );
 
         struct Light

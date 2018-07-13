@@ -9,6 +9,7 @@
 **********************************************************************/
 
 #include "../../i_mesh.h"
+#include <unordered_map>
 
 namespace Graphics { namespace D3D11 {
 
@@ -41,11 +42,7 @@ namespace Graphics { namespace D3D11 {
         void _DestroyTangentBuffer() override;
 
     private:
-        VertexBuffer*   m_pVertexBuffer   = nullptr;
-        VertexBuffer*   m_pColorBuffer    = nullptr;
-        VertexBuffer*   m_pUVBuffer       = nullptr;
-        VertexBuffer*   m_pNormalBuffer   = nullptr;
-        VertexBuffer*   m_pTangentBuffer  = nullptr;
+        HashMap<StringID, VertexBuffer*> m_pVertexBuffers;
 
         // Array of index buffer. One indexbuffer for each submesh.
         ArrayList<IndexBuffer*> m_pIndexBuffers;

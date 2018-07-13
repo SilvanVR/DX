@@ -29,7 +29,6 @@ HashMap<U32, const char*> gStringIdTable;
 
 U32         internString(const char* str, bool addToTable);
 const char* externString(StringID sid);
-U32         hash(const char* str);
 
 //----------------------------------------------------------------------
 StringID::StringID( const char* s, bool addToTable )
@@ -54,7 +53,7 @@ String StringID::toString() const
 //----------------------------------------------------------------------
 U32 internString( const char* str, bool addToTable )
 {
-    U32 sid = hash( str );
+    U32 sid = StringHash( str );
 
     if (addToTable)
     {
@@ -82,24 +81,6 @@ const char* externString( StringID sid )
     }
     ASSERT( false && "Given StringID does not exist.");
     return "";
-}
-
-//----------------------------------------------------------------------
-U32 hash(const char* str)
-{
-    // Jenkins's one-at-a-time. Implementation from https://en.wikipedia.org/wiki/Jenkins_hash_function
-    U32 hash = 0;
-    while (U32 c = *str++)
-    {
-        hash += c;
-        hash += (hash << 10);
-        hash ^= (hash >> 6);
-    }
-    hash += (hash << 3);
-    hash ^= (hash >> 11);
-    hash += (hash << 15);
-
-    return hash;
 }
 
 //----------------------------------------------------------------------
