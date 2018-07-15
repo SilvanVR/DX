@@ -17,23 +17,33 @@ namespace Graphics {
     const StringID SID_VERTEX_TANGENT    = SID("TANGENT");
 
     //----------------------------------------------------------------------
+    IMesh::~IMesh()
+    {
+        for (auto&[name, vsStream] : m_vertexStreams)
+            SAFE_DELETE( vsStream );
+    }
+
+    //----------------------------------------------------------------------
     // PUBLIC
     //----------------------------------------------------------------------
 
     //----------------------------------------------------------------------
     void IMesh::clear()
     {
+        for (auto& [name, vsStream] : m_vertexStreams)
+            SAFE_DELETE( vsStream );
         m_vertexStreams.clear();
         m_subMeshes.clear();
         _Clear();
     }
 
     //----------------------------------------------------------------------
-    void IMesh::_SetVertexStream( StringID name, const VertexStreamPtr& vs )
+    void IMesh::_SetVertexStream( StringID name, VertexStreamBase* vs )
     {
+        SAFE_DELETE( m_vertexStreams[name] );
         m_vertexStreams[name] = vs;
         _DestroyBuffer( name );
-        _CreateBuffer( name, vs );
+        _CreateBuffer( name, *vs );
     }
 
     //----------------------------------------------------------------------
@@ -42,7 +52,7 @@ namespace Graphics {
         ASSERT( hasVertexStream(SID_VERTEX_POSITION) && "Mesh hasn't this stream." );
 
         auto& vsBase = m_vertexStreams.at( SID_VERTEX_POSITION );
-        VertexStream<Math::Vec3>* vs = dynamic_cast<VertexStream<Math::Vec3>*>( vsBase.get() );
+        VertexStream<Math::Vec3>* vs = dynamic_cast<VertexStream<Math::Vec3>*>( vsBase );
         if (not vs)
             LOG_ERROR_RENDERING( "IMesh::getVertexPositions(): Something went horribly wrong. Investigate this!" );
         return vs->get();
@@ -54,7 +64,7 @@ namespace Graphics {
         ASSERT( hasVertexStream( SID_VERTEX_UV ) && "Mesh hasn't this stream." );
 
         auto& vsBase = m_vertexStreams.at( SID_VERTEX_UV );
-        VertexStream<Math::Vec2>* vs = dynamic_cast<VertexStream<Math::Vec2>*>( vsBase.get() );
+        VertexStream<Math::Vec2>* vs = dynamic_cast<VertexStream<Math::Vec2>*>( vsBase );
         if (not vs)
             LOG_ERROR_RENDERING( "IMesh::getUVs(): Something went horribly wrong. Investigate this!" );
         return vs->get();
@@ -66,7 +76,7 @@ namespace Graphics {
         ASSERT( hasVertexStream( SID_VERTEX_NORMAL ) && "Mesh hasn't this stream." );
 
         auto& vsBase = m_vertexStreams.at( SID_VERTEX_NORMAL );
-        VertexStream<Math::Vec3>* vs = dynamic_cast<VertexStream<Math::Vec3>*>( vsBase.get() );
+        VertexStream<Math::Vec3>* vs = dynamic_cast<VertexStream<Math::Vec3>*>( vsBase );
         if (not vs)
             LOG_ERROR_RENDERING( "IMesh::getNormals(): Something went horribly wrong. Investigate this!" );
         return vs->get();
@@ -78,7 +88,7 @@ namespace Graphics {
         ASSERT( hasVertexStream( SID_VERTEX_TANGENT ) && "Mesh hasn't this stream." );
 
         auto& vsBase = m_vertexStreams.at( SID_VERTEX_TANGENT );
-        VertexStream<Math::Vec4>* vs = dynamic_cast<VertexStream<Math::Vec4>*>( vsBase.get() );
+        VertexStream<Math::Vec4>* vs = dynamic_cast<VertexStream<Math::Vec4>*>( vsBase );
         if (not vs)
             LOG_ERROR_RENDERING( "IMesh::getTangents(): Something went horribly wrong. Investigate this!" );
         return vs->get();

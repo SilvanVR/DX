@@ -20,7 +20,7 @@ namespace Graphics { namespace D3D11 {
     {
     public:
         Mesh() = default;
-        ~Mesh();
+        ~Mesh() { _Clear(); }
 
     private:
         HashMap<StringID, VertexBuffer*> m_pVertexBuffers;
@@ -35,14 +35,14 @@ namespace Graphics { namespace D3D11 {
         void _CreateIndexBuffer(const SubMesh& subMesh, I32 index) override;
         void _DestroyIndexBuffer(I32 index) override;
 
-        void _CreateBuffer(StringID name, const VertexStreamPtr& vs) override;
+        void _CreateBuffer(StringID name, const VertexStreamBase& vs) override;
         void _DestroyBuffer(StringID name) override;
 
         //----------------------------------------------------------------------
         // IMesh Interface
         //----------------------------------------------------------------------
         void bind(const VertexLayout& vertLayout, U32 subMesh = 0) override;
-        inline void _RecreateBuffers();
+        void _RecreateBuffers();
 
         //----------------------------------------------------------------------
         inline void _SetTopology(U32 subMesh);

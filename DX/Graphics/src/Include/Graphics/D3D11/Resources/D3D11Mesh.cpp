@@ -14,12 +14,6 @@
 namespace Graphics { namespace D3D11 {
 
     //----------------------------------------------------------------------
-    Mesh::~Mesh()
-    {
-        clear();
-    }
-
-    //----------------------------------------------------------------------
     void Mesh::bind( const VertexLayout& vertLayout, U32 subMeshIndex )
     {
         // Check if an vertex stream has been updated and perform necessary task
@@ -27,17 +21,16 @@ namespace Graphics { namespace D3D11 {
         {
             if ( vsStream->wasUpdated() )
             {
-                auto bufferSize = vsStream->dataSize();
+                auto bufferSize = vsStream->bufferSize();
                 if ( bufferSize > m_pVertexBuffers[name]->getSize() )
                 {
                     _DestroyBuffer( name );
-                    _CreateBuffer( name, vsStream );
+                    _CreateBuffer( name, *vsStream );
                 }
                 else
                 {
-                    m_pVertexBuffers[name]->update( vsStream->data(), vsStream->dataSize() );
+                    m_pVertexBuffers[name]->update( vsStream->data(), bufferSize );
                 }
-                vsStream->setWasUpdated( false );
             }
         }
 
@@ -68,10 +61,10 @@ namespace Graphics { namespace D3D11 {
     }
 
     //----------------------------------------------------------------------
-    void Mesh::_CreateBuffer( StringID name, const VertexStreamPtr& vs )
+    void Mesh::_CreateBuffer( StringID name, const VertexStreamBase& vs )
     {
         ASSERT( m_pVertexBuffers[name] == nullptr && "Buffer already exists!" );
-        m_pVertexBuffers[name] = new VertexBuffer( vs->data(), vs->dataSize(), m_bufferUsage );
+        m_pVertexBuffers[name] = new VertexBuffer( vs.data(), vs.bufferSize(), m_bufferUsage );
     }
 
     //----------------------------------------------------------------------
@@ -143,7 +136,7 @@ namespace Graphics { namespace D3D11 {
         for (auto& [name, vsStream] : m_vertexStreams)
         {
             _DestroyBuffer( name );
-            _CreateBuffer( name, vsStream );
+            _CreateBuffer( name, *vsStream );
         }
 
         // Recreate index buffers

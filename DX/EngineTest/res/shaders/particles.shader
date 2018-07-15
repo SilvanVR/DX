@@ -60,5 +60,5 @@ SamplerState sampler0;
 float4 main(FragmentIn fin) : SV_Target
 {
 	float4 textureColor = _MainTex.Sample(sampler0, fin.tex);	
-	return textureColor * float4(fin.color.rgb, 1);
+	return textureColor * fin.color;
 }

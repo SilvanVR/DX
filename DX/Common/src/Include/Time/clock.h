@@ -40,15 +40,16 @@ namespace Time {
         Seconds     getDuration()       const { return m_curTime.getUpperBound(); }
         bool        ticksBackwards()    const { return (m_tickModifier < 0); }
         bool        isLooping()         const { return m_isLooping; }
+        F32         getTickModifier()   const { return m_tickModifier; }
 
         //----------------------------------------------------------------------
         void setIsLooping   (bool looping)          { m_isLooping = looping; }
         void setDuration    (Milliseconds duration) { m_curTime.setUpperBound(duration); }
 
         //----------------------------------------------------------------------
-        // Sets the current clock time explicitly. Will be clamped it not in bounds.
+        // Sets the current clock time explicitly. Will be clamped if not in bounds.
         //----------------------------------------------------------------------
-        void        setTime(Milliseconds time) { m_curTime.setValue(time); }
+        void setTime(Milliseconds time) { m_curTime.setValue(time); }
 
         //----------------------------------------------------------------------
         // Change the tickrate of the clock. A negative number means the clock
@@ -56,12 +57,17 @@ namespace Time {
         // @Params:
         //  "modifier": The new modifier applied to the clock.
         //----------------------------------------------------------------------
-        void        setTickModifier(F32 modifier) { m_tickModifier = modifier; }
+        void setTickModifier(F32 modifier) { m_tickModifier = modifier; }
 
         //----------------------------------------------------------------------
         // @Return: Time in seconds this clock currently has.
         //----------------------------------------------------------------------
-        Seconds     getTime() const { return m_curTime.value(); }
+        Seconds getTime() const { return m_curTime.value(); }
+
+        //----------------------------------------------------------------------
+        // @Return: The delta between the last two ticks
+        //----------------------------------------------------------------------
+        Seconds getDelta() const;
 
         //----------------------------------------------------------------------
         // Attach a callback to this clock.

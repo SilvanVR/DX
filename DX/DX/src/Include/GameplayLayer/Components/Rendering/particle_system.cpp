@@ -18,7 +18,9 @@
 
 namespace Components {
 
-static const StringID SHADER_NAME_MODEL_MATRIX = SID("MODEL");
+#define LIFETIME 3_s
+
+    static const StringID SHADER_NAME_MODEL_MATRIX = SID("MODEL");
 
     //----------------------------------------------------------------------
     ParticleSystem::ParticleSystem( const OS::Path& path )
@@ -35,12 +37,10 @@ static const StringID SHADER_NAME_MODEL_MATRIX = SID("MODEL");
 
     //----------------------------------------------------------------------
     ParticleSystem::ParticleSystem( const MaterialPtr& material )
-        : m_material( material )
+        : m_material{ material }
     {
-        m_maxParticleCount = m_currentParticleCount = 5000;
-
-        m_particleSystem = Core::MeshGenerator::CreateCubeUV();
-        m_particleSystem->setBufferUsage( Graphics::BufferUsage::Frequently );
+        m_particleMesh = Core::MeshGenerator::CreateCubeUV();
+        m_particleMesh->setBufferUsage( Graphics::BufferUsage::Frequently );
 
         play();
     }
@@ -48,45 +48,23 @@ static const StringID SHADER_NAME_MODEL_MATRIX = SID("MODEL");
     //----------------------------------------------------------------------
     void ParticleSystem::tick( Time::Seconds delta )
     {
-        if ( m_clock.tick( delta ) )
+        bool isRunning = m_clock.tick( delta );
+        if (isRunning)
         {
-            _KillParticles();
-            _SpawnParticles();
-            _UpdateParticles();
-            _SortParticles( m_sortMode );
+            auto clockDelta = m_clock.getDelta();
+            _SpawnParticles( clockDelta );
+            _UpdateParticles( clockDelta );
         }
-    }
-
-    //**********************************************************************
-    // PUBLIC
-    //**********************************************************************
-
-    //----------------------------------------------------------------------
-    void ParticleSystem::play()
-    {
-        // @TODO: Kill all particles
-        m_clock.setTime( 0_ms );
-
-        auto& vertLayout = m_material->getShader()->getVertexLayout();
-
-        auto& colorStream = m_particleSystem->createVertexStream<Math::Vec4>(Graphics::SID_VERTEX_COLOR, m_maxParticleCount);
-        for (U32 i = 0; i < m_maxParticleCount; i++)
-            colorStream[i] = Math::Random::Color().normalized();
-
-        auto& modelMatrixStream = m_particleSystem->createVertexStream<DirectX::XMMATRIX>(SHADER_NAME_MODEL_MATRIX, m_maxParticleCount);
-        for (U32 i = 0; i < m_maxParticleCount; i++)
+        else
         {
-            F32 scale = Math::Random::Float(0.1f, 2.0f);
-            DirectX::XMVECTOR s{ scale, scale, scale };
-            DirectX::XMVECTOR r{ DirectX::XMQuaternionRotationRollPitchYaw(Math::Random::Float(0, 6.28f),Math::Random::Float(0, 6.28f), Math::Random::Float(0, 6.28f) ) };
-            DirectX::XMVECTOR p{ Math::Random::Float(-1.0f, 1.0f) * 50.0f, Math::Random::Float(-1.0f, 1.0f)* 50.0f, Math::Random::Float(-1.0f, 1.0f)* 50.0f };
-            modelMatrixStream[i] = DirectX::XMMatrixAffineTransformation( s, DirectX::XMQuaternionIdentity(), r, p );
+            // Clock is has exceeded his duration, but remaining particles must still be updated
+            _UpdateParticles( delta * m_clock.getTickModifier() );
         }
-    }
 
-    //**********************************************************************
-    // PRIVATE
-    //**********************************************************************
+        _AlignParticles( m_particleAlignment );
+        _SortParticles( m_sortMode );
+        _UpdateMesh();
+    }
 
     //----------------------------------------------------------------------
     void ParticleSystem::recordGraphicsCommands( Graphics::CommandBuffer& cmd, F32 lerp )
@@ -96,13 +74,13 @@ static const StringID SHADER_NAME_MODEL_MATRIX = SID("MODEL");
 
         // Draw instanced mesh with appropriate material
         auto modelMatrix = transform->getWorldMatrix( lerp );
-        cmd.drawMeshInstanced( m_particleSystem, m_material, modelMatrix, m_maxParticleCount);
+        cmd.drawMeshInstanced( m_particleMesh, m_material, modelMatrix, m_currentParticleCount );
     }
 
     //----------------------------------------------------------------------
     bool ParticleSystem::cull( const Graphics::Camera& camera )
     {
-        if ( m_particleSystem == nullptr || (m_maxParticleCount == 0) )
+        if ( m_particleMesh == nullptr || (m_maxParticleCount == 0) || (m_currentParticleCount == 0) )
             return false;
         return true;
         
@@ -110,26 +88,95 @@ static const StringID SHADER_NAME_MODEL_MATRIX = SID("MODEL");
         //return camera.cull( m_particleSystem->getBounds(), modelMatrix );
     }
 
-    //----------------------------------------------------------------------
-    void ParticleSystem::_KillParticles()
-    {
+    //**********************************************************************
+    // PUBLIC
+    //**********************************************************************
 
+    //----------------------------------------------------------------------
+    void ParticleSystem::play()
+    {
+        m_currentParticleCount = 0;
+        m_accumulatedSpawnTime = 0.0f;
+        m_clock.setTime( 0_ms );
+        m_particles.resize( m_maxParticleCount );
+
+        auto& vertLayout = m_material->getShader()->getVertexLayout();
+
+
+        auto& colorStream = m_particleMesh->createVertexStream<Math::Vec4>(Graphics::SID_VERTEX_COLOR, m_maxParticleCount);
+        auto& modelMatrixStream = m_particleMesh->createVertexStream<DirectX::XMMATRIX>(SHADER_NAME_MODEL_MATRIX, m_maxParticleCount);
+        //for (U32 i = 0; i < m_maxParticleCount; i++)
+        //{
+        //    F32 scale = Math::Random::Float(0.1f, 2.0f);
+        //    DirectX::XMVECTOR s{ scale, scale, scale };
+        //    DirectX::XMVECTOR r{ DirectX::XMQuaternionRotationRollPitchYaw(Math::Random::Float(0, 6.28f),Math::Random::Float(0, 6.28f), Math::Random::Float(0, 6.28f) ) };
+        //    DirectX::XMVECTOR p{ Math::Random::Float(-1.0f, 1.0f) * 50.0f, Math::Random::Float(-1.0f, 1.0f)* 50.0f, Math::Random::Float(-1.0f, 1.0f)* 50.0f };
+        //    modelMatrixStream[i] = DirectX::XMMatrixAffineTransformation( s, DirectX::XMQuaternionIdentity(), r, p );
+        //}
+    }
+
+    //**********************************************************************
+    // PRIVATE
+    //**********************************************************************
+
+    //----------------------------------------------------------------------
+    void ParticleSystem::_SpawnParticles( Time::Seconds delta )
+    {
+        // How much spawns we should do this tick
+        F32 spawnsPerTick = m_emissionRate * (F32)delta;
+        m_accumulatedSpawnTime += spawnsPerTick;
+
+        while (m_accumulatedSpawnTime > 1.0f && m_currentParticleCount < m_maxParticleCount)
+        {
+            m_particles[m_currentParticleCount].lifetime = LIFETIME;
+            m_particles[m_currentParticleCount].color = Math::Random::Color().normalized();
+
+            F32 scale = Math::Random::Float(0.5f, 2.0f);
+            m_particles[m_currentParticleCount].scale = { scale, scale, scale };
+            m_particles[m_currentParticleCount].rotation = Math::Quat::FromEulerAngles(Math::Random::Int(0, 360), Math::Random::Int(0, 360), Math::Random::Int(0, 360));
+            m_particles[m_currentParticleCount].position = { Math::Random::Float(-1.0f, 1.0f) * 20.0f, Math::Random::Float(-1.0f, 1.0f)* 20.0f, Math::Random::Float(-1.0f, 1.0f)* 20.0f };
+
+            m_currentParticleCount++;
+            m_accumulatedSpawnTime -= 1.0f;
+        }
     }
 
     //----------------------------------------------------------------------
-    void ParticleSystem::_SpawnParticles()
+    void ParticleSystem::_UpdateParticles( Time::Seconds delta )
     {
+        for (U32 i = 0; i < m_currentParticleCount;)
+        {
+            m_particles[i].lifetime -= delta;
+            m_particles[i].position.y -= m_gravity * (F32)delta;
 
+            if (m_particles[i].lifetime < 0_s)
+            {
+                // Move last living particle in this space
+                m_particles[i] = m_particles[m_currentParticleCount - 1];
+                m_currentParticleCount--;
+            }
+            else
+            {
+                i++;
+            }
+        }
     }
 
     //----------------------------------------------------------------------
-    void ParticleSystem::_UpdateParticles()
+    void ParticleSystem::_AlignParticles( PSParticleAlignment alignment )
     {
-
-        //auto pos = DirectX::XMLoadFloat3(&transform->getWorldPosition());
-        //auto eyePos = DirectX::XMLoadFloat3(&SCENE.getMainCamera()->getGameObject()->getTransform()->getWorldPosition());
-        //auto mat = DirectX::XMMatrixLookAtLH(pos, eyePos, { 0, 1, 0 });
-        //mat = DirectX::XMMatrixTranspose(mat);
+        switch (alignment)
+        {
+        case PSParticleAlignment::View:
+        {
+            //auto pos = DirectX::XMLoadFloat3(&transform->getWorldPosition());
+            //auto eyePos = DirectX::XMLoadFloat3(&SCENE.getMainCamera()->getGameObject()->getTransform()->getWorldPosition());
+            //auto mat = DirectX::XMMatrixLookAtLH(pos, eyePos, { 0, 1, 0 });
+            //mat = DirectX::XMMatrixTranspose(mat);
+            break;
+        }
+        case PSParticleAlignment::None: break;
+        }
     }
 
     //----------------------------------------------------------------------
@@ -142,6 +189,25 @@ static const StringID SHADER_NAME_MODEL_MATRIX = SID("MODEL");
             break;
         }
         case PSSortMode::None: break;
+        }
+    }
+
+    //----------------------------------------------------------------------
+    void ParticleSystem::_UpdateMesh()
+    {
+        auto& matrixStream = m_particleMesh->getVertexStream<DirectX::XMMATRIX>( SHADER_NAME_MODEL_MATRIX );
+        auto& colorStream = m_particleMesh->getVertexStream<Math::Vec4>( Graphics::SID_VERTEX_COLOR );
+
+        for (U32 i = 0; i < m_currentParticleCount; i++)
+        {
+            DirectX::XMVECTOR s = DirectX::XMLoadFloat3( &m_particles[i].scale );
+            DirectX::XMVECTOR r = DirectX::XMLoadFloat4( &m_particles[i].rotation );
+            DirectX::XMVECTOR p = DirectX::XMLoadFloat3( &m_particles[i].position );
+            matrixStream[i] = DirectX::XMMatrixAffineTransformation( s, DirectX::XMQuaternionIdentity(), r, p );
+
+            F32 l = (F32)m_particles[i].lifetime;
+            m_particles[i].color.w = (l / (F32)LIFETIME);
+            colorStream[i] = m_particles[i].color;
         }
     }
 

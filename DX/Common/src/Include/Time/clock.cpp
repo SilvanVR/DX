@@ -63,6 +63,25 @@ namespace Time {
     }
 
     //----------------------------------------------------------------------
+    Seconds Clock::getDelta() const 
+    { 
+        if (ticksBackwards())
+        {
+            if (m_curTime.value() > m_lastTime)
+                return m_lastTime - m_curTime.value() - (Time::Milliseconds)getDuration();
+            else
+                return m_lastTime - m_curTime.value();
+        }
+        else
+        {
+            if (m_curTime.value() < m_lastTime)
+                return m_curTime.value() + (Time::Milliseconds)getDuration() - m_lastTime;
+            else
+                return m_curTime.value() - m_lastTime;
+        }
+    }
+
+    //----------------------------------------------------------------------
     CallbackID Clock::attachCallback( const std::function<void()>& func, Milliseconds ms, ECallFrequency freq )
     {
         AttachedCallback newFunc;

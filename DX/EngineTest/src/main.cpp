@@ -45,6 +45,9 @@ public:
                 if (ImGui::CollapsingHeader("Particle System 0", ImGuiTreeNodeFlags_DefaultOpen))
                 {
                     {
+                        if (ImGui::Button("Play"))
+                            ps->play();
+
                         ImGui::Text("Particles: %d", ps->getCurrentParticleCount());
                         static I32 maxParticles;
                         maxParticles = ps->getMaxParticleCount();
@@ -91,7 +94,7 @@ public:
                             ps->getClock().setDuration(Time::Seconds(duration));
 
                         static F32 tickMod = 1.0f;
-                        if (ImGui::SliderFloat("Tick Mod", &tickMod, -5.0f, 5.0f, "%.2f"))
+                        if (ImGui::SliderFloat("Tick Mod", &tickMod, 0.0f, 5.0f, "%.2f"))
                             ps->getClock().setTickModifier(tickMod);
 
                         ImGui::TreePop();

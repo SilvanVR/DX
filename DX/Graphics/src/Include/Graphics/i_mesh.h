@@ -26,18 +26,26 @@ namespace Graphics {
     extern const StringID SID_VERTEX_TANGENT;
 
     //**********************************************************************
+    // Base class for different vertex streams.
+    //**********************************************************************
     class VertexStreamBase
     {
     public:
         VertexStreamBase() = default;
         virtual ~VertexStreamBase() = default;
 
+        //----------------------------------------------------------------------
         virtual const void* data() const = 0;
-        virtual U32         dataSize() const = 0;
+        virtual U32         bufferSize() const = 0;
         virtual U32         size() const = 0;
 
-        bool wasUpdated() const { return m_wasUpdated; }
-        void setWasUpdated(bool b) { m_wasUpdated = b; }
+        //----------------------------------------------------------------------
+        // @Return: Whether this vertex-stream was updated.
+        //----------------------------------------------------------------------
+        bool wasUpdated() { bool wasUpdated = m_wasUpdated; m_wasUpdated = false; return wasUpdated; }
+
+    protected:
+        void _SetWasUpdated() { m_wasUpdated = true; }
 
     private:
         bool m_wasUpdated = false;
@@ -46,6 +54,8 @@ namespace Graphics {
     };
 
     //**********************************************************************
+    // Class for vertex-streams of different types for efficent updating.
+    //**********************************************************************
     template <typename T>
     class VertexStream : public VertexStreamBase
     {
@@ -53,23 +63,29 @@ namespace Graphics {
         VertexStream(U32 maxObjects) : m_data(maxObjects) {}
         VertexStream(const ArrayList<T>& data) : m_data{ data } {}
 
+        T&          operator[] (I32 i)          { _SetWasUpdated(); return m_data[i]; }
+        const T&    operator[] (I32 i) const    { return m_data[i]; }
+
+        //----------------------------------------------------------------------
+        // Returns the underlying data-container.
         //----------------------------------------------------------------------
         const ArrayList<T>& get() const { return m_data; }
-        void resize(U32 newSize) { m_data.resize(newSize); }
 
-        T&          operator[] (I32 i)          { setWasUpdated(true); return m_data[i]; }
-        const T&    operator[] (I32 i) const    { return m_data[i]; }
+        //----------------------------------------------------------------------
+        // Resizes the underlying data container to fit the given amount.
+        //----------------------------------------------------------------------
+        void resize(U32 newSize) { m_data.resize(newSize); }
 
         // Allows for-each loop
         using iterator = typename std::vector<T>::iterator;
-        iterator begin()    { setWasUpdated(true); return m_data.begin(); }
-        iterator end()      { setWasUpdated(true); return m_data.end(); }
+        iterator begin()    { _SetWasUpdated(); return m_data.begin(); }
+        iterator end()      { _SetWasUpdated(); return m_data.end(); }
 
         //----------------------------------------------------------------------
         // VertexStreamBase Interface
         //----------------------------------------------------------------------
         const void* data()      const override { return m_data.data(); }
-        U32         dataSize()  const override { return static_cast<U32>( m_data.size() ) * sizeof(T); }
+        U32         bufferSize()const override { return static_cast<U32>( m_data.size() ) * sizeof(T); }
         U32         size()      const override { return static_cast<U32>( m_data.size() ); }
 
     private:
@@ -84,11 +100,10 @@ namespace Graphics {
     {
     public:
         IMesh() = default;
-        virtual ~IMesh() {}
+        virtual ~IMesh();
 
         //----------------------------------------------------------------------
-        // Destroys all buffers on the gpu. This can be called every frame, but
-        // is very expensive.
+        // Destroys all buffers on the gpu. This can be called every frame, but is very expensive.
         //----------------------------------------------------------------------
         void clear();
 
@@ -158,7 +173,7 @@ namespace Graphics {
         void setBounds(const Math::AABB& bounds) { m_bounds = bounds; }
 
         //----------------------------------------------------------------------
-        // Creates a new vertex stream and returns a reference to it.
+        // Creates a new vertex stream, returns a reference to it and deletes the old one if present.
         // @Params:
         //  "name": The name of the vertex stream
         //  "maxObjects": The maximum amount of objects for this vertex stream.
@@ -166,9 +181,9 @@ namespace Graphics {
         template<typename T>
         VertexStream<T>& createVertexStream(StringID name, U32 maxObjects = 1)
         {
-            auto vs = std::make_shared<VertexStream<T>>(maxObjects);
+            auto vs = new VertexStream<T>(maxObjects < 1 ? 1 : maxObjects);
             _SetVertexStream(name, vs);
-            return *vs.get();
+            return *vs;
         }
 
         //----------------------------------------------------------------------
@@ -180,9 +195,9 @@ namespace Graphics {
         template<typename T>
         VertexStream<T>& createVertexStream(StringID name, const ArrayList<T>& data)
         {
-            auto vs = std::make_shared<VertexStream<T>>(data);
+            auto vs = new VertexStream<T>(data);
             _SetVertexStream(name, vs);
-            return *vs.get();
+            return *vs;
         }
 
         //----------------------------------------------------------------------
@@ -191,7 +206,7 @@ namespace Graphics {
         template<typename T>
         VertexStream<T>& getVertexStream(StringID name)
         {
-            auto stream = std::dynamic_pointer_cast<VertexStream<T>>(m_vertexStreams[name]);
+            auto stream = dynamic_cast<VertexStream<T>*>(m_vertexStreams[name]);
             ASSERT( stream && "Stream does not exist. This should never happen!" );
             return *stream; 
         }
@@ -220,10 +235,9 @@ namespace Graphics {
 
 
     protected:
-        using VertexStreamPtr = std::shared_ptr<VertexStreamBase>;
-        HashMap<StringID, VertexStreamPtr>  m_vertexStreams;
-        BufferUsage                         m_bufferUsage = BufferUsage::Immutable;
-        Math::AABB                          m_bounds;
+        HashMap<StringID, VertexStreamBase*>    m_vertexStreams;
+        BufferUsage                             m_bufferUsage = BufferUsage::Immutable;
+        Math::AABB                              m_bounds;
 
         struct SubMesh
         {
@@ -248,14 +262,14 @@ namespace Graphics {
         //----------------------------------------------------------------------
         virtual void _Clear() = 0;
 
-        virtual void _CreateBuffer(StringID name, const VertexStreamPtr& vs) = 0;
+        virtual void _CreateBuffer(StringID name, const VertexStreamBase& vs) = 0;
         virtual void _DestroyBuffer(StringID name) = 0;
 
         virtual void _CreateIndexBuffer(const SubMesh& subMesh, I32 index) = 0;
         virtual void _DestroyIndexBuffer(I32 index) = 0;
 
     private:
-        void _SetVertexStream(StringID name, const VertexStreamPtr& vs);
+        void _SetVertexStream(StringID name, VertexStreamBase* vs);
 
         //----------------------------------------------------------------------
         // Binds this mesh to the pipeline. Subsequent drawcalls render this mesh.
