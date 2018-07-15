@@ -30,11 +30,9 @@ struct VertexOut
 VertexOut main(VertexIn vin)
 {
     VertexOut OUT;
-
-    //OUT.PosH = TO_CLIP_SPACE(vin.PosL + float3(vin.tex * 100,0));
-	//OUT.PosH = TO_CLIP_SPACE(vin.PosL + vin.pos);
 	
-	float4x4 mvp = mul( _ViewProj, vin.modelToWorld );	
+	float4x4 modelToWorld = mul( _World, vin.modelToWorld );
+	float4x4 mvp = mul( _ViewProj, modelToWorld );
 	OUT.PosH = mul(mvp, float4(vin.PosL, 1));
 	OUT.tex = vin.tex;
 	OUT.color = vin.color;

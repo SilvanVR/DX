@@ -172,10 +172,14 @@ namespace Components {
         {
         case PSParticleAlignment::View:
         {
-            //auto pos = DirectX::XMLoadFloat3(&transform->getWorldPosition());
-            //auto eyePos = DirectX::XMLoadFloat3(&SCENE.getMainCamera()->getGameObject()->getTransform()->getWorldPosition());
-            //auto mat = DirectX::XMMatrixLookAtLH(pos, eyePos, { 0, 1, 0 });
-            //mat = DirectX::XMMatrixTranspose(mat);
+            auto worldRot = getGameObject()->getTransform()->getWorldRotation();
+            for (U32 i = 0; i < m_currentParticleCount; i++)
+            {
+                auto& eyeRot = SCENE.getMainCamera()->getGameObject()->getTransform()->rotation;
+                // 1. Since the view matrix rotates everything "eyeRot" backwards, to negate it we just add the eyeRot itself
+                // 2. To negate the world rotation itself, we just need the conjugate
+                m_particles[i].rotation = eyeRot * worldRot.conjugate();
+            }
             break;
         }
         case PSParticleAlignment::None: break;

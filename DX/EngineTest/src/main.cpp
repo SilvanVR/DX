@@ -34,8 +34,10 @@ public:
         createGameObject("Grid")->addComponent<GridGeneration>(20);
 
         auto psGO = createGameObject("ParticleSystem");
+        psGO->addComponent<ConstantRotation>(0, 15, 0);
         //psGO->addComponent<Components::ParticleSystem>("res/particles/test.ps");
         auto ps = psGO->addComponent<Components::ParticleSystem>(ASSETS.getMaterial("/materials/particles.material"));
+        ps->setParticleAlignment(Components::PSParticleAlignment::View);
 
         go->addComponent<Components::GUI>();
         go->addComponent<Components::GUIFPS>();
@@ -44,6 +46,10 @@ public:
             {
                 if (ImGui::CollapsingHeader("Particle System 0", ImGuiTreeNodeFlags_DefaultOpen))
                 {
+                    static F32 pos[3];
+                    ImGui::SliderFloat3("Pos", pos, -10.0f, 10.0f);
+                    ps->getGameObject()->getTransform()->position = { pos[0],pos[1],pos[2] };
+
                     {
                         if (ImGui::Button("Restart")) ps->play();
                         ImGui::SameLine();
@@ -67,17 +73,17 @@ public:
                         ps->setGravity(gravity);
 
                     {
+                        CString type[] = { "None", "View" };
+                        static I32 type_current = 1;
+                        if (ImGui::Combo("Particle Alignment", &type_current, type, sizeof(type) / sizeof(CString)))
+                            ps->setParticleAlignment((Components::PSParticleAlignment)type_current);
+                    }
+
+                    {
                         CString type[] = { "None", "By Distance" };
                         static I32 type_current = 0;
                         if (ImGui::Combo("Sort Mode", &type_current, type, sizeof(type) / sizeof(CString)))
                             ps->setSortMode((Components::PSSortMode)type_current);
-                    }
-
-                    {
-                        CString type[] = { "None", "View" };
-                        static I32 type_current = 0;
-                        if (ImGui::Combo("Particle Alignment", &type_current, type, sizeof(type) / sizeof(CString)))
-                            ps->setParticleAlignment((Components::PSParticleAlignment)type_current);
                     }
 
                     if (ImGui::TreeNode("Clock"))
