@@ -135,8 +135,8 @@ namespace Components {
     //----------------------------------------------------------------------
     void ParticleSystem::_SpawnParticle( U32 particleIndex )
     {
-        m_particles[particleIndex].lifetime = m_lifeTimeFnc();
-        m_particles[particleIndex].color = Math::Random::Color().normalized();
+        m_particles[particleIndex].lifetime = m_spawnLifeTimeFnc();
+        m_particles[particleIndex].color = m_spawnColorFnc().normalized();
 
         F32 scale = Math::Random::Float(0.5f, 2.0f);
         m_particles[particleIndex].scale = { scale, scale, scale };

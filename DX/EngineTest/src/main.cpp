@@ -113,18 +113,47 @@ public:
                         case Components::PSValueMode::Constant:
                         {
                             static F32 lifeTime = 1.0f;
-                            if (ImGui::SliderFloat("Lifetime", &lifeTime, 0.5f, 10.0f, "%.2f"))
-                                ps->setSpawnLifetimeFnc(Components::Constant(lifeTime));
+                            ImGui::SliderFloat("Lifetime", &lifeTime, 0.5f, 10.0f, "%.2f");
+                            ps->setSpawnLifetimeFnc(Components::Constant(lifeTime));
                             break;
                         }
                         case Components::PSValueMode::RandomBetweenTwoConstants:
                         {
                             static F32 lifeTimeStart = 0.5f;
                             static F32 lifeTimeEnd = 10.0f;
-                            if (ImGui::SliderFloat("Start", &lifeTimeStart, 0.5f, 10.0f, "%.2f"))
-                                ps->setSpawnLifetimeFnc(Components::RandomBetweenTwoConstants(lifeTimeStart, lifeTimeEnd));
-                            if (ImGui::SliderFloat("End", &lifeTimeEnd, 0.5f, 10.0f, "%.2f"))
-                                ps->setSpawnLifetimeFnc(Components::RandomBetweenTwoConstants(lifeTimeStart, lifeTimeEnd));
+                            if (ImGui::SliderFloat("Min", &lifeTimeStart, 0.5f, 10.0f, "%.2f"))
+                                if (lifeTimeStart > lifeTimeEnd) lifeTimeEnd = lifeTimeStart;
+                            if (ImGui::SliderFloat("Max", &lifeTimeEnd, 0.5f, 10.0f, "%.2f"))
+                                if (lifeTimeEnd > lifeTimeStart) lifeTimeStart = lifeTimeEnd;
+                            ps->setSpawnLifetimeFnc(Components::RandomBetweenTwoConstants(lifeTimeStart, lifeTimeEnd));
+                            break;
+                        }
+                        }
+                        ImGui::TreePop();
+                    }
+
+                    if (ImGui::TreeNode("Color"))
+                    {
+                        CString type[] = { "Constant", "Random Between Two Constants" };
+                        static I32 type_current = 0;
+                        ImGui::Combo("Mode", &type_current, type, sizeof(type) / sizeof(CString));
+
+                        switch ((Components::PSValueMode)type_current)
+                        {
+                        case Components::PSValueMode::Constant:
+                        {
+                            static F32 color[4] = { 1,1,1,1 };
+                            ImGui::ColorEdit4("Color", color);
+                            ps->setSpawnColorFnc(Components::Constant(Color(color)));
+                            break;
+                        }
+                        case Components::PSValueMode::RandomBetweenTwoConstants:
+                        {
+                            static F32 colorStart[4] = { 1,1,1,1 };
+                            static F32 colorEnd[4] = { 1,1,1,1 };
+                            ImGui::ColorEdit4("Min", colorStart);
+                            ImGui::ColorEdit4("Max", colorEnd);
+                            ps->setSpawnColorFnc(Components::RandomBetweenTwoConstants(Color(colorStart), Color(colorEnd)));
                             break;
                         }
                         }

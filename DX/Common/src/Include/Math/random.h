@@ -118,17 +118,36 @@ namespace Math
     }
 
     //---------------------------------------------------------------------------
+    template <> inline
+    I32 Random::value()
+    {
+        return std::uniform_int_distribution<I32>{ 0, 1 }(engine);
+    }
+
+    //---------------------------------------------------------------------------
     template <typename T> inline
-    T Random::value(T min, T max)
+    T Random::value( T min, T max )
     {
         return std::uniform_real_distribution<T>{ min, max }(engine);
     }
 
     //---------------------------------------------------------------------------
-    template <> inline
-    I32 Random::value()
+    template<> inline
+    ::Color Random::value( ::Color min, ::Color max )
     {
-        return std::uniform_int_distribution<I32>{ 0, 1 }(engine);
+        Byte minR = std::min( min.getRed(), max.getRed() ); Byte maxR = std::max( min.getRed(), max.getRed() );
+        Byte r = Int( minR, maxR );
+
+        Byte minG = std::min( min.getGreen(), max.getGreen() ); Byte maxG = std::max( min.getGreen(), max.getGreen() );
+        Byte g = Int( minG, maxG );
+
+        Byte minB = std::min( min.getBlue(), max.getBlue() ); Byte maxB = std::max( min.getBlue(), max.getBlue() );
+        Byte b = Int( minB, maxB );
+
+        Byte minA = std::min( min.getAlpha(), max.getAlpha() ); Byte maxA = std::max( min.getAlpha(), max.getAlpha() );
+        Byte a = Int( minA, maxA );
+
+        return ::Color( r, g, b, a );
     }
 
     //---------------------------------------------------------------------------

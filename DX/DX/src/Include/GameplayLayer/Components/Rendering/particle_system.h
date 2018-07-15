@@ -34,8 +34,8 @@ namespace Components {
     template <typename T>
     struct RandomBetweenTwoConstants
     {
-        RandomBetweenTwoConstants(const T& min, const T& max) : min{ min }, max{ max < min ? min : max } {}
-        T operator() (){ return Math::Random::value<T>( min, max); }
+        RandomBetweenTwoConstants(const T& min, const T& max) : min{ min }, max{ max } {}
+        T operator() (){ return Math::Random::value<T>( min, max ); }
         T min;
         T max;
     };
@@ -92,7 +92,8 @@ namespace Components {
         void setParticleAlignment   (PSParticleAlignment alignment) { m_particleAlignment = alignment; }
 
         //----------------------------------------------------------------------
-        void setSpawnLifetimeFnc(const std::function<F32()>& fnc) { m_lifeTimeFnc = fnc; }
+        void setSpawnLifetimeFnc(const std::function<F32()>& fnc) { m_spawnLifeTimeFnc = fnc; }
+        void setSpawnColorFnc(const std::function<Color()>& fnc) { m_spawnColorFnc = fnc; }
 
         //----------------------------------------------------------------------
         // Begins playing this particle system from the beginning.
@@ -117,9 +118,11 @@ namespace Components {
         F32                 m_accumulatedSpawnTime = 0.0f;
         ArrayList<Particle> m_particles;
 
-        std::function<F32()> m_lifeTimeFnc = Constant<F32>{ 2.0f };
+        //----------------------------------------------------------------------
+        std::function<F32()>    m_spawnLifeTimeFnc = Constant<F32>{ 2.0f };
+        std::function<Color()>  m_spawnColorFnc = Constant<Color>{ Color::WHITE };
 
-
+        //----------------------------------------------------------------------
         void _SpawnParticles(Time::Seconds delta);
         void _SpawnParticle(U32 particleIndex);
         void _UpdateParticles(Time::Seconds delta);
