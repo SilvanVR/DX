@@ -45,8 +45,9 @@ public:
                 if (ImGui::CollapsingHeader("Particle System 0", ImGuiTreeNodeFlags_DefaultOpen))
                 {
                     {
-                        if (ImGui::Button("Play"))
-                            ps->play();
+                        if (ImGui::Button("Restart")) ps->play();
+                        ImGui::SameLine();
+                        if (ImGui::Button("Pause")) ps->pause();
 
                         ImGui::Text("Particles: %d", ps->getCurrentParticleCount());
                         static I32 maxParticles;
@@ -94,6 +95,7 @@ public:
                             ps->getClock().setDuration(Time::Seconds(duration));
 
                         static F32 tickMod = 1.0f;
+                        tickMod = ps->getClock().getTickModifier();
                         if (ImGui::SliderFloat("Tick Mod", &tickMod, 0.0f, 5.0f, "%.2f"))
                             ps->getClock().setTickModifier(tickMod);
 
@@ -104,22 +106,25 @@ public:
                     {
                         CString type[] = { "Constant", "Random Between Two Constants" };
                         static I32 type_current = 0;
-                        ImGui::Combo("Value Setting", &type_current, type, sizeof(type)/sizeof(CString));
+                        ImGui::Combo("Mode", &type_current, type, sizeof(type)/sizeof(CString));
 
-                        switch ((Components::PSValueSetting)type_current)
+                        switch ((Components::PSValueMode)type_current)
                         {
-                        case Components::PSValueSetting::Constant:
+                        case Components::PSValueMode::Constant:
                         {
                             static F32 lifeTime = 1.0f;
-                            if (ImGui::SliderFloat("Lifetime", &lifeTime, 0.0f, 10.0f, "%.2f"));
+                            if (ImGui::SliderFloat("Lifetime", &lifeTime, 0.5f, 10.0f, "%.2f"))
+                                ps->setSpawnLifetimeFnc(Components::Constant(lifeTime));
                             break;
                         }
-                        case Components::PSValueSetting::RandomBetweenTwoConstants:
+                        case Components::PSValueMode::RandomBetweenTwoConstants:
                         {
-                            static F32 lifeTimeStart = 0.0f;
-                            if (ImGui::SliderFloat("Lifetime Start", &lifeTimeStart, 0.0f, 10.0f, "%.2f"));
+                            static F32 lifeTimeStart = 0.5f;
                             static F32 lifeTimeEnd = 10.0f;
-                            if (ImGui::SliderFloat("Lifetime End", &lifeTimeEnd, 0.0f, 10.0f, "%.2f"));
+                            if (ImGui::SliderFloat("Start", &lifeTimeStart, 0.5f, 10.0f, "%.2f"))
+                                ps->setSpawnLifetimeFnc(Components::RandomBetweenTwoConstants(lifeTimeStart, lifeTimeEnd));
+                            if (ImGui::SliderFloat("End", &lifeTimeEnd, 0.5f, 10.0f, "%.2f"))
+                                ps->setSpawnLifetimeFnc(Components::RandomBetweenTwoConstants(lifeTimeStart, lifeTimeEnd));
                             break;
                         }
                         }

@@ -18,8 +18,6 @@
 
 namespace Components {
 
-#define LIFETIME 3_s
-
     static const StringID SHADER_NAME_MODEL_MATRIX = SID("MODEL");
 
     //----------------------------------------------------------------------
@@ -39,7 +37,7 @@ namespace Components {
     ParticleSystem::ParticleSystem( const MaterialPtr& material )
         : m_material{ material }
     {
-        m_particleMesh = Core::MeshGenerator::CreateCubeUV();
+        m_particleMesh = Core::MeshGenerator::CreatePlane();
         m_particleMesh->setBufferUsage( Graphics::BufferUsage::Frequently );
 
         play();
@@ -97,11 +95,11 @@ namespace Components {
     {
         m_currentParticleCount = 0;
         m_accumulatedSpawnTime = 0.0f;
+        m_clock.setTickModifier( 1.0f );
         m_clock.setTime( 0_ms );
         m_particles.resize( m_maxParticleCount );
 
         auto& vertLayout = m_material->getShader()->getVertexLayout();
-
 
         auto& colorStream = m_particleMesh->createVertexStream<Math::Vec4>(Graphics::SID_VERTEX_COLOR, m_maxParticleCount);
         auto& modelMatrixStream = m_particleMesh->createVertexStream<DirectX::XMMATRIX>(SHADER_NAME_MODEL_MATRIX, m_maxParticleCount);
@@ -128,17 +126,22 @@ namespace Components {
 
         while (m_accumulatedSpawnTime > 1.0f && m_currentParticleCount < m_maxParticleCount)
         {
-            m_particles[m_currentParticleCount].lifetime = LIFETIME;
-            m_particles[m_currentParticleCount].color = Math::Random::Color().normalized();
-
-            F32 scale = Math::Random::Float(0.5f, 2.0f);
-            m_particles[m_currentParticleCount].scale = { scale, scale, scale };
-            m_particles[m_currentParticleCount].rotation = Math::Quat::FromEulerAngles(Math::Random::Int(0, 360), Math::Random::Int(0, 360), Math::Random::Int(0, 360));
-            m_particles[m_currentParticleCount].position = { Math::Random::Float(-1.0f, 1.0f) * 20.0f, Math::Random::Float(-1.0f, 1.0f)* 20.0f, Math::Random::Float(-1.0f, 1.0f)* 20.0f };
-
+            _SpawnParticle( m_currentParticleCount );
             m_currentParticleCount++;
             m_accumulatedSpawnTime -= 1.0f;
         }
+    }
+
+    //----------------------------------------------------------------------
+    void ParticleSystem::_SpawnParticle( U32 particleIndex )
+    {
+        m_particles[particleIndex].lifetime = m_lifeTimeFnc();
+        m_particles[particleIndex].color = Math::Random::Color().normalized();
+
+        F32 scale = Math::Random::Float(0.5f, 2.0f);
+        m_particles[particleIndex].scale = { scale, scale, scale };
+        m_particles[particleIndex].rotation = Math::Quat::FromEulerAngles(Math::Random::Int(0, 360), Math::Random::Int(0, 360), Math::Random::Int(0, 360));
+        m_particles[particleIndex].position = { Math::Random::Float(-1.0f, 1.0f) * 20.0f, Math::Random::Float(-1.0f, 1.0f)* 20.0f, Math::Random::Float(-1.0f, 1.0f)* 20.0f };
     }
 
     //----------------------------------------------------------------------
@@ -206,9 +209,18 @@ namespace Components {
             matrixStream[i] = DirectX::XMMatrixAffineTransformation( s, DirectX::XMQuaternionIdentity(), r, p );
 
             F32 l = (F32)m_particles[i].lifetime;
-            m_particles[i].color.w = (l / (F32)LIFETIME);
+            m_particles[i].color.w = (l / 1.0f);
             colorStream[i] = m_particles[i].color;
         }
+    }
+
+    //----------------------------------------------------------------------
+    void ParticleSystem::_RecalculateBounds()
+    {
+        Math::AABB bounds;
+        bounds[0] = {};
+        bounds[1] = {};
+        m_particleMesh->setBounds( bounds );
     }
 
 }

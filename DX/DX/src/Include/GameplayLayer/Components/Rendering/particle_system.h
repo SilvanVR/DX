@@ -10,15 +10,34 @@
 #include "Graphics/i_mesh.h"
 #include "Graphics/i_material.h"
 #include "Time/clock.h"
+#include "Math/random.h"
 
 namespace Components {
 
     //----------------------------------------------------------------------
-    enum class PSValueSetting
+    enum class PSValueMode
     {
         Constant,
-        RandomBetweenTwoConstants,
-        Curve
+        RandomBetweenTwoConstants
+    };
+
+    //----------------------------------------------------------------------
+    template <typename T>
+    struct Constant
+    {
+        Constant(const T& val) : val{ val } {}
+        T operator() () { return val; }
+        T val;
+    };
+
+    //----------------------------------------------------------------------
+    template <typename T>
+    struct RandomBetweenTwoConstants
+    {
+        RandomBetweenTwoConstants(const T& min, const T& max) : min{ min }, max{ max < min ? min : max } {}
+        T operator() (){ return Math::Random::value<T>( min, max); }
+        T min;
+        T max;
     };
 
     //----------------------------------------------------------------------
@@ -35,6 +54,7 @@ namespace Components {
         View, // Aligned to main camera
     };
 
+    //**********************************************************************
     struct Particle
     {
         Time::Seconds lifetime = 0;
@@ -72,9 +92,17 @@ namespace Components {
         void setParticleAlignment   (PSParticleAlignment alignment) { m_particleAlignment = alignment; }
 
         //----------------------------------------------------------------------
+        void setSpawnLifetimeFnc(const std::function<F32()>& fnc) { m_lifeTimeFnc = fnc; }
+
+        //----------------------------------------------------------------------
         // Begins playing this particle system from the beginning.
         //----------------------------------------------------------------------
         void play();
+
+        //----------------------------------------------------------------------
+        // Pauses this particle system.
+        //----------------------------------------------------------------------
+        void pause() { m_clock.setTickModifier( 0.0f ); }
 
     private:
         MeshPtr             m_particleMesh;
@@ -89,11 +117,17 @@ namespace Components {
         F32                 m_accumulatedSpawnTime = 0.0f;
         ArrayList<Particle> m_particles;
 
+        std::function<F32()> m_lifeTimeFnc = Constant<F32>{ 2.0f };
+
+
         void _SpawnParticles(Time::Seconds delta);
+        void _SpawnParticle(U32 particleIndex);
         void _UpdateParticles(Time::Seconds delta);
         void _AlignParticles(PSParticleAlignment alignment);
         void _SortParticles(PSSortMode sortMode);
         void _UpdateMesh();
+
+        void _RecalculateBounds();
 
         //----------------------------------------------------------------------
         // IComponent Interface

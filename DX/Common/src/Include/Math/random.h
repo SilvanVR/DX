@@ -50,7 +50,10 @@ namespace Math
         static  Color       Color(bool randomAlpha = false);
 
         // Returns a value between [0,1].
-        template <typename T> static T             value      ();
+        template <typename T> static T  value();
+
+        // Returns a value between [min,max].
+        template <typename T> static T  value(T min, T max);
     };
 
     //**********************************************************************
@@ -112,6 +115,13 @@ namespace Math
     T Random::value()
     {
         return std::uniform_real_distribution<T>{ 0, 1 }(engine);
+    }
+
+    //---------------------------------------------------------------------------
+    template <typename T> inline
+    T Random::value(T min, T max)
+    {
+        return std::uniform_real_distribution<T>{ min, max }(engine);
     }
 
     //---------------------------------------------------------------------------
