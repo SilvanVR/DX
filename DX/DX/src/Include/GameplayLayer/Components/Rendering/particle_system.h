@@ -57,7 +57,7 @@ namespace Components {
     //**********************************************************************
     struct Particle
     {
-        Time::Seconds lifetime = 0;
+        Time::Seconds remainingLifetime = 0;
         Math::Vec3 position{ 0, 0, 0 };
         Math::Quat rotation{ Math::Quat::IDENTITY };
         Math::Vec3 scale{ 1, 1, 1 };
@@ -83,8 +83,8 @@ namespace Components {
         PSParticleAlignment getParticleAlignment()      const { return m_particleAlignment; }
         Time::Clock&        getClock()                        { return m_clock; }
 
-        void setMesh                (const MeshPtr& mesh)           { m_particleMesh = mesh; }
-        void setMaterial            (const MaterialPtr& mat)        { m_material = mat; }
+        void setMesh                (const MeshPtr& mesh)           { m_particleMesh = mesh; play(); }
+        void setMaterial            (const MaterialPtr& mat)        { m_material = mat; play(); }
         void setMaxParticleCount    (U32 maxParticles)              { m_maxParticleCount = maxParticles; play(); }
         void setEmissionRate        (U32 emissionRate)              { m_emissionRate = emissionRate; }
         void setGravity             (F32 gravity)                   { m_gravity = gravity; }

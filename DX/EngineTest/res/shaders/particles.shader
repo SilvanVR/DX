@@ -1,7 +1,7 @@
 // ----------------------------------------------
 #Fill			Solid
 #Cull 			None
-#ZWrite 		On
+#ZWrite 		Off
 #ZTest 			Less
 #Blend 			SrcAlpha OneMinusSrcAlpha
 #Priority 		Transparent

@@ -38,8 +38,8 @@ namespace Components {
         : m_material{ material }
     {
         m_particleMesh = Core::MeshGenerator::CreatePlane();
-        m_particleMesh->setBufferUsage( Graphics::BufferUsage::Frequently );
-
+        setParticleAlignment( Components::PSParticleAlignment::View );
+        setSortMode( Components::PSSortMode::ByDistance );
         play();
     }
 
@@ -101,6 +101,7 @@ namespace Components {
 
         auto& vertLayout = m_material->getShader()->getVertexLayout();
 
+        m_particleMesh->setBufferUsage(Graphics::BufferUsage::Frequently);
         auto& colorStream = m_particleMesh->createVertexStream<Math::Vec4>(Graphics::SID_VERTEX_COLOR, m_maxParticleCount);
         auto& modelMatrixStream = m_particleMesh->createVertexStream<DirectX::XMMATRIX>(SHADER_NAME_MODEL_MATRIX, m_maxParticleCount);
         //for (U32 i = 0; i < m_maxParticleCount; i++)
@@ -135,7 +136,7 @@ namespace Components {
     //----------------------------------------------------------------------
     void ParticleSystem::_SpawnParticle( U32 particleIndex )
     {
-        m_particles[particleIndex].lifetime = m_spawnLifeTimeFnc();
+        m_particles[particleIndex].remainingLifetime = m_spawnLifeTimeFnc();
         m_particles[particleIndex].color = m_spawnColorFnc().normalized();
 
         F32 scale = Math::Random::Float(0.5f, 2.0f);
@@ -149,10 +150,10 @@ namespace Components {
     {
         for (U32 i = 0; i < m_currentParticleCount;)
         {
-            m_particles[i].lifetime -= delta;
+            m_particles[i].remainingLifetime -= delta;
             m_particles[i].position.y -= m_gravity * (F32)delta;
 
-            if (m_particles[i].lifetime < 0_s)
+            if (m_particles[i].remainingLifetime < 0_s)
             {
                 // Move last living particle in this space
                 m_particles[i] = m_particles[m_currentParticleCount - 1];
@@ -172,14 +173,13 @@ namespace Components {
         {
         case PSParticleAlignment::View:
         {
+            // 1. Since the view matrix rotates everything "eyeRot" backwards, to negate it we just add the eyeRot itself
+            // 2. To negate the world rotation itself, we just need the conjugate
             auto worldRot = getGameObject()->getTransform()->getWorldRotation();
+            auto& eyeRot = SCENE.getMainCamera()->getGameObject()->getTransform()->rotation;
+            auto alignedRotation = eyeRot * worldRot.conjugate();
             for (U32 i = 0; i < m_currentParticleCount; i++)
-            {
-                auto& eyeRot = SCENE.getMainCamera()->getGameObject()->getTransform()->rotation;
-                // 1. Since the view matrix rotates everything "eyeRot" backwards, to negate it we just add the eyeRot itself
-                // 2. To negate the world rotation itself, we just need the conjugate
-                m_particles[i].rotation = eyeRot * worldRot.conjugate();
-            }
+                m_particles[i].rotation = alignedRotation;
             break;
         }
         case PSParticleAlignment::None: break;
@@ -193,6 +193,23 @@ namespace Components {
         {
         case PSSortMode::ByDistance:
         {
+            auto worldMatrix = getGameObject()->getTransform()->getWorldMatrix();
+            auto eyePos = DirectX::XMLoadFloat3( &SCENE.getMainCamera()->getGameObject()->getTransform()->position );
+
+            // Sorting particles by distance to camera comes with one caveat:
+            // 1.) Floating point precision can cause incorrect ordering when the camera moves around the particle
+            //     Solution: Disable Z-Writes
+            std::sort( m_particles.begin(), m_particles.begin() + m_currentParticleCount, [worldMatrix, eyePos](const Particle& p1, const Particle& p2) {
+                auto vPos1 = DirectX::XMLoadFloat3( &p1.position );
+                auto vPos2 = DirectX::XMLoadFloat3( &p2.position );
+                auto pos1 = DirectX::XMVector3Transform( vPos1, worldMatrix );
+                auto pos2 = DirectX::XMVector3Transform( vPos2, worldMatrix );
+
+                auto distance1 = DirectX::XMVector3LengthSq( DirectX::XMVectorSubtract( eyePos, pos1 ) );
+                auto distance2 = DirectX::XMVector3LengthSq( DirectX::XMVectorSubtract( eyePos, pos2 ) );
+
+                return DirectX::XMVector3Greater( distance1, distance2 );
+            } );
             break;
         }
         case PSSortMode::None: break;
@@ -212,7 +229,7 @@ namespace Components {
             DirectX::XMVECTOR p = DirectX::XMLoadFloat3( &m_particles[i].position );
             matrixStream[i] = DirectX::XMMatrixAffineTransformation( s, DirectX::XMQuaternionIdentity(), r, p );
 
-            F32 l = (F32)m_particles[i].lifetime;
+            F32 l = (F32)m_particles[i].remainingLifetime;
             m_particles[i].color.w = (l / 1.0f);
             colorStream[i] = m_particles[i].color;
         }

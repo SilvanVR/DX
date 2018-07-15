@@ -34,10 +34,10 @@ public:
         createGameObject("Grid")->addComponent<GridGeneration>(20);
 
         auto psGO = createGameObject("ParticleSystem");
-        psGO->addComponent<ConstantRotation>(0, 15, 0);
+       // psGO->addComponent<ConstantRotation>(0.0f, 15.0f, 0.0f);
         //psGO->addComponent<Components::ParticleSystem>("res/particles/test.ps");
         auto ps = psGO->addComponent<Components::ParticleSystem>(ASSETS.getMaterial("/materials/particles.material"));
-        ps->setParticleAlignment(Components::PSParticleAlignment::View);
+        //ps->setMesh(Core::MeshGenerator::CreateCubeUV());
 
         go->addComponent<Components::GUI>();
         go->addComponent<Components::GUIFPS>();
@@ -49,6 +49,10 @@ public:
                     static F32 pos[3];
                     ImGui::SliderFloat3("Pos", pos, -10.0f, 10.0f);
                     ps->getGameObject()->getTransform()->position = { pos[0],pos[1],pos[2] };
+
+                    static F32 scale = 1.0f;
+                    ImGui::SliderFloat("Scale", &scale, 0.0f, 10.0f);
+                    ps->getGameObject()->getTransform()->scale = scale;
 
                     {
                         if (ImGui::Button("Restart")) ps->play();
@@ -75,6 +79,7 @@ public:
                     {
                         CString type[] = { "None", "View" };
                         static I32 type_current = 1;
+                        type_current = (I32)ps->getParticleAlignment();
                         if (ImGui::Combo("Particle Alignment", &type_current, type, sizeof(type) / sizeof(CString)))
                             ps->setParticleAlignment((Components::PSParticleAlignment)type_current);
                     }
@@ -82,6 +87,7 @@ public:
                     {
                         CString type[] = { "None", "By Distance" };
                         static I32 type_current = 0;
+                        type_current = (I32)ps->getSortMode();
                         if (ImGui::Combo("Sort Mode", &type_current, type, sizeof(type) / sizeof(CString)))
                             ps->setSortMode((Components::PSSortMode)type_current);
                     }

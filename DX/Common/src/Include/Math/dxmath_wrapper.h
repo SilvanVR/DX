@@ -94,12 +94,14 @@ namespace Math {
         F32&        operator[] (I32 index)          { return reinterpret_cast<F32*>(&x)[index]; }
 
         F32         magnitude() const;
+        F32         magnitudeSqrt() const;
         Vector3F    normalized() const;
         void        normalize();
         Vector3F    cross(const Vector3F& v) const;
         F32         maxValue() const;
         F32         minValue() const;
         F32         distance(const Vector3F& v) const;
+        F32         distanceSqrt(const Vector3F& v) const;
         Vector3F    minVec(const Vector3F& v) const;
         Vector3F    maxVec(const Vector3F& v) const;
 

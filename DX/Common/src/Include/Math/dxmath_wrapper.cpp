@@ -96,6 +96,12 @@ namespace Math {
     }
 
     //----------------------------------------------------------------------
+    F32 Vector3F::magnitudeSqrt() const
+    {
+        return x * x + y * y + z * z;
+    }
+
+    //----------------------------------------------------------------------
     Vector3F Vector3F::normalized() const
     {
         F32 length = this->magnitude();
@@ -138,6 +144,12 @@ namespace Math {
     F32 Vector3F::distance( const Vector3F& v ) const
     {
         return (*this - v).magnitude();
+    }
+
+    //----------------------------------------------------------------------
+    F32 Vector3F::distanceSqrt( const Vector3F& v ) const
+    {
+        return (*this - v).magnitudeSqrt();
     }
 
     //----------------------------------------------------------------------
