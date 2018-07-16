@@ -185,6 +185,27 @@ bool Color::operator!=( const Color& c ) const
 }
 
 //---------------------------------------------------------------------------
+Color Color::operator*( const Color& c ) const
+{
+    auto thisNormalized = normalized();
+    auto cNormalized = c.normalized();
+
+    Color result;
+    result.setRed  ( static_cast<Byte>( (thisNormalized[0] * cNormalized[0]) * 255 ) );
+    result.setGreen( static_cast<Byte>( (thisNormalized[1] * cNormalized[1]) * 255 ) );
+    result.setBlue ( static_cast<Byte>( (thisNormalized[2] * cNormalized[2]) * 255 ) );
+    result.setAlpha( static_cast<Byte>( (thisNormalized[3] * cNormalized[3]) * 255 ) );
+    return result;
+}
+
+//---------------------------------------------------------------------------
+Color& Color::operator*=( const Color& c )
+{
+    *this = *this * c;
+    return *this;
+}
+
+//---------------------------------------------------------------------------
 String Color::toString( bool includeAlpha ) const
 {
     String result = "(" + TS( getRed() ) + ", " + TS( getGreen() ) + ", " + TS( getBlue() );

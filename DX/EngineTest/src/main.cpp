@@ -28,7 +28,7 @@ public:
         // Camera 1
         go = createGameObject("Camera");
         cam = go->addComponent<Components::Camera>();
-        go->getComponent<Components::Transform>()->position = Math::Vec3(0, 1, -5);
+        go->getComponent<Components::Transform>()->position = Math::Vec3(0, 1, -15);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 0.1f);
 
         createGameObject("Grid")->addComponent<GridGeneration>(20);
@@ -38,6 +38,8 @@ public:
         //psGO->addComponent<Components::ParticleSystem>("res/particles/test.ps");
         auto ps = psGO->addComponent<Components::ParticleSystem>(ASSETS.getMaterial("/materials/particles.material"));
         //ps->setMesh(Core::MeshGenerator::CreateCubeUV());
+
+        ps->setSpawnPositionFunc( Components::ShapeBox{ Math::Vec3{ -1,-1,-1 } * 10, Math::Vec3{ 1,1,1 } * 10 } );
 
         go->addComponent<Components::GUI>();
         go->addComponent<Components::GUIFPS>();
@@ -81,7 +83,7 @@ public:
                         static I32 type_current = 1;
                         type_current = (I32)ps->getParticleAlignment();
                         if (ImGui::Combo("Particle Alignment", &type_current, type, sizeof(type) / sizeof(CString)))
-                            ps->setParticleAlignment((Components::PSParticleAlignment)type_current);
+                            ps->setParticleAlignment((Components::ParticleSystem::ParticleAlignment)type_current);
                     }
 
                     {
@@ -89,7 +91,7 @@ public:
                         static I32 type_current = 0;
                         type_current = (I32)ps->getSortMode();
                         if (ImGui::Combo("Sort Mode", &type_current, type, sizeof(type) / sizeof(CString)))
-                            ps->setSortMode((Components::PSSortMode)type_current);
+                            ps->setSortMode((Components::ParticleSystem::SortMode)type_current);
                     }
 
                     if (ImGui::TreeNode("Clock"))
@@ -144,31 +146,135 @@ public:
                         ImGui::TreePop();
                     }
 
+                    if (ImGui::TreeNode("Size"))
+                    {
+                        { // Spawn values
+                            CString type[] = { "Constant", "Random Between Two Constants" };
+                            static I32 type_current = 0;
+                            ImGui::Combo("Spawn Mode", &type_current, type, sizeof(type) / sizeof(CString));
+
+                            switch ((Components::PSValueMode)type_current)
+                            {
+                            case Components::PSValueMode::Constant:
+                            {
+                                static F32 size = 1.0f;
+                                ImGui::SliderFloat("Size", &size, 0.1f, 10.0f, "%.2f");
+                                ps->setSpawnScaleFnc(Components::Constant(size));
+                                break;
+                            }
+                            case Components::PSValueMode::RandomBetweenTwoConstants:
+                            {
+                                static F32 sizeMin = 1.0f;
+                                static F32 sizeMax = 1.0f;
+                                if (ImGui::SliderFloat("Min", &sizeMin, 0.1f, 10.0f, "%.2f"))
+                                    if (sizeMin > sizeMax) sizeMax = sizeMin;
+                                if (ImGui::SliderFloat("Max", &sizeMax, 0.1f, 10.0f, "%.2f"))
+                                    if (sizeMax < sizeMin) sizeMin = sizeMax;
+                                ps->setSpawnScaleFnc(Components::RandomBetweenTwoConstants(sizeMin, sizeMax));
+                                break;
+                            }
+                            }
+                        }
+                        { // Over lifetime
+                            static bool active = false;
+                            if (ImGui::Checkbox("Over lifetime", &active))
+                                if (!active) ps->setLifetimeScaleFnc(nullptr);
+
+                            if (active)
+                            {
+                                static F32 start = 1.0f;
+                                static F32 mid = 1.0f;
+                                static F32 end = 1.0f;
+                                ImGui::SliderFloat("Start", &start, 0.1f, 10.0f, "%.2f");
+                                ImGui::SliderFloat("Mid", &mid, 0.1f, 10.0f, "%.2f");
+                                ImGui::SliderFloat("End", &end, 0.1f, 10.0f, "%.2f");
+                                ps->setLifetimeScaleFnc([](F32 lerp) -> F32 {
+                                    auto c1 = Math::Lerp(start, mid, lerp);
+                                    auto c2 = Math::Lerp(mid, end, lerp);
+                                    return Math::Lerp(c1, c2, lerp);
+                                });
+                            }
+                        }
+                        ImGui::TreePop();
+                    }
+
                     if (ImGui::TreeNode("Color"))
                     {
-                        CString type[] = { "Constant", "Random Between Two Constants" };
-                        static I32 type_current = 0;
-                        ImGui::Combo("Mode", &type_current, type, sizeof(type) / sizeof(CString));
+                        { // Spawn values
+                            CString type[] = { "Constant", "Random Between Two Colors" };
+                            static I32 type_current = 0;
+                            ImGui::Combo("Spawn Mode", &type_current, type, sizeof(type) / sizeof(CString));
 
-                        switch ((Components::PSValueMode)type_current)
-                        {
-                        case Components::PSValueMode::Constant:
-                        {
-                            static F32 color[4] = { 1,1,1,1 };
-                            ImGui::ColorEdit4("Color", color);
-                            ps->setSpawnColorFnc(Components::Constant(Color(color)));
-                            break;
+                            switch ((Components::PSValueMode)type_current)
+                            {
+                            case Components::PSValueMode::Constant:
+                            {
+                                static F32 color[4] = { 1,1,1,1 };
+                                ImGui::ColorEdit4("Color", color);
+                                ps->setSpawnColorFnc(Components::Constant(Color(color)));
+                                break;
+                            }
+                            case Components::PSValueMode::RandomBetweenTwoConstants:
+                            {
+                                static F32 colorStart[4] = { 1,1,1,1 };
+                                static F32 colorEnd[4] = { 1,1,1,1 };
+                                ImGui::ColorEdit4("Min", colorStart);
+                                ImGui::ColorEdit4("Max", colorEnd);
+                                ps->setSpawnColorFnc(Components::RandomBetweenTwoConstants(Color(colorStart), Color(colorEnd)));
+                                break;
+                            }
+                            }
                         }
-                        case Components::PSValueMode::RandomBetweenTwoConstants:
-                        {
-                            static F32 colorStart[4] = { 1,1,1,1 };
-                            static F32 colorEnd[4] = { 1,1,1,1 };
-                            ImGui::ColorEdit4("Min", colorStart);
-                            ImGui::ColorEdit4("Max", colorEnd);
-                            ps->setSpawnColorFnc(Components::RandomBetweenTwoConstants(Color(colorStart), Color(colorEnd)));
-                            break;
+                        { // Over lifetime
+                            static bool active = false;
+                            if (ImGui::Checkbox("Over lifetime", &active))
+                                if (!active) ps->setLifetimeColorFnc(nullptr);
+
+                            if (active)
+                            {
+                                static F32 colorStart[4] = { 1,1,1,1 };
+                                static F32 colorMid[4] = { 1,1,1,1 };
+                                static F32 colorEnd[4] = { 1,1,1,1 };
+                                ImGui::ColorEdit4("Start", colorStart);
+                                ImGui::ColorEdit4("Mid", colorMid);
+                                ImGui::ColorEdit4("End", colorEnd);
+                                ps->setLifetimeColorFnc([](F32 lerp) -> Color {
+                                    auto c1 = Color::Lerp(Color(colorStart), Color(colorMid), lerp);
+                                    auto c2 = Color::Lerp(Color(colorMid), Color(colorEnd), lerp);
+                                    return Color::Lerp(c1, c2, lerp);
+                                });
+                            }
                         }
-                        }
+                        ImGui::TreePop();
+                    }
+
+                    if (ImGui::TreeNode("Velocity"))
+                    {
+                        { // Spawn values
+                            CString type[] = { "Constant", "Random Between Two Constants" };
+                            static I32 type_current = 0;
+                            ImGui::Combo("Spawn Mode", &type_current, type, sizeof(type) / sizeof(CString));
+
+                            switch ((Components::PSValueMode)type_current)
+                            {
+                            case Components::PSValueMode::Constant:
+                            {
+                                static Math::Vec3 velocity;
+                                ImGui::SliderFloat3("Velocity", (float*)&velocity, -5.0f, 5.0f, "%.2f");
+                                ps->setSpawnVelocityFunc(Components::Constant(velocity));
+                                break;
+                            }
+                            case Components::PSValueMode::RandomBetweenTwoConstants:
+                            {
+                                static Math::Vec3 velocityMin = 1.0f;
+                                static Math::Vec3 velocityMax = 1.0f;
+                                ImGui::SliderFloat3("Min", (float*)&velocityMin, -5.0f, 5.0f, "%.2f");
+                                ImGui::SliderFloat3("Max", (float*)&velocityMax, -5.0f, 5.0f, "%.2f");
+                                ps->setSpawnVelocityFunc(Components::ShapeBox(velocityMin, velocityMax));
+                                break;
+                            }
+                            }
+                        } 
                         ImGui::TreePop();
                     }
                 }

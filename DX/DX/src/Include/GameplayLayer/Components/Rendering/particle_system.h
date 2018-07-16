@@ -41,35 +41,46 @@ namespace Components {
     };
 
     //----------------------------------------------------------------------
-    enum class PSSortMode
+    struct ShapeBox
     {
-        None,
-        ByDistance, // Sort by distance to main camera
-    };
-
-    //----------------------------------------------------------------------
-    enum class PSParticleAlignment
-    {
-        None,
-        View, // Aligned to main camera
+        ShapeBox(const Math::Vec3& min, const Math::Vec3& max) : min{ min }, max{ max } {}
+        Math::Vec3 operator() () { return Math::Random::Vec3( min, max ); }
+        Math::Vec3 min;
+        Math::Vec3 max;
     };
 
     //**********************************************************************
     struct Particle
     {
-        Time::Seconds remainingLifetime = 0;
-        Math::Vec3 position{ 0, 0, 0 };
-        Math::Quat rotation{ Math::Quat::IDENTITY };
-        Math::Vec3 scale{ 1, 1, 1 };
-        Math::Vec4 color{ 1, 1, 1, 1 };
+        Time::Seconds   startLifetime;
+        Time::Seconds   remainingLifetime;
+        Math::Vec3      position;
+        Math::Vec3      scale;
+        Math::Quat      rotation;
+        Color           color;
+        Math::Vec3      velocity;
     };
 
     //**********************************************************************
     class ParticleSystem : public IRenderComponent
     {
     public:
-        ParticleSystem(const MaterialPtr& material);
+        ParticleSystem(const MaterialPtr& material, bool playOnStart = true);
         ParticleSystem(const OS::Path& path);
+
+        //----------------------------------------------------------------------
+        enum class SortMode
+        {
+            None,
+            ByDistance, // Sort by distance to main camera
+        };
+
+        //----------------------------------------------------------------------
+        enum class ParticleAlignment
+        {
+            None,
+            View, // Aligned to main camera
+        };
 
         //----------------------------------------------------------------------
         const MaterialPtr&  getMaterial()               const { return m_material; }
@@ -79,8 +90,8 @@ namespace Components {
         U32                 getEmissionRate()           const { return m_emissionRate; }
         const Time::Clock&  getClock()                  const { return m_clock; }
         F32                 getGravity()                const { return m_gravity;}
-        PSSortMode          getSortMode()               const { return m_sortMode; }
-        PSParticleAlignment getParticleAlignment()      const { return m_particleAlignment; }
+        SortMode            getSortMode()               const { return m_sortMode; }
+        ParticleAlignment   getParticleAlignment()      const { return m_particleAlignment; }
         Time::Clock&        getClock()                        { return m_clock; }
 
         void setMesh                (const MeshPtr& mesh)           { m_particleMesh = mesh; play(); }
@@ -88,12 +99,18 @@ namespace Components {
         void setMaxParticleCount    (U32 maxParticles)              { m_maxParticleCount = maxParticles; play(); }
         void setEmissionRate        (U32 emissionRate)              { m_emissionRate = emissionRate; }
         void setGravity             (F32 gravity)                   { m_gravity = gravity; }
-        void setSortMode            (PSSortMode sortMode)           { m_sortMode = sortMode; }
-        void setParticleAlignment   (PSParticleAlignment alignment) { m_particleAlignment = alignment; }
+        void setSortMode            (SortMode sortMode)           { m_sortMode = sortMode; }
+        void setParticleAlignment   (ParticleAlignment alignment) { m_particleAlignment = alignment; }
 
         //----------------------------------------------------------------------
         void setSpawnLifetimeFnc(const std::function<F32()>& fnc) { m_spawnLifeTimeFnc = fnc; }
         void setSpawnColorFnc(const std::function<Color()>& fnc) { m_spawnColorFnc = fnc; }
+        void setSpawnScaleFnc(const std::function<F32()>& fnc) { m_spawnScaleFnc = fnc; }
+        void setSpawnPositionFunc(const std::function<Math::Vec3()> fnc) { m_spawnPositionFnc = fnc; }
+        void setSpawnVelocityFunc(const std::function<Math::Vec3()> fnc) { m_spawnVelocityFnc = fnc; }
+
+        void setLifetimeColorFnc(const std::function<Color(F32)>& fnc) { m_lifeTimeColorFnc = fnc; }
+        void setLifetimeScaleFnc(const std::function<F32(F32)>& fnc) { m_lifeTimeScaleFnc = fnc; }
 
         //----------------------------------------------------------------------
         // Begins playing this particle system from the beginning.
@@ -113,21 +130,28 @@ namespace Components {
         U32                 m_emissionRate = 10;
         F32                 m_gravity = 0.0f;
         Time::Clock         m_clock{ 5000_ms };
-        PSSortMode          m_sortMode = PSSortMode::None;
-        PSParticleAlignment m_particleAlignment = PSParticleAlignment::None;
+        SortMode            m_sortMode = SortMode::None;
+        ParticleAlignment   m_particleAlignment = ParticleAlignment::None;
         F32                 m_accumulatedSpawnTime = 0.0f;
         ArrayList<Particle> m_particles;
 
         //----------------------------------------------------------------------
-        std::function<F32()>    m_spawnLifeTimeFnc = Constant<F32>{ 2.0f };
-        std::function<Color()>  m_spawnColorFnc = Constant<Color>{ Color::WHITE };
+        std::function<F32()>        m_spawnLifeTimeFnc  = Constant<F32>{ 4.0f };
+        std::function<F32()>        m_spawnScaleFnc     = Constant<F32>{ 1.0f };
+        std::function<Math::Quat()> m_spawnRotationFnc  = Constant<Math::Quat>{ Math::Quat::IDENTITY };
+        std::function<Color()>      m_spawnColorFnc     = Constant<Color>{ Color::WHITE };
+        std::function<Math::Vec3()> m_spawnPositionFnc  = ShapeBox{ {-1,-1,-1}, {1,1,1} };
+        std::function<Math::Vec3()> m_spawnVelocityFnc  = Constant<Math::Vec3>{ {0,0,0} };
+
+        std::function<Color(F32)>   m_lifeTimeColorFnc = nullptr;
+        std::function<F32(F32)>     m_lifeTimeScaleFnc = nullptr;
 
         //----------------------------------------------------------------------
         void _SpawnParticles(Time::Seconds delta);
         void _SpawnParticle(U32 particleIndex);
         void _UpdateParticles(Time::Seconds delta);
-        void _AlignParticles(PSParticleAlignment alignment);
-        void _SortParticles(PSSortMode sortMode);
+        void _AlignParticles(ParticleAlignment alignment);
+        void _SortParticles(SortMode sortMode);
         void _UpdateMesh();
 
         void _RecalculateBounds();

@@ -43,6 +43,9 @@ namespace Math
         // Returns an random vector with all components between [min,max].
         static  Math::Vec3  Vec3(F32 min, F32 max);
 
+        // Returns an random vector between [min,max].
+        static  Math::Vec3  Vec3(const Math::Vec3& min, const Math::Vec3& max);
+
         // Returns an random (normalized) quaternion.
         static  Math::Quat  Quat();
 
@@ -101,6 +104,15 @@ namespace Math
     {
         auto distribution = std::uniform_real_distribution<F32>{ min, max };
         return Math::Vec3( distribution( engine ), distribution( engine ), distribution( engine ) );
+    }
+
+    //---------------------------------------------------------------------------
+    inline Math::Vec3 Random::Vec3( const Math::Vec3& min, const Math::Vec3& max )
+    {
+        auto xDistribution = std::uniform_real_distribution<F32>{ std::min( min.x, max.x ), std::max( min.x, max.x ) };
+        auto yDistribution = std::uniform_real_distribution<F32>{ std::min( min.y, max.y ), std::max( min.y, max.y ) };
+        auto zDistribution = std::uniform_real_distribution<F32>{ std::min( min.z, max.z ), std::max( min.z, max.z ) };
+        return Math::Vec3( xDistribution( engine ), yDistribution( engine ), zDistribution( engine ) );
     }
 
     //---------------------------------------------------------------------------

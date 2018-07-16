@@ -82,8 +82,10 @@ public:
     Byte getBlue() const;
     Byte getAlpha() const;
 
-    bool operator == (const Color& c) const;
-    bool operator != (const Color& c) const;
+    bool    operator == (const Color& c) const;
+    bool    operator != (const Color& c) const;
+    Color   operator *  (const Color& c) const;
+    Color&  operator *= (const Color& c);
 
     // Converts to "(r, g, b)" or "(r, g, b, a)"
     String toString(bool includeAlpha = false) const;

@@ -34,13 +34,14 @@ namespace Components {
     }
 
     //----------------------------------------------------------------------
-    ParticleSystem::ParticleSystem( const MaterialPtr& material )
+    ParticleSystem::ParticleSystem( const MaterialPtr& material, bool playOnStart )
         : m_material{ material }
     {
         m_particleMesh = Core::MeshGenerator::CreatePlane();
-        setParticleAlignment( Components::PSParticleAlignment::View );
-        setSortMode( Components::PSSortMode::ByDistance );
-        play();
+        setParticleAlignment( ParticleAlignment::View );
+        setSortMode( SortMode::ByDistance );
+        if (playOnStart)
+            play();
     }
 
     //----------------------------------------------------------------------
@@ -99,19 +100,13 @@ namespace Components {
         m_clock.setTime( 0_ms );
         m_particles.resize( m_maxParticleCount );
 
-        auto& vertLayout = m_material->getShader()->getVertexLayout();
+        // Make sure the mesh is a dynamic mesh
+        if ( m_particleMesh->isImmutable() )
+            m_particleMesh->setBufferUsage( Graphics::BufferUsage::Frequently );
 
-        m_particleMesh->setBufferUsage(Graphics::BufferUsage::Frequently);
+        auto& vertLayout = m_material->getShader()->getVertexLayout();
         auto& colorStream = m_particleMesh->createVertexStream<Math::Vec4>(Graphics::SID_VERTEX_COLOR, m_maxParticleCount);
         auto& modelMatrixStream = m_particleMesh->createVertexStream<DirectX::XMMATRIX>(SHADER_NAME_MODEL_MATRIX, m_maxParticleCount);
-        //for (U32 i = 0; i < m_maxParticleCount; i++)
-        //{
-        //    F32 scale = Math::Random::Float(0.1f, 2.0f);
-        //    DirectX::XMVECTOR s{ scale, scale, scale };
-        //    DirectX::XMVECTOR r{ DirectX::XMQuaternionRotationRollPitchYaw(Math::Random::Float(0, 6.28f),Math::Random::Float(0, 6.28f), Math::Random::Float(0, 6.28f) ) };
-        //    DirectX::XMVECTOR p{ Math::Random::Float(-1.0f, 1.0f) * 50.0f, Math::Random::Float(-1.0f, 1.0f)* 50.0f, Math::Random::Float(-1.0f, 1.0f)* 50.0f };
-        //    modelMatrixStream[i] = DirectX::XMMatrixAffineTransformation( s, DirectX::XMQuaternionIdentity(), r, p );
-        //}
     }
 
     //**********************************************************************
@@ -136,13 +131,16 @@ namespace Components {
     //----------------------------------------------------------------------
     void ParticleSystem::_SpawnParticle( U32 particleIndex )
     {
-        m_particles[particleIndex].remainingLifetime = m_spawnLifeTimeFnc();
-        m_particles[particleIndex].color = m_spawnColorFnc().normalized();
+        auto lifeTime = m_spawnLifeTimeFnc();
+        m_particles[particleIndex].startLifetime = lifeTime;
+        m_particles[particleIndex].remainingLifetime = lifeTime;
 
-        F32 scale = Math::Random::Float(0.5f, 2.0f);
-        m_particles[particleIndex].scale = { scale, scale, scale };
-        m_particles[particleIndex].rotation = Math::Quat::FromEulerAngles(Math::Random::Int(0, 360), Math::Random::Int(0, 360), Math::Random::Int(0, 360));
-        m_particles[particleIndex].position = { Math::Random::Float(-1.0f, 1.0f) * 20.0f, Math::Random::Float(-1.0f, 1.0f)* 20.0f, Math::Random::Float(-1.0f, 1.0f)* 20.0f };
+        m_particles[particleIndex].scale    = m_spawnScaleFnc();
+        m_particles[particleIndex].rotation = m_spawnRotationFnc();
+        m_particles[particleIndex].position = m_spawnPositionFnc();
+
+        m_particles[particleIndex].color    = m_spawnColorFnc();
+        m_particles[particleIndex].velocity = m_spawnVelocityFnc();
     }
 
     //----------------------------------------------------------------------
@@ -151,47 +149,48 @@ namespace Components {
         for (U32 i = 0; i < m_currentParticleCount;)
         {
             m_particles[i].remainingLifetime -= delta;
-            m_particles[i].position.y -= m_gravity * (F32)delta;
+            m_particles[i].velocity -= Math::Vec3{ 0, m_gravity * (F32)delta, 0 };
+            m_particles[i].position += m_particles[i].velocity * (F32)delta;
 
             if (m_particles[i].remainingLifetime < 0_s)
             {
-                // Move last living particle in this space
+                // Move last living particle in this slot
                 m_particles[i] = m_particles[m_currentParticleCount - 1];
-                m_currentParticleCount--;
+                --m_currentParticleCount;
             }
             else
             {
-                i++;
+                ++i;
             }
         }
     }
 
     //----------------------------------------------------------------------
-    void ParticleSystem::_AlignParticles( PSParticleAlignment alignment )
+    void ParticleSystem::_AlignParticles( ParticleAlignment alignment )
     {
         switch (alignment)
         {
-        case PSParticleAlignment::View:
+        case ParticleAlignment::View:
         {
             // 1. Since the view matrix rotates everything "eyeRot" backwards, to negate it we just add the eyeRot itself
             // 2. To negate the world rotation itself, we just need the conjugate
             auto worldRot = getGameObject()->getTransform()->getWorldRotation();
             auto& eyeRot = SCENE.getMainCamera()->getGameObject()->getTransform()->rotation;
             auto alignedRotation = eyeRot * worldRot.conjugate();
-            for (U32 i = 0; i < m_currentParticleCount; i++)
+            for (U32 i = 0; i < m_currentParticleCount; ++i)
                 m_particles[i].rotation = alignedRotation;
             break;
         }
-        case PSParticleAlignment::None: break;
+        case ParticleAlignment::None: break;
         }
     }
 
     //----------------------------------------------------------------------
-    void ParticleSystem::_SortParticles( PSSortMode sortMode )
+    void ParticleSystem::_SortParticles( SortMode sortMode )
     {
         switch (sortMode)
         {
-        case PSSortMode::ByDistance:
+        case SortMode::ByDistance:
         {
             auto worldMatrix = getGameObject()->getTransform()->getWorldMatrix();
             auto eyePos = DirectX::XMLoadFloat3( &SCENE.getMainCamera()->getGameObject()->getTransform()->position );
@@ -212,7 +211,7 @@ namespace Components {
             } );
             break;
         }
-        case PSSortMode::None: break;
+        case SortMode::None: break;
         }
     }
 
@@ -222,16 +221,24 @@ namespace Components {
         auto& matrixStream = m_particleMesh->getVertexStream<DirectX::XMMATRIX>( SHADER_NAME_MODEL_MATRIX );
         auto& colorStream = m_particleMesh->getVertexStream<Math::Vec4>( Graphics::SID_VERTEX_COLOR );
 
-        for (U32 i = 0; i < m_currentParticleCount; i++)
+        for (U32 i = 0; i < m_currentParticleCount; ++i)
         {
-            DirectX::XMVECTOR s = DirectX::XMLoadFloat3( &m_particles[i].scale );
+            // From 0 - 1 across the whole lifetime of the particle. 0 means particle just spawned, 1 it's near death.
+            F32 lifeTimeNormalized = 1 - ((F32)m_particles[i].remainingLifetime / (F32)m_particles[i].startLifetime);
+
+            auto scale = m_particles[i].scale;
+            if (m_lifeTimeScaleFnc)
+                scale *= m_lifeTimeScaleFnc( lifeTimeNormalized );
+            DirectX::XMVECTOR s = DirectX::XMLoadFloat3( &scale );
+
             DirectX::XMVECTOR r = DirectX::XMLoadFloat4( &m_particles[i].rotation );
             DirectX::XMVECTOR p = DirectX::XMLoadFloat3( &m_particles[i].position );
             matrixStream[i] = DirectX::XMMatrixAffineTransformation( s, DirectX::XMQuaternionIdentity(), r, p );
 
-            F32 l = (F32)m_particles[i].remainingLifetime;
-            m_particles[i].color.w = (l / 1.0f);
-            colorStream[i] = m_particles[i].color;
+            Color finalColor = m_particles[i].color;
+            if (m_lifeTimeColorFnc)
+                finalColor *= m_lifeTimeColorFnc( lifeTimeNormalized );
+            colorStream[i] = finalColor.normalized();
         }
     }
 
