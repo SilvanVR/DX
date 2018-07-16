@@ -164,8 +164,9 @@ namespace Components {
             F32 lifeTimeNormalized = 1.0f - (F32)(m_particles[i].remainingLifetime / m_particles[i].startLifetime);
             lifeTimeNormalized = std::min( lifeTimeNormalized, 1.0f );
 
+            m_particles[i].velocity = m_particles[i].spawnVelocity;
             if (m_lifeTimeVelocityFnc)
-                m_particles[i].velocity = m_particles[i].spawnVelocity + m_lifeTimeVelocityFnc( lifeTimeNormalized );
+                m_particles[i].velocity += m_lifeTimeVelocityFnc( lifeTimeNormalized );
 
             // Add gravity
             m_particles[i].velocity -= Math::Vec3{ 0, m_gravity * (F32)(m_particles[i].startLifetime - m_particles[i].remainingLifetime), 0 };
