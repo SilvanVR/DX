@@ -350,6 +350,7 @@ namespace Components {
             }
             else
             {
+                memset( io.KeysDown, 0, 512 );
                 KEYBOARD.setChannel( EInputChannel::Master );
                 KEYBOARD.unsetChannel( EInputChannel::GUI );
             }

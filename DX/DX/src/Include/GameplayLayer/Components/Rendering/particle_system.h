@@ -152,6 +152,7 @@ namespace Components {
         void setLifetimeColorFnc    (const std::function<Color(F32)>& fnc)      { m_lifeTimeColorFnc = fnc; }
         void setLifetimeScaleFnc    (const std::function<F32(F32)>& fnc)        { m_lifeTimeScaleFnc = fnc; }
         void setLifetimeRotationFnc (const std::function<Math::Quat(F32)>& fnc) { m_lifeTimeRotationFnc = fnc; }
+        void setLifetimeVelocityFnc (const std::function<Math::Vec3(F32)>& fnc) { m_lifeTimeVelocityFnc = fnc; }
 
         //----------------------------------------------------------------------
         // Begins playing this particle system from the beginning.
@@ -185,9 +186,10 @@ namespace Components {
             Math::Vec3      scale;
             Math::Quat      spawnRotation;
             Math::Quat      rotation;
+            Math::Vec3      spawnVelocity;
+            Math::Vec3      velocity;
             Color           spawnColor;
             Color           color;
-            Math::Vec3      velocity;
         };
         ArrayList<Particle> m_particles;
 
@@ -202,6 +204,7 @@ namespace Components {
         std::function<Color(F32)>       m_lifeTimeColorFnc = nullptr;
         std::function<F32(F32)>         m_lifeTimeScaleFnc = nullptr;
         std::function<Math::Quat(F32)>  m_lifeTimeRotationFnc = nullptr;
+        std::function<Math::Vec3(F32)>  m_lifeTimeVelocityFnc = nullptr;
 
         //----------------------------------------------------------------------
         void _SpawnParticles(Time::Seconds delta);

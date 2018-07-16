@@ -1,0 +1,6 @@
+{
+
+"shader" : "/engine/shaders/particles/additive.shader",
+"_MainTex" : "/textures/raindrop.png"
+
+}

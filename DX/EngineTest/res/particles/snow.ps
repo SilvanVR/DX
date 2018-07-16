@@ -1,0 +1,47 @@
+{
+
+"material" : "/materials/particles/snow.material",
+"looping" : true,
+
+"maxParticles" : 300,
+"emissionRate" : 30,
+"lifetime" : 10,
+
+"align" : "view",
+"sort" : "byDistance",
+
+"volume" : { 
+	"box" : { 
+		"min" : { "x" : -10, "y" : 10, "z" : -10 }, 
+		"max" : { "x" : 10, "y" : 10, "z" : 10 } 
+	}
+},
+
+"size" : {
+	"spawn" : { 
+		"min" : 0.05, "max" : 0.1
+	},
+	"lifetime" : {
+		"0" : 0,
+		"0.5" : 1,
+		"1" : 0
+	}
+},
+
+"velocity" : {
+	"spawn" : { 
+		"min" : { "x" : 0, "y" : 0, "z" : 0 }, 
+		"max" : { "x" : 0, "y" : -0.3, "z" : 0 }
+	},
+	"lifetime" : {
+		"0" :  { "x" : -1, "y" : -1, "z" : 0 },	
+		"0.2" :  { "x" : 1, "y" : -1, "z" : 0 },
+		"0.4" :  { "x" : -1, "y" : -1, "z" : 0 },
+		"0.6" :  { "x" : 1, "y" : -1, "z" : 0 },
+		"0.8" :  { "x" : -1, "y" : -1, "z" : 0 },
+		"1" :  { "x" : 1, "y" : -1, "z" : 0 }
+	}
+}
+
+
+}

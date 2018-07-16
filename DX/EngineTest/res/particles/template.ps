@@ -1,26 +1,26 @@
 {
 
-"material" : "/materials/particles.material",
+"material" : "/materials/particles/template.material",
 "looping" : true,
 
-"maxParticles" : 10,
+"maxParticles" : 100,
 "emissionRate" : 10,
 "lifetime" : { "min" : 10, "max" : 10 },
 
 "align" : "view",
 "sort" : "byDistance",
-"gravity" : 0.1,
+"gravity" : 0,
 
 "volume" : { 
 	"box" : { 
-		"min" : { "x" : -5, "y" : 3, "z" : -5 }, 
-		"max" : { "x" : 5, "y" : 3, "z" : 5 } 
+		"min" : { "x" : -10, "y" : 3, "z" : -10 }, 
+		"max" : { "x" : 10, "y" : 3, "z" : 10 } 
 	}
 },
 
 "size" : {
 	"spawn" : { 
-		"min" : 0.5, "max" : 3 
+		"min" : 0.5, "max" : 1 
 	},
 	"lifetime" : {
 		"0" : 0,
@@ -56,15 +56,16 @@
 
 "velocity" : {
 	"spawn" : { 
-		"min" : { "x" : -1, "y" : -1, "z" : -1 }, 
+		"min" : { "x" : -1, "y" : -1, "z" : -1 },
 		"max" : { "x" : 1, "y" : 1, "z" : 1 }
 	},
 	"lifetime" : {
-		"0" : { "r" : 255, "g" : 255, "b" : 255, "a" : 0 },	
-		"0.1" : { "r" : 255, "g" : 255, "b" : 255 },
-		"0.5" : { "r" : 255, "g" : 0, "b" : 0 },
-		"0.9" : { "r" : 0, "g" : 0, "b" : 255 },
-		"1" : { "r" : 255, "g" : 255, "b" : 0, "a" : 0 }
+		"0" :  { "x" : -1, "y" : -1, "z" : 0 },	
+		"0.2" :  { "x" : 1, "y" : -1, "z" : 0 },
+		"0.4" :  { "x" : -1, "y" : -1, "z" : 0 },
+		"0.6" :  { "x" : 1, "y" : -1, "z" : 0 },
+		"0.8" :  { "x" : -1, "y" : -1, "z" : 0 },
+		"1" :  { "x" : 1, "y" : -1, "z" : 0 }
 	}
 }
 

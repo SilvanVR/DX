@@ -144,27 +144,36 @@ namespace Components {
     {
         m_particles[particleIndex].startLifetime = m_particles[particleIndex].remainingLifetime = m_spawnLifeTimeFnc();
 
-        m_particles[particleIndex].spawnScale    = m_particles[particleIndex].scale = m_spawnScaleFnc();        
+        m_particles[particleIndex].spawnScale    = m_particles[particleIndex].scale = m_spawnScaleFnc();
         m_particles[particleIndex].spawnRotation = m_particles[particleIndex].rotation = m_spawnRotationFnc();
         m_particles[particleIndex].position      = m_spawnPositionFnc();
 
         m_particles[particleIndex].spawnColor    = m_particles[particleIndex].color = m_spawnColorFnc();
-        m_particles[particleIndex].velocity      = m_spawnVelocityFnc();
+        m_particles[particleIndex].spawnVelocity = m_particles[particleIndex].velocity = m_spawnVelocityFnc();
     }
 
     //----------------------------------------------------------------------
-    void ParticleSystem::_UpdateParticles( Time::Seconds delta )
+    void ParticleSystem::_UpdateParticles( Time::Seconds d )
     {
+        F32 delta = (F32)d;
         for (U32 i = 0; i < m_currentParticleCount;)
         {
-            m_particles[i].remainingLifetime -= delta;
-            m_particles[i].velocity -= Math::Vec3{ 0, m_gravity * (F32)delta, 0 };
-            m_particles[i].position += m_particles[i].velocity * (F32)delta;
+            m_particles[i].remainingLifetime -= d;
 
             // From 0 - 1 across the whole lifetime of the particle. 0 means particle just spawned, 1 it's near death.
-            F32 lifeTimeNormalized = 1 - ((F32)m_particles[i].remainingLifetime / (F32)m_particles[i].startLifetime);
+            F32 lifeTimeNormalized = 1.0f - (F32)(m_particles[i].remainingLifetime / m_particles[i].startLifetime);
             lifeTimeNormalized = std::min( lifeTimeNormalized, 1.0f );
 
+            if (m_lifeTimeVelocityFnc)
+                m_particles[i].velocity = m_particles[i].spawnVelocity + m_lifeTimeVelocityFnc( lifeTimeNormalized );
+
+            // Add gravity
+            m_particles[i].velocity -= Math::Vec3{ 0, m_gravity * (F32)(m_particles[i].startLifetime - m_particles[i].remainingLifetime), 0 };
+
+            // Add velocity to position
+            m_particles[i].position += m_particles[i].velocity * delta;
+
+            // Evaluate all lifetime functions
             m_particles[i].rotation = m_particles[i].spawnRotation; // Set always rotation here, so particles can be aligned later on
             if (m_lifeTimeRotationFnc)
                 m_particles[i].rotation *= m_lifeTimeRotationFnc( lifeTimeNormalized );
@@ -514,15 +523,15 @@ namespace Components {
                     auto lifetime = velocity["lifetime"];
                     if (lifetime != nullptr)
                     {
-                        //HashMap<F32, Color> m_dataMap;
-                        //for (auto it = lifetime.begin(); it != lifetime.end(); ++it)
-                        //{
-                        //    String key = it.key();
-                        //    F32 keyAsNum = (F32)std::atof(key.c_str());
-                        //    auto val = ParseColor(it.value());
-                        //    m_dataMap[keyAsNum] = val;
-                        //}
-                        //m_lifeTimeColorFnc = LinearLerpBetweenValues(m_dataMap);
+                        HashMap<F32, Math::Vec3> m_dataMap;
+                        for (auto it = lifetime.begin(); it != lifetime.end(); ++it)
+                        {
+                            String key = it.key();
+                            F32 keyAsNum = (F32)std::atof( key.c_str() );
+                            auto val = ParseVec3( it.value() );
+                            m_dataMap[keyAsNum] = val;
+                        }
+                        m_lifeTimeVelocityFnc = LinearLerpBetweenValues( m_dataMap );
                     }
                 }
            }
@@ -533,6 +542,7 @@ namespace Components {
         catch (const std::runtime_error& e)
         {
             LOG_WARN( "ParticleSystem: Failed to open '" + path.toString() + "'. Reason: " + e.what() );
+            m_material = ASSETS.getErrorMaterial();
         }
     }
 

@@ -1,0 +1,6 @@
+{
+
+"shader" : "/engine/shaders/particles/blend.shader",
+"_MainTex" : "/textures/snow.png"
+
+}

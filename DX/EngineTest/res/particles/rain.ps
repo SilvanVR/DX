@@ -1,0 +1,46 @@
+{
+
+"material" : "/materials/particles/rain.material",
+"looping" : true,
+
+"maxParticles" : 1000,
+"emissionRate" : 500,
+"lifetime" : 2,
+
+"align" : "view",
+
+"volume" : { 
+	"box" : { 
+		"min" : { "x" : -10, "y" : 20, "z" : -10 }, 
+		"max" : { "x" : 10, "y" : 20, "z" : 10 } 
+	}
+},
+
+"size" : {
+	"spawn" : { 
+		"min" : 0.02, "max" : 0.05
+	}
+},
+
+"color" : { 
+	"spawn" : { 
+		"min" : "#0000FF", "max" : "#0000FF"
+	},
+	"lifetime" : {
+		"0" : { "r" : 0, "g" : 0, "b" : 255, "a" : 0 },	
+		"0.1" : { "r" : 0, "g" : 0, "b" : 200 },
+		"0.5" : { "r" : 0, "g" : 0, "b" : 200 },
+		"0.9" : { "r" : 0, "g" : 0, "b" : 200 },
+		"1" : { "r" : 0, "g" : 0, "b" : 255, "a" : 0 }
+	}
+},
+
+"velocity" : {
+	"spawn" : { 
+		"min" : { "x" : 0, "y" : -15, "z" : 0 },
+		"max" : { "x" : 0, "y" : -15, "z" : 0 }
+	}
+}
+
+
+}

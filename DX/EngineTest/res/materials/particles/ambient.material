@@ -1,6 +1,6 @@
 {
 
 "shader" : "/engine/shaders/particles/blend.shader",
-"_MainTex" : "/textures/nico.jpg"
+"_MainTex" : "/textures/light.png"
 
 }
