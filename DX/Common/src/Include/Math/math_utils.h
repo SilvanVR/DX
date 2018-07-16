@@ -61,4 +61,18 @@ namespace Math {
         return a * (static_cast<T2>(1) - t) + b * t;
     }
 
+    //----------------------------------------------------------------------
+    template <typename T>
+    Math::Quat Lerp( const Math::Quat& a, const Math::Quat& b, T t )
+    {
+        return Math::Quat::Lerp( a, b, t );
+    }
+
+
+    //----------------------------------------------------------------------
+    template <typename T>
+    Color Lerp( Color a, Color b, T t )
+    {
+        return Color::Lerp( a, b, t );
+    }
 }

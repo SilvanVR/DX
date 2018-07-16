@@ -35,14 +35,12 @@ public:
 
         auto psGO = createGameObject("ParticleSystem");
         //psGO->addComponent<ConstantRotation>(0.0f, 15.0f, 0.0f);
-        //psGO->addComponent<Components::ParticleSystem>("res/particles/test.ps");
-        auto ps = psGO->addComponent<Components::ParticleSystem>(ASSETS.getMaterial("/materials/particles.material"));
+        auto ps = psGO->addComponent<Components::ParticleSystem>("res/particles/test.ps");
+        //auto ps = psGO->addComponent<Components::ParticleSystem>(ASSETS.getMaterial("/materials/particles.material"));
         //ps->setMesh(Core::MeshGenerator::CreateCubeUV());
-
-        ps->setSpawnPositionFunc( Components::ShapeBox{ Math::Vec3{ -1,-1,-1 } * 10, Math::Vec3{ 1,1,1 } * 10 } );
+        //ps->setSpawnPositionFunc( Components::ShapeBox{ Math::Vec3{ -1,-1,-1 } * 10, Math::Vec3{ 1,1,1 } * 10 } );
         //ps->setSpawnPositionFunc( Components::ShapeSphere{ Math::Vec3{0}, 1.0f } );
-        //ps->setMaxParticleCount(1);
-        //ps->setSpawnLifetimeFnc(Components::Constant(10.0f));
+        ps->setMaxParticleCount(1);
 
         go->addComponent<Components::GUI>();
         go->addComponent<Components::GUIFPS>();

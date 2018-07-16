@@ -11,6 +11,7 @@
 #include "Graphics/i_material.h"
 #include "Time/clock.h"
 #include "Math/random.h"
+#include "Math/math_utils.h"
 
 namespace Components {
 
@@ -63,6 +64,40 @@ namespace Components {
         Math::Vec3 operator() () { return center + Math::Random::Vec3(-1,1).normalized() * Math::Random::Float(radius); }
         Math::Vec3 center;
         F32 radius;
+    };
+
+    //----------------------------------------------------------------------
+    // Interpolates between a given set of data. E.g. [0,0], [1,10] -> when called with (0.5f) returns 5
+    //----------------------------------------------------------------------
+    template <typename T, typename T2>
+    struct LinearLerpBetweenValues
+    {
+        LinearLerpBetweenValues(const HashMap<T, T2>& data) : m_dataMap{ data } { ASSERT(data.size() > 0); }
+        T2 operator() (F32 lerp)
+        {
+            if (m_dataMap.size() == 1)
+                return m_dataMap.begin()->second;
+
+            auto it = m_dataMap.begin();
+            auto prev = it;
+
+            // Find the correct spot i.e. [0,0.3,0.6,1.0] + lerp=0.5: it=0.6, prev=0.3
+            while (it != m_dataMap.end() && it->first <= lerp)
+            {
+                prev = it;
+                ++it;
+            }
+
+            // If we reached the end or just return last value
+            if (it == m_dataMap.end())
+                return prev->second;
+
+            // Calculate contribution between the two values enclosing "lerp"
+            F32 l = (lerp - prev->first) / (it->first - prev->first);
+            return Math::Lerp( prev->second, it->second, l );
+        }
+
+        HashMap<T, T2> m_dataMap;
     };
 
     //**********************************************************************
@@ -175,6 +210,8 @@ namespace Components {
         void _AlignParticles(ParticleAlignment alignment);
         void _SortParticles(SortMode sortMode);
         void _UpdateMesh();
+
+        void _LoadFromFile(const OS::Path& path);
 
         //----------------------------------------------------------------------
         // IComponent Interface

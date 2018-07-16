@@ -418,6 +418,21 @@ namespace Math {
     }
 
     //----------------------------------------------------------------------
+    Quaternion Quaternion::Lerp( const Quaternion& q1, const Quaternion& q2, F32 t )
+    {
+        Quaternion r;
+
+        F32 t_ = 1 - t;
+        r.x = t_ * q1.x + t * q2.x;
+        r.y = t_ * q1.y + t * q2.y;
+        r.z = t_ * q1.z + t * q2.z;
+        r.w = t_ * q1.w + t * q2.w;
+
+        return r.normalized();
+    }
+
+
+    //----------------------------------------------------------------------
     Quaternion Quaternion::Slerp( const Quaternion& q1, const Quaternion& q2, F32 t )
     {
         XMVECTOR quat1  = XMLoadFloat4( &q1 );

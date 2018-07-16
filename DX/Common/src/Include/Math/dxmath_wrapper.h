@@ -169,6 +169,7 @@ namespace Math {
         static Quaternion FromEulerAngles(F32 pitchDegrees, F32 yawDegrees, F32 rollDegrees);
         static Quaternion FromEulerAngles(const Vector3F& eulerAnglesInDegrees);
         static Quaternion Slerp(const Quaternion& q1, const Quaternion& q2, F32 t);
+        static Quaternion Lerp(const Quaternion& q1, const Quaternion& q2, F32 t);
 
         String toString() const { return "(" + TS(x) + "," + TS(y) + "," + TS(z) + "," + TS(w) + ")"; }
 
