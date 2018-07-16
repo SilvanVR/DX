@@ -47,6 +47,9 @@ namespace Components {
     //----------------------------------------------------------------------
     void ParticleSystem::tick( Time::Seconds delta )
     {
+        if (m_paused)
+            return;
+
         bool isRunning = m_clock.tick( delta );
         if (isRunning)
         {
@@ -82,9 +85,6 @@ namespace Components {
         if ( m_particleMesh == nullptr || (m_maxParticleCount == 0) || (m_currentParticleCount == 0) )
             return false;
         return true;
-        
-        //auto modelMatrix = getGameObject()->getTransform()->getWorldMatrix();
-        //return camera.cull( m_particleSystem->getBounds(), modelMatrix );
     }
 
     //**********************************************************************
@@ -94,6 +94,7 @@ namespace Components {
     //----------------------------------------------------------------------
     void ParticleSystem::play()
     {
+        m_paused = false;
         m_currentParticleCount = 0;
         m_accumulatedSpawnTime = 0.0f;
         m_clock.setTickModifier( 1.0f );
@@ -104,9 +105,9 @@ namespace Components {
         if ( m_particleMesh->isImmutable() )
             m_particleMesh->setBufferUsage( Graphics::BufferUsage::Frequently );
 
-        auto& vertLayout = m_material->getShader()->getVertexLayout();
-        auto& colorStream = m_particleMesh->createVertexStream<Math::Vec4>(Graphics::SID_VERTEX_COLOR, m_maxParticleCount);
-        auto& modelMatrixStream = m_particleMesh->createVertexStream<DirectX::XMMATRIX>(SHADER_NAME_MODEL_MATRIX, m_maxParticleCount);
+        // Create vertex streams
+        m_particleMesh->createVertexStream<DirectX::XMMATRIX>( SHADER_NAME_MODEL_MATRIX, m_maxParticleCount );
+        m_particleMesh->createVertexStream<Math::Vec4>( Graphics::SID_VERTEX_COLOR, m_maxParticleCount );
     }
 
     //**********************************************************************
@@ -131,16 +132,14 @@ namespace Components {
     //----------------------------------------------------------------------
     void ParticleSystem::_SpawnParticle( U32 particleIndex )
     {
-        auto lifeTime = m_spawnLifeTimeFnc();
-        m_particles[particleIndex].startLifetime = lifeTime;
-        m_particles[particleIndex].remainingLifetime = lifeTime;
+        m_particles[particleIndex].startLifetime = m_particles[particleIndex].remainingLifetime = m_spawnLifeTimeFnc();
 
-        m_particles[particleIndex].scale    = m_spawnScaleFnc();
-        m_particles[particleIndex].rotation = m_spawnRotationFnc();
-        m_particles[particleIndex].position = m_spawnPositionFnc();
+        m_particles[particleIndex].spawnScale    = m_particles[particleIndex].scale = m_spawnScaleFnc();        
+        m_particles[particleIndex].spawnRotation = m_particles[particleIndex].rotation = m_spawnRotationFnc();
+        m_particles[particleIndex].position      = m_spawnPositionFnc();
 
-        m_particles[particleIndex].color    = m_spawnColorFnc();
-        m_particles[particleIndex].velocity = m_spawnVelocityFnc();
+        m_particles[particleIndex].spawnColor    = m_particles[particleIndex].color = m_spawnColorFnc();
+        m_particles[particleIndex].velocity      = m_spawnVelocityFnc();
     }
 
     //----------------------------------------------------------------------
@@ -151,6 +150,19 @@ namespace Components {
             m_particles[i].remainingLifetime -= delta;
             m_particles[i].velocity -= Math::Vec3{ 0, m_gravity * (F32)delta, 0 };
             m_particles[i].position += m_particles[i].velocity * (F32)delta;
+
+            // From 0 - 1 across the whole lifetime of the particle. 0 means particle just spawned, 1 it's near death.
+            F32 lifeTimeNormalized = 1 - ((F32)m_particles[i].remainingLifetime / (F32)m_particles[i].startLifetime);
+
+            m_particles[i].rotation = m_particles[i].spawnRotation; // Set always rotation here, so particles can be aligned later on
+            if (m_lifeTimeRotationFnc)
+                m_particles[i].rotation *= m_lifeTimeRotationFnc( lifeTimeNormalized );
+
+            if (m_lifeTimeScaleFnc)
+                m_particles[i].scale = m_particles[i].spawnScale * m_lifeTimeScaleFnc( lifeTimeNormalized );
+
+            if (m_lifeTimeColorFnc)
+                m_particles[i].color = m_particles[i].spawnColor * m_lifeTimeColorFnc( lifeTimeNormalized );
 
             if (m_particles[i].remainingLifetime < 0_s)
             {
@@ -178,7 +190,7 @@ namespace Components {
             auto& eyeRot = SCENE.getMainCamera()->getGameObject()->getTransform()->rotation;
             auto alignedRotation = eyeRot * worldRot.conjugate();
             for (U32 i = 0; i < m_currentParticleCount; ++i)
-                m_particles[i].rotation = alignedRotation;
+                m_particles[i].rotation *= alignedRotation;
             break;
         }
         case ParticleAlignment::None: break;
@@ -220,35 +232,15 @@ namespace Components {
     {
         auto& matrixStream = m_particleMesh->getVertexStream<DirectX::XMMATRIX>( SHADER_NAME_MODEL_MATRIX );
         auto& colorStream = m_particleMesh->getVertexStream<Math::Vec4>( Graphics::SID_VERTEX_COLOR );
-
         for (U32 i = 0; i < m_currentParticleCount; ++i)
         {
-            // From 0 - 1 across the whole lifetime of the particle. 0 means particle just spawned, 1 it's near death.
-            F32 lifeTimeNormalized = 1 - ((F32)m_particles[i].remainingLifetime / (F32)m_particles[i].startLifetime);
-
-            auto scale = m_particles[i].scale;
-            if (m_lifeTimeScaleFnc)
-                scale *= m_lifeTimeScaleFnc( lifeTimeNormalized );
-            DirectX::XMVECTOR s = DirectX::XMLoadFloat3( &scale );
-
+            DirectX::XMVECTOR s = DirectX::XMLoadFloat3( &m_particles[i].scale );
             DirectX::XMVECTOR r = DirectX::XMLoadFloat4( &m_particles[i].rotation );
             DirectX::XMVECTOR p = DirectX::XMLoadFloat3( &m_particles[i].position );
             matrixStream[i] = DirectX::XMMatrixAffineTransformation( s, DirectX::XMQuaternionIdentity(), r, p );
 
-            Color finalColor = m_particles[i].color;
-            if (m_lifeTimeColorFnc)
-                finalColor *= m_lifeTimeColorFnc( lifeTimeNormalized );
-            colorStream[i] = finalColor.normalized();
+            colorStream[i] = m_particles[i].color.normalized();
         }
-    }
-
-    //----------------------------------------------------------------------
-    void ParticleSystem::_RecalculateBounds()
-    {
-        Math::AABB bounds;
-        bounds[0] = {};
-        bounds[1] = {};
-        m_particleMesh->setBounds( bounds );
     }
 
 }

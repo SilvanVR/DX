@@ -41,6 +41,13 @@ namespace Components {
     };
 
     //----------------------------------------------------------------------
+    enum class PSShape
+    {
+        Box,
+        Sphere
+    };
+
+    //----------------------------------------------------------------------
     struct ShapeBox
     {
         ShapeBox(const Math::Vec3& min, const Math::Vec3& max) : min{ min }, max{ max } {}
@@ -49,16 +56,13 @@ namespace Components {
         Math::Vec3 max;
     };
 
-    //**********************************************************************
-    struct Particle
+    //----------------------------------------------------------------------
+    struct ShapeSphere
     {
-        Time::Seconds   startLifetime;
-        Time::Seconds   remainingLifetime;
-        Math::Vec3      position;
-        Math::Vec3      scale;
-        Math::Quat      rotation;
-        Color           color;
-        Math::Vec3      velocity;
+        ShapeSphere(const Math::Vec3& center, const F32& radius) : center{ center }, radius{ radius } {}
+        Math::Vec3 operator() () { return center + Math::Random::Vec3(-1,1).normalized() * Math::Random::Float(radius); }
+        Math::Vec3 center;
+        F32 radius;
     };
 
     //**********************************************************************
@@ -103,14 +107,16 @@ namespace Components {
         void setParticleAlignment   (ParticleAlignment alignment) { m_particleAlignment = alignment; }
 
         //----------------------------------------------------------------------
-        void setSpawnLifetimeFnc(const std::function<F32()>& fnc) { m_spawnLifeTimeFnc = fnc; }
-        void setSpawnColorFnc(const std::function<Color()>& fnc) { m_spawnColorFnc = fnc; }
-        void setSpawnScaleFnc(const std::function<F32()>& fnc) { m_spawnScaleFnc = fnc; }
-        void setSpawnPositionFunc(const std::function<Math::Vec3()> fnc) { m_spawnPositionFnc = fnc; }
-        void setSpawnVelocityFunc(const std::function<Math::Vec3()> fnc) { m_spawnVelocityFnc = fnc; }
+        void setSpawnLifetimeFnc    (const std::function<F32()>& fnc)       { m_spawnLifeTimeFnc = fnc; }
+        void setSpawnColorFnc       (const std::function<Color()>& fnc)     { m_spawnColorFnc = fnc; }
+        void setSpawnScaleFnc       (const std::function<F32()>& fnc)       { m_spawnScaleFnc = fnc; }
+        void setSpawnPositionFunc   (const std::function<Math::Vec3()> fnc) { m_spawnPositionFnc = fnc; }
+        void setSpawnVelocityFunc   (const std::function<Math::Vec3()> fnc) { m_spawnVelocityFnc = fnc; }
+        void setSpawnRotationFunc   (const std::function<Math::Quat()> fnc) { m_spawnRotationFnc = fnc; }
 
-        void setLifetimeColorFnc(const std::function<Color(F32)>& fnc) { m_lifeTimeColorFnc = fnc; }
-        void setLifetimeScaleFnc(const std::function<F32(F32)>& fnc) { m_lifeTimeScaleFnc = fnc; }
+        void setLifetimeColorFnc    (const std::function<Color(F32)>& fnc)      { m_lifeTimeColorFnc = fnc; }
+        void setLifetimeScaleFnc    (const std::function<F32(F32)>& fnc)        { m_lifeTimeScaleFnc = fnc; }
+        void setLifetimeRotationFnc (const std::function<Math::Quat(F32)>& fnc) { m_lifeTimeRotationFnc = fnc; }
 
         //----------------------------------------------------------------------
         // Begins playing this particle system from the beginning.
@@ -118,9 +124,8 @@ namespace Components {
         void play();
 
         //----------------------------------------------------------------------
-        // Pauses this particle system.
-        //----------------------------------------------------------------------
-        void pause() { m_clock.setTickModifier( 0.0f ); }
+        void pause() { m_paused = true; }
+        void resume() { m_paused = false; }
 
     private:
         MeshPtr             m_particleMesh;
@@ -133,6 +138,22 @@ namespace Components {
         SortMode            m_sortMode = SortMode::None;
         ParticleAlignment   m_particleAlignment = ParticleAlignment::None;
         F32                 m_accumulatedSpawnTime = 0.0f;
+        bool                m_paused = false;
+
+        //**********************************************************************
+        struct Particle
+        {
+            Time::Seconds   startLifetime;
+            Time::Seconds   remainingLifetime;
+            Math::Vec3      position;
+            Math::Vec3      spawnScale;
+            Math::Vec3      scale;
+            Math::Quat      spawnRotation;
+            Math::Quat      rotation;
+            Color           spawnColor;
+            Color           color;
+            Math::Vec3      velocity;
+        };
         ArrayList<Particle> m_particles;
 
         //----------------------------------------------------------------------
@@ -143,8 +164,9 @@ namespace Components {
         std::function<Math::Vec3()> m_spawnPositionFnc  = ShapeBox{ {-1,-1,-1}, {1,1,1} };
         std::function<Math::Vec3()> m_spawnVelocityFnc  = Constant<Math::Vec3>{ {0,0,0} };
 
-        std::function<Color(F32)>   m_lifeTimeColorFnc = nullptr;
-        std::function<F32(F32)>     m_lifeTimeScaleFnc = nullptr;
+        std::function<Color(F32)>       m_lifeTimeColorFnc = nullptr;
+        std::function<F32(F32)>         m_lifeTimeScaleFnc = nullptr;
+        std::function<Math::Quat(F32)>  m_lifeTimeRotationFnc = nullptr;
 
         //----------------------------------------------------------------------
         void _SpawnParticles(Time::Seconds delta);
@@ -153,8 +175,6 @@ namespace Components {
         void _AlignParticles(ParticleAlignment alignment);
         void _SortParticles(SortMode sortMode);
         void _UpdateMesh();
-
-        void _RecalculateBounds();
 
         //----------------------------------------------------------------------
         // IComponent Interface

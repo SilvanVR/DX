@@ -34,12 +34,15 @@ public:
         createGameObject("Grid")->addComponent<GridGeneration>(20);
 
         auto psGO = createGameObject("ParticleSystem");
-       // psGO->addComponent<ConstantRotation>(0.0f, 15.0f, 0.0f);
+        //psGO->addComponent<ConstantRotation>(0.0f, 15.0f, 0.0f);
         //psGO->addComponent<Components::ParticleSystem>("res/particles/test.ps");
         auto ps = psGO->addComponent<Components::ParticleSystem>(ASSETS.getMaterial("/materials/particles.material"));
         //ps->setMesh(Core::MeshGenerator::CreateCubeUV());
 
         ps->setSpawnPositionFunc( Components::ShapeBox{ Math::Vec3{ -1,-1,-1 } * 10, Math::Vec3{ 1,1,1 } * 10 } );
+        //ps->setSpawnPositionFunc( Components::ShapeSphere{ Math::Vec3{0}, 1.0f } );
+        //ps->setMaxParticleCount(1);
+        //ps->setSpawnLifetimeFnc(Components::Constant(10.0f));
 
         go->addComponent<Components::GUI>();
         go->addComponent<Components::GUIFPS>();
@@ -60,6 +63,8 @@ public:
                         if (ImGui::Button("Restart")) ps->play();
                         ImGui::SameLine();
                         if (ImGui::Button("Pause")) ps->pause();
+                        ImGui::SameLine();
+                        if (ImGui::Button("Resume")) ps->resume();
 
                         ImGui::Text("Particles: %d", ps->getCurrentParticleCount());
                         static I32 maxParticles;
@@ -116,6 +121,38 @@ public:
                         ImGui::TreePop();
                     }
 
+                    if (ImGui::TreeNode("Volume"))
+                    {
+                        { // Spawn values
+                            CString type[] = { "Box", "Sphere" };
+                            static I32 type_current = 0;
+                            ImGui::Combo("Volume Type", &type_current, type, sizeof(type) / sizeof(CString));
+
+                            switch ((Components::PSShape)type_current)
+                            {
+                            case Components::PSShape::Box:
+                            {
+                                static Math::Vec3 min = -10.0f;
+                                static Math::Vec3 max = 10.0f;
+                                ImGui::SliderFloat3("Min", (float*)&min, -30.0f, 30.0f, "%.2f");
+                                ImGui::SliderFloat3("Max", (float*)&max, -30.0f, 30.0f, "%.2f");
+                                ps->setSpawnPositionFunc(Components::ShapeBox(min, max));
+                                break;
+                            }
+                            case Components::PSShape::Sphere:
+                            {
+                                static Math::Vec3 center = 0.0f;
+                                static F32 radius = 10.0f;
+                                ImGui::SliderFloat3("Center", (float*)&center, -30.0f, 30.0f, "%.2f");
+                                ImGui::SliderFloat("Radius", &radius, 0.0f, 30.0f, "%.2f");
+                                ps->setSpawnPositionFunc(Components::ShapeSphere(center, radius));
+                                break;
+                            }
+                            }
+                        }
+                        ImGui::TreePop();
+                    }
+
                     if (ImGui::TreeNode("Lifetime"))
                     {
                         CString type[] = { "Constant", "Random Between Two Constants" };
@@ -138,7 +175,7 @@ public:
                             if (ImGui::SliderFloat("Min", &lifeTimeStart, 0.5f, 10.0f, "%.2f"))
                                 if (lifeTimeStart > lifeTimeEnd) lifeTimeEnd = lifeTimeStart;
                             if (ImGui::SliderFloat("Max", &lifeTimeEnd, 0.5f, 10.0f, "%.2f"))
-                                if (lifeTimeEnd > lifeTimeStart) lifeTimeStart = lifeTimeEnd;
+                                if (lifeTimeEnd < lifeTimeStart) lifeTimeStart = lifeTimeEnd;
                             ps->setSpawnLifetimeFnc(Components::RandomBetweenTwoConstants(lifeTimeStart, lifeTimeEnd));
                             break;
                         }
@@ -189,9 +226,56 @@ public:
                                 ImGui::SliderFloat("Mid", &mid, 0.1f, 10.0f, "%.2f");
                                 ImGui::SliderFloat("End", &end, 0.1f, 10.0f, "%.2f");
                                 ps->setLifetimeScaleFnc([](F32 lerp) -> F32 {
-                                    auto c1 = Math::Lerp(start, mid, lerp);
-                                    auto c2 = Math::Lerp(mid, end, lerp);
-                                    return Math::Lerp(c1, c2, lerp);
+                                    return lerp < 0.5f ? Math::Lerp(start, mid, lerp * 2) : Math::Lerp(mid, end, (lerp-0.5f) * 2);
+                                });
+                            }
+                        }
+                        ImGui::TreePop();
+                    }
+
+                    if (ImGui::TreeNode("Rotation"))
+                    {
+                        { // Spawn values
+                            CString type[] = { "Constant", "Random Between Two Constants" };
+                            static I32 type_current = 0;
+                            ImGui::Combo("Spawn Mode", &type_current, type, sizeof(type) / sizeof(CString));
+
+                            switch ((Components::PSValueMode)type_current)
+                            {
+                            case Components::PSValueMode::Constant:
+                            {
+                                static Math::Vec3 rotation = 0.0f;
+                                ImGui::SliderFloat3("Rotation", (float*)&rotation, 0.0f, 360.0f, "%.2f");
+                                ps->setSpawnRotationFunc(Components::Constant(Math::Quat::FromEulerAngles(rotation)));
+                                break;
+                            }
+                            case Components::PSValueMode::RandomBetweenTwoConstants:
+                            {
+                                static Math::Vec3 rotationMin = 0.0f;
+                                static Math::Vec3 rotationMax = 360.0f;
+                                ImGui::SliderFloat3("Min", (float*)&rotationMin, 0.0f, 360.0f, "%.2f");
+                                ImGui::SliderFloat3("Max", (float*)&rotationMax, 0.0f, 360.0f, "%.2f");
+                                ps->setSpawnRotationFunc([]() { return Math::Quat::FromEulerAngles(Math::Random::Vec3(rotationMin, rotationMax)); });
+                                break;
+                            }
+                            }
+                        }
+                        { // Over lifetime
+                            static bool active = false;
+                            if (ImGui::Checkbox("Over lifetime", &active))
+                                if (!active) ps->setLifetimeRotationFnc(nullptr);
+
+                            if (active)
+                            {
+                                static Math::Vec3 rotationStart = 0.0f;
+                                static Math::Vec3 rotationMid = 0.0f;
+                                static Math::Vec3 rotationEnd = 0.0f;
+                                ImGui::SliderFloat3("Start", (float*)&rotationStart, 0.0f, 360.0f, "%.2f");
+                                ImGui::SliderFloat3("Mid", (float*)&rotationMid, 0.0f, 360.0f, "%.2f");
+                                ImGui::SliderFloat3("End", (float*)&rotationEnd, 0.0f, 360.0f, "%.2f");
+                                ps->setLifetimeRotationFnc([](F32 lerp) -> Math::Quat {
+                                    auto v = lerp <= 0.5f ? Math::Lerp(rotationStart, rotationMid, lerp*2) : Math::Lerp(rotationMid, rotationEnd, (lerp-0.5f) * 2);
+                                    return Math::Quat::FromEulerAngles(v);
                                 });
                             }
                         }
@@ -239,9 +323,7 @@ public:
                                 ImGui::ColorEdit4("Mid", colorMid);
                                 ImGui::ColorEdit4("End", colorEnd);
                                 ps->setLifetimeColorFnc([](F32 lerp) -> Color {
-                                    auto c1 = Color::Lerp(Color(colorStart), Color(colorMid), lerp);
-                                    auto c2 = Color::Lerp(Color(colorMid), Color(colorEnd), lerp);
-                                    return Color::Lerp(c1, c2, lerp);
+                                    return lerp <= 0.5f ? Color::Lerp(Color(colorStart), Color(colorMid), lerp * 2) : Color::Lerp(Color(colorMid), Color(colorEnd), (lerp-0.5f)*2);
                                 });
                             }
                         }
@@ -266,7 +348,7 @@ public:
                             }
                             case Components::PSValueMode::RandomBetweenTwoConstants:
                             {
-                                static Math::Vec3 velocityMin = 1.0f;
+                                static Math::Vec3 velocityMin = -1.0f;
                                 static Math::Vec3 velocityMax = 1.0f;
                                 ImGui::SliderFloat3("Min", (float*)&velocityMin, -5.0f, 5.0f, "%.2f");
                                 ImGui::SliderFloat3("Max", (float*)&velocityMax, -5.0f, 5.0f, "%.2f");

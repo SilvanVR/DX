@@ -1,6 +1,6 @@
 {
 
-"shader" : "/shaders/particles.shader",
+"shader" : "/engine/shaders/particles/blend.shader",
 "_MainTex" : "/textures/light.png"
 
 }

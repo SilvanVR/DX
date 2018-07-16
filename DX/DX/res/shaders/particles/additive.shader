@@ -1,9 +1,9 @@
 // ----------------------------------------------
 #Fill			Solid
-#Cull 			None
+#Cull 			Back
 #ZWrite 		Off
 #ZTest 			Less
-#Blend 			SrcAlpha OneMinusSrcAlpha
+#Blend 			Add Add
 #Priority 		Transparent
 #AlphaToMask 	Off
 
@@ -57,6 +57,9 @@ SamplerState sampler0;
 
 float4 main(FragmentIn fin) : SV_Target
 {
-	float4 textureColor = _MainTex.Sample(sampler0, fin.tex);	
-	return textureColor * fin.color;
+	float4 textureColor = _MainTex.Sample(sampler0, fin.tex);
+	float4 finalColor = textureColor * fin.color;
+	if (finalColor.a < ALPHA_THRESHOLD)
+		discard;
+	return finalColor;
 }
