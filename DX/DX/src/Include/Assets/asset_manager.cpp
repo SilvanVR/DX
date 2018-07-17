@@ -498,28 +498,28 @@ namespace Assets {
                 LOG_WARN( "Failed to load the color shader. Please ensure that the shader exists and compiles. Will be set to the error shader." );
 
             // Post process shader
-            m_postProcessShader = getShader( "/engine/shaders/postprocess.shader" );
+            m_postProcessShader = getShader( "/engine/shaders/post processing/basic.shader" );
             if ( m_postProcessShader == getErrorShader() )
                 LOG_ERROR( "Failed to load the post process shader. Please ensure that the shader exists and compiles." );
 
             // Shadowmap shader
-            m_shadowMapShader = getShader("/engine/shaders/shadowmap.shader");
+            m_shadowMapShader = getShader("/engine/shaders/shadowmaps/basic.shader");
             if ( m_shadowMapShader == getErrorShader() )
                 LOG_WARN( "Failed to load the shadowmap shader. Please ensure that the shader exists and compiles. Will be set to the error shader." );
 
             // Shadowmap shader (UV)
-            m_shadowMapShaderAlpha = getShader( "/engine/shaders/shadowmap_alpha.shader" );
+            m_shadowMapShaderAlpha = getShader( "/engine/shaders/shadowmaps/basic_alpha.shader" );
             if ( m_shadowMapShaderAlpha == getErrorShader() )
                 LOG_WARN( "Failed to load the shadowmap-alpha shader. Please ensure that the shader exists and compiles. Will be set to the error shader." );
 
             
             // Shadowmap shader
-            m_shadowMapShaderLinear = getShader("/engine/shaders/shadowmap_linear.shader");
+            m_shadowMapShaderLinear = getShader("/engine/shaders/shadowmaps/linear.shader");
             if ( m_shadowMapShaderLinear == getErrorShader() )
                 LOG_WARN( "Failed to load the shadowmap(linear) shader. Please ensure that the shader exists and compiles. Will be set to the error shader." );
 
             // Shadowmap shader (UV)
-            m_shadowMapShaderLinearAlpha = getShader( "/engine/shaders/shadowmap_linear_alpha.shader" );
+            m_shadowMapShaderLinearAlpha = getShader( "/engine/shaders/shadowmaps/linear_alpha.shader" );
             if ( m_shadowMapShaderLinearAlpha == getErrorShader() )
                 LOG_WARN( "Failed to load the shadowmap-alpha(linear) shader. Please ensure that the shader exists and compiles. Will be set to the error shader." );
         }

@@ -22,6 +22,11 @@ namespace Graphics {
             auto drawCmd = std::reinterpret_pointer_cast<GPUC_DrawMesh>(cmd);
             return drawCmd->material->getShader()->getRenderQueue();
         }
+        case GPUCommand::DRAW_MESH_INSTANCED:
+        {
+            auto drawCmd = std::reinterpret_pointer_cast<GPUC_DrawMeshInstanced>(cmd);
+            return drawCmd->material->getShader()->getRenderQueue();
+        }
         case GPUCommand::DRAW_LIGHT:
             return -8196; // return low enough so it is always before every draw command
         }
@@ -48,11 +53,15 @@ namespace Graphics {
     {
         // Sort draw commands by renderqueue first
         auto itBeginDraw = m_gpuCommands.begin();
-        while ( itBeginDraw != m_gpuCommands.end() && ((*itBeginDraw)->getType() != GPUCommand::DRAW_MESH && (*itBeginDraw)->getType() != GPUCommand::DRAW_LIGHT) )
+        while ( itBeginDraw != m_gpuCommands.end() && ((*itBeginDraw)->getType() != GPUCommand::DRAW_MESH && 
+                                                       (*itBeginDraw)->getType() != GPUCommand::DRAW_MESH_INSTANCED &&
+                                                       (*itBeginDraw)->getType() != GPUCommand::DRAW_LIGHT) )
             itBeginDraw++;
 
         auto itEndDraw = itBeginDraw;
-        while ( itEndDraw != m_gpuCommands.end() && ((*itEndDraw)->getType() == GPUCommand::DRAW_MESH || (*itEndDraw)->getType() == GPUCommand::DRAW_LIGHT) )
+        while ( itEndDraw != m_gpuCommands.end() && ((*itEndDraw)->getType() == GPUCommand::DRAW_MESH ||
+                                                     (*itEndDraw)->getType() == GPUCommand::DRAW_MESH_INSTANCED || 
+                                                     (*itEndDraw)->getType() == GPUCommand::DRAW_LIGHT) )
             itEndDraw++;
 
         std::sort( itBeginDraw, itEndDraw, [] (const std::shared_ptr<Graphics::GPUCommandBase>& c1, const std::shared_ptr<Graphics::GPUCommandBase>& c2) {
@@ -62,7 +71,8 @@ namespace Graphics {
         // All draw commands are now ordered properly e.g. drawmesh by renderqueue
         auto itBeginDrawTransparent = itBeginDraw;
         while (itBeginDrawTransparent != m_gpuCommands.end() && 
-              ((*itBeginDrawTransparent)->getType() == GPUCommand::DRAW_MESH || 
+              ((*itBeginDrawTransparent)->getType() == GPUCommand::DRAW_MESH ||
+               (*itBeginDrawTransparent)->getType() == GPUCommand::DRAW_MESH_INSTANCED ||
                (*itBeginDrawTransparent)->getType() == GPUCommand::DRAW_LIGHT) )
         {
             if ( getRenderQueue(*itBeginDrawTransparent) >= (I32)Graphics::RenderQueue::BackToFrontBoundary)

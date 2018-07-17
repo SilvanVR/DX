@@ -27,6 +27,7 @@ namespace Components {
     {
         m_particleMesh = Core::MeshGenerator::CreatePlane();
         _LoadFromFile( path );
+        setCastShadows( false );
         play();
     }
 
@@ -38,6 +39,7 @@ namespace Components {
         m_particleMesh = Core::MeshGenerator::CreatePlane();
         setParticleAlignment( ParticleAlignment::View );
         setSortMode( SortMode::ByDistance );
+        setCastShadows( false );
         play();
     }
 

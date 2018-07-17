@@ -4,7 +4,7 @@
 #ZWrite 		Off
 #ZTest 			Less
 #Blend 			Add Add
-#Priority 		Transparent
+#Queue 			Transparent
 #AlphaToMask 	Off
 
 // ----------------------------------------------

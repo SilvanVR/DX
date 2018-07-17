@@ -1,9 +1,8 @@
 // ----------------------------------------------
 #Fill			Solid
-#Cull 			Back
-#ZWrite 		Off
+#Cull 			None
+#ZWrite 		On
 #ZTest 			Less
-#Blend 			SrcAlpha OneMinusSrcAlpha
 #Queue 			Transparent
 #AlphaToMask 	Off
 
@@ -16,7 +15,6 @@ struct VertexIn
 {
     float3 PosL : POSITION;
 	float2 tex : TEXCOORD;
-	float4 color : COLOR_INSTANCE;
 	float4x4 modelToWorld : MODEL_INSTANCE;
 };
 
@@ -24,7 +22,6 @@ struct VertexOut
 {
     float4 PosH : SV_POSITION;
     float2 tex : TEXCOORD0;
-	float4 color : COLOR;
 };
 
 VertexOut main(VertexIn vin)
@@ -35,7 +32,6 @@ VertexOut main(VertexIn vin)
 	float4x4 mvp = mul( _ViewProj, modelToWorld );
 	OUT.PosH = mul(mvp, float4(vin.PosL, 1));
 	OUT.tex = vin.tex;
-	OUT.color = vin.color;
 	
     return OUT;
 }
@@ -49,14 +45,14 @@ struct FragmentIn
 {
     float4 PosH : SV_POSITION;
 	float2 tex : TEXCOORD0;
-	float4 color : COLOR;
 };
 
 Texture2D _MainTex;
 SamplerState sampler0;
 
-float4 main(FragmentIn fin) : SV_Target
+void main(FragmentIn fin)
 {
-	float4 textureColor = _MainTex.Sample(sampler0, fin.tex);	
-	return textureColor * fin.color;
+	float4 textureColor = _MainTex.Sample(sampler0, fin.tex);
+	if(textureColor.a < ALPHA_THRESHOLD)
+		discard;
 }
