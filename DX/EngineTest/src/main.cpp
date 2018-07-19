@@ -31,14 +31,25 @@ public:
         go->getComponent<Components::Transform>()->position = Math::Vec3(0, 1, -5);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 0.1f);
 
-        createGameObject("Grid")->addComponent<GridGeneration>(20);
+        //createGameObject("Grid")->addComponent<GridGeneration>(20);
 
-        auto terrainGO = createGameObject("Terrain");
-        terrainGO->addComponent<Components::MeshRenderer>(ASSETS.getMesh("/models/terrain.obj"), ASSETS.getMaterial("/materials/blinn_phong/terrain.material"));
+        //auto terrainGO = createGameObject("Terrain");
+        //terrainGO->addComponent<Components::MeshRenderer>(ASSETS.getMesh("/models/terrain.obj"), ASSETS.getMaterial("/materials/blinn_phong/terrain.material"));
+        //auto sun = createGameObject("Sun");
+        //auto dl = sun->addComponent<Components::DirectionalLight>(0.3f, Color::WHITE, Graphics::ShadowType::None);
+        //sun->getTransform()->rotation = Math::Quat::LookRotation(Math::Vec3{ 0,-1, 1 });
 
-        auto sun = createGameObject("Sun");
-        auto dl = sun->addComponent<Components::DirectionalLight>(0.3f, Color::WHITE, Graphics::ShadowType::None);
-        sun->getTransform()->rotation = Math::Quat::LookRotation(Math::Vec3{ 0,-1, 1 });
+        Locator::getRenderer().setGlobalFloat(SID("_Ambient"), 0.1f);
+
+        auto world = createGameObject("World");
+        world->addComponent<Components::MeshRenderer>(ASSETS.getMesh("/models/box_n_inside.obj"), ASSETS.getMaterial("/materials/blinn_phong/cellar.material"));
+        world->getTransform()->position.y = 10.0f;
+        world->getTransform()->scale = 10.0f;
+
+        auto plg = createGameObject("PL");
+        auto pl = plg->addComponent<Components::PointLight>(2.0f, Color::ORANGE, 15.0f);
+        plg->getTransform()->position = { 0, 1.5f, 0 };
+        plg->addComponent<Components::Billboard>(ASSETS.getTexture2D("/engine/textures/pointLight.png"), 0.5f);
 
         LOG("TestScene initialized!", Color::RED);
     }
