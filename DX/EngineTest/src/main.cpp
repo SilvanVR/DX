@@ -51,6 +51,11 @@ public:
         plg->getTransform()->position = { 0, 1.5f, 0 };
         plg->addComponent<Components::Billboard>(ASSETS.getTexture2D("/engine/textures/pointLight.png"), 0.5f);
 
+        go->addComponent<Components::GUI>();
+        go->addComponent<Components::GUIFPS>();
+        go->addComponent<Components::GUICustom>([=] {
+        });
+
         LOG("TestScene initialized!", Color::RED);
     }
 
