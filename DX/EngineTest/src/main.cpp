@@ -33,6 +33,13 @@ public:
 
         createGameObject("Grid")->addComponent<GridGeneration>(20);
 
+        auto terrainGO = createGameObject("Terrain");
+        terrainGO->addComponent<Components::MeshRenderer>(ASSETS.getMesh("/models/terrain.obj"), ASSETS.getMaterial("/materials/blinn_phong/terrain.material"));
+
+        auto sun = createGameObject("Sun");
+        auto dl = sun->addComponent<Components::DirectionalLight>(0.3f, Color::WHITE, Graphics::ShadowType::None);
+        sun->getTransform()->rotation = Math::Quat::LookRotation(Math::Vec3{ 0,-1, 1 });
+
         LOG("TestScene initialized!", Color::RED);
     }
 

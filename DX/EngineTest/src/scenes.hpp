@@ -1068,10 +1068,12 @@ public:
         player->getTransform()->position = { 0, 0, -0.5f };
         player->getTransform()->rotation *= Math::Quat(Math::Vec3::UP, 180.0f);
 
-        auto obj = createGameObject("GO");
-        obj->addComponent<Components::MeshRenderer>(Core::MeshGenerator::CreatePlane(), ASSETS.getMaterial("/materials/blinn_phong/grass.material"));
-        obj->getTransform()->rotation *= Math::Quat(Math::Vec3::RIGHT, 90.0f);
-        obj->getTransform()->scale = { 20,20,20 };
+        //auto obj = createGameObject("GO");
+        //obj->addComponent<Components::MeshRenderer>(Core::MeshGenerator::CreatePlane(), ASSETS.getMaterial("/materials/blinn_phong/grass.material"));
+        //obj->getTransform()->rotation *= Math::Quat(Math::Vec3::RIGHT, 90.0f);
+        //obj->getTransform()->scale = { 20,20,20 };
+        auto terrainGO = createGameObject("Terrain");
+        terrainGO->addComponent<Components::MeshRenderer>(ASSETS.getMesh("/models/terrain.obj"), ASSETS.getMaterial("/materials/blinn_phong/terrain.material"));
 
         auto obj2 = createGameObject("GO2");
         obj2->addComponent<Components::MeshRenderer>(ASSETS.getMesh("/models/monkey.obj"), ASSETS.getMaterial("/materials/blinn_phong/monkey.material"));
