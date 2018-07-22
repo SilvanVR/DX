@@ -31,6 +31,8 @@ public:
         go->getComponent<Components::Transform>()->position = Math::Vec3(0, 1, -5);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 0.1f);
 
+        cam->setRenderingToHMD(true);
+
         //createGameObject("Grid")->addComponent<GridGeneration>(20);
 
         //auto terrainGO = createGameObject("Terrain");
@@ -47,7 +49,7 @@ public:
         world->getTransform()->scale = 10.0f;
 
         auto plg = createGameObject("PL");
-        auto pl = plg->addComponent<Components::PointLight>(2.0f, Color::ORANGE, 15.0f);
+        plg->addComponent<Components::PointLight>(2.0f, Color::ORANGE, 15.0f);
         plg->getTransform()->position = { 0, 1.5f, 0 };
         plg->addComponent<Components::Billboard>(ASSETS.getTexture2D("/engine/textures/pointLight.png"), 0.5f);
 

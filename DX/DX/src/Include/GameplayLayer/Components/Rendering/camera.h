@@ -53,6 +53,7 @@ namespace Components {
         F32                             getTop()                    const { return m_camera.getTop(); }
         F32                             getBottom()                 const { return m_camera.getBottom(); }
         const Graphics::FrameInfo&      getFrameInfo()              const { return m_camera.getFrameInfo(); }
+        bool                            isRenderingToHMD()          const { return m_camera.isRenderingToHMD(); }
 
         //----------------------------------------------------------------------
         void setCameraMode          (Graphics::CameraMode mode)                                     { m_camera.setCameraMode(mode); }
@@ -67,6 +68,7 @@ namespace Components {
         void setPerspectiveParams   (F32 fovAngleYInDegree, F32 zNear, F32 zFar)                    { m_camera.setPerspectiveParams(fovAngleYInDegree, zNear, zFar); }
         void setRenderingToScreen   (bool renderToScreen)                                           { m_camera.setRenderingToScreen(renderToScreen); }
         void setMultiSamples        (Graphics::MSAASamples sampleCount)                             { m_camera.getRenderTarget()->recreate({(U32)sampleCount}); }
+        void setRenderingToHMD      (bool renderToHMD)                                              { m_camera.setRenderingToHMD(renderToHMD); }
         void setSuperSampling       (F32 screenResMod);
         void setHDRRendering        (bool enabled);
 

@@ -12,6 +12,8 @@
 #include "D3D11.hpp"
 #include "D3D11Swapchain.h"
 
+#include "../VR/oculus_rift.h"
+
 namespace Graphics {
 
     //----------------------------------------------------------------------
@@ -58,6 +60,7 @@ namespace Graphics {
     private:
         D3D11::Swapchain*   m_pSwapchain    = nullptr;
         IMesh*              m_cubeMesh      = nullptr;
+        VR::OculusRift*     m_hmd           = nullptr;
 
         //----------------------------------------------------------------------
         inline void _SetCamera(Camera* camera);

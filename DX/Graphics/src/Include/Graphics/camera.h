@@ -50,6 +50,7 @@ namespace Graphics {
         inline void setOrthoParams          (F32 left, F32 right, F32 bottom, F32 top, F32 zNear, F32 zFar);
         inline void setPerspectiveParams    (F32 fovAngleYInDegree, F32 zNear, F32 zFar);
         inline void setRenderingToScreen    (bool renderToScreen)                    { m_isRenderingToScreen = renderToScreen; }
+        inline void setRenderingToHMD       (bool renderToHMD)                       { m_isRenderingToHMD = renderToHMD; }
 
         //----------------------------------------------------------------------
         inline const CameraMode&   getCameraMode()              const { return m_cameraMode; }
@@ -64,12 +65,13 @@ namespace Graphics {
         inline F32                 getBottom()                  const { return m_ortho.bottom; }
         inline CameraClearMode     getClearMode()               const { return m_clearMode; }
         inline bool                isRenderingToScreen()        const { return m_isRenderingToScreen; }
-        inline F32                 getAspectRatio()             const;
+        inline bool                isRenderingToHMD()           const { return m_isRenderingToHMD; }
         inline const ShaderPtr&    getReplacementShader()       const { return m_replacementShader; }
         inline StringID            getReplacementShaderTag()    const { return m_replacementShaderTag; }
         inline bool                hasReplacementShader()       const { return m_replacementShader != nullptr; }
         inline const FrameInfo&    getFrameInfo()               const { return *m_frameInfo.get(); }
         inline FrameInfo&          getFrameInfo()                     { return *m_frameInfo.get(); }
+        inline F32                 getAspectRatio()             const;
 
         //----------------------------------------------------------------------
         // @Return
@@ -178,6 +180,9 @@ namespace Graphics {
 
         // Wether the camera is rendering to the screen or not
         bool m_isRenderingToScreen = true;
+
+        // Whether this camera is rendering to an HMD
+        bool m_isRenderingToHMD = false;
 
         //----------------------------------------------------------------------
         void _UpdateProjectionMatrix();
