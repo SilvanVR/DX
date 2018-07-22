@@ -20,4 +20,10 @@ namespace Events {
         return m_eventMap[eventName];
     }
 
+    //----------------------------------------------------------------------
+    void EventDispatcher::Clear()
+    {
+        m_eventMap.clear();
+    }
+
 }

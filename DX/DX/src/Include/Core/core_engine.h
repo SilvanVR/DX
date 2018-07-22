@@ -47,6 +47,11 @@ namespace Core {
         void terminate() { m_isRunning = false; }
 
         //----------------------------------------------------------------------
+        // Stops the core game loop.
+        //----------------------------------------------------------------------
+        void restart() { m_isRunning = false; m_restart = true; }
+
+        //----------------------------------------------------------------------
         virtual void init() = 0;
         virtual void tick(Time::Seconds delta) = 0;
         virtual void shutdown() = 0;
@@ -67,6 +72,7 @@ namespace Core {
         OS::Window                  m_window;
         std::vector<ISubSystem*>    m_subscribers;
         bool                        m_isRunning = true;
+        bool                        m_restart = false;
 
         //----------------------------------------------------------------------
         void _RunCoreGameLoop();

@@ -22,6 +22,8 @@ namespace Core {
     //----------------------------------------------------------------------
     void CoreEngine::start( const char* title, U32 width, U32 height )
     {
+        m_isRunning = true;
+
         // Check for Math-Library support
         if ( not DirectX::XMVerifyCPUSupport() )
             LOG_ERROR( "DirectX-Math not supported on this system, but is required!" );
@@ -134,23 +136,43 @@ namespace Core {
     //----------------------------------------------------------------------
     void CoreEngine::_Shutdown()
     {
-        // Invoke game end event
+        // Invoke game end event and clear all listener after that
         Events::EventDispatcher::GetEvent( EVENT_GAME_SHUTDOWN ).invoke();
+        Events::EventDispatcher::Clear();
 
         // Deinitialize game class
         shutdown();
 
-        LOG(" ~ Goodbye! ~ ", Color::GREEN);
+        LOG( " ~ Goodbye! ~ ", Color::GREEN );
 
         // Deinitialize every subsystem
         m_subSystemManager.shutdown();
 
-        // Destroy the window
-        m_window.destroy();
+        // Clear all subscribers and callbacks attached to the engine clock
+        m_subscribers.clear();
+        m_engineClock.clearAllCallbacks();
+
+        if (m_restart)
+        {
+            m_restart = false;
+
+            String title = m_window.getTitle();
+            auto w = m_window.getWidth();
+            auto h = m_window.getHeight();
+
+            // Destroy the window
+            m_window.destroy();
+
+            start( title.c_str(), w, h );
+        }
+        else
+        {
+            m_window.destroy();
+        }
     }
 
     //----------------------------------------------------------------------
-    void CoreEngine::_NotifyOnTick(Time::Seconds delta)
+    void CoreEngine::_NotifyOnTick( Time::Seconds delta )
     {
         for (auto& subscriber : m_subscribers)
         {
@@ -159,7 +181,7 @@ namespace Core {
     }
 
     //----------------------------------------------------------------------
-    void CoreEngine::_NotifyOnUpdate(Time::Seconds delta)
+    void CoreEngine::_NotifyOnUpdate( Time::Seconds delta )
     {
         for (auto& subscriber : m_subscribers)
         {

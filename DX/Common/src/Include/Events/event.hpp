@@ -8,6 +8,8 @@
 
 namespace Events {
 
+    using ListenerID = U32;
+
     //**********************************************************************
     class Event {
     public:
@@ -18,12 +20,25 @@ namespace Events {
         //----------------------------------------------------------------------
         // Add a new listener function to this event
         //----------------------------------------------------------------------
-        void addListener(const std::function<void()>& listener) { m_listener.push_back( listener ); }
+        ListenerID addListener(const std::function<void()>& listener) 
+        {
+            static ListenerID NEXT_ID = 0; 
+
+            ListenerID nextID = NEXT_ID;
+            m_listener.push_back({ nextID, listener });
+            ++NEXT_ID;
+
+            return nextID;
+        }
 
         //----------------------------------------------------------------------
         // Remove a listener function from this event
         //----------------------------------------------------------------------
-        //void removeListener(const std::function<void()>& listenerToRemove) {}
+        void removeListener(ListenerID listenerID)
+        { 
+            m_listener.erase( std::remove_if( m_listener.begin(), m_listener.end(), 
+                                             [listenerID](const Listener& l) { return l.id == listenerID; }), m_listener.end() );
+        }
 
         //----------------------------------------------------------------------
         // Call all functions which are attached to this event
@@ -31,12 +46,18 @@ namespace Events {
         void invoke() const
         {
             for (auto& listener : m_listener)
-                listener();
+                listener.func();
         }
 
     private:
         StringID m_name;
-        ArrayList<std::function<void()>> m_listener;
+
+        struct Listener
+        {
+            ListenerID id;
+            std::function<void()> func;
+        };
+        ArrayList<Listener> m_listener;
 
         //----------------------------------------------------------------------
         Event(const Event& other)                 = delete;

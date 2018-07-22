@@ -61,6 +61,12 @@ namespace Core {
     }
 
     //----------------------------------------------------------------------
+    void Restart()
+    {
+        Locator::getCoreEngine().restart();
+    }
+
+    //----------------------------------------------------------------------
     void Red()      { SCENE.getMainCamera()->setClearColor( Color::RED ); }
     void Green()    { SCENE.getMainCamera()->setClearColor( Color::GREEN ); }
     void Blue()     { SCENE.getMainCamera()->setClearColor( Color::BLUE ); }
@@ -83,6 +89,7 @@ namespace Core {
         IGC_REGISTER_COMMAND( Profile );
         IGC_REGISTER_COMMAND( Help );
         IGC_REGISTER_COMMAND( VSync );
+        IGC_REGISTER_COMMAND( Restart );
         IGC_REGISTER_COMMAND( Red );
         IGC_REGISTER_COMMAND( Green );
         IGC_REGISTER_COMMAND( Blue );

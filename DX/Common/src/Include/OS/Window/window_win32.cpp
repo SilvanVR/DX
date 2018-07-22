@@ -149,6 +149,7 @@ namespace OS {
     void Window::create( const char* title, U32 width, U32 height )
     {
         ASSERT( m_created == false );
+        m_shouldBeClosed = false;
         m_width  = width;
         m_height = height;
         s_window = this;
@@ -192,9 +193,9 @@ namespace OS {
     void Window::destroy()
     {
         if ( not DestroyWindow( m_hwnd ) )
-        {
             LOG_ERROR( "Window[Win32]::destroy(): Failed to destroy the window. " );
-        }
+
+        processOSMessages(); // Because DestroyWindow inserts WM_QUIT, we process it directly here
         m_created = false;
     }
 
@@ -255,6 +256,14 @@ namespace OS {
     void Window::setTitle( const char* newTitle ) const
     {
         SetWindowText( m_hwnd, newTitle );
+    }
+
+    //----------------------------------------------------------------------
+    String Window::getTitle() const
+    {
+        char buff[256];
+        GetWindowText( m_hwnd, buff, 256 );
+        return String( buff );
     }
 
     //----------------------------------------------------------------------

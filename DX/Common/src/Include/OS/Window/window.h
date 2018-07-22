@@ -68,6 +68,7 @@ namespace OS {
         NativeWindowHandle getHWND() const { return m_hwnd; }
 
         //----------------------------------------------------------------------
+        String getTitle() const;
         void setTitle(const char* newTitle) const;
         void center() const;
 

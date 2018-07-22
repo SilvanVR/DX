@@ -22,6 +22,11 @@ namespace Events {
         //----------------------------------------------------------------------
         static Event& GetEvent(StringID eventName);
 
+        //----------------------------------------------------------------------
+        // Clears all existing events.
+        //----------------------------------------------------------------------
+        static void Clear();
+
     private:
         static HashMap<StringID, Event> m_eventMap;
 

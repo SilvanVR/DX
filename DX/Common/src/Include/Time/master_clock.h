@@ -67,6 +67,11 @@ namespace Time {
         void        clearCallback(CallbackID id);
 
         //----------------------------------------------------------------------
+        // Remove all callbacks from this clock.
+        //----------------------------------------------------------------------
+        void        clearAllCallbacks(){ m_timers.clear(); }
+
+        //----------------------------------------------------------------------
         // !!!!! Call this function every frame !!!!!
         // Updates the clock, returns the newly calculated delta and calls
         // callback functions if required.
