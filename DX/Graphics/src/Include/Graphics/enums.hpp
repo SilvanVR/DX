@@ -12,6 +12,12 @@
 
 namespace Graphics {
 
+    enum class API
+    {
+        D3D11,
+        Vulkan
+    };
+
     enum class ShaderType
     {
         Unknown = -1,

@@ -137,8 +137,9 @@ public:
         Locator::getEngineClock().setInterval([=] {
             U32 fps = PROFILER.getFPS();
             F64 delta = (1000.0 / fps);
-            String newTitle = String(gameName) + " | Time: " + TS(TIME.getTime().value) + " | Delta: " + TS(delta) + "ms (" + TS(fps) + " FPS)";
-            Locator::getWindow().setTitle(newTitle.c_str());
+            String api = Locator::getRenderer().getAPIName();
+            String title = StringUtils::format("%s | API: %s | Time: %.0fs | Delta: %fms (%d FPS)", gameName, api.c_str(), TIME.getTime().value, delta, fps);
+            Locator::getWindow().setTitle(title.c_str());
         }, 1000);
 
         ASSETS.setHotReloading(true);

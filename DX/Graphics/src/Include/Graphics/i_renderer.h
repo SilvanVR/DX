@@ -66,6 +66,16 @@ namespace Graphics {
         virtual void present() = 0;
 
         //----------------------------------------------------------------------
+        // @Return: Which Graphics-API is used by this renderer.
+        //----------------------------------------------------------------------
+        virtual API getAPI() const = 0;
+
+        //----------------------------------------------------------------------
+        // @Return: Used API as an readable string
+        //----------------------------------------------------------------------
+        virtual String getAPIName() const = 0;
+
+        //----------------------------------------------------------------------
         virtual IMesh*              createMesh() = 0;
         virtual IMaterial*          createMaterial() = 0;
         virtual IShader*            createShader() = 0;

@@ -42,6 +42,9 @@ namespace Graphics {
         void shutdown() override;
         void present() override;
 
+        API getAPI() const override { return API::D3D11; }
+        String getAPIName() const override { return "Direct3D11"; }
+
         IMesh*              createMesh() override;
         IMaterial*          createMaterial() override;
         IShader*            createShader() override;
