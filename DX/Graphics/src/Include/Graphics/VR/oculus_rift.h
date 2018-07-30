@@ -7,6 +7,7 @@
 **********************************************************************/
 
 #include "LibOVR/OVR_CAPI.h"
+#include "../enums.hpp"
 
 namespace Graphics { namespace VR {
 
@@ -14,7 +15,7 @@ namespace Graphics { namespace VR {
     class OculusRift
     {
     public:
-        OculusRift();
+        OculusRift(API api);
         ~OculusRift();
 
     private:

@@ -17,10 +17,10 @@ namespace Graphics { namespace VR {
     }\
 
     //----------------------------------------------------------------------
-    OculusRift::OculusRift()
+    OculusRift::OculusRift( API api )
     {
         ovrResult result = ovr_Initialize( nullptr );
-        CHECKVR( result, "OculusRift: Failed to initialize libOVR." );
+        CHECKVR( result, "OculusRift: Failed to initialize libOVR. It may not be supported on your system." );
 
         ovrGraphicsLuid luid;
         result = ovr_Create( &m_session, &luid );

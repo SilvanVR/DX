@@ -10,6 +10,12 @@
 #include "Logging/logging.h"
 #include "memory.hpp"
 
+#ifdef  _DEBUG
+    #define TRACK_ALL_ALLOCATIONS 1
+#else
+    #define TRACK_ALL_ALLOCATIONS 1
+#endif //  _DEBUG
+
 namespace Core { namespace MemoryManagement {
 
     //----------------------------------------------------------------------
@@ -24,6 +30,7 @@ namespace Core { namespace MemoryManagement {
     {
         ASSERT ( size < ( 1024i64 * 1024i64 * 1024i64 * 32i64) ); // Less than 32GB
 
+#if TRACK_ALL_ALLOCATIONS // Track all memory in debug mode
         Size allocationSize = size + 2 * sizeof( Size );
         Byte* mem = (Byte*) std::malloc( allocationSize );
 
@@ -37,6 +44,9 @@ namespace Core { namespace MemoryManagement {
         MemoryTracker::getAllocationMemoryInfo().addAllocation( allocationSize );
 
         return mem;
+#else
+        return std::malloc( size );
+#endif
     }
 
     //----------------------------------------------------------------------
@@ -45,14 +55,17 @@ namespace Core { namespace MemoryManagement {
         if (memory == nullptr)
             return;
 
+#if TRACK_ALL_ALLOCATIONS
         Byte* mem = reinterpret_cast<Byte*>( memory );
         mem -= 2 * sizeof( Size );
 
         Size allocatedSize = *(reinterpret_cast<Size*>( mem ));
         std::lock_guard<std::mutex> lock( getMutex() );
         MemoryTracker::getAllocationMemoryInfo().removeAllocation( allocatedSize );
-
         std::free( mem );
+#else
+        std::free( memory );
+#endif
     }
 
     //----------------------------------------------------------------------
@@ -71,12 +84,23 @@ namespace Core { namespace MemoryManagement {
     }
 
     //----------------------------------------------------------------------
+    Memory::AllocationInfo& MemoryTracker::getAllocationMemoryInfo() 
+    {
+        static Memory::AllocationInfo s_memoryInfo;
+        return s_memoryInfo;
+    }
+
+    //----------------------------------------------------------------------
     void MemoryTracker::log()
     {
+#if TRACK_ALL_ALLOCATIONS
         // It's important to fetch a local copy of the mem-info, otherwise the 
         // dynamically allocated string stuff will mess up the result
         Memory::AllocationInfo memInfo = MemoryTracker::getAllocationMemoryInfo();
         LOG( memInfo.toString() );
+#else
+        LOG( "Memory Tracking disabled." );
+#endif
     }
 
     //----------------------------------------------------------------------
@@ -96,9 +120,7 @@ namespace Core { namespace MemoryManagement {
         }
 #elif
         ASSERT( false && "Memory Leak detected somewhere");
-
 #endif // _WIN32
-
     }
 
 } } // end namespaces

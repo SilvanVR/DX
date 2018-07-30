@@ -32,7 +32,8 @@
 #include "memory_tracker.h"
 #include "Common/utils.h"
 
-#define REPORT_CONTINOUS_ALLOCATIONS 0
+#define REPORT_CONTINOUS_ALLOCATIONS    0
+#define REPORT_HEAP_ALLOCATIONS         0
 
 namespace Core { namespace MemoryManagement {
 
@@ -68,13 +69,11 @@ namespace Core { namespace MemoryManagement {
         return MemoryTracker::getAllocationMemoryInfo();
     }
 
-
     //----------------------------------------------------------------------
     void MemoryManager::_ContinousAllocationLeakDetection()
     {
         // Create viable solution for detecting memory leaks
     }
-
 
     //----------------------------------------------------------------------
     void MemoryManager::_BasicLeakDetection()
@@ -86,17 +85,19 @@ namespace Core { namespace MemoryManagement {
         // Problem: STL stuff allocates dynamically. Mainly string stuff e.g. std::to_string() when logging.
         if ((lastAllocInfo.totalBytesAllocated != 0) && (lastAllocInfo.totalBytesAllocated != allocInfo.totalBytesAllocated))
         {
-            WARN_MEMORY("Continous dynamic memory allocations in game-loop!");
-            WARN_MEMORY("Total Bytes Allocated Last Time: " + TS(lastAllocInfo.totalBytesAllocated));
-            WARN_MEMORY("Total Bytes Allocated Now: " + TS(allocInfo.totalBytesAllocated));
+            WARN_MEMORY( "Continous dynamic memory allocations in game-loop!" );
+            WARN_MEMORY( "Total Bytes Allocated Last Time: " + TS( lastAllocInfo.totalBytesAllocated ) );
+            WARN_MEMORY( "Total Bytes Allocated Now: " + TS( allocInfo.totalBytesAllocated ) );
         }
 #endif
 
+#if REPORT_HEAP_ALLOCATIONS
         // Check if this time the amount of bytes increased. If so there was a new allocation.
         if ( (lastAllocInfo.bytesAllocated < allocInfo.bytesAllocated) && (lastAllocInfo.bytesAllocated != 0) )
         {
             _ReportPossibleMemoryLeak( lastAllocInfo, allocInfo );
         }
+#endif
 
         // Print messages allocates itself memory because std::to_string, that's why retrieve the current alloc info again
         allocInfo = getAllocationInfo();
@@ -107,7 +108,7 @@ namespace Core { namespace MemoryManagement {
     void MemoryManager::_ReportPossibleMemoryLeak( const Memory::AllocationInfo& lastAllocationInfo, const Memory::AllocationInfo& allocInfo )
     {
         auto bytesAllocated = allocInfo.bytesAllocated - lastAllocationInfo.bytesAllocated;
-        //LOG_WARN_MEMORY( "<<<< Dynamic Memory Allocation in Game-Loop: Bytes allocated: " + Utils::bytesToString( bytesAllocated ) );
+        LOG_WARN_MEMORY( "<<<< Dynamic Memory Allocation in Game-Loop: Bytes allocated: " + Utils::bytesToString( bytesAllocated ) );
     }
 
 

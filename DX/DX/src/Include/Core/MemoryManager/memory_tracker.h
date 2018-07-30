@@ -6,10 +6,7 @@
     author: S. Hau
     date: October 7, 2017
 
-    Tracks all allocated memory from global new/delete. 
-    Note that libs as a DLL does not account to that.
-    @TODO:
-      - Static libraries will???
+    Tracks all allocated memory from global new/delete.
 **********************************************************************/
 
 #include "Memory/memory_structs.h"
@@ -46,10 +43,7 @@ namespace Core { namespace MemoryManagement {
         // that struct was gathered through global new/delete.
         // => Contains all allocations / deallocations.
         //----------------------------------------------------------------------
-        static Memory::AllocationInfo& getAllocationMemoryInfo() {
-            static Memory::AllocationInfo s_memoryInfo;
-            return s_memoryInfo; 
-        }
+        static Memory::AllocationInfo& getAllocationMemoryInfo();
 
         //----------------------------------------------------------------------
         // Log the AllocationMemoryInfo
@@ -58,7 +52,7 @@ namespace Core { namespace MemoryManagement {
 
     private:
 #ifndef STATIC_LIB
-        static MemoryTracker        s_memoryLeakDetectionInstance;
+        static MemoryTracker s_memoryLeakDetectionInstance;
 #endif
 
         // Check for a memory leak. Halt the program if one detected.

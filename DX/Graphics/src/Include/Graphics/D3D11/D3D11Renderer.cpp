@@ -57,7 +57,7 @@ namespace Graphics {
         _InitD3D11();
         _CreateGlobalBuffer();
         _CreateCubeMesh();
-        m_hmd = new VR::OculusRift();
+        m_hmd = new VR::OculusRift( getAPI() );
 
         // Gets rid of the warnings that a texture is not bound to a shadowmap slot
         {
