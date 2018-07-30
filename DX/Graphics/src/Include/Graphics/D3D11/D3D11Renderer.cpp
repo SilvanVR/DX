@@ -424,13 +424,6 @@ namespace Graphics {
             return;
         }
 
-        // Reset frame info struct
-        camera->getFrameInfo() = {};
-
-        // Unbind all shader resources, because the render target might be used as a srv
-        ID3D11ShaderResourceView* resourceViews[16] = {};
-        g_pImmediateContext->PSSetShaderResources( 0, 16, resourceViews );
-
         renderContext.SetCamera( camera );
         renderContext.BindRendertarget( renderTarget, m_frameCount );
 
@@ -867,11 +860,12 @@ namespace Graphics {
         }
         else
         {
-            ID3D11ShaderResourceView* resourceViews[16] = {};
-            g_pImmediateContext->PSSetShaderResources( 0, 16, resourceViews );
             vp = { 0, 0, (F32)dst->getWidth(), (F32)dst->getHeight(), 0, 1 };
-            renderContext.BindRendertarget( dst, m_frameCount );
         }
+
+        // Bind render-target (Note: if dst is null, this does nothing. Screen gets binded above)
+        renderContext.BindRendertarget( dst, m_frameCount );
+
         _DrawFullScreenQuad( material, vp );
     }
 
@@ -930,14 +924,22 @@ namespace Graphics {
     //----------------------------------------------------------------------
     void D3D11Renderer::RenderContext::BindRendertarget( const RenderTexturePtr& rt, U64 frameCount )
     {
+        // Unbind all shader resources, because the render target might be used as a srv
+        ID3D11ShaderResourceView* resourceViews[16] = {};
+        g_pImmediateContext->PSSetShaderResources( 0, 16, resourceViews );
+
         m_renderTarget = rt;
-        m_renderTarget->bindForRendering( frameCount );
+        if (m_renderTarget)
+            m_renderTarget->bindForRendering( frameCount );
     }
 
     //----------------------------------------------------------------------
     void D3D11Renderer::RenderContext::SetCamera( Camera* camera )
     {
         m_camera = camera;
+
+        // Reset frame info struct
+        m_camera->getFrameInfo() = {};
     }
 
 } // End namespaces
