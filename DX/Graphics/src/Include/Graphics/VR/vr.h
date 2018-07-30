@@ -9,7 +9,7 @@
 namespace Graphics { namespace VR {
 
     //----------------------------------------------------------------------
-    enum class Eye { Left, Right };
+    enum Eye { left = 0, right = 1 };
 
     //----------------------------------------------------------------------
     enum class Device

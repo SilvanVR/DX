@@ -219,6 +219,23 @@ namespace Graphics {
 
         m_pSwapchain->present( m_vsync );
         m_frameCount++;
+
+        auto mat = m_hmd->getEyeMatrices( m_frameCount );
+        for (auto eye : { VR::left, VR::right })
+        {
+            D3D11_VIEWPORT vp = {};
+            auto viewport = m_hmd->getViewport(eye);
+            vp.TopLeftX = viewport.topLeftX ;
+            vp.TopLeftY = viewport.topLeftY ;
+            vp.Width = viewport.width;
+            vp.Height = viewport.height;
+            vp.MaxDepth = 1.0f;
+            g_pImmediateContext->RSSetViewports( 1, &vp );
+
+            m_hmd->clear(eye, Color::ORANGE);
+        }
+
+        m_hmd->distortAndPresent( m_frameCount );
     }
 
     //----------------------------------------------------------------------
