@@ -148,14 +148,14 @@ namespace Graphics {
                 case GPUCommand::SET_RENDER_TARGET:
                 {
                     auto& cmd = *reinterpret_cast<GPUC_SetRenderTarget*>( command.get() );
-                    renderContext.renderTarget = cmd.target;
-                    renderContext.renderTarget->bindForRendering( m_frameCount );
+                    renderContext.BindRendertarget( cmd.target, m_frameCount );
                     break;
                 }
                 case GPUCommand::DRAW_FULLSCREEN_QUAD:
                 {
                     auto& cmd = *reinterpret_cast<GPUC_DrawFullscreenQuad*>( command.get() );
-                    D3D11_VIEWPORT vp = { 0, 0, (F32)renderContext.renderTarget->getWidth(), (F32)renderContext.renderTarget->getHeight(), 0, 1 };
+                    auto currRT = renderContext.getRenderTarget();
+                    D3D11_VIEWPORT vp = { 0, 0, (F32)currRT->getWidth(), (F32)currRT->getHeight(), 0, 1 };
                     _DrawFullScreenQuad( cmd.material, vp );
                     break;
                 }
@@ -220,22 +220,25 @@ namespace Graphics {
         m_pSwapchain->present( m_vsync );
         m_frameCount++;
 
-        auto mat = m_hmd->getEyeMatrices( m_frameCount );
-        for (auto eye : { VR::left, VR::right })
+        if ( m_hmd->isInitialized() )
         {
-            D3D11_VIEWPORT vp = {};
-            auto viewport = m_hmd->getViewport(eye);
-            vp.TopLeftX = viewport.topLeftX ;
-            vp.TopLeftY = viewport.topLeftY ;
-            vp.Width = viewport.width;
-            vp.Height = viewport.height;
-            vp.MaxDepth = 1.0f;
-            g_pImmediateContext->RSSetViewports( 1, &vp );
+            auto mat = m_hmd->getEyeMatrices( m_frameCount );
+            for (auto eye : { VR::left, VR::right })
+            {
+                D3D11_VIEWPORT vp = {};
+                auto viewport = m_hmd->getViewport(eye);
+                vp.TopLeftX = viewport.topLeftX ;
+                vp.TopLeftY = viewport.topLeftY ;
+                vp.Width = viewport.width;
+                vp.Height = viewport.height;
+                vp.MaxDepth = 1.0f;
+                g_pImmediateContext->RSSetViewports( 1, &vp );
 
-            m_hmd->clear(eye, Color::ORANGE);
+                m_hmd->clear(eye, Color::VIOLET);
+            }
+
+            m_hmd->distortAndPresent( m_frameCount );
         }
-
-        m_hmd->distortAndPresent( m_frameCount );
     }
 
     //----------------------------------------------------------------------
@@ -424,13 +427,12 @@ namespace Graphics {
         // Reset frame info struct
         camera->getFrameInfo() = {};
 
-        renderContext.camera = camera;
-        renderContext.renderTarget = renderTarget;
-
         // Unbind all shader resources, because the render target might be used as a srv
         ID3D11ShaderResourceView* resourceViews[16] = {};
         g_pImmediateContext->PSSetShaderResources( 0, 16, resourceViews );
-        renderTarget->bindForRendering( m_frameCount );
+
+        renderContext.SetCamera( camera );
+        renderContext.BindRendertarget( renderTarget, m_frameCount );
 
         // Clear rendertarget
         switch ( camera->getClearMode() )
@@ -490,12 +492,13 @@ namespace Graphics {
     }
 
     //----------------------------------------------------------------------
-    void D3D11Renderer::_DrawMesh( IMesh* mesh, const std::shared_ptr<IMaterial>& material, const DirectX::XMMATRIX& modelMatrix, I32 subMeshIndex )
+    void D3D11Renderer::_BindMesh( IMesh* mesh, const std::shared_ptr<IMaterial>& material, const DirectX::XMMATRIX& modelMatrix, I32 subMeshIndex )
     {
         // Measuring per frame data
-        if (renderContext.camera)
+        auto curCamera = renderContext.getCamera();
+        if (curCamera)
         {
-            auto& camInfo = renderContext.camera->getFrameInfo();
+            auto& camInfo = curCamera->getFrameInfo();
             camInfo.drawCalls++;
             camInfo.numTriangles += mesh->getIndexCount( subMeshIndex ) / 3;
             camInfo.numVertices += mesh->getVertexCount(); // This is actually not correct, cause i need the vertex-count from the submesh
@@ -509,6 +512,8 @@ namespace Graphics {
         if ( D3D11::ConstantBufferManager::hasLightBuffer() )
             _FlushLightBuffer();
 
+        // Bind shader, possibly a replacement shader
+        auto shader = material->getShader();
         if (m_activeGlobalMaterial)
         {
             renderContext.BindShader( m_activeGlobalMaterial->getShader() );
@@ -516,13 +521,11 @@ namespace Graphics {
         }
         else
         {
-            // Bind shader, possibly a replacement shader
-            auto shader = material->getShader();
-            if (renderContext.camera)
+            if (curCamera)
             {
-                if ( auto& camShader = renderContext.camera->getReplacementShader() )
+                if ( auto& camShader = curCamera->getReplacementShader() )
                 {
-                    if ( auto& matShader = material->getReplacementShader( renderContext.camera->getReplacementShaderTag() ) )
+                    if ( auto& matShader = material->getReplacementShader( curCamera->getReplacementShaderTag() ) )
                         shader = matShader;
                     else
                         shader = camShader;
@@ -539,56 +542,22 @@ namespace Graphics {
         OBJECT_BUFFER.update( &modelMatrix, sizeof( DirectX::XMMATRIX ) );
 
         // Bind mesh
-        mesh->bind( renderContext.getShader()->getVertexLayout(), subMeshIndex );
+        mesh->bind( shader->getVertexLayout(), subMeshIndex );
+    }
 
-        // Submit draw call
+    //----------------------------------------------------------------------
+    void D3D11Renderer::_DrawMesh( IMesh* mesh, const std::shared_ptr<IMaterial>& material, const DirectX::XMMATRIX& modelMatrix, I32 subMeshIndex )
+    {
+        // Bind everything and submit drawcall
+        _BindMesh( mesh, material, modelMatrix, subMeshIndex );
         g_pImmediateContext->DrawIndexed( mesh->getIndexCount( subMeshIndex ), 0, mesh->getBaseVertex( subMeshIndex ) );
     }
 
     //----------------------------------------------------------------------
     void D3D11Renderer::_DrawMeshInstanced( IMesh* mesh, const std::shared_ptr<IMaterial>& material, const DirectX::XMMATRIX& modelMatrix, I32 instanceCount )
     {
-        // Measuring per frame data
-        if (renderContext.camera)
-        {
-            auto& camInfo = renderContext.camera->getFrameInfo();
-            camInfo.drawCalls++;
-            camInfo.numTriangles += (mesh->getIndexCount(0) / 3) * instanceCount;
-            camInfo.numVertices += mesh->getVertexCount() * instanceCount; // This is actually not correct, cause i need the vertex-count from the submesh
-        }
-
-        // Update global buffer if necessary
-        if ( D3D11::ConstantBufferManager::hasGlobalBuffer() )
-            GLOBAL_BUFFER.flush();
-
-        // Update light buffer if necessary
-        if ( D3D11::ConstantBufferManager::hasLightBuffer() )
-            _FlushLightBuffer();
-
-        // Bind shader, possibly a replacement shader
-        auto shader = material->getShader();
-        if (renderContext.camera)
-        {
-            if ( auto& camShader = renderContext.camera->getReplacementShader() )
-            {
-                if ( auto& matShader = material->getReplacementShader( renderContext.camera->getReplacementShaderTag() ) )
-                    shader = matShader;
-                else
-                    shader = camShader;
-            }
-        }
-        renderContext.BindShader( shader );
-
-        // Bind material
-        renderContext.BindMaterial( material );
-
-        // Update per object buffer
-        OBJECT_BUFFER.update( &modelMatrix, sizeof( DirectX::XMMATRIX ) );
-
-        // Bind mesh
-        mesh->bind( shader->getVertexLayout() );
-
-        // Submit draw call
+        // Bind everything and submit drawcall
+        _BindMesh( mesh, material, modelMatrix, 0 );
         g_pImmediateContext->DrawIndexedInstanced( mesh->getIndexCount(0), instanceCount, 0, mesh->getBaseVertex(0), 0 );
     }
 
@@ -599,7 +568,7 @@ namespace Graphics {
             return;
         renderContext.lightsUpdated = false;
 
-        renderContext.camera->getFrameInfo().numLights = renderContext.lightCount;
+        renderContext.getCamera()->getFrameInfo().numLights = renderContext.lightCount;
 
         // Update light count
         if ( not LIGHT_BUFFER.update( LIGHT_COUNT_NAME, &renderContext.lightCount ) )
@@ -864,14 +833,15 @@ namespace Graphics {
     }
 
     //----------------------------------------------------------------------
-    void D3D11Renderer::_Blit( RenderTexturePtr src, RenderTexturePtr dst, const std::shared_ptr<IMaterial>& material )
+    void D3D11Renderer::_Blit( const RenderTexturePtr& src, const RenderTexturePtr& dst, const std::shared_ptr<IMaterial>& material )
     {
-        if (renderContext.renderTarget == SCREEN_BUFFER && dst == SCREEN_BUFFER)
+        auto currRT = renderContext.getRenderTarget();
+        if (currRT == SCREEN_BUFFER && dst == SCREEN_BUFFER)
             LOG_WARN_RENDERING( "D3D11[Blit]: Target texture was previously screen, so the content will probably be overriden. This can"
                                 " occur if two blits in succession with both target = nullptr (to screen) were recorded." );
 
         // Use the src texture as the input IF not null. Otherwise use the current bound render target.
-        auto input = src ? src : renderContext.renderTarget;
+        auto input = src.get() ? src.get() : currRT;
         if (input == SCREEN_BUFFER)
         {
             LOG_WARN_RENDERING( "D3D11[Blit]: Previous render target was screen, which can't be used as input! This happens when a blit-command "
@@ -882,14 +852,11 @@ namespace Graphics {
         // Set texture in material
         material->setTexture( POST_PROCESS_INPUT_NAME, input->getColorBuffer() );
 
-        // Set the destination as the new rendertarget
-        renderContext.renderTarget = dst;
-
         D3D11_VIEWPORT vp = {};
         if (dst == SCREEN_BUFFER)
         {
             // Set viewport (Translate to pixel coordinates first)
-            auto viewport = renderContext.camera->getViewport();
+            auto viewport = renderContext.getCamera()->getViewport();
             vp.TopLeftX = viewport.topLeftX * m_window->getWidth();
             vp.TopLeftY = viewport.topLeftY * m_window->getHeight();
             vp.Width    = viewport.width    * m_window->getWidth();
@@ -902,8 +869,8 @@ namespace Graphics {
         {
             ID3D11ShaderResourceView* resourceViews[16] = {};
             g_pImmediateContext->PSSetShaderResources( 0, 16, resourceViews );
-            vp = { 0, 0, (F32)renderContext.renderTarget->getWidth(), (F32)renderContext.renderTarget->getHeight(), 0, 1 };
-            dst->bindForRendering( m_frameCount );
+            vp = { 0, 0, (F32)dst->getWidth(), (F32)dst->getHeight(), 0, 1 };
+            renderContext.BindRendertarget( dst, m_frameCount );
         }
         _DrawFullScreenQuad( material, vp );
     }
@@ -952,12 +919,25 @@ namespace Graphics {
     //----------------------------------------------------------------------
     void D3D11Renderer::RenderContext::Reset()
     {
-        camera = nullptr;
+        m_camera = nullptr;
         m_shader = nullptr;
         m_material = nullptr;
         lightCount = 0;
         lightsUpdated = false;
-        renderTarget = nullptr;
+        m_renderTarget = nullptr;
+    }
+
+    //----------------------------------------------------------------------
+    void D3D11Renderer::RenderContext::BindRendertarget( const RenderTexturePtr& rt, U64 frameCount )
+    {
+        m_renderTarget = rt;
+        m_renderTarget->bindForRendering( frameCount );
+    }
+
+    //----------------------------------------------------------------------
+    void D3D11Renderer::RenderContext::SetCamera( Camera* camera )
+    {
+        m_camera = camera;
     }
 
 } // End namespaces

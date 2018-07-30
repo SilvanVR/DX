@@ -66,6 +66,11 @@ namespace Graphics { namespace VR {
         std::array<DirectX::XMMATRIX, 2> getEyeMatrices(I64 frameIndex);
 
         //----------------------------------------------------------------------
+        // @Return: Whether this HMD was sucessfully initialized.
+        //----------------------------------------------------------------------
+        bool isInitialized() const { return m_initialized; }
+
+        //----------------------------------------------------------------------
         // @Return: TODO
         //----------------------------------------------------------------------
         bool isVisible() const { return m_isVisible; }
@@ -93,6 +98,7 @@ namespace Graphics { namespace VR {
         ovrPosef            m_currentEyeRenderPose[2];
         OculusSwapchain*    m_eyeBuffers[2];
         bool                m_isVisible = true;
+        bool                m_initialized = false;
 
         //----------------------------------------------------------------------
         bool _InitLibOVR();

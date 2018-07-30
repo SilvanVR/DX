@@ -16,11 +16,13 @@ namespace Graphics { namespace VR {
         if ( not _InitLibOVR() )
             return;
 
-        m_HMDInfo = ovr_GetHmdDesc(m_session);
+        m_HMDInfo = ovr_GetHmdDesc( m_session );
         _CreateEyeBuffers( api, m_HMDInfo );
 
         for (auto eye : { left, right })
             m_eyeRenderDesc[eye] = ovr_GetRenderDesc( m_session, (ovrEyeType)eye, m_HMDInfo.DefaultEyeFov[eye] );
+
+        m_initialized = true;
     }
 
     //----------------------------------------------------------------------
@@ -45,6 +47,7 @@ namespace Graphics { namespace VR {
     //----------------------------------------------------------------------
     std::array<DirectX::XMMATRIX, 2> OculusRift::getEyeMatrices( I64 frameIndex )
     {
+        ASSERT( m_session && "VR Session does not exist." );
         std::array<DirectX::XMMATRIX, 2> matrices{};
 
         ovrPosef HmdToEyePose[2] = { m_eyeRenderDesc[0].HmdToEyePose, m_eyeRenderDesc[1].HmdToEyePose };
@@ -74,6 +77,7 @@ namespace Graphics { namespace VR {
     //----------------------------------------------------------------------
     void OculusRift::distortAndPresent( I64 frameIndex )
     {
+        ASSERT( m_session && "VR Session does not exist." );
         ovrLayerEyeFov ld;
         ld.Header.Type = ovrLayerType_EyeFov;
         ld.Header.Flags = 0;
