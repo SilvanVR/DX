@@ -14,7 +14,6 @@
 #include "LibOVR/OVR_CAPI_Vk.h"
 
 #include "../D3D11/D3D11.hpp"
-#include "../structs.hpp"
 #include "../enums.hpp"
 #include <array>
 
@@ -57,38 +56,21 @@ namespace Graphics { namespace VR {
     };
 
     //**********************************************************************
-    class OculusRift
+    class OculusRift : public HMD
     {
     public:
         OculusRift(API api);
         ~OculusRift();
 
-        std::array<DirectX::XMMATRIX, 2> getEyeMatrices(I64 frameIndex);
-
         //----------------------------------------------------------------------
-        // @Return: Whether this HMD was sucessfully initialized.
+        // VRDevice Interface
         //----------------------------------------------------------------------
-        bool isInitialized() const { return m_initialized; }
-
-        //----------------------------------------------------------------------
-        // @Return: TODO
-        //----------------------------------------------------------------------
-        bool isVisible() const { return m_isVisible; }
-
-        //----------------------------------------------------------------------
-        // @Return: Viewport matching the resolution from the HMD for the given eye.
-        //----------------------------------------------------------------------
-        ViewportRect getViewport(Eye eye) { return { (F32)m_eyeRenderViewport[eye].Pos.x, (F32)m_eyeRenderViewport[eye].Pos.y, (F32)m_eyeRenderViewport[eye].Size.w, (F32)m_eyeRenderViewport[eye].Size.h }; }
-
-        //----------------------------------------------------------------------
-        // Clears the next swapchain texture for the given eye with the given color.
-        //----------------------------------------------------------------------
-        void clear(Eye eye, Color col) { m_eyeBuffers[eye]->clear( m_session, col ); }
-
-        //----------------------------------------------------------------------
-        // Distorts the swapchain images and presents them to the HMD.
-        //----------------------------------------------------------------------
-        void distortAndPresent(I64 frameIndex);
+        bool                    hasFocus() override;
+        ViewportRect            getViewport(Eye eye) override { return { (F32)m_eyeRenderViewport[eye].Pos.x, (F32)m_eyeRenderViewport[eye].Pos.y, (F32)m_eyeRenderViewport[eye].Size.w, (F32)m_eyeRenderViewport[eye].Size.h }; }
+        void                    clear(Eye eye, Color col) override { m_eyeBuffers[eye]->clear(m_session, col); }
+        void                    distortAndPresent(I64 frameIndex) override;
+        std::array<EyePose, 2>  getEyePoses() const override;
+        std::array<EyePose, 2>  calculateEyePoses(I64 frameIndex) override;
 
     private:
         ovrSession          m_session;
@@ -97,12 +79,11 @@ namespace Graphics { namespace VR {
         ovrHmdDesc          m_HMDInfo;
         ovrPosef            m_currentEyeRenderPose[2];
         OculusSwapchain*    m_eyeBuffers[2];
-        bool                m_isVisible = true;
-        bool                m_initialized = false;
 
         //----------------------------------------------------------------------
         bool _InitLibOVR();
         void _CreateEyeBuffers(API api, const ovrHmdDesc& hmdInfo);
+        void _SetupDescription(const ovrHmdDesc& hmdInfo);
 
         NULL_COPY_AND_ASSIGN(OculusRift)
     };

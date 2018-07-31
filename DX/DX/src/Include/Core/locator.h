@@ -51,6 +51,7 @@
 #define ASSETS                  Locator::getAssetManager()
 #define WINDOW                  Locator::getWindow()
 #define CONFIG                  Locator::getConfiguration()
+#define RENDERER                Locator::getRenderer()
 
 //*********************************************************************
 // Retrieve / Change every subsystem via a static method.

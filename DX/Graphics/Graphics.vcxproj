@@ -203,6 +203,7 @@
     <ClCompile Include="src\Include\Graphics\Lighting\lights.cpp" />
     <ClCompile Include="src\Include\Graphics\Utils\utils.cpp" />
     <ClCompile Include="src\Include\Graphics\VR\oculus_rift.cpp" />
+    <ClCompile Include="src\Include\Graphics\VR\vr.cpp" />
     <ClCompile Include="src\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>

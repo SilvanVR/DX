@@ -8,6 +8,19 @@
 
 #include "Logging/logging.h"
 
+//----------------------------------------------------------------------
+inline Math::Vec3 ConvertVec3( const ovrVector3f& vec3 )
+{
+    return Math::Vec3( vec3.x, vec3.y, vec3.z );
+}
+
+//----------------------------------------------------------------------
+inline Math::Quat ConvertQuat( const ovrQuatf& q )
+{
+    return Math::Quat( q.x, q.y, q.z, q.w );
+}
+
+
 namespace Graphics { namespace VR {
 
     //----------------------------------------------------------------------
@@ -19,9 +32,10 @@ namespace Graphics { namespace VR {
         m_HMDInfo = ovr_GetHmdDesc( m_session );
         _CreateEyeBuffers( api, m_HMDInfo );
 
-        for (auto eye : { left, right })
+        for (auto eye : { Left, Right })
             m_eyeRenderDesc[eye] = ovr_GetRenderDesc( m_session, (ovrEyeType)eye, m_HMDInfo.DefaultEyeFov[eye] );
 
+        _SetupDescription( m_HMDInfo );
         m_initialized = true;
     }
 
@@ -30,7 +44,7 @@ namespace Graphics { namespace VR {
     {
         if (m_session)
         {
-            for (auto eye : { left, right })
+            for (auto eye : { Left, Right })
             {
                 m_eyeBuffers[eye]->release( m_session );
                 delete m_eyeBuffers[eye];
@@ -45,18 +59,31 @@ namespace Graphics { namespace VR {
     //----------------------------------------------------------------------
 
     //----------------------------------------------------------------------
-    std::array<DirectX::XMMATRIX, 2> OculusRift::getEyeMatrices( I64 frameIndex )
+    std::array<EyePose, 2> OculusRift::getEyePoses() const
     {
-        ASSERT( m_session && "VR Session does not exist." );
-        std::array<DirectX::XMMATRIX, 2> matrices{};
+        std::array<EyePose, 2> eyePoses{};
+        for (auto eye : { Left, Right })
+        {
+            eyePoses[eye].position = ConvertVec3( m_currentEyeRenderPose->Position );
+            eyePoses[eye].rotation = ConvertQuat( m_currentEyeRenderPose->Orientation );
+        }
+        return eyePoses;
+    }
+
+    //----------------------------------------------------------------------
+    std::array<EyePose, 2> OculusRift::calculateEyePoses( I64 frameIndex ) 
+    {
+        std::array<EyePose, 2> eyePoses{};
 
         ovrPosef HmdToEyePose[2] = { m_eyeRenderDesc[0].HmdToEyePose, m_eyeRenderDesc[1].HmdToEyePose };
         F64 ftiming = ovr_GetPredictedDisplayTime( m_session, frameIndex );
         ovrTrackingState hmdState = ovr_GetTrackingState( m_session, ftiming, ovrTrue );
+
+        //if (ts.StatusFlags & (ovrStatus_OrientationTracked | ovrStatus_PositionTracked))
         ovr_CalcEyePoses( hmdState.HeadPose.ThePose, HmdToEyePose, m_currentEyeRenderPose );
 
         using namespace DirectX;
-        for (auto eye : { left, right })
+        for (auto eye : { Left, Right })
         {
             XMVECTOR eyeQuat = XMVectorSet( m_currentEyeRenderPose[eye].Orientation.x, m_currentEyeRenderPose[eye].Orientation.y,
                                             m_currentEyeRenderPose[eye].Orientation.z, m_currentEyeRenderPose[eye].Orientation.w );
@@ -64,24 +91,29 @@ namespace Graphics { namespace VR {
             //XMVECTOR CombinedPos = XMVectorAdd(mainCam.Pos, XMVector3Rotate(eyePos, mainCam.Rot));
             //Camera finalCam(CombinedPos, (XMQuaternionMultiply(eyeQuat, mainCam.Rot)));
             //XMMATRIX view = finalCam.GetViewMatrix();
-            ovrMatrix4f p = ovrMatrix4f_Projection( m_eyeRenderDesc[eye].Fov, 0.2f, 1000.0f, ovrProjection_None );
+            ovrMatrix4f p = ovrMatrix4f_Projection( m_eyeRenderDesc[eye].Fov, 0.2f, 1000.0f, ovrProjection_LeftHanded );
             XMMATRIX proj = XMMatrixSet( p.M[0][0], p.M[1][0], p.M[2][0], p.M[3][0],
                                          p.M[0][1], p.M[1][1], p.M[2][1], p.M[3][1],
                                          p.M[0][2], p.M[1][2], p.M[2][2], p.M[3][2],
                                          p.M[0][3], p.M[1][3], p.M[2][3], p.M[3][3] );
         }
 
-        return matrices;
+        for (auto touch : { Hand::Left, Hand::Right })
+        {
+            m_touch[(I32)touch].position = ConvertVec3( hmdState.HandPoses[(I32)touch].ThePose.Position );
+            m_touch[(I32)touch].rotation = ConvertQuat( hmdState.HandPoses[(I32)touch].ThePose.Orientation );
+        }
+
+        return eyePoses;
     }
 
     //----------------------------------------------------------------------
     void OculusRift::distortAndPresent( I64 frameIndex )
     {
-        ASSERT( m_session && "VR Session does not exist." );
         ovrLayerEyeFov ld;
         ld.Header.Type = ovrLayerType_EyeFov;
         ld.Header.Flags = 0;
-        for (auto eye : { left, right })
+        for (auto eye : { Left, Right })
         {
             m_eyeBuffers[eye]->commit( m_session );
             ld.ColorTexture[eye]    = m_eyeBuffers[eye]->get();
@@ -96,7 +128,19 @@ namespace Graphics { namespace VR {
         viewScaleDesc.HmdToEyePose[1] = m_eyeRenderDesc[1].HmdToEyePose;
 
         ovrLayerHeader* layers = &ld.Header;
-        m_isVisible = ovr_SubmitFrame( m_session, frameIndex, &viewScaleDesc, &layers, 1 ) == ovrSuccess;
+        ovrResult result = ovr_SubmitFrame( m_session, frameIndex, &viewScaleDesc, &layers, 1 );
+
+        m_isVisible = result == ovrSuccess;
+        if (result == ovrError_DisplayLost)
+            LOG_WARN_RENDERING( "OculusRift: HMD was disconnected from the computer." );
+    }
+
+    //----------------------------------------------------------------------
+    bool OculusRift::hasFocus()
+    {
+        ovrSessionStatus sessionStatus;
+        ovr_GetSessionStatus( m_session, &sessionStatus );
+        return sessionStatus.HasInputFocus;
     }
 
     //----------------------------------------------------------------------
@@ -106,10 +150,11 @@ namespace Graphics { namespace VR {
     //----------------------------------------------------------------------
     bool OculusRift::_InitLibOVR()
     {
-        ovrResult result = ovr_Initialize( nullptr );
+        ovrInitParams initParams = { ovrInit_RequestVersion | ovrInit_FocusAware, OVR_MINOR_VERSION, NULL, 0, 0 };
+        ovrResult result = ovr_Initialize( &initParams );
         if (result != ovrSuccess)
         {
-            LOG_WARN_RENDERING( "OculusRift: Failed to initialize libOVR. It may not be supported on your system." );
+            LOG_WARN_RENDERING( "OculusRift: Failed to initialize libOVR. It may not be supported/available on your system." );
             return false;
         }
 
@@ -127,7 +172,7 @@ namespace Graphics { namespace VR {
     //----------------------------------------------------------------------
     void OculusRift::_CreateEyeBuffers( API api, const ovrHmdDesc& HMDInfo )
     {
-        for (auto eye : { left, right })
+        for (auto eye : { Left, Right })
         {
             ovrSizei idealSize = ovr_GetFovTextureSize( m_session, (ovrEyeType)eye, HMDInfo.DefaultEyeFov[eye], 1.0f );
             m_eyeRenderViewport[eye].Pos.x = 0;
@@ -136,6 +181,23 @@ namespace Graphics { namespace VR {
 
             m_eyeBuffers[eye] = new OculusSwapchain( api, m_session, idealSize.w, idealSize.h );
         }
+    }
+
+    //----------------------------------------------------------------------
+    void OculusRift::_SetupDescription( const ovrHmdDesc& hmdInfo )
+    {
+        HMDDescription description;
+        description.name        = hmdInfo.ProductName;
+        description.resolution  = { hmdInfo.Resolution.w, hmdInfo.Resolution.h };
+        description.device      = Device::OculusRift;
+
+        for (auto eye : { Left, Right })
+        {
+            ovrSizei idealSize = ovr_GetFovTextureSize( m_session, (ovrEyeType)eye, hmdInfo.DefaultEyeFov[eye], 1.0f );
+            description.idealResolution[eye] = { idealSize.w, idealSize.h };
+        }
+
+        m_description = description;
     }
 
     //**********************************************************************

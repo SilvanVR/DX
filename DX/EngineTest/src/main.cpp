@@ -19,6 +19,8 @@ class TestScene : public IScene
 {
     Components::Camera* cam;
     GameObject* go;
+    Components::Transform* t;
+    Components::Transform* t2;
 
 public:
     TestScene() : IScene("TestScene") {}
@@ -58,11 +60,30 @@ public:
         go->addComponent<Components::GUICustom>([=] {
         });
 
+
+        auto desc = RENDERER.getVRDevice().getDescription();
+        auto res = desc.resolution;
+
+        auto monkey = createGameObject("monkey");
+        monkey->addComponent<Components::MeshRenderer>(ASSETS.getMesh("/models/monkey.obj"), ASSETS.getMaterial("/materials/normals.material"));
+        t = monkey->getTransform();
+        t->scale = { 0.2f };
+
+        // Stereo render-texture
+
+        //auto touch = RENDERER.getVRDevice().getTouch(Graphics::VR::Touch::LeftHand);
+        //auto pos = touch.position;
+
         LOG("TestScene initialized!", Color::RED);
     }
 
     void tick(Time::Seconds d) override
     {
+        auto eyePoses = RENDERER.getVRDevice().getEyePoses();
+        t->position = { 0.0f, 1.5f, 0.0f };
+        t->position += eyePoses[0].position;
+        t->rotation = eyePoses[0].rotation;
+
         if (KEYBOARD.wasKeyPressed(Key::M))
         {
             static int index = 0;

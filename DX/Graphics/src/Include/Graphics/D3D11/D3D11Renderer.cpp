@@ -20,6 +20,7 @@
 #include "Lighting/lights.h"
 #include "D3D11Utility.h"
 #include "camera.h"
+#include "VR/vr.h"
 
 using namespace DirectX;
 
@@ -57,7 +58,9 @@ namespace Graphics {
         _InitD3D11();
         _CreateGlobalBuffer();
         _CreateCubeMesh();
-        m_hmd = new VR::OculusRift( getAPI() );
+
+        if ( not _InitializeHMD() )
+            LOG_WARN_RENDERING( "VR not supported on your system / by this engine." );
 
         // Gets rid of the warnings that a texture is not bound to a shadowmap slot
         {
@@ -222,8 +225,8 @@ namespace Graphics {
 
         if ( m_hmd->isInitialized() )
         {
-            auto mat = m_hmd->getEyeMatrices( m_frameCount );
-            for (auto eye : { VR::left, VR::right })
+            auto eyePoses = m_hmd->calculateEyePoses( m_frameCount );
+            for (auto eye : { VR::Eye::Left, VR::Eye::Right })
             {
                 D3D11_VIEWPORT vp = {};
                 auto viewport = m_hmd->getViewport(eye);
@@ -234,9 +237,11 @@ namespace Graphics {
                 vp.MaxDepth = 1.0f;
                 g_pImmediateContext->RSSetViewports( 1, &vp );
 
-                m_hmd->clear(eye, Color::VIOLET);
+                if (m_hmd->hasFocus())
+                    m_hmd->clear(eye, Color::TURQUOISE);
+                else
+                    m_hmd->clear(eye, Color::BLUE);
             }
-
             m_hmd->distortAndPresent( m_frameCount );
         }
     }

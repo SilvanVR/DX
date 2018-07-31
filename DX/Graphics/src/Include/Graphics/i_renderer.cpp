@@ -10,6 +10,7 @@
 #include "command_buffer.h"
 #include "Events/event_dispatcher.h"
 #include "Events/event_names.hpp"
+#include "VR/oculus_rift.h"
 #include <mutex>
 
 namespace Graphics {
@@ -80,6 +81,17 @@ namespace Graphics {
     void IRenderer::_UnlockQueue()
     {
         s_renderQueueMutex.unlock();
+    }
+
+    //----------------------------------------------------------------------
+    bool IRenderer::_InitializeHMD()
+    {
+        VR::Device hmd = VR::GetFirstSupportedHMD();
+        switch (hmd)
+        {
+        case VR::Device::OculusRift: m_hmd = new VR::OculusRift( getAPI() ); return true;
+        }
+        return false;
     }
 
     //----------------------------------------------------------------------

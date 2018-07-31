@@ -21,6 +21,12 @@ namespace Graphics
     class ICubemap;
     class IMaterial;
     class IShader;
+    class CommandBuffer;
+
+    namespace VR
+    {
+        class HMD;
+    }
 }
 
 using MeshPtr = std::shared_ptr<Graphics::IMesh>;

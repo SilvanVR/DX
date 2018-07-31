@@ -8,24 +8,12 @@
     Interface for a renderer subsystem.
 **********************************************************************/
 
+#include "forward_declarations.hpp"
 #include "Common/i_subsystem.hpp"
-#include "i_render_texture.h"
 #include "OS/Window/window.h"
 #include "structs.hpp"
 
 namespace Graphics {
-
-    //----------------------------------------------------------------------
-    class ITexture2DArray;
-    class IRenderTexture;
-    class IRenderBuffer;
-    class CommandBuffer;
-    class ITexture2D;
-    class IMaterial;
-    class ITexture;
-    class ICubemap;
-    class IShader;
-    class IMesh;
 
     //----------------------------------------------------------------------
     struct Limits
@@ -50,6 +38,8 @@ namespace Graphics {
         const Limits&           getLimits()         const { return m_limits; }
         bool                    isVSyncEnabled()    const { return m_vsync; }
         const GPUDescription&   getGPUDescription() const { return m_gpuDescription; }
+        const VR::HMD&          getVRDevice()       const { return *m_hmd; }
+        bool                    hasHMD()            const { return m_hmd != nullptr; }
 
         //----------------------------------------------------------------------
         void setVSync(bool enabled) { m_vsync = enabled; }
@@ -122,10 +112,17 @@ namespace Graphics {
         Limits                      m_limits;
         bool                        m_vsync = false;
         GPUDescription              m_gpuDescription;
+        VR::HMD*                    m_hmd = nullptr;
 
         //----------------------------------------------------------------------
         void _LockQueue();
         void _UnlockQueue();
+
+        //----------------------------------------------------------------------
+        // Queries all supported HMDs, checks if they are supported and initializes the first supported one.
+        // @Return: Whether an hmd was successfully found and initialized.
+        //----------------------------------------------------------------------
+        bool _InitializeHMD();
 
         //----------------------------------------------------------------------
         virtual void OnWindowSizeChanged(U16 w, U16 h) = 0;
