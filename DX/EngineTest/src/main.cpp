@@ -15,6 +15,84 @@
 // SCENES
 //----------------------------------------------------------------------
 
+namespace Components
+{
+    #define BUFFER_FORMAT_LDR       Graphics::TextureFormat::RGBA32
+    #define BUFFER_FORMAT_HDR       Graphics::TextureFormat::RGBAFloat
+    #define DEPTH_STENCIL_FORMAT    Graphics::DepthFormat::D32
+
+    class VRCamera : public IComponent
+    {
+    public:
+        VRCamera() = default;
+        ~VRCamera() = default;
+
+        void init() override
+        {
+            Graphics::MSAASamples sampleCount = Graphics::MSAASamples::One;
+            bool hdr = false;
+
+            auto scene = getGameObject()->getScene();
+            auto hmdDesc = RENDERER.getVRDevice().getDescription();
+
+            for (auto eye : { Graphics::VR::LeftEye, Graphics::VR::RightEye })
+            {
+                m_eyeGameObjects[eye] = scene->createGameObject( eye == 0 ? "LeftEye" : "RightEye" );
+
+                // Attach both cameras as childs to this transform
+                m_eyeGameObjects[eye]->getTransform()->setParent( getGameObject()->getTransform() );
+
+                // Create cameras
+                auto eyeBuffer = RESOURCES.createRenderTexture( hmdDesc.idealResolution[eye].x, hmdDesc.idealResolution[eye].y,
+                                                                DEPTH_STENCIL_FORMAT, hdr ? BUFFER_FORMAT_HDR : BUFFER_FORMAT_LDR,
+                                                                sampleCount, false );
+                m_eyeCameras[eye] = m_eyeGameObjects[eye]->addComponent<Components::Camera>(eyeBuffer);
+                m_eyeCameras[eye]->setHMDRenderingToEye( eye == 0 ? Graphics::VR::LeftEye : Graphics::VR::RightEye );
+            }
+
+            // Render only first camera to screen
+            m_eyeCameras[1]->setRenderingToScreen(false);
+
+            //m_eyeCameras[0]->getViewport().width = 0.5f;
+            //m_eyeCameras[1]->getViewport().topLeftX = 0.5f;
+            //m_eyeCameras[1]->getViewport().width = 0.5f;
+
+            Events::EventDispatcher::GetEvent(EVENT_FRAME_BEGIN).addListener(BIND_THIS_FUNC_0_ARGS(&VRCamera::FrameBegin));
+        }
+
+        void tick(Time::Seconds delta)
+        {
+            //auto eyePoses = RENDERER.getVRDevice().calculateEyePoses( RENDERER.getFrameCount() );
+            //auto eyePoses = RENDERER.getVRDevice().getEyePoses();
+            //for (auto eye : { Graphics::VR::LeftEye, Graphics::VR::RightEye })
+            //{
+            //    auto transform = m_eyeGameObjects[eye]->getTransform();
+            //    transform->position = eyePoses[eye].position;
+            //    transform->rotation = eyePoses[eye].rotation;
+            //    //m_eyeCameras[eye]->setProjection(eyePoses[eye].projection);
+            //}
+        }
+
+    private:
+        GameObject*         m_eyeGameObjects[2];
+        Components::Camera* m_eyeCameras[2];
+
+        void FrameBegin()
+        {
+            auto eyePoses = RENDERER.getVRDevice().calculateEyePoses( RENDERER.getFrameCount() );
+            for (auto eye : { Graphics::VR::LeftEye, Graphics::VR::RightEye })
+            {
+                auto transform = m_eyeGameObjects[eye]->getTransform();
+                transform->position = eyePoses[eye].position;
+                transform->rotation = eyePoses[eye].rotation;
+                m_eyeCameras[eye]->setProjection(eyePoses[eye].projection);
+            }
+        }
+
+        NULL_COPY_AND_ASSIGN(VRCamera)
+    };
+}
+
 class TestScene : public IScene
 {
     Components::Camera* cam;
@@ -29,11 +107,11 @@ public:
     {
         // Camera 1
         go = createGameObject("Camera");
-        cam = go->addComponent<Components::Camera>();
+        //cam = go->addComponent<Components::Camera>();
         go->getComponent<Components::Transform>()->position = Math::Vec3(0, 1, -5);
-        go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 0.1f);
+        //go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 0.1f);
 
-        cam->setRenderingToHMD(true);
+        go->addComponent<Components::VRCamera>();
 
         //createGameObject("Grid")->addComponent<GridGeneration>(20);
 
@@ -47,43 +125,29 @@ public:
 
         auto world = createGameObject("World");
         world->addComponent<Components::MeshRenderer>(ASSETS.getMesh("/models/box_n_inside.obj"), ASSETS.getMaterial("/materials/blinn_phong/cellar.material"));
-        world->getTransform()->position.y = 10.0f;
-        world->getTransform()->scale = 10.0f;
+        world->getTransform()->position.y = 5.0f;
+        world->getTransform()->scale = 5.0f;
 
         auto plg = createGameObject("PL");
         plg->addComponent<Components::PointLight>(2.0f, Color::ORANGE, 15.0f);
         plg->getTransform()->position = { 0, 1.5f, 0 };
         plg->addComponent<Components::Billboard>(ASSETS.getTexture2D("/engine/textures/pointLight.png"), 0.5f);
 
-        go->addComponent<Components::GUI>();
-        go->addComponent<Components::GUIFPS>();
-        go->addComponent<Components::GUICustom>([=] {
-        });
-
-
-        auto desc = RENDERER.getVRDevice().getDescription();
-        auto res = desc.resolution;
+        //go->addComponent<Components::GUI>();
+        //go->addComponent<Components::GUIFPS>();
+        //go->addComponent<Components::GUICustom>([=] {
+        //});
 
         auto monkey = createGameObject("monkey");
         monkey->addComponent<Components::MeshRenderer>(ASSETS.getMesh("/models/monkey.obj"), ASSETS.getMaterial("/materials/normals.material"));
         t = monkey->getTransform();
         t->scale = { 0.2f };
 
-        // Stereo render-texture
-
-        //auto touch = RENDERER.getVRDevice().getTouch(Graphics::VR::Touch::LeftHand);
-        //auto pos = touch.position;
-
         LOG("TestScene initialized!", Color::RED);
     }
 
     void tick(Time::Seconds d) override
     {
-        auto eyePoses = RENDERER.getVRDevice().getEyePoses();
-        t->position = { 0.0f, 1.5f, 0.0f };
-        t->position += eyePoses[0].position;
-        t->rotation = eyePoses[0].rotation;
-
         if (KEYBOARD.wasKeyPressed(Key::M))
         {
             static int index = 0;
@@ -111,14 +175,13 @@ public:
         gui->addComponent<Components::GUI>();
 
         auto guiSceneMenu = gui->addComponent<GUISceneMenu>();
-        guiSceneMenu->registerScene<SceneParticleSystem>("Particle System");
         guiSceneMenu->registerScene<TestScene>("Test Scene");
+        guiSceneMenu->registerScene<SceneParticleSystem>("Particle System");
         guiSceneMenu->registerScene<ShadowScene>("Shadow Scene");
-        guiSceneMenu->registerScene<VertexGenScene>("Dynamic Vertex Buffer regeneration");
         guiSceneMenu->registerScene<ScenePostProcessMultiCamera>("Multi Camera Post Processing");
         guiSceneMenu->registerScene<SceneGUI>("GUI Example");
         guiSceneMenu->registerScene<SceneMirror>("Offscreen rendering on material");
-        guiSceneMenu->registerScene<ManyObjectsScene>("Many Objects!");
+        guiSceneMenu->registerScene<ManyObjectsScene>("Many Drawcalls!");
         guiSceneMenu->registerScene<BlinnPhongLightingScene>("Blinn-Phong Lighting");
         guiSceneMenu->registerScene<ScenePBRSpheres>("PBR Spheres");
         guiSceneMenu->registerScene<ScenePBRPistol>("PBR Pistol + Dagger");
@@ -129,6 +192,7 @@ public:
         guiSceneMenu->registerScene<SceneFrustumVisualization>("Frustum Visualization");
         guiSceneMenu->registerScene<TexArrayScene>("Texture arrays");
         guiSceneMenu->registerScene<CubemapScene>("Cubemap");
+        guiSceneMenu->registerScene<VertexGenScene>("Dynamic Vertex Buffer regeneration");
 
         LOG("SceneGUISelectSceneMenu initialized!", Color::RED);
     }

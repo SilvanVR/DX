@@ -185,4 +185,19 @@ namespace Graphics {
         Four = 4,
         Eight = 8
     };
+
+    namespace VR {
+
+        //----------------------------------------------------------------------
+        enum Eye { None = -1, LeftEye = 0, RightEye = 1 };
+        enum class Hand { None = -1, Left = 0, Right = 1 };
+
+        //----------------------------------------------------------------------
+        enum class Device
+        {
+            Unknown,
+            OculusRift
+        };
+
+    }
 }

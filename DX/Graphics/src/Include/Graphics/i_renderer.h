@@ -38,7 +38,7 @@ namespace Graphics {
         const Limits&           getLimits()         const { return m_limits; }
         bool                    isVSyncEnabled()    const { return m_vsync; }
         const GPUDescription&   getGPUDescription() const { return m_gpuDescription; }
-        const VR::HMD&          getVRDevice()       const { return *m_hmd; }
+        VR::HMD&                getVRDevice()       const { return *m_hmd; }
         bool                    hasHMD()            const { return m_hmd != nullptr; }
 
         //----------------------------------------------------------------------

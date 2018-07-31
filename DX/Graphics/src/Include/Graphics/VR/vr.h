@@ -9,21 +9,11 @@
 **********************************************************************/
 
 #include "../structs.hpp"
+#include "../enums.hpp"
 
 namespace Graphics { class D3D11Renderer; class VulkanRenderer; }
 
 namespace Graphics { namespace VR {
-
-    //----------------------------------------------------------------------
-    enum Eye { Left = 0, Right = 1 };
-    enum class Hand { Left = 0, Right = 1 };
-
-    //----------------------------------------------------------------------
-    enum class Device
-    {
-        Unknown,
-        OculusRift
-    };
 
     //----------------------------------------------------------------------
     struct HMDDescription
@@ -39,6 +29,7 @@ namespace Graphics { namespace VR {
     {
         Math::Vec3 position;
         Math::Quat rotation;
+        DirectX::XMMATRIX projection;
     };
 
     //----------------------------------------------------------------------
@@ -81,7 +72,12 @@ namespace Graphics { namespace VR {
         virtual bool hasFocus() = 0;
 
         //----------------------------------------------------------------------
-        // @Return: Last calculated eye poses from the render engine.
+        // @Return: Calculates and returns the current eye poses.
+        //----------------------------------------------------------------------
+        virtual std::array<EyePose, 2> calculateEyePoses(I64 frameIndex) = 0;
+
+        //----------------------------------------------------------------------
+        // @Return: Last calculated eye poses from calculateEyePoses().
         //----------------------------------------------------------------------
         virtual std::array<EyePose, 2> getEyePoses() const = 0;
 
@@ -102,25 +98,19 @@ namespace Graphics { namespace VR {
         friend class VulkanRenderer;
 
         //----------------------------------------------------------------------
-        // Clears the next swapchain texture for the given eye with the given color.
+        // Clears the next swapchain texture for both eyes with the given color.
         //----------------------------------------------------------------------
-        virtual void clear(Eye eye, Color col) = 0;
-
-        //----------------------------------------------------------------------
-        // @Return: Viewport matching the resolution from the HMD for the given eye.
-        //----------------------------------------------------------------------
-        virtual ViewportRect getViewport(Eye eye) = 0;
-
-        //----------------------------------------------------------------------
-        // @Return: Calculates and returns the current eye poses.
-        //----------------------------------------------------------------------
-        virtual std::array<EyePose, 2> calculateEyePoses(I64 frameIndex) = 0;
+        virtual void clear(Color col) = 0;
 
         //----------------------------------------------------------------------
         // Distorts the swapchain images and presents them to the HMD.
         //----------------------------------------------------------------------
         virtual void distortAndPresent(I64 frameIndex) = 0;
 
+        //----------------------------------------------------------------------
+        // Bind the next texture in the swapchain to the OM for the given eye.
+        //----------------------------------------------------------------------
+        virtual void bindForRendering(Eye eye) = 0;
 
         NULL_COPY_AND_ASSIGN(HMD)
     };

@@ -126,6 +126,7 @@ namespace Graphics {
         case CameraMode::Orthographic:
             m_projection = DirectX::XMMatrixOrthographicOffCenterLH( m_ortho.left, m_ortho.right, m_ortho.bottom, m_ortho.top, m_zNear, m_zFar );
             break;
+        case CameraMode::Custom: break;
         default:
             ASSERT( false && "Invalid camera mode" );
         }

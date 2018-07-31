@@ -130,7 +130,7 @@ namespace Core {
 
             // Inject an command which blits last rendered buffer to the screen/render target if we
             // have at least one post processing command buffer attached or we are rendering to the screen.
-            if( cam->m_camera.isRenderingToScreen() )
+            if( cam->isRenderingToScreen() || cam->isRenderingToHMD() )
                 cmd.blit( PREVIOUS_BUFFER, SCREEN_BUFFER, ASSETS.getPostProcessMaterial() );
             else if (cam->m_additionalCommandBuffers[Components::CameraEvent::PostProcess].size() > 0)
                 cmd.blit( PREVIOUS_BUFFER, cam->getRenderTarget(), ASSETS.getPostProcessMaterial() );

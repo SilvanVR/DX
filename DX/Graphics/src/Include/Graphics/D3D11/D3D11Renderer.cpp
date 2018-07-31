@@ -60,7 +60,7 @@ namespace Graphics {
         _CreateCubeMesh();
 
         if ( not _InitializeHMD() )
-            LOG_WARN_RENDERING( "VR not supported on your system / by this engine." );
+            LOG_WARN_RENDERING( "VR not supported on your system." );
 
         // Gets rid of the warnings that a texture is not bound to a shadowmap slot
         {
@@ -215,35 +215,17 @@ namespace Graphics {
     {
         _LockQueue();
         m_pSwapchain->clear( Color::BLACK );
+        m_hmd->clear(Color::BLUE);
         for (auto& cmd : m_pendingCmdQueue)
             _ExecuteCommandBuffer( cmd );
         m_pendingCmdQueue.clear();
         _UnlockQueue();
 
         m_pSwapchain->present( m_vsync );
-        m_frameCount++;
-
-        if ( m_hmd->isInitialized() )
-        {
-            auto eyePoses = m_hmd->calculateEyePoses( m_frameCount );
-            for (auto eye : { VR::Eye::Left, VR::Eye::Right })
-            {
-                D3D11_VIEWPORT vp = {};
-                auto viewport = m_hmd->getViewport(eye);
-                vp.TopLeftX = viewport.topLeftX ;
-                vp.TopLeftY = viewport.topLeftY ;
-                vp.Width = viewport.width;
-                vp.Height = viewport.height;
-                vp.MaxDepth = 1.0f;
-                g_pImmediateContext->RSSetViewports( 1, &vp );
-
-                if (m_hmd->hasFocus())
-                    m_hmd->clear(eye, Color::TURQUOISE);
-                else
-                    m_hmd->clear(eye, Color::BLUE);
-            }
+        if (hasHMD())
             m_hmd->distortAndPresent( m_frameCount );
-        }
+
+        m_frameCount++;
     }
 
     //----------------------------------------------------------------------
@@ -850,11 +832,12 @@ namespace Graphics {
         // Set texture in material
         material->setTexture( POST_PROCESS_INPUT_NAME, input->getColorBuffer() );
 
+        auto curCamera = renderContext.getCamera();
         D3D11_VIEWPORT vp = {};
         if (dst == SCREEN_BUFFER)
         {
             // Set viewport (Translate to pixel coordinates first)
-            auto viewport = renderContext.getCamera()->getViewport();
+            auto viewport = curCamera->getViewport();
             vp.TopLeftX = viewport.topLeftX * m_window->getWidth();
             vp.TopLeftY = viewport.topLeftY * m_window->getHeight();
             vp.Width    = viewport.width    * m_window->getWidth();
@@ -872,6 +855,27 @@ namespace Graphics {
         renderContext.BindRendertarget( dst, m_frameCount );
 
         _DrawFullScreenQuad( material, vp );
+
+        if (curCamera->isRenderingToHMD())
+        {
+            if (not hasHMD())
+            {
+                LOG_WARN_RENDERING( "Camera has setting render to eye, but VR is not supported!" );
+                return;
+            }
+
+            // Ignore viewport from camera, always use full resolution from HMD
+            auto desc = m_hmd->getDescription();
+            auto eye = renderContext.getCamera()->getHMDEye();
+            vp.TopLeftX = 0.0f;
+            vp.TopLeftY = 0.0f;
+            vp.Width    = (F32)desc.idealResolution[eye].x;
+            vp.Height   = (F32)desc.idealResolution[eye].y;
+            vp.MaxDepth = 1.0f;
+
+            m_hmd->bindForRendering( eye );
+            _DrawFullScreenQuad( material, vp );
+        }
     }
 
     //----------------------------------------------------------------------

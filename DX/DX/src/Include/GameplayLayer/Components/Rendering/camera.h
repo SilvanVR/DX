@@ -16,6 +16,7 @@ class IScene;
 
 namespace Components {
 
+    //----------------------------------------------------------------------
     enum class CameraEvent
     {
         Geometry = 0, // Commands corresponding to this event will be sorted with every render command in scene
@@ -27,7 +28,7 @@ namespace Components {
     //**********************************************************************
     class Camera : public IComponent
     {
-        static const Graphics::MSAASamples DEFAULT_MSAA_SAMPLES = Graphics::MSAASamples::Eight;
+        static const Graphics::MSAASamples DEFAULT_MSAA_SAMPLES = Graphics::MSAASamples::Four;
     public:
         Camera(const RenderTexturePtr& rt, F32 fovAngleYInDegree = 45.0f, F32 zNear = 0.1f, F32 zFar = 1000.0f );
         Camera(F32 fovAngleYInDegree = 45.0f, F32 zNear = 0.1f, F32 zFar = 1000.0f, Graphics::MSAASamples numSamples = DEFAULT_MSAA_SAMPLES, bool hdr = false);
@@ -54,6 +55,7 @@ namespace Components {
         F32                             getBottom()                 const { return m_camera.getBottom(); }
         const Graphics::FrameInfo&      getFrameInfo()              const { return m_camera.getFrameInfo(); }
         bool                            isRenderingToHMD()          const { return m_camera.isRenderingToHMD(); }
+        Graphics::VR::Eye               getHMDEye()                 const { return m_camera.getHMDEye(); }
 
         //----------------------------------------------------------------------
         void setCameraMode          (Graphics::CameraMode mode)                                     { m_camera.setCameraMode(mode); }
@@ -68,9 +70,11 @@ namespace Components {
         void setPerspectiveParams   (F32 fovAngleYInDegree, F32 zNear, F32 zFar)                    { m_camera.setPerspectiveParams(fovAngleYInDegree, zNear, zFar); }
         void setRenderingToScreen   (bool renderToScreen)                                           { m_camera.setRenderingToScreen(renderToScreen); }
         void setMultiSamples        (Graphics::MSAASamples sampleCount)                             { m_camera.getRenderTarget()->recreate({(U32)sampleCount}); }
-        void setRenderingToHMD      (bool renderToHMD)                                              { m_camera.setRenderingToHMD(renderToHMD); }
+        void setHMDRenderingToEye   (Graphics::VR::Eye eye)                                         { m_camera.setHMDRenderingToEye(eye); }
+        void setProjection          (const DirectX::XMMATRIX projection)                            { m_camera.setProjection(projection); }
         void setSuperSampling       (F32 screenResMod);
         void setHDRRendering        (bool enabled);
+        
 
         //----------------------------------------------------------------------
         // @Return

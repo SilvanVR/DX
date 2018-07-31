@@ -32,7 +32,7 @@ namespace Graphics { namespace VR {
         m_HMDInfo = ovr_GetHmdDesc( m_session );
         _CreateEyeBuffers( api, m_HMDInfo );
 
-        for (auto eye : { Left, Right })
+        for (auto eye : { LeftEye, RightEye })
             m_eyeRenderDesc[eye] = ovr_GetRenderDesc( m_session, (ovrEyeType)eye, m_HMDInfo.DefaultEyeFov[eye] );
 
         _SetupDescription( m_HMDInfo );
@@ -44,7 +44,7 @@ namespace Graphics { namespace VR {
     {
         if (m_session)
         {
-            for (auto eye : { Left, Right })
+            for (auto eye : { LeftEye, RightEye })
             {
                 m_eyeBuffers[eye]->release( m_session );
                 delete m_eyeBuffers[eye];
@@ -62,7 +62,7 @@ namespace Graphics { namespace VR {
     std::array<EyePose, 2> OculusRift::getEyePoses() const
     {
         std::array<EyePose, 2> eyePoses{};
-        for (auto eye : { Left, Right })
+        for (auto eye : { LeftEye, RightEye })
         {
             eyePoses[eye].position = ConvertVec3( m_currentEyeRenderPose->Position );
             eyePoses[eye].rotation = ConvertQuat( m_currentEyeRenderPose->Orientation );
@@ -73,6 +73,7 @@ namespace Graphics { namespace VR {
     //----------------------------------------------------------------------
     std::array<EyePose, 2> OculusRift::calculateEyePoses( I64 frameIndex ) 
     {
+        m_calculatedEyePoses = true;
         std::array<EyePose, 2> eyePoses{};
 
         ovrPosef HmdToEyePose[2] = { m_eyeRenderDesc[0].HmdToEyePose, m_eyeRenderDesc[1].HmdToEyePose };
@@ -83,7 +84,7 @@ namespace Graphics { namespace VR {
         ovr_CalcEyePoses( hmdState.HeadPose.ThePose, HmdToEyePose, m_currentEyeRenderPose );
 
         using namespace DirectX;
-        for (auto eye : { Left, Right })
+        for (auto eye : { LeftEye, RightEye })
         {
             XMVECTOR eyeQuat = XMVectorSet( m_currentEyeRenderPose[eye].Orientation.x, m_currentEyeRenderPose[eye].Orientation.y,
                                             m_currentEyeRenderPose[eye].Orientation.z, m_currentEyeRenderPose[eye].Orientation.w );
@@ -91,11 +92,15 @@ namespace Graphics { namespace VR {
             //XMVECTOR CombinedPos = XMVectorAdd(mainCam.Pos, XMVector3Rotate(eyePos, mainCam.Rot));
             //Camera finalCam(CombinedPos, (XMQuaternionMultiply(eyeQuat, mainCam.Rot)));
             //XMMATRIX view = finalCam.GetViewMatrix();
-            ovrMatrix4f p = ovrMatrix4f_Projection( m_eyeRenderDesc[eye].Fov, 0.2f, 1000.0f, ovrProjection_LeftHanded );
+            ovrMatrix4f p = ovrMatrix4f_Projection( m_eyeRenderDesc[eye].Fov, 0.2f, 1000.0f, ovrProjection_None);
             XMMATRIX proj = XMMatrixSet( p.M[0][0], p.M[1][0], p.M[2][0], p.M[3][0],
                                          p.M[0][1], p.M[1][1], p.M[2][1], p.M[3][1],
                                          p.M[0][2], p.M[1][2], p.M[2][2], p.M[3][2],
                                          p.M[0][3], p.M[1][3], p.M[2][3], p.M[3][3] );
+
+            eyePoses[eye].position = ConvertVec3( m_currentEyeRenderPose[eye].Position );
+            eyePoses[eye].rotation = ConvertQuat( m_currentEyeRenderPose[eye].Orientation );
+            eyePoses[eye].projection = proj;
         }
 
         for (auto touch : { Hand::Left, Hand::Right })
@@ -108,12 +113,20 @@ namespace Graphics { namespace VR {
     }
 
     //----------------------------------------------------------------------
+    void OculusRift::bindForRendering( Eye eye )
+    {
+        m_eyeBuffers[eye]->bindForRendering( m_session );
+    }
+
+    //----------------------------------------------------------------------
     void OculusRift::distortAndPresent( I64 frameIndex )
     {
+        if (not m_calculatedEyePoses)
+            return;
         ovrLayerEyeFov ld;
         ld.Header.Type = ovrLayerType_EyeFov;
         ld.Header.Flags = 0;
-        for (auto eye : { Left, Right })
+        for (auto eye : { LeftEye, RightEye })
         {
             m_eyeBuffers[eye]->commit( m_session );
             ld.ColorTexture[eye]    = m_eyeBuffers[eye]->get();
@@ -172,7 +185,7 @@ namespace Graphics { namespace VR {
     //----------------------------------------------------------------------
     void OculusRift::_CreateEyeBuffers( API api, const ovrHmdDesc& HMDInfo )
     {
-        for (auto eye : { Left, Right })
+        for (auto eye : { LeftEye, RightEye })
         {
             ovrSizei idealSize = ovr_GetFovTextureSize( m_session, (ovrEyeType)eye, HMDInfo.DefaultEyeFov[eye], 1.0f );
             m_eyeRenderViewport[eye].Pos.x = 0;
@@ -191,7 +204,7 @@ namespace Graphics { namespace VR {
         description.resolution  = { hmdInfo.Resolution.w, hmdInfo.Resolution.h };
         description.device      = Device::OculusRift;
 
-        for (auto eye : { Left, Right })
+        for (auto eye : { LeftEye, RightEye })
         {
             ovrSizei idealSize = ovr_GetFovTextureSize( m_session, (ovrEyeType)eye, hmdInfo.DefaultEyeFov[eye], 1.0f );
             description.idealResolution[eye] = { idealSize.w, idealSize.h };
@@ -245,6 +258,13 @@ namespace Graphics { namespace VR {
     void OculusSwapchain::clear( ovrSession session, Color color )
     {
         g_pImmediateContext->ClearRenderTargetView( _GetRTVDX( session ), color.normalized().data() );
+    }
+
+    //----------------------------------------------------------------------
+    void OculusSwapchain::bindForRendering( ovrSession session )
+    {
+        auto rtv = _GetRTVDX( session );
+        g_pImmediateContext->OMSetRenderTargets( 1, &rtv, NULL );
     }
 
 } } // End namespaces
