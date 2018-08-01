@@ -75,6 +75,7 @@ namespace Graphics { namespace VR {
         std::array<EyePose, 2>  getEyePoses() const override;
         std::array<EyePose, 2>  calculateEyePoses(I64 frameIndex) override;
         void                    bindForRendering(Eye eye) override;
+        void                    setPerformanceHUD(PerfHudMode mode) override;
 
     private:
         ovrSession          m_session;

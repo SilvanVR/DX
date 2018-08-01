@@ -199,5 +199,17 @@ namespace Graphics {
             OculusRift
         };
 
+        //----------------------------------------------------------------------
+        enum class PerfHudMode {
+            Off = 0, ///< Turns off the performance HUD
+            PerfSummary = 1, ///< Shows performance summary and headroom
+            LatencyTiming = 2, ///< Shows latency related timing info
+            AppRenderTiming = 3, ///< Shows render timing info for application
+            CompRenderTiming = 4, ///< Shows render timing info for OVR compositor
+            VersionInfo = 5, ///< Shows SDK & HMD version Info
+            AswStats = 6, ///< Shows Async Spacewarp-specific info
+            Count = 7, ///< \internal Count of enumerated elements.
+        };
+
     }
 }

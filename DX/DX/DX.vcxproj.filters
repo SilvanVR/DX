@@ -168,6 +168,9 @@
     <ClCompile Include="src\Include\GameplayLayer\Components\Rendering\particle_system.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Include\GameplayLayer\Components\Rendering\vr_camera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\stdafx.h">
@@ -369,6 +372,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Include\GameplayLayer\Components\Rendering\particle_system.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Include\GameplayLayer\Components\Rendering\vr_camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

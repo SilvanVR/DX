@@ -55,6 +55,7 @@ namespace Graphics { namespace VR {
 
         //----------------------------------------------------------------------
         const HMDDescription& getDescription() const { return m_description; }
+        F32 getWorldScale() const { return m_worldScale; }
 
         //----------------------------------------------------------------------
         // @Return: Whether this HMD was sucessfully initialized.
@@ -87,11 +88,22 @@ namespace Graphics { namespace VR {
         const Touch&                getTouch(Hand hand) const { return m_touch[(I32)hand]; }
         const std::array<Touch, 2>& getTouch()          const { return m_touch; }
 
+        //----------------------------------------------------------------------
+        // Disables/Enables the performance hud with the given mode.
+        //----------------------------------------------------------------------
+        virtual void setPerformanceHUD(PerfHudMode mode) = 0;
+
+        //----------------------------------------------------------------------
+        // Changes the world scale. A larger values corresponds to experiencing a larger world
+        //----------------------------------------------------------------------
+        void setWorldScale(F32 newWorldScale) { m_worldScale = newWorldScale; }
+
     protected:
         HMDDescription          m_description;
         bool                    m_initialized = false;
         bool                    m_isVisible = true;
         std::array<Touch, 2>    m_touch;
+        F32                     m_worldScale = 1.0f;
 
     private:
         friend class D3D11Renderer;

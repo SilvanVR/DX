@@ -7,6 +7,8 @@
 **********************************************************************/
 
 #include "Core/locator.h"
+#include "GameplayLayer/gameobject.h"
+#include "GameplayLayer/i_scene.h"
 
 namespace Components {
 
@@ -33,6 +35,13 @@ namespace Components {
         : m_camera( left, right, bottom, top, zNear, zFar ), m_cullingMask( LAYER_ALL ), m_hdr( hdr )
     {
         _CreateRenderTarget( numSamples );
+    }
+
+    //----------------------------------------------------------------------
+    void Camera::shutdown()
+    {
+        // Temporarily hack in order to remove a camera from the component manager
+        getGameObject()->getScene()->getComponentManager().Destroy(this);
     }
 
     //**********************************************************************

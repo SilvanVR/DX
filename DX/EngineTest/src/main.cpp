@@ -17,79 +17,48 @@
 
 namespace Components
 {
-    #define BUFFER_FORMAT_LDR       Graphics::TextureFormat::RGBA32
-    #define BUFFER_FORMAT_HDR       Graphics::TextureFormat::RGBAFloat
-    #define DEPTH_STENCIL_FORMAT    Graphics::DepthFormat::D32
-
-    class VRCamera : public IComponent
+    class VRFPSCamera : public IComponent
     {
     public:
-        VRCamera() = default;
-        ~VRCamera() = default;
+        VRFPSCamera(F32 speed = 1.0f, F32 mouseSensitivity = 15.0f) : m_speed(speed), m_mouseSensitivity(mouseSensitivity) {}
+        ~VRFPSCamera() = default;
 
         void init() override
         {
-            Graphics::MSAASamples sampleCount = Graphics::MSAASamples::One;
-            bool hdr = false;
-
-            auto scene = getGameObject()->getScene();
-            auto hmdDesc = RENDERER.getVRDevice().getDescription();
-
-            for (auto eye : { Graphics::VR::LeftEye, Graphics::VR::RightEye })
-            {
-                m_eyeGameObjects[eye] = scene->createGameObject( eye == 0 ? "LeftEye" : "RightEye" );
-
-                // Attach both cameras as childs to this transform
-                m_eyeGameObjects[eye]->getTransform()->setParent( getGameObject()->getTransform() );
-
-                // Create cameras
-                auto eyeBuffer = RESOURCES.createRenderTexture( hmdDesc.idealResolution[eye].x, hmdDesc.idealResolution[eye].y,
-                                                                DEPTH_STENCIL_FORMAT, hdr ? BUFFER_FORMAT_HDR : BUFFER_FORMAT_LDR,
-                                                                sampleCount, false );
-                m_eyeCameras[eye] = m_eyeGameObjects[eye]->addComponent<Components::Camera>(eyeBuffer);
-                m_eyeCameras[eye]->setHMDRenderingToEye( eye == 0 ? Graphics::VR::LeftEye : Graphics::VR::RightEye );
-            }
-
-            // Render only first camera to screen
-            m_eyeCameras[1]->setRenderingToScreen(false);
-
-            //m_eyeCameras[0]->getViewport().width = 0.5f;
-            //m_eyeCameras[1]->getViewport().topLeftX = 0.5f;
-            //m_eyeCameras[1]->getViewport().width = 0.5f;
-
-            Events::EventDispatcher::GetEvent(EVENT_FRAME_BEGIN).addListener(BIND_THIS_FUNC_0_ARGS(&VRCamera::FrameBegin));
+            m_vrCamera = getGameObject()->getComponent<VRCamera>();
+            ASSERT( m_vrCamera && "Script requires a vr camera component!" );
         }
 
-        void tick(Time::Seconds delta)
+        void tick(Time::Seconds d) override
         {
-            //auto eyePoses = RENDERER.getVRDevice().calculateEyePoses( RENDERER.getFrameCount() );
-            //auto eyePoses = RENDERER.getVRDevice().getEyePoses();
-            //for (auto eye : { Graphics::VR::LeftEye, Graphics::VR::RightEye })
-            //{
-            //    auto transform = m_eyeGameObjects[eye]->getTransform();
-            //    transform->position = eyePoses[eye].position;
-            //    transform->rotation = eyePoses[eye].rotation;
-            //    //m_eyeCameras[eye]->setProjection(eyePoses[eye].projection);
-            //}
+            auto delta = (F32)d;
+            F32 speed = m_speed;
+            if (KEYBOARD.isKeyDown(Key::Shift))
+                speed *= 5.0f;
+
+            // Move in look direction
+            auto transform = getGameObject()->getTransform();
+            Math::Vec3 lookDir = m_vrCamera->getLookDirection();
+            if (KEYBOARD.isKeyDown(Key::W)) transform->position += lookDir * speed * delta;
+            if (KEYBOARD.isKeyDown(Key::S)) transform->position -= lookDir * speed * delta;
+            transform->position += lookDir * (F32)AXIS_MAPPER.getMouseWheelAxisValue() * 0.3f;
+
+            // Rotate around y-axis
+            if (KEYBOARD.wasKeyPressed(Key::A)) transform->rotation *= Math::Quat({0, 1, 0}, 20.0f);
+            if (KEYBOARD.wasKeyPressed(Key::D)) transform->rotation *= Math::Quat({0, 1, 0}, -20.0f);
+            if (MOUSE.isKeyDown(MouseKey::RButton))
+            {
+                auto deltaMouse = MOUSE.getMouseDelta();
+                transform->rotation *= Math::Quat({0, 1, 0}, deltaMouse.x * m_mouseSensitivity * delta);
+            }
         }
 
     private:
-        GameObject*         m_eyeGameObjects[2];
-        Components::Camera* m_eyeCameras[2];
+        F32 m_speed;
+        F32 m_mouseSensitivity;
+        VRCamera* m_vrCamera;
 
-        void FrameBegin()
-        {
-            auto eyePoses = RENDERER.getVRDevice().calculateEyePoses( RENDERER.getFrameCount() );
-            for (auto eye : { Graphics::VR::LeftEye, Graphics::VR::RightEye })
-            {
-                auto transform = m_eyeGameObjects[eye]->getTransform();
-                transform->position = eyePoses[eye].position;
-                transform->rotation = eyePoses[eye].rotation;
-                m_eyeCameras[eye]->setProjection(eyePoses[eye].projection);
-            }
-        }
-
-        NULL_COPY_AND_ASSIGN(VRCamera)
+        NULL_COPY_AND_ASSIGN(VRFPSCamera)
     };
 }
 
@@ -100,6 +69,8 @@ class TestScene : public IScene
     Components::Transform* t;
     Components::Transform* t2;
 
+    Components::VRCamera* vrCam;
+
 public:
     TestScene() : IScene("TestScene") {}
 
@@ -107,11 +78,12 @@ public:
     {
         // Camera 1
         go = createGameObject("Camera");
+        go->getComponent<Components::Transform>()->position = Math::Vec3(0, 1, -1);
         //cam = go->addComponent<Components::Camera>();
-        go->getComponent<Components::Transform>()->position = Math::Vec3(0, 1, -5);
         //go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 0.1f);
 
-        go->addComponent<Components::VRCamera>();
+        vrCam = go->addComponent<Components::VRCamera>(Components::ScreenDisplay::LeftEye, Graphics::MSAASamples::Four);
+        go->addComponent<Components::VRFPSCamera>();
 
         //createGameObject("Grid")->addComponent<GridGeneration>(20);
 
@@ -142,11 +114,12 @@ public:
         monkey->addComponent<Components::MeshRenderer>(ASSETS.getMesh("/models/monkey.obj"), ASSETS.getMaterial("/materials/normals.material"));
         t = monkey->getTransform();
         t->scale = { 0.2f };
+        t->position.y = 0.3f;
 
         LOG("TestScene initialized!", Color::RED);
     }
 
-    void tick(Time::Seconds d) override
+    void tick(Time::Seconds delta) override
     {
         if (KEYBOARD.wasKeyPressed(Key::M))
         {
@@ -205,12 +178,7 @@ public:
 
 class Game : public IGame
 {
-    const F64 duration = 1000;
-    Time::Clock clock;
-
 public:
-    Game() : clock( duration ) {}
-
     //----------------------------------------------------------------------
     void init() override 
     {
@@ -241,10 +209,6 @@ public:
     //----------------------------------------------------------------------
     void tick(Time::Seconds delta) override
     {
-        //clock.tick( delta );
-        //LOG( TS( clock.getTime().value ) );
-        //auto time = clock.getTime();
-
         if (KEYBOARD.wasKeyPressed(Key::F5))
             _OpenMenu();
 
@@ -258,6 +222,44 @@ public:
             Locator::getRenderer().setGlobalMaterialActive("NONE");
         if (KEYBOARD.wasKeyPressed(Key::F2))
             Locator::getRenderer().setGlobalMaterialActive("Wireframe");
+
+        // VR
+        {
+            // Toggle between normal & vr camera
+            if (KEYBOARD.wasKeyPressed(Key::V))
+            {
+                auto mainCamera = SCENE.getMainCamera();
+                if (not mainCamera->isRenderingToHMD())
+                {
+                    bool isActive = mainCamera->isActive();
+                    mainCamera->setActive(not isActive);
+
+                    auto go = mainCamera->getGameObject();
+                    auto vrCamera = go->getComponent<Components::VRCamera>();
+                    if (not vrCamera)
+                        go->addComponent<Components::VRCamera>();
+                    else
+                        go->removeComponent<Components::VRCamera>();
+                }
+            }
+
+            static I32 perfHudMode = 0;
+            if (KEYBOARD.wasKeyPressed(Key::Left))
+            {
+                perfHudMode = perfHudMode - 1; if (perfHudMode < 0) perfHudMode = (I32)Graphics::VR::PerfHudMode::Count - 1;
+                RENDERER.getVRDevice().setPerformanceHUD((Graphics::VR::PerfHudMode)perfHudMode);
+            }
+            if (KEYBOARD.wasKeyPressed(Key::Right))
+            {
+                perfHudMode = (perfHudMode + 1) % (I32)Graphics::VR::PerfHudMode::Count;
+                RENDERER.getVRDevice().setPerformanceHUD((Graphics::VR::PerfHudMode)perfHudMode);
+            }
+
+            if (KEYBOARD.isKeyDown(Key::Up))
+                RENDERER.getVRDevice().setWorldScale(RENDERER.getVRDevice().getWorldScale() + 1.0f * (F32)delta);
+            if (KEYBOARD.isKeyDown(Key::Down))
+                RENDERER.getVRDevice().setWorldScale(RENDERER.getVRDevice().getWorldScale() - 1.0f * (F32)delta);
+        }
 
         if(KEYBOARD.isKeyDown(Key::Escape))
             terminate();

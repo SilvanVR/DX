@@ -23,8 +23,12 @@ IScene::IScene( CString name )
 //----------------------------------------------------------------------
 IScene::~IScene()
 {
-    for (auto go : m_gameObjects)
-        SAFE_DELETE( go );
+    while (not m_gameObjects.empty())
+    {
+        // Because gameobjects can delete other gameobjects, we must delete them one by one from the front
+        SAFE_DELETE( m_gameObjects.front() );
+        m_gameObjects.erase( m_gameObjects.begin(), m_gameObjects.begin() + 1 );
+    }
 }
 
 //**********************************************************************
@@ -63,7 +67,7 @@ Components::Camera* IScene::getMainCamera()
 {
     for ( auto& cam : m_componentManager.getCameras() )
     {
-        if( cam->isRenderingToScreen() )
+        if( cam->isRenderingToScreen() || cam->isRenderingToHMD() )
             return cam;
     }
 

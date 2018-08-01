@@ -27,7 +27,7 @@ namespace Components {
         inline GameObject*         getGameObject()         { return m_pGameObject; }
         inline const GameObject*   getGameObject() const   { return m_pGameObject; }
 
-        inline void                setActive(bool active)  { m_isActive = active; if (m_isActive) onActive(); }
+        inline void                setActive(bool active) { m_isActive = active; if (m_isActive) { onActive(); } else { onInActive(); }; }
 
         //----------------------------------------------------------------------
         // @Return:
@@ -61,6 +61,8 @@ namespace Components {
 
         // Called when the components becomes active in the scene
         virtual void onActive() {}
+        // Called when the components becomes inactive in the scene
+        virtual void onInActive() {}
 
     private:
         GameObject* m_pGameObject   = nullptr;

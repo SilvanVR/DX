@@ -42,6 +42,7 @@ namespace Graphics { namespace VR {
     //----------------------------------------------------------------------
     OculusRift::~OculusRift()
     {
+        setPerformanceHUD( PerfHudMode::Off ); // Because the perf hud persists
         if (m_session)
         {
             for (auto eye : { LeftEye, RightEye })
@@ -64,7 +65,7 @@ namespace Graphics { namespace VR {
         std::array<EyePose, 2> eyePoses{};
         for (auto eye : { LeftEye, RightEye })
         {
-            eyePoses[eye].position = ConvertVec3( m_currentEyeRenderPose->Position );
+            eyePoses[eye].position = ConvertVec3( m_currentEyeRenderPose->Position ) / m_worldScale;
             eyePoses[eye].rotation = ConvertQuat( m_currentEyeRenderPose->Orientation );
         }
         return eyePoses;
@@ -86,20 +87,15 @@ namespace Graphics { namespace VR {
         using namespace DirectX;
         for (auto eye : { LeftEye, RightEye })
         {
-            XMVECTOR eyeQuat = XMVectorSet( m_currentEyeRenderPose[eye].Orientation.x, m_currentEyeRenderPose[eye].Orientation.y,
-                                            m_currentEyeRenderPose[eye].Orientation.z, m_currentEyeRenderPose[eye].Orientation.w );
-            XMVECTOR eyePos = XMVectorSet( m_currentEyeRenderPose[eye].Position.x, m_currentEyeRenderPose[eye].Position.y, m_currentEyeRenderPose[eye].Position.z, 0 );
-            //XMVECTOR CombinedPos = XMVectorAdd(mainCam.Pos, XMVector3Rotate(eyePos, mainCam.Rot));
-            //Camera finalCam(CombinedPos, (XMQuaternionMultiply(eyeQuat, mainCam.Rot)));
-            //XMMATRIX view = finalCam.GetViewMatrix();
-            ovrMatrix4f p = ovrMatrix4f_Projection( m_eyeRenderDesc[eye].Fov, 0.2f, 1000.0f, ovrProjection_None);
+            ovrMatrix4f p = ovrMatrix4f_Projection( m_eyeRenderDesc[eye].Fov, 0.1f, 1000.0f, ovrProjection_LeftHanded );
             XMMATRIX proj = XMMatrixSet( p.M[0][0], p.M[1][0], p.M[2][0], p.M[3][0],
                                          p.M[0][1], p.M[1][1], p.M[2][1], p.M[3][1],
                                          p.M[0][2], p.M[1][2], p.M[2][2], p.M[3][2],
                                          p.M[0][3], p.M[1][3], p.M[2][3], p.M[3][3] );
 
-            eyePoses[eye].position = ConvertVec3( m_currentEyeRenderPose[eye].Position );
+            eyePoses[eye].position = ConvertVec3( m_currentEyeRenderPose[eye].Position ) / m_worldScale;
             eyePoses[eye].rotation = ConvertQuat( m_currentEyeRenderPose[eye].Orientation );
+
             eyePoses[eye].projection = proj;
         }
 
@@ -123,6 +119,8 @@ namespace Graphics { namespace VR {
     {
         if (not m_calculatedEyePoses)
             return;
+        m_calculatedEyePoses = false;
+
         ovrLayerEyeFov ld;
         ld.Header.Type = ovrLayerType_EyeFov;
         ld.Header.Flags = 0;
@@ -136,7 +134,7 @@ namespace Graphics { namespace VR {
         }
 
         ovrViewScaleDesc viewScaleDesc;
-        viewScaleDesc.HmdSpaceToWorldScaleInMeters = 1.0f;
+        viewScaleDesc.HmdSpaceToWorldScaleInMeters = 0.1f;
         viewScaleDesc.HmdToEyePose[0] = m_eyeRenderDesc[0].HmdToEyePose;
         viewScaleDesc.HmdToEyePose[1] = m_eyeRenderDesc[1].HmdToEyePose;
 
@@ -154,6 +152,21 @@ namespace Graphics { namespace VR {
         ovrSessionStatus sessionStatus;
         ovr_GetSessionStatus( m_session, &sessionStatus );
         return sessionStatus.HasInputFocus;
+    }
+
+    //----------------------------------------------------------------------
+    void OculusRift::setPerformanceHUD( PerfHudMode mode )
+    {
+        switch (mode)
+        {
+            case PerfHudMode::Off: ovr_SetInt( m_session, OVR_PERF_HUD_MODE, (int)ovrPerfHud_Off ); break;
+            case PerfHudMode::PerfSummary: ovr_SetInt( m_session, OVR_PERF_HUD_MODE, (int)ovrPerfHud_PerfSummary ); break;
+            case PerfHudMode::LatencyTiming: ovr_SetInt( m_session, OVR_PERF_HUD_MODE, (int)ovrPerfHud_LatencyTiming ); break;
+            case PerfHudMode::AppRenderTiming: ovr_SetInt( m_session, OVR_PERF_HUD_MODE, (int)ovrPerfHud_AppRenderTiming ); break;
+            case PerfHudMode::CompRenderTiming: ovr_SetInt( m_session, OVR_PERF_HUD_MODE, (int)ovrPerfHud_CompRenderTiming ); break;
+            case PerfHudMode::AswStats: ovr_SetInt( m_session, OVR_PERF_HUD_MODE, (int)ovrPerfHud_AswStats ); break;
+            case PerfHudMode::VersionInfo: ovr_SetInt( m_session, OVR_PERF_HUD_MODE, (int)ovrPerfHud_VersionInfo ); break;
+        }
     }
 
     //----------------------------------------------------------------------

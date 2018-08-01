@@ -213,17 +213,21 @@ namespace Graphics {
     //----------------------------------------------------------------------
     void D3D11Renderer::present()
     {
+        // Execute command buffers
         _LockQueue();
-        m_pSwapchain->clear( Color::BLACK );
-        m_hmd->clear(Color::BLUE);
         for (auto& cmd : m_pendingCmdQueue)
             _ExecuteCommandBuffer( cmd );
         m_pendingCmdQueue.clear();
         _UnlockQueue();
 
-        m_pSwapchain->present( m_vsync );
+        // Present rendered images
+        bool vsync = m_vsync;
         if (hasHMD())
-            m_hmd->distortAndPresent( m_frameCount );
+        {
+            vsync = false;
+            m_hmd->distortAndPresent( 0 );
+        }
+        m_pSwapchain->present( vsync );
 
         m_frameCount++;
     }

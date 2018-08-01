@@ -17,8 +17,12 @@ GameObject::GameObject( IScene* scene, CString name )
 //----------------------------------------------------------------------
 GameObject::~GameObject()
 {
-    for ( auto& pair : m_components )
+    for (auto& pair : m_components)
+    {
+        pair.second->shutdown();
+        // Component must be destroyed by component manager aswell, but type is lost...
         SAFE_DELETE( pair.second );
+    }
 }
 
 //**********************************************************************

@@ -52,7 +52,7 @@ namespace Graphics {
         inline void setPerspectiveParams    (F32 fovAngleYInDegree, F32 zNear, F32 zFar);
         inline void setRenderingToScreen    (bool renderToScreen)                    { m_isRenderingToScreen = renderToScreen; }
         inline void setHMDRenderingToEye    (VR::Eye eye)                            { m_renderToEye = eye; }
-        inline void setProjection           (const DirectX::XMMATRIX projection)     { m_cameraMode = CameraMode::Custom; m_projection = projection; }
+        inline void setProjection           (const DirectX::XMMATRIX& projection)    { m_cameraMode = CameraMode::Custom; m_projection = projection; }
 
         //----------------------------------------------------------------------
         inline const CameraMode&   getCameraMode()              const { return m_cameraMode; }

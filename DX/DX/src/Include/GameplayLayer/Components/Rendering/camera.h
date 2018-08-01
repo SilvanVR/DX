@@ -71,7 +71,7 @@ namespace Components {
         void setRenderingToScreen   (bool renderToScreen)                                           { m_camera.setRenderingToScreen(renderToScreen); }
         void setMultiSamples        (Graphics::MSAASamples sampleCount)                             { m_camera.getRenderTarget()->recreate({(U32)sampleCount}); }
         void setHMDRenderingToEye   (Graphics::VR::Eye eye)                                         { m_camera.setHMDRenderingToEye(eye); }
-        void setProjection          (const DirectX::XMMATRIX projection)                            { m_camera.setProjection(projection); }
+        void setProjection          (const DirectX::XMMATRIX& projection)                           { m_camera.setProjection(projection); }
         void setSuperSampling       (F32 screenResMod);
         void setHDRRendering        (bool enabled);
         
@@ -103,6 +103,8 @@ namespace Components {
         //----------------------------------------------------------------------
         void addCommandBuffer(Graphics::CommandBuffer* cmd, CameraEvent evt = CameraEvent::Geometry);
         void removeCommandBuffer(Graphics::CommandBuffer* cmd);
+
+        void shutdown() override;
 
     private:
         Graphics::Camera            m_camera;

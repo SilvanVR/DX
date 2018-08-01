@@ -27,6 +27,7 @@
 #include "Components/billboard.h"
 #include "Components/Rendering/gui.h"
 #include "Components/Rendering/particle_system.h"
+#include "Components/Rendering/vr_camera.h"
 
 class IGame : public Core::CoreEngine
 {

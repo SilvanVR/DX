@@ -33,10 +33,14 @@ namespace Core {
         auto& scene = Locator::getSceneManager().getCurrentScene();
         for (auto& cam : scene.getComponentManager().getCameras())
         {
+            if ( not cam->isActive() )
+                continue;
+
             // Update camera 
             auto transform = cam->getGameObject()->getTransform();
             auto modelMatrix = transform->getWorldMatrix( lerp );
-            auto camWorldPos = transform->getWorldPosition();
+            Math::Vec3 camWorldPos;
+            DirectX::XMStoreFloat3( &camWorldPos, modelMatrix.r[3] );
             cam->m_camera.setModelMatrix( modelMatrix );
 
             // Set camera
