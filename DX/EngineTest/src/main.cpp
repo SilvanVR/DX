@@ -86,7 +86,7 @@ public:
         vrCam = go->addComponent<Components::VRCamera>(Components::ScreenDisplay::LeftEye, Graphics::MSAASamples::Four);
         go->addComponent<Components::VRFPSCamera>();
 
-        createGameObject("Grid")->addComponent<GridGeneration>(20);
+        //createGameObject("Grid")->addComponent<GridGeneration>(20);
 
         //auto terrainGO = createGameObject("Terrain");
         //terrainGO->addComponent<Components::MeshRenderer>(ASSETS.getMesh("/models/terrain.obj"), ASSETS.getMaterial("/materials/blinn_phong/terrain.material"));
@@ -98,8 +98,8 @@ public:
 
         auto world = createGameObject("World");
         world->addComponent<Components::MeshRenderer>(ASSETS.getMesh("/models/box_n_inside.obj"), ASSETS.getMaterial("/materials/blinn_phong/cellar.material"));
-        world->getTransform()->position.y = 5.0f;
-        world->getTransform()->scale = 5.0f;
+        world->getTransform()->position.y = 10.0f;
+        world->getTransform()->scale = 10.0f;
 
         auto plg = createGameObject("PL");
         plg->addComponent<Components::PointLight>(2.0f, Color::ORANGE, 15.0f);
@@ -112,6 +112,9 @@ public:
         t->scale = { 0.2f };
         t->position.y = 0.3f;
         monkey->addComponent<ConstantRotation>(0.0f, 15.0f, 0.0f);
+
+        auto ps = createGameObject("Particles!");
+        ps->addComponent<Components::ParticleSystem>("/particles/ambient.ps");
 
         //go->addComponent<Components::GUI>();
         //go->addComponent<Components::GUIFPS>();

@@ -183,6 +183,7 @@ namespace Core
         OS::VirtualFileSystem::mount( "models",    "res/models" );
         OS::VirtualFileSystem::mount( "audio",     "res/audio" );
         OS::VirtualFileSystem::mount( "materials", "res/materials" );
+        OS::VirtualFileSystem::mount( "particles", "res/particles" );
     }
 
     //----------------------------------------------------------------------

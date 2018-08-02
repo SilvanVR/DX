@@ -29,8 +29,11 @@ namespace Graphics { namespace VR {
     //----------------------------------------------------------------------
     OculusRift::OculusRift( API api )
     {
-        if ( not _InitLibOVR() )
+        if ( not _CreateSession() )
+        {
+            LOG_WARN_RENDERING( "OculusRift: Failed to create a session. HMD is plugged in?" );
             return;
+        }
 
         m_HMDInfo = ovr_GetHmdDesc( m_session );
         _CreateEyeBuffers( api, m_HMDInfo );
@@ -143,9 +146,10 @@ namespace Graphics { namespace VR {
         ovrLayerHeader* layers = &ld.Header;
         ovrResult result = ovr_SubmitFrame( m_session, frameIndex, &viewScaleDesc, &layers, 1 );
 
-        m_isVisible = result == ovrSuccess;
         if (result == ovrError_DisplayLost)
             LOG_WARN_RENDERING( "OculusRift: HMD was disconnected from the computer." );
+        else if (result != ovrSuccess)
+            LOG_WARN_RENDERING( "OculusRift: Failed to submit frame to HMD." );
     }
 
     //----------------------------------------------------------------------
@@ -184,23 +188,11 @@ namespace Graphics { namespace VR {
     //----------------------------------------------------------------------
 
     //----------------------------------------------------------------------
-    bool OculusRift::_InitLibOVR()
+    bool OculusRift::_CreateSession()
     {
-        ovrInitParams initParams = { ovrInit_RequestVersion | ovrInit_FocusAware, OVR_MINOR_VERSION, NULL, 0, 0 };
-        ovrResult result = ovr_Initialize( &initParams );
-        if (result != ovrSuccess)
-        {
-            LOG_WARN_RENDERING( "OculusRift: Failed to initialize libOVR. It may not be supported/available on your system." );
-            return false;
-        }
-
         ovrGraphicsLuid luid;
-        result = ovr_Create( &m_session, &luid );
-        if (result != ovrSuccess)
-        {
-            LOG_WARN_RENDERING( "OculusRift: HMD not detected"  );
+        if (ovr_Create( &m_session, &luid ) != ovrSuccess)
             return false;
-        }
 
         return true;
     }

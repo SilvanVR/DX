@@ -40,9 +40,9 @@ namespace Graphics { namespace VR {
     };
 
     //----------------------------------------------------------------------
-    // @Return: The first supported HMD on this system.
+    // @Return: The first supported HMD on this system and initializes the corresponding library.
     //----------------------------------------------------------------------
-    Device GetFirstSupportedHMD();
+    Device GetFirstSupportedHMDAndInitialize();
 
     //**********************************************************************
     // Abstraction for an HMD plus touch controller.
@@ -63,14 +63,9 @@ namespace Graphics { namespace VR {
         bool isInitialized() const { return m_initialized; }
 
         //----------------------------------------------------------------------
-        // @Return: Whether the last frame was actually displayed e.g. if the application lost focus
-        //----------------------------------------------------------------------
-        bool isVisible() const { return m_isVisible; }
-
-        //----------------------------------------------------------------------
         // @Return: True, when app has focus e.g. oculus dash is not opened.
         //----------------------------------------------------------------------
-        virtual bool hasFocus() = 0;
+        virtual bool hasFocus() { return true; }
 
         //----------------------------------------------------------------------
         // @Return: Calculates and returns the current eye poses.
@@ -106,7 +101,6 @@ namespace Graphics { namespace VR {
     protected:
         HMDDescription          m_description;
         bool                    m_initialized = false;
-        bool                    m_isVisible = true;
         std::array<Touch, 2>    m_touch;
         F32                     m_worldScale = 1.0f;
 

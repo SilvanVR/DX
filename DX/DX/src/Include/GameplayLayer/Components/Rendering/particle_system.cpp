@@ -37,7 +37,7 @@ namespace Components {
     {
         m_paused = not playOnStart;
         m_particleMesh = Core::MeshGenerator::CreatePlane();
-        setParticleAlignment( ParticleAlignment::View );
+        setParticleAlignment( ParticleAlignment::ViewPlane );
         setSortMode( SortMode::ByDistance );
         setCastShadows( false );
         play();
@@ -205,13 +205,25 @@ namespace Components {
     {
         switch (alignment)
         {
-        case ParticleAlignment::View:
+        case ParticleAlignment::ViewPlane:
         {
             // 1. Since the view matrix rotates everything "eyeRot" backwards, to negate it we just add the eyeRot itself
             // 2. To negate the world rotation itself, we just need the conjugate
             auto worldRot = getGameObject()->getTransform()->getWorldRotation();
-            auto& eyeRot = SCENE.getMainCamera()->getGameObject()->getTransform()->rotation;
+            auto& eyeRot = SCENE.getMainCamera()->getGameObject()->getTransform()->getWorldRotation();
             auto alignedRotation = eyeRot * worldRot.conjugate();
+            for (U32 i = 0; i < m_currentParticleCount; ++i)
+                m_particles[i].rotation *= alignedRotation;
+            break;
+        }
+        case ParticleAlignment::ViewPosition:
+        {
+            auto worldRot = getGameObject()->getTransform()->getWorldRotation();
+            auto eyePos = SCENE.getMainCamera()->getGameObject()->getTransform()->getWorldPosition();
+            ASSERT( "NOT IMPLEMENTED YET" );
+
+            Math::Quat rot = Math::Quat::IDENTITY;
+            auto alignedRotation = rot * worldRot.conjugate();
             for (U32 i = 0; i < m_currentParticleCount; ++i)
                 m_particles[i].rotation *= alignedRotation;
             break;
@@ -228,7 +240,7 @@ namespace Components {
         case SortMode::ByDistance:
         {
             auto worldMatrix = getGameObject()->getTransform()->getWorldMatrix();
-            auto eyePos = DirectX::XMLoadFloat3( &SCENE.getMainCamera()->getGameObject()->getTransform()->position );
+            auto eyePos = DirectX::XMLoadFloat3( &SCENE.getMainCamera()->getGameObject()->getTransform()->getWorldPosition() );
 
             // Sorting particles by distance to camera comes with one caveat:
             // 1.) Floating point precision can cause incorrect ordering when the camera moves around the particle
@@ -378,7 +390,8 @@ namespace Components {
                 if (align != nullptr)
                 {
                     String alignment = align;
-                    if (alignment == "view") m_particleAlignment = ParticleAlignment::View;
+                    if (alignment == "view" || alignment == "viewPlane" ) m_particleAlignment = ParticleAlignment::ViewPlane;
+                    else if (alignment == "viewPosition") m_particleAlignment = ParticleAlignment::ViewPosition;
                     else LOG_WARN( "Could not read 'align' property." );
                 }
                 

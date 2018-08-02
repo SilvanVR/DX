@@ -86,7 +86,7 @@ namespace Graphics {
     //----------------------------------------------------------------------
     bool IRenderer::_InitializeHMD()
     {
-        VR::Device hmd = VR::GetFirstSupportedHMD();
+        VR::Device hmd = VR::GetFirstSupportedHMDAndInitialize();
         switch (hmd)
         {
         case VR::Device::OculusRift: m_hmd = new VR::OculusRift( getAPI() ); return true;

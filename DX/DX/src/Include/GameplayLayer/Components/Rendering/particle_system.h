@@ -118,7 +118,8 @@ namespace Components {
         enum class ParticleAlignment
         {
             None,
-            View, // Aligned to main camera
+            ViewPlane,      // Aligned to main cameras near plane
+            ViewPosition,   // Aligned to main cameras position (mainly needed for VR)
         };
 
         //----------------------------------------------------------------------

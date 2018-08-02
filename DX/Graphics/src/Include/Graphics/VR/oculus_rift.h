@@ -59,6 +59,8 @@ namespace Graphics { namespace VR {
     };
 
     //**********************************************************************
+    // Precondition: LibOVR is ALREADY initialized
+    //**********************************************************************
     class OculusRift : public HMD
     {
     public:
@@ -69,7 +71,6 @@ namespace Graphics { namespace VR {
         // VRDevice Interface
         //----------------------------------------------------------------------
         bool                    hasFocus() override;
-        //ViewportRect            getViewport(Eye eye) override { return { (F32)m_eyeRenderViewport[eye].Pos.x, (F32)m_eyeRenderViewport[eye].Pos.y, (F32)m_eyeRenderViewport[eye].Size.w, (F32)m_eyeRenderViewport[eye].Size.h }; }
         void                    clear(Color col) override { for (auto eye : {LeftEye, RightEye}) m_eyeBuffers[eye]->clear(m_session, col); }
         void                    distortAndPresent(I64 frameIndex) override;
         std::array<EyePose, 2>  getEyePoses() const override;
@@ -88,7 +89,7 @@ namespace Graphics { namespace VR {
         bool                m_calculatedEyePoses = false;
 
         //----------------------------------------------------------------------
-        bool _InitLibOVR();
+        bool _CreateSession();
         void _CreateEyeBuffers(API api, const ovrHmdDesc& hmdInfo);
         void _SetupDescription(const ovrHmdDesc& hmdInfo);
 
