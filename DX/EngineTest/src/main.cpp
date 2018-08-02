@@ -44,8 +44,8 @@ namespace Components
             transform->position += lookDir * (F32)AXIS_MAPPER.getMouseWheelAxisValue() * 0.3f;
 
             // Rotate around y-axis
-            if (KEYBOARD.wasKeyPressed(Key::A)) transform->rotation *= Math::Quat({0, 1, 0}, 20.0f);
-            if (KEYBOARD.wasKeyPressed(Key::D)) transform->rotation *= Math::Quat({0, 1, 0}, -20.0f);
+            if (KEYBOARD.wasKeyPressed(Key::A)) transform->rotation *= Math::Quat({0, 1, 0}, -20.0f);
+            if (KEYBOARD.wasKeyPressed(Key::D)) transform->rotation *= Math::Quat({0, 1, 0}, 20.0f);
             if (MOUSE.isKeyDown(MouseKey::RButton))
             {
                 auto deltaMouse = MOUSE.getMouseDelta();
@@ -79,13 +79,14 @@ public:
         // Camera 1
         go = createGameObject("Camera");
         go->getComponent<Components::Transform>()->position = Math::Vec3(0, 1, -1);
+
         //cam = go->addComponent<Components::Camera>();
         //go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 0.1f);
 
         vrCam = go->addComponent<Components::VRCamera>(Components::ScreenDisplay::LeftEye, Graphics::MSAASamples::Four);
         go->addComponent<Components::VRFPSCamera>();
 
-        //createGameObject("Grid")->addComponent<GridGeneration>(20);
+        createGameObject("Grid")->addComponent<GridGeneration>(20);
 
         //auto terrainGO = createGameObject("Terrain");
         //terrainGO->addComponent<Components::MeshRenderer>(ASSETS.getMesh("/models/terrain.obj"), ASSETS.getMaterial("/materials/blinn_phong/terrain.material"));
@@ -105,22 +106,33 @@ public:
         plg->getTransform()->position = { 0, 1.5f, 0 };
         plg->addComponent<Components::Billboard>(ASSETS.getTexture2D("/engine/textures/pointLight.png"), 0.5f);
 
-        //go->addComponent<Components::GUI>();
-        //go->addComponent<Components::GUIFPS>();
-        //go->addComponent<Components::GUICustom>([=] {
-        //});
-
         auto monkey = createGameObject("monkey");
         monkey->addComponent<Components::MeshRenderer>(ASSETS.getMesh("/models/monkey.obj"), ASSETS.getMaterial("/materials/normals.material"));
         t = monkey->getTransform();
         t->scale = { 0.2f };
         t->position.y = 0.3f;
+        monkey->addComponent<ConstantRotation>(0.0f, 15.0f, 0.0f);
+
+        //go->addComponent<Components::GUI>();
+        //go->addComponent<Components::GUIFPS>();
+        //go->addComponent<Components::GUICustom>([=] {
+        //    static Math::Vec3 deg{ 0.0f, 0.0f, 0.0f };
+        //    if (ImGui::SliderFloat3("Rotation", &deg.x, 0.0f, 360.0f))
+        //        t->rotation = Math::Quat::FromEulerAngles(deg);
+
+        //    static Math::Vec3 pos{ 0.0f, 0.0f, 0.0f };
+        //    if (ImGui::SliderFloat3("Position", &pos.x, -3.0f, 3.0f))
+        //        t->position = pos;
+        //});
 
         LOG("TestScene initialized!", Color::RED);
     }
 
     void tick(Time::Seconds delta) override
     {
+        if (KEYBOARD.isKeyDown(Key::F))
+            t->rotation *= Math::Quat::FromEulerAngles(0.0f, 0.0f, 10.0f * (F32)delta);
+
         if (KEYBOARD.wasKeyPressed(Key::M))
         {
             static int index = 0;
@@ -235,11 +247,21 @@ public:
                     mainCamera->setActive(not isActive);
 
                     auto go = mainCamera->getGameObject();
+                    if (auto fpsMovScript = go->getComponent<Components::FPSCamera>())
+                        fpsMovScript->setActive(not isActive);
+
                     auto vrCamera = go->getComponent<Components::VRCamera>();
                     if (not vrCamera)
+                    {
+                        go->getTransform()->rotation.x = go->getTransform()->rotation.z = 0;
                         go->addComponent<Components::VRCamera>();
+                        go->addComponent<Components::VRFPSCamera>();
+                    }
                     else
+                    {
                         go->removeComponent<Components::VRCamera>();
+                        go->removeComponent<Components::VRFPSCamera>();
+                    }
                 }
             }
 
@@ -255,6 +277,7 @@ public:
                 RENDERER.getVRDevice().setPerformanceHUD((Graphics::VR::PerfHudMode)perfHudMode);
             }
 
+            // Change world scale
             if (KEYBOARD.isKeyDown(Key::Up))
                 RENDERER.getVRDevice().setWorldScale(RENDERER.getVRDevice().getWorldScale() + 1.0f * (F32)delta);
             if (KEYBOARD.isKeyDown(Key::Down))

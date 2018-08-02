@@ -379,36 +379,18 @@ namespace Math {
         return quaternion;
     }
 
-    ////----------------------------------------------------------------------
-    // Somehow this functions produces weird results. Transfering it back to euler angles produces even weirder results.
-    //Quaternion Quaternion::FromEulerAngles( F32 pitch, F32 yaw, F32 roll )
-    //{
-    //    Quaternion quaternion;
-    //    auto result = XMQuaternionRotationRollPitchYaw( XMConvertToRadians( pitch ), 
-    //                                                    XMConvertToRadians( yaw ), 
-    //                                                    XMConvertToRadians( roll ) );
-    //    XMStoreFloat4( &quaternion, result );
-    //    return quaternion;
-    //}
-
     //----------------------------------------------------------------------
-    Quaternion Quaternion::FromEulerAngles( F32 pitch, F32 yaw, F32 roll )
+    Quaternion Quaternion::FromEulerAngles( F32 p, F32 y, F32 r )
     {
-        Quaternion quaternion;
-        F32 xRad = XMConvertToRadians( pitch );
-        F32 yRad = XMConvertToRadians( yaw );
-        F32 zRad = XMConvertToRadians( roll );
-        
-        F32 c1 = cos( yRad / 2 );
-        F32 s1 = sin( yRad / 2 );
-        F32 c2 = cos( zRad / 2 );
-        F32 s2 = sin( zRad / 2 );
-        F32 c3 = cos( xRad / 2 );
-        F32 s3 = sin( xRad / 2 );
-        F32 c1c2 = c1 * c2;
-        F32 s1s2 = s1 * s2;
+        F32 pitch = XMConvertToRadians( p );
+        F32 yaw = XMConvertToRadians( y );
+        F32 roll = XMConvertToRadians( r );
 
-        return Quaternion( c1c2*s3 + s1s2 * c3, s1*c2*c3 + c1 * s2*s3, c1*s2*c3 - s1 * c2*s3, c1c2*c3 - s1s2 * s3 ).normalized();
+        auto q = XMQuaternionRotationRollPitchYaw( pitch, yaw, roll );
+
+        Quaternion quaternion;
+        XMStoreFloat4( &quaternion, q );
+        return quaternion;
     }
 
     //----------------------------------------------------------------------
@@ -430,7 +412,6 @@ namespace Math {
 
         return r.normalized();
     }
-
 
     //----------------------------------------------------------------------
     Quaternion Quaternion::Slerp( const Quaternion& q1, const Quaternion& q2, F32 t )

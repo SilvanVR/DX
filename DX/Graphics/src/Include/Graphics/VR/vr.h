@@ -83,15 +83,20 @@ namespace Graphics { namespace VR {
         virtual std::array<EyePose, 2> getEyePoses() const = 0;
 
         //----------------------------------------------------------------------
+        // Disables/Enables the performance hud with the given mode.
+        //----------------------------------------------------------------------
+        virtual void setPerformanceHUD(PerfHudMode mode) = 0;
+
+        //----------------------------------------------------------------------
+        // @Return: True when the user wears the headset.
+        //----------------------------------------------------------------------
+        virtual bool isMounted() = 0;
+
+        //----------------------------------------------------------------------
         // @Return: Struct describing current touch state.
         //----------------------------------------------------------------------
         const Touch&                getTouch(Hand hand) const { return m_touch[(I32)hand]; }
         const std::array<Touch, 2>& getTouch()          const { return m_touch; }
-
-        //----------------------------------------------------------------------
-        // Disables/Enables the performance hud with the given mode.
-        //----------------------------------------------------------------------
-        virtual void setPerformanceHUD(PerfHudMode mode) = 0;
 
         //----------------------------------------------------------------------
         // Changes the world scale. A larger values corresponds to experiencing a larger world

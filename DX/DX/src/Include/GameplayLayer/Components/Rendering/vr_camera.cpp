@@ -123,12 +123,8 @@ namespace Components
             auto transform = m_eyeGameObjects[eye]->getTransform();
             transform->position = eyePoses[eye].position;
             transform->rotation = eyePoses[eye].rotation;
-
-            //transform->scale = { 1.0f, 1.0f, -1.0f };
             m_eyeCameras[eye]->setProjection( eyePoses[eye].projection );
         }
-
-        //getGameObject()->getTransform()->rotation = Math::Quat::IDENTITY;
     }
 
 

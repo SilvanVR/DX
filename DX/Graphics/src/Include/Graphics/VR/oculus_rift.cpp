@@ -11,13 +11,16 @@
 //----------------------------------------------------------------------
 inline Math::Vec3 ConvertVec3( const ovrVector3f& vec3 )
 {
-    return Math::Vec3( vec3.x, vec3.y, vec3.z );
+    // Transform from RH to LH coordinate system.
+    return Math::Vec3( vec3.x, vec3.y, -vec3.z );
 }
 
 //----------------------------------------------------------------------
 inline Math::Quat ConvertQuat( const ovrQuatf& q )
 {
-    return Math::Quat( q.x, q.y, q.z, q.w );
+    // Transform from RH to LH. Rotation about X + Y axis must be flipped. 
+    // Awkardly z-rotation in a LH coordinate system is already flipped (CCW) whereas X+Y are CW (This took me hours to figure out...)
+    return Math::Quat( -q.x, -q.y, q.z, q.w );
 }
 
 
@@ -95,7 +98,6 @@ namespace Graphics { namespace VR {
 
             eyePoses[eye].position = ConvertVec3( m_currentEyeRenderPose[eye].Position ) / m_worldScale;
             eyePoses[eye].rotation = ConvertQuat( m_currentEyeRenderPose[eye].Orientation );
-
             eyePoses[eye].projection = proj;
         }
 
@@ -167,6 +169,14 @@ namespace Graphics { namespace VR {
             case PerfHudMode::AswStats: ovr_SetInt( m_session, OVR_PERF_HUD_MODE, (int)ovrPerfHud_AswStats ); break;
             case PerfHudMode::VersionInfo: ovr_SetInt( m_session, OVR_PERF_HUD_MODE, (int)ovrPerfHud_VersionInfo ); break;
         }
+    }
+
+    //----------------------------------------------------------------------
+    bool OculusRift::isMounted()
+    {
+        ovrSessionStatus sessionStatus;
+        ovr_GetSessionStatus( m_session, &sessionStatus );
+        return sessionStatus.HmdMounted;
     }
 
     //----------------------------------------------------------------------
