@@ -42,7 +42,6 @@ namespace Graphics { namespace VR {
             m_eyeRenderDesc[eye] = ovr_GetRenderDesc( m_session, (ovrEyeType)eye, m_HMDInfo.DefaultEyeFov[eye] );
 
         _SetupDescription( m_HMDInfo );
-        m_initialized = true;
     }
 
     //----------------------------------------------------------------------
@@ -207,7 +206,7 @@ namespace Graphics { namespace VR {
             m_eyeRenderViewport[eye].Pos.y = 0;
             m_eyeRenderViewport[eye].Size = idealSize;
 
-            m_eyeBuffers[eye] = new OculusSwapchain( api, m_session, idealSize.w, idealSize.h );
+            m_eyeBuffers[eye] = new OculusSwapchainDX( m_session, idealSize.w, idealSize.h );
         }
     }
 
@@ -233,7 +232,7 @@ namespace Graphics { namespace VR {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    OculusSwapchain::OculusSwapchain( API api, ovrSession session, I32 sizeW, I32 sizeH )
+    OculusSwapchainDX::OculusSwapchainDX( ovrSession session, I32 sizeW, I32 sizeH )
     {
         ovrTextureSwapChainDesc dsDesc = {};
         dsDesc.Width = sizeW;
@@ -245,38 +244,29 @@ namespace Graphics { namespace VR {
         dsDesc.MiscFlags = ovrTextureMisc_DX_Typeless;
         dsDesc.BindFlags = ovrTextureBind_DX_RenderTarget;
 
-        switch (api)
+        ovr_CreateTextureSwapChainDX( session, g_pDevice, &dsDesc, &m_swapChain );
+        I32 count = 0;
+        ovr_GetTextureSwapChainLength( session, m_swapChain, &count );
+        for (I32 i = 0; i < count; ++i)
         {
-        case API::D3D11:
-        {
-            ovr_CreateTextureSwapChainDX( session, g_pDevice, &dsDesc, &m_swapChain );
-            I32 count = 0;
-            ovr_GetTextureSwapChainLength( session, m_swapChain, &count );
-            for (I32 i = 0; i < count; ++i)
-            {
-                ID3D11Texture2D* tex = nullptr;
-                ovr_GetTextureSwapChainBufferDX( session, m_swapChain, i, IID_PPV_ARGS( &tex ) );
-                D3D11_RENDER_TARGET_VIEW_DESC rtvd = {};
-                rtvd.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-                rtvd.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
-                g_pDevice->CreateRenderTargetView( tex, &rtvd, &m_texRtv[i].releaseAndGet() );
-                tex->Release();
-            }
-            break;
-        }
-        case API::Vulkan:
-        default: ASSERT( "OculusRift: Unknown graphics api encountered or not supported yet!" );
+            ID3D11Texture2D* tex = nullptr;
+            ovr_GetTextureSwapChainBufferDX( session, m_swapChain, i, IID_PPV_ARGS( &tex ) );
+            D3D11_RENDER_TARGET_VIEW_DESC rtvd = {};
+            rtvd.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+            rtvd.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+            g_pDevice->CreateRenderTargetView( tex, &rtvd, &m_texRtv[i].releaseAndGet() );
+            tex->Release();
         }
     }
 
     //----------------------------------------------------------------------
-    void OculusSwapchain::clear( ovrSession session, Color color )
+    void OculusSwapchainDX::clear( ovrSession session, Color color )
     {
         g_pImmediateContext->ClearRenderTargetView( _GetRTVDX( session ), color.normalized().data() );
     }
 
     //----------------------------------------------------------------------
-    void OculusSwapchain::bindForRendering( ovrSession session )
+    void OculusSwapchainDX::bindForRendering( ovrSession session )
     {
         auto rtv = _GetRTVDX( session );
         g_pImmediateContext->OMSetRenderTargets( 1, &rtv, NULL );

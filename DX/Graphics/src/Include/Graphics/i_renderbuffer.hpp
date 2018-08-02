@@ -28,16 +28,6 @@ namespace Graphics
         bool                        isMultisampled()            const   { return m_samplingDescription.count > 1;}
 
         //----------------------------------------------------------------------
-        // Clears the buffer with the given color data.
-        //----------------------------------------------------------------------
-        virtual void clearColor(Color color) = 0;
-
-        //----------------------------------------------------------------------
-        // Clears the buffer with the given depth and stencil data.
-        //----------------------------------------------------------------------
-        virtual void clearDepthStencil(F32 depth, U8 stencil) = 0;
-
-        //----------------------------------------------------------------------
         // Creates a new color render buffer.
         // @Params:
         //  "width": Width in pixels.
@@ -70,13 +60,24 @@ namespace Graphics
         bool                m_isDepthBuffer;
         DepthFormat         m_depthFormat;
 
-    private:
         //----------------------------------------------------------------------
         // Binds this renderbuffer to the output merger.
         // P.S. Using this binds only a color OR depth texture but never both. For this use a render-texture.
         //----------------------------------------------------------------------
         friend class D3D11Renderer;
+        friend class VulkanRenderer;
         virtual void bindForRendering() = 0;
+
+        //----------------------------------------------------------------------
+        // Clears the buffer with the given color data.
+        //----------------------------------------------------------------------
+        friend class IRenderTexture;
+        virtual void clearColor(Color color) = 0;
+
+        //----------------------------------------------------------------------
+        // Clears the buffer with the given depth and stencil data.
+        //----------------------------------------------------------------------
+        virtual void clearDepthStencil(F32 depth, U8 stencil) = 0;
 
         NULL_COPY_AND_ASSIGN(IRenderBuffer)
     };

@@ -6,7 +6,7 @@
     date: July 22, 2018
 **********************************************************************/
 
-#include "LibOVR/OVR_CAPI.h"
+#include "OculusRift/LibOVR/OVR_CAPI.h"
 #include "Logging/logging.h"
 
 namespace Graphics { namespace VR {

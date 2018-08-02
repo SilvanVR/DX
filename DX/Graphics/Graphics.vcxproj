@@ -202,7 +202,7 @@
     <ClCompile Include="src\Include\Graphics\i_shader.cpp" />
     <ClCompile Include="src\Include\Graphics\Lighting\lights.cpp" />
     <ClCompile Include="src\Include\Graphics\Utils\utils.cpp" />
-    <ClCompile Include="src\Include\Graphics\VR\oculus_rift.cpp" />
+    <ClCompile Include="src\Include\Graphics\VR\OculusRift\oculus_rift.cpp" />
     <ClCompile Include="src\Include\Graphics\VR\vr.cpp" />
     <ClCompile Include="src\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -255,8 +255,8 @@
     <ClInclude Include="src\Include\Graphics\structs.hpp" />
     <ClInclude Include="src\Include\Graphics\Utils\utils.h" />
     <ClInclude Include="src\Include\Graphics\vertex_layout.hpp" />
+    <ClInclude Include="src\Include\Graphics\VR\OculusRift\oculus_rift.h" />
     <ClInclude Include="src\Include\Graphics\VR\vr.h" />
-    <ClInclude Include="src\Include\Graphics\VR\oculus_rift.h" />
     <ClInclude Include="src\stdafx.h" />
   </ItemGroup>
   <ItemGroup>

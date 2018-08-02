@@ -6,15 +6,15 @@
     date: July 22, 2018
 **********************************************************************/
 
-#include "vr.h"
+#include "../vr.h"
 
 // Include API dependant headers
 #define   OVR_D3D_VERSION 11
 #include "LibOVR/OVR_CAPI_D3D.h"
 #include "LibOVR/OVR_CAPI_Vk.h"
 
-#include "../D3D11/D3D11.hpp"
-#include "../enums.hpp"
+#include "../../D3D11/D3D11.hpp"
+#include "../../enums.hpp"
 #include <array>
 
 namespace Graphics { namespace VR {
@@ -23,37 +23,50 @@ namespace Graphics { namespace VR {
     class OculusSwapchain 
     {
     public:
-        OculusSwapchain(API api, ovrSession session, I32 sizeW, I32 sizeH);
+        OculusSwapchain() = default;
+        virtual ~OculusSwapchain() {}
 
+        //----------------------------------------------------------------------
         const ovrTextureSwapChain& get() const { return m_swapChain; }
 
         //----------------------------------------------------------------------
-        void commit(ovrSession session)
-        {
-            ovr_CommitTextureSwapChain(session, m_swapChain);
-        }
+        // Commits the texture in the swapchain.
+        //----------------------------------------------------------------------
+        void commit(ovrSession session) { ovr_CommitTextureSwapChain(session, m_swapChain); }
 
         //----------------------------------------------------------------------
-        void release(ovrSession session)
-        {
-            ovr_DestroyTextureSwapChain(session, m_swapChain);
-        }
+        void release(ovrSession session) { ovr_DestroyTextureSwapChain(session, m_swapChain); }
 
         //----------------------------------------------------------------------
-        void bindForRendering(ovrSession session);
+        virtual void bindForRendering(ovrSession session) = 0;
 
         //----------------------------------------------------------------------
-        void clear(ovrSession session, Color color);
+        virtual void clear(ovrSession session, Color color) = 0;
 
-    private:
+    protected:
         ovrTextureSwapChain m_swapChain;
 
-        // D3D11
+        NULL_COPY_AND_ASSIGN(OculusSwapchain)
+    };
+
+    //**********************************************************************
+    class OculusSwapchainDX : public OculusSwapchain
+    {
+    public:
+        OculusSwapchainDX(ovrSession session, I32 sizeW, I32 sizeH);
+
+        //----------------------------------------------------------------------
+        // OculusSwapchain Interface
+        //----------------------------------------------------------------------
+        void bindForRendering(ovrSession session) override;
+        void clear(ovrSession session, Color color) override;
+
+    private:
         ComPtr<ID3D11RenderTargetView> m_texRtv[3];
         ID3D11RenderTargetView* _GetRTVDX(ovrSession session)
         {
             int index = 0;
-            ovr_GetTextureSwapChainCurrentIndex(session, m_swapChain, &index);
+            ovr_GetTextureSwapChainCurrentIndex( session, m_swapChain, &index );
             return m_texRtv[index];
         }
     };

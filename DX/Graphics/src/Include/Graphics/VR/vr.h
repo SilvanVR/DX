@@ -58,11 +58,6 @@ namespace Graphics { namespace VR {
         F32 getWorldScale() const { return m_worldScale; }
 
         //----------------------------------------------------------------------
-        // @Return: Whether this HMD was sucessfully initialized.
-        //----------------------------------------------------------------------
-        bool isInitialized() const { return m_initialized; }
-
-        //----------------------------------------------------------------------
         // @Return: True, when app has focus e.g. oculus dash is not opened.
         //----------------------------------------------------------------------
         virtual bool hasFocus() { return true; }
@@ -100,7 +95,6 @@ namespace Graphics { namespace VR {
 
     protected:
         HMDDescription          m_description;
-        bool                    m_initialized = false;
         std::array<Touch, 2>    m_touch;
         F32                     m_worldScale = 1.0f;
 
