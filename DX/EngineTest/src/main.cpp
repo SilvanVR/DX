@@ -31,6 +31,7 @@ public:
     {
         // Camera 1
         go = createGameObject("Camera");
+        go->addComponent<Components::AudioListener>();
         go->getComponent<Components::Transform>()->position = Math::Vec3(0, 1, -1);
 
         go->addComponent<Components::Camera>();
@@ -43,13 +44,7 @@ public:
 
         //createGameObject("Grid")->addComponent<GridGeneration>(20);
 
-        //auto terrainGO = createGameObject("Terrain");
-        //terrainGO->addComponent<Components::MeshRenderer>(ASSETS.getMesh("/models/terrain.obj"), ASSETS.getMaterial("/materials/blinn_phong/terrain.material"));
-        //auto sun = createGameObject("Sun");
-        //auto dl = sun->addComponent<Components::DirectionalLight>(0.3f, Color::WHITE, Graphics::ShadowType::None);
-        //sun->getTransform()->rotation = Math::Quat::LookRotation(Math::Vec3{ 0,-1, 1 });
-
-        Locator::getRenderer().setGlobalFloat(SID("_Ambient"), 0.1f);
+        RENDERER.setGlobalFloat(SID("_Ambient"), 0.1f);
 
         auto world = createGameObject("World");
         world->addComponent<Components::MeshRenderer>(ASSETS.getMesh("/models/box_n_inside.obj"), ASSETS.getMaterial("/materials/blinn_phong/cellar.material"));
@@ -67,6 +62,7 @@ public:
         t->scale = { 0.2f };
         t->position.y = 0.3f;
         monkey->addComponent<ConstantRotation>(0.0f, 15.0f, 0.0f);
+        //monkey->addComponent<Components::AudioSource>(ASSETS.getAudioClip("/audio/start_dash.wav"));
 
         auto ps = createGameObject("Particles!");
         ps->addComponent<Components::ParticleSystem>("/particles/ambient.ps");

@@ -9,6 +9,8 @@
 #include "transform.h"
 #include "GameplayLayer/gameobject.h"
 #include "Core/locator.h"
+#include "Rendering/vr_camera.h"
+#include "Rendering/camera.h"
 
 namespace Components {
 
@@ -31,12 +33,17 @@ namespace Components {
     //----------------------------------------------------------------------
     void AudioListener::_UpdateListener()
     {
-        auto transform = getGameObject()->getComponent<Components::Transform>();
+        Components::Transform* transform;
+        if ( auto vrCam = getGameObject()->getComponent<VRCamera>() )
+            transform = vrCam->getCameraForEye(Graphics::VR::LeftEye).getGameObject()->getTransform();
+        else
+            transform = getGameObject()->getTransform();
 
         X3DAUDIO_LISTENER listener = {};
-        listener.OrientFront    = transform->rotation.getForward();
-        listener.OrientTop      = transform->rotation.getUp();
-        listener.Position       = transform->position;
+        auto worldRotation = transform->getWorldRotation();
+        listener.OrientFront    = worldRotation.getForward();
+        listener.OrientTop      = worldRotation.getUp();
+        listener.Position       = transform->getWorldPosition();
 
         Locator::getAudioManager().updateListener( listener );
     }

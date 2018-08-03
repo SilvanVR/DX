@@ -3,10 +3,6 @@
 //**********************************************************************
 class MyScene : public IScene
 {
-    GameObject*             go;
-    Components::Camera*     cam;
-
-    MeshPtr         mesh;
     AudioClipPtr    clip;
 
 public:
@@ -14,10 +10,13 @@ public:
 
     void init() override
     {
-        go = createGameObject("Camera");
-        cam = go->addComponent<Components::Camera>();
+        auto go = createGameObject("Camera");
+        //go->addComponent<Components::Camera>();
         go->getComponent<Components::Transform>()->position = Math::Vec3(0,0,-10);
-        go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA);
+        //go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA);
+        go->addComponent<Components::VRCamera>(Components::ScreenDisplay::LeftEye, Graphics::MSAASamples::Four);
+        go->addComponent<Components::VRFPSCamera>();
+
         go->addComponent<Components::AudioListener>();
 
         clip = ASSETS.getAudioClip( "/audio/doki.wav" );
@@ -32,7 +31,7 @@ public:
         go3->addComponent<Components::AudioSource>(ASSETS.getAudioClip("/audio/doki.wav"));
         go3->addComponent<Components::MeshRenderer>(Core::MeshGenerator::CreateCube(0.5f, Color::RED), ASSETS.getColorMaterial());
 
-        mesh = Core::MeshGenerator::CreateGrid(100);
+        auto mesh = Core::MeshGenerator::CreateGrid(100);
         createGameObject("Grid")->addComponent<Components::MeshRenderer>(mesh, ASSETS.getColorMaterial());
     }
 
