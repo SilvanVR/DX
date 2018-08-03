@@ -64,13 +64,13 @@ namespace Graphics {
 
         //----------------------------------------------------------------------
         inline void _SetCamera(Camera* camera);
-        inline void _BindMesh(IMesh* mesh, const std::shared_ptr<IMaterial>& material, const DirectX::XMMATRIX& modelMatrix, I32 subMeshIndex);
-        inline void _DrawMesh(IMesh* mesh, const std::shared_ptr<IMaterial>& material, const DirectX::XMMATRIX& model, I32 subMeshIndex);
-        inline void _DrawMeshInstanced(IMesh* mesh, const std::shared_ptr<IMaterial>& material, const DirectX::XMMATRIX& model, I32 instanceCount);
+        inline void _BindMesh(IMesh* mesh, const MaterialPtr& material, const DirectX::XMMATRIX& modelMatrix, I32 subMeshIndex);
+        inline void _DrawMesh(IMesh* mesh, const MaterialPtr& material, const DirectX::XMMATRIX& model, I32 subMeshIndex);
+        inline void _DrawMeshInstanced(IMesh* mesh, const MaterialPtr& material, const DirectX::XMMATRIX& model, I32 instanceCount);
         inline void _CopyTexture(ITexture* srcTex, I32 srcElement, I32 srcMip, ITexture* dstTex, I32 dstElement, I32 dstMip);
-        inline void _RenderCubemap(ICubemap* cubemap, const std::shared_ptr<IMaterial>& material, U32 dstMip);
-        inline void _Blit(const RenderTexturePtr& src, const RenderTexturePtr& dst, const std::shared_ptr<IMaterial>& material);
-        inline void _DrawFullScreenQuad(const std::shared_ptr<IMaterial>& material, const D3D11_VIEWPORT& viewport);
+        inline void _RenderCubemap(ICubemap* cubemap, const MaterialPtr& material, U32 dstMip);
+        inline void _Blit(const RenderTexturePtr& src, const RenderTexturePtr& dst, const MaterialPtr& material);
+        inline void _DrawFullScreenQuad(const MaterialPtr& material, const D3D11_VIEWPORT& viewport);
 
         //----------------------------------------------------------------------
         void _InitD3D11();
@@ -100,7 +100,7 @@ namespace Graphics {
             bool         lightsUpdated = false; // Set to true whenever a new light has been added
 
             inline void Reset();
-            inline void BindMaterial(const std::shared_ptr<IMaterial>& material);
+            inline void BindMaterial(const MaterialPtr& material);
             inline void BindShader(const std::shared_ptr<IShader>& shader);
             inline void BindRendertarget(const RenderTexturePtr& rt, U64 frameCount);
             inline void SetCamera(Camera* camera);
@@ -111,7 +111,7 @@ namespace Graphics {
 
         private:
             Camera*                     m_camera = nullptr;       // Current camera
-            std::shared_ptr<IMaterial>  m_material = nullptr;     // Current bound material
+            MaterialPtr  m_material = nullptr;     // Current bound material
             std::shared_ptr<IShader>    m_shader = nullptr;       // Current bound shader
             RenderTexturePtr            m_renderTarget = nullptr; // Current render target
         } renderContext;

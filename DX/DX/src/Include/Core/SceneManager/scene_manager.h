@@ -34,10 +34,18 @@ namespace Core {
         void shutdown() override;
         void OnTick(Time::Seconds delta) override;
 
+        U32                         numScenes() const   { return static_cast<U32>( m_sceneStack.size() ); }
+        const ArrayList<IScene*>&   getScenes() const   { return m_sceneStack; }
+
         //----------------------------------------------------------------------
-        IScene&                     getCurrentScene()           { return *m_sceneStack.back(); }
-        U32                         numScenes()         const   { return static_cast<U32>( m_sceneStack.size() ); }
-        const ArrayList<IScene*>&   getScenes()         const   { return m_sceneStack; }
+        // @Return: Current scene on top of the scene stack
+        //----------------------------------------------------------------------
+        IScene& getCurrentScene() { return *m_sceneStack.back(); }
+
+        //----------------------------------------------------------------------
+        // @Return: Loaded scene if any otherwise current scene on top of the scene stack
+        //----------------------------------------------------------------------
+        IScene& getCurrentSceneLoad() { return sceneIsLoading ? *sceneIsLoading : getCurrentScene(); }
 
         //----------------------------------------------------------------------
         // Push a new scene onto the scene-stack.
@@ -76,6 +84,9 @@ namespace Core {
 
     private:
         ArrayList<IScene*> m_sceneStack;
+        IScene*  sceneIsLoading = nullptr;  // Scene which is currently in the process of loading
+        IScene*  sceneToLoad    = nullptr;  // If not null, we have to transition to this scene the next tick
+        bool     popScene       = false;    // If true, pop current scene when transitioning to a new scene
 
         //----------------------------------------------------------------------
         void _SwitchToScene(IScene* newScene);

@@ -10,6 +10,8 @@
 #include "Graphics/command_buffer.h"
 #include "Math/aabb.h"
 
+class IScene;
+
 namespace Core { namespace Debug {
 
     //**********************************************************************
@@ -57,7 +59,7 @@ namespace Core { namespace Debug {
 
     private:
         // Stores rendering commands for drawing the entire debug stuff
-        Graphics::CommandBuffer m_commandBuffer;
+        HashMap<IScene*, Graphics::CommandBuffer> m_commandBuffers;
 
         // Wireframe shader with + without depth testing
         ShaderPtr               m_colorShaderWireframe = nullptr;
@@ -74,7 +76,7 @@ namespace Core { namespace Debug {
             Time::Seconds   duration;
             bool            depthTest;
         };
-        ArrayList<MeshInfo> m_currentMeshes;
+        HashMap<IScene*, ArrayList<MeshInfo>> m_currentMeshes;
 
         //----------------------------------------------------------------------
         void _OnSceneChanged();

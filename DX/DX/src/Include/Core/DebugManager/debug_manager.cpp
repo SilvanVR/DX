@@ -46,14 +46,15 @@ namespace Core { namespace Debug {
     //----------------------------------------------------------------------
     void DebugManager::OnTick( Time::Seconds delta )
     {
+        auto& currentMeshes = m_currentMeshes[&THIS_SCENE];
         bool erasedMesh = false;
-        for (auto it = m_currentMeshes.begin(); it != m_currentMeshes.end();)
+        for (auto it = currentMeshes.begin(); it != currentMeshes.end();)
         {
             it->duration -= delta;
             if (it->duration < 0)
             {
                 erasedMesh = true;
-                it = m_currentMeshes.erase( it );
+                it = currentMeshes.erase( it );
             }
             else
             {
@@ -145,7 +146,7 @@ namespace Core { namespace Debug {
     //----------------------------------------------------------------------
     void DebugManager::drawSphere( const Math::Vec3& pos, F32 radius, Color color, Time::Seconds duration, bool depthTest )
     {
-        auto mesh = Core::MeshGenerator::CreateUVSphere( pos, radius, 30, 30 );       
+        auto mesh = Core::MeshGenerator::CreateUVSphere( pos, radius, 30, 30 );
         mesh->setColors(  ArrayList<Color>( mesh->getIndexCount( 0 ), color ) );
 
         _AddMesh( mesh, duration, depthTest );
@@ -182,24 +183,26 @@ namespace Core { namespace Debug {
     void DebugManager::_UpdateCommandBuffer()
     {
         // Clear all previous commands
-        m_commandBuffer.reset();
+        m_commandBuffers[&THIS_SCENE].reset();
 
         // Record new commands
-        for (auto& meshInfo : m_currentMeshes)
-            m_commandBuffer.drawMesh( meshInfo.mesh, meshInfo.depthTest ? m_colorMaterial : m_colorMaterialNoDepthTest, DirectX::XMMatrixIdentity(), 0 );
+        for (auto& meshInfo : m_currentMeshes[&THIS_SCENE])
+            m_commandBuffers[&THIS_SCENE].drawMesh( meshInfo.mesh, meshInfo.depthTest ? m_colorMaterial : m_colorMaterialNoDepthTest, DirectX::XMMatrixIdentity(), 0 );
     }
 
     //----------------------------------------------------------------------
     void DebugManager::_OnSceneChanged()
     {
-        // Problem with this: If the scene gets loaded on a different thread and this scene has a 
-        // drawing request in his init methods it deletes those meshes immediately
-        //m_currentMeshes.clear();
-        //_UpdateCommandBuffer();
+        for (auto& [scene, cmd] : m_commandBuffers)
+            if (&SCENE != scene)
+            {
+                m_commandBuffers.erase( scene );
+                break;
+            }
 
         // Re-Add the command buffer to the new cameras in the scene
         for ( auto& cam : SCENE.getComponentManager().getCameras() )
-            cam->addCommandBuffer( &m_commandBuffer, Components::CameraEvent::Geometry );
+            cam->addCommandBuffer( &m_commandBuffers[&SCENE], Components::CameraEvent::Geometry );
     }
 
     //----------------------------------------------------------------------
@@ -209,9 +212,9 @@ namespace Core { namespace Debug {
         meshInfo.mesh       = mesh;
         meshInfo.duration   = duration;
         meshInfo.depthTest  = depthTest;
-        m_currentMeshes.push_back( meshInfo );
+        m_currentMeshes[&THIS_SCENE].push_back( meshInfo );
 
-        m_commandBuffer.drawMesh( mesh, depthTest ? m_colorMaterial : m_colorMaterialNoDepthTest, DirectX::XMMatrixIdentity(), 0 );
+        m_commandBuffers[&THIS_SCENE].drawMesh( mesh, depthTest ? m_colorMaterial : m_colorMaterialNoDepthTest, DirectX::XMMatrixIdentity(), 0 );
     }
 
 } } // end namespaces

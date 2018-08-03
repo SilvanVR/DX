@@ -653,8 +653,8 @@ public:
         // Camera
         auto go = createGameObject("Camera");
         auto cam = go->addComponent<Components::Camera>(45.0f, 0.1f, 1000.0f, Graphics::MSAASamples::Four, true);
-        go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -10);
-        go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA);
+        go->addComponent<Components::VRCamera>(Components::ScreenDisplay::RightEye, Graphics::MSAASamples::Four);
+        go->addComponent<Components::VRFPSCamera>();
         go->addComponent<Tonemap>();
 
         createGameObject("Grid")->addComponent<GridGeneration>(20);
@@ -921,7 +921,6 @@ public:
     void shutdown() override { LOG("SponzaScene Shutdown!", Color::RED); }
 };
 
-
 class ScenePostProcessMultiCamera : public IScene
 {
     Components::Camera* cam;
@@ -997,8 +996,6 @@ public:
 
     void shutdown() override { LOG("ScenePostProcessMultiCamera Shutdown!", Color::RED); }
 };
-
-
 
 class SceneGUI : public IScene
 {
@@ -1282,7 +1279,6 @@ public:
 
     void shutdown() override { LOG("ShadowScene Shutdown!", Color::RED); }
 };
-
 
 class SceneParticleSystem : public IScene
 {

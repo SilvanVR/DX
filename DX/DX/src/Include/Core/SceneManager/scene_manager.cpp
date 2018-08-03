@@ -19,10 +19,6 @@
 namespace Core {
 
     //----------------------------------------------------------------------
-    static IScene*  sceneToLoad = nullptr;  // If not null, we have to transition to this scene the next tick
-    static bool     popScene = false;       // If true, pop current scene when transitioning to a new scene
-
-    //----------------------------------------------------------------------
     void SceneManager::init()
     {
         Locator::getCoreEngine().subscribe( this );
@@ -55,7 +51,7 @@ namespace Core {
         if (sceneToLoad != nullptr)
         {
             _SwitchToScene( sceneToLoad );
-            sceneToLoad = nullptr;
+            sceneToLoad = sceneIsLoading = nullptr;
             Events::EventDispatcher::GetEvent( EVENT_SCENE_CHANGED ).invoke();
         }
 
@@ -77,9 +73,10 @@ namespace Core {
     {
         ASSERT( sceneToLoad == nullptr && "Only 1 Scene can be loaded in exactly one tick!" );
 
+        sceneIsLoading = scene;
         scene->init();
-        popScene    = popCurScene;
         sceneToLoad = scene;
+        popScene    = popCurScene;
     }
 
     //----------------------------------------------------------------------
@@ -88,6 +85,7 @@ namespace Core {
         ASSERT( sceneToLoad == nullptr && "Only 1 Scene can be loaded in exactly one tick!" );
 
         ASYNC_JOB([scene, popCurScene, this] {
+            sceneIsLoading = scene;
             scene->init();
             popScene    = popCurScene;
             sceneToLoad = scene;

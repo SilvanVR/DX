@@ -476,7 +476,7 @@ namespace Graphics {
     }
 
     //----------------------------------------------------------------------
-    void D3D11Renderer::_BindMesh( IMesh* mesh, const std::shared_ptr<IMaterial>& material, const DirectX::XMMATRIX& modelMatrix, I32 subMeshIndex )
+    void D3D11Renderer::_BindMesh( IMesh* mesh, const MaterialPtr& material, const DirectX::XMMATRIX& modelMatrix, I32 subMeshIndex )
     {
         // Measuring per frame data
         auto curCamera = renderContext.getCamera();
@@ -530,7 +530,7 @@ namespace Graphics {
     }
 
     //----------------------------------------------------------------------
-    void D3D11Renderer::_DrawMesh( IMesh* mesh, const std::shared_ptr<IMaterial>& material, const DirectX::XMMATRIX& modelMatrix, I32 subMeshIndex )
+    void D3D11Renderer::_DrawMesh( IMesh* mesh, const MaterialPtr& material, const DirectX::XMMATRIX& modelMatrix, I32 subMeshIndex )
     {
         // Bind everything and submit drawcall
         _BindMesh( mesh, material, modelMatrix, subMeshIndex );
@@ -538,7 +538,7 @@ namespace Graphics {
     }
 
     //----------------------------------------------------------------------
-    void D3D11Renderer::_DrawMeshInstanced( IMesh* mesh, const std::shared_ptr<IMaterial>& material, const DirectX::XMMATRIX& modelMatrix, I32 instanceCount )
+    void D3D11Renderer::_DrawMeshInstanced( IMesh* mesh, const MaterialPtr& material, const DirectX::XMMATRIX& modelMatrix, I32 instanceCount )
     {
         // Bind everything and submit drawcall
         _BindMesh( mesh, material, modelMatrix, 0 );
@@ -767,7 +767,7 @@ namespace Graphics {
     }
 
     //----------------------------------------------------------------------
-    void D3D11Renderer::_RenderCubemap( ICubemap* cubemap, const std::shared_ptr<IMaterial>& material, U32 dstMip )
+    void D3D11Renderer::_RenderCubemap( ICubemap* cubemap, const MaterialPtr& material, U32 dstMip )
     {
         DirectX::XMVECTOR directions[] = {
             { 1, 0, 0, 0 }, { -1,  0,  0, 0 },
@@ -817,7 +817,7 @@ namespace Graphics {
     }
 
     //----------------------------------------------------------------------
-    void D3D11Renderer::_Blit( const RenderTexturePtr& src, const RenderTexturePtr& dst, const std::shared_ptr<IMaterial>& material )
+    void D3D11Renderer::_Blit( const RenderTexturePtr& src, const RenderTexturePtr& dst, const MaterialPtr& material )
     {
         auto currRT = renderContext.getRenderTarget();
         if (currRT == SCREEN_BUFFER && dst == SCREEN_BUFFER)
@@ -840,15 +840,18 @@ namespace Graphics {
         D3D11_VIEWPORT vp = {};
         if (dst == SCREEN_BUFFER)
         {
-            // Set viewport (Translate to pixel coordinates first)
-            auto viewport = curCamera->getViewport();
-            vp.TopLeftX = viewport.topLeftX * m_window->getWidth();
-            vp.TopLeftY = viewport.topLeftY * m_window->getHeight();
-            vp.Width    = viewport.width    * m_window->getWidth();
-            vp.Height   = viewport.height   * m_window->getHeight();
-            vp.MaxDepth = 1.0f;
+            if (curCamera->isRenderingToScreen())
+            {
+                // Set viewport (Translate to pixel coordinates first)
+                auto viewport = curCamera->getViewport();
+                vp.TopLeftX = viewport.topLeftX * m_window->getWidth();
+                vp.TopLeftY = viewport.topLeftY * m_window->getHeight();
+                vp.Width    = viewport.width    * m_window->getWidth();
+                vp.Height   = viewport.height   * m_window->getHeight();
+                vp.MaxDepth = 1.0f;
 
-            m_pSwapchain->bindForRendering();
+                m_pSwapchain->bindForRendering();
+            }
         }
         else
         {
@@ -860,7 +863,7 @@ namespace Graphics {
 
         _DrawFullScreenQuad( material, vp );
 
-        if (curCamera->isRenderingToHMD())
+        if ( curCamera->isRenderingToHMD() )
         {
             if (not hasHMD())
             {
@@ -883,7 +886,7 @@ namespace Graphics {
     }
 
     //----------------------------------------------------------------------
-    void D3D11Renderer::_DrawFullScreenQuad( const std::shared_ptr<IMaterial>& material, const D3D11_VIEWPORT& viewport )
+    void D3D11Renderer::_DrawFullScreenQuad( const MaterialPtr& material, const D3D11_VIEWPORT& viewport )
     {
         renderContext.BindShader( material->getShader() );
         renderContext.BindMaterial( material );
@@ -913,7 +916,7 @@ namespace Graphics {
     }
 
     //----------------------------------------------------------------------
-    void D3D11Renderer::RenderContext::BindMaterial( const std::shared_ptr<IMaterial>& material )
+    void D3D11Renderer::RenderContext::BindMaterial( const MaterialPtr& material )
     {
         // Don't bind same material again
         if (material == m_material)

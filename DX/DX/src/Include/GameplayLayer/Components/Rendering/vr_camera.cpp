@@ -22,18 +22,16 @@ namespace Components
     #define DEPTH_STENCIL_FORMAT    Graphics::DepthFormat::D32
 
     //----------------------------------------------------------------------
-    void VRCamera::init()
+    VRCamera::VRCamera( ScreenDisplay screenDisplay, Graphics::MSAASamples sampleCount, bool hdr )
+        : m_sampleCount( sampleCount ), m_hdr( hdr ), m_screenDisplay( screenDisplay )
     {
-        auto scene = getGameObject()->getScene();
+        // Create the cameras in the constructor, so other scripts can acces the cameras early on (e.g. for postprocessing)
         auto hmdDesc = RENDERER.getVRDevice().getDescription();
 
         // Create eye gameobjects and cameras
         for (auto eye : { Graphics::VR::LeftEye, Graphics::VR::RightEye })
         {
-            m_eyeGameObjects[eye] = scene->createGameObject( eye == 0 ? "LeftEye" : "RightEye" );
-
-            // Attach both cameras as childs to this transform
-            m_eyeGameObjects[eye]->getTransform()->setParent( getGameObject()->getTransform() );
+            m_eyeGameObjects[eye] = THIS_SCENE.createGameObject( eye == 0 ? "LeftEye" : "RightEye" );
 
             // Create cameras
             auto eyeBuffer = RESOURCES.createRenderTexture( hmdDesc.idealResolution[eye].x, hmdDesc.idealResolution[eye].y,
@@ -47,6 +45,15 @@ namespace Components
         setScreenDisplay( m_screenDisplay );
 
         m_frameEvtListenerID = Events::EventDispatcher::GetEvent( EVENT_FRAME_BEGIN ).addListener( BIND_THIS_FUNC_0_ARGS( &VRCamera::_FrameBegin ) );
+    }
+
+    //----------------------------------------------------------------------
+    void VRCamera::addedToGameObject( GameObject* go )
+    {
+        // Attach both cameras as childs to this transform.
+        // Must be done here because the component is not yet attached to a gameobject in the constructor.
+        for (auto eye : { Graphics::VR::LeftEye, Graphics::VR::RightEye })
+            m_eyeGameObjects[eye]->getTransform()->setParent( go->getTransform() );
     }
 
     //----------------------------------------------------------------------
@@ -65,9 +72,9 @@ namespace Components
     //----------------------------------------------------------------------
     void VRCamera::setActive( bool active )
     {
-        IComponent::setActive(active);
+        IComponent::setActive( active );
         for (auto eye : { Graphics::VR::LeftEye, Graphics::VR::RightEye })
-            m_eyeGameObjects[eye]->setActive(active);
+            m_eyeGameObjects[eye]->setActive( active );
     }
 
     //----------------------------------------------------------------------

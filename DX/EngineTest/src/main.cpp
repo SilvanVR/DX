@@ -15,53 +15,6 @@
 // SCENES
 //----------------------------------------------------------------------
 
-namespace Components
-{
-    class VRFPSCamera : public IComponent
-    {
-    public:
-        VRFPSCamera(F32 speed = 1.0f, F32 mouseSensitivity = 15.0f) : m_speed(speed), m_mouseSensitivity(mouseSensitivity) {}
-        ~VRFPSCamera() = default;
-
-        void init() override
-        {
-            m_vrCamera = getGameObject()->getComponent<VRCamera>();
-            ASSERT( m_vrCamera && "Script requires a vr camera component!" );
-        }
-
-        void tick(Time::Seconds d) override
-        {
-            auto delta = (F32)d;
-            F32 speed = m_speed;
-            if (KEYBOARD.isKeyDown(Key::Shift))
-                speed *= 5.0f;
-
-            // Move in look direction
-            auto transform = getGameObject()->getTransform();
-            Math::Vec3 lookDir = m_vrCamera->getLookDirection();
-            if (KEYBOARD.isKeyDown(Key::W)) transform->position += lookDir * speed * delta;
-            if (KEYBOARD.isKeyDown(Key::S)) transform->position -= lookDir * speed * delta;
-            transform->position += lookDir * (F32)AXIS_MAPPER.getMouseWheelAxisValue() * 0.3f;
-
-            // Rotate around y-axis
-            if (KEYBOARD.wasKeyPressed(Key::A)) transform->rotation *= Math::Quat({0, 1, 0}, -20.0f);
-            if (KEYBOARD.wasKeyPressed(Key::D)) transform->rotation *= Math::Quat({0, 1, 0}, 20.0f);
-            if (MOUSE.isKeyDown(MouseKey::RButton))
-            {
-                auto deltaMouse = MOUSE.getMouseDelta();
-                transform->rotation *= Math::Quat({0, 1, 0}, deltaMouse.x * m_mouseSensitivity * delta);
-            }
-        }
-
-    private:
-        F32 m_speed;
-        F32 m_mouseSensitivity;
-        VRCamera* m_vrCamera;
-
-        NULL_COPY_AND_ASSIGN(VRFPSCamera)
-    };
-}
-
 class TestScene : public IScene
 {
     Components::Camera* cam;
@@ -80,11 +33,13 @@ public:
         go = createGameObject("Camera");
         go->getComponent<Components::Transform>()->position = Math::Vec3(0, 1, -1);
 
-        //cam = go->addComponent<Components::Camera>();
-        //go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 0.1f);
+        go->addComponent<Components::Camera>();
+        go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 0.1f);
 
-        vrCam = go->addComponent<Components::VRCamera>(Components::ScreenDisplay::LeftEye, Graphics::MSAASamples::Four);
-        go->addComponent<Components::VRFPSCamera>();
+        //vrCam = go->addComponent<Components::VRCamera>(Components::ScreenDisplay::LeftEye, Graphics::MSAASamples::Four);
+        //go->addComponent<Components::VRFPSCamera>();
+        //go->addComponent<Tonemap>();
+        //go->addComponent<PostProcess>(ASSETS.getMaterial("/materials/post processing/color_grading.material"));
 
         //createGameObject("Grid")->addComponent<GridGeneration>(20);
 
@@ -133,8 +88,8 @@ public:
 
     void tick(Time::Seconds delta) override
     {
-        if (KEYBOARD.isKeyDown(Key::F))
-            t->rotation *= Math::Quat::FromEulerAngles(0.0f, 0.0f, 10.0f * (F32)delta);
+        if (KEYBOARD.wasKeyPressed(Key::F))
+            DEBUG.drawCube({ -1,-1,-1 }, { 1,1,1 }, Color::RED, 10_s);
 
         if (KEYBOARD.wasKeyPressed(Key::M))
         {

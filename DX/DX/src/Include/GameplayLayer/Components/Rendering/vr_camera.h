@@ -29,9 +29,11 @@ namespace Components
     class VRCamera : public IComponent
     {
     public:
-        VRCamera(ScreenDisplay screenDisplay = ScreenDisplay::LeftEye, Graphics::MSAASamples sampleCount = Graphics::MSAASamples::Four, bool hdr = false)
-            : m_sampleCount(sampleCount), m_hdr(hdr), m_screenDisplay(screenDisplay) {}
+        VRCamera(ScreenDisplay screenDisplay = ScreenDisplay::LeftEye, Graphics::MSAASamples sampleCount = Graphics::MSAASamples::Four, bool hdr = false);
         ~VRCamera() = default;
+
+        //----------------------------------------------------------------------
+        Components::Camera& getCameraForEye(Graphics::VR::Eye eye) { return *m_eyeCameras[eye]; }
 
         //----------------------------------------------------------------------
         // Changes what will be display on the regular screen/monitor (not the hmd).
@@ -46,7 +48,7 @@ namespace Components
         //----------------------------------------------------------------------
         // IComponent Interface
         //----------------------------------------------------------------------
-        void init() override;
+        void addedToGameObject(GameObject* go) override;
         void shutdown() override;
         void setActive(bool active);
 

@@ -10,6 +10,7 @@
 #include "transform.h"
 #include "Core/locator.h"
 #include "Math/math_utils.h"
+#include "Rendering/vr_camera.h"
 
 namespace Components {
 
@@ -132,6 +133,37 @@ namespace Components {
         auto eulers = m_pTransform->rotation.toEulerAngles();
         m_mousePitchDeg = eulers.x;
         m_mouseYawDeg   = eulers.y;
+    }
+
+    //**********************************************************************
+    // VSFPSCamera
+    //**********************************************************************
+
+    //----------------------------------------------------------------------
+    void VRFPSCamera::init()
+    {
+        m_vrCamera = getGameObject()->getComponent<VRCamera>();
+        ASSERT( m_vrCamera && "Script requires a vr camera component!" );
+    }
+
+    //----------------------------------------------------------------------
+    void VRFPSCamera::tick( Time::Seconds d )
+    {
+        auto delta = (F32)d;
+        F32 speed = m_speed;
+        if (KEYBOARD.isKeyDown(Key::Shift))
+            speed *= 5.0f;
+
+        // Move in look direction
+        auto transform = getGameObject()->getTransform();
+        Math::Vec3 lookDir = m_vrCamera->getLookDirection();
+        if (KEYBOARD.isKeyDown(Key::W)) transform->position += lookDir * speed * delta;
+        if (KEYBOARD.isKeyDown(Key::S)) transform->position -= lookDir * speed * delta;
+        transform->position += lookDir * (F32)AXIS_MAPPER.getMouseWheelAxisValue() * 0.3f;
+
+        // Rotate around y-axis in fixed steps
+        if (KEYBOARD.wasKeyPressed(Key::A)) transform->rotation *= Math::Quat({0, 1, 0}, -m_rotationAngle);
+        if (KEYBOARD.wasKeyPressed(Key::D)) transform->rotation *= Math::Quat({0, 1, 0}, m_rotationAngle);
     }
 
 

@@ -304,29 +304,50 @@ public:
 
 class PostProcess : public Components::IComponent
 {
-    Graphics::CommandBuffer cmd;
+    Graphics::CommandBuffer cmd[2];
     MaterialPtr m_material;
     bool m_hdr;
 
 public:
     PostProcess(const MaterialPtr& material, bool hdr = false) : m_material(material), m_hdr(hdr) {}
-    ~PostProcess() { if (auto cam = getGameObject()->getComponent<Components::Camera>()) cam->removeCommandBuffer(&cmd); }
+    ~PostProcess() { 
+        if (auto cam = getGameObject()->getComponent<Components::Camera>()) 
+            cam->removeCommandBuffer(&cmd[0]);
+        if (auto vrCam = getGameObject()->getComponent<Components::VRCamera>())
+            for (auto eye : { Graphics::VR::LeftEye, Graphics::VR::RightEye })
+                vrCam->getCameraForEye(eye).removeCommandBuffer(&cmd[eye]);
+    }
 
     void addedToGameObject(GameObject* go)
     {
         auto cam = go->getComponent<Components::Camera>();
-        if (!cam)
+        auto vrCam = go->getComponent<Components::VRCamera>();
+        if (!cam && !vrCam)
+            LOG_WARN("Post Process component requires an attached camera (vr or basic) component!");
+
+        if (cam)
         {
-            LOG_WARN("Post Process component requires an attached camera component!");
-            return;
+            // Create render target
+            auto rt = RESOURCES.createRenderTexture(WINDOW.getWidth(), WINDOW.getHeight(), m_hdr ? Graphics::TextureFormat::RGBAFloat : Graphics::TextureFormat::RGBA32, true);
+            cmd[0].blit(PREVIOUS_BUFFER, rt, m_material);
+
+            // Attach command buffer to camera
+            cam->addCommandBuffer(&cmd[0], Components::CameraEvent::PostProcess);
         }
 
-        // Apply post processing
-        auto rt = RESOURCES.createRenderTexture(WINDOW.getWidth(), WINDOW.getHeight(), m_hdr ? Graphics::TextureFormat::RGBAFloat : Graphics::TextureFormat::RGBA32, true);
-        cmd.blit(PREVIOUS_BUFFER, rt, m_material);
+        if (vrCam)
+        {
+            auto hmdDesc = RENDERER.getVRDevice().getDescription();
+            for (auto eye : { Graphics::VR::LeftEye, Graphics::VR::RightEye })
+            {
+                // Create render target
+                auto rt = RESOURCES.createRenderTexture(hmdDesc.idealResolution[eye].x, hmdDesc.idealResolution[eye].y, m_hdr ? Graphics::TextureFormat::RGBAFloat : Graphics::TextureFormat::RGBA32, false);
+                cmd[eye].blit(PREVIOUS_BUFFER, rt, m_material);
 
-        // Attach command buffer to camera
-        cam->addCommandBuffer(&cmd, Components::CameraEvent::PostProcess);
+                // Attach command buffer to camera
+                vrCam->getCameraForEye(eye).addCommandBuffer(&cmd[eye], Components::CameraEvent::PostProcess);
+            }
+        }
     }
 };
 

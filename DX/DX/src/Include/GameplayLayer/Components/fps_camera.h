@@ -1,6 +1,6 @@
 #pragma once
 /**********************************************************************
-    class: FPSCamera (fps_camera.h)
+    class: FPSCamera + VRFPSCamera (fps_camera.h)
 
     author: S. Hau
     date: March 7, 2018
@@ -20,6 +20,7 @@
 namespace Components {
 
     class Transform;
+    class VRCamera;
 
     //**********************************************************************
     class FPSCamera : public Components::IComponent
@@ -71,4 +72,25 @@ namespace Components {
         NULL_COPY_AND_ASSIGN(FPSCamera)
     };
 
+    //**********************************************************************
+    class VRFPSCamera : public IComponent
+    {
+    public:
+        VRFPSCamera(F32 speed = 1.0f, F32 rotationAngle = 20.0f) 
+            : m_speed(speed), m_rotationAngle(rotationAngle) {}
+        ~VRFPSCamera() = default;
+
+        //----------------------------------------------------------------------
+        // IComponent Interface
+        //----------------------------------------------------------------------
+        void init() override;
+        void tick(Time::Seconds d) override;
+
+    private:
+        F32 m_speed;
+        F32 m_rotationAngle;
+        VRCamera* m_vrCamera;
+
+        NULL_COPY_AND_ASSIGN(VRFPSCamera)
+    };
 }

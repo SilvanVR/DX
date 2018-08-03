@@ -45,7 +45,10 @@
 
 #define PROFILER                Locator::getProfiler()
 #define TIME                    Locator::getEngineClock()
+// Returns current active scene
 #define SCENE                   Locator::getSceneManager().getCurrentScene()
+// Returns current scene (Also if its loading on another thread, which does not happen with SCENE)
+#define THIS_SCENE              Locator::getSceneManager().getCurrentSceneLoad()
 #define RESOURCES               Locator::getResourceManager()
 #define DEBUG                   Locator::getDebugManager()
 #define ASSETS                  Locator::getAssetManager()
