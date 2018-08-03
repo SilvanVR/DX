@@ -48,7 +48,6 @@ namespace Graphics {
         // Dispatches the given command buffer for execution on the gpu.
         //----------------------------------------------------------------------
         void dispatch(const CommandBuffer& cmd);
-        void dispatch(const CommandBuffer&& cmd);
 
         //----------------------------------------------------------------------
         // Presents the latest backbuffer to the screen.

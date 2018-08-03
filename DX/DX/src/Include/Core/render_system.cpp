@@ -143,7 +143,7 @@ namespace Core {
             cmd.endCamera();
 
             // Submit command buffer to render engine
-            renderer.dispatch( std::move( cmd ) );
+            renderer.dispatch( cmd );
         }
     }
 

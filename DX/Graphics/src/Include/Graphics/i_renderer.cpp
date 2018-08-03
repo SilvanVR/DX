@@ -40,14 +40,6 @@ namespace Graphics {
     }
 
     //----------------------------------------------------------------------
-    void IRenderer::dispatch( const CommandBuffer&& cmd )
-    {
-        _LockQueue();
-        m_pendingCmdQueue.emplace_back( std::move( cmd ) );
-        _UnlockQueue();
-    }
-
-    //----------------------------------------------------------------------
     void IRenderer::addGlobalMaterial( CString name, const std::shared_ptr<IMaterial>& material )
     { 
         m_globalMaterials[SID( name )] = material;
