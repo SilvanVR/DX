@@ -20,7 +20,7 @@ namespace Components {
     Camera::Camera( const RenderTexturePtr& rt, F32 fovAngleYInDegree, F32 zNear, F32 zFar )
         : m_camera( fovAngleYInDegree, zNear, zFar ), m_cullingMask( LAYER_ALL )
     {
-        setRenderTarget( rt, true );
+        setRenderTarget( rt, Graphics::CameraFlagBlitToScreen );
     }
 
     //----------------------------------------------------------------------
@@ -90,7 +90,7 @@ namespace Components {
         auto rt = RESOURCES.createRenderTexture( window.getWidth(), window.getHeight(), 
                                                  DEPTH_STENCIL_FORMAT, m_hdr ? BUFFER_FORMAT_HDR : BUFFER_FORMAT_LDR, 
                                                  sampleCount, true );
-        setRenderTarget( rt, true );
+        setRenderTarget( rt, Graphics::CameraFlagBlitToScreen );
     }
 
 }

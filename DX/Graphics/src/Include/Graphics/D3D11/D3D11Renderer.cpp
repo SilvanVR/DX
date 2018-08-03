@@ -833,14 +833,17 @@ namespace Graphics {
             return;
         }
 
+        // Bind render-target (Note: if dst is null, this does nothing)
+        renderContext.BindRendertarget( dst, m_frameCount );
+
         // Set texture in material
         material->setTexture( POST_PROCESS_INPUT_NAME, input->getColorBuffer() );
 
-        auto curCamera = renderContext.getCamera();
         D3D11_VIEWPORT vp = {};
-        if (dst == SCREEN_BUFFER)
+        if (dst == SCREEN_BUFFER) // Blit to Screen and/or HMD depending on camera setting
         {
-            if (curCamera->isRenderingToScreen())
+            auto curCamera = renderContext.getCamera();
+            if ( curCamera->isRenderingToScreen() )
             {
                 // Set viewport (Translate to pixel coordinates first)
                 auto viewport = curCamera->getViewport();
@@ -851,36 +854,33 @@ namespace Graphics {
                 vp.MaxDepth = 1.0f;
 
                 m_pSwapchain->bindForRendering();
+                _DrawFullScreenQuad( material, vp );
+            }
+
+            if ( curCamera->isRenderingToHMD() )
+            {
+                if ( not hasHMD() )
+                {
+                    LOG_WARN_RENDERING( "Camera has setting render to eye, but VR is not supported!" );
+                    return;
+                }
+
+                // Ignore viewport from camera, always use full resolution from HMD
+                auto desc = m_hmd->getDescription();
+                auto eye = curCamera->getFlags() & CameraFlagBlitToLeftEye ? VR::LeftEye : VR::RightEye;
+                vp.TopLeftX = 0.0f;
+                vp.TopLeftY = 0.0f;
+                vp.Width = (F32)desc.idealResolution[eye].x;
+                vp.Height = (F32)desc.idealResolution[eye].y;
+                vp.MaxDepth = 1.0f;
+
+                m_hmd->bindForRendering( eye );
+                _DrawFullScreenQuad( material, vp );
             }
         }
         else
         {
             vp = { 0, 0, (F32)dst->getWidth(), (F32)dst->getHeight(), 0, 1 };
-        }
-
-        // Bind render-target (Note: if dst is null, this does nothing. Screen gets binded above)
-        renderContext.BindRendertarget( dst, m_frameCount );
-
-        _DrawFullScreenQuad( material, vp );
-
-        if ( curCamera->isRenderingToHMD() )
-        {
-            if (not hasHMD())
-            {
-                LOG_WARN_RENDERING( "Camera has setting render to eye, but VR is not supported!" );
-                return;
-            }
-
-            // Ignore viewport from camera, always use full resolution from HMD
-            auto desc = m_hmd->getDescription();
-            auto eye = renderContext.getCamera()->getHMDEye();
-            vp.TopLeftX = 0.0f;
-            vp.TopLeftY = 0.0f;
-            vp.Width    = (F32)desc.idealResolution[eye].x;
-            vp.Height   = (F32)desc.idealResolution[eye].y;
-            vp.MaxDepth = 1.0f;
-
-            m_hmd->bindForRendering( eye );
             _DrawFullScreenQuad( material, vp );
         }
     }

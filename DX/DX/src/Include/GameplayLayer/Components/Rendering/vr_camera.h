@@ -17,10 +17,10 @@ namespace Components
     //----------------------------------------------------------------------
     enum class ScreenDisplay // What will be displayed on the screen
     {
+        None,
         LeftEye,
         RightEye,
-        BothEyes,
-        None
+        BothEyes
     };
 
     //**********************************************************************

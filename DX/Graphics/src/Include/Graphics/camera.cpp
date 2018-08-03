@@ -48,6 +48,16 @@ namespace Graphics {
     }
 
     //----------------------------------------------------------------------
+    VR::Eye Camera::getHMDEye() const 
+    { 
+        if (m_cameraFlags & CameraFlagBlitToLeftEye)
+            return VR::LeftEye;
+        else if (m_cameraFlags & CameraFlagBlitToRightEye)
+            return VR::RightEye;
+        return VR::Eye::None;
+    }
+
+    //----------------------------------------------------------------------
     void Camera::setModelMatrix( const DirectX::XMMATRIX& model )
     { 
         m_model = model;

@@ -111,7 +111,7 @@ namespace Graphics {
 
         private:
             Camera*                     m_camera = nullptr;       // Current camera
-            MaterialPtr  m_material = nullptr;     // Current bound material
+            MaterialPtr                 m_material = nullptr;     // Current bound material
             std::shared_ptr<IShader>    m_shader = nullptr;       // Current bound shader
             RenderTexturePtr            m_renderTarget = nullptr; // Current render target
         } renderContext;

@@ -32,6 +32,16 @@ namespace Graphics {
         Orthographic
     };
 
+    //----------------------------------------------------------------------
+    enum CameraFlag
+    {
+        CameraFlagNone              = 1 << 0,   // Do nothing
+        CameraFlagBlitToScreen      = 1 << 1,   // Final rt from camera will be blit to screen
+        CameraFlagBlitToLeftEye     = 1 << 2,   // Final rt from camera will be blit to left eye
+        CameraFlagBlitToRightEye    = 1 << 3    // Final rt from camera will be blit to right eye
+    };
+    using CameraFlags = I32;
+
     //**********************************************************************
     class Camera
     {
@@ -50,8 +60,7 @@ namespace Graphics {
         inline void setViewport             (const Graphics::ViewportRect& viewport) { m_viewport = viewport; }
         inline void setOrthoParams          (F32 left, F32 right, F32 bottom, F32 top, F32 zNear, F32 zFar);
         inline void setPerspectiveParams    (F32 fovAngleYInDegree, F32 zNear, F32 zFar);
-        inline void setRenderingToScreen    (bool renderToScreen)                    { m_isRenderingToScreen = renderToScreen; }
-        inline void setHMDRenderingToEye    (VR::Eye eye)                            { m_renderToEye = eye; }
+        inline void setCameraFlags          (CameraFlags flags)                      { m_cameraFlags = flags; }
         inline void setProjection           (const DirectX::XMMATRIX& projection)    { m_cameraMode = CameraMode::Custom; m_projection = projection; }
 
         //----------------------------------------------------------------------
@@ -66,15 +75,16 @@ namespace Graphics {
         inline F32                 getTop()                     const { return m_ortho.top; }
         inline F32                 getBottom()                  const { return m_ortho.bottom; }
         inline CameraClearMode     getClearMode()               const { return m_clearMode; }
-        inline bool                isRenderingToScreen()        const { return m_isRenderingToScreen; }
-        inline bool                isRenderingToHMD()           const { return m_renderToEye != VR::Eye::None; }
-        inline VR::Eye             getHMDEye()                  const { return m_renderToEye; }
+        inline bool                isRenderingToScreen()        const { return m_cameraFlags & CameraFlagBlitToScreen; }
+        inline bool                isRenderingToHMD()           const { return (m_cameraFlags & CameraFlagBlitToLeftEye) || (m_cameraFlags & CameraFlagBlitToRightEye); }
         inline const ShaderPtr&    getReplacementShader()       const { return m_replacementShader; }
         inline StringID            getReplacementShaderTag()    const { return m_replacementShaderTag; }
         inline bool                hasReplacementShader()       const { return m_replacementShader != nullptr; }
         inline const FrameInfo&    getFrameInfo()               const { return *m_frameInfo.get(); }
         inline FrameInfo&          getFrameInfo()                     { return *m_frameInfo.get(); }
+        inline CameraFlags         getFlags()                   const { return m_cameraFlags; }
         inline F32                 getAspectRatio()             const;
+        inline VR::Eye             getHMDEye()                  const;
 
         //----------------------------------------------------------------------
         // @Return
@@ -94,9 +104,9 @@ namespace Graphics {
         // Set the render target in which this camera renders.
         // @Params:
         //  "renderTarget": The target in which this camera renders.
-        //  "renderToScreen": If true the result will be copied to the screen afterwards.
+        //  "cameraFlags": Camera flags. See the enum for a description.
         //----------------------------------------------------------------------
-        void setRenderTarget(RenderTexturePtr renderTarget, bool renderToScreen) { m_renderTarget = renderTarget; m_isRenderingToScreen = renderToScreen; }
+        void setRenderTarget(RenderTexturePtr renderTarget, CameraFlags cameraFlags) { m_renderTarget = renderTarget; m_cameraFlags = cameraFlags; }
 
         //----------------------------------------------------------------------
         inline const DirectX::XMMATRIX& getProjectionMatrix()      const { return m_projection; }
@@ -181,11 +191,8 @@ namespace Graphics {
         ShaderPtr m_replacementShader = nullptr;
         StringID m_replacementShaderTag;
 
-        // Wether the camera is rendering to the screen or not
-        bool m_isRenderingToScreen = true;
-
-        // Whether this camera renders to an eye
-        VR::Eye m_renderToEye = VR::Eye::None;
+        // Camera flags
+        CameraFlags m_cameraFlags = CameraFlagNone;
 
         //----------------------------------------------------------------------
         void _UpdateProjectionMatrix();

@@ -34,11 +34,11 @@ public:
         go->addComponent<Components::AudioListener>();
         go->getComponent<Components::Transform>()->position = Math::Vec3(0, 1, -1);
 
-        go->addComponent<Components::Camera>();
-        go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 0.1f);
+        //go->addComponent<Components::Camera>();
+        //go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 0.1f);
 
-        //vrCam = go->addComponent<Components::VRCamera>(Components::ScreenDisplay::LeftEye, Graphics::MSAASamples::Four);
-        //go->addComponent<Components::VRFPSCamera>();
+        vrCam = go->addComponent<Components::VRCamera>(Components::ScreenDisplay::LeftEye, Graphics::MSAASamples::Four);
+        go->addComponent<Components::VRFPSCamera>();
         //go->addComponent<Tonemap>();
         //go->addComponent<PostProcess>(ASSETS.getMaterial("/materials/post processing/color_grading.material"));
 
@@ -208,8 +208,9 @@ public:
                     if (not vrCamera)
                     {
                         go->getTransform()->rotation.x = go->getTransform()->rotation.z = 0;
-                        go->addComponent<Components::VRCamera>();
+                        go->addComponent<Components::VRCamera>(Components::ScreenDisplay::LeftEye);
                         go->addComponent<Components::VRFPSCamera>();
+                        //go->addComponent<PostProcess>(ASSETS.getMaterial("/materials/post processing/color_grading.material"));
                     }
                     else
                     {

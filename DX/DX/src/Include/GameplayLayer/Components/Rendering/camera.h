@@ -68,13 +68,11 @@ namespace Components {
         void setCullingMask         (LayerMask cullingMask)                                         { m_cullingMask = cullingMask; }
         void setOrthoParams         (F32 left, F32 right, F32 bottom, F32 top, F32 zNear, F32 zFar) { m_camera.setOrthoParams(left, right, bottom, top, zNear, zFar); }
         void setPerspectiveParams   (F32 fovAngleYInDegree, F32 zNear, F32 zFar)                    { m_camera.setPerspectiveParams(fovAngleYInDegree, zNear, zFar); }
-        void setRenderingToScreen   (bool renderToScreen)                                           { m_camera.setRenderingToScreen(renderToScreen); }
         void setMultiSamples        (Graphics::MSAASamples sampleCount)                             { m_camera.getRenderTarget()->recreate({(U32)sampleCount}); }
-        void setHMDRenderingToEye   (Graphics::VR::Eye eye)                                         { m_camera.setHMDRenderingToEye(eye); }
+        void setCameraFlags         (Graphics::CameraFlags flags)                                   { m_camera.setCameraFlags(flags); }
         void setProjection          (const DirectX::XMMATRIX& projection)                           { m_camera.setProjection(projection); }
         void setSuperSampling       (F32 screenResMod);
         void setHDRRendering        (bool enabled);
-        
 
         //----------------------------------------------------------------------
         // @Return
@@ -94,9 +92,9 @@ namespace Components {
         // Set the render target in which this camera renders.
         // @Params:
         //  "renderTarget": The target in which this camera renders.
-        //  "renderToScreen": If true the rendertarget will be copied to the screen afterwards.
+        //  "flags": Flags which specify what should be done at the end with the render-target.
         //----------------------------------------------------------------------
-        void setRenderTarget(RenderTexturePtr renderTarget, bool renderToScreen = false) { m_camera.setRenderTarget(renderTarget, renderToScreen); }
+        void setRenderTarget(RenderTexturePtr renderTarget, Graphics::CameraFlags flags = Graphics::CameraFlagNone) { m_camera.setRenderTarget(renderTarget, flags); }
 
         //----------------------------------------------------------------------
         // Add an additional command buffer to this camera

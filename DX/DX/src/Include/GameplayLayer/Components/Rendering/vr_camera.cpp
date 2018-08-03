@@ -25,10 +25,10 @@ namespace Components
     VRCamera::VRCamera( ScreenDisplay screenDisplay, Graphics::MSAASamples sampleCount, bool hdr )
         : m_sampleCount( sampleCount ), m_hdr( hdr ), m_screenDisplay( screenDisplay )
     {
-        // Create the cameras in the constructor, so other scripts can acces the cameras early on (e.g. for postprocessing)
-        auto hmdDesc = RENDERER.getVRDevice().getDescription();
+        // Create the cameras in the constructor, so other scripts can access the cameras early on (e.g. for postprocessing)
 
         // Create eye gameobjects and cameras
+        auto hmdDesc = RENDERER.getVRDevice().getDescription();
         for (auto eye : { Graphics::VR::LeftEye, Graphics::VR::RightEye })
         {
             m_eyeGameObjects[eye] = THIS_SCENE.createGameObject( eye == 0 ? "LeftEye" : "RightEye" );
@@ -38,7 +38,7 @@ namespace Components
                                                             DEPTH_STENCIL_FORMAT, m_hdr ? BUFFER_FORMAT_HDR : BUFFER_FORMAT_LDR,
                                                             m_sampleCount, false );
             m_eyeCameras[eye] = m_eyeGameObjects[eye]->addComponent<Components::Camera>( eyeBuffer );
-            m_eyeCameras[eye]->setHMDRenderingToEye( eye == 0 ? Graphics::VR::LeftEye : Graphics::VR::RightEye );
+            m_eyeCameras[eye]->setCameraFlags( eye == 0 ? Graphics::CameraFlagBlitToLeftEye : Graphics::CameraFlagBlitToRightEye );
         }
 
         // Set which camera renders to screen
@@ -97,23 +97,23 @@ namespace Components
         switch (sd)
         {
         case ScreenDisplay::None:
-            m_eyeCameras[Graphics::VR::LeftEye]->setRenderingToScreen( false );
-            m_eyeCameras[Graphics::VR::RightEye]->setRenderingToScreen( false );
+            m_eyeCameras[Graphics::VR::LeftEye]->setCameraFlags( Graphics::CameraFlagBlitToLeftEye );
+            m_eyeCameras[Graphics::VR::RightEye]->setCameraFlags( Graphics::CameraFlagBlitToRightEye );
             break;
         case ScreenDisplay::LeftEye: 
-            m_eyeCameras[Graphics::VR::LeftEye]->setRenderingToScreen( true );
-            m_eyeCameras[Graphics::VR::RightEye]->setRenderingToScreen( false );
+            m_eyeCameras[Graphics::VR::LeftEye]->setCameraFlags( Graphics::CameraFlagBlitToLeftEye | Graphics::CameraFlagBlitToScreen );
+            m_eyeCameras[Graphics::VR::RightEye]->setCameraFlags( Graphics::CameraFlagBlitToRightEye );
             break;
         case ScreenDisplay::RightEye: 
-            m_eyeCameras[Graphics::VR::LeftEye]->setRenderingToScreen( false );
-            m_eyeCameras[Graphics::VR::RightEye]->setRenderingToScreen( true );
+            m_eyeCameras[Graphics::VR::LeftEye]->setCameraFlags( Graphics::CameraFlagBlitToLeftEye );
+            m_eyeCameras[Graphics::VR::RightEye]->setCameraFlags( Graphics::CameraFlagBlitToRightEye | Graphics::CameraFlagBlitToScreen );
             break;
         case ScreenDisplay::BothEyes:
             m_eyeCameras[0]->getViewport().width = 0.5f;
             m_eyeCameras[1]->getViewport().topLeftX = 0.5f;
             m_eyeCameras[1]->getViewport().width = 0.5f;
-            m_eyeCameras[Graphics::VR::LeftEye]->setRenderingToScreen( true );
-            m_eyeCameras[Graphics::VR::RightEye]->setRenderingToScreen( true );
+            m_eyeCameras[Graphics::VR::LeftEye]->setCameraFlags( Graphics::CameraFlagBlitToLeftEye | Graphics::CameraFlagBlitToScreen );
+            m_eyeCameras[Graphics::VR::RightEye]->setCameraFlags( Graphics::CameraFlagBlitToRightEye | Graphics::CameraFlagBlitToScreen );
         }
     }
 

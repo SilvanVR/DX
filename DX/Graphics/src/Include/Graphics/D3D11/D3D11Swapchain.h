@@ -15,7 +15,6 @@ namespace Graphics { namespace D3D11 {
     {
     public:
         Swapchain(HWND hwnd, U16 width, U16 height, U8 numMSAASamples = 4);
-        ~Swapchain();
 
         //----------------------------------------------------------------------
         // Bind the color + depth attachment to the output merger.
@@ -40,22 +39,14 @@ namespace Graphics { namespace D3D11 {
         void clear(Color color);
 
     private:
-        U8                      m_msaaCount             = 1;
-        U8                      m_msaaQualityLevel      = 0;
+        ComPtr<IDXGISwapChain1>        m_pSwapChain            = nullptr;
+        ComPtr<ID3D11RenderTargetView> m_pRenderTargetView     = nullptr;
 
         //----------------------------------------------------------------------
-        IDXGISwapChain1*        m_pSwapChain            = nullptr;
-        ID3D11RenderTargetView* m_pRenderTargetView     = nullptr;
-
-        //----------------------------------------------------------------------
-        void _CreateD3D11Swapchain(HWND hwnd, U16 width, U16 height);
+        void _CreateD3D11Swapchain(HWND hwnd, U16 width, U16 height, U8 msaaCount, U8 msaaQualityLevel);
         void _CreateRenderTargetView();
 
-        //----------------------------------------------------------------------
-        Swapchain(const Swapchain& other)               = delete;
-        Swapchain& operator = (const Swapchain& other)  = delete;
-        Swapchain(Swapchain&& other)                    = delete;
-        Swapchain& operator = (Swapchain&& other)       = delete;
+        NULL_COPY_AND_ASSIGN(Swapchain)
     };
 
 

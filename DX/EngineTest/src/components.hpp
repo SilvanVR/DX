@@ -325,16 +325,6 @@ public:
         if (!cam && !vrCam)
             LOG_WARN("Post Process component requires an attached camera (vr or basic) component!");
 
-        if (cam)
-        {
-            // Create render target
-            auto rt = RESOURCES.createRenderTexture(WINDOW.getWidth(), WINDOW.getHeight(), m_hdr ? Graphics::TextureFormat::RGBAFloat : Graphics::TextureFormat::RGBA32, true);
-            cmd[0].blit(PREVIOUS_BUFFER, rt, m_material);
-
-            // Attach command buffer to camera
-            cam->addCommandBuffer(&cmd[0], Components::CameraEvent::PostProcess);
-        }
-
         if (vrCam)
         {
             auto hmdDesc = RENDERER.getVRDevice().getDescription();
@@ -347,6 +337,15 @@ public:
                 // Attach command buffer to camera
                 vrCam->getCameraForEye(eye).addCommandBuffer(&cmd[eye], Components::CameraEvent::PostProcess);
             }
+        }
+        else if (cam)
+        {
+            // Create render target
+            auto rt = RESOURCES.createRenderTexture(WINDOW.getWidth(), WINDOW.getHeight(), m_hdr ? Graphics::TextureFormat::RGBAFloat : Graphics::TextureFormat::RGBA32, true);
+            cmd[0].blit(PREVIOUS_BUFFER, rt, m_material);
+
+            // Attach command buffer to camera
+            cam->addCommandBuffer(&cmd[0], Components::CameraEvent::PostProcess);
         }
     }
 };

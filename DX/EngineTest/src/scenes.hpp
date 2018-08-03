@@ -653,8 +653,8 @@ public:
         // Camera
         auto go = createGameObject("Camera");
         auto cam = go->addComponent<Components::Camera>(45.0f, 0.1f, 1000.0f, Graphics::MSAASamples::Four, true);
-        go->addComponent<Components::VRCamera>(Components::ScreenDisplay::RightEye, Graphics::MSAASamples::Four);
-        go->addComponent<Components::VRFPSCamera>();
+        //go->addComponent<Components::VRCamera>(Components::ScreenDisplay::RightEye, Graphics::MSAASamples::Four);
+        go->addComponent<Components::FPSCamera>();
         go->addComponent<Tonemap>();
 
         createGameObject("Grid")->addComponent<GridGeneration>(20);
