@@ -17,45 +17,45 @@ namespace Core { namespace Input {
     {
     public:
         //----------------------------------------------------------------------
-        IChannelUser(InputChannels channels) : m_channelMask(channels) {}
+        IChannelUser(EInputChannels channels) : m_channelMask(channels) {}
         virtual ~IChannelUser() = default;
 
         //----------------------------------------------------------------------
         // Modifies the channel mask for this device.
         //----------------------------------------------------------------------
-        inline void setChannels(InputChannels channelMask) { m_channelMask; m_channelMask = channelMask; }
+        inline void setChannels(EInputChannels channelMask) { m_channelMask; m_channelMask = channelMask; }
 
         //----------------------------------------------------------------------
         // Enables the given channel.
         //----------------------------------------------------------------------
-        inline void setChannel(EInputChannel channel) { m_channelMask |= channel; }
+        inline void setChannel(EInputChannels channel) { m_channelMask |= channel; }
 
         //----------------------------------------------------------------------
         // Disables the given channel.
         //----------------------------------------------------------------------
-        inline void unsetChannel(EInputChannel channel) { m_channelMask &= ~((InputChannels)channel); }
+        inline void unsetChannel(EInputChannels channel) { m_channelMask &= ~channel; }
 
         //----------------------------------------------------------------------
         // Sets the given channel exclusively.
         //----------------------------------------------------------------------
-        inline void claimChannel(EInputChannel channel) { m_channelMask = (InputChannels)channel; }
+        inline void claimChannel(EInputChannels channel) { m_channelMask = channel; }
 
         //----------------------------------------------------------------------
         // Sets the given channel exclusively.
         //----------------------------------------------------------------------
-        inline void restoreDefault() { m_channelMask = (InputChannels)EInputChannel::Default; }
+        inline void restoreDefault() { m_channelMask = EInputChannels::Default; }
 
         //----------------------------------------------------------------------
         // @Return: Current channel mask.
         //----------------------------------------------------------------------
-        inline InputChannels getChannelMask() const { return m_channelMask; }
+        inline EInputChannels getChannelMask() const { return m_channelMask; }
 
     protected:
         //----------------------------------------------------------------------
-        bool _IsMasterChannelSet() const { return m_channelMask & EInputChannel::Master; }
+        bool _IsMasterChannelSet() const { return (m_channelMask & EInputChannels::Master) != EInputChannels::None; }
 
     private:
-        InputChannels m_channelMask;
+        EInputChannels m_channelMask;
     };
 
 } } // end namespaces

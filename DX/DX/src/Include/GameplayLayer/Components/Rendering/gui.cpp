@@ -47,8 +47,8 @@ namespace Components {
 
     //----------------------------------------------------------------------
     GUI::GUI()  // Listen only on gui-channel.
-        : IMouseListener( Core::Input::EInputChannel::GUI ),
-            IKeyListener( Core::Input::EInputChannel::GUI )
+        : IMouseListener( Core::Input::EInputChannels::GUI ),
+            IKeyListener( Core::Input::EInputChannels::GUI )
     {
         m_imguiContext = ImGui::CreateContext();
     }
@@ -57,10 +57,10 @@ namespace Components {
     GUI::~GUI()
     {
         ImGui::DestroyContext( m_imguiContext );
-        MOUSE.setChannel( Core::Input::EInputChannel::Master );
-        MOUSE.unsetChannel( Core::Input::EInputChannel::GUI );
-        KEYBOARD.setChannel( Core::Input::EInputChannel::Master );
-        KEYBOARD.unsetChannel( Core::Input::EInputChannel::GUI );
+        MOUSE.setChannel( Core::Input::EInputChannels::Master );
+        MOUSE.unsetChannel( Core::Input::EInputChannels::GUI );
+        KEYBOARD.setChannel( Core::Input::EInputChannels::Master );
+        KEYBOARD.unsetChannel( Core::Input::EInputChannels::GUI );
     }
 
     //**********************************************************************
@@ -329,30 +329,30 @@ namespace Components {
         io.MousePos.y = mouseY * (1.0f / vp.height);
 
         using namespace Core::Input;
-        bool consoleIsOpen = KEYBOARD.getChannelMask() & EInputChannel::Console;
-        if ( m_camera->isRenderingToScreen() && not consoleIsOpen )
+        bool consoleIsOpen = (KEYBOARD.getChannelMask() & EInputChannels::Console) != EInputChannels::None;
+        if ( m_camera->isBlittingToScreen() && not consoleIsOpen )
         {
             if (io.WantCaptureMouse) // Disable master channel + enable GUI Channel
             {
-                MOUSE.setChannel( EInputChannel::GUI );
-                MOUSE.unsetChannel( EInputChannel::Master );
+                MOUSE.setChannel( EInputChannels::GUI );
+                MOUSE.unsetChannel( EInputChannels::Master );
             }
             else
             {
-                MOUSE.setChannel( EInputChannel::Master );
-                MOUSE.unsetChannel( EInputChannel::GUI );
+                MOUSE.setChannel( EInputChannels::Master );
+                MOUSE.unsetChannel( EInputChannels::GUI );
             }
 
             if (io.WantCaptureKeyboard) // Disable master channel + enable GUI Channel
             {
-                KEYBOARD.setChannel( EInputChannel::GUI );
-                KEYBOARD.unsetChannel( EInputChannel::Master );
+                KEYBOARD.setChannel( EInputChannels::GUI );
+                KEYBOARD.unsetChannel( EInputChannels::Master );
             }
             else
             {
                 memset( io.KeysDown, 0, 512 );
-                KEYBOARD.setChannel( EInputChannel::Master );
-                KEYBOARD.unsetChannel( EInputChannel::GUI );
+                KEYBOARD.setChannel( EInputChannels::Master );
+                KEYBOARD.unsetChannel( EInputChannels::GUI );
             }
         }
     }

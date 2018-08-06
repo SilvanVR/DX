@@ -431,7 +431,7 @@ namespace Graphics {
         default: LOG_WARN_RENDERING( "Unknown Clear-Mode in camera!" );
         }
 
-        if ( camera->isRenderingToScreen() )
+        if ( camera->isBlittingToScreen() )
         {
             D3D11_VIEWPORT vp = { 0, 0, (F32)renderTarget->getWidth(), (F32)renderTarget->getHeight(), 0, 1 };
             g_pImmediateContext->RSSetViewports( 1, &vp );
@@ -843,7 +843,7 @@ namespace Graphics {
         if (dst == SCREEN_BUFFER) // Blit to Screen and/or HMD depending on camera setting
         {
             auto curCamera = renderContext.getCamera();
-            if ( curCamera->isRenderingToScreen() )
+            if ( curCamera->isBlittingToScreen() )
             {
                 // Set viewport (Translate to pixel coordinates first)
                 auto viewport = curCamera->getViewport();
@@ -857,7 +857,7 @@ namespace Graphics {
                 _DrawFullScreenQuad( material, vp );
             }
 
-            if ( curCamera->isRenderingToHMD() )
+            if ( curCamera->isBlittingToHMD() )
             {
                 if ( not hasHMD() )
                 {
@@ -867,7 +867,7 @@ namespace Graphics {
 
                 // Ignore viewport from camera, always use full resolution from HMD
                 auto desc = m_hmd->getDescription();
-                auto eye = curCamera->getFlags() & CameraFlagBlitToLeftEye ? VR::LeftEye : VR::RightEye;
+                auto eye = curCamera->getHMDEye();
                 vp.TopLeftX = 0.0f;
                 vp.TopLeftY = 0.0f;
                 vp.Width = (F32)desc.idealResolution[eye].x;

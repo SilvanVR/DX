@@ -67,7 +67,7 @@ Components::Camera* IScene::getMainCamera()
 {
     for ( auto& cam : m_componentManager.getCameras() )
     {
-        if( cam->isRenderingToScreen() || cam->isRenderingToHMD() )
+        if( cam->isBlittingToScreen() || cam->isBlittingToHMD() )
             return cam;
     }
 

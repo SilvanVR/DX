@@ -145,7 +145,7 @@ namespace Components {
 
             // Configure camera
             m_camera.reset( new Graphics::Camera( 90.0f, 0.1f, getRange() ) );
-            m_camera->setRenderTarget( rt, Graphics::CameraFlagNone );
+            m_camera->setRenderTarget( rt );
             m_camera->setReplacementShader( ASSETS.getShadowMapShaderLinear(), TAG_SHADOW_PASS_LINEAR );
         }
     }

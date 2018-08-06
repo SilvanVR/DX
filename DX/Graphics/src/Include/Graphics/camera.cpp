@@ -50,9 +50,9 @@ namespace Graphics {
     //----------------------------------------------------------------------
     VR::Eye Camera::getHMDEye() const 
     { 
-        if (m_cameraFlags & CameraFlagBlitToLeftEye)
+        if (m_cameraFlags == CameraFlags::BlitToLeftEye || m_cameraFlags == CameraFlags::BlitToScreenAndLeftEye)
             return VR::LeftEye;
-        else if (m_cameraFlags & CameraFlagBlitToRightEye)
+        else if (m_cameraFlags == CameraFlags::BlitToRightEye || m_cameraFlags == CameraFlags::BlitToScreenAndRightEye)
             return VR::RightEye;
         return VR::Eye::None;
     }

@@ -11,16 +11,12 @@
 namespace Core { namespace Input {
 
     //----------------------------------------------------------------------
-    IKeyListener::IKeyListener( InputChannels channels )
+    IKeyListener::IKeyListener( EInputChannels channels )
         : IDeviceListener( channels )
     {
         ASSERT( &Locator::getInputManager() != nullptr && "InputManager does not exist yet." );
         Locator::getInputManager().getKeyboard()._Subscribe( this );
     }
-
-    //----------------------------------------------------------------------
-    IKeyListener::IKeyListener( EInputChannel channel )
-        : IKeyListener( (InputChannels)channel ) {}
 
     //----------------------------------------------------------------------
     IKeyListener::~IKeyListener()
@@ -29,17 +25,12 @@ namespace Core { namespace Input {
     }
 
     //----------------------------------------------------------------------
-    IMouseListener::IMouseListener( InputChannels channels )
+    IMouseListener::IMouseListener( EInputChannels channels )
         : IDeviceListener( channels )
     {
         ASSERT( &Locator::getInputManager() != nullptr && "InputManager does not exist yet." );
         Locator::getInputManager().getMouse()._Subscribe( this );
     }
-
-    //----------------------------------------------------------------------
-    IMouseListener::IMouseListener( EInputChannel channel )
-        : IMouseListener( (InputChannels)channel ) {}
-
     //----------------------------------------------------------------------
     IMouseListener::~IMouseListener()
     {

@@ -31,7 +31,7 @@ namespace Core {
         : public ISubSystem, public Input::IKeyListener
     {
     public:
-        IInGameConsole() : Input::IKeyListener( (Input::InputChannels)Input::EInputChannel::All ) {}
+        IInGameConsole() : Input::IKeyListener( Input::EInputChannels::All ) {}
         virtual ~IInGameConsole() = default;
 
         //----------------------------------------------------------------------

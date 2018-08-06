@@ -59,7 +59,7 @@ namespace Core { namespace Input {
         //----------------------------------------------------------------------
         // Set the channel for all devices.
         //----------------------------------------------------------------------
-        void            setChannels(InputChannels channels);
+        void            setChannels(EInputChannels channels);
 
     private:
         // <---------- DEVICES ----------->

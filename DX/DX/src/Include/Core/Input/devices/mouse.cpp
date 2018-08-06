@@ -16,7 +16,7 @@ namespace Core { namespace Input {
 
     //----------------------------------------------------------------------
     Mouse::Mouse( OS::Window* window )
-        : IChannelUser( (InputChannels)EInputChannel::Default ), m_window( window )
+        : IChannelUser( EInputChannels::Default ), m_window( window )
     {
         // Zero out arrays
         memset( m_mouseKeyPressed, 0, MAX_MOUSE_KEYS * sizeof( bool ) );
@@ -203,7 +203,7 @@ namespace Core { namespace Input {
     void Mouse::_NotifyMouseMoved( I16 x, I16 y ) const
     {
         for (auto& listener : m_mouseListener)
-            if (listener->getChannelMask() & getChannelMask())
+            if ( (listener->getChannelMask() & getChannelMask()) != EInputChannels::None )
                 listener->OnMouseMoved( x, y );
     }
 
@@ -211,7 +211,7 @@ namespace Core { namespace Input {
     void Mouse::_NotifyMouseKeyPressed( MouseKey key, KeyMod mod ) const
     {
         for (auto& listener : m_mouseListener)
-            if (listener->getChannelMask() & getChannelMask())
+            if ( (listener->getChannelMask() & getChannelMask()) != EInputChannels::None )
                 listener->OnMousePressed( key, mod );
     }
 
@@ -219,7 +219,7 @@ namespace Core { namespace Input {
     void Mouse::_NotifyMouseKeyReleased( MouseKey key, KeyMod mod ) const
     {
         for (auto& listener : m_mouseListener)
-            if (listener->getChannelMask() & getChannelMask())
+            if ( (listener->getChannelMask() & getChannelMask()) != EInputChannels::None )
                 listener->OnMouseReleased( key, mod );
     }
 
@@ -227,7 +227,7 @@ namespace Core { namespace Input {
     void Mouse::_NotifyMouseWheel( I16 delta ) const
     {
         for (auto& listener : m_mouseListener)
-            if (listener->getChannelMask() & getChannelMask())
+            if ( (listener->getChannelMask() & getChannelMask()) != EInputChannels::None )
                 listener->OnMouseWheel( delta );
     }
 

@@ -16,7 +16,7 @@ namespace Core { namespace Input {
 
         //----------------------------------------------------------------------
         Keyboard::Keyboard( OS::Window* window )
-            : IChannelUser( (InputChannels)EInputChannel::Default ), m_window( window )
+            : IChannelUser( EInputChannels::Default ), m_window( window )
         {
             // Subscribe to all window events
             m_window->setCallbackKey( BIND_THIS_FUNC_3_ARGS( &Keyboard::_KeyCallback ) );
@@ -125,7 +125,7 @@ namespace Core { namespace Input {
         void Keyboard::_NotifyKeyPressed( Key key, KeyMod mod ) const
         {
             for (auto& listener : m_keyListener)
-                if (listener->getChannelMask() & getChannelMask())
+                if ( (listener->getChannelMask() & getChannelMask()) != EInputChannels::None )
                     listener->OnKeyPressed( key, mod );
         }
 
@@ -133,7 +133,7 @@ namespace Core { namespace Input {
         void Keyboard::_NotifyKeyReleased( Key key, KeyMod mod ) const
         {
             for (auto& listener : m_keyListener)
-                if (listener->getChannelMask() & getChannelMask())
+                if ( (listener->getChannelMask() & getChannelMask()) != EInputChannels::None )
                     listener->OnKeyReleased( key, mod );
         }
 
@@ -141,7 +141,7 @@ namespace Core { namespace Input {
         void Keyboard::_NotifyOnChar(char c) const
         {
             for (auto& listener : m_keyListener)
-                if (listener->getChannelMask() & getChannelMask())
+                if ( (listener->getChannelMask() & getChannelMask()) != EInputChannels::None )
                     listener->OnChar( c );
         }
 

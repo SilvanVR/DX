@@ -12,6 +12,8 @@
     otherwise every function return false.
 **********************************************************************/
 
+#include "Common/enum_class_operators.hpp"
+
 namespace Core { namespace Input {
 
     //----------------------------------------------------------------------
@@ -22,7 +24,7 @@ namespace Core { namespace Input {
     };
 
     //----------------------------------------------------------------------
-    enum class EInputChannel
+    enum class EInputChannels
     {
         None    = 0,
         Master  = 1 << 0,   // Master channel. If this is 0 then no isKeyDown etc works on all input devices
@@ -41,39 +43,6 @@ namespace Core { namespace Input {
         Default = Master | One | Two | Three | Four | Five | Six | Seven | Eight | Nine | Ten,
         All     = ~0
     };
-
-    using InputChannels = U32;
-
-    constexpr InputChannels operator & ( EInputChannel e1, EInputChannel e2 )
-    {
-        return static_cast<InputChannels>(e1) & static_cast<InputChannels>(e2);
-    }
-
-    constexpr InputChannels operator | ( EInputChannel e1, EInputChannel e2 )
-    {
-        return static_cast<InputChannels>(e1) | static_cast<InputChannels>(e2);
-    }
-
-    constexpr InputChannels operator & (InputChannels e1, EInputChannel e2)
-    {
-        return static_cast<InputChannels>(e1) & static_cast<InputChannels>(e2);
-    }
-
-    constexpr InputChannels operator | (InputChannels e1, EInputChannel e2)
-    {
-        return static_cast<InputChannels>(e1) | static_cast<InputChannels>(e2);
-    }
-
-    constexpr InputChannels& operator |= (InputChannels& e1, EInputChannel e2)
-    {
-        e1 = (e1 | e2);
-        return e1;
-    }
-
-    constexpr InputChannels& operator &= (InputChannels& e1, EInputChannel e2)
-    {
-        e1 = (e1 & e2);
-        return e1;
-    }
+    ENABLE_BITMASK_OPERATORS(EInputChannels)
 
 } }

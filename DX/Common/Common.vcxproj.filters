@@ -168,6 +168,9 @@
     <ClInclude Include="src\Include\Memory\Allocators\universal_allocator_defragmented.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Include\Common\enum_class_operators.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\stdafx.cpp">

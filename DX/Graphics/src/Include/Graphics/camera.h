@@ -10,7 +10,6 @@
 #include "i_render_texture.h"
 #include "structs.hpp"
 #include "Math/aabb.h"
-#include "Common/enum_class_operators.hpp"
 
 namespace Graphics {
 
@@ -34,14 +33,15 @@ namespace Graphics {
     };
 
     //----------------------------------------------------------------------
-    enum CameraFlag
+    enum class CameraFlags
     {
-        CameraFlagNone              = 1 << 0,   // Do nothing
-        CameraFlagBlitToScreen      = 1 << 1,   // Final rt from camera will be blit to screen
-        CameraFlagBlitToLeftEye     = 1 << 2,   // Final rt from camera will be blit to left eye
-        CameraFlagBlitToRightEye    = 1 << 3    // Final rt from camera will be blit to right eye
+        None                    = 0,        // Do nothing
+        BlitToScreen            = 1 << 0,   // Final rt from camera will be blit to screen
+        BlitToLeftEye           = 1 << 1,   // Final rt from camera will be blit to left eye
+        BlitToRightEye          = 1 << 2,   // Final rt from camera will be blit to right eye
+        BlitToScreenAndLeftEye  = 1 << 3,   // Blit to screen and left eye
+        BlitToScreenAndRightEye = 1 << 4,   // Blit to screen and right eye
     };
-    using CameraFlags = I32;
 
     //**********************************************************************
     class Camera
@@ -76,8 +76,8 @@ namespace Graphics {
         inline F32                 getTop()                     const { return m_ortho.top; }
         inline F32                 getBottom()                  const { return m_ortho.bottom; }
         inline CameraClearMode     getClearMode()               const { return m_clearMode; }
-        inline bool                isRenderingToScreen()        const { return m_cameraFlags & CameraFlagBlitToScreen; }
-        inline bool                isRenderingToHMD()           const { return (m_cameraFlags & CameraFlagBlitToLeftEye) || (m_cameraFlags & CameraFlagBlitToRightEye); }
+        inline bool                isBlittingToScreen()         const { return m_cameraFlags == CameraFlags::BlitToScreen || m_cameraFlags == CameraFlags::BlitToScreenAndLeftEye || m_cameraFlags == CameraFlags::BlitToScreenAndRightEye; }
+        inline bool                isBlittingToHMD()            const { return m_cameraFlags == CameraFlags::BlitToLeftEye || m_cameraFlags == CameraFlags::BlitToRightEye || m_cameraFlags == CameraFlags::BlitToScreenAndLeftEye || m_cameraFlags == CameraFlags::BlitToScreenAndRightEye; }
         inline const ShaderPtr&    getReplacementShader()       const { return m_replacementShader; }
         inline StringID            getReplacementShaderTag()    const { return m_replacementShaderTag; }
         inline bool                hasReplacementShader()       const { return m_replacementShader != nullptr; }
@@ -85,7 +85,7 @@ namespace Graphics {
         inline FrameInfo&          getFrameInfo()                     { return *m_frameInfo.get(); }
         inline CameraFlags         getFlags()                   const { return m_cameraFlags; }
         inline F32                 getAspectRatio()             const;
-        inline VR::Eye             getHMDEye()                  const;
+        VR::Eye                    getHMDEye()                  const;
 
         //----------------------------------------------------------------------
         // @Return
@@ -107,7 +107,7 @@ namespace Graphics {
         //  "renderTarget": The target in which this camera renders.
         //  "cameraFlags": Camera flags. See the enum for a description.
         //----------------------------------------------------------------------
-        void setRenderTarget(RenderTexturePtr renderTarget, CameraFlags cameraFlags) { m_renderTarget = renderTarget; m_cameraFlags = cameraFlags; }
+        void setRenderTarget(RenderTexturePtr renderTarget, CameraFlags cameraFlags = Graphics::CameraFlags::None) { m_renderTarget = renderTarget; m_cameraFlags = cameraFlags; }
 
         //----------------------------------------------------------------------
         inline const DirectX::XMMATRIX& getProjectionMatrix()      const { return m_projection; }
@@ -193,7 +193,7 @@ namespace Graphics {
         StringID m_replacementShaderTag;
 
         // Camera flags
-        CameraFlags m_cameraFlags = CameraFlagNone;
+        CameraFlags m_cameraFlags = CameraFlags::None;
 
         //----------------------------------------------------------------------
         void _UpdateProjectionMatrix();

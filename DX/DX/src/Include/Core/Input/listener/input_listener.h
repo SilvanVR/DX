@@ -23,7 +23,7 @@ namespace Core { namespace Input {
     {
     public:
         //----------------------------------------------------------------------
-        IDeviceListener(InputChannels channels) : IChannelUser(channels) {}
+        IDeviceListener(EInputChannels channels) : IChannelUser(channels) {}
         virtual ~IDeviceListener() = default;
     };
 
@@ -31,8 +31,7 @@ namespace Core { namespace Input {
     class IKeyListener : public IDeviceListener
     {
     public:
-        IKeyListener(EInputChannel channel = EInputChannel::Master);
-        IKeyListener(InputChannels channels);
+        IKeyListener(EInputChannels channel = EInputChannels::Master);
         virtual ~IKeyListener();
 
     protected:
@@ -46,8 +45,7 @@ namespace Core { namespace Input {
     class IMouseListener : public IDeviceListener
     {
     public:
-        IMouseListener(EInputChannel channel = EInputChannel::Master);
-        IMouseListener(InputChannels channels);
+        IMouseListener(EInputChannels channel = EInputChannels::Master);
         virtual ~IMouseListener();
 
     protected:

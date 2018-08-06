@@ -113,7 +113,7 @@ namespace Components {
 
             m_camera.reset( new Graphics::Camera( -10, 10, -10, 10, 0, 10 ) );
             m_camera->setReplacementShader( ASSETS.getShadowMapShader(), TAG_SHADOW_PASS );
-            m_camera->setRenderTarget( rt, Graphics::CameraFlagNone );
+            m_camera->setRenderTarget( rt );
         }
     }
 

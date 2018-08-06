@@ -36,7 +36,7 @@ namespace Components {
         ~Camera() = default;
 
         //----------------------------------------------------------------------
-        bool                            isRenderingToScreen()       const { return m_camera.isRenderingToScreen(); }
+        bool                            isBlittingToScreen()        const { return m_camera.isBlittingToScreen(); }
         const Graphics::CameraMode      getCameraMode()             const { return m_camera.getCameraMode(); }
         F32                             getZNear()                  const { return m_camera.getZNear(); }
         F32                             getZFar()                   const { return m_camera.getZFar(); }
@@ -54,7 +54,7 @@ namespace Components {
         F32                             getTop()                    const { return m_camera.getTop(); }
         F32                             getBottom()                 const { return m_camera.getBottom(); }
         const Graphics::FrameInfo&      getFrameInfo()              const { return m_camera.getFrameInfo(); }
-        bool                            isRenderingToHMD()          const { return m_camera.isRenderingToHMD(); }
+        bool                            isBlittingToHMD()           const { return m_camera.isBlittingToHMD(); }
         Graphics::VR::Eye               getHMDEye()                 const { return m_camera.getHMDEye(); }
 
         //----------------------------------------------------------------------
@@ -94,7 +94,7 @@ namespace Components {
         //  "renderTarget": The target in which this camera renders.
         //  "flags": Flags which specify what should be done at the end with the render-target.
         //----------------------------------------------------------------------
-        void setRenderTarget(RenderTexturePtr renderTarget, Graphics::CameraFlags flags = Graphics::CameraFlagNone) { m_camera.setRenderTarget(renderTarget, flags); }
+        void setRenderTarget(RenderTexturePtr renderTarget, Graphics::CameraFlags flags = Graphics::CameraFlags::None) { m_camera.setRenderTarget(renderTarget, flags); }
 
         //----------------------------------------------------------------------
         // Add an additional command buffer to this camera

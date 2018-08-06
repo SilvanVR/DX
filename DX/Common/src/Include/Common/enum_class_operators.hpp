@@ -48,6 +48,14 @@ constexpr operator |(Enum lhs, Enum rhs)
 }
 
 template<typename Enum>
+typename std::enable_if<EnableBitMaskOperators<Enum>::enable, Enum&>::type
+constexpr operator |=(Enum& lhs, Enum rhs)
+{
+    lhs = lhs | rhs;
+    return lhs;
+}
+
+template<typename Enum>
 typename std::enable_if<EnableBitMaskOperators<Enum>::enable, Enum>::type
 constexpr operator &(Enum lhs, Enum rhs)
 {
@@ -55,5 +63,23 @@ constexpr operator &(Enum lhs, Enum rhs)
     return static_cast<Enum> (
         static_cast<underlying>(lhs) &
         static_cast<underlying>(rhs)
+        );
+}
+
+template<typename Enum>
+typename std::enable_if<EnableBitMaskOperators<Enum>::enable, Enum&>::type
+constexpr operator &=(Enum& lhs, Enum rhs)
+{
+    lhs = lhs & rhs;
+    return lhs;
+}
+
+template<typename Enum>
+typename std::enable_if<EnableBitMaskOperators<Enum>::enable, Enum>::type
+constexpr operator ~(Enum e)
+{
+    using underlying = typename std::underlying_type<Enum>::type;
+    return static_cast<Enum> (
+        ~static_cast<underlying>(e)
         );
 }

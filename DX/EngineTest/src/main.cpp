@@ -195,7 +195,7 @@ public:
             if (KEYBOARD.wasKeyPressed(Key::V))
             {
                 auto mainCamera = SCENE.getMainCamera();
-                if (not mainCamera->isRenderingToHMD())
+                if (not mainCamera->isBlittingToHMD())
                 {
                     bool isActive = mainCamera->isActive();
                     mainCamera->setActive(not isActive);
