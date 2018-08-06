@@ -8,7 +8,7 @@
 
 **********************************************************************/
 
-#include "pool_allocator.hpp"
+#include "pool_allocator.h"
 
 namespace Memory {
 

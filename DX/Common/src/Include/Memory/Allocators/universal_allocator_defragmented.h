@@ -281,6 +281,14 @@ namespace Memory {
         data.invalidate();
     }
 
+    //----------------------------------------------------------------------
+    template <typename T>
+    void UniversalAllocatorDefragmented::_AddUsedChunk(Size handle, Size sizeInBytes, T* type)
+    {
+        m_usedChunks.push_back(UsedChunk(handle, sizeInBytes, &m_handleTable, type));
+        std::sort(m_usedChunks.begin(), m_usedChunks.end());
+    }
+
     //**********************************************************************
     // IMPLEMENTATION - UsedChunk
     //**********************************************************************

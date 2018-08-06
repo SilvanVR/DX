@@ -1,7 +1,7 @@
 #pragma once
 
 /**********************************************************************
-    class: BitMask (layer_mask.hpp)
+    class: BitMask
 
     author: S. Hau
     date: October 11, 2017

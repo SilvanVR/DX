@@ -10,6 +10,7 @@
 #include "i_render_texture.h"
 #include "structs.hpp"
 #include "Math/aabb.h"
+#include "Common/enum_class_operators.hpp"
 
 namespace Graphics {
 
