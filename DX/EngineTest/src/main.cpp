@@ -11,6 +11,13 @@
 
 #include "Time/clock.h"
 
+namespace Components
+{
+
+
+
+}
+
 //----------------------------------------------------------------------
 // SCENES
 //----------------------------------------------------------------------
@@ -19,8 +26,6 @@ class TestScene : public IScene
 {
     Components::Camera* cam;
     GameObject* go;
-    Components::Transform* t;
-    Components::Transform* t2;
 
     Components::VRCamera* vrCam;
 
@@ -58,7 +63,7 @@ public:
 
         auto monkey = createGameObject("monkey");
         monkey->addComponent<Components::MeshRenderer>(ASSETS.getMesh("/models/monkey.obj"), ASSETS.getMaterial("/materials/normals.material"));
-        t = monkey->getTransform();
+        auto t = monkey->getTransform();
         t->scale = { 0.2f };
         t->position.y = 0.3f;
         monkey->addComponent<ConstantRotation>(0.0f, 15.0f, 0.0f);

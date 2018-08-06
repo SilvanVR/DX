@@ -71,6 +71,10 @@ namespace Core { namespace Input {
         return ( not m_actionEvents[ action ].activeThisTick && m_actionEvents[ action ].activeLastTick );
     }
 
+    //**********************************************************************
+    // PRIVATE
+    //**********************************************************************
+
     //----------------------------------------------------------------------
     void ActionMapper::_UpdateInternalState()
     {

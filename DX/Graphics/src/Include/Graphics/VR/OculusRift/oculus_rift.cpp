@@ -86,17 +86,15 @@ namespace Graphics { namespace VR {
         F64 ftiming = ovr_GetPredictedDisplayTime( m_session, frameIndex );
         ovrTrackingState hmdState = ovr_GetTrackingState( m_session, ftiming, ovrTrue );
 
-        //if (ts.StatusFlags & (ovrStatus_OrientationTracked | ovrStatus_PositionTracked))
         ovr_CalcEyePoses( hmdState.HeadPose.ThePose, HmdToEyePose, m_currentEyeRenderPose );
 
-        using namespace DirectX;
         for (auto eye : { LeftEye, RightEye })
         {
             ovrMatrix4f p = ovrMatrix4f_Projection( m_eyeRenderDesc[eye].Fov, 0.1f, 1000.0f, ovrProjection_LeftHanded );
-            XMMATRIX proj = XMMatrixSet( p.M[0][0], p.M[1][0], p.M[2][0], p.M[3][0],
-                                         p.M[0][1], p.M[1][1], p.M[2][1], p.M[3][1],
-                                         p.M[0][2], p.M[1][2], p.M[2][2], p.M[3][2],
-                                         p.M[0][3], p.M[1][3], p.M[2][3], p.M[3][3] );
+            auto proj = DirectX::XMMatrixSet( p.M[0][0], p.M[1][0], p.M[2][0], p.M[3][0],
+                                              p.M[0][1], p.M[1][1], p.M[2][1], p.M[3][1],
+                                              p.M[0][2], p.M[1][2], p.M[2][2], p.M[3][2],
+                                              p.M[0][3], p.M[1][3], p.M[2][3], p.M[3][3] );
 
             eyePoses[eye].position = ConvertVec3( m_currentEyeRenderPose[eye].Position ) / m_worldScale;
             eyePoses[eye].rotation = ConvertQuat( m_currentEyeRenderPose[eye].Orientation );
@@ -107,6 +105,19 @@ namespace Graphics { namespace VR {
         {
             m_touch[(I32)touch].position = ConvertVec3( hmdState.HandPoses[(I32)touch].ThePose.Position );
             m_touch[(I32)touch].rotation = ConvertQuat( hmdState.HandPoses[(I32)touch].ThePose.Orientation );
+        }
+
+        ovrInputState inputState;
+        if (OVR_SUCCESS(ovr_GetInputState(m_session, ovrControllerType_Touch, &inputState)))
+        {
+            if (inputState.Buttons & ovrButton_A)
+            {
+                // Handle A button being pressed
+            }
+            if (inputState.HandTrigger[ovrHand_Left] > 0.5f)
+            {
+                // Handle hand grip...
+            }
         }
 
         return eyePoses;

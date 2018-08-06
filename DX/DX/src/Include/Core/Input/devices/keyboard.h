@@ -48,7 +48,7 @@ namespace Core { namespace Input {
         bool wasKeyReleased(Key key) const;
 
     private:
-        OS::Window*     m_window            = nullptr;
+        OS::Window* m_window = nullptr;
 
         // <---------- KEYBOARD ----------->
         // Those will be updated per update

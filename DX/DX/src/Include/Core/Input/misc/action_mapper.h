@@ -8,7 +8,7 @@
     Allows to fire events based on names and regardless of input device.
     Code example:
       actionMapper.attachKeyboardEvent( "Fire", Key::E );
-      actionMapper.attackMouseEvent( "Fire", MouseKey::LBUTTON );
+      actionMapper.attachMouseEvent( "Fire", MouseKey::LBUTTON );
       ...
       if ( actionMapper.isKeyPressed("Fire") )
         [fires either when "E" or "LBUTTON" is held down]
