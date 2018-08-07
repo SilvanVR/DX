@@ -96,7 +96,7 @@ namespace Graphics { namespace VR {
         for (auto hand : { Hand::Left, Hand::Right })
         {
             Touch touch;
-            touch.position = ConvertVec3( hmdState.HandPoses[(I32)hand].ThePose.Position );
+            touch.position = ConvertVec3( hmdState.HandPoses[(I32)hand].ThePose.Position ) / m_worldScale;
             touch.rotation = ConvertQuat( hmdState.HandPoses[(I32)hand].ThePose.Orientation );
             if (m_touchCallbacks[(I32)hand])
                 m_touchCallbacks[(I32)hand]( touch );

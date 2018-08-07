@@ -9,6 +9,7 @@
 #include "../i_component.h"
 #include "Events/event.hpp"
 #include "Graphics/enums.hpp"
+#include "Graphics/forward_declarations.hpp"
 
 namespace Components {
 
@@ -81,5 +82,24 @@ namespace Components {
         NULL_COPY_AND_ASSIGN(VRTouch)
     };
 
+    //**********************************************************************
+    // Custom component which sets up touch controller real quickly for testing.
+    //**********************************************************************
+    class VRBasicTouch : public IComponent
+    {
+    public:
+        VRBasicTouch(const MeshPtr& mesh, const MaterialPtr& material);
+        VRBasicTouch(const MeshPtr& leftHandMesh, const MeshPtr& rightHandMesh, const MaterialPtr& material);
 
+        //----------------------------------------------------------------------
+        // IComponent Interface
+        //----------------------------------------------------------------------
+        void addedToGameObject(GameObject* go) override;
+        void shutdown() override;
+
+    private:
+        GameObject* m_handGameObject[2];
+
+        NULL_COPY_AND_ASSIGN(VRBasicTouch)
+    };
 }

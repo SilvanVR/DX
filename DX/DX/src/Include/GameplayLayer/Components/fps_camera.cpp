@@ -161,6 +161,8 @@ namespace Components {
         if (KEYBOARD.isKeyDown(Key::S)) transform->position -= lookDir * speed * delta;
         transform->position += lookDir * (F32)AXIS_MAPPER.getMouseWheelAxisValue() * 0.3f;
 
+        
+
         // Rotate around y-axis in fixed steps
         if (KEYBOARD.wasKeyPressed(Key::A)) transform->rotation *= Math::Quat({0, 1, 0}, -m_rotationAngle);
         if (KEYBOARD.wasKeyPressed(Key::D)) transform->rotation *= Math::Quat({0, 1, 0}, m_rotationAngle);

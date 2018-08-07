@@ -14,7 +14,6 @@
 #include "LibOVR/OVR_CAPI_Vk.h"
 
 #include "../../D3D11/D3D11.hpp"
-#include "../../enums.hpp"
 #include <array>
 
 namespace Graphics { namespace VR {

@@ -43,22 +43,11 @@ public:
         vrCam = go->addComponent<Components::VRCamera>(Components::ScreenDisplay::LeftEye, Graphics::MSAASamples::Four);
         go->addComponent<Components::VRFPSCamera>();
         //go->addComponent<Tonemap>();
-        go->addComponent<PostProcess>(ASSETS.getMaterial("/materials/post processing/color_grading.material"));
+        //go->addComponent<PostProcess>(ASSETS.getMaterial("/materials/post processing/color_grading.material"));
 
         { // Touch Controller
-            auto cubeMesh = Core::MeshGenerator::CreateCubeUV(0.1f);
-            auto material = ASSETS.getMaterial("/materials/blinn_phong/cube.material");
-
-            auto touchLeft = createGameObject("TouchLeft");
-            touchLeft->addComponent<Components::VRTouch>(Graphics::VR::Hand::Left);
-            touchLeft->addComponent<Components::MeshRenderer>(cubeMesh, material);
-
-            auto touchRight = createGameObject("TouchRight");
-            touchRight->addComponent<Components::VRTouch>(Graphics::VR::Hand::Right); 
-            touchRight->addComponent<Components::MeshRenderer>(cubeMesh, material);
-
-            go->getTransform()->addChild(touchLeft->getTransform(), false);
-            go->getTransform()->addChild(touchRight->getTransform(), false);
+            auto handMesh = Core::MeshGenerator::CreateCubeUV(0.1f);
+            go->addComponent<Components::VRBasicTouch>(handMesh, handMesh, ASSETS.getMaterial("/materials/blinn_phong/cube.material"));
         }
 
         //createGameObject("Grid")->addComponent<GridGeneration>(20);

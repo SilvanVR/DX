@@ -11,12 +11,15 @@
 #include "GameplayLayer/i_scene.h"
 #include "Graphics/VR/vr.h"
 #include "camera.h"
+#include "mesh_renderer.h"
 
 namespace Components {
 
     #define BUFFER_FORMAT_LDR       Graphics::TextureFormat::RGBA32
     #define BUFFER_FORMAT_HDR       Graphics::TextureFormat::RGBAFloat
     #define DEPTH_STENCIL_FORMAT    Graphics::DepthFormat::D32
+
+    using namespace Graphics::VR;
 
     //----------------------------------------------------------------------
     void HMDCallback( Camera* camera, Transform* transform, const Graphics::VR::EyePose& eyePose )
@@ -34,7 +37,7 @@ namespace Components {
         // Create eye gameobjects and cameras
         auto& hmd = RENDERER.getVRDevice();
         auto hmdDesc = hmd.getDescription();
-        for (auto eye : { Graphics::VR::LeftEye, Graphics::VR::RightEye })
+        for (auto eye : { LeftEye, RightEye })
         {
             m_eyeGameObjects[eye] = THIS_SCENE.createGameObject( eye == 0 ? "LeftEye" : "RightEye" );
 
@@ -46,7 +49,7 @@ namespace Components {
         }
 
         // Register callback for retrieving HMDs data
-        hmd.setHMDCallback( [this]( Graphics::VR::Eye eye, const Graphics::VR::EyePose& eyePose ) {
+        hmd.setHMDCallback( [this]( Eye eye, const EyePose& eyePose ) {
             HMDCallback( m_eyeCameras[eye], m_eyeGameObjects[eye]->getTransform(), eyePose );
         } );
 
@@ -59,7 +62,7 @@ namespace Components {
     {
         // Attach both cameras as childs to this transform.
         // Must be done here because the component is not yet attached to a gameobject in the constructor.
-        for (auto eye : { Graphics::VR::LeftEye, Graphics::VR::RightEye })
+        for (auto eye : { LeftEye, RightEye })
             m_eyeGameObjects[eye]->getTransform()->setParent( go->getTransform() );
     }
 
@@ -67,7 +70,7 @@ namespace Components {
     void VRCamera::shutdown()
     {
         auto scene = getGameObject()->getScene();
-        for (auto eye : { Graphics::VR::LeftEye, Graphics::VR::RightEye })
+        for (auto eye : { LeftEye, RightEye })
             scene->destroyGameObject( m_eyeGameObjects[eye] );
     }
 
@@ -79,7 +82,7 @@ namespace Components {
     void VRCamera::setActive( bool active )
     {
         IComponent::setActive( active );
-        for (auto eye : { Graphics::VR::LeftEye, Graphics::VR::RightEye })
+        for (auto eye : { LeftEye, RightEye })
             m_eyeGameObjects[eye]->setActive( active );
     }
 
@@ -141,11 +144,52 @@ namespace Components {
     VRTouch::VRTouch( Graphics::VR::Hand hand )
     {
         auto& hmd = RENDERER.getVRDevice();
-        hmd.setTouchCallback( hand, [this]( const Graphics::VR::Touch& touch ) {
+        hmd.setTouchCallback( hand, [this]( const Touch& touch ) {
             auto transform = this->getGameObject()->getTransform();
             transform->position = touch.position;
             transform->rotation = touch.rotation;
         } );
+    }
+
+    //**********************************************************************
+    // VRBasicTouch
+    //**********************************************************************
+
+    //----------------------------------------------------------------------
+    VRBasicTouch::VRBasicTouch( const MeshPtr& mesh, const MaterialPtr& material )
+    {
+        for (auto hand : { Hand::Left, Hand::Right })
+        {
+            m_handGameObject[(I32)hand] = THIS_SCENE.createGameObject( hand == Hand::Left ? "LeftHand" : "RightHand" );
+            m_handGameObject[(I32)hand]->addComponent<Components::VRTouch>( hand );
+            m_handGameObject[(I32)hand]->addComponent<Components::MeshRenderer>( mesh, material );
+        }
+    }
+
+    //----------------------------------------------------------------------
+    VRBasicTouch::VRBasicTouch( const MeshPtr& leftHandMesh, const MeshPtr& rightHandMesh, const MaterialPtr& material )
+    {
+        for (auto hand : { Hand::Left, Hand::Right })
+        {
+            m_handGameObject[(I32)hand] = THIS_SCENE.createGameObject( hand == Hand::Left ? "LeftHand" : "RightHand" );
+            m_handGameObject[(I32)hand]->addComponent<Components::VRTouch>( hand );
+            m_handGameObject[(I32)hand]->addComponent<Components::MeshRenderer>( hand == Hand::Left ? leftHandMesh : rightHandMesh, material );
+        }
+    }
+
+    //----------------------------------------------------------------------
+    void VRBasicTouch::addedToGameObject( GameObject* go )
+    {
+        for (auto hand : { Hand::Left, Hand::Right })
+            m_handGameObject[(I32)hand]->getTransform()->setParent( go->getTransform(), false );
+    }
+
+    //----------------------------------------------------------------------
+    void VRBasicTouch::shutdown()
+    {
+        auto scene = getGameObject()->getScene();
+        for (auto hand : { Hand::Left, Hand::Right })
+            scene->destroyGameObject( m_handGameObject[(I32)hand] );
     }
 
 }
