@@ -1664,3 +1664,50 @@ public:
 
     void shutdown() override { LOG("SceneParticleSystem Shutdown!", Color::RED); }
 };
+
+
+class VRScene : public IScene
+{
+public:
+    VRScene() : IScene("TestScene") {}
+
+    void init() override
+    {
+        // Camera 1
+        auto go = createGameObject("Camera");
+        go->addComponent<Components::AudioListener>();
+        go->getComponent<Components::Transform>()->position = Math::Vec3(0, 1, -1);
+
+        go->addComponent<Components::VRCamera>(Components::ScreenDisplay::LeftEye, Graphics::MSAASamples::Four);
+        go->addComponent<Components::VRFPSCamera>();
+        //go->addComponent<PostProcess>(ASSETS.getMaterial("/materials/post processing/color_grading.material"));
+        go->addComponent<Components::VRBasicTouch>(Core::MeshGenerator::CreateCubeUV(0.1f), ASSETS.getMaterial("/materials/blinn_phong/cube.material"));
+
+        RENDERER.setGlobalFloat(SID("_Ambient"), 0.1f);
+
+        auto world = createGameObject("World");
+        world->addComponent<Components::MeshRenderer>(ASSETS.getMesh("/models/box_n_inside.obj"), ASSETS.getMaterial("/materials/blinn_phong/cellar.material"));
+        world->getTransform()->position.y = 10.0f;
+        world->getTransform()->scale = 10.0f;
+
+        auto plg = createGameObject("PL");
+        plg->addComponent<Components::PointLight>(2.0f, Color::ORANGE, 15.0f);
+        plg->getTransform()->position = { 0, 1.5f, 0 };
+        plg->addComponent<Components::Billboard>(ASSETS.getTexture2D("/engine/textures/pointLight.png"), 0.5f);
+
+        auto monkey = createGameObject("monkey");
+        monkey->addComponent<Components::MeshRenderer>(ASSETS.getMesh("/models/monkey.obj"), ASSETS.getMaterial("/materials/normals.material"));
+        auto t = monkey->getTransform();
+        t->scale = { 0.2f };
+        t->position.y = 0.3f;
+        monkey->addComponent<ConstantRotation>(0.0f, 15.0f, 0.0f);
+        //monkey->addComponent<Components::AudioSource>(ASSETS.getAudioClip("/audio/start_dash.wav"));
+
+        auto ps = createGameObject("Particles!");
+        ps->addComponent<Components::ParticleSystem>("/particles/ambient.ps");
+
+        LOG("VRScene initialized!", Color::RED);
+    }
+
+    void shutdown() override { LOG("VRScene Shutdown!", Color::RED); }
+};

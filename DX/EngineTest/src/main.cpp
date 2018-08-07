@@ -34,69 +34,18 @@ public:
     {
         // Camera 1
         go = createGameObject("Camera");
+        go->addComponent<Components::Camera>();
+        go->getComponent<Components::Transform>()->position = Math::Vec3(0, 1, -5);
+        go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 0.1f);
         go->addComponent<Components::AudioListener>();
-        go->getComponent<Components::Transform>()->position = Math::Vec3(0, 1, -1);
 
-        //go->addComponent<Components::Camera>();
-        //go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 0.1f);
-
-        vrCam = go->addComponent<Components::VRCamera>(Components::ScreenDisplay::LeftEye, Graphics::MSAASamples::Four);
-        go->addComponent<Components::VRFPSCamera>();
-        //go->addComponent<Tonemap>();
-        //go->addComponent<PostProcess>(ASSETS.getMaterial("/materials/post processing/color_grading.material"));
-
-        { // Touch Controller
-            auto handMesh = Core::MeshGenerator::CreateCubeUV(0.1f);
-            //auto lHand = ASSETS.getMesh("/engine/models/l_hand.fbx");
-            //auto rHand = ASSETS.getMesh("/engine/models/l_hand.fbx");
-            go->addComponent<Components::VRBasicTouch>(handMesh, ASSETS.getMaterial("/materials/blinn_phong/cube.material"));
-        }
-
-        //createGameObject("Grid")->addComponent<GridGeneration>(20);
-
-        RENDERER.setGlobalFloat(SID("_Ambient"), 0.1f);
-
-        auto world = createGameObject("World");
-        world->addComponent<Components::MeshRenderer>(ASSETS.getMesh("/models/box_n_inside.obj"), ASSETS.getMaterial("/materials/blinn_phong/cellar.material"));
-        world->getTransform()->position.y = 10.0f;
-        world->getTransform()->scale = 10.0f;
-
-        auto plg = createGameObject("PL");
-        plg->addComponent<Components::PointLight>(2.0f, Color::ORANGE, 15.0f);
-        plg->getTransform()->position = { 0, 1.5f, 0 };
-        plg->addComponent<Components::Billboard>(ASSETS.getTexture2D("/engine/textures/pointLight.png"), 0.5f);
-
-        auto monkey = createGameObject("monkey");
-        monkey->addComponent<Components::MeshRenderer>(ASSETS.getMesh("/models/monkey.obj"), ASSETS.getMaterial("/materials/normals.material"));
-        auto t = monkey->getTransform();
-        t->scale = { 0.2f };
-        t->position.y = 0.3f;
-        monkey->addComponent<ConstantRotation>(0.0f, 15.0f, 0.0f);
-        //monkey->addComponent<Components::AudioSource>(ASSETS.getAudioClip("/audio/start_dash.wav"));
-
-        auto ps = createGameObject("Particles!");
-        ps->addComponent<Components::ParticleSystem>("/particles/ambient.ps");
-
-        //go->addComponent<Components::GUI>();
-        //go->addComponent<Components::GUIFPS>();
-        //go->addComponent<Components::GUICustom>([=] {
-        //    static Math::Vec3 deg{ 0.0f, 0.0f, 0.0f };
-        //    if (ImGui::SliderFloat3("Rotation", &deg.x, 0.0f, 360.0f))
-        //        t->rotation = Math::Quat::FromEulerAngles(deg);
-
-        //    static Math::Vec3 pos{ 0.0f, 0.0f, 0.0f };
-        //    if (ImGui::SliderFloat3("Position", &pos.x, -3.0f, 3.0f))
-        //        t->position = pos;
-        //});
+        createGameObject("Grid")->addComponent<GridGeneration>(20);
 
         LOG("TestScene initialized!", Color::RED);
     }
 
     void tick(Time::Seconds delta) override
     {
-        if (KEYBOARD.wasKeyPressed(Key::F))
-            DEBUG.drawCube({ -1,-1,-1 }, { 1,1,1 }, Color::RED, 10_s);
-
         if (KEYBOARD.wasKeyPressed(Key::M))
         {
             static int index = 0;
@@ -125,6 +74,7 @@ public:
 
         auto guiSceneMenu = gui->addComponent<GUISceneMenu>();
         guiSceneMenu->registerScene<TestScene>("Test Scene");
+        guiSceneMenu->registerScene<VRScene>("VR Scene");
         guiSceneMenu->registerScene<SceneParticleSystem>("Particle System");
         guiSceneMenu->registerScene<ShadowScene>("Shadow Scene");
         guiSceneMenu->registerScene<ScenePostProcessMultiCamera>("Multi Camera Post Processing");
