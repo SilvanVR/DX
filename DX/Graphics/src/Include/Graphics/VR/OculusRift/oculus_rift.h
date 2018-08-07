@@ -83,14 +83,13 @@ namespace Graphics { namespace VR {
         //----------------------------------------------------------------------
         // VRDevice Interface
         //----------------------------------------------------------------------
-        bool                    hasFocus() override;
-        void                    clear(Color col) override { for (auto eye : {LeftEye, RightEye}) m_eyeBuffers[eye]->clear(m_session, col); }
-        void                    distortAndPresent(I64 frameIndex) override;
-        std::array<EyePose, 2>  getEyePoses() const override;
-        std::array<EyePose, 2>  calculateEyePoses(I64 frameIndex) override;
-        void                    bindForRendering(Eye eye) override;
-        void                    setPerformanceHUD(PerfHudMode mode) override;
-        bool                    isMounted() override;
+        bool    hasFocus() override;
+        void    clear(Color col) override { for (auto eye : {LeftEye, RightEye}) m_eyeBuffers[eye]->clear(m_session, col); }
+        void    distortAndPresent(I64 frameIndex) override;
+        void    calculateEyePosesAndTouch(I64 frameIndex) override;
+        void    bindForRendering(Eye eye) override;
+        void    setPerformanceHUD(PerfHudMode mode) override;
+        bool    isMounted() override;
 
     private:
         ovrSession          m_session;

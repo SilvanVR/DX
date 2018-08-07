@@ -16,6 +16,7 @@
 #include "Events/event_dispatcher.h"
 #include "Events/event_names.hpp"
 #include "render_system.h"
+#include "Graphics/VR/vr.h"
 
 namespace Core {
 
@@ -123,14 +124,20 @@ namespace Core {
         static const StringID TIME_NAME = SID( "_Time" );
         graphicsEngine.setGlobalFloat( TIME_NAME, (F32)TIME.getTime() );
 
+        // Update hmd state
+        if ( graphicsEngine.hasHMD() )
+            graphicsEngine.getVRDevice().calculateEyePosesAndTouch( m_frameCounter );
+
         Events::EventDispatcher::GetEvent( EVENT_FRAME_BEGIN ).invoke();
 
         RenderSystem::Instance().execute( lerp );
 
         Events::EventDispatcher::GetEvent( EVENT_FRAME_END ).invoke();
 
-        // Present backbuffer to screen
+        // Present backbuffer(s) to screen
         graphicsEngine.present();
+
+        m_frameCounter++;
     }
 
     //----------------------------------------------------------------------

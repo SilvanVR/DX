@@ -33,8 +33,9 @@ namespace Core {
         virtual ~CoreEngine() = default;
 
         //----------------------------------------------------------------------
-        OS::Window&         getWindow()         { return m_window; }
-        Time::MasterClock&  getMasterClock()    { return m_engineClock; }
+        OS::Window&         getWindow()             { return m_window; }
+        Time::MasterClock&  getMasterClock()        { return m_engineClock; }
+        U64                 getFrameCount() const   { return m_frameCounter; }
 
         //----------------------------------------------------------------------
         // Initiate the startup sequence for the engine.
@@ -73,6 +74,7 @@ namespace Core {
         std::vector<ISubSystem*>    m_subscribers;
         bool                        m_isRunning = true;
         bool                        m_restart = false;
+        U64                         m_frameCounter = 0;
 
         //----------------------------------------------------------------------
         void _RunCoreGameLoop();

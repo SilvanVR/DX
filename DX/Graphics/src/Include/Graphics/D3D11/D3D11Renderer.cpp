@@ -225,7 +225,7 @@ namespace Graphics {
         if ( hasHMD() && m_hmd->isMounted() )
         {
             vsync = false;
-            m_hmd->distortAndPresent( 0 );
+            m_hmd->distortAndPresent( m_frameCount );
         }
         m_pSwapchain->present( vsync );
 

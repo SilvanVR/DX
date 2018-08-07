@@ -1,6 +1,6 @@
 #pragma once
 /**********************************************************************
-    class: VRCamera
+    class: VRCamera + VRTouch
 
     author: S. Hau
     date: August 1, 2018
@@ -10,9 +10,10 @@
 #include "Events/event.hpp"
 #include "Graphics/enums.hpp"
 
-namespace Components
-{
+namespace Components {
+
     class Camera;
+    class Transform;
 
     //----------------------------------------------------------------------
     enum class ScreenDisplay // What will be displayed on the screen
@@ -36,9 +37,15 @@ namespace Components
         Components::Camera& getCameraForEye(Graphics::VR::Eye eye) { return *m_eyeCameras[eye]; }
 
         //----------------------------------------------------------------------
-        // Changes what will be display on the regular screen/monitor (not the hmd).
+        // @Params:
+        // "sd": What will be displayed on the regular screen/monitor (not the hmd).
         //----------------------------------------------------------------------
         void setScreenDisplay(ScreenDisplay sd);
+
+        //----------------------------------------------------------------------
+        // @Return: Local Position + Rotation from the HMD.
+        //----------------------------------------------------------------------
+        Transform* getHeadTransform();
 
         //----------------------------------------------------------------------
         // @Return: Direction in which the HMD is facing in World Space
@@ -53,16 +60,25 @@ namespace Components
         void setActive(bool active);
 
     private:
-        GameObject*             m_eyeGameObjects[2];
-        Components::Camera*     m_eyeCameras[2];
-        Events::ListenerID      m_frameEvtListenerID;
-        Graphics::MSAASamples   m_sampleCount;
-        ScreenDisplay           m_screenDisplay;
-        bool                    m_hdr;
-
-        void _FrameBegin();
+        GameObject*         m_eyeGameObjects[2];
+        Components::Camera* m_eyeCameras[2];
+        Events::ListenerID  m_frameEvtListenerID;
 
         NULL_COPY_AND_ASSIGN(VRCamera)
+    };
+
+
+    //**********************************************************************
+    // Updates the transform from the attached gameobject with the data
+    // from the touch controller.
+    //**********************************************************************
+    class VRTouch : public IComponent
+    {
+    public:
+        VRTouch(Graphics::VR::Hand hand);
+
+    private:
+        NULL_COPY_AND_ASSIGN(VRTouch)
     };
 
 

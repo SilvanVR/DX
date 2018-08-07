@@ -12,38 +12,46 @@
 #include "Graphics/VR/vr.h"
 #include "camera.h"
 
-#include "Events/event_dispatcher.h"
-#include "Events/event_names.hpp"
+namespace Components {
 
-namespace Components
-{
     #define BUFFER_FORMAT_LDR       Graphics::TextureFormat::RGBA32
     #define BUFFER_FORMAT_HDR       Graphics::TextureFormat::RGBAFloat
     #define DEPTH_STENCIL_FORMAT    Graphics::DepthFormat::D32
 
     //----------------------------------------------------------------------
+    void HMDCallback( Camera* camera, Transform* transform, const Graphics::VR::EyePose& eyePose )
+    {
+        camera->setProjection( eyePose.projection );
+        transform->position = eyePose.position;
+        transform->rotation = eyePose.rotation;
+    }
+
+    //----------------------------------------------------------------------
     VRCamera::VRCamera( ScreenDisplay screenDisplay, Graphics::MSAASamples sampleCount, bool hdr )
-        : m_sampleCount( sampleCount ), m_hdr( hdr ), m_screenDisplay( screenDisplay )
     {
         // Create the cameras in the constructor, so other scripts can access the cameras early on (e.g. for postprocessing)
 
         // Create eye gameobjects and cameras
-        auto hmdDesc = RENDERER.getVRDevice().getDescription();
+        auto& hmd = RENDERER.getVRDevice();
+        auto hmdDesc = hmd.getDescription();
         for (auto eye : { Graphics::VR::LeftEye, Graphics::VR::RightEye })
         {
             m_eyeGameObjects[eye] = THIS_SCENE.createGameObject( eye == 0 ? "LeftEye" : "RightEye" );
 
             // Create cameras
             auto eyeBuffer = RESOURCES.createRenderTexture( hmdDesc.idealResolution[eye].x, hmdDesc.idealResolution[eye].y,
-                                                            DEPTH_STENCIL_FORMAT, m_hdr ? BUFFER_FORMAT_HDR : BUFFER_FORMAT_LDR,
-                                                            m_sampleCount, false );
+                                                            DEPTH_STENCIL_FORMAT, hdr ? BUFFER_FORMAT_HDR : BUFFER_FORMAT_LDR,
+                                                            sampleCount, false );
             m_eyeCameras[eye] = m_eyeGameObjects[eye]->addComponent<Components::Camera>( eyeBuffer );
         }
 
-        // Set which camera renders to screen
-        setScreenDisplay( m_screenDisplay );
+        // Register callback for retrieving HMDs data
+        hmd.setHMDCallback( [this]( Graphics::VR::Eye eye, const Graphics::VR::EyePose& eyePose ) {
+            HMDCallback( m_eyeCameras[eye], m_eyeGameObjects[eye]->getTransform(), eyePose );
+        } );
 
-        m_frameEvtListenerID = Events::EventDispatcher::GetEvent( EVENT_FRAME_BEGIN ).addListener( BIND_THIS_FUNC_0_ARGS( &VRCamera::_FrameBegin ) );
+        // Set which camera renders to screen
+        setScreenDisplay( screenDisplay );
     }
 
     //----------------------------------------------------------------------
@@ -58,7 +66,6 @@ namespace Components
     //----------------------------------------------------------------------
     void VRCamera::shutdown()
     {
-        Events::EventDispatcher::GetEvent( EVENT_FRAME_BEGIN ).removeListener( m_frameEvtListenerID );
         auto scene = getGameObject()->getScene();
         for (auto eye : { Graphics::VR::LeftEye, Graphics::VR::RightEye })
             scene->destroyGameObject( m_eyeGameObjects[eye] );
@@ -74,6 +81,12 @@ namespace Components
         IComponent::setActive( active );
         for (auto eye : { Graphics::VR::LeftEye, Graphics::VR::RightEye })
             m_eyeGameObjects[eye]->setActive( active );
+    }
+
+    //----------------------------------------------------------------------
+    Transform* VRCamera::getHeadTransform()
+    { 
+        return m_eyeGameObjects[0]->getTransform(); 
     }
 
     //----------------------------------------------------------------------
@@ -120,18 +133,19 @@ namespace Components
     // PRIVATE
     //----------------------------------------------------------------------
 
-    //----------------------------------------------------------------------
-    void VRCamera::_FrameBegin()
-    {
-        auto eyePoses = RENDERER.getVRDevice().calculateEyePoses(0);
-        for (auto eye : { Graphics::VR::LeftEye, Graphics::VR::RightEye })
-        {
-            auto transform = m_eyeGameObjects[eye]->getTransform();
-            transform->position = eyePoses[eye].position;
-            transform->rotation = eyePoses[eye].rotation;
-            m_eyeCameras[eye]->setProjection( eyePoses[eye].projection );
-        }
-    }
+    //**********************************************************************
+    // VRTouch
+    //**********************************************************************
 
+    //----------------------------------------------------------------------
+    VRTouch::VRTouch( Graphics::VR::Hand hand )
+    {
+        auto& hmd = RENDERER.getVRDevice();
+        hmd.setTouchCallback( hand, [this]( const Graphics::VR::Touch& touch ) {
+            auto transform = this->getGameObject()->getTransform();
+            transform->position = touch.position;
+            transform->rotation = touch.rotation;
+        } );
+    }
 
 }

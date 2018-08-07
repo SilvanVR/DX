@@ -10,6 +10,7 @@
 
 #include "../structs.hpp"
 #include "../enums.hpp"
+#include <functional>
 
 namespace Graphics { class D3D11Renderer; class VulkanRenderer; }
 
@@ -39,6 +40,9 @@ namespace Graphics { namespace VR {
         Math::Quat rotation;
     };
 
+    using HMDCallback   = std::function<void(Eye eye, const EyePose&)>;
+    using TouchCallback = std::function<void(const Touch&)>;
+
     //----------------------------------------------------------------------
     // @Return: The first supported HMD on this system and initializes the corresponding library.
     //----------------------------------------------------------------------
@@ -63,14 +67,11 @@ namespace Graphics { namespace VR {
         virtual bool hasFocus() { return true; }
 
         //----------------------------------------------------------------------
-        // @Return: Calculates and returns the current eye poses.
+        // Calculates the current eye poses and calls the registered callbacks.
+        // @Params:
+        //  "frameIndex": Used if rendering happens on another thread than the main thread.
         //----------------------------------------------------------------------
-        virtual std::array<EyePose, 2> calculateEyePoses(I64 frameIndex) = 0;
-
-        //----------------------------------------------------------------------
-        // @Return: Last calculated eye poses from calculateEyePoses().
-        //----------------------------------------------------------------------
-        virtual std::array<EyePose, 2> getEyePoses() const = 0;
+        virtual void calculateEyePosesAndTouch(I64 frameIndex) = 0;
 
         //----------------------------------------------------------------------
         // Disables/Enables the performance hud with the given mode.
@@ -85,18 +86,29 @@ namespace Graphics { namespace VR {
         //----------------------------------------------------------------------
         // @Return: Struct describing current touch state.
         //----------------------------------------------------------------------
-        const Touch&                getTouch(Hand hand) const { return m_touch[(I32)hand]; }
-        const std::array<Touch, 2>& getTouch()          const { return m_touch; }
+        //const Touch&                getTouch(Hand hand) const { return m_touch[(I32)hand]; }
+        //const std::array<Touch, 2>& getTouch()          const { return m_touch; }
 
         //----------------------------------------------------------------------
         // Changes the world scale. A larger values corresponds to experiencing a larger world
         //----------------------------------------------------------------------
         void setWorldScale(F32 newWorldScale) { m_worldScale = newWorldScale; }
 
+        //----------------------------------------------------------------------
+        // Set the eye callback for retrieving position, orientation & projection.
+        //----------------------------------------------------------------------
+        void setHMDCallback(HMDCallback cb) { m_hmdCallback = cb; }
+
+        //----------------------------------------------------------------------
+        // Set the touch callback for retrieving position & orientation.
+        //----------------------------------------------------------------------
+        void setTouchCallback(Hand hand, TouchCallback cb) { m_touchCallbacks[(I32)hand] = cb; }
+
     protected:
         HMDDescription          m_description;
-        std::array<Touch, 2>    m_touch;
         F32                     m_worldScale = 1.0f;
+        HMDCallback             m_hmdCallback;
+        TouchCallback           m_touchCallbacks[2];
 
     private:
         friend class D3D11Renderer;

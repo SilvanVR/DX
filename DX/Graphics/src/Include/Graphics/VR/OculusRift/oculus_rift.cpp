@@ -65,22 +65,9 @@ namespace Graphics { namespace VR {
     //----------------------------------------------------------------------
 
     //----------------------------------------------------------------------
-    std::array<EyePose, 2> OculusRift::getEyePoses() const
-    {
-        std::array<EyePose, 2> eyePoses{};
-        for (auto eye : { LeftEye, RightEye })
-        {
-            eyePoses[eye].position = ConvertVec3( m_currentEyeRenderPose->Position ) / m_worldScale;
-            eyePoses[eye].rotation = ConvertQuat( m_currentEyeRenderPose->Orientation );
-        }
-        return eyePoses;
-    }
-
-    //----------------------------------------------------------------------
-    std::array<EyePose, 2> OculusRift::calculateEyePoses( I64 frameIndex ) 
+    void OculusRift::calculateEyePosesAndTouch( I64 frameIndex )
     {
         m_calculatedEyePoses = true;
-        std::array<EyePose, 2> eyePoses{};
 
         ovrPosef HmdToEyePose[2] = { m_eyeRenderDesc[0].HmdToEyePose, m_eyeRenderDesc[1].HmdToEyePose };
         F64 ftiming = ovr_GetPredictedDisplayTime( m_session, frameIndex );
@@ -88,6 +75,7 @@ namespace Graphics { namespace VR {
 
         ovr_CalcEyePoses( hmdState.HeadPose.ThePose, HmdToEyePose, m_currentEyeRenderPose );
 
+        // HMD
         for (auto eye : { LeftEye, RightEye })
         {
             ovrMatrix4f p = ovrMatrix4f_Projection( m_eyeRenderDesc[eye].Fov, 0.1f, 1000.0f, ovrProjection_LeftHanded );
@@ -96,15 +84,22 @@ namespace Graphics { namespace VR {
                                               p.M[0][2], p.M[1][2], p.M[2][2], p.M[3][2],
                                               p.M[0][3], p.M[1][3], p.M[2][3], p.M[3][3] );
 
-            eyePoses[eye].position = ConvertVec3( m_currentEyeRenderPose[eye].Position ) / m_worldScale;
-            eyePoses[eye].rotation = ConvertQuat( m_currentEyeRenderPose[eye].Orientation );
-            eyePoses[eye].projection = proj;
+            EyePose eyePose;
+            eyePose.position = ConvertVec3( m_currentEyeRenderPose[eye].Position ) / m_worldScale;
+            eyePose.rotation = ConvertQuat( m_currentEyeRenderPose[eye].Orientation );
+            eyePose.projection = proj;
+            if (m_hmdCallback)
+                m_hmdCallback( eye, eyePose );
         }
 
-        for (auto touch : { Hand::Left, Hand::Right })
+        // Touch
+        for (auto hand : { Hand::Left, Hand::Right })
         {
-            m_touch[(I32)touch].position = ConvertVec3( hmdState.HandPoses[(I32)touch].ThePose.Position );
-            m_touch[(I32)touch].rotation = ConvertQuat( hmdState.HandPoses[(I32)touch].ThePose.Orientation );
+            Touch touch;
+            touch.position = ConvertVec3( hmdState.HandPoses[(I32)hand].ThePose.Position );
+            touch.rotation = ConvertQuat( hmdState.HandPoses[(I32)hand].ThePose.Orientation );
+            if (m_touchCallbacks[(I32)hand])
+                m_touchCallbacks[(I32)hand]( touch );
         }
 
         ovrInputState inputState;
@@ -119,8 +114,6 @@ namespace Graphics { namespace VR {
                 // Handle hand grip...
             }
         }
-
-        return eyePoses;
     }
 
     //----------------------------------------------------------------------
@@ -217,7 +210,17 @@ namespace Graphics { namespace VR {
             m_eyeRenderViewport[eye].Pos.y = 0;
             m_eyeRenderViewport[eye].Size = idealSize;
 
-            m_eyeBuffers[eye] = new OculusSwapchainDX( m_session, idealSize.w, idealSize.h );
+            switch (api)
+            {
+            case API::D3D11:
+                m_eyeBuffers[eye] = new OculusSwapchainDX( m_session, idealSize.w, idealSize.h );
+                break;
+            case API::Vulkan:
+                ASSERT( false );
+                break;
+            default:
+                ASSERT( false );
+            }
         }
     }
 
