@@ -97,7 +97,6 @@ namespace Graphics { namespace VR {
         //----------------------------------------------------------------------
         // VRDevice Interface
         //----------------------------------------------------------------------
-        bool    hasFocus() override;
         void    clear(Color col) override;
         void    distortAndPresent(I64 frameIndex) override;
         void    calculateEyePosesAndTouch(I64 frameIndex) override;
@@ -117,6 +116,7 @@ namespace Graphics { namespace VR {
         bool _CreateSession();
         void _CreateEyeBuffers(API api, const ovrHmdDesc& hmdInfo);
         void _SetupDescription(const ovrHmdDesc& hmdInfo);
+        bool _HasFocus();
 
         NULL_COPY_AND_ASSIGN(OculusRift)
     };

@@ -37,7 +37,7 @@ namespace Components {
     {
         m_paused = not playOnStart;
         m_particleMesh = Core::MeshGenerator::CreatePlane();
-        setParticleAlignment( ParticleAlignment::ViewPlane );
+        setParticleAlignment( ParticleAlignment::View );
         setSortMode( SortMode::ByDistance );
         setCastShadows( false );
         play();
@@ -205,25 +205,13 @@ namespace Components {
     {
         switch (alignment)
         {
-        case ParticleAlignment::ViewPlane:
+        case ParticleAlignment::View:
         {
             // 1. Since the view matrix rotates everything "eyeRot" backwards, to negate it we just add the eyeRot itself
             // 2. To negate the world rotation itself, we just need the conjugate
             auto worldRot = getGameObject()->getTransform()->getWorldRotation();
             auto& eyeRot = SCENE.getMainCamera()->getGameObject()->getTransform()->getWorldRotation();
             auto alignedRotation = eyeRot * worldRot.conjugate();
-            for (U32 i = 0; i < m_currentParticleCount; ++i)
-                m_particles[i].rotation *= alignedRotation;
-            break;
-        }
-        case ParticleAlignment::ViewPosition:
-        {
-            auto worldRot = getGameObject()->getTransform()->getWorldRotation();
-            auto eyePos = SCENE.getMainCamera()->getGameObject()->getTransform()->getWorldPosition();
-            ASSERT( "NOT IMPLEMENTED YET" );
-
-            Math::Quat rot = Math::Quat::IDENTITY;
-            auto alignedRotation = rot * worldRot.conjugate();
             for (U32 i = 0; i < m_currentParticleCount; ++i)
                 m_particles[i].rotation *= alignedRotation;
             break;
@@ -390,8 +378,7 @@ namespace Components {
                 if (align != nullptr)
                 {
                     String alignment = align;
-                    if (alignment == "view" || alignment == "viewPlane" ) m_particleAlignment = ParticleAlignment::ViewPlane;
-                    else if (alignment == "viewPosition") m_particleAlignment = ParticleAlignment::ViewPosition;
+                    if (alignment == "view") m_particleAlignment = ParticleAlignment::View;
                     else LOG_WARN( "Could not read 'align' property." );
                 }
                 

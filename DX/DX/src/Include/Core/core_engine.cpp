@@ -162,6 +162,7 @@ namespace Core {
         if (m_restart)
         {
             m_restart = false;
+            m_frameCounter = 0;
 
             String title = m_window.getTitle();
             auto w = m_window.getWidth();

@@ -64,7 +64,7 @@ namespace Graphics { namespace VR {
         //----------------------------------------------------------------------
         // @Return: True, when app has focus e.g. oculus dash is not opened.
         //----------------------------------------------------------------------
-        virtual bool hasFocus() { return true; }
+        bool hasFocus() { return m_hasFocus; }
 
         //----------------------------------------------------------------------
         // Calculates the current eye poses and calls the registered callbacks.
@@ -91,18 +91,27 @@ namespace Graphics { namespace VR {
         //----------------------------------------------------------------------
         // Set the eye callback for retrieving position, orientation & projection.
         //----------------------------------------------------------------------
-        void setHMDCallback(HMDCallback cb) { m_hmdCallback = cb; }
+        void setHMDCallback(const HMDCallback& cb) { m_hmdCallback = cb; }
 
         //----------------------------------------------------------------------
         // Set the touch callback for retrieving position & orientation.
         //----------------------------------------------------------------------
-        void setTouchCallback(Hand hand, TouchCallback cb) { m_touchCallbacks[(I32)hand] = cb; }
+        void setTouchCallback(Hand hand, const TouchCallback& cb) { m_touchCallbacks[(I32)hand] = cb; }
+
+        //----------------------------------------------------------------------
+        // Called when the HMD gained or looses focus e.g. when oculus dash has been opened/closed.
+        //----------------------------------------------------------------------
+        void setFocusGainedCallback(const std::function<void()>& cb) { m_focusGainedCallback = cb; }
+        void setFocusLostCallback(const std::function<void()>& cb) { m_focusLostCallback = cb; }
 
     protected:
         HMDDescription          m_description;
         F32                     m_worldScale = 1.0f;
         HMDCallback             m_hmdCallback;
         TouchCallback           m_touchCallbacks[2];
+        bool                    m_hasFocus = true;
+        std::function<void()>   m_focusGainedCallback;
+        std::function<void()>   m_focusLostCallback;
 
     private:
         friend class D3D11Renderer;

@@ -183,6 +183,8 @@ namespace Components {
             m_handGameObject[(I32)hand]->addComponent<Components::VRTouch>( hand );
             m_handGameObject[(I32)hand]->addComponent<Components::MeshRenderer>( mesh, material );
         }
+        RENDERER.getVRDevice().setFocusGainedCallback( BIND_THIS_FUNC_0_ARGS( &VRBasicTouch::_OnHMDFocusGained ) );
+        RENDERER.getVRDevice().setFocusLostCallback( BIND_THIS_FUNC_0_ARGS( &VRBasicTouch::_OnHMDFocusLost ) );
     }
 
     //----------------------------------------------------------------------
@@ -209,6 +211,20 @@ namespace Components {
         auto scene = getGameObject()->getScene();
         for (auto hand : { Hand::Left, Hand::Right })
             scene->destroyGameObject( m_handGameObject[(I32)hand] );
+    }
+
+    //----------------------------------------------------------------------
+    void VRBasicTouch::_OnHMDFocusGained()
+    {
+        for (auto hand : { Hand::Left, Hand::Right })
+            m_handGameObject[(I32)hand]->setActive( true );
+    }
+
+    //----------------------------------------------------------------------
+    void VRBasicTouch::_OnHMDFocusLost()
+    {
+        for (auto hand : { Hand::Left, Hand::Right })
+            m_handGameObject[(I32)hand]->setActive( false );
     }
 
 }

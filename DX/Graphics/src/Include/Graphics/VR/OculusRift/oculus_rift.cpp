@@ -126,6 +126,21 @@ namespace Graphics { namespace VR {
             if (m_touchCallbacks[(I32)hand])
                 m_touchCallbacks[(I32)hand]( touch );
         }
+
+        // Focus check
+        bool hasFocus = _HasFocus();
+        if (m_hasFocus && not hasFocus)
+        {
+            m_hasFocus = false;
+            if (m_focusLostCallback)
+                m_focusLostCallback();
+        }
+        else if (not m_hasFocus && hasFocus)
+        {
+            m_hasFocus = true;
+            if (m_focusGainedCallback)
+                m_focusGainedCallback();
+        }
     }
 
     //----------------------------------------------------------------------
@@ -165,14 +180,6 @@ namespace Graphics { namespace VR {
             LOG_WARN_RENDERING( "OculusRift: HMD was disconnected from the computer." );
         else if (result != ovrSuccess)
             LOG_WARN_RENDERING( "OculusRift: Failed to submit frame to HMD." );
-    }
-
-    //----------------------------------------------------------------------
-    bool OculusRift::hasFocus()
-    {
-        ovrSessionStatus sessionStatus;
-        ovr_GetSessionStatus( g_session, &sessionStatus );
-        return sessionStatus.HasInputFocus;
     }
 
     //----------------------------------------------------------------------
@@ -258,6 +265,14 @@ namespace Graphics { namespace VR {
         }
 
         m_description = description;
+    }
+
+    //----------------------------------------------------------------------
+    bool OculusRift::_HasFocus()
+    {
+        ovrSessionStatus sessionStatus;
+        ovr_GetSessionStatus( g_session, &sessionStatus );
+        return sessionStatus.HasInputFocus;
     }
 
     //**********************************************************************

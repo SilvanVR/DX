@@ -107,6 +107,9 @@ namespace Components {
     private:
         GameObject* m_handGameObject[2];
 
+        void _OnHMDFocusGained();
+        void _OnHMDFocusLost();
+
         NULL_COPY_AND_ASSIGN(VRBasicTouch)
     };
 }
