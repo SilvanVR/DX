@@ -14,7 +14,6 @@
 #include "GameplayLayer/i_scene.h"
 #include "GameplayLayer/Components/Rendering/camera.h"
 #include "Events/event_dispatcher.h"
-#include "Events/event_names.hpp"
 #include "render_system.h"
 #include "Graphics/VR/vr.h"
 

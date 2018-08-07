@@ -13,7 +13,6 @@
 #include "Core/locator.h"
 #include "Core/mesh_generator.h"
 #include "Events/event_dispatcher.h"
-#include "Events/event_names.hpp"
 
 #define PRINT_DELETES 0
 

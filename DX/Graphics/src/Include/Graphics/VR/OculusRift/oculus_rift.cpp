@@ -7,6 +7,7 @@
 **********************************************************************/
 
 #include "Logging/logging.h"
+#include "Events/event_dispatcher.h"
 
 //----------------------------------------------------------------------
 inline Math::Vec3 ConvertVec3( const ovrVector3f& vec3 )
@@ -132,14 +133,12 @@ namespace Graphics { namespace VR {
         if (m_hasFocus && not hasFocus)
         {
             m_hasFocus = false;
-            if (m_focusLostCallback)
-                m_focusLostCallback();
+            Events::EventDispatcher::GetEvent( EVENT_HMD_FOCUS_LOST ).invoke();
         }
         else if (not m_hasFocus && hasFocus)
         {
             m_hasFocus = true;
-            if (m_focusGainedCallback)
-                m_focusGainedCallback();
+            Events::EventDispatcher::GetEvent( EVENT_HMD_FOCUS_GAINED ).invoke();
         }
     }
 

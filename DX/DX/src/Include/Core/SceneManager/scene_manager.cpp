@@ -14,7 +14,6 @@
 #include "Core/locator.h"
 #include "GameplayLayer/i_scene.h"
 #include "Events/event_dispatcher.h"
-#include "Events/event_names.hpp"
 
 namespace Core {
 

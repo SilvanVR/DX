@@ -20,6 +20,5 @@
 #include "Assets/environment_map.h"
 #include "Assets/brdf_lut.h"
 #include "Events/event_dispatcher.h"
-#include "Events/event_names.hpp"
 #include "Common/string_utils.h"
 #include "Graphics/VR/vr.h"

@@ -7,6 +7,7 @@
 **********************************************************************/
 
 #include "event.hpp"
+#include "event_names.hpp"
 
 namespace Events {
 

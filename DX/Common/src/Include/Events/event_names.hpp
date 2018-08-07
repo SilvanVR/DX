@@ -12,3 +12,5 @@
 #define EVENT_GAME_SHUTDOWN     SID( "OnGameShutdown" )
 #define EVENT_FRAME_BEGIN       SID( "OnFrameBegin" )
 #define EVENT_FRAME_END         SID( "OnFrameEnd" )
+#define EVENT_HMD_FOCUS_GAINED  SID( "OnHMDFocusGained" )
+#define EVENT_HMD_FOCUS_LOST    SID( "OnHMDFocusLost" )

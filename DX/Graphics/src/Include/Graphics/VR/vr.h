@@ -98,20 +98,12 @@ namespace Graphics { namespace VR {
         //----------------------------------------------------------------------
         void setTouchCallback(Hand hand, const TouchCallback& cb) { m_touchCallbacks[(I32)hand] = cb; }
 
-        //----------------------------------------------------------------------
-        // Called when the HMD gained or looses focus e.g. when oculus dash has been opened/closed.
-        //----------------------------------------------------------------------
-        void setFocusGainedCallback(const std::function<void()>& cb) { m_focusGainedCallback = cb; }
-        void setFocusLostCallback(const std::function<void()>& cb) { m_focusLostCallback = cb; }
-
     protected:
         HMDDescription          m_description;
         F32                     m_worldScale = 1.0f;
         HMDCallback             m_hmdCallback;
         TouchCallback           m_touchCallbacks[2];
         bool                    m_hasFocus = true;
-        std::function<void()>   m_focusGainedCallback;
-        std::function<void()>   m_focusLostCallback;
 
     private:
         friend class D3D11Renderer;

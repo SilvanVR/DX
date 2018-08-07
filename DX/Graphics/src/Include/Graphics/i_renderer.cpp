@@ -9,7 +9,6 @@
 #include "Logging/logging.h"
 #include "command_buffer.h"
 #include "Events/event_dispatcher.h"
-#include "Events/event_names.hpp"
 #include "VR/OculusRift/oculus_rift.h"
 #include <mutex>
 

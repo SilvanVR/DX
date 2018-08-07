@@ -32,6 +32,7 @@ namespace Core { namespace Audio {
         // Set the volume level for all audio sources.
         //----------------------------------------------------------------------
         void setVolume(F32 volume);
+        F32 getVolume() const;
 
         //----------------------------------------------------------------------
         // Update the listeners position / orientation for computing 3d sound.

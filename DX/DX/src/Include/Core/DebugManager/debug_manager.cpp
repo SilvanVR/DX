@@ -12,7 +12,6 @@
 
 #include "Core/locator.h"
 #include "Events/event_dispatcher.h"
-#include "Events/event_names.hpp"
 #include "GameplayLayer/i_scene.h"
 #include "Core/mesh_generator.h"
 #include "GameplayLayer/Components/Rendering/camera.h"

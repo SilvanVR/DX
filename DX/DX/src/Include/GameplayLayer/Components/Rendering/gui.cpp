@@ -10,7 +10,6 @@
 #include "Core/locator.h"
 #include "camera.h"
 #include "Events/event_dispatcher.h"
-#include "Events/event_names.hpp"
 
 #define SHADER_GUI_TEX_NAME     "_MainTex"
 #define SHADER_GUI_SLICE_NAME   "slice"

@@ -6,6 +6,8 @@
     date: April 14, 2018
 **********************************************************************/
 
+#include "Events/event_dispatcher.h"
+
 namespace Core { namespace Audio {
 
     //----------------------------------------------------------------------
@@ -72,6 +74,14 @@ namespace Core { namespace Audio {
     {
         if ( FAILED( m_pMasterVoice->SetVolume( volume ) ) )
             LOG_WARN_AUDIO( "AudioManager::setVolume(): Could not set the master volume." );
+    }
+
+    //----------------------------------------------------------------------
+    F32 AudioManager::getVolume() const
+    {
+        F32 volume;
+        m_pMasterVoice->GetVolume( &volume );
+        return volume;
     }
 
 } } // End namespaces
