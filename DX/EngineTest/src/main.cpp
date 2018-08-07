@@ -72,7 +72,7 @@ public:
         t->scale = { 0.2f };
         t->position.y = 0.3f;
         monkey->addComponent<ConstantRotation>(0.0f, 15.0f, 0.0f);
-        monkey->addComponent<Components::AudioSource>(ASSETS.getAudioClip("/audio/start_dash.wav"));
+        //monkey->addComponent<Components::AudioSource>(ASSETS.getAudioClip("/audio/start_dash.wav"));
 
         auto ps = createGameObject("Particles!");
         ps->addComponent<Components::ParticleSystem>("/particles/ambient.ps");

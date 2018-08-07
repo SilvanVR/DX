@@ -34,29 +34,34 @@ namespace Components {
     //----------------------------------------------------------------------
     VRCamera::VRCamera( ScreenDisplay screenDisplay, Graphics::MSAASamples sampleCount, bool hdr )
     {
-        // Create the cameras in the constructor, so other scripts can access the cameras early on (e.g. for postprocessing)
-
-        // Create eye gameobjects and cameras
-        auto& hmd = RENDERER.getVRDevice();
-        auto hmdDesc = hmd.getDescription();
-        for (auto eye : { LeftEye, RightEye })
+        if ( RENDERER.hasHMD() )
         {
-            m_eyeGameObjects[eye] = THIS_SCENE.createGameObject( eye == 0 ? "LeftEye" : "RightEye" );
+            // Create the cameras in the constructor, so other scripts can access the cameras early on (e.g. for postprocessing)
+            auto& hmd = RENDERER.getVRDevice();
 
-            // Create cameras
-            auto eyeBuffer = RESOURCES.createRenderTexture( hmdDesc.idealResolution[eye].x, hmdDesc.idealResolution[eye].y,
-                                                            DEPTH_STENCIL_FORMAT, hdr ? BUFFER_FORMAT_HDR : BUFFER_FORMAT_LDR,
-                                                            sampleCount, false );
-            m_eyeCameras[eye] = m_eyeGameObjects[eye]->addComponent<Components::Camera>( eyeBuffer );
+            if (hmd.good())
+            {
+                auto hmdDesc = hmd.getDescription();
+                for (auto eye : { LeftEye, RightEye })
+                {
+                    m_eyeGameObjects[eye] = THIS_SCENE.createGameObject( eye == 0 ? "LeftEye" : "RightEye" );
+
+                    // Create cameras
+                    auto eyeBuffer = RESOURCES.createRenderTexture( hmdDesc.idealResolution[eye].x, hmdDesc.idealResolution[eye].y,
+                                                                    DEPTH_STENCIL_FORMAT, hdr ? BUFFER_FORMAT_HDR : BUFFER_FORMAT_LDR,
+                                                                    sampleCount, false );
+                    m_eyeCameras[eye] = m_eyeGameObjects[eye]->addComponent<Components::Camera>( eyeBuffer );
+                }
+
+                // Register callback for retrieving HMDs data
+                hmd.setHMDCallback( [this]( Eye eye, const EyePose& eyePose ) {
+                    HMDCallback( m_eyeCameras[eye], m_eyeGameObjects[eye]->getTransform(), eyePose );
+                } );
+
+                // Set which camera renders to screen
+                setScreenDisplay( screenDisplay );
+            }
         }
-
-        // Register callback for retrieving HMDs data
-        hmd.setHMDCallback( [this]( Eye eye, const EyePose& eyePose ) {
-            HMDCallback( m_eyeCameras[eye], m_eyeGameObjects[eye]->getTransform(), eyePose );
-        } );
-
-        // Set which camera renders to screen
-        setScreenDisplay( screenDisplay );
     }
 
     //----------------------------------------------------------------------

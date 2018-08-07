@@ -97,6 +97,7 @@ namespace Graphics { namespace VR {
         //----------------------------------------------------------------------
         // VRDevice Interface
         //----------------------------------------------------------------------
+        bool    good() const override;
         void    clear(Color col) override;
         void    distortAndPresent(I64 frameIndex) override;
         void    calculateEyePosesAndTouch(I64 frameIndex) override;

@@ -182,6 +182,12 @@ namespace Graphics { namespace VR {
     }
 
     //----------------------------------------------------------------------
+    bool OculusRift::good() const
+    {
+        return g_session != nullptr;
+    }
+
+    //----------------------------------------------------------------------
     void OculusRift::clear( Color col )
     { 
         for (auto eye : { LeftEye, RightEye }) 

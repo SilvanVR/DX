@@ -58,13 +58,18 @@ namespace Graphics { namespace VR {
         virtual ~HMD() = default;
 
         //----------------------------------------------------------------------
-        const HMDDescription& getDescription() const { return m_description; }
-        F32 getWorldScale() const { return m_worldScale; }
+        const HMDDescription&   getDescription() const { return m_description; }
+        F32                     getWorldScale() const { return m_worldScale; }
 
         //----------------------------------------------------------------------
         // @Return: True, when app has focus e.g. oculus dash is not opened.
         //----------------------------------------------------------------------
-        bool hasFocus() { return m_hasFocus; }
+        bool hasFocus() const { return m_hasFocus; }
+
+        //----------------------------------------------------------------------
+        // @Return: False whenever something is wrong with this hmd.
+        //----------------------------------------------------------------------
+        virtual bool good() const = 0;
 
         //----------------------------------------------------------------------
         // Calculates the current eye poses and calls the registered callbacks.
