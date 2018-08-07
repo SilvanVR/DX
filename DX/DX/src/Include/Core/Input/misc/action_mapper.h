@@ -22,6 +22,7 @@ namespace Core { namespace Input {
     //----------------------------------------------------------------------
     class Keyboard;
     class Mouse;
+    class Controller;
 
     //**********************************************************************
     // Maps names to several actions regardless of InputDevice
@@ -34,8 +35,9 @@ namespace Core { namespace Input {
             EInputDevice device;
             union
             {
-                Key      keyboardKey;
-                MouseKey mouseKey;
+                Key             keyboardKey;
+                MouseKey        mouseKey;
+                ControllerKey   controllerKey;
             };
         };
 
@@ -48,7 +50,8 @@ namespace Core { namespace Input {
         };
 
     public:
-        ActionMapper(const Keyboard* keyboard, const Mouse* mouse) : m_keyboard( keyboard ), m_mouse( mouse ) {}
+        ActionMapper(const Keyboard* keyboard, const Mouse* mouse, const Controller* controller) 
+            : m_keyboard(keyboard), m_mouse(mouse), m_controller(controller) {}
         ~ActionMapper() = default;
 
         //----------------------------------------------------------------------
@@ -59,6 +62,7 @@ namespace Core { namespace Input {
         //----------------------------------------------------------------------
         void attachKeyboardEvent(const char* name, Key key);
         void attachMouseEvent(const char* name, MouseKey key);
+        void attachControllerEvent(const char* name, ControllerKey key);
 
         //----------------------------------------------------------------------
         // Same functions as with mouse / keyboard.
@@ -70,6 +74,7 @@ namespace Core { namespace Input {
     private:
         const Keyboard*             m_keyboard;
         const Mouse*                m_mouse;
+        const Controller*           m_controller;
         HashMap<StringID, Action>   m_actionEvents;
 
         // Should be called once per tick. Checks if actions should be fired.

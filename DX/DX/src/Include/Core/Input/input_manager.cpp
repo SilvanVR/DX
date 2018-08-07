@@ -18,10 +18,11 @@ namespace Core { namespace Input {
 
         // Create Input Devices
         OS::Window& window = Locator::getWindow();
-        m_mouse     = new Mouse( &window );
-        m_keyboard  = new Keyboard( &window );
+        m_mouse      = new Mouse( &window );
+        m_keyboard   = new Keyboard( &window );
+        m_controller = new Controller();
 
-        m_actionMapper = new ActionMapper( m_keyboard, m_mouse );
+        m_actionMapper = new ActionMapper( m_keyboard, m_mouse, m_controller );
         m_axisMapper   = new AxisMapper( m_keyboard, m_mouse );
 
         // Register some default axes
@@ -39,6 +40,7 @@ namespace Core { namespace Input {
         m_mouse->_UpdateInternalState();
         m_actionMapper->_UpdateInternalState();
         m_axisMapper->_UpdateInternalState( delta.value );
+        m_controller->_UpdateInternalState();
     }
 
     //----------------------------------------------------------------------
@@ -48,6 +50,7 @@ namespace Core { namespace Input {
         delete m_actionMapper;
         delete m_keyboard;
         delete m_mouse;
+        delete m_controller;
     }
 
     //**********************************************************************

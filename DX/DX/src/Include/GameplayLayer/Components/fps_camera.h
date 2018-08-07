@@ -76,8 +76,13 @@ namespace Components {
     class VRFPSCamera : public IComponent
     {
     public:
-        VRFPSCamera(F32 speed = 1.0f, F32 rotationAngle = 20.0f) 
-            : m_speed(speed), m_rotationAngle(rotationAngle) {}
+        enum Mode
+        {
+            Smooth,
+            Fixed
+        };
+        VRFPSCamera(Mode mode = Fixed, F32 speed = 1.0f, F32 rotationAngle = 20.0f) 
+            : m_mode(mode), m_speed(speed), m_rotationAngle(rotationAngle) {}
         ~VRFPSCamera() = default;
 
         //----------------------------------------------------------------------
@@ -87,9 +92,12 @@ namespace Components {
         void tick(Time::Seconds d) override;
 
     private:
-        F32 m_speed;
-        F32 m_rotationAngle;
+        F32  m_speed;
+        F32  m_rotationAngle;
+        Mode m_mode;
         VRCamera* m_vrCamera;
+
+        Components::Transform* getTransformFromChild(StringID name);
 
         NULL_COPY_AND_ASSIGN(VRFPSCamera)
     };

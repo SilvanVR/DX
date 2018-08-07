@@ -47,7 +47,9 @@ public:
 
         { // Touch Controller
             auto handMesh = Core::MeshGenerator::CreateCubeUV(0.1f);
-            go->addComponent<Components::VRBasicTouch>(handMesh, handMesh, ASSETS.getMaterial("/materials/blinn_phong/cube.material"));
+            //auto lHand = ASSETS.getMesh("/engine/models/l_hand.fbx");
+            //auto rHand = ASSETS.getMesh("/engine/models/l_hand.fbx");
+            go->addComponent<Components::VRBasicTouch>(handMesh, ASSETS.getMaterial("/materials/blinn_phong/cube.material"));
         }
 
         //createGameObject("Grid")->addComponent<GridGeneration>(20);
@@ -218,33 +220,17 @@ public:
                         go->getTransform()->rotation.x = go->getTransform()->rotation.z = 0;
                         go->addComponent<Components::VRCamera>(Components::ScreenDisplay::LeftEye);
                         go->addComponent<Components::VRFPSCamera>();
+                        go->addComponent<Components::VRBasicTouch>(Core::MeshGenerator::CreateCubeUV(0.1f), ASSETS.getMaterial("/materials/blinn_phong/cube.material"));
                         //go->addComponent<PostProcess>(ASSETS.getMaterial("/materials/post processing/color_grading.material"));
                     }
                     else
                     {
                         go->removeComponent<Components::VRCamera>();
                         go->removeComponent<Components::VRFPSCamera>();
+                        go->removeComponent<Components::VRBasicTouch>();
                     }
                 }
             }
-
-            static I32 perfHudMode = 0;
-            if (KEYBOARD.wasKeyPressed(Key::Left))
-            {
-                perfHudMode = perfHudMode - 1; if (perfHudMode < 0) perfHudMode = (I32)Graphics::VR::PerfHudMode::Count - 1;
-                RENDERER.getVRDevice().setPerformanceHUD((Graphics::VR::PerfHudMode)perfHudMode);
-            }
-            if (KEYBOARD.wasKeyPressed(Key::Right))
-            {
-                perfHudMode = (perfHudMode + 1) % (I32)Graphics::VR::PerfHudMode::Count;
-                RENDERER.getVRDevice().setPerformanceHUD((Graphics::VR::PerfHudMode)perfHudMode);
-            }
-
-            // Change world scale
-            if (KEYBOARD.isKeyDown(Key::Up))
-                RENDERER.getVRDevice().setWorldScale(RENDERER.getVRDevice().getWorldScale() + 1.0f * (F32)delta);
-            if (KEYBOARD.isKeyDown(Key::Down))
-                RENDERER.getVRDevice().setWorldScale(RENDERER.getVRDevice().getWorldScale() - 1.0f * (F32)delta);
         }
 
         if(KEYBOARD.isKeyDown(Key::Escape))

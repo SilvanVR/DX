@@ -20,7 +20,7 @@ GameObject::~GameObject()
     for (auto& pair : m_components)
     {
         pair.second->shutdown();
-        // Component must be destroyed by component manager aswell, but type is lost...
+        m_attachedScene->getComponentManager().Destroy( pair.second );
         SAFE_DELETE( pair.second );
     }
 }

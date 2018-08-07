@@ -50,6 +50,7 @@ public:
     // Retrieve the transform component directly. This is faster than using getComponent<T>()
     //----------------------------------------------------------------------
     inline Components::Transform* getTransform(){ return reinterpret_cast<Components::Transform*>(m_components[TypeHash<Components::Transform>()]); }
+    inline const Components::Transform* getTransform() const{ return reinterpret_cast<const Components::Transform*>(m_components.at(TypeHash<Components::Transform>())); }
 
 private:
     StringID            m_name;

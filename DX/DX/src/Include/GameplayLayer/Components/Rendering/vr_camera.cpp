@@ -69,6 +69,7 @@ namespace Components {
     //----------------------------------------------------------------------
     void VRCamera::shutdown()
     {
+        RENDERER.getVRDevice().setHMDCallback( nullptr );
         auto scene = getGameObject()->getScene();
         for (auto eye : { LeftEye, RightEye })
             scene->destroyGameObject( m_eyeGameObjects[eye] );
@@ -133,6 +134,18 @@ namespace Components {
     }
 
     //----------------------------------------------------------------------
+    void VRCamera::setWorldScale( F32 newWorldScale )
+    {
+        RENDERER.getVRDevice().setWorldScale( newWorldScale );
+    }
+
+    //----------------------------------------------------------------------
+    F32 VRCamera::getWorldScale() const
+    {
+        return RENDERER.getVRDevice().getWorldScale();
+    }
+
+    //----------------------------------------------------------------------
     // PRIVATE
     //----------------------------------------------------------------------
 
@@ -142,13 +155,19 @@ namespace Components {
 
     //----------------------------------------------------------------------
     VRTouch::VRTouch( Graphics::VR::Hand hand )
+        : m_hand( hand )
     {
-        auto& hmd = RENDERER.getVRDevice();
-        hmd.setTouchCallback( hand, [this]( const Touch& touch ) {
+        RENDERER.getVRDevice().setTouchCallback( hand, [this]( const Touch& touch ) {
             auto transform = this->getGameObject()->getTransform();
             transform->position = touch.position;
             transform->rotation = touch.rotation;
         } );
+    }
+
+    //----------------------------------------------------------------------
+    VRTouch::~VRTouch()
+    {
+        RENDERER.getVRDevice().setTouchCallback( m_hand, nullptr );
     }
 
     //**********************************************************************

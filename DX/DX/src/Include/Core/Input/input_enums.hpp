@@ -14,13 +14,43 @@
 
 #include "Common/enum_class_operators.hpp"
 
+//----------------------------------------------------------------------
+enum class ControllerKey
+{
+    A, B, X, Y,
+    LThumb, RThumb,
+    // Home button on XBox controllers. Oculus button on Touch controllers and Oculus Remote.
+    Home,
+    // Start on XBox 360 controller. Menu on XBox One controller and Left Touch controller. Select button on Oculus Remote.
+    Enter,
+    LIndexTrigger, RIndexTrigger,
+    LHandTrigger, RHandTrigger,
+    LShoulder, RShoulder, Left, Right, Down, Up, // Not present on touch controller
+    MAX_KEYS
+};
+
+//----------------------------------------------------------------------
+enum class ControllerTouch // For the Oculus Touch controller
+{
+    A, B, RThumb, RThumbRest, RIndexTrigger,
+    MAX_KEYS
+};
+
 namespace Core { namespace Input {
+
+    //----------------------------------------------------------------------
+    enum class ESide
+    {
+        Left = 0,
+        Right = 1
+    };
 
     //----------------------------------------------------------------------
     enum class EInputDevice
     {
         Keyboard,
-        Mouse
+        Mouse,
+        Controller
     };
 
     //----------------------------------------------------------------------

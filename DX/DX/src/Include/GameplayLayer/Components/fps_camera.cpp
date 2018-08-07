@@ -11,6 +11,7 @@
 #include "Core/locator.h"
 #include "Math/math_utils.h"
 #include "Rendering/vr_camera.h"
+#include "Graphics/VR/vr.h"
 
 namespace Components {
 
@@ -151,22 +152,143 @@ namespace Components {
     {
         auto delta = (F32)d;
         F32 speed = m_speed;
-        if (KEYBOARD.isKeyDown(Key::Shift))
+        if (KEYBOARD.isKeyDown(Key::Shift) || CONTROLLER.isKeyDown(ControllerKey::LIndexTrigger) || CONTROLLER.isKeyDown(ControllerKey::RIndexTrigger))
             speed *= 5.0f;
 
         // Move in look direction
         auto transform = getGameObject()->getTransform();
-        Math::Vec3 lookDir = m_vrCamera->getLookDirection();
-        if (KEYBOARD.isKeyDown(Key::W)) transform->position += lookDir * speed * delta;
-        if (KEYBOARD.isKeyDown(Key::S)) transform->position -= lookDir * speed * delta;
+        auto headTransform = m_vrCamera->getHeadTransform();
+        auto worldRotation = headTransform->getWorldRotation();
+        Math::Vec3 lookDir = worldRotation.getForward();
+        Math::Vec3 rightDir = worldRotation.getRight();
+        if ( KEYBOARD.isKeyDown( Key::W ) ) transform->position += lookDir * speed * delta;
+        if ( KEYBOARD.isKeyDown( Key::S ) ) transform->position -= lookDir * speed * delta;
         transform->position += lookDir * (F32)AXIS_MAPPER.getMouseWheelAxisValue() * 0.3f;
 
-        
+        auto leftThumb = CONTROLLER.getThumbstick( Core::Input::ESide::Left );
+        transform->position += lookDir * leftThumb.y * speed * delta;
+        transform->position += rightDir * leftThumb.x * speed * delta;
 
-        // Rotate around y-axis in fixed steps
-        if (KEYBOARD.wasKeyPressed(Key::A)) transform->rotation *= Math::Quat({0, 1, 0}, -m_rotationAngle);
-        if (KEYBOARD.wasKeyPressed(Key::D)) transform->rotation *= Math::Quat({0, 1, 0}, m_rotationAngle);
+        // Rotation
+        auto rightThumb = CONTROLLER.getThumbstick( Core::Input::ESide::Right );
+        switch (m_mode)
+        {
+        case Mode::Smooth: // Rotate smoothly
+        {
+            if ( KEYBOARD.isKeyDown( Key::A ) ) transform->rotation *= Math::Quat({0, 1, 0}, -m_rotationAngle);
+            if ( KEYBOARD.isKeyDown( Key::D ) ) transform->rotation *= Math::Quat({0, 1, 0}, m_rotationAngle);
+            transform->rotation *= Math::Quat({ 0, 1, 0 }, rightThumb.x);
+            break;
+        }
+        case Mode::Fixed: // Rotate in fixed steps
+        {
+            if ( KEYBOARD.wasKeyPressed( Key::A ) ) transform->rotation *= Math::Quat({0, 1, 0}, -m_rotationAngle);
+            if ( KEYBOARD.wasKeyPressed( Key::D ) ) transform->rotation *= Math::Quat({0, 1, 0}, m_rotationAngle);
+
+            static bool rotated = false;
+            if (rightThumb.x > -0.5f && rightThumb.x < 0.5f)
+                rotated = false;
+            else if (rightThumb.x > 0.5f && not rotated)
+            {
+                transform->rotation *= Math::Quat({ 0, 1, 0 }, m_rotationAngle);
+                rotated = true;
+            }
+            else if (rightThumb.x < -0.5f && not rotated)
+            {
+                transform->rotation *= Math::Quat({ 0, 1, 0 }, -m_rotationAngle);
+                rotated = true;
+            }
+            break;
+        }
+        }
+
+        // Change world scale
+        if (CONTROLLER.isKeyDown(ControllerKey::A)) m_vrCamera->setWorldScale(m_vrCamera->getWorldScale() + 1.0f * delta);
+        if (CONTROLLER.isKeyDown(ControllerKey::B)) m_vrCamera->setWorldScale(m_vrCamera->getWorldScale() - 1.0f * delta);
+
+        // Perfhud
+        static I32 perfHudMode = 0;
+        if (CONTROLLER.wasKeyPressed(ControllerKey::X))
+        {
+            perfHudMode = perfHudMode - 1; if (perfHudMode < 0) perfHudMode = (I32)Graphics::VR::PerfHudMode::Count - 1;
+            RENDERER.getVRDevice().setPerformanceHUD((Graphics::VR::PerfHudMode)perfHudMode);
+        }
+        if (CONTROLLER.wasKeyPressed(ControllerKey::Y))
+        {
+            perfHudMode = (perfHudMode + 1) % (I32)Graphics::VR::PerfHudMode::Count;
+            RENDERER.getVRDevice().setPerformanceHUD((Graphics::VR::PerfHudMode)perfHudMode);
+        }
+
+        static StringID LEFT_HAND_NAME = SID("LeftHand");
+        static StringID RIGHT_HAND_NAME = SID("RightHand");
+
+        { // Doesn't work because changing the world scale change the distance between both controllers
+            //// Change world scale by grip with both controllers and pull them together/apart
+            //static F32 startDistance;
+            //static F32 curWorldScale = 1.0f;
+            //static bool triggered = false;
+            //if (CONTROLLER.isKeyDown(ControllerKey::LHandTrigger) && CONTROLLER.isKeyDown(ControllerKey::RHandTrigger))
+            //{
+            //    auto lHandPos = getTransformFromChild(LEFT_HAND_NAME)->position;
+            //    auto rHandPos = getTransformFromChild(RIGHT_HAND_NAME)->position;
+
+            //    auto distance = (lHandPos - rHandPos).magnitude();
+            //    if (not triggered)
+            //    {
+            //        curWorldScale = m_vrCamera->getWorldScale();
+            //        startDistance = distance;
+            //        triggered = true;
+            //    }
+
+            //    auto scale = distance / startDistance;
+            //    m_vrCamera->setWorldScale( curWorldScale * scale );
+            //}
+            //else
+            //{
+            //    triggered = false;
+            //}
+        }
+        {
+            // Move via grip
+            static Math::Vec3 gripPos;
+            static Components::Transform* handTransform = nullptr;
+            static ControllerKey trigger;
+            if (CONTROLLER.wasKeyPressed(ControllerKey::LHandTrigger))
+            {
+                handTransform = getTransformFromChild(LEFT_HAND_NAME);
+                if (not handTransform) return;
+                trigger = ControllerKey::LHandTrigger;
+                gripPos = handTransform->getWorldPosition();
+            }
+            else if (CONTROLLER.wasKeyPressed(ControllerKey::RHandTrigger))
+            {
+                handTransform = getTransformFromChild(RIGHT_HAND_NAME);
+                if (not handTransform) return;
+                trigger = ControllerKey::RHandTrigger;
+                gripPos = handTransform->getWorldPosition();
+            }
+
+            if (handTransform)
+            {
+                transform->position += (gripPos - handTransform->getWorldPosition());
+                gripPos = handTransform->getWorldPosition();
+            }
+
+            // Release grip
+            if ((CONTROLLER.wasKeyReleased(ControllerKey::LHandTrigger) && trigger == ControllerKey::LHandTrigger) || 
+                (CONTROLLER.wasKeyReleased(ControllerKey::RHandTrigger) && trigger == ControllerKey::RHandTrigger))
+                handTransform = nullptr;
+        }
+
     }
 
+    //----------------------------------------------------------------------
+    Components::Transform* VRFPSCamera::getTransformFromChild( StringID name )
+    {
+        for (auto& child : getGameObject()->getTransform()->getChildren())
+            if (child->getGameObject()->getName() == name)
+                return child;
+        return nullptr;
+    }
 
 }

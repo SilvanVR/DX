@@ -102,8 +102,6 @@ namespace Components {
         void addCommandBuffer(Graphics::CommandBuffer* cmd, CameraEvent evt = CameraEvent::Geometry);
         void removeCommandBuffer(Graphics::CommandBuffer* cmd);
 
-        void shutdown() override;
-
     private:
         Graphics::Camera            m_camera;
 

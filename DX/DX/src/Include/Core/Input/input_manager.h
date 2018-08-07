@@ -20,12 +20,14 @@
 #include "devices/mouse.h"
 #include "misc/action_mapper.h"
 #include "misc/axis_mapper.h"
+#include "devices/controller.h"
 
 //----------------------------------------------------------------------
 #define MOUSE           Locator::getInputManager().getMouse()
 #define KEYBOARD        Locator::getInputManager().getKeyboard()
 #define ACTION_MAPPER   Locator::getInputManager().getActionMapper()
 #define AXIS_MAPPER     Locator::getInputManager().getAxisMapper()
+#define CONTROLLER      Locator::getInputManager().getController()
 
 namespace Core { namespace Input {
 
@@ -48,6 +50,7 @@ namespace Core { namespace Input {
         Keyboard&       getKeyboard()       { return *m_keyboard; }
         ActionMapper&   getActionMapper()   { return *m_actionMapper; }
         AxisMapper&     getAxisMapper()     { return *m_axisMapper; }
+        Controller&     getController()     { return *m_controller; }
 
         //----------------------------------------------------------------------
         // Basically sets the channels mask for all devices to CONSOLE, so only
@@ -63,8 +66,9 @@ namespace Core { namespace Input {
 
     private:
         // <---------- DEVICES ----------->
-        Keyboard*       m_keyboard  = nullptr;
-        Mouse*          m_mouse     = nullptr;
+        Keyboard*       m_keyboard   = nullptr;
+        Mouse*          m_mouse      = nullptr;
+        Controller*     m_controller = nullptr;
 
         // <---------- MISC ----------->
         ActionMapper*   m_actionMapper  = nullptr;

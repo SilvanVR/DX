@@ -9,6 +9,7 @@
 #include "Logging/logging.h"
 #include "Core/Input/devices/keyboard.h"
 #include "Core/Input/devices/mouse.h"
+#include "Core/Input/devices/controller.h"
 
 namespace Core { namespace Input {
 
@@ -28,6 +29,16 @@ namespace Core { namespace Input {
         InputDeviceEvent evt;
         evt.device   = EInputDevice::Mouse;
         evt.mouseKey = key;
+
+        m_actionEvents[ SID( name ) ].events.push_back( evt );
+    }
+
+    //----------------------------------------------------------------------
+    void ActionMapper::attachControllerEvent( const char* name, ControllerKey key )
+    {
+        InputDeviceEvent evt;
+        evt.device          = EInputDevice::Controller;
+        evt.controllerKey   = key;
 
         m_actionEvents[ SID( name ) ].events.push_back( evt );
     }
@@ -94,6 +105,9 @@ namespace Core { namespace Input {
                     break;
                 case EInputDevice::Mouse:
                     action.activeThisTick = m_mouse->isKeyDown( evt.mouseKey );
+                    break;
+                case EInputDevice::Controller:
+                    action.activeThisTick = m_controller->isKeyDown( evt.controllerKey );
                     break;
                 default:
                     LOG_WARN( "ActionMapper::_UpdateInternalState: Unknown input device." );

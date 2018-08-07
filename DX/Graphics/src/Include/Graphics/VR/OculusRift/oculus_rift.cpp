@@ -27,6 +27,31 @@ inline Math::Quat ConvertQuat( const ovrQuatf& q )
 namespace Graphics { namespace VR {
 
     //----------------------------------------------------------------------
+    ovrSession g_session = nullptr;
+
+    //----------------------------------------------------------------------
+    bool OVRIsInitialized()
+    {
+        return g_session != nullptr;
+    }
+
+    //----------------------------------------------------------------------
+    U32 GetConnectedController()
+    {
+        return ovr_GetConnectedControllerTypes( g_session );
+    }
+
+    //----------------------------------------------------------------------
+    ovrInputState GetOVRInputState( ovrControllerType controllerType )
+    {
+        ovrInputState inputState;
+        if ( not OVR_SUCCESS( ovr_GetInputState( g_session, controllerType, &inputState ) ) )
+            LOG_WARN_RENDERING( "GetOVRInputState(): Failed to retrieve the input state. Does an ovr session exists?" );
+
+        return inputState;
+    }
+
+    //----------------------------------------------------------------------
     OculusRift::OculusRift( API api )
     {
         if ( not _CreateSession() )
@@ -35,11 +60,11 @@ namespace Graphics { namespace VR {
             return;
         }
 
-        m_HMDInfo = ovr_GetHmdDesc( m_session );
+        m_HMDInfo = ovr_GetHmdDesc( g_session );
         _CreateEyeBuffers( api, m_HMDInfo );
 
         for (auto eye : { LeftEye, RightEye })
-            m_eyeRenderDesc[eye] = ovr_GetRenderDesc( m_session, (ovrEyeType)eye, m_HMDInfo.DefaultEyeFov[eye] );
+            m_eyeRenderDesc[eye] = ovr_GetRenderDesc( g_session, (ovrEyeType)eye, m_HMDInfo.DefaultEyeFov[eye] );
 
         _SetupDescription( m_HMDInfo );
     }
@@ -48,14 +73,14 @@ namespace Graphics { namespace VR {
     OculusRift::~OculusRift()
     {
         setPerformanceHUD( PerfHudMode::Off ); // Because the perf hud persists
-        if (m_session)
+        if (g_session)
         {
             for (auto eye : { LeftEye, RightEye })
             {
-                m_eyeBuffers[eye]->release( m_session );
+                m_eyeBuffers[eye]->release( g_session );
                 delete m_eyeBuffers[eye];
             }
-            ovr_Destroy( m_session );
+            ovr_Destroy( g_session );
             ovr_Shutdown();
         }
     }
@@ -70,8 +95,8 @@ namespace Graphics { namespace VR {
         m_calculatedEyePoses = true;
 
         ovrPosef HmdToEyePose[2] = { m_eyeRenderDesc[0].HmdToEyePose, m_eyeRenderDesc[1].HmdToEyePose };
-        F64 ftiming = ovr_GetPredictedDisplayTime( m_session, frameIndex );
-        ovrTrackingState hmdState = ovr_GetTrackingState( m_session, ftiming, ovrTrue );
+        F64 ftiming = ovr_GetPredictedDisplayTime( g_session, frameIndex );
+        ovrTrackingState hmdState = ovr_GetTrackingState( g_session, ftiming, ovrTrue );
 
         ovr_CalcEyePoses( hmdState.HeadPose.ThePose, HmdToEyePose, m_currentEyeRenderPose );
 
@@ -101,25 +126,12 @@ namespace Graphics { namespace VR {
             if (m_touchCallbacks[(I32)hand])
                 m_touchCallbacks[(I32)hand]( touch );
         }
-
-        ovrInputState inputState;
-        if (OVR_SUCCESS(ovr_GetInputState(m_session, ovrControllerType_Touch, &inputState)))
-        {
-            if (inputState.Buttons & ovrButton_A)
-            {
-                // Handle A button being pressed
-            }
-            if (inputState.HandTrigger[ovrHand_Left] > 0.5f)
-            {
-                // Handle hand grip...
-            }
-        }
     }
 
     //----------------------------------------------------------------------
     void OculusRift::bindForRendering( Eye eye )
     {
-        m_eyeBuffers[eye]->bindForRendering( m_session );
+        m_eyeBuffers[eye]->bindForRendering( g_session );
     }
 
     //----------------------------------------------------------------------
@@ -134,7 +146,7 @@ namespace Graphics { namespace VR {
         ld.Header.Flags = 0;
         for (auto eye : { LeftEye, RightEye })
         {
-            m_eyeBuffers[eye]->commit( m_session );
+            m_eyeBuffers[eye]->commit( g_session );
             ld.ColorTexture[eye]    = m_eyeBuffers[eye]->get();
             ld.Viewport[eye]        = m_eyeRenderViewport[eye];
             ld.Fov[eye]             = m_HMDInfo.DefaultEyeFov[eye];
@@ -147,7 +159,7 @@ namespace Graphics { namespace VR {
         viewScaleDesc.HmdToEyePose[1] = m_eyeRenderDesc[1].HmdToEyePose;
 
         ovrLayerHeader* layers = &ld.Header;
-        ovrResult result = ovr_SubmitFrame( m_session, frameIndex, &viewScaleDesc, &layers, 1 );
+        ovrResult result = ovr_SubmitFrame( g_session, frameIndex, &viewScaleDesc, &layers, 1 );
 
         if (result == ovrError_DisplayLost)
             LOG_WARN_RENDERING( "OculusRift: HMD was disconnected from the computer." );
@@ -159,8 +171,15 @@ namespace Graphics { namespace VR {
     bool OculusRift::hasFocus()
     {
         ovrSessionStatus sessionStatus;
-        ovr_GetSessionStatus( m_session, &sessionStatus );
+        ovr_GetSessionStatus( g_session, &sessionStatus );
         return sessionStatus.HasInputFocus;
+    }
+
+    //----------------------------------------------------------------------
+    void OculusRift::clear( Color col )
+    { 
+        for (auto eye : { LeftEye, RightEye }) 
+            m_eyeBuffers[eye]->clear( g_session, col );
     }
 
     //----------------------------------------------------------------------
@@ -168,13 +187,13 @@ namespace Graphics { namespace VR {
     {
         switch (mode)
         {
-            case PerfHudMode::Off: ovr_SetInt( m_session, OVR_PERF_HUD_MODE, (int)ovrPerfHud_Off ); break;
-            case PerfHudMode::PerfSummary: ovr_SetInt( m_session, OVR_PERF_HUD_MODE, (int)ovrPerfHud_PerfSummary ); break;
-            case PerfHudMode::LatencyTiming: ovr_SetInt( m_session, OVR_PERF_HUD_MODE, (int)ovrPerfHud_LatencyTiming ); break;
-            case PerfHudMode::AppRenderTiming: ovr_SetInt( m_session, OVR_PERF_HUD_MODE, (int)ovrPerfHud_AppRenderTiming ); break;
-            case PerfHudMode::CompRenderTiming: ovr_SetInt( m_session, OVR_PERF_HUD_MODE, (int)ovrPerfHud_CompRenderTiming ); break;
-            case PerfHudMode::AswStats: ovr_SetInt( m_session, OVR_PERF_HUD_MODE, (int)ovrPerfHud_AswStats ); break;
-            case PerfHudMode::VersionInfo: ovr_SetInt( m_session, OVR_PERF_HUD_MODE, (int)ovrPerfHud_VersionInfo ); break;
+            case PerfHudMode::Off: ovr_SetInt( g_session, OVR_PERF_HUD_MODE, (int)ovrPerfHud_Off ); break;
+            case PerfHudMode::PerfSummary: ovr_SetInt( g_session, OVR_PERF_HUD_MODE, (int)ovrPerfHud_PerfSummary ); break;
+            case PerfHudMode::LatencyTiming: ovr_SetInt( g_session, OVR_PERF_HUD_MODE, (int)ovrPerfHud_LatencyTiming ); break;
+            case PerfHudMode::AppRenderTiming: ovr_SetInt( g_session, OVR_PERF_HUD_MODE, (int)ovrPerfHud_AppRenderTiming ); break;
+            case PerfHudMode::CompRenderTiming: ovr_SetInt( g_session, OVR_PERF_HUD_MODE, (int)ovrPerfHud_CompRenderTiming ); break;
+            case PerfHudMode::AswStats: ovr_SetInt( g_session, OVR_PERF_HUD_MODE, (int)ovrPerfHud_AswStats ); break;
+            case PerfHudMode::VersionInfo: ovr_SetInt( g_session, OVR_PERF_HUD_MODE, (int)ovrPerfHud_VersionInfo ); break;
         }
     }
 
@@ -182,7 +201,7 @@ namespace Graphics { namespace VR {
     bool OculusRift::isMounted()
     {
         ovrSessionStatus sessionStatus;
-        ovr_GetSessionStatus( m_session, &sessionStatus );
+        ovr_GetSessionStatus( g_session, &sessionStatus );
         return sessionStatus.HmdMounted;
     }
 
@@ -194,7 +213,7 @@ namespace Graphics { namespace VR {
     bool OculusRift::_CreateSession()
     {
         ovrGraphicsLuid luid;
-        if (ovr_Create( &m_session, &luid ) != ovrSuccess)
+        if (ovr_Create( &g_session, &luid ) != ovrSuccess)
             return false;
 
         return true;
@@ -205,7 +224,7 @@ namespace Graphics { namespace VR {
     {
         for (auto eye : { LeftEye, RightEye })
         {
-            ovrSizei idealSize = ovr_GetFovTextureSize( m_session, (ovrEyeType)eye, HMDInfo.DefaultEyeFov[eye], 1.0f );
+            ovrSizei idealSize = ovr_GetFovTextureSize( g_session, (ovrEyeType)eye, HMDInfo.DefaultEyeFov[eye], 1.0f );
             m_eyeRenderViewport[eye].Pos.x = 0;
             m_eyeRenderViewport[eye].Pos.y = 0;
             m_eyeRenderViewport[eye].Size = idealSize;
@@ -213,7 +232,7 @@ namespace Graphics { namespace VR {
             switch (api)
             {
             case API::D3D11:
-                m_eyeBuffers[eye] = new OculusSwapchainDX( m_session, idealSize.w, idealSize.h );
+                m_eyeBuffers[eye] = new OculusSwapchainDX( g_session, idealSize.w, idealSize.h );
                 break;
             case API::Vulkan:
                 ASSERT( false );
@@ -234,7 +253,7 @@ namespace Graphics { namespace VR {
 
         for (auto eye : { LeftEye, RightEye })
         {
-            ovrSizei idealSize = ovr_GetFovTextureSize( m_session, (ovrEyeType)eye, hmdInfo.DefaultEyeFov[eye], 1.0f );
+            ovrSizei idealSize = ovr_GetFovTextureSize( g_session, (ovrEyeType)eye, hmdInfo.DefaultEyeFov[eye], 1.0f );
             description.idealResolution[eye] = { idealSize.w, idealSize.h };
         }
 

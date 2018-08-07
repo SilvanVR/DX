@@ -4,17 +4,13 @@
 
     author: S. Hau
     date: December 19, 2017
-
-    @Description:
-    - Creates all components
-      > For different component types the method can be overriden
 **********************************************************************/
 
-namespace Components {
+#include "Rendering/camera.h"
+#include "Rendering/i_render_component.hpp"
+#include "Rendering/i_light_component.h"
 
-    class Camera;
-    class IRenderComponent;
-    class ILightComponent;
+namespace Components {
 
     //**********************************************************************
     class ComponentManager
@@ -92,20 +88,14 @@ namespace Components {
     template <typename T>
     void ComponentManager::_Destroy( T* component )
     {
-        if constexpr( std::is_same<Camera, T>::value )
-        {
-            m_pCameras.erase( std::remove( m_pCameras.begin(), m_pCameras.end(), component ) );
-        }
+        if (auto c = dynamic_cast<Camera*>( component ))
+            m_pCameras.erase( std::remove( m_pCameras.begin(), m_pCameras.end(), c ) );
 
-        if constexpr( std::is_base_of<IRenderComponent, T>::value )
-        {
-            m_pRenderer.erase( std::remove( m_pRenderer.begin(), m_pRenderer.end(), component ) );
-        }
+        if (auto r = dynamic_cast<IRenderComponent*>( component ))
+            m_pRenderer.erase( std::remove( m_pRenderer.begin(), m_pRenderer.end(), r) );
 
-        if constexpr( std::is_base_of<ILightComponent, T>::value )
-        {
-            m_pLights.erase( std::remove(m_pLights.begin(), m_pLights.end(), component ) );
-        }
+        if (auto l = dynamic_cast<ILightComponent*>( component ))
+            m_pLights.erase( std::remove( m_pLights.begin(), m_pLights.end(), l ) );
     }
 
 }

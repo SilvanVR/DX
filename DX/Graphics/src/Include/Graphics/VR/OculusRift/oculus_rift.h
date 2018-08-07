@@ -18,6 +18,21 @@
 
 namespace Graphics { namespace VR {
 
+    //----------------------------------------------------------------------
+    // @Return: True when LibOVR has been initialized.
+    //----------------------------------------------------------------------
+    bool OVRIsInitialized();
+
+    //----------------------------------------------------------------------
+    // @Return: Connected OvrControllerType OR'ed together
+    //----------------------------------------------------------------------
+    U32 GetConnectedController();
+
+    //----------------------------------------------------------------------
+    // @Return: Struct describing current input state from controller input.
+    //----------------------------------------------------------------------
+    ovrInputState GetOVRInputState(ovrControllerType controllerType);
+
     //**********************************************************************
     class OculusSwapchain 
     {
@@ -83,7 +98,7 @@ namespace Graphics { namespace VR {
         // VRDevice Interface
         //----------------------------------------------------------------------
         bool    hasFocus() override;
-        void    clear(Color col) override { for (auto eye : {LeftEye, RightEye}) m_eyeBuffers[eye]->clear(m_session, col); }
+        void    clear(Color col) override;
         void    distortAndPresent(I64 frameIndex) override;
         void    calculateEyePosesAndTouch(I64 frameIndex) override;
         void    bindForRendering(Eye eye) override;
@@ -91,7 +106,6 @@ namespace Graphics { namespace VR {
         bool    isMounted() override;
 
     private:
-        ovrSession          m_session;
         ovrRecti            m_eyeRenderViewport[2];
         ovrEyeRenderDesc    m_eyeRenderDesc[2];
         ovrHmdDesc          m_HMDInfo;

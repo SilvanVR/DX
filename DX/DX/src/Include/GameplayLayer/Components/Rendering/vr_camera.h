@@ -36,6 +36,7 @@ namespace Components {
 
         //----------------------------------------------------------------------
         Components::Camera& getCameraForEye(Graphics::VR::Eye eye) { return *m_eyeCameras[eye]; }
+        F32 getWorldScale() const;
 
         //----------------------------------------------------------------------
         // @Params:
@@ -52,6 +53,9 @@ namespace Components {
         // @Return: Direction in which the HMD is facing in World Space
         //----------------------------------------------------------------------
         Math::Vec3 getLookDirection();
+
+        //----------------------------------------------------------------------
+        void setWorldScale(F32 newWorldScale);
 
         //----------------------------------------------------------------------
         // IComponent Interface
@@ -77,8 +81,11 @@ namespace Components {
     {
     public:
         VRTouch(Graphics::VR::Hand hand);
+        ~VRTouch();
 
     private:
+        Graphics::VR::Hand m_hand;
+
         NULL_COPY_AND_ASSIGN(VRTouch)
     };
 

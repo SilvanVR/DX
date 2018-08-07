@@ -340,6 +340,7 @@
     <ClCompile Include="src\Include\Assets\assimp_loader.cpp" />
     <ClCompile Include="src\Include\Assets\brdf_lut.cpp" />
     <ClCompile Include="src\Include\Assets\environment_map.cpp" />
+    <ClCompile Include="src\Include\Core\Input\devices\controller.cpp" />
     <ClCompile Include="src\Include\Core\mesh_generator.cpp" />
     <ClCompile Include="src\Include\Core\Audio\audio_clip.cpp" />
     <ClCompile Include="src\Include\Core\Audio\audio_manager.cpp" />
@@ -410,6 +411,7 @@
     <ClInclude Include="src\Include\Core\Audio\audio_manager.h" />
     <ClInclude Include="src\Include\Core\Audio\wav_clip.h" />
     <ClInclude Include="src\Include\Core\Input\channel_user.hpp" />
+    <ClInclude Include="src\Include\Core\Input\devices\controller.h" />
     <ClInclude Include="src\Include\Core\render_system.h" />
     <ClInclude Include="src\Include\GameplayLayer\Components\Rendering\i_light_component.h" />
     <ClInclude Include="src\Include\GameplayLayer\Components\Rendering\particle_system.h" />

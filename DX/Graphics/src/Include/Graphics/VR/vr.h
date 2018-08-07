@@ -84,13 +84,7 @@ namespace Graphics { namespace VR {
         virtual bool isMounted() = 0;
 
         //----------------------------------------------------------------------
-        // @Return: Struct describing current touch state.
-        //----------------------------------------------------------------------
-        //const Touch&                getTouch(Hand hand) const { return m_touch[(I32)hand]; }
-        //const std::array<Touch, 2>& getTouch()          const { return m_touch; }
-
-        //----------------------------------------------------------------------
-        // Changes the world scale. A larger values corresponds to experiencing a larger world
+        // Changes the world scale. A larger values corresponds to the perception of a larger world.
         //----------------------------------------------------------------------
         void setWorldScale(F32 newWorldScale) { m_worldScale = newWorldScale; }
 
