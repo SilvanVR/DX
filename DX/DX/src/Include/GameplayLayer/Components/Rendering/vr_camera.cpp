@@ -24,14 +24,6 @@ namespace Components {
     using namespace Graphics::VR;
 
     //----------------------------------------------------------------------
-    void HMDCallback( Camera* camera, Transform* transform, const Graphics::VR::EyePose& eyePose )
-    {
-        camera->setProjection( eyePose.projection );
-        transform->position = eyePose.position;
-        transform->rotation = eyePose.rotation;
-    }
-
-    //----------------------------------------------------------------------
     VRCamera::VRCamera( ScreenDisplay screenDisplay, Graphics::MSAASamples sampleCount, bool hdr )
     {
         ASSERT( RENDERER.hasHMD() && "Component requires an HMD but there is none available!" );
@@ -48,12 +40,11 @@ namespace Components {
                                                             DEPTH_STENCIL_FORMAT, hdr ? BUFFER_FORMAT_HDR : BUFFER_FORMAT_LDR,
                                                             sampleCount, false );
             m_eyeCameras[eye] = m_eyeGameObjects[eye]->addComponent<Components::Camera>( eyeBuffer );
+            m_eyeCameras[eye]->setProjection( hmd.getProjection( eye ) );
         }
 
-        // Register callback for retrieving HMDs data
-        hmd.setHMDCallback( [this]( Eye eye, const EyePose& eyePose ) {
-            HMDCallback( m_eyeCameras[eye], m_eyeGameObjects[eye]->getTransform(), eyePose );
-        } );
+        // Update transform data before every frame
+        m_frameBeginListener = Events::EventDispatcher::GetEvent( EVENT_FRAME_BEGIN ).addListener( BIND_THIS_FUNC_0_ARGS( &VRCamera::_OnFrameBegin ) );
 
         // Set which camera renders to screen
         setScreenDisplay( screenDisplay );
@@ -66,12 +57,6 @@ namespace Components {
         // Must be done here because the component is not yet attached to a gameobject in the constructor.
         for (auto eye : { LeftEye, RightEye })
             m_eyeGameObjects[eye]->getTransform()->setParent( go->getTransform() );
-    }
-
-    //----------------------------------------------------------------------
-    void VRCamera::shutdown()
-    {
-        RENDERER.getVRDevice().setHMDCallback( nullptr );
     }
 
     //----------------------------------------------------------------------
@@ -148,6 +133,19 @@ namespace Components {
     // PRIVATE
     //----------------------------------------------------------------------
 
+    //----------------------------------------------------------------------
+    void VRCamera::_OnFrameBegin()
+    {
+        auto& hmd = RENDERER.getVRDevice();
+        auto eyePoses = hmd.getEyePoses( Locator::getCoreEngine().getFrameCount() );
+        for (auto eye : { LeftEye, RightEye })
+        {
+            auto transform = m_eyeGameObjects[eye]->getTransform();
+            transform->position = eyePoses[eye].position;
+            transform->rotation = eyePoses[eye].rotation;
+        }
+    }
+
     //**********************************************************************
     // VRTouch
     //**********************************************************************
@@ -156,17 +154,14 @@ namespace Components {
     VRTouch::VRTouch( Graphics::VR::Hand hand )
         : m_hand( hand )
     {
-        RENDERER.getVRDevice().setTouchCallback( hand, [this]( const Touch& touch ) {
-            auto transform = this->getGameObject()->getTransform();
-            transform->position = touch.position;
-            transform->rotation = touch.rotation;
-        } );
-    }
+        // Update transform data before every frame
+        m_frameBeginListener = Events::EventDispatcher::GetEvent( EVENT_FRAME_BEGIN ).addListener( [this]() {
+            auto& touchPose = RENDERER.getVRDevice().getTouchPose( m_hand, Locator::getCoreEngine().getFrameCount() );
 
-    //----------------------------------------------------------------------
-    VRTouch::~VRTouch()
-    {
-        RENDERER.getVRDevice().setTouchCallback( m_hand, nullptr );
+            auto transform = getGameObject()->getTransform();
+            transform->position = touchPose.position;
+            transform->rotation = touchPose.rotation;
+        });
     }
 
     //**********************************************************************

@@ -91,43 +91,19 @@ namespace Graphics { namespace VR {
     //----------------------------------------------------------------------
 
     //----------------------------------------------------------------------
-    void OculusRift::calculateEyePosesAndTouch( I64 frameIndex )
+    DirectX::XMMATRIX OculusRift::getProjection( Eye eye ) const
     {
-        m_calculatedEyePoses = true;
+        ovrMatrix4f p = ovrMatrix4f_Projection( m_eyeRenderDesc[eye].Fov, 0.1f, 1000.0f, ovrProjection_LeftHanded );
+        auto proj = DirectX::XMMatrixSet( p.M[0][0], p.M[1][0], p.M[2][0], p.M[3][0],
+                                          p.M[0][1], p.M[1][1], p.M[2][1], p.M[3][1],
+                                          p.M[0][2], p.M[1][2], p.M[2][2], p.M[3][2],
+                                          p.M[0][3], p.M[1][3], p.M[2][3], p.M[3][3] );
+        return proj;
+    }
 
-        ovrPosef HmdToEyePose[2] = { m_eyeRenderDesc[0].HmdToEyePose, m_eyeRenderDesc[1].HmdToEyePose };
-        F64 ftiming = ovr_GetPredictedDisplayTime( g_session, frameIndex );
-        ovrTrackingState hmdState = ovr_GetTrackingState( g_session, ftiming, ovrTrue );
-
-        ovr_CalcEyePoses( hmdState.HeadPose.ThePose, HmdToEyePose, m_currentEyeRenderPose );
-
-        // HMD
-        for (auto eye : { LeftEye, RightEye })
-        {
-            ovrMatrix4f p = ovrMatrix4f_Projection( m_eyeRenderDesc[eye].Fov, 0.1f, 1000.0f, ovrProjection_LeftHanded );
-            auto proj = DirectX::XMMatrixSet( p.M[0][0], p.M[1][0], p.M[2][0], p.M[3][0],
-                                              p.M[0][1], p.M[1][1], p.M[2][1], p.M[3][1],
-                                              p.M[0][2], p.M[1][2], p.M[2][2], p.M[3][2],
-                                              p.M[0][3], p.M[1][3], p.M[2][3], p.M[3][3] );
-
-            EyePose eyePose;
-            eyePose.position = ConvertVec3( m_currentEyeRenderPose[eye].Position ) / m_worldScale;
-            eyePose.rotation = ConvertQuat( m_currentEyeRenderPose[eye].Orientation );
-            eyePose.projection = proj;
-            if (m_hmdCallback)
-                m_hmdCallback( eye, eyePose );
-        }
-
-        // Touch
-        for (auto hand : { Hand::Left, Hand::Right })
-        {
-            Touch touch;
-            touch.position = ConvertVec3( hmdState.HandPoses[(I32)hand].ThePose.Position ) / m_worldScale;
-            touch.rotation = ConvertQuat( hmdState.HandPoses[(I32)hand].ThePose.Orientation );
-            if (m_touchCallbacks[(I32)hand])
-                m_touchCallbacks[(I32)hand]( touch );
-        }
-
+    //----------------------------------------------------------------------
+    void OculusRift::_UpdateEyeAndTouchPoses( I64 frameIndex )
+    {
         // Focus check
         bool hasFocus = _HasFocus();
         if (m_hasFocus && not hasFocus)
@@ -140,6 +116,26 @@ namespace Graphics { namespace VR {
             m_hasFocus = true;
             Events::EventDispatcher::GetEvent( EVENT_HMD_FOCUS_GAINED ).invoke();
         }
+
+        ovrPosef HmdToEyePose[2] = { m_eyeRenderDesc[0].HmdToEyePose, m_eyeRenderDesc[1].HmdToEyePose };
+        F64 ftiming = ovr_GetPredictedDisplayTime( g_session, frameIndex );
+        ovrTrackingState hmdState = ovr_GetTrackingState( g_session, ftiming, ovrTrue );
+
+        ovr_CalcEyePoses( hmdState.HeadPose.ThePose, HmdToEyePose, m_currentEyeRenderPose );
+
+        // HMD
+        for (auto eye : { LeftEye, RightEye })
+        {
+            m_currentEyePoses[eye].position = ConvertVec3( m_currentEyeRenderPose[eye].Position ) / m_worldScale;
+            m_currentEyePoses[eye].rotation = ConvertQuat( m_currentEyeRenderPose[eye].Orientation );
+        }
+
+        // Touch
+        for (auto hand : { Hand::Left, Hand::Right })
+        {
+            m_currentTouchPoses[(I32)hand].position = ConvertVec3( hmdState.HandPoses[(I32)hand].ThePose.Position ) / m_worldScale;
+            m_currentTouchPoses[(I32)hand].rotation = ConvertQuat( hmdState.HandPoses[(I32)hand].ThePose.Orientation );
+        }
     }
 
     //----------------------------------------------------------------------
@@ -151,9 +147,8 @@ namespace Graphics { namespace VR {
     //----------------------------------------------------------------------
     void OculusRift::distortAndPresent( I64 frameIndex )
     {
-        if (not m_calculatedEyePoses)
+        if (m_currentFrameIndex != frameIndex)
             return;
-        m_calculatedEyePoses = false;
 
         ovrLayerEyeFov ld;
         ld.Header.Type = ovrLayerType_EyeFov;

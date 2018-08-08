@@ -38,5 +38,37 @@ namespace Graphics { namespace VR {
         return Device::Unknown;
     }
 
+    //----------------------------------------------------------------------
+    const std::array<Pose, 2>& HMD::getEyePoses( I64 frameIndex )
+    {
+        if (m_currentFrameIndex != frameIndex)
+        {
+            _UpdateEyeAndTouchPoses( frameIndex );
+            m_currentFrameIndex = frameIndex;
+        }
+        return m_currentEyePoses;
+    }
+
+    //----------------------------------------------------------------------
+    const std::array<Pose, 2>& HMD::getTouchPoses( I64 frameIndex )
+    {
+        if (m_currentFrameIndex != frameIndex)
+        {
+            _UpdateEyeAndTouchPoses( frameIndex );
+            m_currentFrameIndex = frameIndex;
+        }
+        return m_currentTouchPoses;
+    }
+
+    //----------------------------------------------------------------------
+    const Pose& HMD::getTouchPose( Hand hand, I64 frameIndex )
+    {
+        if (m_currentFrameIndex != frameIndex)
+        {
+            _UpdateEyeAndTouchPoses( frameIndex );
+            m_currentFrameIndex = frameIndex;
+        }
+        return m_currentTouchPoses[(I32)hand];
+    }
 
 } } // End namespaces

@@ -123,10 +123,6 @@ namespace Core {
         static const StringID TIME_NAME = SID( "_Time" );
         graphicsEngine.setGlobalFloat( TIME_NAME, (F32)TIME.getTime() );
 
-        // Update hmd state
-        if ( graphicsEngine.hasHMD() )
-            graphicsEngine.getVRDevice().calculateEyePosesAndTouch( m_frameCounter );
-
         Events::EventDispatcher::GetEvent( EVENT_FRAME_BEGIN ).invoke();
 
         RenderSystem::Instance().execute( lerp );

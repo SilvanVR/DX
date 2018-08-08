@@ -26,22 +26,11 @@ namespace Graphics { namespace VR {
     };
 
     //----------------------------------------------------------------------
-    struct EyePose
-    {
-        Math::Vec3 position;
-        Math::Quat rotation;
-        DirectX::XMMATRIX projection;
-    };
-
-    //----------------------------------------------------------------------
-    struct Touch
+    struct Pose
     {
         Math::Vec3 position;
         Math::Quat rotation;
     };
-
-    using HMDCallback   = std::function<void(Eye eye, const EyePose&)>;
-    using TouchCallback = std::function<void(const Touch&)>;
 
     //----------------------------------------------------------------------
     // @Return: The first supported HMD on this system and initializes the corresponding library.
@@ -60,8 +49,23 @@ namespace Graphics { namespace VR {
         //----------------------------------------------------------------------
         const HMDDescription&   getDescription()            const { return m_description; }
         F32                     getWorldScale()             const { return m_worldScale; }
-        const HMDCallback&      getHMDCallback()            const { return m_hmdCallback; }
-        const TouchCallback&    getTouchCallback(Hand hand) const { return m_touchCallbacks[(I32)hand]; }
+
+        //----------------------------------------------------------------------
+        // @Params:
+        //  "frameIndex": Used if rendering happens on another thread than the main thread.
+        // @Return:
+        //  Current eye poses for both eyes.
+        //----------------------------------------------------------------------
+        const std::array<Pose, 2>& getEyePoses(I64 frameIndex);
+
+        //----------------------------------------------------------------------
+        // @Params:
+        //  "frameIndex": Used if rendering happens on another thread than the main thread.
+        // @Return:
+        //  Current touch poses for both touch controller.
+        //----------------------------------------------------------------------
+        const Pose& getTouchPose(Hand hand, I64 frameIndex);
+        const std::array<Pose, 2>& getTouchPoses(I64 frameIndex);
 
         //----------------------------------------------------------------------
         // @Return: True, when app has focus e.g. oculus dash is not opened.
@@ -74,11 +78,9 @@ namespace Graphics { namespace VR {
         virtual bool good() const = 0;
 
         //----------------------------------------------------------------------
-        // Calculates the current eye poses and calls the registered callbacks.
-        // @Params:
-        //  "frameIndex": Used if rendering happens on another thread than the main thread.
+        // @Return: Projection matrix for the given eye.
         //----------------------------------------------------------------------
-        virtual void calculateEyePosesAndTouch(I64 frameIndex) = 0;
+        virtual DirectX::XMMATRIX getProjection(Eye eye) const = 0;
 
         //----------------------------------------------------------------------
         // Disables/Enables the performance hud with the given mode.
@@ -95,24 +97,16 @@ namespace Graphics { namespace VR {
         //----------------------------------------------------------------------
         void setWorldScale(F32 newWorldScale) { m_worldScale = newWorldScale; }
 
-        //----------------------------------------------------------------------
-        // Set the eye callback for retrieving position, orientation & projection.
-        //----------------------------------------------------------------------
-        void setHMDCallback(const HMDCallback& cb) { m_hmdCallback = cb; }
-
-        //----------------------------------------------------------------------
-        // Set the touch callback for retrieving position & orientation.
-        //----------------------------------------------------------------------
-        void setTouchCallback(Hand hand, const TouchCallback& cb) { m_touchCallbacks[(I32)hand] = cb; }
-
     protected:
         HMDDescription          m_description;
-        F32                     m_worldScale = 1.0f;
-        HMDCallback             m_hmdCallback;
-        TouchCallback           m_touchCallbacks[2];
         bool                    m_hasFocus = true;
+        std::array<Pose, 2>     m_currentEyePoses;
+        std::array<Pose, 2>     m_currentTouchPoses;
+        F32                     m_worldScale = 1.0f;
+        I64                     m_currentFrameIndex; // Used to keep track the last time poses were calculated
 
     private:
+
         friend class D3D11Renderer;
         friend class VulkanRenderer;
 
@@ -130,6 +124,11 @@ namespace Graphics { namespace VR {
         // Bind the next texture in the swapchain to the OM for the given eye.
         //----------------------------------------------------------------------
         virtual void bindForRendering(Eye eye) = 0;
+
+        //----------------------------------------------------------------------
+        // Updates the current eye & touch-poses.
+        //----------------------------------------------------------------------
+        virtual void _UpdateEyeAndTouchPoses(I64 frameIndex) = 0;
 
         NULL_COPY_AND_ASSIGN(HMD)
     };

@@ -168,10 +168,10 @@
     <ClCompile Include="src\Include\GameplayLayer\Components\Rendering\particle_system.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Include\GameplayLayer\Components\Rendering\vr_camera.cpp">
+    <ClCompile Include="src\Include\Core\Input\devices\controller.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Include\Core\Input\devices\controller.cpp">
+    <ClCompile Include="src\Include\GameplayLayer\Components\Rendering\vr_camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

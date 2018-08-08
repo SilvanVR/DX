@@ -222,7 +222,7 @@ namespace Graphics {
 
         // Present rendered images
         bool vsync = m_vsync;
-        if ( hasHMD() && m_hmd->isMounted() )
+        if ( hasHMD() )
         {
             vsync = false;
             m_hmd->distortAndPresent( m_frameCount );

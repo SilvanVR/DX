@@ -97,13 +97,13 @@ namespace Graphics { namespace VR {
         //----------------------------------------------------------------------
         // VRDevice Interface
         //----------------------------------------------------------------------
-        bool    good() const override;
-        void    clear(Color col) override;
-        void    distortAndPresent(I64 frameIndex) override;
-        void    calculateEyePosesAndTouch(I64 frameIndex) override;
-        void    bindForRendering(Eye eye) override;
-        void    setPerformanceHUD(PerfHudMode mode) override;
-        bool    isMounted() override;
+        bool                    good() const override;
+        void                    clear(Color col) override;
+        void                    distortAndPresent(I64 frameIndex) override;
+        DirectX::XMMATRIX       getProjection(Eye eye) const override;
+        void                    bindForRendering(Eye eye) override;
+        void                    setPerformanceHUD(PerfHudMode mode) override;
+        bool                    isMounted() override;
 
     private:
         ovrRecti            m_eyeRenderViewport[2];
@@ -111,13 +111,13 @@ namespace Graphics { namespace VR {
         ovrHmdDesc          m_HMDInfo;
         ovrPosef            m_currentEyeRenderPose[2];
         OculusSwapchain*    m_eyeBuffers[2];
-        bool                m_calculatedEyePoses = false;
 
         //----------------------------------------------------------------------
         bool _CreateSession();
         void _CreateEyeBuffers(API api, const ovrHmdDesc& hmdInfo);
         void _SetupDescription(const ovrHmdDesc& hmdInfo);
         bool _HasFocus();
+        void _UpdateEyeAndTouchPoses(I64 frameIndex);
 
         NULL_COPY_AND_ASSIGN(OculusRift)
     };

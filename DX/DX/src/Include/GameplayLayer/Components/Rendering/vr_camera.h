@@ -61,13 +61,14 @@ namespace Components {
         // IComponent Interface
         //----------------------------------------------------------------------
         void addedToGameObject(GameObject* go) override;
-        void shutdown() override;
         void setActive(bool active);
 
     private:
-        GameObject*         m_eyeGameObjects[2];
-        Components::Camera* m_eyeCameras[2];
-        Events::ListenerID  m_frameEvtListenerID;
+        GameObject*             m_eyeGameObjects[2];
+        Components::Camera*     m_eyeCameras[2];
+        Events::EventListener   m_frameBeginListener;
+
+        void _OnFrameBegin();
 
         NULL_COPY_AND_ASSIGN(VRCamera)
     };
@@ -81,10 +82,11 @@ namespace Components {
     {
     public:
         VRTouch(Graphics::VR::Hand hand);
-        ~VRTouch();
+        ~VRTouch() = default;
 
     private:
         Graphics::VR::Hand m_hand;
+        Events::EventListener m_frameBeginListener;
 
         NULL_COPY_AND_ASSIGN(VRTouch)
     };
