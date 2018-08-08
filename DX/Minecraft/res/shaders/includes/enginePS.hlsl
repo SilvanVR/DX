@@ -21,7 +21,6 @@
 #define SHADOW_TYPE_SOFT			2
 #define SHADOW_TYPE_CSM				3
 #define SHADOW_TYPE_CSM_SOFT		4
-#define SHADOW_BIAS					0.05
 
 cbuffer cbPerCamera : register(b0)
 {	
@@ -133,7 +132,7 @@ float PoisonDiskSampling( float currentDepth, float2 uv, int shadowMapIndex, flo
 	float invisibleSamples = 0;
 	for (int i=0; i<POISSON_DISK_SAMPLES; ++i){
 		float depthSample = SAMPLE_SHADOWMAP_2D( shadowMapIndex, uv + poissonDisk[i]/spacing );
-		if ( currentDepth > (depthSample + SHADOW_BIAS) )
+		if ( currentDepth > depthSample )
 			invisibleSamples++;
 	}	
 	return invisibleSamples / POISSON_DISK_SAMPLES;	
@@ -155,7 +154,7 @@ float CALCULATE_SHADOW_DIR( float3 P, float shadowDistance, int shadowMapIndex )
 		float currentDepth = projCoords.z;		
 		float depthSample = SAMPLE_SHADOWMAP_2D( shadowMapIndex, uv );
 				
-		shadow = currentDepth > (depthSample + SHADOW_BIAS) ? 1.0 : 0.0;	
+		shadow = currentDepth > depthSample ? 1.0 : 0.0;	
 				
 		// Transition factor: 0 to 1 from [SHADOW-DISTANCE-TRANSITION, SHADOW-DISTANCE]
 		float distanceToCamera = length(P - _CameraPos);

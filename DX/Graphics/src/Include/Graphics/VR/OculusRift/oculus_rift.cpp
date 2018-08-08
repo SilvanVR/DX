@@ -117,10 +117,11 @@ namespace Graphics { namespace VR {
             Events::EventDispatcher::GetEvent( EVENT_HMD_FOCUS_GAINED ).invoke();
         }
 
-        ovrPosef HmdToEyePose[2] = { m_eyeRenderDesc[0].HmdToEyePose, m_eyeRenderDesc[1].HmdToEyePose };
+        ovr_WaitToBeginFrame( g_session, frameIndex );
         F64 ftiming = ovr_GetPredictedDisplayTime( g_session, frameIndex );
         ovrTrackingState hmdState = ovr_GetTrackingState( g_session, ftiming, ovrTrue );
 
+        ovrPosef HmdToEyePose[2] = { m_eyeRenderDesc[0].HmdToEyePose, m_eyeRenderDesc[1].HmdToEyePose };
         ovr_CalcEyePoses( hmdState.HeadPose.ThePose, HmdToEyePose, m_currentEyeRenderPose );
 
         // HMD
@@ -136,6 +137,7 @@ namespace Graphics { namespace VR {
             m_currentTouchPoses[(I32)hand].position = ConvertVec3( hmdState.HandPoses[(I32)hand].ThePose.Position ) / m_worldScale;
             m_currentTouchPoses[(I32)hand].rotation = ConvertQuat( hmdState.HandPoses[(I32)hand].ThePose.Orientation );
         }
+        ovr_BeginFrame( g_session, frameIndex );
     }
 
     //----------------------------------------------------------------------
@@ -168,7 +170,7 @@ namespace Graphics { namespace VR {
         viewScaleDesc.HmdToEyePose[1] = m_eyeRenderDesc[1].HmdToEyePose;
 
         ovrLayerHeader* layers = &ld.Header;
-        ovrResult result = ovr_SubmitFrame( g_session, frameIndex, &viewScaleDesc, &layers, 1 );
+        ovrResult result = ovr_EndFrame( g_session, frameIndex, &viewScaleDesc, &layers, 1 );
 
         if (result == ovrError_DisplayLost)
             LOG_WARN_RENDERING( "OculusRift: HMD was disconnected from the computer." );

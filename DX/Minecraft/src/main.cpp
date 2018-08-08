@@ -12,7 +12,7 @@
     of an chunk has been finished. This causes the player to fall for a moment).
 **********************************************************************/
 
-#define USE_VR                  0
+#define USE_VR                  1
 #define DISPLAY_CONSOLE         1
 #define DEBUG_HUD               1
 #define CHUNKS_VIEW_DISTANCE    16
@@ -429,7 +429,7 @@ public:
         }
 
 #if USE_VR
-        _CalculateMovementUSE_VR((F32)delta.value);
+        _CalculateMovementVR((F32)delta.value);
 #else
         _CalculateMovement((F32)delta.value);
 #endif
@@ -493,7 +493,7 @@ public:
         });
     }
 
-    void _CalculateMovementUSE_VR(F32 delta)
+    void _CalculateMovementVR(F32 delta)
     {
         static Math::Vec3 playerVelocity;
 
@@ -598,12 +598,12 @@ public:
     void addedToGameObject(GameObject* go) override
     {
 #if USE_VR
-        dirLight = go->addComponent<Components::DirectionalLight>(0.75f, Color::WHITE, Graphics::ShadowType::None);
+        //dirLight = go->addComponent<Components::DirectionalLight>(0.75f, Color::WHITE, Graphics::ShadowType::None);
 #else
-        ArrayList<F32> splitRanges{5.0f, 20.0f, 70.0f, 200.0f};
-        dirLight = go->addComponent<Components::DirectionalLight>(0.75f, Color::WHITE, Graphics::ShadowType::CSM, splitRanges);
 #endif
-        dirLight->setShadowMapQuality(Graphics::ShadowMapQuality::High);
+        ArrayList<F32> splitRanges{5.0f, 20.0f, 70.0f, 200.0f};
+        dirLight = go->addComponent<Components::DirectionalLight>(0.75f, Color::WHITE, Graphics::ShadowType::CSMSoft, splitRanges);
+        dirLight->setShadowMapQuality(Graphics::ShadowMapQuality::Insane);
         dirLight->setShadowRange(50.0f);
 
         go->getTransform()->rotation = Math::Quat::LookRotation( Math::Vec3{ 0, -1, 0 }, Math::Vec3::RIGHT );

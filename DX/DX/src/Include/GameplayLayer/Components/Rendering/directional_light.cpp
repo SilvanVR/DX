@@ -199,8 +199,8 @@ namespace Components {
     {
         // Calculate frustum corners in world space
         auto mainCameraTransform = mainCamera->getGameObject()->getTransform();
-        auto mainCameraFrustumCornersWS = Math::CalculateFrustumCorners( mainCameraTransform->position, 
-                                                                         mainCameraTransform->rotation, 
+        auto mainCameraFrustumCornersWS = Math::CalculateFrustumCorners( mainCameraTransform->getWorldPosition(), 
+                                                                         mainCameraTransform->getWorldRotation(), 
                                                                          mainCamera->getFOV(), 
                                                                          zNear, zFar,
                                                                          mainCamera->getAspectRatio() );

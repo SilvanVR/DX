@@ -103,7 +103,7 @@ namespace Graphics { namespace VR {
         std::array<Pose, 2>     m_currentEyePoses;
         std::array<Pose, 2>     m_currentTouchPoses;
         F32                     m_worldScale = 1.0f;
-        I64                     m_currentFrameIndex; // Used to keep track the last time poses were calculated
+        I64                     m_currentFrameIndex = -1; // Used to keep track the last time poses were calculated
 
     private:
 
