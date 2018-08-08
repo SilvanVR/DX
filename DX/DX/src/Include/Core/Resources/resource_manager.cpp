@@ -25,7 +25,7 @@ namespace Core { namespace Resources {
     {
         // Register to resize window event
         Events::Event& evt = Events::EventDispatcher::GetEvent( EVENT_WINDOW_RESIZE );
-        evt.addListener( BIND_THIS_FUNC_0_ARGS( &ResourceManager::_OnWindowSizeChanged ) );
+        m_windowResizeListener = evt.addListener( BIND_THIS_FUNC_0_ARGS( &ResourceManager::_OnWindowSizeChanged ) );
     }
 
     //----------------------------------------------------------------------

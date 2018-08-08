@@ -10,7 +10,7 @@
 
 //----------------------------------------------------------------------
 GameObject::GameObject( IScene* scene, CString name )
-    : m_attachedScene( scene ), m_name( name ) 
+    : m_attachedScene( scene ), m_name( name, true ) 
 {
 }
 

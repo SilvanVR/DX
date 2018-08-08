@@ -153,7 +153,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="src\Include\Common\enum_class_operators.hpp" />
-    <ClInclude Include="src\Include\Events\event.hpp" />
+    <ClInclude Include="src\Include\Events\event.h" />
     <ClInclude Include="src\Include\Events\event_dispatcher.h" />
     <ClInclude Include="src\Include\Events\event_names.hpp" />
     <ClInclude Include="src\Include\Math\aabb.h" />
@@ -207,6 +207,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Include\Common\string.cpp" />
+    <ClCompile Include="src\Include\Events\event.cpp" />
     <ClCompile Include="src\Include\Events\event_dispatcher.cpp" />
     <ClCompile Include="src\Include\Logging\logging.cpp" />
     <ClCompile Include="src\Include\Logging\Console\console.cpp" />

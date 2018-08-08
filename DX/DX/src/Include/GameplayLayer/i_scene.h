@@ -37,12 +37,22 @@ public:
     Components::ComponentManager&       getComponentManager()         { return m_componentManager; }
 
     //----------------------------------------------------------------------
+    // Creates a new gameobject with the given name in this scene.
+    //----------------------------------------------------------------------
     GameObject*     createGameObject(CString name = "NO NAME");
+
+    //----------------------------------------------------------------------
+    // Delete the given gameobject AND all his childs from this scene.
+    //----------------------------------------------------------------------
     void            destroyGameObject(GameObject* go);
+
+    //----------------------------------------------------------------------
+    // @Return: First gameobject with the given name.
+    //----------------------------------------------------------------------
     GameObject*     findGameObject(CString name);
 
     //----------------------------------------------------------------------
-    // Returns the first camera component which renders to the screen.
+    // Returns the first camera component which renders to the screen/hmd.
     //----------------------------------------------------------------------
     Components::Camera* getMainCamera();
 

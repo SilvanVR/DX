@@ -11,6 +11,7 @@
 #include "forward_declarations.hpp"
 #include "Common/i_subsystem.hpp"
 #include "OS/Window/window.h"
+#include "Events/event.h"
 #include "structs.hpp"
 
 namespace Graphics {
@@ -112,6 +113,7 @@ namespace Graphics {
         bool                        m_vsync = false;
         GPUDescription              m_gpuDescription;
         VR::HMD*                    m_hmd = nullptr;
+        Events::EventListener       m_windowResizeListener;
 
         //----------------------------------------------------------------------
         void _LockQueue();

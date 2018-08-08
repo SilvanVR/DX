@@ -48,6 +48,9 @@ GameObject* IScene::createGameObject( CString name )
 //----------------------------------------------------------------------
 void IScene::destroyGameObject( GameObject* go )
 {
+    for (auto child : go->getTransform()->getChildren())
+        destroyGameObject( child->getGameObject() );
+
     m_gameObjects.erase( std::remove( m_gameObjects.begin(), m_gameObjects.end(), go ), m_gameObjects.end() );
     SAFE_DELETE( go );
 }

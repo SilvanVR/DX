@@ -26,7 +26,7 @@ namespace Core { namespace Debug {
 
         // Register to switch scene event
         Events::Event& evt = Events::EventDispatcher::GetEvent( EVENT_SCENE_CHANGED );
-        evt.addListener( BIND_THIS_FUNC_0_ARGS( &DebugManager::_OnSceneChanged ) );
+        m_sceneSwitchListener = evt.addListener( BIND_THIS_FUNC_0_ARGS( &DebugManager::_OnSceneChanged ) );
 
         // Create both shaders with / withot depth-test
         m_colorShaderWireframe = ASSETS.getShader( "/engine/shaders/color_wireframe.shader" );

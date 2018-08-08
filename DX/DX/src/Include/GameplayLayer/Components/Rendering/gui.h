@@ -12,6 +12,7 @@
 #include "Core/Input/listener/input_listener.h"
 #include "Graphics/forward_declarations.hpp"
 #include "Ext/ImGUI/imgui.h"
+#include "Events/event.h"
 
 namespace ImGui
 {
@@ -150,6 +151,7 @@ namespace Components {
         ImGUIMaterialCache();
 
         HashMap<Size, MaterialPtr> m_cachedMaterials;
+        Events::EventListener m_gameShutdownListener;
 
         void _OnGameShutdown();
     };

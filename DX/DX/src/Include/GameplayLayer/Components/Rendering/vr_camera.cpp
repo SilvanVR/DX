@@ -72,9 +72,6 @@ namespace Components {
     void VRCamera::shutdown()
     {
         RENDERER.getVRDevice().setHMDCallback( nullptr );
-        auto scene = getGameObject()->getScene();
-        for (auto eye : { LeftEye, RightEye })
-            scene->destroyGameObject( m_eyeGameObjects[eye] );
     }
 
     //----------------------------------------------------------------------
@@ -186,11 +183,11 @@ namespace Components {
             m_handGameObject[(I32)hand]->addComponent<Components::MeshRenderer>( mesh, material );
         }
 
-        Events::EventDispatcher::GetEvent( EVENT_HMD_FOCUS_GAINED ).addListener([this]{
+        m_hmdFocusGainedListener = Events::EventDispatcher::GetEvent( EVENT_HMD_FOCUS_GAINED ).addListener([this]{
             for (auto hand : { Hand::Left, Hand::Right })
                 m_handGameObject[(I32)hand]->setActive( true );
         });
-        Events::EventDispatcher::GetEvent( EVENT_HMD_FOCUS_LOST ).addListener([this] {
+        m_hmdFocusLostListener = Events::EventDispatcher::GetEvent( EVENT_HMD_FOCUS_LOST ).addListener([this] {
             for (auto hand : { Hand::Left, Hand::Right })
                 m_handGameObject[(I32)hand]->setActive( false );
         });
@@ -212,14 +209,6 @@ namespace Components {
     {
         for (auto hand : { Hand::Left, Hand::Right })
             m_handGameObject[(I32)hand]->getTransform()->setParent( go->getTransform(), false );
-    }
-
-    //----------------------------------------------------------------------
-    void VRBasicTouch::shutdown()
-    {
-        auto scene = getGameObject()->getScene();
-        for (auto hand : { Hand::Left, Hand::Right })
-            scene->destroyGameObject( m_handGameObject[(I32)hand] );
     }
 
 }

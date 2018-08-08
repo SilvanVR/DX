@@ -1,6 +1,6 @@
 #pragma once
 /**********************************************************************
-    class: Event (event.h)
+    class: Event
 
     author: S. Hau
     date: April 2, 2018
@@ -9,6 +9,29 @@
 namespace Events {
 
     using ListenerID = U32;
+
+    class Event;
+
+    //**********************************************************************
+    // RAII Listener. Solely for unsubscribing from the corresponding event in the destructor.
+    //**********************************************************************
+    class EventListener
+    {
+        static const ListenerID NULL_ID = 0;
+    public:
+        EventListener() = default;
+        ~EventListener();
+
+        EventListener(EventListener&& other) { id = other.id; evt = other.evt; other.id = NULL_ID; other.evt = nullptr; }
+        EventListener& operator = (EventListener&& other) { id = other.id; evt = other.evt; other.id = NULL_ID; other.evt = nullptr; return *this; }
+
+    private:
+        friend class Event;
+        EventListener(ListenerID id, Event* evt) : id(id), evt(evt) {}
+
+        ListenerID  id = NULL_ID;
+        Event*      evt = nullptr;
+    };
 
     //**********************************************************************
     class Event {
@@ -20,34 +43,17 @@ namespace Events {
         //----------------------------------------------------------------------
         // Add a new listener function to this event
         //----------------------------------------------------------------------
-        ListenerID addListener(const std::function<void()>& listener) 
-        {
-            static ListenerID NEXT_ID = 0; 
-
-            ListenerID nextID = NEXT_ID;
-            m_listener.push_back({ nextID, listener });
-            ++NEXT_ID;
-
-            return nextID;
-        }
+        EventListener addListener(const std::function<void()>& listener);
 
         //----------------------------------------------------------------------
         // Remove a listener function from this event
         //----------------------------------------------------------------------
-        void removeListener(ListenerID listenerID)
-        { 
-            m_listener.erase( std::remove_if( m_listener.begin(), m_listener.end(), 
-                                             [listenerID](const Listener& l) { return l.id == listenerID; }), m_listener.end() );
-        }
+        void removeListener(const EventListener& listener);
 
         //----------------------------------------------------------------------
         // Call all functions which are attached to this event
         //----------------------------------------------------------------------
-        void invoke() const
-        {
-            for (auto& listener : m_listener)
-                listener.func();
-        }
+        void invoke() const;
 
     private:
         StringID m_name;
@@ -60,10 +66,7 @@ namespace Events {
         ArrayList<Listener> m_listener;
 
         //----------------------------------------------------------------------
-        Event(const Event& other)                 = delete;
-        Event& operator = (const Event& other)    = delete;
-        Event(Event&& other)                      = delete;
-        Event& operator = (Event&& other)         = delete;
+        NULL_COPY_AND_ASSIGN(Event)
     };
 
 }

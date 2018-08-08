@@ -25,7 +25,7 @@ class TestScene : public IScene
     Components::Camera* cam;
     GameObject* go;
 
-    Components::VRCamera* vrCam;
+    GameObject* test;
 
 public:
     TestScene() : IScene("TestScene") {}
@@ -34,7 +34,7 @@ public:
     {
         // Camera 1
         go = createGameObject("Camera");
-        go->addComponent<Components::Camera>();
+        cam = go->addComponent<Components::Camera>();
         go->getComponent<Components::Transform>()->position = Math::Vec3(0, 1, -5);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 0.1f);
         go->addComponent<Components::AudioListener>();
@@ -129,7 +129,7 @@ public:
         Locator::getRenderer().setGlobalFloat(SID("_Ambient"), 0.5f);
 
         //Locator::getSceneManager().LoadSceneAsync(new SceneGUISelectSceneMenu());
-        Locator::getSceneManager().LoadSceneAsync(new VRScene());
+        Locator::getSceneManager().LoadSceneAsync(new TestScene());
     }
 
     //----------------------------------------------------------------------
@@ -157,6 +157,7 @@ public:
                 auto mainCamera = SCENE.getMainCamera();
                 if (not mainCamera->isBlittingToHMD())
                 {
+                    // Disable main camera and fps moving script
                     bool isActive = mainCamera->isActive();
                     mainCamera->setActive(not isActive);
 
@@ -164,20 +165,24 @@ public:
                     if (auto fpsMovScript = go->getComponent<Components::FPSCamera>())
                         fpsMovScript->setActive(not isActive);
 
-                    auto vrCamera = go->getComponent<Components::VRCamera>();
-                    if (not vrCamera)
+                    // Create/Destroy VRCamera 
+                    static GameObject* vrCamGO = nullptr;
+                    if (not vrCamGO)
                     {
-                        go->getTransform()->rotation.x = go->getTransform()->rotation.z = 0;
-                        go->addComponent<Components::VRCamera>(Components::ScreenDisplay::LeftEye);
-                        go->addComponent<Components::VRFPSCamera>();
-                        go->addComponent<Components::VRBasicTouch>(Core::MeshGenerator::CreateCubeUV(0.1f), ASSETS.getMaterial("/materials/blinn_phong/cube.material"));
-                        //go->addComponent<PostProcess>(ASSETS.getMaterial("/materials/post processing/color_grading.material"));
+                        vrCamGO = SCENE.createGameObject("VRCamera");
+                        vrCamGO->getTransform()->position = go->getTransform()->position;
+                        vrCamGO->addComponent<Components::VRCamera>(Components::ScreenDisplay::LeftEye);
+                        vrCamGO->addComponent<Components::VRFPSCamera>();
+                        vrCamGO->addComponent<Components::VRBasicTouch>(Core::MeshGenerator::CreateCubeUV(0.1f), ASSETS.getMaterial("/materials/blinn_phong/cube.material"));
+                        //vrCamGO->addComponent<PostProcess>(ASSETS.getMaterial("/materials/post processing/color_grading.material"));
                     }
                     else
                     {
-                        go->removeComponent<Components::VRCamera>();
-                        go->removeComponent<Components::VRFPSCamera>();
-                        go->removeComponent<Components::VRBasicTouch>();
+                        vrCamGO->removeComponent<Components::VRCamera>();
+                        vrCamGO->removeComponent<Components::VRFPSCamera>();
+                        vrCamGO->removeComponent<Components::VRBasicTouch>();
+                        vrCamGO->getScene()->destroyGameObject( vrCamGO );
+                        vrCamGO = nullptr;
                     }
                 }
             }

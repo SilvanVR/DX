@@ -6,7 +6,7 @@
     date: April 2, 2018
 **********************************************************************/
 
-#include "event.hpp"
+#include "event.h"
 #include "event_names.hpp"
 
 namespace Events {
@@ -31,11 +31,7 @@ namespace Events {
     private:
         static HashMap<StringID, Event> m_eventMap;
 
-        //----------------------------------------------------------------------
-        EventDispatcher(const EventDispatcher& other)                 = delete;
-        EventDispatcher& operator = (const EventDispatcher& other)    = delete;
-        EventDispatcher(EventDispatcher&& other)                      = delete;
-        EventDispatcher& operator = (EventDispatcher&& other)         = delete;
+        NULL_COPY_AND_ASSIGN(EventDispatcher)
     };
 
 }

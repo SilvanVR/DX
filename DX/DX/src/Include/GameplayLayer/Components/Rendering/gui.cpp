@@ -363,7 +363,7 @@ namespace Components {
     //----------------------------------------------------------------------
     ImGUIMaterialCache::ImGUIMaterialCache()
     {
-        Events::EventDispatcher::GetEvent( EVENT_GAME_SHUTDOWN ).addListener( BIND_THIS_FUNC_0_ARGS( &ImGUIMaterialCache::_OnGameShutdown ) );
+        m_gameShutdownListener = Events::EventDispatcher::GetEvent( EVENT_GAME_SHUTDOWN ).addListener( BIND_THIS_FUNC_0_ARGS( &ImGUIMaterialCache::_OnGameShutdown ) );
     }
 
     //----------------------------------------------------------------------

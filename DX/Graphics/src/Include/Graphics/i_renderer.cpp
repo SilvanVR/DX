@@ -20,7 +20,7 @@ namespace Graphics {
     { 
         // Register to resize window event
         Events::Event& evt = Events::EventDispatcher::GetEvent( EVENT_WINDOW_RESIZE );
-        evt.addListener( BIND_THIS_FUNC_0_ARGS( &IRenderer::_OnWindowSizeChanged ) );
+        m_windowResizeListener = evt.addListener( BIND_THIS_FUNC_0_ARGS( &IRenderer::_OnWindowSizeChanged ) );
 
         ASSERT( window != nullptr );
         addGlobalMaterial( "NONE", nullptr );

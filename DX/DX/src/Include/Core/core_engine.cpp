@@ -142,9 +142,8 @@ namespace Core {
     //----------------------------------------------------------------------
     void CoreEngine::_Shutdown()
     {
-        // Invoke game end event and clear all listener after that
+        // Invoke game end event
         Events::EventDispatcher::GetEvent( EVENT_GAME_SHUTDOWN ).invoke();
-        Events::EventDispatcher::Clear();
 
         // Deinitialize game class
         shutdown();

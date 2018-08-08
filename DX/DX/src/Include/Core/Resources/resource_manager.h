@@ -23,6 +23,7 @@
 #include "Graphics/i_cubemap.hpp"
 #include "Graphics/i_texture2d_array.hpp"
 #include "Core/Audio/audio_clip.h"
+#include "Events/event.h"
 
 namespace Core { namespace Resources {
 
@@ -154,6 +155,8 @@ namespace Core { namespace Resources {
         ArrayList<Graphics::Texture*>           m_textures;
         ArrayList<Graphics::RenderTexture*>     m_renderTextures;
         ArrayList<Audio::AudioClip*>            m_audioClips;
+
+        Events::EventListener m_windowResizeListener;
 
         //----------------------------------------------------------------------
         void _DeleteTexture(Graphics::Texture* tex);

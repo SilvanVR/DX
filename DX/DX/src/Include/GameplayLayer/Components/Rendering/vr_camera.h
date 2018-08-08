@@ -7,7 +7,7 @@
 **********************************************************************/
 
 #include "../i_component.h"
-#include "Events/event.hpp"
+#include "Events/event.h"
 #include "Graphics/enums.hpp"
 #include "Graphics/forward_declarations.hpp"
 
@@ -102,10 +102,11 @@ namespace Components {
         // IComponent Interface
         //----------------------------------------------------------------------
         void addedToGameObject(GameObject* go) override;
-        void shutdown() override;
 
     private:
         GameObject* m_handGameObject[2];
+        Events::EventListener m_hmdFocusGainedListener;
+        Events::EventListener m_hmdFocusLostListener;
 
         NULL_COPY_AND_ASSIGN(VRBasicTouch)
     };

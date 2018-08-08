@@ -8,6 +8,7 @@
 
 #include "Common/i_subsystem.hpp"
 #include "Graphics/command_buffer.h"
+#include "Events/event.h"
 #include "Math/aabb.h"
 
 class IScene;
@@ -77,6 +78,9 @@ namespace Core { namespace Debug {
             bool            depthTest;
         };
         HashMap<IScene*, ArrayList<MeshInfo>> m_currentMeshes;
+
+        // Scene switch event listener
+        Events::EventListener m_sceneSwitchListener;
 
         //----------------------------------------------------------------------
         void _OnSceneChanged();
