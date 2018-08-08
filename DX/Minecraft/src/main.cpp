@@ -12,7 +12,9 @@
     of an chunk has been finished. This causes the player to fall for a moment).
 **********************************************************************/
 
+#define USE_VR                  0
 #define DISPLAY_CONSOLE         1
+#define DEBUG_HUD               1
 #define CHUNKS_VIEW_DISTANCE    16
 
 #include "World/world_generator.h"
@@ -28,6 +30,7 @@
 #define ACTION_NAME_DIG     "dig"
 #define ACTION_NAME_PLACE   "place"
 #define ACTION_NAME_JUMP    "jump"
+#define ACTION_NAME_RUN     "run"
 
 static const F32 GRAVITY = -0.7f;
 
@@ -147,37 +150,52 @@ public:
 
     void addedToGameObject(GameObject* go) override
     {
-        previewBlock = go->getScene()->createGameObject();
+        previewBlock = go->getScene()->createGameObject("PreviewBlock");
 
         // Create material / shader
         auto shader = ASSETS.getShader("/shaders/previewBlock.shader");
 
         previewBlockMaterial = RESOURCES.createMaterial(shader);
-        auto renderer = previewBlock->addComponent<Components::MeshRenderer>(Core::MeshGenerator::CreateCubeUV(), previewBlockMaterial);
-        renderer->setCastShadows(false);
+        auto renderer = previewBlock->addComponent<Components::MeshRenderer>(Core::MeshGenerator::CreateCubeUV(0.15f), previewBlockMaterial);
 
-        // Adjust transform
+        // Attach block to camera
         auto transform = previewBlock->getTransform();
-        transform->scale = { 0.15f };
+        transform->setParent( go->getTransform(), false );
+
+#if USE_VR
+        Events::EventDispatcher::GetEvent(EVENT_HMD_FOCUS_GAINED).addListener([this] { setPreviewBlockEnabled(true); });
+        Events::EventDispatcher::GetEvent(EVENT_HMD_FOCUS_LOST).addListener([this] { setPreviewBlockEnabled(false); });
+        previewBlock->addComponent<Components::VRTouch>( Graphics::VR::Hand::Right );
+        shader->setDepthStencilState({ true, true });
+#else
+        // Adjust transform
         transform->rotation = Math::Quat::FromEulerAngles( 45.0f, 45.0f, 0.0f );
         transform->position = { 0.35f, -0.3f, 1.0f };
 
-        // Attach block to camera
-        transform->setParent( go->getTransform(), false );
-
+        renderer->setCastShadows(false);
+#endif
         // Disable at start
         previewBlock->setActive( false );
     }
 
+#if USE_VR
+    void tick(Time::Seconds d) override
+    {
+        if(CONTROLLER.wasKeyPressed(ControllerKey::X))
+            _PreviousBlock();
+        if(CONTROLLER.wasKeyPressed(ControllerKey::Y))
+            _NextBlock();
+    }
+#endif
+
     void OnMouseWheel(I16 delta) override
     {
         // Change slot per mouse wheel
-        m_curSlot = (m_curSlot + delta) % SLOT_COUNT;
-        m_curSlot = m_curSlot < 0 ? 0 : m_curSlot;
-
-        _UpdatePreviewBlock();
+        delta > 0 ? _NextBlock() : _PreviousBlock();
         LOG(toString(), Color::GREEN);
     }
+
+    GameObject* getPreviewBlock() { return previewBlock; }
 
     // @Return:
     //  False, when block can't be added to inventory because its full
@@ -254,6 +272,19 @@ private:
         return -1;
     }
 
+    void _NextBlock()
+    {
+        m_curSlot = (m_curSlot + 1) % SLOT_COUNT;
+        _UpdatePreviewBlock();
+    }
+
+    void _PreviousBlock()
+    {
+        m_curSlot -= 1;
+        m_curSlot = m_curSlot < 0 ? 0 : m_curSlot;
+        _UpdatePreviewBlock();
+    }
+
     void _UpdatePreviewBlock()
     {
         Block block = m_slots[m_curSlot];
@@ -289,6 +320,7 @@ class PlayerController : public Components::IComponent
     F32 mousePitchDeg = 0;
     F32 mouseYawDeg = 0;
     AudioClipPtr digClips[4];
+    Components::VRCamera* vrCam;
 
 public:
     PlayerController(F32 speed, F32 jumpPower, F32 placeDistance = 10.0f) : speed(speed), jumpPower(jumpPower), rayDistance(placeDistance) {}
@@ -301,6 +333,16 @@ public:
         ACTION_MAPPER.attachMouseEvent(ACTION_NAME_DIG, MouseKey::LButton);
         ACTION_MAPPER.attachMouseEvent(ACTION_NAME_PLACE, MouseKey::RButton);
         ACTION_MAPPER.attachKeyboardEvent(ACTION_NAME_JUMP, Key::Space);
+        ACTION_MAPPER.attachKeyboardEvent(ACTION_NAME_RUN, Key::Shift);
+
+#if USE_VR
+        vrCam = getGameObject()->getComponent<Components::VRCamera>();
+        ACTION_MAPPER.attachControllerEvent(ACTION_NAME_DIG, ControllerKey::RIndexTrigger);
+        ACTION_MAPPER.attachControllerEvent(ACTION_NAME_PLACE, ControllerKey::RHandTrigger);
+        ACTION_MAPPER.attachControllerEvent(ACTION_NAME_JUMP, ControllerKey::A);
+        ACTION_MAPPER.attachControllerEvent(ACTION_NAME_RUN, ControllerKey::LIndexTrigger);
+        playerHeight += 1.0f;
+#endif
         transform = getGameObject()->getComponent<Components::Transform>();
         inventory = getGameObject()->getComponent<PlayerInventory>();
         ASSERT(inventory && "Inventory Component is NULL!");
@@ -319,8 +361,16 @@ public:
 
     void tick(Time::Seconds delta) override
     {
-        auto viewerDir = transform->rotation.getForward();
-        Physics::Ray ray(transform->position, viewerDir * rayDistance);
+#if USE_VR
+        auto inv = getGameObject()->getComponent<PlayerInventory>();
+        auto prevBlockTransform = inv->getPreviewBlock()->getTransform();
+        auto dir = prevBlockTransform->getWorldRotation().getForward();
+        auto pos = prevBlockTransform->getWorldPosition();
+#else
+        auto dir = transform->rotation.getForward();
+        auto pos = transform->position;
+#endif
+        Physics::Ray ray(pos, dir * rayDistance);
 
         // Preview block
         World::Get().RayCast(ray, [](const ChunkRayCastResult& result) {
@@ -378,7 +428,11 @@ public:
             });
         }
 
+#if USE_VR
+        _CalculateMovementUSE_VR((F32)delta.value);
+#else
         _CalculateMovement((F32)delta.value);
+#endif
     }
 
  private:
@@ -407,7 +461,7 @@ public:
 
         // MOVEMENT
         F32 realSpeed = speed;
-        if (KEYBOARD.isKeyDown(Key::Shift))
+        if (ACTION_MAPPER.isKeyDown(ACTION_NAME_RUN))
             realSpeed *= 2.0f;
 
         Math::Vec3 forward  = transform->rotation.getForward();
@@ -438,6 +492,70 @@ public:
             playerVelocity.y = 0.0f;
         });
     }
+
+    void _CalculateMovementUSE_VR(F32 delta)
+    {
+        static Math::Vec3 playerVelocity;
+
+        // JUMPING
+        bool isOnGround = (playerVelocity.y == 0.0f);
+        if (isOnGround)
+            if (ACTION_MAPPER.wasKeyPressed(ACTION_NAME_JUMP))
+                playerVelocity.y += Math::Vec3::UP.y * delta * jumpPower;
+
+        // GRAVITY
+        playerVelocity.y += GRAVITY * delta;
+
+        // MOVEMENT
+        F32 realSpeed = speed;
+        if (ACTION_MAPPER.isKeyDown(ACTION_NAME_RUN))
+            realSpeed *= 2.0f;
+
+        // ROTATE WITH RIGHT THUMBSTICK
+        auto rightThumb = CONTROLLER.getThumbstick(Core::Input::ESide::Right);
+        static bool rotated = false;
+        if (rightThumb.x > -0.5f && rightThumb.x < 0.5f)
+            rotated = false;
+        else if (rightThumb.x > 0.5f && not rotated)
+        {
+            transform->rotation *= Math::Quat({ 0, 1, 0 }, 20.0f);
+            rotated = true;
+        }
+        else if (rightThumb.x < -0.5f && not rotated)
+        {
+            transform->rotation *= Math::Quat({ 0, 1, 0 }, -20.0f);
+            rotated = true;
+        }
+
+        auto playerRot = vrCam->getHeadTransform()->getWorldRotation();
+
+        // MOVE WITH LEFT THUBMSTICK
+        auto axis = CONTROLLER.getThumbstick(Core::Input::ESide::Left);
+        Math::Vec3 mov = playerRot.getRight() * axis.x * realSpeed + playerRot.getForward() * axis.y * realSpeed;
+        playerVelocity.x = mov.x;
+        playerVelocity.z = mov.z;
+
+        // APPLY VELOCITY
+        Math::Vec3 prevPos = transform->position;
+        transform->position += playerVelocity;
+
+        // COLLISION CHECK (X+Z AXIS) - Shoot ray from feet into movement direction
+        Math::Vec3 xzVel(playerVelocity.x, 0.0f, playerVelocity.z);
+        Physics::Ray rayXZ(transform->position + Math::Vec3::DOWN * playerHeight + 0.1f, xzVel.normalized() * playerSize);
+        World::Get().RayCast(rayXZ, [=](const ChunkRayCastResult& result) {
+            transform->position.x = prevPos.x;
+            transform->position.z = prevPos.z;
+            //DEBUG.drawSphere(result.hitPoint, 0.1f, Color::RED, 0, false);
+        });
+
+        // COLLISION CHECK (Y-AXIS)
+        Physics::Ray rayDown(transform->position, Math::Vec3::DOWN * playerHeight);
+        World::Get().RayCast(rayDown, [=](const ChunkRayCastResult& result) {
+            transform->position.y = result.hitPoint.y - rayDown.getDirection().y;
+            playerVelocity.y = 0.0f;
+        });
+    }
+
 };
 
 //**********************************************************************
@@ -479,13 +597,16 @@ class Sun : public Components::IComponent
 public:
     void addedToGameObject(GameObject* go) override
     {
+#if USE_VR
+        dirLight = go->addComponent<Components::DirectionalLight>(0.75f, Color::WHITE, Graphics::ShadowType::None);
+#else
         ArrayList<F32> splitRanges{5.0f, 20.0f, 70.0f, 200.0f};
         dirLight = go->addComponent<Components::DirectionalLight>(0.75f, Color::WHITE, Graphics::ShadowType::CSM, splitRanges);
-        dirLight->setShadowMapQuality(Graphics::ShadowMapQuality::Low);
+#endif
+        dirLight->setShadowMapQuality(Graphics::ShadowMapQuality::High);
         dirLight->setShadowRange(50.0f);
 
         go->getTransform()->rotation = Math::Quat::LookRotation( Math::Vec3{ 0, -1, 0 }, Math::Vec3::RIGHT );
-        //getGameObject()->getTransform()->rotation *= Math::Quat(Math::Vec3::RIGHT, 90.0f);
     }
 
     Components::DirectionalLight* getDirLight() { return dirLight; }
@@ -503,62 +624,44 @@ public:
 //**********************************************************************
 class MyScene : public IScene
 {
-    Components::FPSCamera*  fpsCam;
-    PlayerController*       playerController;
-    PlayerInventory*        playerInventory;
-    Components::SpotLight*  lamp;
+    Components::FPSCamera*   fpsCam;
+    Components::VRFPSCamera* vrFpsCam;
+    PlayerController*        playerController;
+    PlayerInventory*         playerInventory;
+    Components::SpotLight*   lamp;
 
 public:
     MyScene() : IScene("MyScene"){}
 
     void init() override
     {
+        // Sun
+        auto sun = createGameObject("Sun");
+        sun->addComponent<Sun>();
+
         // PLAYER
         auto player = createGameObject("player");
-        auto cam = player->addComponent<Components::Camera>(45.0f, 0.1f, 500.0f, Graphics::MSAASamples::Eight);
         player->getComponent<Components::Transform>()->position = Math::Vec3(0, 100, -5);
-        player->getComponent<Components::Transform>()->lookAt({0});
-        fpsCam = player->addComponent<Components::FPSCamera>(Components::FPSCamera::FPS);
-        fpsCam->setActive(false);
-        //player->addComponent<Minimap>(500.0f, 10.0f);
-        player->addComponent<Components::AudioListener>();
-        lamp = player->addComponent<Components::SpotLight>(2.0f, Color::WHITE, 25.0f, 20.0f, false);
-        lamp->setActive(false);
-        cam->setClearColor(Color::BLUE);
 
+#if USE_VR
+        player->addComponent<Components::VRCamera>(Components::ScreenDisplay::LeftEye, Graphics::MSAASamples::Four);
+        vrFpsCam = player->addComponent<Components::VRFPSCamera>(Components::VRFPSCamera::Mode::Fixed, 10.0f);
+        vrFpsCam->setActive(false);
+#else
         F64 acceleration = 4.0;
         F64 damping = 10.0;
         AXIS_MAPPER.updateAxis("Vertical", acceleration, damping);
         AXIS_MAPPER.updateAxis("Horizontal", acceleration, damping);
 
-        U32 blockInventorySize = 64;
-        playerInventory = player->addComponent<PlayerInventory>(blockInventorySize);
-        F32 placeDistance = 10.0f;
-        F32 playerSpeed = 0.2f;
-        F32 jumpPower = 15.0f;
-        playerController = player->addComponent<PlayerController>(playerSpeed, jumpPower, placeDistance);
+        player->addComponent<Components::Camera>(45.0f, 0.1f, 500.0f, Graphics::MSAASamples::Eight);
+        player->getComponent<Components::Transform>()->lookAt({0});
+        fpsCam = player->addComponent<Components::FPSCamera>(Components::FPSCamera::FPS);
+        fpsCam->setActive(false);
+        player->addComponent<Components::AudioListener>();
+        lamp = player->addComponent<Components::SpotLight>(2.0f, Color::WHITE, 25.0f, 20.0f, false);
+        lamp->setActive(false);
 
-        // WORLD
-        auto world = createGameObject("World");
-
-        auto cubemap = ASSETS.getCubemap("/cubemaps/tropical_sunny_day/Left.png", "/cubemaps/tropical_sunny_day/Right.png",
-            "/cubemaps/tropical_sunny_day/Up.png", "/cubemaps/tropical_sunny_day/Down.png",
-            "/cubemaps/tropical_sunny_day/Front.png", "/cubemaps/tropical_sunny_day/Back.png");
-        world->addComponent<Components::Skybox>(cubemap);
-
-        I32 seed = Math::Random::Int(0,285092);
-        LOG("Current World Seed: " + TS(seed), Color::RED);
-        auto generator = std::make_shared<BasicTerrainGenerator>(seed);
-
-        //auto generator = std::make_shared<FlatTerrainGenerator>();
-        auto worldGenerator = world->addComponent<WorldGeneration>(generator, CHUNKS_VIEW_DISTANCE);
-        world->addComponent<Water>(WATER_LEVEL);
-
-        // Sun
-        auto sun = createGameObject("Sun");
-        sun->addComponent<Sun>();
-        auto dl = sun->getComponent<Sun>()->getDirLight();
-
+#if DEBUG_HUD
         player->addComponent<Components::GUI>();
         player->addComponent<Components::GUICustom>([=] {
             static F32 ambient = 0.4f;
@@ -567,6 +670,8 @@ public:
 
             if (ImGui::TreeNode("Directional Light"))
             {
+                auto dl = sun->getComponent<Sun>()->getDirLight();
+
                 static F32 animateSpeed = 0.0f;
                 ImGui::SliderFloat("Speed", &animateSpeed, -20.0f, 20.0f);
                 dl->getGameObject()->getTransform()->rotation *= Math::Quat(Math::Vec3::RIGHT, animateSpeed * (F32)PROFILER.getDelta());
@@ -611,19 +716,55 @@ public:
                 ImGui::TreePop();
             }
         });
+#endif
+#endif
+        U32 blockInventorySize = 64;
+        playerInventory = player->addComponent<PlayerInventory>(blockInventorySize);
+
+        F32 placeDistance = 10.0f;
+        F32 playerSpeed = 0.2f;
+        F32 jumpPower = 15.0f;
+        playerController = player->addComponent<PlayerController>(playerSpeed, jumpPower, placeDistance);
+
+        // WORLD
+        {
+            auto world = createGameObject("World");
+
+            auto cubemap = ASSETS.getCubemap("/cubemaps/tropical_sunny_day/Left.png", "/cubemaps/tropical_sunny_day/Right.png",
+                "/cubemaps/tropical_sunny_day/Up.png", "/cubemaps/tropical_sunny_day/Down.png",
+                "/cubemaps/tropical_sunny_day/Front.png", "/cubemaps/tropical_sunny_day/Back.png");
+            world->addComponent<Components::Skybox>(cubemap);
+
+            I32 seed = Math::Random::Int(0,285092);
+            LOG("Current World Seed: " + TS(seed), Color::RED);
+            auto generator = std::make_shared<BasicTerrainGenerator>(seed);
+
+            //auto generator = std::make_shared<FlatTerrainGenerator>();
+            auto worldGenerator = world->addComponent<WorldGeneration>(player->getTransform(), generator, CHUNKS_VIEW_DISTANCE);
+            world->addComponent<Water>(WATER_LEVEL);
+        }
     }
 
     void tick(Time::Seconds delta) override
     {
         static bool b = false;
-        if (KEYBOARD.wasKeyPressed(Key::X))
+#if USE_VR
+        if (CONTROLLER.wasKeyPressed(ControllerKey::Enter))
         {
             playerController->setActive(b);
+            vrFpsCam->setActive(!b);
+            b = !b;
+        }
+#else
+        if (KEYBOARD.wasKeyPressed(Key::X))
+        {
             playerInventory->setPreviewBlockEnabled(b);
             MOUSE.setFirstPersonMode(b);
+            playerController->setActive(b);
             fpsCam->setActive(!b);
             b = !b;
         }
+#endif
         if(KEYBOARD.wasKeyPressed(Key::F))
             lamp->setActive(!lamp->isActive());
     }
@@ -641,7 +782,6 @@ public:
         gLogger->setSaveToDisk( false );
 
         Locator::getEngineClock().setInterval([] {
-           //LOG( "Time: " + TS( Locator::getEngineClock().getTime().value ) + " FPS: " + TS( Locator::getProfiler().getFPS() ) );
             U32 fps = PROFILER.getFPS();
             F64 delta = (1000.0 / fps);
             String newTitle = String(gameName) + " | Time: " + TS(TIME.getTime().value) + " | Delta: " + TS(delta) + "ms (" + TS(fps) + " FPS)";
@@ -651,7 +791,7 @@ public:
         getWindow().setCursor( "/cursors/Areo Cursor Red.cur" );
         getWindow().setIcon( "/engine/icon.ico" );
 
-        // Enable shader reloading
+        // Enable asset reloading
         ASSETS.setHotReloading(true);
 
         Locator::getRenderer().setGlobalFloat(SID("_Ambient"), 0.1f);
@@ -660,7 +800,10 @@ public:
         // This way the music manager will stay alife during the whole program.
         SCENE.createGameObject("MusicManager")->addComponent<MusicManager>(ArrayList<OS::Path>{"/audio/minecraft.wav", "/audio/minecraft2.wav"});
 
+#if USE_VR 
+#else
         MOUSE.setFirstPersonMode(true); // Hide the mouse cursor has no effect on a separate thread, so just call it here
+#endif
         Locator::getSceneManager().PushSceneAsync( new MyScene(), false );
     }
 

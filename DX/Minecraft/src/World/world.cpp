@@ -175,8 +175,7 @@ void World::_CalculateChunkVisibility()
         pair.second->setActive( false );
 
     // Calculate which chunks are visible
-    Components::Camera* viewer = SCENE.getMainCamera();
-    auto transform = viewer->getGameObject()->getComponent<Components::Transform>();
+    auto transform = m_viewer->getGameObject()->getComponent<Components::Transform>();
 
     I32 currentChunkCoordX = static_cast<I32>( std::floorf( transform->position.x / CHUNK_SIZE ) );
     I32 currentChunkCoordY = static_cast<I32>( std::floorf( transform->position.z / CHUNK_SIZE) );

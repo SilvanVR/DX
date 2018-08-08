@@ -67,10 +67,14 @@ public:
     // Be aware that this function is called on another thread.
     void setChunkCallback(const ChunkCallback& cb) { m_chunkCallback = cb; }
 
+    // Set the viewer transform which determines where chunks will be generated
+    void SetViewer(Components::Transform* viewer) { m_viewer = viewer; }
+
 private:
     PolyVox::LargeVolume<Block>                 m_volData;              // The voxel volume
     std::unordered_map<Math::Vec2Int, ChunkPtr> m_terrainChunks;        // Stores the generated terrain chunks
     std::list<ChunkPtr>                         m_chunkGenerationList;  // Contains chunks which should be generated for the first time
+    Components::Transform*                      m_viewer;               // Viewer transform
 
     // This list is similar to above, but is 1. prioritized e.g. gets executed before the list above AND 2. gets executed in a batch
     // This is required for destroying edge blocks, so several chunks have to be regenerated and replaced at the SAME TIME.

@@ -88,7 +88,7 @@ namespace Components {
         //----------------------------------------------------------------------
         // IComponent Interface
         //----------------------------------------------------------------------
-        void init() override;
+        void addedToGameObject(GameObject* go) override;
         void tick(Time::Seconds d) override;
 
     private:

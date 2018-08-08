@@ -19,10 +19,11 @@ class WorldGeneration : public Components::IComponent
     ArrayList<Texture2DPtr>             m_blockTextures;
 
 public:
-    WorldGeneration(std::shared_ptr<TerrainGenerator> terrainGenerator, I32 chunkViewDistance = 10)
+    WorldGeneration(Components::Transform* viewer, std::shared_ptr<TerrainGenerator> terrainGenerator, I32 chunkViewDistance = 10)
         : m_terrainGenerator( terrainGenerator ) 
     { 
         World::CHUNK_VIEW_DISTANCE = chunkViewDistance; 
+        World::Get().SetViewer( viewer );
     }
     ~WorldGeneration(){ World::Get().shutdown(); }
 

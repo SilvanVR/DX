@@ -141,9 +141,9 @@ namespace Components {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    void VRFPSCamera::init()
+    void VRFPSCamera::addedToGameObject( GameObject* go )
     {
-        m_vrCamera = getGameObject()->getComponent<VRCamera>();
+        m_vrCamera = go->getComponent<VRCamera>();
         ASSERT( m_vrCamera && "Script requires a vr camera component!" );
     }
 
