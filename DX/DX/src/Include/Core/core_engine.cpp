@@ -20,8 +20,6 @@ namespace Core {
     void CoreEngine::start( const char* title, U32 width, U32 height, Graphics::API api )
     {
         m_api = api;
-        U32 w = width;
-        U32 h = height;
 
         bool restart = true;
         while (restart)
@@ -29,15 +27,13 @@ namespace Core {
             restart = false;
             try
             {
-                _Init( title, w, h, m_api );
+                _Init( title, width, height, m_api );
                 _RunCoreGameLoop();
                 _Shutdown();
             }
             catch(RestartEngineException e)
             {
                 (void*)&e; // Remove unreferenced param warning
-                w = m_window.getWidth();
-                h = m_window.getHeight();
                 _Shutdown();
                 restart = true;
             }
