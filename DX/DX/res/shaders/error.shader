@@ -5,28 +5,31 @@
 #ZTest 			Less
 #Queue 			Geometry
 
-// ----------------------------------------------
+//----------------------------------------------
+// D3D11
+//----------------------------------------------
+#d3d11
 #shader vertex
 
 #include "/engine/shaders/includes/engineVS.hlsl"
 
 struct VertexIn
 {
-    float3 PosL : POSITION;
+	float3 PosL : POSITION;
 };
 
 struct VertexOut
 {
-    float4 PosH : SV_POSITION;
+	float4 PosH : SV_POSITION;
 };
 
 VertexOut main(VertexIn vin)
 {
-    VertexOut OUT;
+	VertexOut OUT;
 
-    OUT.PosH = TO_CLIP_SPACE(vin.PosL);
+	OUT.PosH = TO_CLIP_SPACE(vin.PosL);
 
-    return OUT;
+	return OUT;
 }
 
 // ----------------------------------------------
@@ -34,10 +37,32 @@ VertexOut main(VertexIn vin)
 
 struct FragmentIn
 {
-    float4 PosH : SV_POSITION;
+	float4 PosH : SV_POSITION;
 };
 
 float4 main(FragmentIn fin) : SV_Target
 {
-    return float4(1,0,1,1);
+	return float4(1,0,1,1);
+}
+
+//----------------------------------------------
+// Vulkan
+//----------------------------------------------
+#vulkan
+
+#shader vertex
+
+//#include "/engine/shaders/includes/engineVS.hlsl"
+
+void main()
+{
+	gl_Position = vec4(0,0,0,1);
+}
+
+// ----------------------------------------------
+#shader fragment
+
+void main()
+{
+	return vec4(1,0,1,1);
 }

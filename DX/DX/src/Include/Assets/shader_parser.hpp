@@ -41,6 +41,9 @@
 #define NUM_SHADER_TYPES                (I32)Graphics::ShaderType::NUM_SHADER_TYPES
 #define INCLUDE_NAME                    "#include"
 
+#define D3D11_NAME                       "#d3d11"
+#define VULKAN_NAME                      "#vulkan"
+
 namespace Assets {
 
     //**********************************************************************
@@ -115,17 +118,36 @@ namespace Assets {
         }
 
         //----------------------------------------------------------------------
-        static inline std::array<String, NUM_SHADER_TYPES> _SplitShaderFile( const OS::Path& filePath )
+        static std::array<String, NUM_SHADER_TYPES> _SplitShaderFile( const OS::Path& filePath )
         {
-            OS::File file( filePath, OS::EFileMode::READ );
+            OS::BinaryFile file( filePath, OS::EFileMode::READ );
 
-            Graphics::ShaderType type = Graphics::ShaderType::Unknown;
+            auto api = Graphics::API::Unknown;
+            auto type = Graphics::ShaderType::Unknown;
             std::array<String, NUM_SHADER_TYPES> shaderSources;
             while ( not file.eof() )
             {
                 String line = file.readLine();
-                if ( line.find( SHADER_NAME ) != String::npos )
+
+                if (line.size() >= 2 && line.substr(0, 2) == "//") // Skip any comments
+                    continue;
+
+                if ( line.find( D3D11_NAME ) != String::npos )
                 {
+                    api = Graphics::API::D3D11;
+                }
+                else if ( line.find( VULKAN_NAME ) != String::npos )
+                {
+                    api = Graphics::API::Vulkan;
+                }
+                else if ( line.find( SHADER_NAME ) != String::npos )
+                {
+                    if (api == Graphics::API::Unknown)
+                    {
+                        LOG_WARN( "ShaderParser(): No #API specification before a #shader. Assuming D3D11." );
+                        api = Graphics::API::D3D11;
+                    }
+
                     if (line.find( VERTEX_SHADER ) != String::npos)
                         type = Graphics::ShaderType::Vertex;
                     else if (line.find( FRAGMENT_SHADER ) != String::npos)
@@ -135,7 +157,7 @@ namespace Assets {
                     else if (line.find( TESSELLATION_SHADER ) != String::npos)
                         type = Graphics::ShaderType::Tessellation;
                 }
-                else if ( line.find( INCLUDE_NAME ) != String::npos)
+                else if ( line.find( INCLUDE_NAME ) != String::npos && api == RENDERER.getAPI() )
                 {
                     auto includeFilePath = StringUtils::substringBetween( line, '\"', '\"' );
                     try
@@ -152,7 +174,8 @@ namespace Assets {
                 }
                 else
                 {
-                    shaderSources[(I32)type + 1].append( line + '\n' );
+                    if (api == RENDERER.getAPI() || api == Graphics::API::Unknown)
+                        shaderSources[(I32)type + 1].append( line + '\n' );
                 }
             }
 

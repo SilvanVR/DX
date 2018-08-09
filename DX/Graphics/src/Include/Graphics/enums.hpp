@@ -14,6 +14,7 @@ namespace Graphics {
 
     enum class API
     {
+        Unknown,
         D3D11,
         Vulkan
     };

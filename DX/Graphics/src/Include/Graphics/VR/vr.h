@@ -108,7 +108,7 @@ namespace Graphics { namespace VR {
     private:
 
         friend class D3D11Renderer;
-        friend class VulkanRenderer;
+        friend class VkRenderer;
 
         //----------------------------------------------------------------------
         // Clears the next swapchain texture for both eyes with the given color.

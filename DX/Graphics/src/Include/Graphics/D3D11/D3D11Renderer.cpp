@@ -318,7 +318,7 @@ namespace Graphics {
     void D3D11Renderer::_InitD3D11()
     {
         _CreateDeviceAndContext();
-        _CreateSwapchain( 1 );
+        _CreateSwapchain();
         _SetGPUDescription();
 
         LOG_RENDERING( "Done initializing D3D11... (Using " + getGPUDescription().name + ")" );
@@ -355,7 +355,7 @@ namespace Graphics {
 
         D3D_FEATURE_LEVEL featureLevel;
         HR( D3D11CreateDevice( NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, createDeviceFlags,
-                               featureLevels, sizeof(featureLevels) / sizeof(D3D_FEATURE_LEVEL), D3D11_SDK_VERSION,
+                               featureLevels, countof(featureLevels), D3D11_SDK_VERSION,
                                &g_pDevice, &featureLevel, &g_pImmediateContext ) );
 
         if ( featureLevel != featureLevels[0] )
@@ -363,9 +363,9 @@ namespace Graphics {
     }
 
     //----------------------------------------------------------------------
-    void D3D11Renderer::_CreateSwapchain( U32 numSamples )
+    void D3D11Renderer::_CreateSwapchain()
     {
-        m_pSwapchain = new D3D11::Swapchain( m_window->getHWND(), m_window->getWidth(), m_window->getHeight(), numSamples );
+        m_pSwapchain = new D3D11::Swapchain( m_window->getHWND(), m_window->getWidth(), m_window->getHeight(), 1 );
     }
 
     //----------------------------------------------------------------------

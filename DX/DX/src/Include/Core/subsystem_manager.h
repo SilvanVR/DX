@@ -63,7 +63,7 @@ namespace Core {
         Audio::AudioManager*                m_audioManager      = nullptr;
 
         //----------------------------------------------------------------------
-        void _InitVirtualFilePaths();
+        void _InitVirtualFilePaths(Graphics::API api);
         void _ClearVirtualFilePaths();
 
         //----------------------------------------------------------------------

@@ -211,7 +211,7 @@ private:
     int main()
     {
         Game game;
-        game.start( gameName, 800, 600 );
+        game.start( gameName, 800, 600, Graphics::API::D3D11 );
 
         system("pause");
         return 0;

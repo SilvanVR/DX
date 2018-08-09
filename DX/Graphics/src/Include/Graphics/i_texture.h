@@ -62,6 +62,7 @@ namespace Graphics
         friend class IShader;
         friend class IRenderTexture;
         friend class D3D11Renderer;
+        friend class VkRenderer;
         virtual void bind(ShaderType shaderType, U32 bindSlot) = 0;
 
         NULL_COPY_AND_ASSIGN(ITexture)

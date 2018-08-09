@@ -146,22 +146,22 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(ProjectDir)bin\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)bin\$(Platform)\$(Configuration)\Intermediate\</IntDir>
-    <IncludePath>$(ProjectDir)src/include/ext;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)src/include/ext;$(VK_SDK_PATH)\Include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='StaticLib - Debug|x64'">
     <OutDir>$(ProjectDir)bin\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)bin\$(Platform)\$(Configuration)\Intermediate\</IntDir>
-    <IncludePath>$(ProjectDir)src/include/ext;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)src/include/ext;$(VK_SDK_PATH)\Include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(ProjectDir)bin\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)bin\$(Platform)\$(Configuration)\Intermediate\</IntDir>
-    <IncludePath>$(ProjectDir)src/include/ext;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)src/include/ext;$(VK_SDK_PATH)\Include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='StaticLib - Release|x64'">
     <OutDir>$(ProjectDir)bin\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)bin\$(Platform)\$(Configuration)\Intermediate\</IntDir>
-    <IncludePath>$(ProjectDir)src/include/ext;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)src/include/ext;$(VK_SDK_PATH)\Include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

@@ -259,6 +259,7 @@ namespace Graphics {
     private:
         //----------------------------------------------------------------------
         friend class D3D11Renderer;
+        friend class VkRenderer;
         virtual void bind() = 0;
         virtual void unbind() = 0;
 

@@ -16,6 +16,7 @@
 #define not                         !
 #define and                         &&
 #define or                          ||
+#define countof(x)                  (sizeof(x)/sizeof((x)[0]))
 #define SAFE_DELETE(x)              { delete x; x = nullptr; }
 
 #ifdef _DEBUG

@@ -80,10 +80,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(ProjectDir)bin\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)bin\$(Platform)\$(Configuration)\Intermediate\</IntDir>
+    <IncludePath>$(VK_SDK_PATH)\Include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(ProjectDir)bin\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)bin\$(Platform)\$(Configuration)\Intermediate\</IntDir>
+    <IncludePath>$(VK_SDK_PATH)\Include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -100,7 +102,7 @@
     </ClCompile>
     <Lib>
       <AdditionalLibraryDirectories>$(ProjectDir)libs\debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>LibOVR.lib</AdditionalDependencies>
+      <AdditionalDependencies>LibOVR.lib;$(VK_SDK_PATH)/Lib/vulkan-1.lib</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -118,7 +120,7 @@
     </ClCompile>
     <Lib>
       <AdditionalLibraryDirectories>$(ProjectDir)libs\debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>LibOVR.lib</AdditionalDependencies>
+      <AdditionalDependencies>LibOVR.lib;$(VulkanSDK_Path)/Lib/vulkan-1.lib</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -142,7 +144,7 @@
     </Link>
     <Lib>
       <AdditionalLibraryDirectories>$(ProjectDir)libs\release</AdditionalLibraryDirectories>
-      <AdditionalDependencies>LibOVR.lib</AdditionalDependencies>
+      <AdditionalDependencies>LibOVR.lib; vulkan-1.lib;</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -168,7 +170,7 @@
     </Link>
     <Lib>
       <AdditionalLibraryDirectories>$(ProjectDir)libs\release</AdditionalLibraryDirectories>
-      <AdditionalDependencies>LibOVR.lib</AdditionalDependencies>
+      <AdditionalDependencies>LibOVR.lib; $(VK_SDK_PATH)/Lib/vulkan-1.lib</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -204,6 +206,10 @@
     <ClCompile Include="src\Include\Graphics\Utils\utils.cpp" />
     <ClCompile Include="src\Include\Graphics\VR\OculusRift\oculus_rift.cpp" />
     <ClCompile Include="src\Include\Graphics\VR\vr.cpp" />
+    <ClCompile Include="src\Include\Graphics\Vulkan\Ext\impl.cpp" />
+    <ClCompile Include="src\Include\Graphics\Vulkan\VkGlobals.cpp" />
+    <ClCompile Include="src\Include\Graphics\Vulkan\VkRenderer.cpp" />
+    <ClCompile Include="src\Include\Graphics\Vulkan\VkUtility.cpp" />
     <ClCompile Include="src\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
@@ -257,6 +263,12 @@
     <ClInclude Include="src\Include\Graphics\vertex_layout.hpp" />
     <ClInclude Include="src\Include\Graphics\VR\OculusRift\oculus_rift.h" />
     <ClInclude Include="src\Include\Graphics\VR\vr.h" />
+    <ClInclude Include="src\Include\Graphics\Vulkan\Ext\simple_vulkan_synchronization.h" />
+    <ClInclude Include="src\Include\Graphics\Vulkan\Ext\vk_mem_alloc.h" />
+    <ClInclude Include="src\Include\Graphics\Vulkan\VkGlobals.h" />
+    <ClInclude Include="src\Include\Graphics\Vulkan\VkRenderer.h" />
+    <ClInclude Include="src\Include\Graphics\Vulkan\VkUtility.h" />
+    <ClInclude Include="src\Include\Graphics\Vulkan\Vulkan.hpp" />
     <ClInclude Include="src\stdafx.h" />
   </ItemGroup>
   <ItemGroup>

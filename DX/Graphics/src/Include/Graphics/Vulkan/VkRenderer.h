@@ -1,16 +1,13 @@
 #pragma once
 /**********************************************************************
-    class: D3D11Renderer (D3D11Renderer.h)
+    class: VkRenderer
 
     author: S. Hau
-    date: November 28, 2017
-
-    D3D11 Renderer.
+    date: August 9, 2018
 **********************************************************************/
 
+#include "Vulkan.hpp"
 #include "../i_renderer.h"
-#include "D3D11.hpp"
-#include "D3D11Swapchain.h"
 
 namespace Graphics {
 
@@ -28,10 +25,10 @@ namespace Graphics {
     //**********************************************************************
     // D3D11 Renderer
     //**********************************************************************
-    class D3D11Renderer : public IRenderer
+    class VkRenderer : public IRenderer
     {
     public:
-        D3D11Renderer(OS::Window* window) : IRenderer( window ) {}
+        VkRenderer(OS::Window* window) : IRenderer( window ) {}
 
         //----------------------------------------------------------------------
         // IRenderer Interface
@@ -40,8 +37,8 @@ namespace Graphics {
         void shutdown() override;
         void present() override;
 
-        API getAPI() const override { return API::D3D11; }
-        String getAPIName() const override { return "Direct3D11"; }
+        API getAPI() const override { return API::Vulkan; }
+        String getAPIName() const override { return "Vulkan"; }
 
         IMesh*              createMesh() override;
         IMaterial*          createMaterial() override;
@@ -59,7 +56,7 @@ namespace Graphics {
         bool setGlobalMatrix(StringID name, const DirectX::XMMATRIX& matrix) override;
 
     private:
-        D3D11::Swapchain*   m_pSwapchain    = nullptr;
+        //D3D11::Swapchain*   m_pSwapchain    = nullptr;
         IMesh*              m_cubeMesh      = nullptr;
 
         //----------------------------------------------------------------------
@@ -70,16 +67,13 @@ namespace Graphics {
         inline void _CopyTexture(ITexture* srcTex, I32 srcElement, I32 srcMip, ITexture* dstTex, I32 dstElement, I32 dstMip);
         inline void _RenderCubemap(ICubemap* cubemap, const MaterialPtr& material, U32 dstMip);
         inline void _Blit(const RenderTexturePtr& src, const RenderTexturePtr& dst, const MaterialPtr& material);
-        inline void _DrawFullScreenQuad(const MaterialPtr& material, const D3D11_VIEWPORT& viewport);
+        inline void _DrawFullScreenQuad(const MaterialPtr& material, const ViewportRect& viewport);
 
         //----------------------------------------------------------------------
-        void _InitD3D11();
-        void _DeinitD3D11();
+        void _InitVulkan();
+        void _DeinitVulkan();
 
-        void _CreateDeviceAndContext();
-        void _CreateSwapchain();
         void _SetGPUDescription();
-        void _ReportLiveObjects();
         void _CreateGlobalBuffer();
         void _CreateCubeMesh();
         void _SetLimits();
@@ -116,7 +110,7 @@ namespace Graphics {
             RenderTexturePtr            m_renderTarget = nullptr; // Current render target
         } renderContext;
 
-        NULL_COPY_AND_ASSIGN(D3D11Renderer)
+        NULL_COPY_AND_ASSIGN(VkRenderer)
     };
 
 

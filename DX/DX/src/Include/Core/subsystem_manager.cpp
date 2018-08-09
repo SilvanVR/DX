@@ -18,6 +18,7 @@
 #include "Input/input_manager.h"
 #include "InGameConsole/in_game_console.h"
 #include "Graphics/D3D11/D3D11Renderer.h"
+#include "Graphics/Vulkan/VkRenderer.h"
 #include "SceneManager/scene_manager.h"
 #include "Resources/resource_manager.h"
 #include "Assets/asset_manager.h"
@@ -45,7 +46,7 @@ namespace Core
     void SubSystemManager::init( Graphics::API api )
     {
         // The logger uses the virtual file-paths, so they have to be initialized first
-        _InitVirtualFilePaths();
+        _InitVirtualFilePaths( api );
 
         //----------------------------------------------------------------------
         gLogger = new Logging::SharedConsoleLogger();
@@ -85,7 +86,7 @@ namespace Core
         switch (api)
         {
         case Graphics::API::D3D11: renderer = new Graphics::D3D11Renderer( &Locator::getWindow() ); break;
-        case Graphics::API::Vulkan: ;//renderer = new Graphics::VulkanRenderer( &Locator::getWindow() ); break;
+        case Graphics::API::Vulkan: renderer = new Graphics::VkRenderer( &Locator::getWindow() ); break;
         }
         ASSERT( renderer );
         m_renderer = initializeSubSystem( renderer );
@@ -178,7 +179,7 @@ namespace Core
     }
 
     //----------------------------------------------------------------------
-    void SubSystemManager::_InitVirtualFilePaths()
+    void SubSystemManager::_InitVirtualFilePaths( Graphics::API api )
     {
         OS::VirtualFileSystem::mount( "cursors",  "../DX/res/cursors" );
         OS::VirtualFileSystem::mount( "engine",   "../DX/res" );
@@ -186,8 +187,8 @@ namespace Core
         OS::VirtualFileSystem::mount( "logs",      "res/logs" );
         OS::VirtualFileSystem::mount( "textures",  "res/textures" );
         OS::VirtualFileSystem::mount( "cubemaps",  "res/textures/cubemaps" );
-        OS::VirtualFileSystem::mount( "shaders",   "res/shaders" );
         OS::VirtualFileSystem::mount( "models",    "res/models" );
+        OS::VirtualFileSystem::mount( "shaders",   "res/shaders" );
         OS::VirtualFileSystem::mount( "audio",     "res/audio" );
         OS::VirtualFileSystem::mount( "materials", "res/materials" );
         OS::VirtualFileSystem::mount( "particles", "res/particles" );

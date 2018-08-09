@@ -115,6 +115,7 @@ namespace Graphics
         //  "frameIndex": The current frame index.
         //----------------------------------------------------------------------
         friend class D3D11Renderer;
+        friend class VkRenderer;
         virtual void bindForRendering(U64 frameIndex) = 0;
 
         //----------------------------------------------------------------------

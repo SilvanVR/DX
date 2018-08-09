@@ -485,7 +485,7 @@ namespace Assets {
             // Error shader
             m_errorShader = getShader( "/engine/shaders/error.shader" );
             if ( not m_errorShader )
-                LOG_WARN( "Failed to load the error shader. Please ensure that the shader exists and compiles." );
+                LOG_ERROR( "Failed to load the error shader. Please ensure that the shader exists and compiles." );
 
             // Wireframe shader
             m_wireframeShader = getShader( "/engine/shaders/wireframe.shader" );
