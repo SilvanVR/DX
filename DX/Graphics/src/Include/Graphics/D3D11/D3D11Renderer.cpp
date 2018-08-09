@@ -59,8 +59,10 @@ namespace Graphics {
         _CreateGlobalBuffer();
         _CreateCubeMesh();
 
+#if VR
         if ( not _InitializeHMD() )
             LOG_WARN_RENDERING( "VR not supported on your system." );
+#endif
 
         // Gets rid of the warnings that a texture is not bound to a shadowmap slot
         {
