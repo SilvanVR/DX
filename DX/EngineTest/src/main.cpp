@@ -152,7 +152,7 @@ public:
         // VR
         {
             // Toggle between normal & vr camera
-            if (KEYBOARD.wasKeyPressed(Key::V))
+            if (KEYBOARD.wasKeyPressed(Key::V) && RENDERER.hasHMD())
             {
                 auto mainCamera = SCENE.getMainCamera();
                 if (not mainCamera->isBlittingToHMD())

@@ -16,6 +16,7 @@
 #include "subsystem_manager.h"
 #include "Time/master_clock.h"
 #include "OS/Window/window.h"
+#include "Graphics/enums.hpp"
 
 namespace Core {
 
@@ -36,11 +37,12 @@ namespace Core {
         OS::Window&         getWindow()             { return m_window; }
         Time::MasterClock&  getMasterClock()        { return m_engineClock; }
         U64                 getFrameCount() const   { return m_frameCounter; }
+        Graphics::API       getAPI()        const   { return m_api; }
 
         //----------------------------------------------------------------------
         // Initiate the startup sequence for the engine.
         //----------------------------------------------------------------------
-        void start(const char* title, U32 width, U32 height);
+        void start(const char* title, U32 width, U32 height, Graphics::API api = Graphics::API::D3D11);
 
         //----------------------------------------------------------------------
         // Stops the core game loop.
@@ -48,9 +50,15 @@ namespace Core {
         void terminate() { m_isRunning = false; }
 
         //----------------------------------------------------------------------
-        // Stops the core game loop.
+        // Restarts the whole engine.
         //----------------------------------------------------------------------
-        void restart() { m_isRunning = false; m_restart = true; }
+        struct RestartEngineException{};
+        void restart() { throw RestartEngineException{}; }
+
+        //----------------------------------------------------------------------
+        // Set's the graphics api and restarts the whole engine.
+        //----------------------------------------------------------------------
+        void setAPI(Graphics::API api) { m_api = api; restart(); }
 
         //----------------------------------------------------------------------
         virtual void init() = 0;
@@ -73,10 +81,11 @@ namespace Core {
         OS::Window                  m_window;
         std::vector<ISubSystem*>    m_subscribers;
         bool                        m_isRunning = true;
-        bool                        m_restart = false;
         U64                         m_frameCounter = 0;
+        Graphics::API               m_api;
 
         //----------------------------------------------------------------------
+        void _Init(const char* title, U32 width, U32 height, Graphics::API api);
         void _RunCoreGameLoop();
         void _Shutdown();
 

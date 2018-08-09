@@ -11,6 +11,7 @@
 **********************************************************************/
 
 #include "Time/durations.h"
+#include "Graphics/enums.hpp"
 
 namespace Graphics { class IRenderer; }
 namespace Assets   { class AssetManager; }
@@ -41,7 +42,7 @@ namespace Core {
         SubSystemManager();
 
         //----------------------------------------------------------------------
-        void init();
+        void init(Graphics::API api);
         void shutdown();
 
     private:

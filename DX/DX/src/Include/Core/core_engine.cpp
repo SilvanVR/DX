@@ -11,50 +11,37 @@
 
 #include "Core/locator.h"
 #include "Logging/logging.h"
-#include "GameplayLayer/i_scene.h"
-#include "GameplayLayer/Components/Rendering/camera.h"
 #include "Events/event_dispatcher.h"
 #include "render_system.h"
-#include "Graphics/VR/vr.h"
 
 namespace Core {
 
     //----------------------------------------------------------------------
-    void CoreEngine::start( const char* title, U32 width, U32 height )
+    void CoreEngine::start( const char* title, U32 width, U32 height, Graphics::API api )
     {
-        m_isRunning = true;
+        m_api = api;
+        U32 w = width;
+        U32 h = height;
 
-        // Check for Math-Library support
-        if ( not DirectX::XMVerifyCPUSupport() )
-            LOG_ERROR( "DirectX-Math not supported on this system, but is required!" );
-
-        // Set core engine instance in the locator class
-        Locator::setCoreEngine( this );
-
-        // Create Window & Attach window resize event
-        m_window.create( title, width, height );
-        m_window.setCallbackSizeChanged( BIND_THIS_FUNC_2_ARGS( &CoreEngine::_OnWindowSizeChanged ) );
-
-        // Provide engine clock and window to the locator class
-        Locator::provide( &m_engineClock );
-        Locator::provide( &m_window );
-
-        // Initialize all subsystems
-        m_subSystemManager.init();
-
-        F32 ambient = 0.2f;
-        if ( auto amb = CONFIG.getEngineIni()["General"]["Ambient"] )
-            ambient = amb;
-        Locator::getRenderer().setGlobalFloat( SID("_Ambient"), ambient );
-
-        // Invoke game start event
-        Events::EventDispatcher::GetEvent( EVENT_GAME_START ).invoke();
-
-        // Call virtual init function for game class
-        init();
-
-        // Start core gameloop
-        _RunCoreGameLoop();
+        bool restart = true;
+        while (restart)
+        {
+            restart = false;
+            try
+            {
+                _Init( title, w, h, m_api );
+                _RunCoreGameLoop();
+                _Shutdown();
+            }
+            catch(RestartEngineException e)
+            {
+                (void*)&e; // Remove unreferenced param warning
+                w = m_window.getWidth();
+                h = m_window.getHeight();
+                _Shutdown();
+                restart = true;
+            }
+        }
     }
 
     //**********************************************************************
@@ -75,6 +62,39 @@ namespace Core {
     //**********************************************************************
 
     //----------------------------------------------------------------------
+    void CoreEngine::_Init( const char* title, U32 width, U32 height, Graphics::API api )
+    {
+        // Check for Math-Library support
+        if ( not DirectX::XMVerifyCPUSupport() )
+            LOG_ERROR( "DirectX-Math not supported on this system, but is required!" );
+
+        // Set core engine instance in the locator class
+        Locator::setCoreEngine( this );
+
+        // Create Window & Attach window resize event
+        m_window.create( title, width, height );
+        m_window.setCallbackSizeChanged( BIND_THIS_FUNC_2_ARGS( &CoreEngine::_OnWindowSizeChanged ) );
+
+        // Provide engine clock and window to the locator class
+        Locator::provide( &m_engineClock );
+        Locator::provide( &m_window );
+
+        // Initialize all subsystems
+        m_subSystemManager.init( api );
+
+        F32 ambient = 0.2f;
+        if ( auto amb = CONFIG.getEngineIni()["General"]["Ambient"] )
+            ambient = amb;
+        Locator::getRenderer().setGlobalFloat( SID("_Ambient"), ambient );
+
+        // Invoke game start event
+        Events::EventDispatcher::GetEvent( EVENT_GAME_START ).invoke();
+
+        // Call virtual init function for game class
+        init();
+    }
+
+    //----------------------------------------------------------------------
     void CoreEngine::_RunCoreGameLoop()
     {
         const Time::Seconds TICK_RATE_IN_SECONDS  = (1.0f / GAME_TICK_RATE);
@@ -82,6 +102,7 @@ namespace Core {
 
         Time::Seconds gameTickAccumulator = 0;
 
+        m_isRunning = true;
         while ( m_isRunning && not m_window.shouldBeClosed() )
         {
             Time::Seconds delta = m_engineClock._Update();
@@ -110,8 +131,6 @@ namespace Core {
 
             m_window.processOSMessages();
         }
-
-        _Shutdown();
     }
 
     //----------------------------------------------------------------------
@@ -120,7 +139,7 @@ namespace Core {
         auto& graphicsEngine = Locator::getRenderer();
 
         // Update global buffer
-        static const StringID TIME_NAME = SID( "_Time" );
+        static constexpr StringID TIME_NAME = StringID( "_Time" );
         graphicsEngine.setGlobalFloat( TIME_NAME, (F32)TIME.getTime() );
 
         Events::EventDispatcher::GetEvent( EVENT_FRAME_BEGIN ).invoke();
@@ -153,24 +172,8 @@ namespace Core {
         m_subscribers.clear();
         m_engineClock.clearAllCallbacks();
 
-        if (m_restart)
-        {
-            m_restart = false;
-            m_frameCounter = 0;
-
-            String title = m_window.getTitle();
-            auto w = m_window.getWidth();
-            auto h = m_window.getHeight();
-
-            // Destroy the window
-            m_window.destroy();
-
-            start( title.c_str(), w, h );
-        }
-        else
-        {
-            m_window.destroy();
-        }
+        // Destroy window
+        m_window.destroy();
     }
 
     //----------------------------------------------------------------------

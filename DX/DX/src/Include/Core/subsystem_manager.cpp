@@ -42,7 +42,7 @@ namespace Core
     }
 
     //----------------------------------------------------------------------
-    void SubSystemManager::init()
+    void SubSystemManager::init( Graphics::API api )
     {
         // The logger uses the virtual file-paths, so they have to be initialized first
         _InitVirtualFilePaths();
@@ -81,7 +81,14 @@ namespace Core
 
         //----------------------------------------------------------------------
         ASSERT( &Locator::getWindow() != nullptr );
-        m_renderer = initializeSubSystem( new Graphics::D3D11Renderer( &Locator::getWindow() ) );
+        Graphics::IRenderer* renderer = nullptr;
+        switch (api)
+        {
+        case Graphics::API::D3D11: renderer = new Graphics::D3D11Renderer( &Locator::getWindow() ); break;
+        case Graphics::API::Vulkan: ;//renderer = new Graphics::VulkanRenderer( &Locator::getWindow() ); break;
+        }
+        ASSERT( renderer );
+        m_renderer = initializeSubSystem( renderer );
         LOG( " > Renderer initialized!", LOGCOLOR );
 
         //----------------------------------------------------------------------
