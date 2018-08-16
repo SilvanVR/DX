@@ -53,10 +53,10 @@ namespace Graphics {
         //    g_vulkan.CreateInstance( vkOculus->getRequiredInstanceExtentions() );
         //    m_swapchain.init( m_window );
         //    g_vulkan.SelectPhysicalDevice( vkOculus->getPhysicalDevice( g_vulkan.instance ) );
-        //    g_vulkan.CreateDevice( vkOculus->getRequiredDeviceExtentions(), GetDeviceFeatures() );
+        //    g_vulkan.CreateDevice( m_swapchain.getSurfaceKHR(), vkOculus->getRequiredDeviceExtentions(), GetDeviceFeatures() );
         //    vkOculus->setSynchronizationQueueVk( g_vulkan.graphicsQueue );
         //    vkOculus->createEyeBuffers( g_vulkan.device );
-        //    m_swapchain.create();
+        //    m_swapchain.create( g_vulkan.gpu.physicalDevice, g_vulkan.device );
         //    m_hmd = vkOculus; 
         //    break;
         //}
@@ -69,8 +69,8 @@ namespace Graphics {
             g_vulkan.CreateInstance({ VK_KHR_SURFACE_EXTENSION_NAME, VK_KHR_WIN32_SURFACE_EXTENSION_NAME });
             m_swapchain.init( m_window );
             g_vulkan.SelectPhysicalDevice();
-            g_vulkan.CreateDevice({ VK_KHR_SWAPCHAIN_EXTENSION_NAME }, GetDeviceFeatures() );
-            m_swapchain.create();
+            g_vulkan.CreateDevice( m_swapchain.getSurfaceKHR(), { VK_KHR_SWAPCHAIN_EXTENSION_NAME }, GetDeviceFeatures() );
+            m_swapchain.create( g_vulkan.gpu.physicalDevice, g_vulkan.device );
         }
 
         _SetGPUDescription();

@@ -19,10 +19,13 @@ namespace Graphics { namespace Vulkan {
         ~Swapchain();
 
         void init(OS::Window* window);
-        void create();
+        void create(VkPhysicalDevice physicalDevice, VkDevice device);
+
+        VkSurfaceKHR getSurfaceKHR() const { return m_surface; }
 
     private:
-        VkSurfaceKHR m_surface;
+        VkSurfaceKHR    m_surface;
+        VkSwapchainKHR  m_swapchain;
 
         NULL_COPY_AND_ASSIGN(Swapchain)
     };

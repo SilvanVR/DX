@@ -53,6 +53,7 @@ namespace Graphics { namespace Vulkan {
         VkDevice    device;
         VkQueue     graphicsQueue;
         VkQueue     transferQueue;
+        VkQueue     presentQueue;
         GPU         gpu;
 
     private:
@@ -67,7 +68,7 @@ namespace Graphics { namespace Vulkan {
         friend class Graphics::VkRenderer;
         void CreateInstance(const ArrayList<String>& extensions);
         void SelectPhysicalDevice(VkPhysicalDevice gpu = nullptr);
-        void CreateDevice(const ArrayList<String>& extensions, const VkPhysicalDeviceFeatures& features);
+        void CreateDevice(VkSurfaceKHR surface, const ArrayList<String>& extensions, const VkPhysicalDeviceFeatures& features);
         void Shutdown();
 
         //----------------------------------------------------------------------

@@ -121,15 +121,18 @@ namespace Graphics { namespace Vulkan {
     }
 
     //----------------------------------------------------------------------
-    void Platform::CreateDevice( const ArrayList<String>& extensions, const VkPhysicalDeviceFeatures& features )
+    void Platform::CreateDevice( VkSurfaceKHR surface, const ArrayList<String>& extensions, const VkPhysicalDeviceFeatures& features )
     {
         I32 queueFamilyGraphicsIndex = -1;
         I32 queueFamilyTransferIndex = -1;
         for (I32 i = 0; i < gpu.queueFamilyProperties.size(); ++i)
         {
+            VkBool32 supportsPresent;
+            vkGetPhysicalDeviceSurfaceSupportKHR( gpu.physicalDevice, i, surface, &supportsPresent );
+
             if (gpu.queueFamilyProperties[i].queueFlags & VK_QUEUE_GRAPHICS_BIT && queueFamilyGraphicsIndex < 0)
                 queueFamilyGraphicsIndex = i;
-            if (gpu.queueFamilyProperties[i].queueFlags & VK_QUEUE_TRANSFER_BIT && queueFamilyTransferIndex < 0)
+            if (supportsPresent && gpu.queueFamilyProperties[i].queueFlags & VK_QUEUE_TRANSFER_BIT && queueFamilyTransferIndex < 0)
                 queueFamilyTransferIndex = i;
         }
         ASSERT( queueFamilyGraphicsIndex >= 0 && queueFamilyTransferIndex >= 0 && "VkRenderer: Couldn't find required queues." );
@@ -177,7 +180,7 @@ namespace Graphics { namespace Vulkan {
 
         vkCreateDevice( gpu.physicalDevice, &deviceInfo, nullptr, &device );
 
-        vkGetDeviceQueue( device, queueFamilyGraphicsIndex, drawQueueIndex, &graphicsQueue);
+        vkGetDeviceQueue( device, queueFamilyGraphicsIndex, drawQueueIndex, &graphicsQueue );
         vkGetDeviceQueue( device, queueFamilyTransferIndex, xferQueueIndex, &transferQueue );
     }
     
