@@ -21,6 +21,7 @@
 #include "D3D11Utility.h"
 #include "camera.h"
 #include "VR/vr.h"
+#include "VR/OculusRift/oculus_rift_dx.h"
 
 using namespace DirectX;
 
@@ -59,10 +60,12 @@ namespace Graphics {
         _CreateGlobalBuffer();
         _CreateCubeMesh();
 
-#if VR
-        if ( not _InitializeHMD() )
-            LOG_WARN_RENDERING( "VR not supported on your system." );
-#endif
+        VR::Device hmd = VR::GetFirstSupportedHMDAndInitialize();
+        switch (hmd)
+        {
+        case VR::Device::OculusRift: m_hmd = new VR::OculusRiftDX(); break;
+        default: LOG_WARN_RENDERING( "VR not supported on your system." );
+        }
 
         // Gets rid of the warnings that a texture is not bound to a shadowmap slot
         {

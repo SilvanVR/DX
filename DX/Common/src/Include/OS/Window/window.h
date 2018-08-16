@@ -25,6 +25,7 @@
     #define WIN32_LEAN_AND_MEAN
     #include <Windows.h>
     using NativeWindowHandle = HWND;
+    using NativeWindowInstance = HINSTANCE;
 #else
     static_assert( "Window class not supported on this plattform!" );
 #endif
@@ -59,13 +60,13 @@ namespace OS {
         ~Window();
 
         //----------------------------------------------------------------------
-        bool        shouldBeClosed() const { return m_shouldBeClosed; }
-        U16         getWidth() const { return m_width; }
-        U16         getHeight() const { return m_height; }
-        Point2D     getSize() const { return Point2D{ (I16)m_width, (I16)m_height }; }
-        F32         getAspectRatio() const { return (F32)m_width / m_height; }
-
-        NativeWindowHandle getHWND() const { return m_hwnd; }
+        bool                    shouldBeClosed()    const { return m_shouldBeClosed; }
+        U16                     getWidth()          const { return m_width; }
+        U16                     getHeight()         const { return m_height; }
+        Point2D                 getSize()           const { return Point2D{ (I16)m_width, (I16)m_height }; }
+        F32                     getAspectRatio()    const { return (F32)m_width / m_height; }
+        NativeWindowHandle      getHWND()           const { return m_hwnd; }
+        NativeWindowInstance    getInstance()       const { return m_instance; }
 
         //----------------------------------------------------------------------
         String getTitle() const;
@@ -186,8 +187,8 @@ namespace OS {
         bool            m_created           = false;
         bool            m_shouldBeClosed    = false;
 
-        NativeWindowHandle  m_hwnd;
-
+        NativeWindowHandle   m_hwnd;
+        NativeWindowInstance m_instance;
 
         //**********************************************************************
         // Small helper class which stores all the different window callbacks.

@@ -208,7 +208,9 @@
     <ClCompile Include="src\Include\Graphics\VR\vr.cpp" />
     <ClCompile Include="src\Include\Graphics\Vulkan\Ext\impl.cpp" />
     <ClCompile Include="src\Include\Graphics\Vulkan\VkGlobals.cpp" />
+    <ClCompile Include="src\Include\Graphics\Vulkan\VkPlatform.cpp" />
     <ClCompile Include="src\Include\Graphics\Vulkan\VkRenderer.cpp" />
+    <ClCompile Include="src\Include\Graphics\Vulkan\VkSwapchain.cpp" />
     <ClCompile Include="src\Include\Graphics\Vulkan\VkUtility.cpp" />
     <ClCompile Include="src\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -262,11 +264,15 @@
     <ClInclude Include="src\Include\Graphics\Utils\utils.h" />
     <ClInclude Include="src\Include\Graphics\vertex_layout.hpp" />
     <ClInclude Include="src\Include\Graphics\VR\OculusRift\oculus_rift.h" />
+    <ClInclude Include="src\Include\Graphics\VR\OculusRift\oculus_rift_dx.h" />
+    <ClInclude Include="src\Include\Graphics\VR\OculusRift\oculus_rift_vk.h" />
     <ClInclude Include="src\Include\Graphics\VR\vr.h" />
     <ClInclude Include="src\Include\Graphics\Vulkan\Ext\simple_vulkan_synchronization.h" />
     <ClInclude Include="src\Include\Graphics\Vulkan\Ext\vk_mem_alloc.h" />
     <ClInclude Include="src\Include\Graphics\Vulkan\VkGlobals.h" />
+    <ClInclude Include="src\Include\Graphics\Vulkan\VkPlatform.h" />
     <ClInclude Include="src\Include\Graphics\Vulkan\VkRenderer.h" />
+    <ClInclude Include="src\Include\Graphics\Vulkan\VkSwapchain.h" />
     <ClInclude Include="src\Include\Graphics\Vulkan\VkUtility.h" />
     <ClInclude Include="src\Include\Graphics\Vulkan\Vulkan.hpp" />
     <ClInclude Include="src\stdafx.h" />

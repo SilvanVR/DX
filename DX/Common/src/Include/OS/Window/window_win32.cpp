@@ -20,7 +20,6 @@ namespace OS {
 
     //----------------------------------------------------------------------
     static      Window*     s_window = nullptr;
-    static      HINSTANCE   hInstance;
 
     //----------------------------------------------------------------------
     bool        RegisterWindowClass( HINSTANCE hInstance, LPCSTR className );
@@ -155,7 +154,7 @@ namespace OS {
         s_window = this;
 
         LPCSTR className = "DXWNDClassName";
-        if ( not RegisterWindowClass( hInstance, className ) )
+        if ( not RegisterWindowClass( m_instance, className ) )
         {
             LOG_ERROR( "Window[Win32]::create(): Failed to register a window class." );
         }
@@ -178,7 +177,7 @@ namespace OS {
                                windowStyle,
                                x, y, 
                                w, h, 
-                               NULL, NULL, hInstance, NULL );
+                               NULL, NULL, m_instance, NULL );
 
         if ( not m_hwnd)
         {

@@ -120,12 +120,6 @@ namespace Graphics {
         void _UnlockQueue();
 
         //----------------------------------------------------------------------
-        // Queries all supported HMDs, checks if they are supported and initializes the first supported one.
-        // @Return: Whether an hmd was successfully found and initialized.
-        //----------------------------------------------------------------------
-        bool _InitializeHMD();
-
-        //----------------------------------------------------------------------
         virtual void OnWindowSizeChanged(U16 w, U16 h) = 0;
 
         //----------------------------------------------------------------------

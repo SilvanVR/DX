@@ -8,6 +8,7 @@
 
 #include "Vulkan.hpp"
 #include "../i_renderer.h"
+#include "VkSwapchain.h"
 
 namespace Graphics {
 
@@ -23,7 +24,7 @@ namespace Graphics {
     class Light;
 
     //**********************************************************************
-    // D3D11 Renderer
+    // Vulkan Renderer
     //**********************************************************************
     class VkRenderer : public IRenderer
     {
@@ -56,7 +57,7 @@ namespace Graphics {
         bool setGlobalMatrix(StringID name, const DirectX::XMMATRIX& matrix) override;
 
     private:
-        //D3D11::Swapchain*   m_pSwapchain    = nullptr;
+        Vulkan::Swapchain   m_swapchain;
         IMesh*              m_cubeMesh      = nullptr;
 
         //----------------------------------------------------------------------
@@ -70,9 +71,6 @@ namespace Graphics {
         inline void _DrawFullScreenQuad(const MaterialPtr& material, const ViewportRect& viewport);
 
         //----------------------------------------------------------------------
-        void _InitVulkan();
-        void _DeinitVulkan();
-
         void _SetGPUDescription();
         void _CreateGlobalBuffer();
         void _CreateCubeMesh();

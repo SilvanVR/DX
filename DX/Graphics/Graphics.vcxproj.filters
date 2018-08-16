@@ -120,10 +120,16 @@
     <ClCompile Include="src\Include\Graphics\Vulkan\VkUtility.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Include\Graphics\Vulkan\VkGlobals.cpp">
+    <ClCompile Include="src\Include\Graphics\Vulkan\Ext\impl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Include\Graphics\Vulkan\Ext\impl.cpp">
+    <ClCompile Include="src\Include\Graphics\Vulkan\VkPlatform.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Include\Graphics\Vulkan\VkSwapchain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Include\Graphics\Vulkan\VkGlobals.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -275,13 +281,25 @@
     <ClInclude Include="src\Include\Graphics\Vulkan\VkUtility.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Include\Graphics\Vulkan\VkGlobals.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\Include\Graphics\Vulkan\Ext\vk_mem_alloc.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Include\Graphics\Vulkan\Ext\simple_vulkan_synchronization.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Include\Graphics\Vulkan\VkPlatform.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Include\Graphics\VR\OculusRift\oculus_rift_dx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Include\Graphics\VR\OculusRift\oculus_rift_vk.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Include\Graphics\Vulkan\VkSwapchain.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Include\Graphics\Vulkan\VkGlobals.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -10,15 +10,30 @@
 #include "OS/FileSystem/file.h"
 #include "Lighting/lights.h"
 #include "camera.h"
-#include "VR/vr.h"
+#include "VR/OculusRift/oculus_rift_vk.h"
+#include "Vulkan.hpp"
 
 #include "i_material.h"
 #include "i_shader.h"
 #include "i_mesh.h"
 
-using namespace DirectX;
-
 namespace Graphics {
+
+    using namespace Vulkan;
+
+    VkPhysicalDeviceFeatures GetDeviceFeatures()
+    {
+        VkPhysicalDeviceFeatures requestedFeatures{};
+        requestedFeatures.fillModeNonSolid              = VK_TRUE;
+        requestedFeatures.depthBiasClamp                = VK_TRUE;
+        requestedFeatures.depthBounds                   = VK_TRUE;
+        requestedFeatures.depthClamp                    = VK_TRUE;
+        requestedFeatures.geometryShader                = VK_TRUE;
+        requestedFeatures.samplerAnisotropy             = VK_TRUE;
+        requestedFeatures.tessellationShader            = VK_TRUE;
+        requestedFeatures.shaderStorageImageMultisample = VK_TRUE;
+        return requestedFeatures;
+    }
 
     //**********************************************************************
     // INIT STUFF
@@ -28,22 +43,49 @@ namespace Graphics {
     void VkRenderer::init()
     {
         _SetLimits();
-        _InitVulkan();
+
+        //VR::Device hmd = VR::GetFirstSupportedHMDAndInitialize();
+        //switch (hmd)
+        //{
+        //case VR::Device::OculusRift:
+        //{
+        //    auto vkOculus = new VR::OculusRiftVk();
+        //    g_vulkan.CreateInstance( vkOculus->getRequiredInstanceExtentions() );
+        //    m_swapchain.init( m_window );
+        //    g_vulkan.SelectPhysicalDevice( vkOculus->getPhysicalDevice( g_vulkan.instance ) );
+        //    g_vulkan.CreateDevice( vkOculus->getRequiredDeviceExtentions(), GetDeviceFeatures() );
+        //    vkOculus->setSynchronizationQueueVk( g_vulkan.graphicsQueue );
+        //    vkOculus->createEyeBuffers( g_vulkan.device );
+        //    m_swapchain.create();
+        //    m_hmd = vkOculus; 
+        //    break;
+        //}
+        //default:
+        //    LOG_WARN_RENDERING( "VR not supported on your system." );
+        //}
+
+        if ( not hasHMD() )
+        {
+            g_vulkan.CreateInstance({ VK_KHR_SURFACE_EXTENSION_NAME, VK_KHR_WIN32_SURFACE_EXTENSION_NAME });
+            m_swapchain.init( m_window );
+            g_vulkan.SelectPhysicalDevice();
+            g_vulkan.CreateDevice({ VK_KHR_SWAPCHAIN_EXTENSION_NAME }, GetDeviceFeatures() );
+            m_swapchain.create();
+        }
+
+        _SetGPUDescription();
         _CreateGlobalBuffer();
         _CreateCubeMesh();
-#if VR
-        if ( not _InitializeHMD() )
-            LOG_WARN_RENDERING( "VR not supported on your system." );
-#endif
+        LOG_RENDERING( "Done initializing Vulkan... (Using " + getGPUDescription().name + ")" );
     } 
 
     //----------------------------------------------------------------------
     void VkRenderer::shutdown()
     {
+        g_vulkan.Shutdown();
         SAFE_DELETE( m_hmd );
         SAFE_DELETE( m_cubeMesh );
         renderContext.Reset();
-        _DeinitVulkan();
     }
 
     //----------------------------------------------------------------------
@@ -153,6 +195,8 @@ namespace Graphics {
     {
         if ( w == 0 || h == 0 ) // Window was minimized
             return;
+
+        // Recreate swapchain buffers
     }
 
     //**********************************************************************
@@ -225,46 +269,6 @@ namespace Graphics {
     //**********************************************************************
     // PRIVATE
     //**********************************************************************
-
-    //----------------------------------------------------------------------
-    void VkRenderer::_InitVulkan()
-    {
-        VkInstanceCreateInfo instanceInfo{ VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO };
-#if _DEBUG
-        CString layers[] =
-        {
-            "VK_LAYER_LUNARG_standard_validation",
-        };
-        instanceInfo.enabledLayerCount = countof(layers);
-        instanceInfo.ppEnabledLayerNames = layers;
-#else
-#endif
-        CString extensionNames[] = { "VK_KHR_surface", "VK_KHR_win32_surface" };
-        instanceInfo.enabledExtensionCount = countof( extensionNames );
-        instanceInfo.ppEnabledExtensionNames = extensionNames;
-
-        VkApplicationInfo appInfo{ VK_STRUCTURE_TYPE_APPLICATION_INFO };
-        appInfo.pApplicationName = "DX_VkRenderer";
-        appInfo.pEngineName = "DX_Engine";
-
-        U32 apiVersion = 0;
-        vkEnumerateInstanceVersion( &apiVersion );
-        appInfo.apiVersion = VK_MAKE_VERSION( 1, 1, 0 ) <= apiVersion ? VK_MAKE_VERSION( 1, 1, 0 ) : VK_MAKE_VERSION( 1, 0, 0 );
-
-        instanceInfo.pApplicationInfo = &appInfo;
-
-        VkInstance instance;
-        VALIDATE( vkCreateInstance( &instanceInfo, ALLOCATOR, &instance ) );
-
-        _SetGPUDescription();
-
-        LOG_RENDERING( "Done initializing Vulkan... (Using " + getGPUDescription().name + ")" );
-    }
-
-    //----------------------------------------------------------------------
-    void VkRenderer::_DeinitVulkan()
-    {
-    }
 
     //----------------------------------------------------------------------
     void VkRenderer::_SetLimits()

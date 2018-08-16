@@ -40,7 +40,7 @@ namespace Components {
                                                             DEPTH_STENCIL_FORMAT, hdr ? BUFFER_FORMAT_HDR : BUFFER_FORMAT_LDR,
                                                             sampleCount, false );
             m_eyeCameras[eye] = m_eyeGameObjects[eye]->addComponent<Components::Camera>( eyeBuffer );
-            m_eyeCameras[eye]->setProjection( hmd.getProjection( eye ) );
+            m_eyeCameras[eye]->setProjection( hmd.getProjection( eye, m_eyeCameras[eye]->getZNear(), m_eyeCameras[eye]->getZFar() ) );
         }
 
         // Update transform data before every frame

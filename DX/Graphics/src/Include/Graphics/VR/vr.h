@@ -80,7 +80,7 @@ namespace Graphics { namespace VR {
         //----------------------------------------------------------------------
         // @Return: Projection matrix for the given eye.
         //----------------------------------------------------------------------
-        virtual DirectX::XMMATRIX getProjection(Eye eye) const = 0;
+        virtual DirectX::XMMATRIX getProjection(Eye eye, F32 zNear, F32 zFar) const = 0;
 
         //----------------------------------------------------------------------
         // Disables/Enables the performance hud with the given mode.

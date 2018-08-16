@@ -53,7 +53,7 @@ namespace Graphics { namespace VR {
     }
 
     //----------------------------------------------------------------------
-    OculusRift::OculusRift( API api )
+    OculusRift::OculusRift()
     {
         if ( not _CreateSession() )
         {
@@ -62,10 +62,15 @@ namespace Graphics { namespace VR {
         }
 
         m_HMDInfo = ovr_GetHmdDesc( g_session );
-        _CreateEyeBuffers( api, m_HMDInfo );
-
         for (auto eye : { LeftEye, RightEye })
+        {
+            ovrSizei idealSize = ovr_GetFovTextureSize( g_session, (ovrEyeType)eye, m_HMDInfo.DefaultEyeFov[eye], 1.0f );
+            m_eyeRenderViewport[eye].Pos.x = 0;
+            m_eyeRenderViewport[eye].Pos.y = 0;
+            m_eyeRenderViewport[eye].Size = idealSize;
+
             m_eyeRenderDesc[eye] = ovr_GetRenderDesc( g_session, (ovrEyeType)eye, m_HMDInfo.DefaultEyeFov[eye] );
+        }
 
         _SetupDescription( m_HMDInfo );
     }
@@ -91,9 +96,15 @@ namespace Graphics { namespace VR {
     //----------------------------------------------------------------------
 
     //----------------------------------------------------------------------
-    DirectX::XMMATRIX OculusRift::getProjection( Eye eye ) const
+    ovrSession OculusRift::getSession() const
     {
-        ovrMatrix4f p = ovrMatrix4f_Projection( m_eyeRenderDesc[eye].Fov, 0.1f, 1000.0f, ovrProjection_LeftHanded );
+        return g_session;
+    }
+
+    //----------------------------------------------------------------------
+    DirectX::XMMATRIX OculusRift::getProjection( Eye eye, F32 zNear, F32 zFar ) const
+    {
+        ovrMatrix4f p = ovrMatrix4f_Projection( m_eyeRenderDesc[eye].Fov, zNear, zFar, ovrProjection_LeftHanded );
         auto proj = DirectX::XMMatrixSet( p.M[0][0], p.M[1][0], p.M[2][0], p.M[3][0],
                                           p.M[0][1], p.M[1][1], p.M[2][1], p.M[3][1],
                                           p.M[0][2], p.M[1][2], p.M[2][2], p.M[3][2],
@@ -221,52 +232,21 @@ namespace Graphics { namespace VR {
     //----------------------------------------------------------------------
     bool OculusRift::_CreateSession()
     {
-        ovrGraphicsLuid luid;
-        if (ovr_Create( &g_session, &luid ) != ovrSuccess)
+        if (ovr_Create( &g_session, &m_graphicsLuid) != ovrSuccess)
             return false;
 
         return true;
     }
 
     //----------------------------------------------------------------------
-    void OculusRift::_CreateEyeBuffers( API api, const ovrHmdDesc& HMDInfo )
-    {
-        for (auto eye : { LeftEye, RightEye })
-        {
-            ovrSizei idealSize = ovr_GetFovTextureSize( g_session, (ovrEyeType)eye, HMDInfo.DefaultEyeFov[eye], 1.0f );
-            m_eyeRenderViewport[eye].Pos.x = 0;
-            m_eyeRenderViewport[eye].Pos.y = 0;
-            m_eyeRenderViewport[eye].Size = idealSize;
-
-            switch (api)
-            {
-            case API::D3D11:
-                m_eyeBuffers[eye] = new OculusSwapchainDX( g_session, idealSize.w, idealSize.h );
-                break;
-            case API::Vulkan:
-                ASSERT( false );
-                break;
-            default:
-                ASSERT( false );
-            }
-        }
-    }
-
-    //----------------------------------------------------------------------
     void OculusRift::_SetupDescription( const ovrHmdDesc& hmdInfo )
     {
-        HMDDescription description;
-        description.name        = hmdInfo.ProductName;
-        description.resolution  = { hmdInfo.Resolution.w, hmdInfo.Resolution.h };
-        description.device      = Device::OculusRift;
+        m_description.name        = hmdInfo.ProductName;
+        m_description.resolution  = { hmdInfo.Resolution.w, hmdInfo.Resolution.h };
+        m_description.device      = Device::OculusRift;
 
         for (auto eye : { LeftEye, RightEye })
-        {
-            ovrSizei idealSize = ovr_GetFovTextureSize( g_session, (ovrEyeType)eye, hmdInfo.DefaultEyeFov[eye], 1.0f );
-            description.idealResolution[eye] = { idealSize.w, idealSize.h };
-        }
-
-        m_description = description;
+            m_description.idealResolution[eye] = { m_eyeRenderViewport[eye].Size.w, m_eyeRenderViewport[eye].Size.h };
     }
 
     //----------------------------------------------------------------------
@@ -275,51 +255,6 @@ namespace Graphics { namespace VR {
         ovrSessionStatus sessionStatus;
         ovr_GetSessionStatus( g_session, &sessionStatus );
         return sessionStatus.HasInputFocus;
-    }
-
-    //**********************************************************************
-    // OCULUS SWAPCHAIN
-    //**********************************************************************
-
-    //----------------------------------------------------------------------
-    OculusSwapchainDX::OculusSwapchainDX( ovrSession session, I32 sizeW, I32 sizeH )
-    {
-        ovrTextureSwapChainDesc dsDesc = {};
-        dsDesc.Width = sizeW;
-        dsDesc.Height = sizeH;
-        dsDesc.MipLevels = 1;
-        dsDesc.ArraySize = 1;
-        dsDesc.Format = OVR_FORMAT_R8G8B8A8_UNORM_SRGB;
-        dsDesc.SampleCount = 1;
-        dsDesc.MiscFlags = ovrTextureMisc_DX_Typeless;
-        dsDesc.BindFlags = ovrTextureBind_DX_RenderTarget;
-
-        ovr_CreateTextureSwapChainDX( session, g_pDevice, &dsDesc, &m_swapChain );
-        I32 count = 0;
-        ovr_GetTextureSwapChainLength( session, m_swapChain, &count );
-        for (I32 i = 0; i < count; ++i)
-        {
-            ID3D11Texture2D* tex = nullptr;
-            ovr_GetTextureSwapChainBufferDX( session, m_swapChain, i, IID_PPV_ARGS( &tex ) );
-            D3D11_RENDER_TARGET_VIEW_DESC rtvd = {};
-            rtvd.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-            rtvd.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
-            g_pDevice->CreateRenderTargetView( tex, &rtvd, &m_texRtv[i].releaseAndGet() );
-            tex->Release();
-        }
-    }
-
-    //----------------------------------------------------------------------
-    void OculusSwapchainDX::clear( ovrSession session, Color color )
-    {
-        g_pImmediateContext->ClearRenderTargetView( _GetRTVDX( session ), color.normalized().data() );
-    }
-
-    //----------------------------------------------------------------------
-    void OculusSwapchainDX::bindForRendering( ovrSession session )
-    {
-        auto rtv = _GetRTVDX( session );
-        g_pImmediateContext->OMSetRenderTargets( 1, &rtv, NULL );
     }
 
 } } // End namespaces

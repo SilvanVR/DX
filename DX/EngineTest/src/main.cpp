@@ -35,6 +35,7 @@ public:
         // Camera 1
         go = createGameObject("Camera");
         cam = go->addComponent<Components::Camera>();
+        cam->setClearColor(Color(175, 181, 191));
         go->getComponent<Components::Transform>()->position = Math::Vec3(0, 1, -5);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 0.1f);
         go->addComponent<Components::AudioListener>();
@@ -211,7 +212,7 @@ private:
     int main()
     {
         Game game;
-        game.start( gameName, 800, 600, Graphics::API::D3D11 );
+        game.start( gameName, 800, 600, Graphics::API::Vulkan );
 
         system("pause");
         return 0;
