@@ -118,7 +118,7 @@ namespace StringUtils {
     // IStringStream
     //**********************************************************************
     IStringStream::IStringStream(const String& str)
-        : m_str(str), m_readPos(0), m_failed(false)
+        : m_str( str ), m_readPos( str.empty() ? String::npos : 0 ), m_failed( false )
     {}
 
     //----------------------------------------------------------------------

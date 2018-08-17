@@ -144,6 +144,8 @@ class PlayerInventory : public Components::IComponent, public Core::Input::IMous
 
     GameObject* previewBlock;
     MaterialPtr previewBlockMaterial;
+    Events::EventListener m_hmdFocusGainedListener;
+    Events::EventListener m_hmdFocusLostListener;
 
 public:
     PlayerInventory(U32 maxCountPerItem = 64) : m_maxCountPerItem(maxCountPerItem) {}
@@ -163,8 +165,8 @@ public:
         transform->setParent( go->getTransform(), false );
 
 #if USE_VR
-        Events::EventDispatcher::GetEvent(EVENT_HMD_FOCUS_GAINED).addListener([this] { setPreviewBlockEnabled(true); });
-        Events::EventDispatcher::GetEvent(EVENT_HMD_FOCUS_LOST).addListener([this] { setPreviewBlockEnabled(false); });
+        m_hmdFocusGainedListener =  Events::EventDispatcher::GetEvent(EVENT_HMD_FOCUS_GAINED).addListener([this] { setPreviewBlockEnabled(true); });
+        m_hmdFocusLostListener = Events::EventDispatcher::GetEvent(EVENT_HMD_FOCUS_LOST).addListener([this] { setPreviewBlockEnabled(false); });
         previewBlock->addComponent<Components::VRTouch>( Graphics::VR::Hand::Right );
         shader->setDepthStencilState({ true, true });
 #else

@@ -27,6 +27,7 @@ namespace Core {
             restart = false;
             try
             {
+                m_frameCounter = 0;
                 _Init( title, width, height, m_api );
                 _RunCoreGameLoop();
                 _Shutdown();
@@ -85,6 +86,10 @@ namespace Core {
 
         // Invoke game start event
         Events::EventDispatcher::GetEvent( EVENT_GAME_START ).invoke();
+
+        // Quit app when HMD requests it
+        static Events::EventListener hmdShouldQuitListener;
+        hmdShouldQuitListener = Events::EventDispatcher::GetEvent( EVENT_HMD_SHOULD_QUIT ).addListener([this]{ terminate(); });
 
         // Call virtual init function for game class
         init();

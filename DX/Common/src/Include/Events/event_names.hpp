@@ -14,3 +14,4 @@
 #define EVENT_FRAME_END         SID( "OnFrameEnd" )
 #define EVENT_HMD_FOCUS_GAINED  SID( "OnHMDFocusGained" )
 #define EVENT_HMD_FOCUS_LOST    SID( "OnHMDFocusLost" )
+#define EVENT_HMD_SHOULD_QUIT   SID( "OnHMDShouldQuit" )

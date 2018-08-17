@@ -122,8 +122,7 @@ float4 APPLY_LIGHTING( float3 P, float3 N )
 	float3 normal = normalize( N );
 	
 	float4 totalLight = { 0, 0, 0, 1 };
-	
-    [unroll]
+
 	for (int i = 0; i < _LightCount; i++)
 	{
         switch( _Lights[i].lightType )

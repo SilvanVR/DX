@@ -93,7 +93,6 @@ namespace Graphics { namespace VR {
         //----------------------------------------------------------------------
         bool _CreateSession();
         void _SetupDescription(const ovrHmdDesc& hmdInfo);
-        bool _HasFocus();
         void _UpdateEyeAndTouchPoses(I64 frameIndex);
 
         NULL_COPY_AND_ASSIGN(OculusRift)

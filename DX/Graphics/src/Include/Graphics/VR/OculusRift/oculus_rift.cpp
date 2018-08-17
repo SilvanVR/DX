@@ -115,17 +115,27 @@ namespace Graphics { namespace VR {
     //----------------------------------------------------------------------
     void OculusRift::_UpdateEyeAndTouchPoses( I64 frameIndex )
     {
-        // Focus check
-        bool hasFocus = _HasFocus();
-        if (m_hasFocus && not hasFocus)
+        ovrSessionStatus sessionStatus;
+        ovr_GetSessionStatus( g_session, &sessionStatus );
+
+        // Session check
         {
-            m_hasFocus = false;
-            Events::EventDispatcher::GetEvent( EVENT_HMD_FOCUS_LOST ).invoke();
-        }
-        else if (not m_hasFocus && hasFocus)
-        {
-            m_hasFocus = true;
-            Events::EventDispatcher::GetEvent( EVENT_HMD_FOCUS_GAINED ).invoke();
+            if (m_hasFocus && not sessionStatus.HasInputFocus)
+            {
+                m_hasFocus = false;
+                Events::EventDispatcher::GetEvent( EVENT_HMD_FOCUS_LOST ).invoke();
+            }
+            else if (not m_hasFocus && sessionStatus.HasInputFocus)
+            {
+                m_hasFocus = true;
+                Events::EventDispatcher::GetEvent( EVENT_HMD_FOCUS_GAINED ).invoke();
+            }
+
+            if (sessionStatus.ShouldRecenter)
+                ovr_RecenterTrackingOrigin( g_session );
+
+            if (sessionStatus.ShouldQuit)
+                Events::EventDispatcher::GetEvent( EVENT_HMD_SHOULD_QUIT ).invoke();
         }
 
         ovr_WaitToBeginFrame( g_session, frameIndex );
@@ -247,14 +257,6 @@ namespace Graphics { namespace VR {
 
         for (auto eye : { LeftEye, RightEye })
             m_description.idealResolution[eye] = { m_eyeRenderViewport[eye].Size.w, m_eyeRenderViewport[eye].Size.h };
-    }
-
-    //----------------------------------------------------------------------
-    bool OculusRift::_HasFocus()
-    {
-        ovrSessionStatus sessionStatus;
-        ovr_GetSessionStatus( g_session, &sessionStatus );
-        return sessionStatus.HasInputFocus;
     }
 
 } } // End namespaces
