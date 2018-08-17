@@ -51,6 +51,19 @@ namespace Graphics {
         else return -1;
     }
 
+    //----------------------------------------------------------------------
+    String GetShaderTypeName( ShaderType shaderType )
+    {
+        switch (shaderType)
+        {
+        case ShaderType::Vertex:    return "vertex";
+        case ShaderType::Fragment:  return "fragment";
+        case ShaderType::Geometry:  return "geometry";
+            ASSERT( false && "Unknown shader." );
+        }
+        return "";
+    }
+
 }
 
 

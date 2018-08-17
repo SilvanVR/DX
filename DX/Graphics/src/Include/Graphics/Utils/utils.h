@@ -23,4 +23,9 @@ namespace Graphics {
     //----------------------------------------------------------------------
     I32 StringToRenderQueue(const String& str);
 
+    //----------------------------------------------------------------------
+    // @Return: Shadertype as a readable string.
+    //----------------------------------------------------------------------
+    String GetShaderTypeName(ShaderType shaderType);
+
 }

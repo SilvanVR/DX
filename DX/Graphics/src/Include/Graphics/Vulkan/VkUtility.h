@@ -11,27 +11,27 @@
 
 namespace Graphics { namespace Vulkan { namespace Utility {
 
-    ////----------------------------------------------------------------------
-    //D3D11_COMPARISON_FUNC TranslateComparisonFunc( ComparisonFunc comparison );
+    //----------------------------------------------------------------------
+    VkCompareOp TranslateComparisonFunc( ComparisonFunc comparison );
 
-    ////----------------------------------------------------------------------
-    //D3D11_BLEND TranslateBlend( Blend blend );
+    //----------------------------------------------------------------------
+    VkBlendFactor TranslateBlend( Blend blend );
 
-    ////----------------------------------------------------------------------
-    //D3D11_BLEND_OP TranslateBlendOP( BlendOP blendOp );
+    //----------------------------------------------------------------------
+    VkBlendOp TranslateBlendOP( BlendOP blendOp );
 
-    ////----------------------------------------------------------------------
-    //D3D11_FILTER TranslateFilter( TextureFilter filter );
+    //----------------------------------------------------------------------
+    std::pair<VkFilter, VkSamplerMipmapMode> TranslateFilter( TextureFilter filter );
 
-    ////----------------------------------------------------------------------
-    //D3D11_TEXTURE_ADDRESS_MODE TranslateClampMode( TextureAddressMode clampMode );
+    //----------------------------------------------------------------------
+    VkSamplerAddressMode TranslateClampMode( TextureAddressMode clampMode );
 
-    ////----------------------------------------------------------------------
-    //DXGI_FORMAT TranslateTextureFormat( TextureFormat format );
+    //----------------------------------------------------------------------
+    VkFormat TranslateTextureFormat( TextureFormat format );
 
-    ////----------------------------------------------------------------------
-    //DXGI_FORMAT TranslateDepthFormat( DepthFormat depth );
-    //DXGI_FORMAT TranslateDepthFormatSRV( DepthFormat depth );
+    //----------------------------------------------------------------------
+    VkFormat TranslateDepthFormat( DepthFormat depth );
+    //VkFormat TranslateDepthFormatSRV( DepthFormat depth );
 
     ////----------------------------------------------------------------------
     //bool MSAASamplesSupported( DXGI_FORMAT format, U8 numSamples );

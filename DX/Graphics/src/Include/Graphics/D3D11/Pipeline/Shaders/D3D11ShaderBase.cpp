@@ -10,6 +10,7 @@
 #include "D3D11/D3D11Defines.hpp"
 #include "OS/FileSystem/file_system.h"
 #include "OS/FileSystem/file.h"
+#include "Utils/utils.h"
 
 namespace Graphics { namespace D3D11 {
 
@@ -93,7 +94,7 @@ namespace Graphics { namespace D3D11 {
         HRESULT hr = D3DCompileFromFile( ConvertToWString( path.toString() ).c_str(), NULL, D3D_COMPILE_STANDARD_FILE_INCLUDE,
                                          entryPoint, _GetLatestProfile().c_str(), GetCompileFlags(), 0, &d3d11ShaderBlob.get(), &d3D11ErrorBlob.get() );
 
-        String shaderName = _GetShaderTypeName();
+        String shaderName = GetShaderTypeName( m_shaderType );
         if ( FAILED( hr ) )
         {
             if (d3D11ErrorBlob)
@@ -110,7 +111,7 @@ namespace Graphics { namespace D3D11 {
     //----------------------------------------------------------------------
     void ShaderBase::_CompileFromSource( const String& source, CString entryPoint, std::function<void(const ShaderBlob&)> fn )
     {
-        String shaderName = _GetShaderTypeName();
+        String shaderName = GetShaderTypeName( m_shaderType );
 
         StringID hash = SID( source.c_str() );
 
@@ -283,19 +284,6 @@ namespace Graphics { namespace D3D11 {
 
         ASSERT( false && "Variable type could not be deduced." );
         return DataType::Unknown;
-    }
-
-    //----------------------------------------------------------------------
-    String ShaderBase::_GetShaderTypeName()
-    {
-        switch (m_shaderType)
-        {
-        case ShaderType::Vertex:    return "vertex";
-        case ShaderType::Fragment:  return "fragment";
-        case ShaderType::Geometry:  return "geometry";
-        ASSERT( false && "Unsupported shader!" );
-        }
-        return "";
     }
 
     //----------------------------------------------------------------------

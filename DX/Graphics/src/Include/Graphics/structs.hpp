@@ -43,7 +43,7 @@ namespace Graphics {
     {
         FillMode    fillMode                = FillMode::Solid;
         CullMode    cullMode                = CullMode::Back;
-        I32         depthBias               = 0;
+        F32         depthBias               = 0.0f;
         F32         depthBiasClamp          = 0.0f;
         F32         slopeScaledDepthBias    = 0.0f;
         bool        frontCounterClockwise   = false;

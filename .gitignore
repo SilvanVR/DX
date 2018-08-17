@@ -28,3 +28,4 @@
 /DX/EngineTest/imgui.ini
 /DX/DX/res/engine/shaders/bin/*.cso
 *.cso
+/DX/DX/res/shaders/bin/debug/*.spv

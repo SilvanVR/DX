@@ -19,6 +19,7 @@
 
 namespace Graphics {
 
+    class IShader;
     typedef std::function<void(IShader*)> ShaderReloadCallback;
 
     //**********************************************************************

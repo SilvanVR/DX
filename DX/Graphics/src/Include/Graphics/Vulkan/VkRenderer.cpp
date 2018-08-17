@@ -14,8 +14,8 @@
 #include "Vulkan.hpp"
 
 #include "i_material.h"
-#include "i_shader.h"
 #include "i_mesh.h"
+#include "Resources/VkShader.h"
 
 namespace Graphics {
 
@@ -230,7 +230,7 @@ namespace Graphics {
     //----------------------------------------------------------------------
     IMesh*              VkRenderer::createMesh()           { return nullptr; }//  { return new Vulkan::Mesh(); }
     IMaterial*          VkRenderer::createMaterial()       { return nullptr; }//  { return new Vulkan::Material(); }
-    IShader*            VkRenderer::createShader()         { return nullptr; }//  { return new Vulkan::Shader(); }
+    IShader*            VkRenderer::createShader()         { return new Vulkan::Shader; }
     ITexture2D*         VkRenderer::createTexture2D()      { return nullptr; }//  { return new Vulkan::Texture2D(); }
     IRenderTexture*     VkRenderer::createRenderTexture()  { return nullptr; }//  { return new Vulkan::RenderTexture(); }
     ICubemap*           VkRenderer::createCubemap()        { return nullptr; }//  { return new Vulkan::Cubemap(); }

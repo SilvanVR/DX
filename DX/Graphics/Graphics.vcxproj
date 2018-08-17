@@ -207,6 +207,12 @@
     <ClCompile Include="src\Include\Graphics\VR\OculusRift\oculus_rift.cpp" />
     <ClCompile Include="src\Include\Graphics\VR\vr.cpp" />
     <ClCompile Include="src\Include\Graphics\Vulkan\Ext\impl.cpp" />
+    <ClCompile Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\VkFragmentShader.cpp" />
+    <ClCompile Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\VkGeometryShader.cpp" />
+    <ClCompile Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\VkShaderBase.cpp" />
+    <ClCompile Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\VkVertexShader.cpp" />
+    <ClCompile Include="src\Include\Graphics\Vulkan\Resources\VkMesh.cpp" />
+    <ClCompile Include="src\Include\Graphics\Vulkan\Resources\VkShader.cpp" />
     <ClCompile Include="src\Include\Graphics\Vulkan\VkGlobals.cpp" />
     <ClCompile Include="src\Include\Graphics\Vulkan\VkPlatform.cpp" />
     <ClCompile Include="src\Include\Graphics\Vulkan\VkRenderer.cpp" />
@@ -269,6 +275,12 @@
     <ClInclude Include="src\Include\Graphics\VR\vr.h" />
     <ClInclude Include="src\Include\Graphics\Vulkan\Ext\simple_vulkan_synchronization.h" />
     <ClInclude Include="src\Include\Graphics\Vulkan\Ext\vk_mem_alloc.h" />
+    <ClInclude Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\VkFragmentShader.h" />
+    <ClInclude Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\VkGeometryShader.h" />
+    <ClInclude Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\VkShaderBase.h" />
+    <ClInclude Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\VkVertexShader.h" />
+    <ClInclude Include="src\Include\Graphics\Vulkan\Resources\VkMesh.h" />
+    <ClInclude Include="src\Include\Graphics\Vulkan\Resources\VkShader.h" />
     <ClInclude Include="src\Include\Graphics\Vulkan\VkGlobals.h" />
     <ClInclude Include="src\Include\Graphics\Vulkan\VkPlatform.h" />
     <ClInclude Include="src\Include\Graphics\Vulkan\VkRenderer.h" />

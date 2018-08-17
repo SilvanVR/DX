@@ -1,17 +1,18 @@
-#include "D3D11Shader.h"
+#include "VkShader.h"
 /**********************************************************************
-    class: D3D11Shader (D3D11Shader.cpp)
+    class: Shader
 
     author: S. Hau
-    date: March 12, 2018
+    date: August 17, 2018
 **********************************************************************/
 
-#include "../Pipeline/Shaders/D3D11VertexShader.h"
-#include "../Pipeline/Shaders/D3D11PixelShader.h"
-#include "../Pipeline/Shaders/D3D11GeometryShader.h"
-#include "../D3D11Utility.h"
+#include "../Pipeline/Shaders/VkVertexShader.h"
+#include "../Pipeline/Shaders/VkFragmentShader.h"
+#include "../Pipeline/Shaders/VkGeometryShader.h"
+//#include "../Resources/VkMesh.h"
+#include "../VkUtility.h"
 
-namespace Graphics { namespace D3D11 {
+namespace Graphics { namespace Vulkan {
 
     //----------------------------------------------------------------------
     Shader::Shader()
@@ -22,42 +23,20 @@ namespace Graphics { namespace D3D11 {
     //----------------------------------------------------------------------
     void Shader::bind()
     {
-        // Bind shaders
-        m_pVertexShader->bind();
-        if (m_pPixelShader)
-            m_pPixelShader->bind();
-        if (m_pGeometryShader)
-            m_pGeometryShader->bind();
+        // Bind pipeline
+        //g_vulkan.ctx.bindPipeline( m_pipeline );
 
-        // Bind constant buffers and textures
-        if (m_shaderDataVS) m_shaderDataVS->bind( ShaderType::Vertex );
-        if (m_shaderDataPS) m_shaderDataPS->bind( ShaderType::Fragment );
-        if (m_shaderDataGS) m_shaderDataGS->bind( ShaderType::Geometry );
-        _BindTextures();
-
-        // Bind pipeline states
-        g_pImmediateContext->OMSetDepthStencilState( m_pDepthStencilState, 0 );
-        g_pImmediateContext->RSSetState( m_pRSState );
-
-        if (m_pBlendState)
-            g_pImmediateContext->OMSetBlendState( m_pBlendState, m_blendFactors.data(), 0xffffffff );
-        else
-            g_pImmediateContext->OMSetBlendState( NULL, m_blendFactors.data(), 0xffffffff );
+        //// Bind constant buffers and textures
+        //if (m_shaderDataVS) m_shaderDataVS->bind( ShaderType::Vertex );
+        //if (m_shaderDataPS) m_shaderDataPS->bind( ShaderType::Fragment );
+        //if (m_shaderDataGS) m_shaderDataGS->bind( ShaderType::Geometry );
+        //_BindTextures();
     }
 
     //----------------------------------------------------------------------
     void Shader::unbind()
     {
-        // Unbind shaders
-        m_pVertexShader->unbind();
-        if (m_pPixelShader)
-            m_pPixelShader->unbind();
-        if (m_pGeometryShader)
-            m_pGeometryShader->unbind();
-
-        g_pImmediateContext->OMSetDepthStencilState( NULL, 0 );
-        g_pImmediateContext->RSSetState( NULL );
-        g_pImmediateContext->OMSetBlendState( NULL, NULL, 0xffffffff );
+        //g_vulkan.ctx.bindPipeline( VK_NULL_HANDLE );
     }
 
     //**********************************************************************
@@ -67,11 +46,11 @@ namespace Graphics { namespace D3D11 {
     //----------------------------------------------------------------------
     void Shader::compileFromFile( const OS::Path& vertPath, const OS::Path& fragPath, CString entryPoint )
     {
-        m_pVertexShader.reset( new D3D11::VertexShader() );
-        m_pPixelShader.reset( new D3D11::PixelShader() );
+        m_pVertexShader.reset( new Vulkan::VertexShader() );
+        m_pFragmentShader.reset( new Vulkan::FragmentShader() );
 
         m_pVertexShader->compileFromFile( vertPath, entryPoint );
-        m_pPixelShader->compileFromFile( fragPath, entryPoint );
+        m_pFragmentShader->compileFromFile( fragPath, entryPoint );
 
         _CreateConstantBuffers();
     }
@@ -87,7 +66,7 @@ namespace Graphics { namespace D3D11 {
     //----------------------------------------------------------------------
     void Shader::compileVertexShaderFromSource( const String& src, CString entryPoint )
     {
-        auto vertShader = std::make_unique<D3D11::VertexShader>();
+        auto vertShader = std::make_unique<Vulkan::VertexShader>();
 
         vertShader->compileFromSource( src, entryPoint );
 
@@ -98,17 +77,17 @@ namespace Graphics { namespace D3D11 {
     //----------------------------------------------------------------------
     void Shader::compileFragmentShaderFromSource( const String& src, CString entryPoint )
     {
-        auto pixelShader = std::make_unique<D3D11::PixelShader>();
+        auto pixelShader = std::make_unique<Vulkan::FragmentShader>();
         pixelShader->compileFromSource( src, entryPoint );
 
-        m_pPixelShader.swap( pixelShader );
+        m_pFragmentShader.swap( pixelShader );
         _CreatePSConstantBuffer();
     }
 
     //----------------------------------------------------------------------
     void Shader::compileGeometryShaderFromSource( const String& src, CString entryPoint )
     {
-        auto geometryShader = std::make_unique<D3D11::GeometryShader>();
+        auto geometryShader = std::make_unique<Vulkan::GeometryShader>();
         geometryShader->compileFromSource( src, entryPoint );
 
         m_pGeometryShader.swap( geometryShader );
@@ -130,7 +109,7 @@ namespace Graphics { namespace D3D11 {
     //----------------------------------------------------------------------
     const ShaderUniformBufferDeclaration* Shader::getFSUniformMaterialBuffer() const 
     { 
-        return m_pPixelShader->getMaterialBufferDeclaration(); 
+        return m_pFragmentShader->getMaterialBufferDeclaration();
     }
 
     //----------------------------------------------------------------------
@@ -148,7 +127,7 @@ namespace Graphics { namespace D3D11 {
     //----------------------------------------------------------------------
     const ShaderUniformBufferDeclaration* Shader::getFSUniformShaderBuffer() const
     {
-        return m_pPixelShader->getShaderBufferDeclaration();
+        return m_pFragmentShader->getShaderBufferDeclaration();
     }
 
     //----------------------------------------------------------------------
@@ -161,7 +140,7 @@ namespace Graphics { namespace D3D11 {
     const ShaderResourceDeclaration* Shader::getShaderResource( StringID name ) const
     {
         auto decl1 = m_pVertexShader->getResourceDeclaration( name );
-        auto decl2 = m_pPixelShader ? m_pPixelShader->getResourceDeclaration( name ) : nullptr;
+        auto decl2 = m_pFragmentShader ? m_pFragmentShader->getResourceDeclaration( name ) : nullptr;
         auto decl3 = m_pGeometryShader ? m_pGeometryShader->getResourceDeclaration( name ) : nullptr;
 
         if ( decl1 && decl2 && decl3 )
@@ -181,63 +160,56 @@ namespace Graphics { namespace D3D11 {
     //----------------------------------------------------------------------
     void Shader::setRasterizationState( const RasterizationState& rzState )
     {
-        D3D11_RASTERIZER_DESC rsDesc = {};
         switch (rzState.fillMode)
         {
-        case FillMode::Solid:       rsDesc.FillMode = D3D11_FILL_SOLID;     break;
-        case FillMode::Wireframe:   rsDesc.FillMode = D3D11_FILL_WIREFRAME; break;
+        case FillMode::Solid:       m_rzState.polygonMode = VK_POLYGON_MODE_FILL; break;
+        case FillMode::Wireframe:   m_rzState.polygonMode = VK_POLYGON_MODE_LINE; break;
         }
         switch (rzState.cullMode)
         {
-        case CullMode::Back:        rsDesc.CullMode = D3D11_CULL_BACK;      break;
-        case CullMode::Front:       rsDesc.CullMode = D3D11_CULL_FRONT;     break;
-        case CullMode::None:        rsDesc.CullMode = D3D11_CULL_NONE;      break;
+        case CullMode::Back:        m_rzState.cullMode = VK_CULL_MODE_BACK_BIT; break;
+        case CullMode::Front:       m_rzState.cullMode = VK_CULL_MODE_FRONT_BIT; break;
+        case CullMode::None:        m_rzState.cullMode = VK_CULL_MODE_NONE; break;
         }
 
-        rsDesc.FrontCounterClockwise = rzState.frontCounterClockwise;
-        rsDesc.DepthClipEnable       = rzState.depthClipEnable;
-        rsDesc.MultisampleEnable     = true;
-        rsDesc.ScissorEnable         = rzState.scissorEnable;
-        rsDesc.DepthBias             = (INT)rzState.depthBias;
-        rsDesc.SlopeScaledDepthBias  = rzState.slopeScaledDepthBias;
-        rsDesc.DepthBiasClamp        = rzState.depthBiasClamp;
-
-        HR( g_pDevice->CreateRasterizerState( &rsDesc, &m_pRSState.releaseAndGet() ) );
+        m_rzState.depthClampEnable          = rzState.depthClipEnable;
+        m_rzState.rasterizerDiscardEnable   = VK_FALSE;
+        m_rzState.frontFace                 = rzState.frontCounterClockwise ? VK_FRONT_FACE_COUNTER_CLOCKWISE : VK_FRONT_FACE_CLOCKWISE;
+        m_rzState.depthBiasEnable           = rzState.depthBias == 0.0f ? VK_FALSE : VK_TRUE;
+        m_rzState.depthBiasConstantFactor   = rzState.depthBias;
+        m_rzState.depthBiasClamp            = rzState.depthBiasClamp;
+        m_rzState.depthBiasSlopeFactor      = rzState.slopeScaledDepthBias;
+        m_rzState.lineWidth                 = 1.0f;
     }
 
     //----------------------------------------------------------------------
     void Shader::setDepthStencilState( const DepthStencilState& dsState )
     {
-        D3D11_DEPTH_STENCIL_DESC depthStencilStateDesc = {};
+        m_depthStencilState.depthTestEnable  = dsState.depthEnable;
+        m_depthStencilState.depthWriteEnable = dsState.depthWrite;
+        m_depthStencilState.depthCompareOp = Utility::TranslateComparisonFunc( dsState.depthFunc );
 
-        depthStencilStateDesc.DepthEnable       = dsState.depthEnable;
-        depthStencilStateDesc.DepthWriteMask    = dsState.depthWrite ? D3D11_DEPTH_WRITE_MASK_ALL : D3D11_DEPTH_WRITE_MASK_ZERO;
-        depthStencilStateDesc.DepthFunc         = Utility::TranslateComparisonFunc( dsState.depthFunc );
-
-        HR( g_pDevice->CreateDepthStencilState( &depthStencilStateDesc, &m_pDepthStencilState.releaseAndGet() ) );
+        m_depthStencilState.depthBoundsTestEnable = VK_FALSE;
+        m_depthStencilState.stencilTestEnable = VK_FALSE;
+        m_depthStencilState.minDepthBounds = 0.0f;
+        m_depthStencilState.maxDepthBounds = 1.0f;
     }
 
     //----------------------------------------------------------------------
     void Shader::setBlendState( const BlendState& bState )
     {
-        D3D11_BLEND_DESC blendDesc = {};
-        blendDesc.AlphaToCoverageEnable  = bState.alphaToCoverage;
-        blendDesc.IndependentBlendEnable = bState.independentBlending;
+        ASSERT( not bState.independentBlending && "Not supported" );
+        ASSERT( not bState.alphaToCoverage && "Not supported" );
 
-        for ( I32 i = 0; i < (bState.independentBlending ? 8 : 1); i++ )
-        {
-            auto& bs = bState.blendStates[i];
-            blendDesc.RenderTarget[i].BlendEnable           = bs.blendEnable;
-            blendDesc.RenderTarget[i].SrcBlend              = Utility::TranslateBlend( bs.srcBlend );
-            blendDesc.RenderTarget[i].DestBlend             = Utility::TranslateBlend( bs.destBlend );
-            blendDesc.RenderTarget[i].BlendOp               = Utility::TranslateBlendOP( bs.blendOp );
-            blendDesc.RenderTarget[i].SrcBlendAlpha         = Utility::TranslateBlend( bs.srcBlendAlpha );
-            blendDesc.RenderTarget[i].DestBlendAlpha        = Utility::TranslateBlend( bs.destBlendAlpha );
-            blendDesc.RenderTarget[i].BlendOpAlpha          = Utility::TranslateBlendOP( bs.blendOpAlpha );
-            blendDesc.RenderTarget[i].RenderTargetWriteMask = bs.writeMask;
-        }
-
-        HR( g_pDevice->CreateBlendState( &blendDesc, &m_pBlendState.releaseAndGet() ) );
+        auto& bs = bState.blendStates[0];
+        m_blendState.blendEnable         = bs.blendEnable;
+        m_blendState.srcColorBlendFactor = Utility::TranslateBlend( bs.srcBlend );
+        m_blendState.dstColorBlendFactor = Utility::TranslateBlend( bs.destBlend );
+        m_blendState.colorBlendOp        = Utility::TranslateBlendOP( bs.blendOp );
+        m_blendState.srcAlphaBlendFactor = Utility::TranslateBlend( bs.srcBlendAlpha );;
+        m_blendState.dstAlphaBlendFactor = Utility::TranslateBlend( bs.destBlendAlpha );;
+        m_blendState.alphaBlendOp        = Utility::TranslateBlendOP( bs.blendOpAlpha );
+        m_blendState.colorWriteMask      = bs.writeMask;
     }
 
     //**********************************************************************
@@ -255,31 +227,31 @@ namespace Graphics { namespace D3D11 {
     void Shader::_CreateVSConstantBuffer()
     {
         _ClearAllMaps();
-        if ( auto cb = getVSUniformShaderBuffer() )
-            m_shaderDataVS.reset( new MappedConstantBuffer( *cb, BufferUsage::LongLived ) );
+        //if ( auto cb = getVSUniformShaderBuffer() )
+        //    m_shaderDataVS.reset( new MappedConstantBuffer( *cb, BufferUsage::LongLived ) );
     }
 
     //----------------------------------------------------------------------
     void Shader::_CreatePSConstantBuffer()
     {
         _ClearAllMaps();
-        if ( auto cb = getFSUniformShaderBuffer() )
-            m_shaderDataPS.reset( new MappedConstantBuffer( *cb, BufferUsage::LongLived ) );
+        //if ( auto cb = getFSUniformShaderBuffer() )
+        //    m_shaderDataPS.reset( new MappedConstantBuffer( *cb, BufferUsage::LongLived ) );
     }
 
     //----------------------------------------------------------------------
     void Shader::_CreateGSConstantBuffer()
     {
         _ClearAllMaps();
-        if ( auto cb = getGSUniformShaderBuffer() )
-            m_shaderDataGS.reset( new MappedConstantBuffer( *cb, BufferUsage::LongLived ) );
+        //if ( auto cb = getGSUniformShaderBuffer() )
+        //    m_shaderDataGS.reset( new MappedConstantBuffer( *cb, BufferUsage::LongLived ) );
     }
 
     //----------------------------------------------------------------------
     void Shader::_CreateConstantBuffers()
     {
         _CreateVSConstantBuffer();
-        if (m_pPixelShader)
+        if (m_pFragmentShader)
             _CreatePSConstantBuffer();
         if (m_pGeometryShader)
             _CreateGSConstantBuffer();
@@ -291,9 +263,9 @@ namespace Graphics { namespace D3D11 {
         // Because the super shader class issues if the uniform does not exist,
         // i dont have to do it here. The update call on the corresponding mapped buffer
         // will do nothing if the name does not exist.
-        if (m_shaderDataVS) m_shaderDataVS->update( name, pData );
-        if (m_shaderDataPS) m_shaderDataPS->update( name, pData );
-        if (m_shaderDataGS) m_shaderDataGS->update( name, pData );
+        //if (m_shaderDataVS) m_shaderDataVS->update( name, pData );
+        //if (m_shaderDataPS) m_shaderDataPS->update( name, pData );
+        //if (m_shaderDataGS) m_shaderDataGS->update( name, pData );
     }
 
 } } // End namespaces
