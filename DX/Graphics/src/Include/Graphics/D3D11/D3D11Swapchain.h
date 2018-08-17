@@ -17,7 +17,7 @@ namespace Graphics { namespace D3D11 {
         Swapchain(HWND hwnd, U16 width, U16 height, U8 numMSAASamples = 4);
 
         //----------------------------------------------------------------------
-        // Bind the color + depth attachment to the output merger.
+        // Bind buffer to the output merger.
         //----------------------------------------------------------------------
         void bindForRendering();
 

@@ -67,7 +67,7 @@ namespace Graphics {
         if ( not hasHMD() )
         {
             g_vulkan.CreateInstance({ VK_KHR_SURFACE_EXTENSION_NAME, VK_KHR_WIN32_SURFACE_EXTENSION_NAME });
-            m_swapchain.init( m_window );
+            m_swapchain.init( g_vulkan.instance, m_window );
             g_vulkan.SelectPhysicalDevice();
             g_vulkan.CreateDevice( m_swapchain.getSurfaceKHR(), { VK_KHR_SWAPCHAIN_EXTENSION_NAME }, GetDeviceFeatures() );
             m_swapchain.create( g_vulkan.gpu.physicalDevice, g_vulkan.device );
@@ -197,6 +197,7 @@ namespace Graphics {
             return;
 
         // Recreate swapchain buffers
+        m_swapchain.recreate( w, h );
     }
 
     //**********************************************************************
@@ -281,6 +282,8 @@ namespace Graphics {
     //----------------------------------------------------------------------
     void VkRenderer::_SetGPUDescription()
     {
+        m_gpuDescription.name = g_vulkan.gpu.properties.deviceName;
+        m_gpuDescription.maxDedicatedMemoryMB = g_vulkan.gpu.memoryProperties.memoryHeaps[0].size;
     }
 
     //**********************************************************************

@@ -40,7 +40,7 @@ namespace Graphics { namespace VR {
         {
             ovrTextureSwapChainDesc colorDesc = {};
             colorDesc.Type = ovrTexture_2D;
-            colorDesc.Format = OVR_FORMAT_R8G8B8A8_UNORM;
+            colorDesc.Format = OVR_FORMAT_B8G8R8A8_UNORM;
             colorDesc.ArraySize = 1;
             colorDesc.Width = sizeW;
             colorDesc.Height = sizeH;
@@ -58,7 +58,7 @@ namespace Graphics { namespace VR {
                 VkImage image;
                 ovr_GetTextureSwapChainBufferVk( session, m_swapChain, i, &image );
                 VkImageViewCreateInfo createInfo{ VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO };
-                createInfo.format = VK_FORMAT_R8G8B8A8_UNORM;
+                createInfo.format = VK_FORMAT_B8G8R8A8_UNORM;
                 createInfo.image = image;
                 createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
                 createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;

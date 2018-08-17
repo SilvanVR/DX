@@ -57,13 +57,6 @@ namespace Graphics { namespace Vulkan {
         GPU         gpu;
 
     private:
-
-#ifdef _DEBUG
-        VkDebugUtilsMessengerEXT m_debugMessenger;
-        void _EnableDebugCallback(VkInstance instance);
-        void _DestroyDebugCallback(VkInstance instance);
-#endif
-
         //----------------------------------------------------------------------
         friend class Graphics::VkRenderer;
         void CreateInstance(const ArrayList<String>& extensions);
@@ -75,8 +68,13 @@ namespace Graphics { namespace Vulkan {
         ArrayList<CString> _GetRequiredInstanceLayers();
         ArrayList<CString> _GetRequiredInstanceExtensions();
         void _CheckInstanceExtensions(ArrayList<CString>& extensions);
-
         void _CheckDeviceExtensions(ArrayList<CString>& extensions);
+
+#ifdef _DEBUG
+        VkDebugUtilsMessengerEXT m_debugMessenger;
+        void _EnableDebugCallback(VkInstance instance);
+        void _DestroyDebugCallback(VkInstance instance);
+#endif
 
         NULL_COPY_AND_ASSIGN(Platform)
     };
