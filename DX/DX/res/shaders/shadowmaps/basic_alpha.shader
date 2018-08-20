@@ -9,7 +9,10 @@
 #DBClamp 		0
 #DepthClip		Off
 
-// ----------------------------------------------
+//----------------------------------------------
+// D3D11
+//----------------------------------------------
+#d3d11
 #shader vertex
 
 #include "/engine/shaders/includes/engineVS.hlsl"
@@ -53,6 +56,42 @@ SamplerState sampler0;
 void main(FragmentIn fin)
 {
 	float4 textureColor = _MainTex.Sample(sampler0, fin.Tex);
+	if (textureColor.a < ALPHA_THRESHOLD)
+		discard;
+}
+
+//----------------------------------------------
+// Vulkan
+//----------------------------------------------
+#vulkan
+#shader vertex
+
+#include "/engine/shaders/includes/vulkan/engineVS.glsl"
+
+layout (location = 0) in vec3 inPos;
+layout (location = 1) in vec2 inUV;
+
+layout (location = 0) out vec2 outUV;
+
+void main()
+{
+	outUV = inUV;
+	gl_Position = TO_CLIP_SPACE( inPos );
+}
+
+// ----------------------------------------------
+#shader fragment
+
+#include "/engine/shaders/includes/vulkan/engineFS.glsl"
+
+layout (location = 0) in vec2 inUV;
+
+// Descriptor-Sets
+layout (set = 0, binding = 0) uniform sampler2D Albedo_S;
+
+void main()
+{
+	vec4 textureColor = texture( Albedo_S, inUV );
 	if (textureColor.a < ALPHA_THRESHOLD)
 		discard;
 }

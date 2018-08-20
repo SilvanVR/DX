@@ -143,10 +143,7 @@ namespace Assets {
                 else if ( line.find( SHADER_NAME ) != String::npos )
                 {
                     if (api == Graphics::API::Unknown)
-                    {
-                        LOG_WARN( "ShaderParser(): No #API specification before a #shader. Assuming D3D11." );
-                        api = Graphics::API::D3D11;
-                    }
+                        throw std::runtime_error( "ShaderParser(): No #API specification before a #shader. Please add '#vulkan' or '#d3d11' before." );
 
                     if (line.find( VERTEX_SHADER ) != String::npos)
                         type = Graphics::ShaderType::Vertex;

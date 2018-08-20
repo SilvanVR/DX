@@ -30,7 +30,6 @@ float4 main( float4 PosH : SV_POSITION ) : SV_Target
 // Vulkan
 //----------------------------------------------
 #vulkan
-
 #shader vertex
 
 #include "/engine/shaders/includes/vulkan/engineVS.glsl"
@@ -48,11 +47,6 @@ void main()
 #include "/engine/shaders/includes/vulkan/engineFS.glsl"
 
 layout (location = 0) out vec4 outColor;
-
-layout (set = 2, binding = 0) uniform MATERIAL
-{
-	vec4 color;
-} material;
 
 void main()
 {

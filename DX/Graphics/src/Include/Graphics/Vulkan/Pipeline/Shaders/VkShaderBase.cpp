@@ -126,8 +126,8 @@ namespace Graphics { namespace Vulkan {
             spv = CompileGLSLToSPV( source, m_shaderType, false );
 #endif
             // Store compiled binary data into file
-            //OS::BinaryFile binaryShaderFile( binaryShaderPath, OS::EFileMode::WRITE );
-            //binaryShaderFile.write( (const Byte*)shaderBlob.data, shaderBlob.size );
+            OS::BinaryFile binaryShaderFile( binaryShaderPath, OS::EFileMode::WRITE );
+            binaryShaderFile.write( (const Byte*)spv.data(), spv.size() * sizeof(uint32_t) );
         }
         else
         {
@@ -135,7 +135,8 @@ namespace Graphics { namespace Vulkan {
             OS::BinaryFile binaryShaderFile( binaryShaderPath, OS::EFileMode::READ );
             String content = binaryShaderFile.readAll();
 
-            spv.assign( content.begin(), content.end() );
+            spv.resize( content.size() / 4 ); // Array is of type uint32_t (4 bytes)
+            memcpy( spv.data(), content.data(), content.size() ); // Copy raw bytes into Array
         }
 
         _ShaderReflection( spv );

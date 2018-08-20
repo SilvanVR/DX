@@ -9,28 +9,17 @@
 #DBClamp 		0
 #DepthClip		Off
 
-// ----------------------------------------------
+//----------------------------------------------
+// D3D11
+//----------------------------------------------
+#d3d11
 #shader vertex
 
 #include "/engine/shaders/includes/engineVS.hlsl"
 
-struct VertexIn
+float4 main( float3 PosL : POSITION ) : SV_POSITION
 {
-    float3 PosL : POSITION;
-};
-
-struct VertexOut
-{
-    float4 PosH : SV_POSITION;
-};
-
-VertexOut main(VertexIn vin)
-{
-    VertexOut OUT;
-
-    OUT.PosH = TO_CLIP_SPACE( vin.PosL );
-	
-    return OUT;
+    return TO_CLIP_SPACE( vin.PosL );
 }
 
 // ----------------------------------------------
@@ -38,11 +27,32 @@ VertexOut main(VertexIn vin)
 
 #include "/engine/shaders/includes/enginePS.hlsl"
 
-struct FragmentIn
+void main(float4 PosH : SV_POSITION)
 {
-    float4 PosH : SV_POSITION;
-};
+	// Shader writes only depth
+}
 
-void main(FragmentIn fin)
+//----------------------------------------------
+// Vulkan
+//----------------------------------------------
+#vulkan
+#shader vertex
+
+#include "/engine/shaders/includes/vulkan/engineVS.glsl"
+
+layout (location = 0) in vec3 inPos;
+
+void main()
 {
+	gl_Position = TO_CLIP_SPACE( inPos );
+}
+
+// ----------------------------------------------
+#shader fragment
+
+#include "/engine/shaders/includes/vulkan/engineFS.glsl"
+
+void main()
+{
+	// Shader writes only depth
 }

@@ -8,7 +8,10 @@
 #DBSlopeScaled  0
 #DBClamp 		0
 
-// ----------------------------------------------
+//----------------------------------------------
+// D3D11
+//----------------------------------------------
+#d3d11
 #shader vertex
 
 #include "/engine/shaders/includes/engineVS.hlsl"
@@ -51,4 +54,37 @@ float main(FragmentIn fin) : SV_Depth
 	// Map to [0,1] range
 	lightDistance /= _zFar;
 	return lightDistance;
+}
+
+//----------------------------------------------
+// Vulkan
+//----------------------------------------------
+#vulkan
+#shader vertex
+
+#include "/engine/shaders/includes/vulkan/engineVS.glsl"
+
+layout (location = 0) in vec3 inPos;
+
+layout (location = 0) out vec3 outWorldPos;
+
+void main()
+{
+	outWorldPos = TO_WORLD_SPACE( inPos );
+	gl_Position = TO_CLIP_SPACE( inPos );
+}
+
+// ----------------------------------------------
+#shader fragment
+
+#include "/engine/shaders/includes/vulkan/engineFS.glsl"
+
+layout (location = 0) in vec3 inWorldPos;
+
+void main()
+{
+	float lightDistance = length(_Camera.pos - inWorldPos);
+	// Map to [0,1] range
+	lightDistance /= _Camera.zFar;
+	gl_FragDepth = lightDistance;
 }
