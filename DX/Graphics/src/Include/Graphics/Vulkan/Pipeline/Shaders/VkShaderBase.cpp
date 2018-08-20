@@ -24,6 +24,12 @@ namespace Graphics { namespace Vulkan {
     DataType                            GetDataTypeOfMember(const spirv_cross::SPIRType& memberType);
     ArrayList<ShaderUniformDeclaration> ParseUniformBuffer(const spirv_cross::Compiler& comp, const spirv_cross::SPIRType& spirType, U32 parentOffset, const String& parentName);
 
+    //----------------------------------------------------------------------
+    ShaderBase::~ShaderBase()
+    {
+        vkDestroyShaderModule( g_vulkan.device, m_shaderModule, ALLOCATOR );
+    }
+
     //**********************************************************************
     // PUBLIC
     //**********************************************************************

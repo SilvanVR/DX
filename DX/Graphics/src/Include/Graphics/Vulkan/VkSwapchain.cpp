@@ -21,12 +21,12 @@ namespace Graphics { namespace Vulkan {
     }
 
     //----------------------------------------------------------------------
-    Swapchain::~Swapchain()
+    void Swapchain::shutdown( VkInstance instance, VkDevice device )
     {
         for (auto& view : m_imageViews)
-            vkDestroyImageView( g_vulkan.device, view, ALLOCATOR );
-        vkDestroySwapchainKHR( g_vulkan.device, m_swapchain, ALLOCATOR );
-        vkDestroySurfaceKHR( g_vulkan.instance, m_surface, ALLOCATOR );
+            vkDestroyImageView( device, view, ALLOCATOR );
+        vkDestroySwapchainKHR( device, m_swapchain, ALLOCATOR );
+        vkDestroySurfaceKHR( instance, m_surface, ALLOCATOR );
     }
 
     //**********************************************************************

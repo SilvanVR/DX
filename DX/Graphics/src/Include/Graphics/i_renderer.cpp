@@ -17,12 +17,11 @@ namespace Graphics {
     IRenderer::IRenderer( OS::Window* window )
         : m_window( window )
     { 
+        ASSERT( window != nullptr );
+
         // Register to resize window event
         Events::Event& evt = Events::EventDispatcher::GetEvent( EVENT_WINDOW_RESIZE );
         m_windowResizeListener = evt.addListener( BIND_THIS_FUNC_0_ARGS( &IRenderer::_OnWindowSizeChanged ) );
-
-        ASSERT( window != nullptr );
-        addGlobalMaterial( "NONE", nullptr );
     }
 
     //----------------------------------------------------------------------
@@ -35,25 +34,6 @@ namespace Graphics {
         _LockQueue();
         m_pendingCmdQueue.emplace_back( cmd );
         _UnlockQueue();
-    }
-
-    //----------------------------------------------------------------------
-    void IRenderer::addGlobalMaterial( CString name, const std::shared_ptr<IMaterial>& material )
-    { 
-        m_globalMaterials[SID( name )] = material;
-    }
-
-    //----------------------------------------------------------------------
-    void IRenderer::setGlobalMaterialActive( CString name ) 
-    { 
-        StringID id = SID( name );
-        if ( m_globalMaterials.count( id ) == 0 )
-        {
-            LOG_WARN_RENDERING( "setGlobalShader(): Global Shader with name '" + String( name ) + "' does not exist." );
-            return;
-        }
-
-        m_activeGlobalMaterial = m_globalMaterials[id];
     }
 
     //----------------------------------------------------------------------

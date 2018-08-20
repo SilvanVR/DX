@@ -86,25 +86,6 @@ namespace Graphics {
         virtual bool setGlobalColor(StringID name, Color color) = 0;
         virtual bool setGlobalMatrix(StringID name, const DirectX::XMMATRIX& matrix) = 0;
 
-        //----------------------------------------------------------------------
-        // Add a global shader to this renderer. A global shader allows to render
-        // the whole scene with just one shader-setup. To use it call setGlobalMaterialActive(name).
-        // Please hold on the reference of the material you are passing in. The renderer does NOT delete it.
-        // P.S. This is an ugly hack and will be removed in future versions.
-        // @Params:
-        //  "name": The name of this shader to identify it.
-        //  "material": The actual material.
-        //----------------------------------------------------------------------
-        void addGlobalMaterial(CString name, const std::shared_ptr<IMaterial>& material);
-
-        //----------------------------------------------------------------------
-        // Set a global shader with the given name as active. If a global shader
-        // is set, every geometry will be rendered with this shader.
-        // @Params:
-        //  "name": Name of the global shader. If "NONE", it resets to nullptr.
-        //----------------------------------------------------------------------
-        void setGlobalMaterialActive(CString name = "NONE");
-
     protected:
         U64                         m_frameCount = 0;
         OS::Window*                 m_window;
@@ -121,10 +102,6 @@ namespace Graphics {
 
         //----------------------------------------------------------------------
         virtual void OnWindowSizeChanged(U16 w, U16 h) = 0;
-
-        //----------------------------------------------------------------------
-        HashMap<StringID, std::shared_ptr<IMaterial>>   m_globalMaterials;
-        std::shared_ptr<IMaterial>                      m_activeGlobalMaterial = nullptr; // If this is not null the scene should be rendered just with this material
 
     private:
         void _OnWindowSizeChanged();

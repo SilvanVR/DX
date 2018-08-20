@@ -504,29 +504,20 @@ namespace Graphics {
 
         // Bind shader, possibly a replacement shader
         auto shader = material->getShader();
-        if (m_activeGlobalMaterial)
+        if (curCamera)
         {
-            renderContext.BindShader( m_activeGlobalMaterial->getShader() );
-            renderContext.BindMaterial( m_activeGlobalMaterial );
-        }
-        else
-        {
-            if (curCamera)
+            if ( auto& camShader = curCamera->getReplacementShader() )
             {
-                if ( auto& camShader = curCamera->getReplacementShader() )
-                {
-                    if ( auto& matShader = material->getReplacementShader( curCamera->getReplacementShaderTag() ) )
-                        shader = matShader;
-                    else
-                        shader = camShader;
-                }
+                if ( auto& matShader = material->getReplacementShader( curCamera->getReplacementShaderTag() ) )
+                    shader = matShader;
+                else
+                    shader = camShader;
             }
-
-            renderContext.BindShader( shader );
-
-            // Bind material
-            renderContext.BindMaterial( material );
         }
+
+        // Bind shader and material
+        renderContext.BindShader( shader );
+        renderContext.BindMaterial( material );
 
         // Update per object buffer
         OBJECT_BUFFER.update( &modelMatrix, sizeof( DirectX::XMMATRIX ) );

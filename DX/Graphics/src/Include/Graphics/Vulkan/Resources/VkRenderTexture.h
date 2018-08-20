@@ -1,22 +1,17 @@
 #pragma once
 /**********************************************************************
-    class: RenderTexture (D3D11RenderTexture.h)
+    class: RenderTexture
 
     author: S. Hau
-    date: March 24, 2018
-
-    D3D11 implementation of a render-texture. It can consist of more than 
-    one buffer, so it can be bound as a srv and to the output-merger
-    at the same time.
+    date: August 20, 2018
 **********************************************************************/
 
 #include "i_render_texture.h"
-#include "D3D11/D3D11.hpp"
 
-namespace Graphics { namespace D3D11 {
+namespace Graphics { namespace Vulkan {
 
     //**********************************************************************
-    class RenderTexture : public Graphics::IRenderTexture
+    class RenderTexture : public IRenderTexture
     {
     public:
         RenderTexture() = default;

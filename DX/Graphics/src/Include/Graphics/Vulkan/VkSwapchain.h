@@ -16,7 +16,7 @@ namespace Graphics { namespace Vulkan {
     {
     public:
         Swapchain() = default;
-        ~Swapchain();
+        ~Swapchain() = default;
 
         //----------------------------------------------------------------------
         VkSurfaceKHR getSurfaceKHR() const { return m_surface; }
@@ -24,6 +24,7 @@ namespace Graphics { namespace Vulkan {
         //----------------------------------------------------------------------
         void init(VkInstance instance, OS::Window* window);
         void create(VkPhysicalDevice physicalDevice, VkDevice device);
+        void shutdown(VkInstance instance, VkDevice device);
 
         //----------------------------------------------------------------------
         void recreate(U16 width, U16 height);

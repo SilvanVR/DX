@@ -145,11 +145,6 @@ public:
         if (KEYBOARD.wasKeyPressed(Key::P))
             PROFILER.logGPU();
 
-        if (KEYBOARD.wasKeyPressed(Key::F1))
-            Locator::getRenderer().setGlobalMaterialActive("NONE");
-        if (KEYBOARD.wasKeyPressed(Key::F2))
-            Locator::getRenderer().setGlobalMaterialActive("Wireframe");
-
         // VR
         {
             // Toggle between normal & vr camera

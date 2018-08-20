@@ -6,21 +6,26 @@
     date: August 9, 2018
 **********************************************************************/
 
+#include "Vulkan.hpp"
 #include "command_buffer.h"
 #include "OS/FileSystem/file.h"
 #include "Lighting/lights.h"
 #include "camera.h"
-#include "VR/OculusRift/oculus_rift_vk.h"
-#include "Vulkan.hpp"
-
-#include "i_material.h"
-#include "i_mesh.h"
 #include "Resources/VkShader.h"
+#include "Resources/VkMaterial.h"
+#include "Resources/VkMesh.h"
+#include "Resources/VkTexture2D.h"
+#include "Resources/VkCubemap.h"
+#include "Resources/VkRenderBuffer.h"
+#include "Resources/VkRenderTexture.h"
+#include "Resources/VkTexture2DArray.h"
+#include "VR/OculusRift/oculus_rift_vk.h"
 
 namespace Graphics {
 
     using namespace Vulkan;
 
+    //----------------------------------------------------------------------
     VkPhysicalDeviceFeatures GetDeviceFeatures()
     {
         VkPhysicalDeviceFeatures requestedFeatures{};
@@ -82,10 +87,11 @@ namespace Graphics {
     //----------------------------------------------------------------------
     void VkRenderer::shutdown()
     {
-        g_vulkan.Shutdown();
+        m_swapchain.shutdown( g_vulkan.instance, g_vulkan.device );
         SAFE_DELETE( m_hmd );
         SAFE_DELETE( m_cubeMesh );
         renderContext.Reset();
+        g_vulkan.Shutdown();
     }
 
     //----------------------------------------------------------------------
@@ -228,14 +234,14 @@ namespace Graphics {
     }
 
     //----------------------------------------------------------------------
-    IMesh*              VkRenderer::createMesh()           { return nullptr; }//  { return new Vulkan::Mesh(); }
-    IMaterial*          VkRenderer::createMaterial()       { return nullptr; }//  { return new Vulkan::Material(); }
+    IMesh*              VkRenderer::createMesh()           { return new Vulkan::Mesh; }
+    IMaterial*          VkRenderer::createMaterial()       { return new Vulkan::Material; }
     IShader*            VkRenderer::createShader()         { return new Vulkan::Shader; }
-    ITexture2D*         VkRenderer::createTexture2D()      { return nullptr; }//  { return new Vulkan::Texture2D(); }
-    IRenderTexture*     VkRenderer::createRenderTexture()  { return nullptr; }//  { return new Vulkan::RenderTexture(); }
-    ICubemap*           VkRenderer::createCubemap()        { return nullptr; }//  { return new Vulkan::Cubemap(); }
-    ITexture2DArray*    VkRenderer::createTexture2DArray() { return nullptr; }//  { return new Vulkan::Texture2DArray(); }
-    IRenderBuffer*      VkRenderer::createRenderBuffer()   { return nullptr; }//  { return new Vulkan::RenderBuffer(); }
+    ITexture2D*         VkRenderer::createTexture2D()      { return new Vulkan::Texture2D; }
+    IRenderTexture*     VkRenderer::createRenderTexture()  { return new Vulkan::RenderTexture; }
+    ICubemap*           VkRenderer::createCubemap()        { return new Vulkan::Cubemap; }
+    IRenderBuffer*      VkRenderer::createRenderBuffer()   { return new Vulkan::RenderBuffer; }
+    ITexture2DArray*    VkRenderer::createTexture2DArray() { return new Vulkan::Texture2DArray; }
 
     //----------------------------------------------------------------------
     bool VkRenderer::setGlobalFloat( StringID name, F32 value )

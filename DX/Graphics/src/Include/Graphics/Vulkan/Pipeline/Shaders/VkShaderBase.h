@@ -25,7 +25,7 @@ namespace Graphics { namespace Vulkan {
     {
     public:
         ShaderBase(ShaderType shaderType) : m_shaderType(shaderType) {}
-        virtual ~ShaderBase() {}
+        virtual ~ShaderBase();
 
         //----------------------------------------------------------------------
         void compileFromFile(const OS::Path& path, CString entryPoint);
