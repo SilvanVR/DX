@@ -6,42 +6,48 @@
     date: August 17, 2018
 **********************************************************************/
 
+#include "SpirvCross/spirv_glsl.hpp"
+
 namespace Graphics { namespace Vulkan {
+
+    // Input ending with this are treated as instance attributes
+    #define SEMANTIC_INSTANCED "_INSTANCE"
 
     //**********************************************************************
     // PUBLIC
     //**********************************************************************
-
-    //----------------------------------------------------------------------
-    void VertexShader::compileFromFile( const OS::Path& path, CString entryPoint )
-    {
-        _CompileFromFile( path, entryPoint, [this](const ShaderBlob& shaderBlob) {
-            _CreateShader( shaderBlob );
-        } );
-    }
-
-    //----------------------------------------------------------------------
-    void VertexShader::compileFromSource( const String& source, CString entryPoint )
-    {
-        _CompileFromSource( source, entryPoint, [this] (const ShaderBlob& shaderBlob) {
-            _CreateShader( shaderBlob );
-        } );
-    }
 
     //**********************************************************************
     // PRIVATE
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    void VertexShader::_CreateShader( const ShaderBlob& shaderBlob )
+    void VertexShader::_ShaderReflection( const ArrayList<uint32_t>& spv )
     {
-        // Create vertex shader
-        VkShaderModuleCreateInfo createInfo{ VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO };
-        createInfo.pCode    = (U32*)shaderBlob.data;
-        createInfo.codeSize = shaderBlob.size;
+        m_vertexLayout.clear();
 
-        vkCreateShaderModule( g_vulkan.device, &createInfo, ALLOCATOR, &m_shaderModule );
-        //_CreateInputLayout( shaderBlob.data, shaderBlob.size );
+        // Reflect input layout
+        spirv_cross::Compiler comp( spv );
+        for (const auto& input : comp.get_shader_resources().stage_inputs)
+        {
+            const auto& type = comp.get_type(input.type_id);
+            //U32 location = comp.get_decoration(stageInput.id, spv::Decoration::DecorationLocation);
+
+            String name = input.name;
+            Size pos = name.find( SEMANTIC_INSTANCED );
+            constexpr Size sizeOfInstancedName = (sizeof(SEMANTIC_INSTANCED) / sizeof(char)) - 1;
+            Size posIfNameIsAtEnd = name.size() - sizeOfInstancedName;
+            bool instanced = (pos != String::npos) && (pos == posIfNameIsAtEnd);
+
+            if (instanced)  // Cut-off the "SEMANTIC_INSTANCED"
+                name = name.substr( 0, pos );
+
+            U32 sizeInBytes = type.vecsize * sizeof(Byte);
+            m_vertexLayout.add( { SID( name.c_str() ), sizeInBytes, instanced } );
+        }
+
+        // Reflect all other resources
+        ShaderBase::_ShaderReflection( spv );
     }
 
 } } // End namespaces

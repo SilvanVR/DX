@@ -14,7 +14,15 @@
 #include "OS/FileSystem/file.h"
 #include "Utils/utils.h"
 
+#include <shaderc/shaderc.hpp>       // Compile glsl to spv
+#include "SpirvCross/spirv_glsl.hpp" // spv reflection
+
 namespace Graphics { namespace Vulkan {
+
+    //----------------------------------------------------------------------
+    ArrayList<uint32_t>                 CompileGLSLToSPV(const String& source, ShaderType shaderType, bool debug);
+    DataType                            GetDataTypeOfMember(const spirv_cross::SPIRType& memberType);
+    ArrayList<ShaderUniformDeclaration> ParseUniformBuffer(const spirv_cross::Compiler& comp, const spirv_cross::SPIRType& spirType, U32 parentOffset, const String& parentName);
 
     //**********************************************************************
     // PUBLIC
@@ -23,10 +31,10 @@ namespace Graphics { namespace Vulkan {
     //----------------------------------------------------------------------
     const ShaderUniformBufferDeclaration* ShaderBase::getUniformBufferDeclaration( StringID name ) const
     {
-        auto it = std::find_if( m_constantBuffers.begin(), m_constantBuffers.end(), [name](const ShaderUniformBufferDeclaration& ubo) {
+        auto it = std::find_if( m_uniformBuffers.begin(), m_uniformBuffers.end(), [name](const ShaderUniformBufferDeclaration& ubo) {
             return ubo.getName() == name;
         } );
-        if ( it == m_constantBuffers.end() )
+        if ( it == m_uniformBuffers.end() )
             return nullptr;
 
         return &(*it);
@@ -35,7 +43,7 @@ namespace Graphics { namespace Vulkan {
     //----------------------------------------------------------------------
     const ShaderUniformBufferDeclaration* ShaderBase::getMaterialBufferDeclaration() const
     {
-        for ( auto& ubo : m_constantBuffers )
+        for ( auto& ubo : m_uniformBuffers )
         {
             String lower = StringUtils::toLower( ubo.getName().toString() );
             if ( lower.find( MATERIAL_NAME ) != String::npos )
@@ -49,7 +57,7 @@ namespace Graphics { namespace Vulkan {
     //----------------------------------------------------------------------
     const ShaderUniformBufferDeclaration* ShaderBase::getShaderBufferDeclaration() const
     {
-        for ( auto& ubo : m_constantBuffers )
+        for ( auto& ubo : m_uniformBuffers )
         {
             String lower = StringUtils::toLower( ubo.getName().toString() );
             if ( lower.find( SHADER_NAME ) != String::npos )
@@ -76,19 +84,27 @@ namespace Graphics { namespace Vulkan {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    void ShaderBase::_CompileFromFile( const OS::Path& path, CString entryPoint, std::function<void(const ShaderBlob&)> fn )
+    void ShaderBase::compileFromFile( const OS::Path& path, CString entryPoint )
     {
         if ( not path.exists() )
             throw std::runtime_error( "Missing shader-file: '" + path.toString() + "'." );
-        
-        ShaderBlob shaderBlob{};
 
-        _ShaderReflection( shaderBlob );
-        fn( shaderBlob );
+        // Load file
+        OS::BinaryFile binaryShaderFile( path, OS::EFileMode::READ );
+        String content = binaryShaderFile.readAll();
+
+        ArrayList<uint32_t> spv( content.begin(), content.end() );
+        _ShaderReflection( spv );
+
+        // Create shader module
+        VkShaderModuleCreateInfo createInfo{ VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO };
+        createInfo.pCode = spv.data();
+        createInfo.codeSize = spv.size() * sizeof(uint32_t);
+        vkCreateShaderModule( g_vulkan.device, &createInfo, ALLOCATOR, &m_shaderModule );
     }
 
     //----------------------------------------------------------------------
-    void ShaderBase::_CompileFromSource( const String& source, CString entryPoint, std::function<void(const ShaderBlob&)> fn )
+    void ShaderBase::compileFromSource( const String& source, CString entryPoint )
     {
         String shaderName = GetShaderTypeName( m_shaderType );
 
@@ -98,31 +114,20 @@ namespace Graphics { namespace Vulkan {
         OS::Path binaryShaderPath( "/engine/shaders/bin/debug/" + shaderName + TS( hash.id ) + ".spv" );
 #else
         OS::Path binaryShaderPath( "/engine/shaders/bin/release/" + shaderName + TS( hash.id ) + ".spv" );
-#endif // DEBUG
+#endif
 
         // Precompiled binary file does not exist
+        ArrayList<uint32_t> spv;
         if ( not OS::FileSystem::exists( binaryShaderPath ) )
         {
-            //ComPtr<ID3DBlob> d3d11ShaderBlob;
-            //ComPtr<ID3DBlob> d3D11ErrorBlob;
-            //HRESULT hr = D3DCompile( source.c_str(), source.size(), NULL, NULL, NULL,
-            //                         entryPoint, _GetLatestProfile().c_str(), GetCompileFlags(), 0, &d3d11ShaderBlob.get(), &d3D11ErrorBlob.get() );
-
-            //if ( FAILED( hr ) )
-            //{
-            //    if (d3D11ErrorBlob)
-            //        throw std::runtime_error( "Failed to compile "+ shaderName + " shader from source:\n" + (const char*)d3D11ErrorBlob->GetBufferPointer() );
-            //    throw std::runtime_error( "Failed to compile " + shaderName + " shader from source." );
-            //}
-
-            ShaderBlob shaderBlob{};
-
+#ifdef _DEBUG
+            spv = CompileGLSLToSPV( source, m_shaderType, true );
+#else
+            spv = CompileGLSLToSPV( source, m_shaderType, false );
+#endif
             // Store compiled binary data into file
-            OS::BinaryFile binaryShaderFile( binaryShaderPath, OS::EFileMode::WRITE );
-            binaryShaderFile.write( (const Byte*)shaderBlob.data, shaderBlob.size );
-
-            _ShaderReflection( shaderBlob );
-            fn( shaderBlob );
+            //OS::BinaryFile binaryShaderFile( binaryShaderPath, OS::EFileMode::WRITE );
+            //binaryShaderFile.write( (const Byte*)shaderBlob.data, shaderBlob.size );
         }
         else
         {
@@ -130,141 +135,168 @@ namespace Graphics { namespace Vulkan {
             OS::BinaryFile binaryShaderFile( binaryShaderPath, OS::EFileMode::READ );
             String content = binaryShaderFile.readAll();
 
-            ShaderBlob shaderBlob{ content.data(), content.size() };
-            _ShaderReflection( shaderBlob );
-            fn( shaderBlob );
+            spv.assign( content.begin(), content.end() );
+        }
+
+        _ShaderReflection( spv );
+
+        // Create shader module
+        VkShaderModuleCreateInfo createInfo{ VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO };
+        createInfo.pCode    = spv.data();
+        createInfo.codeSize = spv.size() * sizeof(uint32_t);
+        vkCreateShaderModule( g_vulkan.device, &createInfo, ALLOCATOR, &m_shaderModule );
+    }
+
+    //----------------------------------------------------------------------
+    void ShaderBase::_ShaderReflection( const ArrayList<uint32_t>& spv )
+    {
+        spirv_cross::Compiler comp( spv );
+        auto resources = comp.get_shader_resources();
+
+        // Uniform buffers
+        for (auto& resource : resources.uniform_buffers)
+        {
+            const auto& type = comp.get_type( resource.type_id );
+
+            StringID    name        = SID( resource.name.c_str() );
+            U32         setNum      = comp.get_decoration( resource.id, spv::DecorationDescriptorSet );
+            U32         bindingNum  = comp.get_decoration( resource.id, spv::DecorationBinding );
+            U32         bufferSize  = (U32)comp.get_declared_struct_size( type );
+            ShaderUniformBufferDeclaration ubo{ name, setNum, bindingNum, bufferSize };
+
+            auto members = ParseUniformBuffer( comp, type, 0, "" );
+            for (auto& uniform : members)
+                ubo._AddUniformDecl( uniform );
+
+            m_uniformBuffers.emplace_back( ubo );
+        }
+
+        // Image Sampler
+        for (auto& resource : resources.sampled_images)
+        {
+            const auto& type = comp.get_type(resource.type_id);
+
+            DataType dataType = DataType::Unknown;
+            switch (type.image.dim)
+            {
+            case spv::Dim::Dim1D:   dataType = DataType::Texture1D; break;
+            case spv::Dim::Dim2D:   dataType = DataType::Texture2D; break;
+            case spv::Dim::Dim3D:   dataType = DataType::Texture3D; break;
+            case spv::Dim::DimCube: dataType = DataType::TextureCubemap; break;
+            default: LOG_WARN_RENDERING( "VkShaderBase: Unknown data-type for a sampled image." );
+            }
+
+            U32 setNum      = comp.get_decoration( resource.id, spv::DecorationDescriptorSet );
+            U32 bindingNum  = comp.get_decoration( resource.id, spv::DecorationBinding );
+            ShaderResourceDeclaration res{ m_shaderType, setNum, bindingNum, SID( resource.name.c_str() ), dataType };
+            m_resourceDeclarations.emplace_back( res );
+        }
+
+        // Push-Constant
+        for (auto& resource : resources.push_constant_buffers)
+        {
+            const auto& type = comp.get_type( resource.type_id );
+
+            auto members = ParseUniformBuffer( comp, type, 0, "" );
+
+            m_pushConstant.sizeInBytes = (U32)comp.get_declared_struct_size( type );
+            m_pushConstant.members = members;
         }
     }
 
     //----------------------------------------------------------------------
-    void ShaderBase::_ShaderReflection( const ShaderBlob& shaderBlob )
+    ArrayList<uint32_t> CompileGLSLToSPV( const String& source, ShaderType shaderType, bool debug )
     {
-        //// Perform reflection
-        //HR( D3DReflect( shaderBlob.data, shaderBlob.size,
-        //                IID_ID3D11ShaderReflection, (void**)&m_pShaderReflection.releaseAndGet() ) );
+        String shaderName;
+        shaderc_shader_kind shaderKind = shaderc_glsl_infer_from_source;
+        switch (shaderType)
+        {
+        case ShaderType::Vertex:    shaderKind = shaderc_vertex_shader;     shaderName = "vertex"; break;
+        case ShaderType::Fragment:  shaderKind = shaderc_fragment_shader;   shaderName = "fragment"; break;
+        case ShaderType::Geometry:  shaderKind = shaderc_geometry_shader;   shaderName = "geometry"; break;
+        }
 
-        //D3D11_SHADER_DESC shaderDesc;
-        //HR( m_pShaderReflection->GetDesc( &shaderDesc ) );
+        shaderc::CompileOptions options;
+        if (debug)
+        {
+            options.SetWarningsAsErrors();
+            options.SetOptimizationLevel( shaderc_optimization_level_zero );
+        }
+        else
+        {
+            options.SetOptimizationLevel( shaderc_optimization_level_performance );
+        }
 
-        //_ReflectResources( shaderDesc );
+        shaderc::Compiler compiler;
+        auto result = compiler.CompileGlslToSpv( source, shaderKind, shaderName.c_str(), options );
 
-        //// Add constant buffers to the manager, which creates real buffers for it depending on specific keywords
-        //ConstantBufferManager::ReflectConstantBuffers( m_constantBuffers );
+        auto compileStatus = result.GetCompilationStatus();
+        if (compileStatus != shaderc_compilation_status_success)
+            throw std::runtime_error( "Failed to compile " + shaderName + " shader from source:\n" + result.GetErrorMessage() );
+
+        return { result.begin(), result.end() };
     }
 
     //----------------------------------------------------------------------
-    //void ShaderBase::_ReflectResources( const D3D11_SHADER_DESC& shaderDesc )
-    //{
-    //    // Make sure old buffer information is no longer valid
-    //    m_constantBuffers.clear();
-    //    m_resourceDeclarations.clear();
+    DataType GetDataTypeOfMember( const spirv_cross::SPIRType& memberType )
+    {
+        // vecsize equal to ROW
+        switch (memberType.vecsize)
+        {
+        case 1:
+            switch (memberType.basetype)
+            {
+            case spirv_cross::SPIRType::Float:   return DataType::Float;
+            case spirv_cross::SPIRType::Double:  return DataType::Double;
+            case spirv_cross::SPIRType::Int:     return DataType::Int;
+            case spirv_cross::SPIRType::Boolean: return DataType::Boolean;
+            case spirv_cross::SPIRType::Char:    return DataType::Char;
+            }
+            break;
+        case 2:
+            if (memberType.columns == 1)
+                return DataType::Vec2;
+        case 3:
+            if (memberType.columns == 1)
+                return DataType::Vec3;
+        case 4:
+            if (memberType.columns == 1)
+                return DataType::Vec4;
+            else if (memberType.columns == 4)
+                return DataType::Matrix;
+        }
 
-    //    for (U32 i = 0; i < shaderDesc.BoundResources; i++)
-    //    {
-    //        D3D11_SHADER_INPUT_BIND_DESC bindDesc;
-    //        HR( m_pShaderReflection->GetResourceBindingDesc( i, &bindDesc ) );
+        LOG_WARN_RENDERING( "VkShaderBase::getDataType(): Unrecognized Data-Type parsed." );
+        return DataType::Unknown;
+    }
 
-    //        switch (bindDesc.Type)
-    //        {
-    //        case D3D_SIT_CBUFFER:
-    //        {
-    //            auto cb = m_pShaderReflection->GetConstantBufferByName( bindDesc.Name );
-    //            _ReflectConstantBuffer( cb, bindDesc.BindPoint );
-    //            break;
-    //        }
-    //        case D3D_SIT_TEXTURE:
-    //        {
-    //            DataType type = DataType::Unknown;
-    //            switch (bindDesc.Dimension)
-    //            {
-    //            case D3D11_SRV_DIMENSION_TEXTURE1DARRAY:
-    //            case D3D11_SRV_DIMENSION_TEXTURE1D:         type = DataType::Texture1D; break;
-    //            case D3D11_SRV_DIMENSION_TEXTURE2DARRAY:
-    //            case D3D11_SRV_DIMENSION_TEXTURE2DMSARRAY:
-    //            case D3D11_SRV_DIMENSION_TEXTURE2D:         type = DataType::Texture2D; break;
-    //            case D3D11_SRV_DIMENSION_TEXTURE3D:         type = DataType::Texture3D; break;
-    //            case D3D11_SRV_DIMENSION_TEXTURECUBEARRAY:
-    //            case D3D11_SRV_DIMENSION_TEXTURECUBE:       type = DataType::TextureCubemap; break;
-    //            }
-    //            ASSERT( type != DataType::Unknown && "Could not deduce texture type." );
+    //----------------------------------------------------------------------
+    ArrayList<ShaderUniformDeclaration> ParseUniformBuffer( const spirv_cross::Compiler& comp, const spirv_cross::SPIRType& spirType, 
+                                                            U32 parentOffset, const String& parentName )
+    {
+        ArrayList<ShaderUniformDeclaration> members;
+        for (U32 i = 0; i < spirType.member_types.size(); i++)
+        {
+            // Get the member-name and add the "parent"-name infront of it e.g. "baseLight." + color
+            auto memberName = parentName + comp.get_member_name( spirType.self, i );
 
-    //            ShaderResourceDeclaration decl( m_shaderType, bindDesc.BindPoint, SID( bindDesc.Name ), type );
-    //            m_resourceDeclarations.push_back( decl );
-    //            break;
-    //        }
-    //        }
-    //    }
-    //}
+            // Get the offset of the member and add the parent-offset to it
+            U32 offset = parentOffset + comp.get_member_decoration( spirType.self, i, spv::DecorationOffset );
 
-    ////----------------------------------------------------------------------
-    //void ShaderBase::_ReflectConstantBuffer( ID3D11ShaderReflectionConstantBuffer* cb, U32 bindSlot )
-    //{
-    //    D3D11_SHADER_BUFFER_DESC bufferDesc;
-    //    HR( cb->GetDesc( &bufferDesc ) );
-
-    //    ShaderUniformBufferDeclaration buffer( SID( bufferDesc.Name ), bindSlot, bufferDesc.Size );
-
-    //    for (U32 j = 0; j < bufferDesc.Variables; j++)
-    //    {
-    //        auto var = cb->GetVariableByIndex( j );
-
-    //        D3D11_SHADER_VARIABLE_DESC varDesc;
-    //        HR( var->GetDesc( &varDesc ) );
-
-    //        ShaderUniformDeclaration uniform( SID( varDesc.Name ), varDesc.StartOffset, varDesc.Size, _GetDataType( var ) );
-    //        buffer._AddUniformDecl( uniform );
-    //    }
-    //    m_constantBuffers.push_back( buffer );
-    //}
-
-    ////----------------------------------------------------------------------
-    //DataType ShaderBase::_GetDataType( ID3D11ShaderReflectionVariable* var )
-    //{
-    //    auto type = var->GetType();
-    //    D3D11_SHADER_TYPE_DESC typeDesc;
-    //    HR( type->GetDesc( &typeDesc ) );
-
-    //    switch (typeDesc.Class)
-    //    {
-    //    case D3D10_SHADER_VARIABLE_CLASS::D3D10_SVC_SCALAR:
-    //    {
-    //        switch (typeDesc.Type)
-    //        {
-    //        case D3D10_SHADER_VARIABLE_TYPE::D3D10_SVT_BOOL:        return DataType::Boolean;
-    //        case D3D10_SHADER_VARIABLE_TYPE::D3D10_SVT_INT:         return DataType::Int;
-    //        case D3D10_SHADER_VARIABLE_TYPE::D3D10_SVT_FLOAT:       return DataType::Float;
-    //        case D3D10_SHADER_VARIABLE_TYPE::D3D11_SVT_DOUBLE:      return DataType::Double;
-    //        }
-    //        break;
-    //    }
-    //    case D3D10_SHADER_VARIABLE_CLASS::D3D10_SVC_OBJECT:
-    //    {
-    //        switch (typeDesc.Type)
-    //        {
-    //        case D3D10_SHADER_VARIABLE_TYPE::D3D10_SVT_TEXTURE1D:   return DataType::Texture1D;
-    //        case D3D10_SHADER_VARIABLE_TYPE::D3D10_SVT_TEXTURE2D:   return DataType::Texture2D;
-    //        case D3D10_SHADER_VARIABLE_TYPE::D3D10_SVT_TEXTURE3D:   return DataType::Texture3D;
-    //        case D3D10_SHADER_VARIABLE_TYPE::D3D10_SVT_TEXTURECUBE: return DataType::TextureCubemap;
-    //        }
-    //    }
-    //    case D3D10_SHADER_VARIABLE_CLASS::D3D10_SVC_VECTOR:
-    //    {
-    //        if (typeDesc.Columns == 2 || typeDesc.Rows == 2)        return DataType::Vec2;
-    //        else if(typeDesc.Columns == 3 || typeDesc.Rows == 3)    return DataType::Vec3;
-    //        else if(typeDesc.Columns == 4 || typeDesc.Rows == 4)    return DataType::Vec4;
-    //        break;
-    //    }
-    //    case D3D10_SHADER_VARIABLE_CLASS::D3D10_SVC_STRUCT:
-    //        return DataType::Struct;
-    //    case D3D10_SHADER_VARIABLE_CLASS::D3D10_SVC_MATRIX_ROWS:
-    //    case D3D10_SHADER_VARIABLE_CLASS::D3D10_SVC_MATRIX_COLUMNS:
-    //        return DataType::Matrix;
-    //    }
-
-    //    ASSERT( false && "Variable type could not be deduced." );
-    //    return DataType::Unknown;
-    //}
-
-
+            const spirv_cross::SPIRType& memberType = comp.get_type( spirType.member_types[i] );
+            if (memberType.basetype == spirv_cross::SPIRType::Struct) // Member is itself a struct, call recursively
+            {
+                auto structMembers = ParseUniformBuffer( comp, memberType, offset, memberName + "." );
+                members.insert( members.end(), structMembers.begin(), structMembers.end() );
+            }
+            else // Member is not a struct. Get the size and type of it and push it to the vector.
+            {
+                U32 size = (U32)( comp.get_declared_struct_member_size( spirType, i ) );
+                DataType dataType = GetDataTypeOfMember( memberType );
+                members.emplace_back( SID( memberName.c_str() ), offset, size, dataType );
+            }
+        }
+        return members;
+    }
 
 } } // End namespaces

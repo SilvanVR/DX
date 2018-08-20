@@ -150,6 +150,30 @@
     <ClCompile Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\VkShaderBase.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\SpirvCross\spirv_cfg.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\SpirvCross\spirv_cpp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\SpirvCross\spirv_cross.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\SpirvCross\spirv_cross_util.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\SpirvCross\spirv_glsl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\SpirvCross\spirv_hlsl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\SpirvCross\spirv_msl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\SpirvCross\spirv_reflect.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\stdafx.h">
@@ -336,6 +360,36 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\VkShaderBase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\SpirvCross\spirv_reflect.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\SpirvCross\spirv.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\SpirvCross\spirv_cfg.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\SpirvCross\spirv_common.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\SpirvCross\spirv_cpp.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\SpirvCross\spirv_cross.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\SpirvCross\spirv_cross_util.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\SpirvCross\spirv_glsl.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\SpirvCross\spirv_hlsl.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\SpirvCross\spirv_msl.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

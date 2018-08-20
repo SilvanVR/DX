@@ -23,6 +23,7 @@
             LOG_ERROR_RENDERING( String( "VkRenderer: @" ) + __FILE__ + ", line " + TS(__LINE__) + ". "\
                                  "Function: " + #x + ". Reason: " + ResultToString(x) );\
         }
+    #define VALIDATION_LAYERS
 #else
     #define VALIDATE(x) (x)
 #endif
@@ -70,7 +71,7 @@ namespace Graphics { namespace Vulkan {
         void _CheckInstanceExtensions(ArrayList<CString>& extensions);
         void _CheckDeviceExtensions(ArrayList<CString>& extensions);
 
-#ifdef _DEBUG
+#ifdef VALIDATION_LAYERS
         VkDebugUtilsMessengerEXT m_debugMessenger;
         void _EnableDebugCallback(VkInstance instance);
         void _DestroyDebugCallback(VkInstance instance);

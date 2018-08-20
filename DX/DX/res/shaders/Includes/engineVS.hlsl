@@ -8,7 +8,7 @@ cbuffer cbPerCamera : register(b0)
 {	
 	float4x4 _View;	
 	float4x4 _Proj;
-    float4x4 _ViewProj;	
+    float4x4 _ViewProj;
 	float3 _CameraPos;
 	float _zNear;
 	float _zFar;

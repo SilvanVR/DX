@@ -102,7 +102,7 @@
     </ClCompile>
     <Lib>
       <AdditionalLibraryDirectories>$(ProjectDir)libs\debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>LibOVR.lib;$(VK_SDK_PATH)/Lib/vulkan-1.lib</AdditionalDependencies>
+      <AdditionalDependencies>LibOVR.lib;$(VK_SDK_PATH)/Lib/vulkan-1.lib;shaderc_combined.lib</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -170,7 +170,7 @@
     </Link>
     <Lib>
       <AdditionalLibraryDirectories>$(ProjectDir)libs\release</AdditionalLibraryDirectories>
-      <AdditionalDependencies>LibOVR.lib; $(VK_SDK_PATH)/Lib/vulkan-1.lib</AdditionalDependencies>
+      <AdditionalDependencies>LibOVR.lib;$(VK_SDK_PATH)/Lib/vulkan-1.lib;shaderc_combined.lib</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -207,6 +207,14 @@
     <ClCompile Include="src\Include\Graphics\VR\OculusRift\oculus_rift.cpp" />
     <ClCompile Include="src\Include\Graphics\VR\vr.cpp" />
     <ClCompile Include="src\Include\Graphics\Vulkan\Ext\impl.cpp" />
+    <ClCompile Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\SpirvCross\spirv_cfg.cpp" />
+    <ClCompile Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\SpirvCross\spirv_cpp.cpp" />
+    <ClCompile Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\SpirvCross\spirv_cross.cpp" />
+    <ClCompile Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\SpirvCross\spirv_cross_util.cpp" />
+    <ClCompile Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\SpirvCross\spirv_glsl.cpp" />
+    <ClCompile Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\SpirvCross\spirv_hlsl.cpp" />
+    <ClCompile Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\SpirvCross\spirv_msl.cpp" />
+    <ClCompile Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\SpirvCross\spirv_reflect.cpp" />
     <ClCompile Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\VkFragmentShader.cpp" />
     <ClCompile Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\VkGeometryShader.cpp" />
     <ClCompile Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\VkShaderBase.cpp" />
@@ -275,6 +283,16 @@
     <ClInclude Include="src\Include\Graphics\VR\vr.h" />
     <ClInclude Include="src\Include\Graphics\Vulkan\Ext\simple_vulkan_synchronization.h" />
     <ClInclude Include="src\Include\Graphics\Vulkan\Ext\vk_mem_alloc.h" />
+    <ClInclude Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\SpirvCross\spirv.hpp" />
+    <ClInclude Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\SpirvCross\spirv_cfg.hpp" />
+    <ClInclude Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\SpirvCross\spirv_common.hpp" />
+    <ClInclude Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\SpirvCross\spirv_cpp.hpp" />
+    <ClInclude Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\SpirvCross\spirv_cross.hpp" />
+    <ClInclude Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\SpirvCross\spirv_cross_util.hpp" />
+    <ClInclude Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\SpirvCross\spirv_glsl.hpp" />
+    <ClInclude Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\SpirvCross\spirv_hlsl.hpp" />
+    <ClInclude Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\SpirvCross\spirv_msl.hpp" />
+    <ClInclude Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\SpirvCross\spirv_reflect.hpp" />
     <ClInclude Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\VkFragmentShader.h" />
     <ClInclude Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\VkGeometryShader.h" />
     <ClInclude Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\VkShaderBase.h" />

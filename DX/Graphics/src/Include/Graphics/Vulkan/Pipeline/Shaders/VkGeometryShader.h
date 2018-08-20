@@ -17,15 +17,7 @@ namespace Graphics { namespace Vulkan {
         GeometryShader() : ShaderBase(ShaderType::Geometry) {}
         ~GeometryShader() = default;
 
-        //----------------------------------------------------------------------
-        // ShaderBase Interface
-        //----------------------------------------------------------------------
-        void compileFromFile(const OS::Path& path, CString entryPoint) override;
-        void compileFromSource(const String& shaderSource, CString entryPoint) override;
-
     private:
-        void _CreateShader(const ShaderBlob& shaderBlob);
-
         NULL_COPY_AND_ASSIGN(GeometryShader)
     };
 

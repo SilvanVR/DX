@@ -37,7 +37,7 @@ namespace Graphics { namespace Vulkan {
     void Platform::Shutdown()
     {
         vkDestroyDevice( device, ALLOCATOR );
-#ifdef _DEBUG 
+#ifdef VALIDATION_LAYERS 
         _DestroyDebugCallback( instance );
 #endif
         vkDestroyInstance( instance, ALLOCATOR );
@@ -188,7 +188,7 @@ namespace Graphics { namespace Vulkan {
     // PRIVATE
     //**********************************************************************
 
-#ifdef _DEBUG 
+#ifdef VALIDATION_LAYERS 
     //----------------------------------------------------------------------
     void Platform::_EnableDebugCallback( VkInstance instance )
     {

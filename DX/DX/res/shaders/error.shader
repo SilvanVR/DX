@@ -13,34 +13,15 @@
 
 #include "/engine/shaders/includes/engineVS.hlsl"
 
-struct VertexIn
+float4 main( float3 PosL : POSITION ) : SV_POSITION
 {
-	float3 PosL : POSITION;
-};
-
-struct VertexOut
-{
-	float4 PosH : SV_POSITION;
-};
-
-VertexOut main(VertexIn vin)
-{
-	VertexOut OUT;
-
-	OUT.PosH = TO_CLIP_SPACE(vin.PosL);
-
-	return OUT;
+	return TO_CLIP_SPACE( vin.PosL );
 }
 
 // ----------------------------------------------
 #shader fragment
 
-struct FragmentIn
-{
-	float4 PosH : SV_POSITION;
-};
-
-float4 main(FragmentIn fin) : SV_Target
+float4 main( float4 PosH : SV_POSITION ) : SV_Target
 {
 	return float4(1,0,1,1);
 }
@@ -52,17 +33,28 @@ float4 main(FragmentIn fin) : SV_Target
 
 #shader vertex
 
-//#include "/engine/shaders/includes/engineVS.hlsl"
+#include "/engine/shaders/includes/vulkan/engineVS.glsl"
+
+layout (location = 0) in vec3 inPos;
 
 void main()
 {
-	gl_Position = vec4(0,0,0,1);
+	gl_Position = TO_CLIP_SPACE( inPos );
 }
 
 // ----------------------------------------------
 #shader fragment
 
+#include "/engine/shaders/includes/vulkan/engineFS.glsl"
+
+layout (location = 0) out vec4 outColor;
+
+layout (set = 2, binding = 0) uniform MATERIAL
+{
+	vec4 color;
+} material;
+
 void main()
 {
-	return vec4(1,0,1,1);
+	outColor = vec4(1,0,1,1);
 }

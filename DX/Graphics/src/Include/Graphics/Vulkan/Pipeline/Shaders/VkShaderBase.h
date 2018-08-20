@@ -13,10 +13,11 @@
 
 namespace Graphics { namespace Vulkan {
 
-    struct ShaderBlob
+    //----------------------------------------------------------------------
+    struct PushConstant
     {
-        const void* data;
-        Size size;
+        U32 sizeInBytes;
+        ArrayList<ShaderUniformDeclaration> members;
     };
 
     //**********************************************************************
@@ -27,14 +28,15 @@ namespace Graphics { namespace Vulkan {
         virtual ~ShaderBase() {}
 
         //----------------------------------------------------------------------
-        virtual void compileFromFile(const OS::Path& path, CString entryPoint) = 0;
-        virtual void compileFromSource(const String& shaderSource, CString entryPoint) = 0;
+        void compileFromFile(const OS::Path& path, CString entryPoint);
+        void compileFromSource(const String& shaderSource, CString entryPoint);
 
         //----------------------------------------------------------------------
-        const OS::Path&                                     getFilePath()   const { return m_filePath; }
-        const ArrayList<ShaderResourceDeclaration>&         getResourceDeclarations() const { return m_resourceDeclarations; }
-        const ArrayList<ShaderUniformBufferDeclaration>&    getConstantBufferBindings() const { return m_constantBuffers; }
+        const OS::Path&                                     getFilePath()               const { return m_filePath; }
+        const ArrayList<ShaderResourceDeclaration>&         getResourceDeclarations()   const { return m_resourceDeclarations; }
+        const ArrayList<ShaderUniformBufferDeclaration>&    getUniformBufferBindings()  const { return m_uniformBuffers; }
         const ShaderResourceDeclaration*                    getResourceDeclaration(StringID name) const;
+        const VkShaderModule&                               getVkShaderModule()         const { return m_shaderModule; }
 
         //----------------------------------------------------------------------
         // @Return:
@@ -57,24 +59,21 @@ namespace Graphics { namespace Vulkan {
         const ShaderUniformBufferDeclaration* getShaderBufferDeclaration() const;
 
     protected:
-        ShaderType  m_shaderType = ShaderType::Unknown;
-        OS::Path    m_filePath;
 
-        // Resources + UBO's bound to this shader
-        ArrayList<ShaderUniformBufferDeclaration>   m_constantBuffers;
-        ArrayList<ShaderResourceDeclaration>        m_resourceDeclarations;
-
-        void _CompileFromSource(const String& source, CString entryPoint, std::function<void(const ShaderBlob&)>);
-        void _CompileFromFile(const OS::Path& path, CString entryPoint, std::function<void(const ShaderBlob&)>);
+        // Can be overriden by a subclass, eg. by the vertex shader to reflect the input layout
+        virtual void _ShaderReflection(const ArrayList<uint32_t>& spv);
 
     private:
-        //----------------------------------------------------------------------
-        void _ShaderReflection(const ShaderBlob& shaderBlob);
-        //void _ReflectResources(const D3D11_SHADER_DESC& shaderDesc);
-        //void _ReflectConstantBuffer(ID3D11ShaderReflectionConstantBuffer* cb, U32 bindSlot);
-        //DataType _GetDataType(ID3D11ShaderReflectionVariable* var);
+        VkShaderModule  m_shaderModule;
+        ShaderType      m_shaderType = ShaderType::Unknown;
+        OS::Path        m_filePath;
 
-        //----------------------------------------------------------------------
+        // Resources + UBO's bound to this shader
+        ArrayList<ShaderUniformBufferDeclaration>   m_uniformBuffers;
+        ArrayList<ShaderResourceDeclaration>        m_resourceDeclarations;
+        PushConstant                                m_pushConstant;
+
+
         NULL_COPY_AND_ASSIGN(ShaderBase)
     };
 

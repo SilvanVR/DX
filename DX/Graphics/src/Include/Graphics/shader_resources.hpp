@@ -14,10 +14,16 @@ namespace Graphics {
     class ShaderResourceDeclaration
     {
     public:
+        // Constructor for dx11
         ShaderResourceDeclaration(ShaderType shaderType, U32 bindingSlot, StringID name, DataType dataType)
             : m_shaderType( shaderType ), m_bindingSlot( bindingSlot ), m_name( name ), m_type( dataType ) {}
 
+        // Constructor for vulkan
+        ShaderResourceDeclaration(ShaderType shaderType, U32 set, U32 binding, StringID name, DataType dataType)
+            : m_shaderType(shaderType), m_bindingSet(set), m_bindingSlot(binding), m_name(name), m_type(dataType) {}
+
         inline ShaderType   getShaderType()     const { return m_shaderType; }
+        inline U32          getBindingSet()     const { return m_bindingSet; }
         inline U32          getBindingSlot()    const { return m_bindingSlot; }
         inline StringID     getName()           const { return m_name; }
         inline DataType     getDataType()       const { return m_type; }
@@ -25,6 +31,7 @@ namespace Graphics {
     private:
         ShaderType  m_shaderType;
         U32         m_bindingSlot;
+        U32         m_bindingSet; // Not used in dx11
         StringID    m_name;
         DataType    m_type;
     };
@@ -55,11 +62,17 @@ namespace Graphics {
     struct ShaderUniformBufferDeclaration
     {
     public:
+        // Constructor for dx11
         ShaderUniformBufferDeclaration(StringID name, U32 bindingSlot, U32 size)
             : m_name( name ), m_bindingSlot( bindingSlot ), m_size( size ) {}
 
+        // Constructor for vulkan
+        ShaderUniformBufferDeclaration(StringID name, U32 set, U32 binding, U32 size)
+            : m_name(name), m_bindingSet(set), m_bindingSlot(binding), m_size(size) {}
+
         inline U32                                          getSize()           const { return m_size; }
         inline U32                                          getBindingSlot()    const { return m_bindingSlot; }
+        inline U32                                          getBindingSet()     const { return m_bindingSet; }
         inline StringID                                     getName()           const { return m_name; }
         inline const ArrayList<ShaderUniformDeclaration>&   getMembers()        const { return m_members; }
 
@@ -96,9 +109,9 @@ namespace Graphics {
     private:
         StringID                            m_name;
         U32                                 m_bindingSlot;
+        U32                                 m_bindingSet; // Not used in dx11
         U32                                 m_size;
         ArrayList<ShaderUniformDeclaration> m_members;
-
     };
 
 }
