@@ -15,7 +15,7 @@
 
 float4 main( float3 PosL : POSITION ) : SV_POSITION
 {
-	return TO_CLIP_SPACE( vin.PosL );
+	return TO_CLIP_SPACE( PosL );
 }
 
 // ----------------------------------------------

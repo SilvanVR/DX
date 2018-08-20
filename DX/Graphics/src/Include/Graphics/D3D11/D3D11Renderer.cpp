@@ -60,12 +60,12 @@ namespace Graphics {
         _CreateGlobalBuffer();
         _CreateCubeMesh();
 
-        VR::Device hmd = VR::GetFirstSupportedHMDAndInitialize();
+  /*      VR::Device hmd = VR::GetFirstSupportedHMDAndInitialize();
         switch (hmd)
         {
         case VR::Device::OculusRift: m_hmd = new VR::OculusRiftDX(); break;
         default: LOG_WARN_RENDERING( "VR not supported on your system." );
-        }
+        }*/
 
         // Gets rid of the warnings that a texture is not bound to a shadowmap slot
         {
