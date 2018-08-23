@@ -7,6 +7,7 @@
 **********************************************************************/
 
 #include "i_render_texture.h"
+#include "Vulkan/Vulkan.hpp"
 
 namespace Graphics { namespace Vulkan {
 

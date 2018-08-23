@@ -21,23 +21,13 @@ namespace Core {
     {
         m_api = api;
 
-        bool restart = true;
-        while (restart)
+        while (m_restart)
         {
-            restart = false;
-            try
-            {
-                m_frameCounter = 0;
-                _Init( title, width, height, m_api );
-                _RunCoreGameLoop();
-                _Shutdown();
-            }
-            catch(RestartEngineException e)
-            {
-                (void*)&e; // Remove unreferenced param warning
-                _Shutdown();
-                restart = true;
-            }
+            m_restart = false;
+            m_frameCounter = 0;
+            _Init( title, width, height, m_api );
+            _RunCoreGameLoop();
+            _Shutdown();
         }
     }
 

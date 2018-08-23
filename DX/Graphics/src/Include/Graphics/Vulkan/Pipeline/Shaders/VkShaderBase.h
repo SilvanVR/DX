@@ -1,15 +1,14 @@
 #pragma once
 /**********************************************************************
-    class: ShaderBase (D3D11ShaderBase.h)
+    class: ShaderBase
 
     author: S. Hau
-    date: March 17, 2018
+    date: August 17, 2018
 **********************************************************************/
 
 #include "Vulkan/Vulkan.hpp"
 #include "OS/FileSystem/path.h"
 #include "shader_resources.hpp"
-#include <functional>
 
 namespace Graphics { namespace Vulkan {
 
@@ -37,6 +36,7 @@ namespace Graphics { namespace Vulkan {
         const ArrayList<ShaderUniformBufferDeclaration>&    getUniformBufferBindings()  const { return m_uniformBuffers; }
         const ShaderResourceDeclaration*                    getResourceDeclaration(StringID name) const;
         const VkShaderModule&                               getVkShaderModule()         const { return m_shaderModule; }
+        const PushConstant&                                 getPushConstant()           const { return m_pushConstant; }
 
         //----------------------------------------------------------------------
         // @Return:
@@ -49,14 +49,14 @@ namespace Graphics { namespace Vulkan {
         //  Constant buffer info about first constant buffer with name "material" in it.
         //  Nullptr if not existent.
         //----------------------------------------------------------------------
-        const ShaderUniformBufferDeclaration* getMaterialBufferDeclaration() const;
+        const ShaderUniformBufferDeclaration* getMaterialBufferDeclaration() const { return m_materialUBO; }
 
         //----------------------------------------------------------------------
         // @Return:
         //  Constant buffer info about first constant buffer with name "shader" in it.
         //  Nullptr if not existent.
         //----------------------------------------------------------------------
-        const ShaderUniformBufferDeclaration* getShaderBufferDeclaration() const;
+        const ShaderUniformBufferDeclaration* getShaderBufferDeclaration() const { return m_shaderUBO; }
 
     protected:
 
@@ -73,6 +73,8 @@ namespace Graphics { namespace Vulkan {
         ArrayList<ShaderResourceDeclaration>        m_resourceDeclarations;
         PushConstant                                m_pushConstant;
 
+        ShaderUniformBufferDeclaration*             m_shaderUBO   = nullptr;
+        ShaderUniformBufferDeclaration*             m_materialUBO = nullptr;
 
         NULL_COPY_AND_ASSIGN(ShaderBase)
     };

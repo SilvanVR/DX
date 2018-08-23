@@ -41,6 +41,8 @@ namespace Graphics {
         API getAPI() const override { return API::Vulkan; }
         String getAPIName() const override { return "Vulkan"; }
 
+        void setVSync(bool enabled) override;
+
         IMesh*              createMesh() override;
         IMaterial*          createMaterial() override;
         IShader*            createShader() override;

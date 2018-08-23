@@ -82,7 +82,7 @@ namespace Core {
     void Red()      { SCENE.getMainCamera()->setClearColor( Color::RED ); }
     void Green()    { SCENE.getMainCamera()->setClearColor( Color::GREEN ); }
     void Blue()     { SCENE.getMainCamera()->setClearColor( Color::BLUE ); }
-    void Black()    { SCENE.getMainCamera()->setClearColor(Color::BLACK); }
+    void Black()    { SCENE.getMainCamera()->setClearColor( Color::BLACK ); }
 
     //----------------------------------------------------------------------
     void Help()

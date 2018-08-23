@@ -43,7 +43,7 @@ namespace Graphics {
         bool                    hasHMD()            const { return m_hmd != nullptr; }
 
         //----------------------------------------------------------------------
-        void setVSync(bool enabled) { m_vsync = enabled; }
+        virtual void setVSync(bool enabled) { m_vsync = enabled; }
 
         //----------------------------------------------------------------------
         // Dispatches the given command buffer for execution on the gpu.

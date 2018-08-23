@@ -52,8 +52,7 @@ namespace Core {
         //----------------------------------------------------------------------
         // Restarts the whole engine.
         //----------------------------------------------------------------------
-        struct RestartEngineException{};
-        void restart() { throw RestartEngineException{}; }
+        void restart() { m_isRunning = false; m_restart = true; }
 
         //----------------------------------------------------------------------
         // Set's the graphics api and restarts the whole engine.
@@ -80,9 +79,10 @@ namespace Core {
         SubSystemManager            m_subSystemManager;
         OS::Window                  m_window;
         std::vector<ISubSystem*>    m_subscribers;
-        bool                        m_isRunning = true;
         U64                         m_frameCounter = 0;
         Graphics::API               m_api;
+        bool                        m_isRunning = true;
+        bool                        m_restart = true;
 
         //----------------------------------------------------------------------
         void _Init(const char* title, U32 width, U32 height, Graphics::API api);

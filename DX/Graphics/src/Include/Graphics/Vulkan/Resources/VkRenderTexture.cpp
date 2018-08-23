@@ -10,7 +10,6 @@
 
 namespace Graphics { namespace Vulkan {
 
-
     //**********************************************************************
     // PUBLIC
     //**********************************************************************
@@ -33,17 +32,17 @@ namespace Graphics { namespace Vulkan {
         {
             colorBuffer->_ClearResolvedFlag();
             depthBuffer->_ClearResolvedFlag();
-            //g_pImmediateContext->OMSetRenderTargets( 1, &colorBuffer->m_pRenderTargetView, depthBuffer->m_pDepthStencilView );
+            g_vulkan.ctx.OMSetRenderTarget( &colorBuffer->m_imageView, &depthBuffer->m_imageView );
         }
         else if (depthBuffer)
         {
             depthBuffer->_ClearResolvedFlag();
-            //g_pImmediateContext->OMSetRenderTargets( 0, nullptr, depthBuffer->m_pDepthStencilView );
+            g_vulkan.ctx.OMSetRenderTarget( VK_NULL_HANDLE, &depthBuffer->m_imageView );
         }
         else
         {
             colorBuffer->_ClearResolvedFlag();
-            //g_pImmediateContext->OMSetRenderTargets( 1, &colorBuffer->m_pRenderTargetView, nullptr );
+            g_vulkan.ctx.OMSetRenderTarget( &colorBuffer->m_imageView, VK_NULL_HANDLE );
         }
     }
 

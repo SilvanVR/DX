@@ -2,7 +2,8 @@
 #extension GL_ARB_separate_shader_objects : enable
 #extension GL_ARB_shading_language_420pack : enable
 
-#define ALPHA_THRESHOLD 0.1
+#define MAX_LIGHTS 					16
+#define ALPHA_THRESHOLD 			0.1
 
 //----------------------------------------------------------------------
 // Descriptor-Sets
@@ -24,3 +25,27 @@ layout (set = 1, binding = 0) uniform CAMERA
 	float zFar;
 	vec3 pos;
 } _Camera;
+
+struct Light
+{
+    vec4      	position;               // 16 bytes
+	int         lightType;              // 4 bytes
+    //----------------------------------- (16 byte boundary)
+    vec4      	direction;              // 12 bytes
+	float 		intensity;				// 4 bytes
+    //----------------------------------- (16 byte boundary)
+    vec4      color;                  // 16 bytes
+    //----------------------------------- (16 byte boundary)
+    float       spotAngle;              // 4 bytes
+    float       range;					// 4 bytes
+    int       	shadowMapIndex;			// 4 bytes
+	int			shadowType;				// 4 bytes	
+    //----------------------------------- (16 byte boundary)
+};  // Total:                           // 80 bytes (4 * 16)
+ 
+// Light ubo
+layout (set = 2, binding = 0) uniform LIGHTS
+{
+	Light 	lights[MAX_LIGHTS];
+	int 	count; // 4 bytes
+} _Lights;

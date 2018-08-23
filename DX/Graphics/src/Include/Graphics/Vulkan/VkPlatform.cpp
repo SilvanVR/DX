@@ -6,6 +6,7 @@
     date: August 14, 2018
 **********************************************************************/
 
+#include "Vulkan.hpp"
 #include "Common/estl.hpp"
 
 namespace Graphics { namespace Vulkan {
@@ -34,8 +35,35 @@ namespace Graphics { namespace Vulkan {
     }
 
     //----------------------------------------------------------------------
+    void Platform::Init()
+    {
+        ASSERT( device && "Init function should be called after creating a device!" );
+        _CreateGPUAllocator();
+        for (U32 i = 0; i < NUM_FRAME_DATA; i++)
+        {
+            m_frameData[i].cmd.create( queueFamilyGraphicsIndex, 
+                                       VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
+                                       VK_FENCE_CREATE_SIGNALED_BIT );
+
+            VkSemaphoreCreateInfo semaphoreCreateInfo{ VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO };
+            vkCreateSemaphore( g_vulkan.device, &semaphoreCreateInfo, ALLOCATOR, &m_frameData[i].semPresentComplete );
+            vkCreateSemaphore( g_vulkan.device, &semaphoreCreateInfo, ALLOCATOR, &m_frameData[i].semRenderingFinished );
+        }
+        ctx.Init();
+    }
+
+    //----------------------------------------------------------------------
     void Platform::Shutdown()
     {
+        vkDeviceWaitIdle( device );
+        ctx.Shutdown();
+        for (U32 i = 0; i < NUM_FRAME_DATA; i++)
+        {
+            m_frameData[i].cmd.release();
+            vkDestroySemaphore( g_vulkan.device, m_frameData[i].semPresentComplete, ALLOCATOR );
+            vkDestroySemaphore( g_vulkan.device, m_frameData[i].semRenderingFinished, ALLOCATOR );
+        }
+        vmaDestroyAllocator( allocator );
         vkDestroyDevice( device, ALLOCATOR );
 #ifdef VALIDATION_LAYERS 
         _DestroyDebugCallback( instance );
@@ -43,8 +71,28 @@ namespace Graphics { namespace Vulkan {
         vkDestroyInstance( instance, ALLOCATOR );
     }
 
+    //----------------------------------------------------------------------
+    void Platform::BeginFrame()
+    {
+        m_frameDataIndex = (m_frameDataIndex + 1) % NUM_FRAME_DATA;
+        curDrawCmd().wait();
+        curDrawCmd().begin();
+        ctx.BeginFrame();
+    }
+
+    //----------------------------------------------------------------------
+    void Platform::EndFrame()
+    {
+        ctx.EndFrame();
+        curDrawCmd().exec( graphicsQueue, curFrameData().semPresentComplete, curFrameData().semRenderingFinished );
+    }
+
     //**********************************************************************
     // PUBLIC
+    //**********************************************************************
+
+    //**********************************************************************
+    // PUBLIC - FRIEND
     //**********************************************************************
 
     //----------------------------------------------------------------------
@@ -123,8 +171,6 @@ namespace Graphics { namespace Vulkan {
     //----------------------------------------------------------------------
     void Platform::CreateDevice( VkSurfaceKHR surface, const ArrayList<String>& extensions, const VkPhysicalDeviceFeatures& features )
     {
-        I32 queueFamilyGraphicsIndex = -1;
-        I32 queueFamilyTransferIndex = -1;
         for (I32 i = 0; i < gpu.queueFamilyProperties.size(); ++i)
         {
             VkBool32 supportsPresent;
@@ -178,12 +224,12 @@ namespace Graphics { namespace Vulkan {
         deviceInfo.ppEnabledExtensionNames  = deviceExtensions.data();
         deviceInfo.pEnabledFeatures         = &features;
 
-        vkCreateDevice( gpu.physicalDevice, &deviceInfo, nullptr, &device );
+        vkCreateDevice( gpu.physicalDevice, &deviceInfo, ALLOCATOR, &device );
 
         vkGetDeviceQueue( device, queueFamilyGraphicsIndex, drawQueueIndex, &graphicsQueue );
         vkGetDeviceQueue( device, queueFamilyTransferIndex, xferQueueIndex, &transferQueue );
     }
-    
+
     //**********************************************************************
     // PRIVATE
     //**********************************************************************
@@ -289,6 +335,110 @@ namespace Graphics { namespace Vulkan {
                 ++it;
             }
         }
+    }
+
+    //----------------------------------------------------------------------
+    void Platform::_CreateGPUAllocator()
+    {
+        VmaAllocatorCreateInfo allocatorInfo = {};
+        allocatorInfo.physicalDevice = gpu.physicalDevice;
+        allocatorInfo.device = device;
+        allocatorInfo.pAllocationCallbacks = ALLOCATOR;
+
+        vmaCreateAllocator( &allocatorInfo, &allocator );
+    }
+
+    //**********************************************************************
+    // CONTEXT
+    //**********************************************************************
+
+    //----------------------------------------------------------------------
+    void Platform::Context::Init()
+    {
+
+    }
+
+    //----------------------------------------------------------------------
+    void Platform::Context::Shutdown()
+    {
+
+    }
+
+    //----------------------------------------------------------------------
+    void Platform::Context::BeginFrame()
+    {
+   
+    }
+
+    //----------------------------------------------------------------------
+    void Platform::Context::EndFrame()
+    {
+
+    }
+
+    //**********************************************************************
+    // PUBLIC
+    //**********************************************************************
+
+    //----------------------------------------------------------------------
+    void Platform::Context::SetClearColor( Color color )
+    {
+        auto colorNormalized = color.normalized();
+        m_clearValues[0].color = { colorNormalized[0], colorNormalized[1], colorNormalized[2], colorNormalized[3] };
+        m_colorClearMode = ClearMode::Clear;
+    }
+
+    //----------------------------------------------------------------------
+    void Platform::Context::SetClearDepthStencil( F32 depth, U32 stencil ) 
+    {
+        m_clearValues[1].depthStencil = { depth, stencil };
+        m_depthStencilClearMode = ClearMode::Clear;
+    }
+
+    //----------------------------------------------------------------------
+    void Platform::Context::OMSetRenderTarget( ImageView* color, ImageView* depth )
+    {
+        m_colorView = color;
+        m_depthView = depth;
+    }
+
+    //**********************************************************************
+    // PRIVATE
+    //**********************************************************************
+
+    ////----------------------------------------------------------------------
+    //void Platform::Context::_CreateNewRenderPass( ImageView colorView, ImageView depthView )
+    //{
+    //}
+
+    //----------------------------------------------------------------------
+    VkAttachmentLoadOp Platform::Context::_GetLoadOp( ClearMode clearMode )
+    {
+        switch (clearMode)
+        {
+        case ClearMode::None: return VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+        case ClearMode::Clear: return VK_ATTACHMENT_LOAD_OP_CLEAR;
+        }
+        ASSERT(false);
+        return VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    }
+
+    ////----------------------------------------------------------------------
+    //void Platform::Context::_CreateNewFrameBuffer()
+    //{
+    //}
+
+    //----------------------------------------------------------------------
+    void Platform::Context::_CmdBeginRenderPass()
+    {
+        VkRenderPassBeginInfo beginInfo{ VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO };
+        beginInfo.renderPass        = m_currentRenderPass->renderPass;
+        beginInfo.framebuffer       = m_currentFramebuffer->framebuffer;
+        //beginInfo.renderArea.extent = { m_currentWidth, m_currentHeight };
+        beginInfo.clearValueCount   = (U32)m_clearValues.size();
+        beginInfo.pClearValues      = m_clearValues.data();
+
+        //vkCmdBeginRenderPass( g_vulkan.curFrameData().cmd, &beginInfo, VK_SUBPASS_CONTENTS_INLINE );
     }
 
 } } // End namespaces

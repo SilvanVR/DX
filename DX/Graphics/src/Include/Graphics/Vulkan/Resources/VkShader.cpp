@@ -9,7 +9,6 @@
 #include "../Pipeline/Shaders/VkVertexShader.h"
 #include "../Pipeline/Shaders/VkFragmentShader.h"
 #include "../Pipeline/Shaders/VkGeometryShader.h"
-//#include "../Resources/VkMesh.h"
 #include "../VkUtility.h"
 
 namespace Graphics { namespace Vulkan {

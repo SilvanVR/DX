@@ -232,6 +232,7 @@
     <ClCompile Include="src\Include\Graphics\Vulkan\VkRenderer.cpp" />
     <ClCompile Include="src\Include\Graphics\Vulkan\VkSwapchain.cpp" />
     <ClCompile Include="src\Include\Graphics\Vulkan\VkUtility.cpp" />
+    <ClCompile Include="src\Include\Graphics\Vulkan\Wrapper\VkWrapper.cpp" />
     <ClCompile Include="src\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
@@ -317,6 +318,7 @@
     <ClInclude Include="src\Include\Graphics\Vulkan\VkSwapchain.h" />
     <ClInclude Include="src\Include\Graphics\Vulkan\VkUtility.h" />
     <ClInclude Include="src\Include\Graphics\Vulkan\Vulkan.hpp" />
+    <ClInclude Include="src\Include\Graphics\Vulkan\Wrapper\VkWrapper.h" />
     <ClInclude Include="src\stdafx.h" />
   </ItemGroup>
   <ItemGroup>

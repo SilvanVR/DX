@@ -7,7 +7,7 @@
 **********************************************************************/
 
 #include "VkPlatform.h"
-#include "Ext/simple_vulkan_synchronization.h"
-#include "Ext/vk_mem_alloc.h"
 
 extern Graphics::Vulkan::Platform g_vulkan;
+
+#define VK_RELEASE(x) if(x){ x->Release(); x = nullptr; }

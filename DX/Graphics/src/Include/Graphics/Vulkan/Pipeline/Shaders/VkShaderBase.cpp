@@ -47,34 +47,6 @@ namespace Graphics { namespace Vulkan {
     }
 
     //----------------------------------------------------------------------
-    const ShaderUniformBufferDeclaration* ShaderBase::getMaterialBufferDeclaration() const
-    {
-        for ( auto& ubo : m_uniformBuffers )
-        {
-            String lower = StringUtils::toLower( ubo.getName().toString() );
-            if ( lower.find( MATERIAL_NAME ) != String::npos )
-                return &ubo;
-        }
-
-        // This shader has no material set
-        return nullptr;
-    }
-
-    //----------------------------------------------------------------------
-    const ShaderUniformBufferDeclaration* ShaderBase::getShaderBufferDeclaration() const
-    {
-        for ( auto& ubo : m_uniformBuffers )
-        {
-            String lower = StringUtils::toLower( ubo.getName().toString() );
-            if ( lower.find( SHADER_NAME ) != String::npos )
-                return &ubo;
-        }
-
-        // This shader has no shader set
-        return nullptr;
-    }
-
-    //----------------------------------------------------------------------
     const ShaderResourceDeclaration* ShaderBase::getResourceDeclaration( StringID name ) const
     {
         for (auto& decl : m_resourceDeclarations)
@@ -176,6 +148,16 @@ namespace Graphics { namespace Vulkan {
                 ubo._AddUniformDecl( uniform );
 
             m_uniformBuffers.emplace_back( ubo );
+        }
+
+        // Check for shader/material ubo
+        for (auto& ubo : m_uniformBuffers)
+        {
+            String lower = StringUtils::toLower( ubo.getName().toString() );
+            if (lower.find( MATERIAL_NAME ) != String::npos)
+                m_materialUBO = &ubo;
+            if (lower.find( SHADER_NAME ) != String::npos)
+                m_shaderUBO = &ubo;
         }
 
         // Image Sampler

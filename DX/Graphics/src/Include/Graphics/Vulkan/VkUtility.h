@@ -7,6 +7,7 @@
 **********************************************************************/
 
 #include "../enums.hpp"
+#include "../structs.hpp"
 #include "Vulkan.hpp"
 
 namespace Graphics { namespace Vulkan { namespace Utility {
@@ -30,10 +31,10 @@ namespace Graphics { namespace Vulkan { namespace Utility {
     VkFormat TranslateTextureFormat( TextureFormat format );
 
     //----------------------------------------------------------------------
+    VkSampleCountFlagBits TranslateSampleCount( SamplingDescription samplingDesc );
+
+    //----------------------------------------------------------------------
     VkFormat TranslateDepthFormat( DepthFormat depth );
     //VkFormat TranslateDepthFormatSRV( DepthFormat depth );
-
-    ////----------------------------------------------------------------------
-    //bool MSAASamplesSupported( DXGI_FORMAT format, U8 numSamples );
 
 } } }

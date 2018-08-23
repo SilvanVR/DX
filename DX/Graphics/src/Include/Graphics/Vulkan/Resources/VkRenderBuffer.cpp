@@ -6,17 +6,22 @@
     date: August 20, 2018
 **********************************************************************/
 
+#include "Vulkan/VkUtility.h"
+
 namespace Graphics { namespace Vulkan {
+
+    //**********************************************************************
+    // PUBLIC
+    //**********************************************************************
 
     //----------------------------------------------------------------------
     void RenderBuffer::create( U32 width, U32 height, TextureFormat format, SamplingDescription samplingDesc )
     {
         ITexture::_Init( TextureDimension::Tex2D, width, height, format );
         m_isDepthBuffer = false;
-
         m_samplingDescription = samplingDesc;
 
-        _CreateColorBufferAndViews();
+        _CreateImage( m_isDepthBuffer );
     }
 
     //----------------------------------------------------------------------
@@ -27,7 +32,7 @@ namespace Graphics { namespace Vulkan {
         m_depthFormat = format;
         m_samplingDescription = samplingDesc;
 
-        _CreateDepthBufferAndViews();
+        _CreateImage( m_isDepthBuffer );
     }
 
     //----------------------------------------------------------------------
@@ -42,9 +47,8 @@ namespace Graphics { namespace Vulkan {
         m_width = w;
         m_height = h;
         m_samplingDescription = samplingDesc;
-
-        _DestroyBufferAndViews();
-        isDepthBuffer() ? _CreateDepthBufferAndViews() : _CreateColorBufferAndViews();
+        _DestroyBuffers( m_isDepthBuffer );
+        _CreateImage( m_isDepthBuffer );
     }
 
     //----------------------------------------------------------------------
@@ -52,8 +56,8 @@ namespace Graphics { namespace Vulkan {
     {
         ASSERT( isColorBuffer() && "Renderbuffer is not a color buffer!" );
         m_format = format;
-        _DestroyBufferAndViews();
-        _CreateColorBufferAndViews();
+        _DestroyBuffers( m_isDepthBuffer );
+        _CreateImage( m_isDepthBuffer );
     }
 
     //----------------------------------------------------------------------
@@ -61,18 +65,18 @@ namespace Graphics { namespace Vulkan {
     {
         ASSERT( isDepthBuffer() && "Renderbuffer is not a depth buffer!");
         m_depthFormat = format;
-        _DestroyBufferAndViews();
-        _CreateDepthBufferAndViews();
+        _DestroyBuffers( m_isDepthBuffer );
+        _CreateImage( m_isDepthBuffer );
     }
 
     //----------------------------------------------------------------------
     void RenderBuffer::bindForRendering()
     {
         _ClearResolvedFlag();
-        //if ( isDepthBuffer() )
-        //    g_pImmediateContext->OMSetRenderTargets( 0, NULL, m_pDepthStencilView );
-        //else
-        //    g_pImmediateContext->OMSetRenderTargets( 1, &m_pRenderTargetView, NULL );
+        if ( isDepthBuffer() )
+            g_vulkan.ctx.OMSetRenderTarget( VK_NULL_HANDLE, &m_imageView );
+        else
+            g_vulkan.ctx.OMSetRenderTarget( &m_imageView, VK_NULL_HANDLE );
     }
 
     //**********************************************************************
@@ -80,24 +84,23 @@ namespace Graphics { namespace Vulkan {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    void RenderBuffer::bind( ShaderType shaderType, U32 slot )
+    void RenderBuffer::bind( ShaderType shaderType, U32 set )
     {
-        //// If the renderbuffer is multisampled itself, we must resolve it to the non-multisampled buffer and bind that to the shader then
-        //if ( isMultisampled() )
-        //{
-        //    if ( isDepthBuffer() )
-        //    {
-        //        LOG_WARN_RENDERING( "D3D11RenderBuffer::bind(): Trying to bind a multisampled depth-buffer, but must be resolved first! This is not supported yet!" );
-        //    }
-        //    else
-        //    {
-        //        if (not m_resolved)
-        //        {
-        //            g_pImmediateContext->ResolveSubresource( m_pTexture, 0, m_pRenderBufferMS, 0, Utility::TranslateTextureFormat( m_format ) );
-        //            m_resolved = true;
-        //        }
-        //    }
-        //}
+        // If the renderbuffer is multisampled itself, we must resolve it to the non-multisampled buffer and bind that to the shader then
+        if ( isMultisampled() )
+        {
+            if (not m_resolved)
+            {
+                VkImageResolve region{};
+                region.srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, VK_REMAINING_ARRAY_LAYERS };
+                region.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, VK_REMAINING_ARRAY_LAYERS };
+                region.extent = { m_width, m_height };
+                //vkCmdResolveImage( cmd, m_imageMS, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, m_image, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, 1, &region );
+                m_resolved = true;
+            }
+        }
+
+        // Bind descriptor-set containing this image
 
         //switch (shaderType)
         //{
@@ -118,14 +121,14 @@ namespace Graphics { namespace Vulkan {
     void RenderBuffer::clearColor( Color color )
     {
         ASSERT( not isDepthBuffer() );
-        //g_pImmediateContext->ClearRenderTargetView( m_pRenderTargetView, color.normalized().data() );
+        g_vulkan.ctx.SetClearColor( color );
     }
 
     //----------------------------------------------------------------------
     void RenderBuffer::clearDepthStencil( F32 depth, U8 stencil )
     {
         ASSERT( isDepthBuffer() );
-        //g_pImmediateContext->ClearDepthStencilView( m_pDepthStencilView, (D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL), depth, stencil );
+        g_vulkan.ctx.SetClearDepthStencil( depth, stencil );
     }
 
     //**********************************************************************
@@ -133,65 +136,41 @@ namespace Graphics { namespace Vulkan {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    void RenderBuffer::_CreateColorBufferAndViews()
+    void RenderBuffer::_CreateImage( bool isDepthBuffer )
     {
         // If multisampling was requested create an additional buffer in which we render, but have to resolve it before using it in a shader
-        if ( isMultisampled() )
+        if (isDepthBuffer)
         {
+            auto format = Utility::TranslateDepthFormat( m_depthFormat );
+            m_depthImage.create( m_width, m_height, format, VK_SAMPLE_COUNT_1_BIT );
+            if (isMultisampled())
+                m_depthImageMS.create( m_width, m_height, format, Utility::TranslateSampleCount( m_samplingDescription ) );
+            m_imageView.create( m_depthImage );
         }
         else
         {
-            // Just use the non multisampled render buffer as the render target
-
+            auto format = Utility::TranslateTextureFormat( m_format );
+            m_colorImage.create( m_width, m_height, format, VK_SAMPLE_COUNT_1_BIT, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VMA_MEMORY_USAGE_GPU_ONLY );
+            if (isMultisampled())
+                m_colorImageMS.create( m_width, m_height, Utility::TranslateTextureFormat(m_format), VK_SAMPLE_COUNT_1_BIT,
+                                       VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VMA_MEMORY_USAGE_GPU_ONLY );
+            m_imageView.create( m_colorImage );
         }
-
-        _CreateShaderResourceView();
     }
 
     //----------------------------------------------------------------------
-    void RenderBuffer::_CreateDepthBufferAndViews()
+    void RenderBuffer::_DestroyBuffers( bool isDepthBuffer )
     {
-        _CreateShaderResourceView();
-    }
-
-    //----------------------------------------------------------------------
-    void RenderBuffer::_CreateShaderResourceView()
-    {
-        //D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-
-        //if ( isDepthBuffer() )
-        //{
-        //    switch (m_depthFormat)
-        //    {
-        //    case DepthFormat::D16:   srvDesc.Format = DXGI_FORMAT_R16_UNORM; break;
-        //    case DepthFormat::D24S8: srvDesc.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS; break;
-        //    case DepthFormat::D32:   srvDesc.Format = DXGI_FORMAT_R32_FLOAT; break;
-        //    ASSERT( false && "Ooops! Something is wrong here!" );
-        //    }
-        //    srvDesc.ViewDimension = isMultisampled() ? D3D11_SRV_DIMENSION_TEXTURE2DMS : D3D11_SRV_DIMENSION_TEXTURE2D;
-        //}
-        //else
-        //{
-        //    srvDesc.Format = Utility::TranslateTextureFormat( m_format );
-        //    srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-        //}
-
-        //srvDesc.Texture2D.MostDetailedMip = 0;
-        //srvDesc.Texture2D.MipLevels = -1;
-
-        //HR( g_pDevice->CreateShaderResourceView( m_pTexture, &srvDesc, &m_pTextureView ) );
-    }
-
-    //----------------------------------------------------------------------
-    void RenderBuffer::_DestroyBufferAndViews()
-    {
-        if ( isDepthBuffer() )
+        m_imageView.release();
+        if (isDepthBuffer)
         {
-
+            m_depthImage.release();
+            m_depthImageMS.release();
         }
         else
         {
-
+            m_colorImage.release();
+            m_colorImageMS.release();
         }
     }
 

@@ -192,6 +192,9 @@
     <ClCompile Include="src\Include\Graphics\Vulkan\Resources\VkTexture2DArray.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Include\Graphics\Vulkan\Wrapper\VkWrapper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\stdafx.h">
@@ -426,6 +429,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Include\Graphics\Vulkan\Resources\VkTexture2DArray.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Include\Graphics\Vulkan\Wrapper\VkWrapper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

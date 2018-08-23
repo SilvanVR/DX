@@ -56,12 +56,13 @@ namespace Graphics {
         //{
         //    auto vkOculus = new VR::OculusRiftVk();
         //    g_vulkan.CreateInstance( vkOculus->getRequiredInstanceExtentions() );
-        //    m_swapchain.init( m_window );
+        //    m_swapchain.init( g_vulkan.instance, m_window );
         //    g_vulkan.SelectPhysicalDevice( vkOculus->getPhysicalDevice( g_vulkan.instance ) );
         //    g_vulkan.CreateDevice( m_swapchain.getSurfaceKHR(), vkOculus->getRequiredDeviceExtentions(), GetDeviceFeatures() );
         //    vkOculus->setSynchronizationQueueVk( g_vulkan.graphicsQueue );
         //    vkOculus->createEyeBuffers( g_vulkan.device );
         //    m_swapchain.create( g_vulkan.gpu.physicalDevice, g_vulkan.device );
+        //    g_vulkan.Init();
         //    m_hmd = vkOculus; 
         //    break;
         //}
@@ -75,7 +76,8 @@ namespace Graphics {
             m_swapchain.init( g_vulkan.instance, m_window );
             g_vulkan.SelectPhysicalDevice();
             g_vulkan.CreateDevice( m_swapchain.getSurfaceKHR(), { VK_KHR_SWAPCHAIN_EXTENSION_NAME }, GetDeviceFeatures() );
-            m_swapchain.create( g_vulkan.gpu.physicalDevice, g_vulkan.device );
+            m_swapchain.create( g_vulkan.gpu.physicalDevice, g_vulkan.device, m_vsync );
+            g_vulkan.Init();
         }
 
         _SetGPUDescription();
@@ -87,6 +89,7 @@ namespace Graphics {
     //----------------------------------------------------------------------
     void VkRenderer::shutdown()
     {
+        vkDeviceWaitIdle( g_vulkan.device );
         m_swapchain.shutdown( g_vulkan.instance, g_vulkan.device );
         SAFE_DELETE( m_hmd );
         SAFE_DELETE( m_cubeMesh );
@@ -203,7 +206,7 @@ namespace Graphics {
             return;
 
         // Recreate swapchain buffers
-        m_swapchain.recreate( w, h );
+        m_swapchain.recreate( w, h, m_vsync );
     }
 
     //**********************************************************************
@@ -214,21 +217,22 @@ namespace Graphics {
     void VkRenderer::present()
     {
         // Execute command buffers
+        g_vulkan.BeginFrame();
+        m_swapchain.acquireNextImageIndex( UINT64_MAX, g_vulkan.curFrameData().semPresentComplete );
+        m_swapchain.setImageLayout( g_vulkan.curDrawCmd(), VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL );
         _LockQueue();
         for (auto& cmd : m_pendingCmdQueue)
             _ExecuteCommandBuffer( cmd );
         m_pendingCmdQueue.clear();
         _UnlockQueue();
+        m_swapchain.setImageLayout( g_vulkan.curDrawCmd(), VK_IMAGE_LAYOUT_PRESENT_SRC_KHR );
+        g_vulkan.EndFrame();
 
-        // Present rendered images
-        bool vsync = m_vsync;
+        // Present rendered image
         if ( hasHMD() )
-        {
             m_hmd->distortAndPresent( m_frameCount );
-            if ( m_hmd->isMounted() )
-                vsync = false;
-        }
-        //m_pSwapchain->present( vsync );
+
+        m_swapchain.present( g_vulkan.graphicsQueue, g_vulkan.curFrameData().semRenderingFinished );
 
         m_frameCount++;
     }
@@ -271,6 +275,13 @@ namespace Graphics {
     bool VkRenderer::setGlobalMatrix( StringID name, const DirectX::XMMATRIX& matrix )
     {
         return false;
+    }
+
+    //----------------------------------------------------------------------
+    void VkRenderer::setVSync( bool enabled )
+    { 
+        IRenderer::setVSync( enabled );
+        m_swapchain.recreate( m_window->getWidth(), m_window->getHeight(), m_vsync );
     }
 
     //**********************************************************************
@@ -431,6 +442,70 @@ namespace Graphics {
     //----------------------------------------------------------------------
     void VkRenderer::_Blit( const RenderTexturePtr& src, const RenderTexturePtr& dst, const MaterialPtr& material )
     {
+        auto currRT = renderContext.getRenderTarget();
+        if (currRT == SCREEN_BUFFER && dst == SCREEN_BUFFER)
+            LOG_WARN_RENDERING("D3D11[Blit]: Target texture was previously screen, so the content will probably be overriden. This can"
+                " occur if two blits in succession with both target = nullptr (to screen) were recorded.");
+
+        // Use the src texture as the input IF not null. Otherwise use the current bound render target.
+        auto input = src.get() ? src.get() : currRT;
+        if (input == SCREEN_BUFFER)
+        {
+            LOG_WARN_RENDERING("D3D11[Blit]: Previous render target was screen, which can't be used as input! This happens when a blit-command "
+                "with src=nullptr (to screen) was recorded but a previous blit had dst=nullptr (to screen)");
+            return;
+        }
+
+        // Bind render-target (Note: if dst is null, this does nothing)
+        renderContext.BindRendertarget(dst, m_frameCount);
+
+        // Set texture in material
+        //material->setTexture( POST_PROCESS_INPUT_NAME, input->getColorBuffer() );
+
+        VkViewport vp = {};
+        if (dst == SCREEN_BUFFER) // Blit to Screen and/or HMD depending on camera setting
+        {
+            auto curCamera = renderContext.getCamera();
+            if (curCamera->isBlittingToScreen())
+            {
+                // Set viewport (Translate to pixel coordinates first)
+                auto viewport = curCamera->getViewport();
+                vp.x = viewport.topLeftX * m_window->getWidth();
+                vp.y = viewport.topLeftY * m_window->getHeight();
+                vp.width = viewport.width    * m_window->getWidth();
+                vp.height = viewport.height   * m_window->getHeight();
+                vp.maxDepth = 1.0f;
+
+                m_swapchain.bindForRendering();
+                //_DrawFullScreenQuad(material, vp);
+            }
+
+            if (curCamera->isBlittingToHMD())
+            {
+                if (not hasHMD())
+                {
+                    LOG_WARN_RENDERING("Camera has setting render to eye, but VR is not supported!");
+                    return;
+                }
+
+                // Ignore viewport from camera, always use full resolution from HMD
+                auto desc = m_hmd->getDescription();
+                auto eye = curCamera->getHMDEye();
+                vp.x = 0.0f;
+                vp.y = 0.0f;
+                vp.width = (F32)desc.idealResolution[eye].x;
+                vp.height = (F32)desc.idealResolution[eye].y;
+                vp.maxDepth = 1.0f;
+
+                m_hmd->bindForRendering(eye);
+                //_DrawFullScreenQuad(material, vp);
+            }
+        }
+        else
+        {
+            vp = { 0, 0, (F32)dst->getWidth(), (F32)dst->getHeight(), 0, 1 };
+            //_DrawFullScreenQuad(material, vp);
+        }
     }
 
     //----------------------------------------------------------------------
