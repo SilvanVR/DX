@@ -81,10 +81,10 @@ namespace Graphics { namespace Vulkan {
     }
 
     //----------------------------------------------------------------------
-    void Platform::EndFrame()
+    void Platform::EndFrame( VkSemaphore waitSemaphore, VkSemaphore signalSemaphore )
     {
         ctx.EndFrame();
-        curDrawCmd().exec( graphicsQueue, curFrameData().semPresentComplete, curFrameData().semRenderingFinished );
+        curDrawCmd().exec( graphicsQueue, waitSemaphore, signalSemaphore );
     }
 
     //**********************************************************************

@@ -29,7 +29,7 @@ namespace Graphics { namespace Vulkan {
         //----------------------------------------------------------------------
         void acquireNextImageIndex(U64 timeout, VkSemaphore signalSem = VK_NULL_HANDLE, VkFence fence = VK_NULL_HANDLE);
         void recreate(U16 width, U16 height, bool vsync);
-        void present(VkQueue queue, VkSemaphore waitSemaphore);
+        void present(VkQueue queue, VkSemaphore waitSemaphore = VK_NULL_HANDLE);
         void bindForRendering();
         void clear(Color color);
         void setImageLayout(CmdBuffer& cmd, VkImageLayout targetLayout);

@@ -49,26 +49,26 @@ namespace Graphics {
     {
         _SetLimits();
 
-        //VR::Device hmd = VR::GetFirstSupportedHMDAndInitialize();
-        //switch (hmd)
-        //{
-        //case VR::Device::OculusRift:
-        //{
-        //    auto vkOculus = new VR::OculusRiftVk();
-        //    g_vulkan.CreateInstance( vkOculus->getRequiredInstanceExtentions() );
-        //    m_swapchain.init( g_vulkan.instance, m_window );
-        //    g_vulkan.SelectPhysicalDevice( vkOculus->getPhysicalDevice( g_vulkan.instance ) );
-        //    g_vulkan.CreateDevice( m_swapchain.getSurfaceKHR(), vkOculus->getRequiredDeviceExtentions(), GetDeviceFeatures() );
-        //    vkOculus->setSynchronizationQueueVk( g_vulkan.graphicsQueue );
-        //    vkOculus->createEyeBuffers( g_vulkan.device );
-        //    m_swapchain.create( g_vulkan.gpu.physicalDevice, g_vulkan.device );
-        //    g_vulkan.Init();
-        //    m_hmd = vkOculus; 
-        //    break;
-        //}
-        //default:
-        //    LOG_WARN_RENDERING( "VR not supported on your system." );
-        //}
+  /*      VR::Device hmd = VR::GetFirstSupportedHMDAndInitialize();
+        switch (hmd)
+        {
+        case VR::Device::OculusRift:
+        {
+            auto vkOculus = new VR::OculusRiftVk();
+            g_vulkan.CreateInstance( vkOculus->getRequiredInstanceExtentions() );
+            m_swapchain.init( g_vulkan.instance, m_window );
+            g_vulkan.SelectPhysicalDevice( vkOculus->getPhysicalDevice( g_vulkan.instance ) );
+            g_vulkan.CreateDevice( m_swapchain.getSurfaceKHR(), vkOculus->getRequiredDeviceExtentions(), GetDeviceFeatures() );
+            vkOculus->setSynchronizationQueueVk( g_vulkan.graphicsQueue );
+            vkOculus->createEyeBuffers( g_vulkan.device );
+            m_swapchain.create( g_vulkan.gpu.physicalDevice, g_vulkan.device, m_vsync );
+            g_vulkan.Init();
+            m_hmd = vkOculus; 
+            break;
+        }
+        default:
+            LOG_WARN_RENDERING( "VR not supported on your system." );
+        }*/
 
         if ( not hasHMD() )
         {
@@ -216,19 +216,21 @@ namespace Graphics {
     //----------------------------------------------------------------------
     void VkRenderer::present()
     {
-        // Execute command buffers
+        // Record all commands
         g_vulkan.BeginFrame();
         m_swapchain.acquireNextImageIndex( UINT64_MAX, g_vulkan.curFrameData().semPresentComplete );
         m_swapchain.setImageLayout( g_vulkan.curDrawCmd(), VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL );
-        _LockQueue();
-        for (auto& cmd : m_pendingCmdQueue)
-            _ExecuteCommandBuffer( cmd );
-        m_pendingCmdQueue.clear();
-        _UnlockQueue();
+        {
+            _LockQueue();
+            for (auto& cmd : m_pendingCmdQueue)
+                _ExecuteCommandBuffer( cmd );
+            m_pendingCmdQueue.clear();
+            _UnlockQueue();
+        }
         m_swapchain.setImageLayout( g_vulkan.curDrawCmd(), VK_IMAGE_LAYOUT_PRESENT_SRC_KHR );
-        g_vulkan.EndFrame();
+        g_vulkan.EndFrame( g_vulkan.curFrameData().semPresentComplete, g_vulkan.curFrameData().semRenderingFinished );
 
-        // Present rendered image
+        // Present rendered image to screen/hmd
         if ( hasHMD() )
             m_hmd->distortAndPresent( m_frameCount );
 

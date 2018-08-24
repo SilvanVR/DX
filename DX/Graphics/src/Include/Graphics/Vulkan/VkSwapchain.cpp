@@ -112,8 +112,11 @@ namespace Graphics { namespace Vulkan {
         const uint32_t imageIndices[] = { m_currentImageIndex };
 
         VkPresentInfoKHR presentInfo = { VK_STRUCTURE_TYPE_PRESENT_INFO_KHR };
-        presentInfo.waitSemaphoreCount  = 1;
-        presentInfo.pWaitSemaphores     = &waitSemaphore;
+        if (waitSemaphore)
+        {
+            presentInfo.waitSemaphoreCount  = 1;
+            presentInfo.pWaitSemaphores     = &waitSemaphore;
+        }
         presentInfo.swapchainCount      = 1;
         presentInfo.pSwapchains         = &m_swapchain;
         presentInfo.pImageIndices       = imageIndices;

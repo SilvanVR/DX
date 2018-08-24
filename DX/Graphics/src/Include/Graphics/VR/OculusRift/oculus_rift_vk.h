@@ -53,6 +53,7 @@ namespace Graphics { namespace VR {
             ovr_CreateTextureSwapChainVk( session, device, &colorDesc, &m_swapChain );
             I32 count = 0;
             ovr_GetTextureSwapChainLength( session, m_swapChain, &count );
+            m_imageViews.resize( count );
             for (I32 i = 0; i < count; ++i)
             {
                 VkImage image;
@@ -68,6 +69,12 @@ namespace Graphics { namespace VR {
             }
         }
 
+        ~OculusSwapchainVk()
+        {
+            for (auto& view : m_imageViews)
+                vkDestroyImageView( g_vulkan.device, view, ALLOCATOR );
+        }
+
         //----------------------------------------------------------------------
         // OculusSwapchain Interface
         //----------------------------------------------------------------------
@@ -80,7 +87,7 @@ namespace Graphics { namespace VR {
         }
 
     private:
-        VkImageView m_imageViews[3];
+        ArrayList<VkImageView> m_imageViews;
         VkImageView _GetRTV( ovrSession session )
         {
             int index = 0;

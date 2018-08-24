@@ -79,10 +79,10 @@ namespace Core {
     }
 
     //----------------------------------------------------------------------
-    void Red()      { SCENE.getMainCamera()->setClearColor( Color::RED ); }
-    void Green()    { SCENE.getMainCamera()->setClearColor( Color::GREEN ); }
-    void Blue()     { SCENE.getMainCamera()->setClearColor( Color::BLUE ); }
-    void Black()    { SCENE.getMainCamera()->setClearColor( Color::BLACK ); }
+    void ClearRed()      { SCENE.getMainCamera()->setClearColor( Color::RED ); }
+    void ClearGreen()    { SCENE.getMainCamera()->setClearColor( Color::GREEN ); }
+    void ClearBlue()     { SCENE.getMainCamera()->setClearColor( Color::BLUE ); }
+    void ClearBlack()    { SCENE.getMainCamera()->setClearColor( Color::BLACK ); }
 
     //----------------------------------------------------------------------
     void Help()
@@ -104,13 +104,13 @@ namespace Core {
         IGC_REGISTER_COMMAND( Restart );
         IGC_REGISTER_COMMAND( Vulkan );
         IGC_REGISTER_COMMAND( D3D11 );
-        IGC_REGISTER_COMMAND( Red );
-        IGC_REGISTER_COMMAND( Green );
-        IGC_REGISTER_COMMAND( Blue );
-        IGC_REGISTER_COMMAND( Black );
+        IGC_REGISTER_COMMAND( ClearRed );
+        IGC_REGISTER_COMMAND( ClearGreen );
+        IGC_REGISTER_COMMAND( ClearBlue );
+        IGC_REGISTER_COMMAND( ClearBlack );
         IGC_REGISTER_COMMAND_WITH_NAME( "mem", MemoryStats );
         IGC_REGISTER_COMMAND_WITH_NAME( "fs", ToggleFullscreen );
-        IGC_REGISTER_COMMAND_WITH_NAME( "fps", FirstPersonMode );
+        IGC_REGISTER_COMMAND_WITH_NAME( "fps_mode", FirstPersonMode );
     }
 
     //----------------------------------------------------------------------

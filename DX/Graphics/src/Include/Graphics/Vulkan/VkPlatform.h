@@ -85,7 +85,7 @@ namespace Graphics { namespace Vulkan {
         void Shutdown();
 
         void BeginFrame();
-        void EndFrame();
+        void EndFrame(VkSemaphore waitSemaphore, VkSemaphore signalSemaphore);
 
         //----------------------------------------------------------------------
         ArrayList<CString> _GetRequiredInstanceLayers();

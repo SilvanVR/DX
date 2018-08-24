@@ -92,8 +92,6 @@ namespace Core {
         void _NotifyOnTick(Time::Seconds delta);
         void _NotifyOnUpdate(Time::Seconds delta);
 
-        void _OnWindowSizeChanged(U16 w, U16 h);
-
         void _Render(F32 lerp);
 
         NULL_COPY_AND_ASSIGN(CoreEngine)

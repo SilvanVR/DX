@@ -60,7 +60,7 @@ namespace Core {
 
         // Create Window & Attach window resize event
         m_window.create( title, width, height );
-        m_window.setCallbackSizeChanged( BIND_THIS_FUNC_2_ARGS( &CoreEngine::_OnWindowSizeChanged ) );
+        m_window.setCallbackSizeChanged([](U16 w, U16 h) { Events::EventDispatcher::GetEvent(EVENT_WINDOW_RESIZE).invoke(); });
 
         // Provide engine clock and window to the locator class
         Locator::provide( &m_engineClock );
@@ -171,24 +171,14 @@ namespace Core {
     void CoreEngine::_NotifyOnTick( Time::Seconds delta )
     {
         for (auto& subscriber : m_subscribers)
-        {
             subscriber->OnTick( delta );
-        }
     }
 
     //----------------------------------------------------------------------
     void CoreEngine::_NotifyOnUpdate( Time::Seconds delta )
     {
         for (auto& subscriber : m_subscribers)
-        {
             subscriber->OnUpdate( delta );
-        }
-    }
-
-    //----------------------------------------------------------------------
-    void CoreEngine::_OnWindowSizeChanged( U16 w, U16 h )
-    {
-        Events::EventDispatcher::GetEvent( EVENT_WINDOW_RESIZE ).invoke();
     }
 
 } // end namespaces
