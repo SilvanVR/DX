@@ -383,14 +383,14 @@ namespace Graphics { namespace Vulkan {
     //----------------------------------------------------------------------
     U64 Context::_RenderPassHash( Attachment& attachment )
     {
-        return attachment.view->img->format << attachment.view->img->samples ^ (U64)attachment.clearMode * attachment.finalLayout;
+        return attachment.view->img->format * attachment.view->img->samples * (U64)attachment.clearMode * attachment.finalLayout;
     }
 
     //----------------------------------------------------------------------
     U64 Context::_FramebufferHash( RenderPass* renderPass, Attachment& attachment )
     {
         auto view = attachment.view;
-        return (U64)renderPass->renderPass << (U64)view->view ^ view->img->width * view->img->height;
+        return (U64)renderPass->renderPass * (U64)view->view * view->img->width * view->img->height;
     }
 
     //----------------------------------------------------------------------
@@ -479,7 +479,6 @@ namespace Graphics { namespace Vulkan {
         if (m_currentRenderPass)
         {
             m_currentFramebuffer = _GetFramebuffer( m_currentRenderPass );
-
             g_vulkan.curDrawCmd().beginRenderPass( m_currentRenderPass, m_currentFramebuffer, { m_colorAttachment.clearValue, m_depthAttachment.clearValue } );
 
             g_vulkan.curDrawCmd().endRenderPass();
