@@ -58,14 +58,14 @@ namespace Graphics { namespace Vulkan {
         void EndFrame();
 
         // Dynamically built vulkan objects
-        std::unordered_map<U64, RenderPass>     m_renderPasses;
-        std::unordered_map<U64, Framebuffer>    m_framebuffers;
-        std::unordered_map<U64, Pipeline>       m_pipelines;
+        std::unordered_map<U64, RenderPass>         m_renderPasses;
+        std::unordered_map<U64, Framebuffer>        m_framebuffers;
+        std::unordered_map<U64, GraphicsPipeline>   m_pipelines;
 
         // Context information
-        RenderPass*     m_currentRenderPass;
-        Framebuffer*    m_currentFramebuffer;
-        Pipeline*       m_currentPipeline;
+        RenderPass*         m_currentRenderPass;
+        Framebuffer*        m_currentFramebuffer;
+        GraphicsPipeline*   m_currentPipeline;
 
         struct Attachment
         {

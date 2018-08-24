@@ -122,13 +122,49 @@ namespace Graphics { namespace Vulkan {
     };
 
     //**********************************************************************
-    class Pipeline
+    class GraphicsPipeline
     {
     public:
-        void createGraphics();
+        void addShaderModule(VkShaderStageFlagBits shaderStage, VkShaderModule shaderModule, CString entryPoint);
+        void setVertexInputState(const ArrayList<VkVertexInputBindingDescription>& inputDesc, const ArrayList<VkVertexInputAttributeDescription>& attrDesc);
+        void setInputAssemblyState(VkPrimitiveTopology topology, VkBool32 restartEnable = VK_FALSE);
+        void setRasterizationState(VkBool32 depthClampEnable, VkPolygonMode polygonMode, VkCullModeFlags cullMode, VkFrontFace frontFace);
+        void setRasterizationState(VkBool32 depthBiasEnable, F32 depthBiasConstantFactor, F32 depthBiasClamp, F32 depthBiasSlopeFactor);
+        void setMultisampleState(VkSampleCountFlagBits samples, VkBool32 alphaToCoverabeEnable, VkBool32 alphaToOneEnable);
+        void setMultisampleState(VkBool32 sampleShadingEnable, F32 minSampleShading);
+        void setDepthStencilState(VkBool32 depthTestEnable, VkBool32 depthWriteEnable, VkCompareOp depthCompareOp);
+        void setDepthStencilState(VkBool32 stencilTestEnable, VkStencilOpState front, VkStencilOpState back);
+        void setDepthStencilState(VkBool32 depthBoundsTestEnable, F32 minBounds, F32 maxBounds);
+        void addBlendAttachment(VkBlendFactor srcColorBlend, VkBlendFactor dstColorBlend, VkBlendOp colorBlendOp);
+        void addBlendAttachment(VkBlendFactor srcColorBlend, VkBlendFactor dstColorBlend, VkBlendOp colorBlendOp,
+                                VkBlendFactor srcAlphaBlend, VkBlendFactor dstAlphaBlend, VkBlendOp alphaBlendOp);
+        void addDynamicState(VkDynamicState dynamicState);
+        void buildPipeline(VkPipelineLayout layout, VkRenderPass renderPass, U32 subPass = 0);
         void release();
 
         VkPipeline pipeline;
+
+    private:
+        ArrayList<VkPipelineShaderStageCreateInfo>      m_shaderStages;
+
+        ArrayList<VkVertexInputBindingDescription>      m_vertexInputBindingDesc;
+        ArrayList<VkVertexInputAttributeDescription>    m_vertexInputAttrDesc;
+
+        VkPipelineInputAssemblyStateCreateInfo          m_inputAssemblyState{ VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO };
+
+        VkPipelineViewportStateCreateInfo               m_viewportState{ VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO };
+
+        VkPipelineRasterizationStateCreateInfo          m_rasterizationState{ VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO };
+
+        VkPipelineMultisampleStateCreateInfo            m_multisampleState{ VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO };
+
+        VkPipelineDepthStencilStateCreateInfo           m_depthStencilState{ VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO };
+
+        ArrayList<VkPipelineColorBlendAttachmentState>  m_colorBlendAttachmentStates;
+        VkPipelineColorBlendStateCreateInfo             m_colorBlendState{ VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO };
+
+        ArrayList<VkDynamicState>                       m_dynamicStates;
+
     };
 
 } } // End namespaces

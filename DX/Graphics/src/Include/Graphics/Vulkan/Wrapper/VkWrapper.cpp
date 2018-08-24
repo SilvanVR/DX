@@ -446,32 +446,154 @@ namespace Graphics { namespace Vulkan {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    void Pipeline::createGraphics()
+    void GraphicsPipeline::addShaderModule( VkShaderStageFlagBits shaderStage, VkShaderModule shaderModule, CString entryPoint )
     {
+        VkPipelineShaderStageCreateInfo shaderStageInfo{ VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO };
+        shaderStageInfo.stage  = shaderStage;
+        shaderStageInfo.module = shaderModule;
+        shaderStageInfo.pName  = entryPoint;
+
+        m_shaderStages.push_back( shaderStageInfo );
+    }
+
+    //----------------------------------------------------------------------
+    void GraphicsPipeline::setVertexInputState( const ArrayList<VkVertexInputBindingDescription>& inputDesc, const ArrayList<VkVertexInputAttributeDescription>& attrDesc )
+    {
+        m_vertexInputBindingDesc = inputDesc;
+        m_vertexInputAttrDesc    = attrDesc;
+    }
+
+    //----------------------------------------------------------------------
+    void GraphicsPipeline::setInputAssemblyState( VkPrimitiveTopology topology, VkBool32 restartEnable )
+    {
+        m_inputAssemblyState.primitiveRestartEnable = restartEnable;
+        m_inputAssemblyState.topology               = topology;
+    }
+
+    //----------------------------------------------------------------------
+    void GraphicsPipeline::setRasterizationState( VkBool32 depthClampEnable, VkPolygonMode polygonMode, VkCullModeFlags cullMode, VkFrontFace frontFace )
+    {
+        m_rasterizationState.depthClampEnable = depthClampEnable;
+        m_rasterizationState.polygonMode      = polygonMode;
+        m_rasterizationState.cullMode         = cullMode;
+        m_rasterizationState.frontFace        = frontFace;
+    }
+
+    //----------------------------------------------------------------------
+    void GraphicsPipeline::setRasterizationState( VkBool32 depthBiasEnable, F32 depthBiasConstantFactor, F32 depthBiasClamp, F32 depthBiasSlopeFactor )
+    {
+        m_rasterizationState.depthBiasEnable         = depthBiasEnable;
+        m_rasterizationState.depthBiasConstantFactor = depthBiasConstantFactor;
+        m_rasterizationState.depthBiasClamp          = depthBiasClamp;
+        m_rasterizationState.depthBiasSlopeFactor    = depthBiasSlopeFactor;
+    }
+
+    //----------------------------------------------------------------------
+    void GraphicsPipeline::setMultisampleState( VkSampleCountFlagBits samples, VkBool32 alphaToCoverabeEnable, VkBool32 alphaToOneEnable )
+    {
+        m_multisampleState.rasterizationSamples  = samples;
+        m_multisampleState.alphaToCoverageEnable = alphaToCoverabeEnable;
+        m_multisampleState.alphaToOneEnable      = alphaToOneEnable;
+    }
+
+    //----------------------------------------------------------------------
+    void GraphicsPipeline::setMultisampleState( VkBool32 sampleShadingEnable, F32 minSampleShading )
+    {
+        m_multisampleState.sampleShadingEnable = sampleShadingEnable;
+        m_multisampleState.minSampleShading    = minSampleShading;
+    }
+
+    //----------------------------------------------------------------------
+    void GraphicsPipeline::setDepthStencilState( VkBool32 depthTestEnable, VkBool32 depthWriteEnable, VkCompareOp depthCompareOp )
+    {
+        m_depthStencilState.depthTestEnable  = depthTestEnable;
+        m_depthStencilState.depthWriteEnable = depthWriteEnable;
+        m_depthStencilState.depthCompareOp   = depthCompareOp;
+    }
+
+    //----------------------------------------------------------------------
+    void GraphicsPipeline::setDepthStencilState( VkBool32 stencilTestEnable, VkStencilOpState front, VkStencilOpState back )
+    {
+        m_depthStencilState.stencilTestEnable = stencilTestEnable;
+        m_depthStencilState.front             = front;
+        m_depthStencilState.back              = back;
+    }
+
+    //----------------------------------------------------------------------
+    void GraphicsPipeline::setDepthStencilState( VkBool32 depthBoundsTestEnable, F32 minBounds, F32 maxBounds )
+    {
+        m_depthStencilState.depthBoundsTestEnable = depthBoundsTestEnable;
+        m_depthStencilState.minDepthBounds        = minBounds;
+        m_depthStencilState.maxDepthBounds        = maxBounds;
+    }
+
+    //----------------------------------------------------------------------
+    void GraphicsPipeline::addBlendAttachment( VkBlendFactor srcColorBlend, VkBlendFactor dstColorBlend, VkBlendOp colorBlendOp )
+    {
+        addBlendAttachment( srcColorBlend, dstColorBlend, colorBlendOp, VK_BLEND_FACTOR_ONE, VK_BLEND_FACTOR_ZERO, VK_BLEND_OP_ADD );
+    }
+
+    //----------------------------------------------------------------------
+    void GraphicsPipeline::addBlendAttachment( VkBlendFactor srcColorBlend, VkBlendFactor dstColorBlend, VkBlendOp colorBlendOp,
+                                               VkBlendFactor srcAlphaBlend, VkBlendFactor dstAlphaBlend, VkBlendOp alphaBlendOp )
+    {
+        VkPipelineColorBlendAttachmentState blendState{};
+        blendState.srcColorBlendFactor = srcColorBlend;
+        blendState.dstColorBlendFactor = dstColorBlend;
+        blendState.colorBlendOp        = colorBlendOp;
+        blendState.srcAlphaBlendFactor = srcAlphaBlend;
+        blendState.dstAlphaBlendFactor = dstAlphaBlend;
+        blendState.alphaBlendOp        = alphaBlendOp;
+        blendState.colorWriteMask      = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+
+        m_colorBlendAttachmentStates.push_back( blendState );
+    }
+
+    //----------------------------------------------------------------------
+    void GraphicsPipeline::addDynamicState( VkDynamicState dynamicState )
+    {
+        m_dynamicStates.push_back( dynamicState );
+    }
+
+    //----------------------------------------------------------------------
+    void GraphicsPipeline::buildPipeline( VkPipelineLayout layout, VkRenderPass renderPass, U32 subPass )
+    {
+        VkPipelineVertexInputStateCreateInfo vertexInputState{ VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO };
+        vertexInputState.vertexBindingDescriptionCount    = (U32)m_vertexInputBindingDesc.size();
+        vertexInputState.pVertexBindingDescriptions       = m_vertexInputBindingDesc.data();
+        vertexInputState.vertexAttributeDescriptionCount  = (U32)m_vertexInputAttrDesc.size();
+        vertexInputState.pVertexAttributeDescriptions     = m_vertexInputAttrDesc.data();
+
+        m_colorBlendState.attachmentCount = (U32)m_colorBlendAttachmentStates.size();
+        m_colorBlendState.pAttachments    = m_colorBlendAttachmentStates.data();
+
+        VkPipelineDynamicStateCreateInfo dynamicState{ VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO };
+        dynamicState.dynamicStateCount  = (U32)m_dynamicStates.size();
+        dynamicState.pDynamicStates     = m_dynamicStates.data();
+
         VkGraphicsPipelineCreateInfo createInfo{ VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO };
-        createInfo.flags;
-        createInfo.stageCount;
-        createInfo.pStages;
-        createInfo.pVertexInputState;
-        createInfo.pInputAssemblyState;
-        createInfo.pTessellationState;
-        createInfo.pViewportState;
-        createInfo.pRasterizationState;
-        createInfo.pMultisampleState;
-        createInfo.pDepthStencilState;
-        createInfo.pColorBlendState;
-        createInfo.pDynamicState;
-        createInfo.layout;
-        createInfo.renderPass;
-        createInfo.subpass;
-        createInfo.basePipelineHandle;
-        createInfo.basePipelineIndex;
+        createInfo.stageCount           = (U32)m_shaderStages.size();
+        createInfo.pStages              = m_shaderStages.data();
+        createInfo.pVertexInputState    = &vertexInputState;
+        createInfo.pInputAssemblyState  = &m_inputAssemblyState;
+        createInfo.pTessellationState   = VK_NULL_HANDLE;
+        createInfo.pViewportState       = &m_viewportState;
+        createInfo.pRasterizationState  = &m_rasterizationState;
+        createInfo.pMultisampleState    = &m_multisampleState;
+        createInfo.pDepthStencilState   = &m_depthStencilState;
+        createInfo.pColorBlendState     = &m_colorBlendState;
+        createInfo.pDynamicState        = &dynamicState;
+        createInfo.layout               = layout;
+        createInfo.renderPass           = renderPass;
+        createInfo.subpass              = subPass;
+        createInfo.basePipelineHandle   = VK_NULL_HANDLE;
+        createInfo.basePipelineIndex    = VK_NULL_HANDLE;
 
         vkCreateGraphicsPipelines( g_vulkan.device, VK_NULL_HANDLE, 1, &createInfo, ALLOCATOR, &pipeline );
     }
 
     //----------------------------------------------------------------------
-    void Pipeline::release()
+    void GraphicsPipeline::release()
     {
         if (pipeline)
         {
