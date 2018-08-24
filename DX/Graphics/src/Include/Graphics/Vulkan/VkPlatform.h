@@ -34,6 +34,53 @@ namespace Graphics { class VkRenderer; }
 
 namespace Graphics { namespace Vulkan {
 
+    //**********************************************************************
+    class Context
+    {
+        enum class ClearMode { Load = 0, Clear };
+
+    public:
+        void SetClearColor(Color color);
+        void SetClearDepthStencil(F32 depth, U32 stencil);
+        void OMSetRenderTarget(ImageView* color, ImageView* depth, 
+                               VkImageLayout finalColorLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, 
+                               VkImageLayout finalDepthLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+
+    private:
+        friend class Platform;
+        void Init();
+        void Shutdown();
+        void BeginFrame();
+        void EndFrame();
+
+        // All dynamically built vulkan objects
+        std::unordered_map<U64, RenderPass>     m_renderPasses;
+        std::unordered_map<U64, Framebuffer>    m_framebuffers;
+
+        // Context information
+        RenderPass*     m_currentRenderPass;
+        Framebuffer*    m_currentFramebuffer;
+
+        struct Attachment
+        {
+            ImageView*      view;
+            ClearMode       clearMode;
+            VkClearValue    clearValue;
+            VkImageLayout   finalLayout;
+        };
+        Attachment m_colorAttachment;
+        Attachment m_depthAttachment;
+
+        void _Reset();
+        RenderPass* _GetRenderPass();
+        Framebuffer* _GetFramebuffer(RenderPass* renderPass);
+
+        U64 _RenderPassHash(ImageView* img);
+        U64 _FramebufferHash(RenderPass* renderPass, ImageView* img);
+
+        VkAttachmentLoadOp _GetLoadOp(ClearMode clearMode);
+    } ;
+
     //----------------------------------------------------------------------
     struct GPU
     {
@@ -65,13 +112,13 @@ namespace Graphics { namespace Vulkan {
         VkQueue         graphicsQueue               = VK_NULL_HANDLE;
         VkQueue         transferQueue               = VK_NULL_HANDLE;
         VmaAllocator    allocator                   = VK_NULL_HANDLE;
+        Context         ctx;
 
         //----------------------------------------------------------------------
         CmdBuffer& curDrawCmd() { return m_frameData[m_frameDataIndex].cmd; }
         FrameData& curFrameData() { return m_frameData[m_frameDataIndex]; }
 
     private:
-        // Persistent data
         static const I32 NUM_FRAME_DATA = 2;
         std::array<FrameData, NUM_FRAME_DATA> m_frameData;
         U32 m_frameDataIndex = 0;
@@ -100,49 +147,6 @@ namespace Graphics { namespace Vulkan {
         void _DestroyDebugCallback(VkInstance instance);
 #endif
         NULL_COPY_AND_ASSIGN(Platform)
-
-    public:
-        //**********************************************************************
-        class Context
-        {
-            enum class ClearMode
-            {
-                None,
-                Clear
-            };
-
-        public:
-            void SetClearColor(Color color);
-            void SetClearDepthStencil(F32 depth, U32 stencil);
-            void OMSetRenderTarget(ImageView* color, ImageView* depth);
-
-        private:
-            friend class Platform;
-            void Init();
-            void Shutdown();
-            void BeginFrame();
-            void EndFrame();
-
-            // All dynamically built vulkan objects
-            std::unordered_map<U64, RenderPass>     m_renderPasses;
-            std::unordered_map<U64, Framebuffer>    m_framebuffers;
-
-            // Context information
-            ClearMode                   m_colorClearMode        = ClearMode::None;
-            ClearMode                   m_depthStencilClearMode = ClearMode::None;
-            std::array<VkClearValue, 2> m_clearValues;
-            ImageView*                  m_colorView = VK_NULL_HANDLE;
-            ImageView*                  m_depthView = VK_NULL_HANDLE;
-            RenderPass*                 m_currentRenderPass = VK_NULL_HANDLE;
-            Framebuffer*                m_currentFramebuffer = VK_NULL_HANDLE;
-
-            void _CreateNewFrameBuffer();
-            void _CreateNewRenderPass();
-
-            VkAttachmentLoadOp _GetLoadOp(ClearMode clearMode);
-
-            void _CmdBeginRenderPass();
-        } ctx;
     };
 
 

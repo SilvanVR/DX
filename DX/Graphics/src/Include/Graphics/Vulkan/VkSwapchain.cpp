@@ -88,15 +88,16 @@ namespace Graphics { namespace Vulkan {
     {
         if (targetLayout == VK_IMAGE_LAYOUT_PRESENT_SRC_KHR)
         {
-            cmd.setImageLayout( &m_images[m_currentImageIndex].image,
-                                VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, targetLayout,
-                                VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT, VK_ACCESS_MEMORY_READ_BIT,
-                                VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT );
+            // Transition layout only if image is not already in that layout. 
+            // This can happen when the swapchain image was actually used as a rendertarget.
+            if (m_images[m_currentImageIndex].image.layout != VK_IMAGE_LAYOUT_PRESENT_SRC_KHR)
+                cmd.setImageLayout( &m_images[m_currentImageIndex].image, targetLayout,
+                                    VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT, VK_ACCESS_MEMORY_READ_BIT,
+                                    VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT );
         }
         else if (targetLayout == VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)
         {
-            cmd.setImageLayout( &m_images[m_currentImageIndex].image,
-                                VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, targetLayout,
+            cmd.setImageLayout( &m_images[m_currentImageIndex].image, targetLayout,
                                 VK_ACCESS_MEMORY_READ_BIT, VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT, 
                                 VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
         }
@@ -127,7 +128,7 @@ namespace Graphics { namespace Vulkan {
     //----------------------------------------------------------------------
     void Swapchain::bindForRendering()
     {
-        g_vulkan.ctx.OMSetRenderTarget( &m_images[m_currentImageIndex].view, VK_NULL_HANDLE );
+        g_vulkan.ctx.OMSetRenderTarget( &m_images[m_currentImageIndex].view, VK_NULL_HANDLE, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR );
     }
 
     //----------------------------------------------------------------------
@@ -208,8 +209,7 @@ namespace Graphics { namespace Vulkan {
         {
             m_images[i].image.create( swapchainImages[i], width, height, format, VK_SAMPLE_COUNT_1_BIT );
             m_images[i].view.create( m_images[i].image );
-            cmd.setImageLayout( &m_images[i].image,
-                                VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
+            cmd.setImageLayout( &m_images[i].image, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
                                 VK_ACCESS_MEMORY_READ_BIT, VK_ACCESS_MEMORY_WRITE_BIT,
                                 VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT, VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT );
         }

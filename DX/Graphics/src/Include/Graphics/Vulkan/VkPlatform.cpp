@@ -353,27 +353,99 @@ namespace Graphics { namespace Vulkan {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    void Platform::Context::Init()
+    void Context::Init()
+    {
+        _Reset(); 
+    }
+
+    //----------------------------------------------------------------------
+    void Context::Shutdown()
+    {
+        for(auto& [hash, fb] : m_framebuffers)
+            fb.release();
+        m_framebuffers.clear();
+        for(auto& [hash, rp] : m_renderPasses)
+            rp.release();
+        m_renderPasses.clear();
+    }
+
+    //----------------------------------------------------------------------
+    void Context::BeginFrame()
+    {
+        _Reset();
+    }
+
+    //----------------------------------------------------------------------
+    void Context::EndFrame()
     {
 
     }
 
     //----------------------------------------------------------------------
-    void Platform::Context::Shutdown()
+    U64 Context::_RenderPassHash( ImageView* img )
     {
-
+        return m_colorAttachment.view->img->format ^ m_colorAttachment.view->img->samples;
     }
 
     //----------------------------------------------------------------------
-    void Platform::Context::BeginFrame()
+    U64 Context::_FramebufferHash( RenderPass* renderPass, ImageView* img )
     {
-   
+        return (U64)renderPass->renderPass ^ (U64)m_colorAttachment.view->view ^ m_colorAttachment.view->img->width ^ m_colorAttachment.view->img->height;
     }
 
     //----------------------------------------------------------------------
-    void Platform::Context::EndFrame()
+    RenderPass* Context::_GetRenderPass()
     {
+        U64 hash = 0;
+        if (m_colorAttachment.view && m_depthAttachment.view)
+            hash = _RenderPassHash( m_colorAttachment.view ) ^ _RenderPassHash( m_depthAttachment.view );
+        else if (m_colorAttachment.view)
+            hash = _RenderPassHash( m_colorAttachment.view );
+        else if (m_depthAttachment.view)
+            hash = _RenderPassHash( m_depthAttachment.view );
 
+        if (hash == 0)
+            return nullptr;
+
+        if (m_renderPasses.find(hash) == m_renderPasses.end())
+        {
+            RenderPass::AttachmentDescription colorAttachment{};
+            if (m_colorAttachment.view)
+            {
+                colorAttachment.img         = m_colorAttachment.view->img;
+                colorAttachment.loadOp      = _GetLoadOp( m_colorAttachment.clearMode );
+                colorAttachment.finalLayout = m_colorAttachment.finalLayout;
+            }
+            RenderPass::AttachmentDescription depthAttachment{};
+            if (m_depthAttachment.view)
+            {
+                depthAttachment.img         = m_depthAttachment.view->img;
+                depthAttachment.loadOp      = _GetLoadOp( m_depthAttachment.clearMode );
+                depthAttachment.finalLayout = m_depthAttachment.finalLayout;
+            }
+            m_renderPasses[hash].create( colorAttachment, depthAttachment );
+        }
+        return &m_renderPasses[hash];
+    }
+
+    //----------------------------------------------------------------------
+    Framebuffer* Context::_GetFramebuffer( RenderPass* renderPass )
+    {
+        ASSERT( renderPass->renderPass );
+        U64 hash = 0;
+        if (m_colorAttachment.view && m_depthAttachment.view)
+            hash = _FramebufferHash( renderPass, m_colorAttachment.view ) ^ _FramebufferHash( renderPass, m_depthAttachment.view );
+        else if (m_colorAttachment.view)
+            hash = _FramebufferHash( renderPass, m_colorAttachment.view );
+        else if (m_depthAttachment.view)
+            hash = _FramebufferHash( renderPass, m_depthAttachment.view );
+
+        if (hash == 0)
+            return nullptr;
+
+        if (m_framebuffers.find(hash) == m_framebuffers.end())
+            m_framebuffers[hash].create( renderPass, m_colorAttachment.view, m_depthAttachment.view );
+        return &m_framebuffers[hash];
     }
 
     //**********************************************************************
@@ -381,64 +453,62 @@ namespace Graphics { namespace Vulkan {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    void Platform::Context::SetClearColor( Color color )
+    void Context::SetClearColor( Color color )
     {
         auto colorNormalized = color.normalized();
-        m_clearValues[0].color = { colorNormalized[0], colorNormalized[1], colorNormalized[2], colorNormalized[3] };
-        m_colorClearMode = ClearMode::Clear;
+        m_colorAttachment.clearValue.color = { colorNormalized[0], colorNormalized[1], colorNormalized[2], colorNormalized[3] };
+        m_colorAttachment.clearMode = ClearMode::Clear;
     }
 
     //----------------------------------------------------------------------
-    void Platform::Context::SetClearDepthStencil( F32 depth, U32 stencil ) 
+    void Context::SetClearDepthStencil( F32 depth, U32 stencil ) 
     {
-        m_clearValues[1].depthStencil = { depth, stencil };
-        m_depthStencilClearMode = ClearMode::Clear;
+        m_depthAttachment.clearValue.depthStencil = { depth, stencil };
+        m_depthAttachment.clearMode = ClearMode::Clear;
     }
 
     //----------------------------------------------------------------------
-    void Platform::Context::OMSetRenderTarget( ImageView* color, ImageView* depth )
+    void Context::OMSetRenderTarget( ImageView* color, ImageView* depth, VkImageLayout finalColorLayout, VkImageLayout finalDepthLayout )
     {
-        m_colorView = color;
-        m_depthView = depth;
+        m_colorAttachment.view = color;
+        m_depthAttachment.view = depth;
+        m_colorAttachment.finalLayout = finalColorLayout;
+        m_depthAttachment.finalLayout = finalDepthLayout;
+
+        m_currentRenderPass = _GetRenderPass();
+        if (m_currentRenderPass)
+        {
+            m_currentFramebuffer = _GetFramebuffer( m_currentRenderPass );
+
+            g_vulkan.curDrawCmd().beginRenderPass( m_currentRenderPass, m_currentFramebuffer, { m_colorAttachment.clearValue, m_depthAttachment.clearValue } );
+
+            g_vulkan.curDrawCmd().endRenderPass();
+        }
     }
 
     //**********************************************************************
     // PRIVATE
     //**********************************************************************
 
-    ////----------------------------------------------------------------------
-    //void Platform::Context::_CreateNewRenderPass( ImageView colorView, ImageView depthView )
-    //{
-    //}
+    //----------------------------------------------------------------------
+    void Context::_Reset()
+    {
+        m_colorAttachment = {};
+        m_depthAttachment = {};
+        m_currentRenderPass  = VK_NULL_HANDLE;
+        m_currentFramebuffer = VK_NULL_HANDLE;
+    }
 
     //----------------------------------------------------------------------
-    VkAttachmentLoadOp Platform::Context::_GetLoadOp( ClearMode clearMode )
+    VkAttachmentLoadOp Context::_GetLoadOp( ClearMode clearMode )
     {
         switch (clearMode)
         {
-        case ClearMode::None: return VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+        case ClearMode::Load:  return VK_ATTACHMENT_LOAD_OP_LOAD;
         case ClearMode::Clear: return VK_ATTACHMENT_LOAD_OP_CLEAR;
         }
         ASSERT(false);
         return VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-    }
-
-    ////----------------------------------------------------------------------
-    //void Platform::Context::_CreateNewFrameBuffer()
-    //{
-    //}
-
-    //----------------------------------------------------------------------
-    void Platform::Context::_CmdBeginRenderPass()
-    {
-        VkRenderPassBeginInfo beginInfo{ VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO };
-        beginInfo.renderPass        = m_currentRenderPass->renderPass;
-        beginInfo.framebuffer       = m_currentFramebuffer->framebuffer;
-        //beginInfo.renderArea.extent = { m_currentWidth, m_currentHeight };
-        beginInfo.clearValueCount   = (U32)m_clearValues.size();
-        beginInfo.pClearValues      = m_clearValues.data();
-
-        //vkCmdBeginRenderPass( g_vulkan.curFrameData().cmd, &beginInfo, VK_SUBPASS_CONTENTS_INLINE );
     }
 
 } } // End namespaces

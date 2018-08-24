@@ -27,6 +27,7 @@ namespace Graphics { namespace Vulkan {
         VkSampleCountFlagBits   samples = VK_SAMPLE_COUNT_1_BIT;
         VkImage                 img     = VK_NULL_HANDLE;
         VmaAllocation           mem     = VK_NULL_HANDLE;
+        VkImageLayout           layout  = VK_IMAGE_LAYOUT_UNDEFINED;
     };
 
     //**********************************************************************
@@ -74,11 +75,19 @@ namespace Graphics { namespace Vulkan {
     class RenderPass
     {
     public:
+        struct AttachmentDescription
+        {
+            const IImage*       img;
+            VkAttachmentLoadOp  loadOp;
+            VkImageLayout       finalLayout;
+        };
+
         //----------------------------------------------------------------------
-        void create(const ColorImage* color, const DepthImage* depth);
+        void create(const AttachmentDescription& color, const AttachmentDescription& depth);
         void release();
 
-        VkRenderPass renderPass = VK_NULL_HANDLE;
+        VkRenderPass             renderPass = VK_NULL_HANDLE;
+        ArrayList<VkImageLayout> newLayouts;
     };
 
     //**********************************************************************
@@ -89,7 +98,11 @@ namespace Graphics { namespace Vulkan {
         void create(RenderPass* renderPass, ImageView* colorView, ImageView* depthView);
         void release();
 
-        VkFramebuffer framebuffer = VK_NULL_HANDLE;
+        U32 getWidth();
+        U32 getHeight();
+
+        VkFramebuffer           framebuffer = VK_NULL_HANDLE;
+        ArrayList<ImageView*>   attachments;
     };
 
     //**********************************************************************
@@ -104,9 +117,11 @@ namespace Graphics { namespace Vulkan {
         void wait();
         void reset();
 
-        void setImageLayout(ColorImage* img, VkImageLayout oldLayout, VkImageLayout newLayout, 
-                                             VkAccessFlags srcAccess, VkAccessFlags dstAccess,
+        void setImageLayout(ColorImage* img, VkImageLayout newLayout, VkAccessFlags srcAccess, VkAccessFlags dstAccess,
                                              VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask);
+
+        void beginRenderPass(RenderPass* renderPass, Framebuffer* fbo, std::array<VkClearValue, 2> clearValues);
+        void endRenderPass();
 
         VkCommandPool   pool = VK_NULL_HANDLE;
         VkCommandBuffer cmd  = VK_NULL_HANDLE;
