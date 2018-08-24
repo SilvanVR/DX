@@ -378,19 +378,19 @@ namespace Graphics { namespace Vulkan {
     //----------------------------------------------------------------------
     void Context::EndFrame()
     {
-
     }
 
     //----------------------------------------------------------------------
-    U64 Context::_RenderPassHash( ImageView* img )
+    U64 Context::_RenderPassHash( Attachment& attachment )
     {
-        return m_colorAttachment.view->img->format ^ m_colorAttachment.view->img->samples;
+        return attachment.view->img->format << attachment.view->img->samples ^ (U64)attachment.clearMode * attachment.finalLayout;
     }
 
     //----------------------------------------------------------------------
-    U64 Context::_FramebufferHash( RenderPass* renderPass, ImageView* img )
+    U64 Context::_FramebufferHash( RenderPass* renderPass, Attachment& attachment )
     {
-        return (U64)renderPass->renderPass ^ (U64)m_colorAttachment.view->view ^ m_colorAttachment.view->img->width ^ m_colorAttachment.view->img->height;
+        auto view = attachment.view;
+        return (U64)renderPass->renderPass << (U64)view->view ^ view->img->width * view->img->height;
     }
 
     //----------------------------------------------------------------------
@@ -398,11 +398,11 @@ namespace Graphics { namespace Vulkan {
     {
         U64 hash = 0;
         if (m_colorAttachment.view && m_depthAttachment.view)
-            hash = _RenderPassHash( m_colorAttachment.view ) ^ _RenderPassHash( m_depthAttachment.view );
+            hash = _RenderPassHash( m_colorAttachment ) ^ _RenderPassHash( m_depthAttachment );
         else if (m_colorAttachment.view)
-            hash = _RenderPassHash( m_colorAttachment.view );
+            hash = _RenderPassHash( m_colorAttachment );
         else if (m_depthAttachment.view)
-            hash = _RenderPassHash( m_depthAttachment.view );
+            hash = _RenderPassHash( m_depthAttachment );
 
         if (hash == 0)
             return nullptr;
@@ -412,9 +412,9 @@ namespace Graphics { namespace Vulkan {
             RenderPass::AttachmentDescription colorAttachment{};
             if (m_colorAttachment.view)
             {
-                colorAttachment.img         = m_colorAttachment.view->img;
-                colorAttachment.loadOp      = _GetLoadOp( m_colorAttachment.clearMode );
-                colorAttachment.finalLayout = m_colorAttachment.finalLayout;
+                colorAttachment.img             = m_colorAttachment.view->img;
+                colorAttachment.loadOp          = _GetLoadOp( m_colorAttachment.clearMode );
+                colorAttachment.finalLayout     = m_colorAttachment.finalLayout;
             }
             RenderPass::AttachmentDescription depthAttachment{};
             if (m_depthAttachment.view)
@@ -434,11 +434,11 @@ namespace Graphics { namespace Vulkan {
         ASSERT( renderPass->renderPass );
         U64 hash = 0;
         if (m_colorAttachment.view && m_depthAttachment.view)
-            hash = _FramebufferHash( renderPass, m_colorAttachment.view ) ^ _FramebufferHash( renderPass, m_depthAttachment.view );
+            hash = _FramebufferHash( renderPass, m_colorAttachment ) ^ _FramebufferHash( renderPass, m_depthAttachment );
         else if (m_colorAttachment.view)
-            hash = _FramebufferHash( renderPass, m_colorAttachment.view );
+            hash = _FramebufferHash( renderPass, m_colorAttachment );
         else if (m_depthAttachment.view)
-            hash = _FramebufferHash( renderPass, m_depthAttachment.view );
+            hash = _FramebufferHash( renderPass, m_depthAttachment );
 
         if (hash == 0)
             return nullptr;
@@ -504,8 +504,9 @@ namespace Graphics { namespace Vulkan {
     {
         switch (clearMode)
         {
-        case ClearMode::Load:  return VK_ATTACHMENT_LOAD_OP_LOAD;
-        case ClearMode::Clear: return VK_ATTACHMENT_LOAD_OP_CLEAR;
+        case ClearMode::DontCare:   return VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+        case ClearMode::Load:       return VK_ATTACHMENT_LOAD_OP_LOAD;
+        case ClearMode::Clear:      return VK_ATTACHMENT_LOAD_OP_CLEAR;
         }
         ASSERT(false);
         return VK_ATTACHMENT_LOAD_OP_DONT_CARE;

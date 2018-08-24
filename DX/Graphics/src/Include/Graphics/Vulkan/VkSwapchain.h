@@ -28,16 +28,17 @@ namespace Graphics { namespace Vulkan {
 
         //----------------------------------------------------------------------
         void acquireNextImageIndex(U64 timeout, VkSemaphore signalSem = VK_NULL_HANDLE, VkFence fence = VK_NULL_HANDLE);
-        void recreate(U16 width, U16 height, bool vsync);
+        void recreate(bool vsync);
         void present(VkQueue queue, VkSemaphore waitSemaphore = VK_NULL_HANDLE);
         void bindForRendering();
         void clear(Color color);
         void setImageLayout(CmdBuffer& cmd, VkImageLayout targetLayout);
 
     private:
-        VkSurfaceKHR    m_surface = VK_NULL_HANDLE;
+        VkSurfaceKHR    m_surface   = VK_NULL_HANDLE;
         VkSwapchainKHR  m_swapchain = VK_NULL_HANDLE;
         VkExtent2D      m_currentExtent{};
+        bool            m_vsync;
 
         struct SwapchainImage
         {

@@ -37,7 +37,7 @@ namespace Graphics { namespace Vulkan {
     //**********************************************************************
     class Context
     {
-        enum class ClearMode { Load = 0, Clear };
+        enum class ClearMode { DontCare = 0, Clear, Load };
 
     public:
         void SetClearColor(Color color);
@@ -75,8 +75,8 @@ namespace Graphics { namespace Vulkan {
         RenderPass* _GetRenderPass();
         Framebuffer* _GetFramebuffer(RenderPass* renderPass);
 
-        U64 _RenderPassHash(ImageView* img);
-        U64 _FramebufferHash(RenderPass* renderPass, ImageView* img);
+        U64 _RenderPassHash(Attachment& attachment);
+        U64 _FramebufferHash(RenderPass* renderPass, Attachment& attachment);
 
         VkAttachmentLoadOp _GetLoadOp(ClearMode clearMode);
     } ;

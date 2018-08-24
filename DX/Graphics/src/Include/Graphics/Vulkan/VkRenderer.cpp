@@ -206,7 +206,7 @@ namespace Graphics {
             return;
 
         // Recreate swapchain buffers
-        m_swapchain.recreate( w, h, m_vsync );
+        m_swapchain.recreate( m_vsync );
     }
 
     //**********************************************************************
@@ -216,6 +216,9 @@ namespace Graphics {
     //----------------------------------------------------------------------
     void VkRenderer::present()
     {
+        if (m_window->getWidth() == 0 || m_window->getHeight() == 0)
+            return;
+
         // Record all commands
         g_vulkan.BeginFrame();
         m_swapchain.acquireNextImageIndex( UINT64_MAX, g_vulkan.curFrameData().semPresentComplete );
@@ -283,7 +286,7 @@ namespace Graphics {
     void VkRenderer::setVSync( bool enabled )
     { 
         IRenderer::setVSync( enabled );
-        m_swapchain.recreate( m_window->getWidth(), m_window->getHeight(), m_vsync );
+        m_swapchain.recreate( m_vsync );
     }
 
     //**********************************************************************

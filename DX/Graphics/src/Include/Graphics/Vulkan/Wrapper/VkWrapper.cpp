@@ -161,7 +161,7 @@ namespace Graphics { namespace Vulkan {
             attachment.storeOp          = VK_ATTACHMENT_STORE_OP_STORE;
             attachment.stencilLoadOp    = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
             attachment.stencilStoreOp   = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-            attachment.initialLayout    = VK_IMAGE_LAYOUT_UNDEFINED;
+            attachment.initialLayout    = color.loadOp == VK_ATTACHMENT_LOAD_OP_LOAD ? color.img->layout : VK_IMAGE_LAYOUT_UNDEFINED;
             attachment.finalLayout      = color.finalLayout;
             attachments.push_back( attachment );
             newLayouts.push_back( color.finalLayout );
@@ -179,7 +179,7 @@ namespace Graphics { namespace Vulkan {
             attachment.storeOp          = VK_ATTACHMENT_STORE_OP_STORE;
             attachment.stencilLoadOp    = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
             attachment.stencilStoreOp   = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-            attachment.initialLayout    = VK_IMAGE_LAYOUT_UNDEFINED;
+            attachment.initialLayout    = depth.loadOp == VK_ATTACHMENT_LOAD_OP_LOAD ? depth.img->layout : VK_IMAGE_LAYOUT_UNDEFINED;
             attachment.finalLayout      = depth.finalLayout;
             attachments.push_back( attachment );
             newLayouts.push_back( depth.finalLayout );

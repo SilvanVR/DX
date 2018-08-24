@@ -39,9 +39,12 @@ namespace Graphics { namespace Vulkan {
         VkSurfaceCapabilitiesKHR surfCaps;
         vkGetPhysicalDeviceSurfaceCapabilitiesKHR( physicalDevice, m_surface, &surfCaps );
         m_currentExtent = surfCaps.currentExtent;
+        m_vsync = vsync;
+
+        ASSERT (m_currentExtent.width != 0 || m_currentExtent.height != 0);
 
         auto vkFormat = _ChooseSurfaceFormat( physicalDevice, FORMAT );
-        auto presentMode = _ChoosePresentMode( physicalDevice, vsync );
+        auto presentMode = _ChoosePresentMode( physicalDevice, m_vsync );
 
         auto oldSwapchain = m_swapchain;
 
@@ -68,7 +71,7 @@ namespace Graphics { namespace Vulkan {
     }
 
     //----------------------------------------------------------------------
-    void Swapchain::recreate( U16 width, U16 height, bool vsync )
+    void Swapchain::recreate( bool vsync )
     {
         for (auto& swapImg : m_images)
             swapImg.view.release();
@@ -80,7 +83,7 @@ namespace Graphics { namespace Vulkan {
     {
         auto result = vkAcquireNextImageKHR( g_vulkan.device, m_swapchain, timeout, signalSem, fence, &m_currentImageIndex );
         if (result != VK_SUCCESS)
-            recreate( m_currentExtent.width, m_currentExtent.height, true );
+            recreate( m_vsync );
     }
 
     //----------------------------------------------------------------------
@@ -122,7 +125,9 @@ namespace Graphics { namespace Vulkan {
         presentInfo.pSwapchains         = &m_swapchain;
         presentInfo.pImageIndices       = imageIndices;
 
-        vkQueuePresentKHR( queue, &presentInfo );
+        auto result = vkQueuePresentKHR( queue, &presentInfo );
+        if (result != VK_SUCCESS)
+            recreate( m_vsync );
     }
 
     //----------------------------------------------------------------------
