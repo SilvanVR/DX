@@ -355,7 +355,7 @@ namespace Graphics { namespace Vulkan {
     //----------------------------------------------------------------------
     void Context::Init()
     {
-        _Reset(); 
+
     }
 
     //----------------------------------------------------------------------
@@ -372,12 +372,102 @@ namespace Graphics { namespace Vulkan {
     //----------------------------------------------------------------------
     void Context::BeginFrame()
     {
-        _Reset();
+        _ClearContext();
     }
 
     //----------------------------------------------------------------------
     void Context::EndFrame()
     {
+        if (m_currentRenderPass)
+            g_vulkan.curDrawCmd().endRenderPass();
+    }
+
+    //**********************************************************************
+    // PUBLIC
+    //**********************************************************************
+
+    //----------------------------------------------------------------------
+    void Context::SetClearColor( Color color )
+    {
+        auto colorNormalized = color.normalized();
+        m_colorAttachment.clearValue.color = { colorNormalized[0], colorNormalized[1], colorNormalized[2], colorNormalized[3] };
+        m_colorAttachment.clearMode = ClearMode::Clear;
+    }
+
+    //----------------------------------------------------------------------
+    void Context::SetClearDepthStencil( F32 depth, U32 stencil ) 
+    {
+        m_depthAttachment.clearValue.depthStencil = { depth, stencil };
+        m_depthAttachment.clearMode = ClearMode::Clear;
+    }
+
+    //----------------------------------------------------------------------
+    void Context::OMSetRenderTarget( ImageView* color, ImageView* depth, VkImageLayout finalColorLayout, VkImageLayout finalDepthLayout )
+    {
+        if (m_currentRenderPass)
+            g_vulkan.curDrawCmd().endRenderPass();
+
+        m_colorAttachment.view = color;
+        m_depthAttachment.view = depth;
+        m_colorAttachment.finalLayout = finalColorLayout;
+        m_depthAttachment.finalLayout = finalDepthLayout;
+
+        m_currentRenderPass = _GetRenderPass();
+        if (m_currentRenderPass)
+        {
+            m_currentFramebuffer = _GetFramebuffer( m_currentRenderPass );
+            g_vulkan.curDrawCmd().beginRenderPass( m_currentRenderPass, m_currentFramebuffer, { m_colorAttachment.clearValue, m_depthAttachment.clearValue } );
+        }
+    }
+
+    //----------------------------------------------------------------------
+    void Context::RSSetViewports( VkViewport viewport )
+    {
+        g_vulkan.curDrawCmd().setViewport( viewport );
+    }
+
+    //----------------------------------------------------------------------
+    void Context::ResolveImage( ColorImage* src, ColorImage* dst )
+    {
+        g_vulkan.curDrawCmd().resolveImage( src, dst );
+    }
+
+    //----------------------------------------------------------------------
+    void Context::ResolveImage( DepthImage* src, DepthImage* dst )
+    {
+        g_vulkan.curDrawCmd().resolveImage( src, dst );
+    }
+
+    //----------------------------------------------------------------------
+    void Context::Draw( U32 vertexCount, U32 instanceCount, U32 firstVertex, U32 firstInstance )
+    {
+        g_vulkan.curDrawCmd().draw( vertexCount, instanceCount, firstVertex, firstInstance );
+    }
+
+    //**********************************************************************
+    // PRIVATE
+    //**********************************************************************
+
+    //----------------------------------------------------------------------
+    void Context::_ClearContext()
+    {
+        m_colorAttachment = {};
+        m_depthAttachment = {};
+        m_currentRenderPass  = VK_NULL_HANDLE;
+        m_currentFramebuffer = VK_NULL_HANDLE;
+    }
+
+    //----------------------------------------------------------------------
+    VkAttachmentLoadOp Context::_GetLoadOp( ClearMode clearMode )
+    {
+        switch (clearMode)
+        {
+        case ClearMode::DontCare:   return VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+        case ClearMode::Load:       return VK_ATTACHMENT_LOAD_OP_LOAD;
+        case ClearMode::Clear:      return VK_ATTACHMENT_LOAD_OP_CLEAR;
+        }
+        ASSERT(false);
+        return VK_ATTACHMENT_LOAD_OP_DONT_CARE;
     }
 
     //----------------------------------------------------------------------
@@ -446,69 +536,6 @@ namespace Graphics { namespace Vulkan {
         if (m_framebuffers.find(hash) == m_framebuffers.end())
             m_framebuffers[hash].create( renderPass, m_colorAttachment.view, m_depthAttachment.view );
         return &m_framebuffers[hash];
-    }
-
-    //**********************************************************************
-    // PUBLIC
-    //**********************************************************************
-
-    //----------------------------------------------------------------------
-    void Context::SetClearColor( Color color )
-    {
-        auto colorNormalized = color.normalized();
-        m_colorAttachment.clearValue.color = { colorNormalized[0], colorNormalized[1], colorNormalized[2], colorNormalized[3] };
-        m_colorAttachment.clearMode = ClearMode::Clear;
-    }
-
-    //----------------------------------------------------------------------
-    void Context::SetClearDepthStencil( F32 depth, U32 stencil ) 
-    {
-        m_depthAttachment.clearValue.depthStencil = { depth, stencil };
-        m_depthAttachment.clearMode = ClearMode::Clear;
-    }
-
-    //----------------------------------------------------------------------
-    void Context::OMSetRenderTarget( ImageView* color, ImageView* depth, VkImageLayout finalColorLayout, VkImageLayout finalDepthLayout )
-    {
-        m_colorAttachment.view = color;
-        m_depthAttachment.view = depth;
-        m_colorAttachment.finalLayout = finalColorLayout;
-        m_depthAttachment.finalLayout = finalDepthLayout;
-
-        m_currentRenderPass = _GetRenderPass();
-        if (m_currentRenderPass)
-        {
-            m_currentFramebuffer = _GetFramebuffer( m_currentRenderPass );
-            g_vulkan.curDrawCmd().beginRenderPass( m_currentRenderPass, m_currentFramebuffer, { m_colorAttachment.clearValue, m_depthAttachment.clearValue } );
-
-            g_vulkan.curDrawCmd().endRenderPass();
-        }
-    }
-
-    //**********************************************************************
-    // PRIVATE
-    //**********************************************************************
-
-    //----------------------------------------------------------------------
-    void Context::_Reset()
-    {
-        m_colorAttachment = {};
-        m_depthAttachment = {};
-        m_currentRenderPass  = VK_NULL_HANDLE;
-        m_currentFramebuffer = VK_NULL_HANDLE;
-    }
-
-    //----------------------------------------------------------------------
-    VkAttachmentLoadOp Context::_GetLoadOp( ClearMode clearMode )
-    {
-        switch (clearMode)
-        {
-        case ClearMode::DontCare:   return VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-        case ClearMode::Load:       return VK_ATTACHMENT_LOAD_OP_LOAD;
-        case ClearMode::Clear:      return VK_ATTACHMENT_LOAD_OP_CLEAR;
-        }
-        ASSERT(false);
-        return VK_ATTACHMENT_LOAD_OP_DONT_CARE;
     }
 
 } } // End namespaces

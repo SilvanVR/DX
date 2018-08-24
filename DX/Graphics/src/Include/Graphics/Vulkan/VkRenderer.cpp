@@ -462,12 +462,12 @@ namespace Graphics {
         }
 
         // Bind render-target (Note: if dst is null, this does nothing)
-        renderContext.BindRendertarget(dst, m_frameCount);
+        renderContext.BindRendertarget( dst, m_frameCount );
 
         // Set texture in material
         //material->setTexture( POST_PROCESS_INPUT_NAME, input->getColorBuffer() );
 
-        VkViewport vp = {};
+        ViewportRect vp = {};
         if (dst == SCREEN_BUFFER) // Blit to Screen and/or HMD depending on camera setting
         {
             auto curCamera = renderContext.getCamera();
@@ -475,14 +475,13 @@ namespace Graphics {
             {
                 // Set viewport (Translate to pixel coordinates first)
                 auto viewport = curCamera->getViewport();
-                vp.x = viewport.topLeftX * m_window->getWidth();
-                vp.y = viewport.topLeftY * m_window->getHeight();
-                vp.width = viewport.width    * m_window->getWidth();
-                vp.height = viewport.height   * m_window->getHeight();
-                vp.maxDepth = 1.0f;
+                vp.topLeftX = viewport.topLeftX * m_window->getWidth();
+                vp.topLeftY = viewport.topLeftY * m_window->getHeight();
+                vp.width    = viewport.width    * m_window->getWidth();
+                vp.height   = viewport.height   * m_window->getHeight();
 
                 m_swapchain.bindForRendering();
-                //_DrawFullScreenQuad(material, vp);
+                _DrawFullScreenQuad( material, vp );
             }
 
             if (curCamera->isBlittingToHMD())
@@ -496,26 +495,29 @@ namespace Graphics {
                 // Ignore viewport from camera, always use full resolution from HMD
                 auto desc = m_hmd->getDescription();
                 auto eye = curCamera->getHMDEye();
-                vp.x = 0.0f;
-                vp.y = 0.0f;
-                vp.width = (F32)desc.idealResolution[eye].x;
+                vp.width  = (F32)desc.idealResolution[eye].x;
                 vp.height = (F32)desc.idealResolution[eye].y;
-                vp.maxDepth = 1.0f;
 
-                m_hmd->bindForRendering(eye);
-                //_DrawFullScreenQuad(material, vp);
+                m_hmd->bindForRendering( eye );
+                _DrawFullScreenQuad( material, vp );
             }
         }
         else
         {
-            vp = { 0, 0, (F32)dst->getWidth(), (F32)dst->getHeight(), 0, 1 };
-            //_DrawFullScreenQuad(material, vp);
+            vp = { 0, 0, (F32)dst->getWidth(), (F32)dst->getHeight() };
+            _DrawFullScreenQuad( material, vp );
         }
     }
 
     //----------------------------------------------------------------------
     void VkRenderer::_DrawFullScreenQuad( const MaterialPtr& material, const ViewportRect& viewport )
     {
+        renderContext.BindShader( material->getShader() );
+        renderContext.BindMaterial( material );
+
+        g_vulkan.ctx.RSSetViewports({ viewport.topLeftX, viewport.topLeftY, viewport.width, viewport.height, 0.0f, 1.0f });
+        //g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+        g_vulkan.ctx.Draw(3);
     }
 
     //**********************************************************************

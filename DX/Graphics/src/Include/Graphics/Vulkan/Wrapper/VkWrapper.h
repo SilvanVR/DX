@@ -35,13 +35,9 @@ namespace Graphics { namespace Vulkan {
     {
     public:
         //----------------------------------------------------------------------
-        // IVulkanResource Interface
-        //----------------------------------------------------------------------
-        void release();
-
-        //----------------------------------------------------------------------
         void create(U32 width, U32 height, VkFormat format, VkSampleCountFlagBits samples, VkImageUsageFlags usage, VmaMemoryUsage memUsage);
         void create(VkImage image, U32 width, U32 height, VkFormat format, VkSampleCountFlagBits samples);
+        void release();
     };
 
     //**********************************************************************
@@ -49,19 +45,14 @@ namespace Graphics { namespace Vulkan {
     {
     public:
         //----------------------------------------------------------------------
-        // IVulkanResource Interface
-        //----------------------------------------------------------------------
-        void release();
-
-        //----------------------------------------------------------------------
         void create(U32 width, U32 height, VkFormat format, VkSampleCountFlagBits samples);
+        void release();
     };
 
     //**********************************************************************
     class ImageView
     {
     public:
-        //----------------------------------------------------------------------
         void create(ColorImage& image);
         void create(DepthImage& image);
         void release();
@@ -94,7 +85,6 @@ namespace Graphics { namespace Vulkan {
     class Framebuffer
     {
     public:
-        //----------------------------------------------------------------------
         void create(RenderPass* renderPass, ImageView* colorView, ImageView* depthView);
         void release();
 
@@ -109,7 +99,6 @@ namespace Graphics { namespace Vulkan {
     class CmdBuffer
     {
     public:
-        //----------------------------------------------------------------------
         void create(U32 queueFamilyIndex, VkCommandPoolCreateFlags poolFlags = {}, VkFenceCreateFlags fenceFlags = {});
         void release();
         void begin(VkCommandBufferUsageFlags flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
@@ -119,6 +108,10 @@ namespace Graphics { namespace Vulkan {
 
         void setImageLayout(ColorImage* img, VkImageLayout newLayout, VkAccessFlags srcAccess, VkAccessFlags dstAccess,
                                              VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask);
+        void resolveImage(ColorImage* src, ColorImage* dst);
+        void resolveImage(DepthImage* src, DepthImage* dst);
+        void setViewport(VkViewport viewport);
+        void draw(U32 vertexCount, U32 instanceCount, U32 firstVertex, U32 firstInstance);
 
         void beginRenderPass(RenderPass* renderPass, Framebuffer* fbo, std::array<VkClearValue, 2> clearValues);
         void endRenderPass();
@@ -128,5 +121,14 @@ namespace Graphics { namespace Vulkan {
         VkFence         fence = VK_NULL_HANDLE;
     };
 
+    //**********************************************************************
+    class Pipeline
+    {
+    public:
+        void createGraphics();
+        void release();
+
+        VkPipeline pipeline;
+    };
 
 } } // End namespaces

@@ -91,11 +91,7 @@ namespace Graphics { namespace Vulkan {
         {
             if (not m_resolved)
             {
-                VkImageResolve region{};
-                region.srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, VK_REMAINING_ARRAY_LAYERS };
-                region.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, VK_REMAINING_ARRAY_LAYERS };
-                region.extent = { m_width, m_height };
-                //vkCmdResolveImage( cmd, m_imageMS, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, m_image, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, 1, &region );
+                g_vulkan.ctx.ResolveImage( &m_colorImageMS, &m_colorImage );
                 m_resolved = true;
             }
         }
@@ -152,7 +148,7 @@ namespace Graphics { namespace Vulkan {
             auto format = Utility::TranslateTextureFormat( m_format );
             m_colorImage.create( m_width, m_height, format, VK_SAMPLE_COUNT_1_BIT, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VMA_MEMORY_USAGE_GPU_ONLY );
             if (isMultisampled())
-                m_colorImageMS.create( m_width, m_height, Utility::TranslateTextureFormat(m_format), VK_SAMPLE_COUNT_1_BIT,
+                m_colorImageMS.create( m_width, m_height, format, Utility::TranslateSampleCount( m_samplingDescription ),
                                        VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VMA_MEMORY_USAGE_GPU_ONLY );
             m_imageView.create( m_colorImage );
         }

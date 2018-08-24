@@ -45,6 +45,10 @@ namespace Graphics { namespace Vulkan {
         void OMSetRenderTarget(ImageView* color, ImageView* depth, 
                                VkImageLayout finalColorLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, 
                                VkImageLayout finalDepthLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+        void RSSetViewports(VkViewport viewport);
+        void ResolveImage(ColorImage* src, ColorImage* dst);
+        void ResolveImage(DepthImage* src, DepthImage* dst);
+        void Draw(U32 vertexCount, U32 instanceCount = 1, U32 firstVertex = 0, U32 firstInstance = 0);
 
     private:
         friend class Platform;
@@ -53,13 +57,15 @@ namespace Graphics { namespace Vulkan {
         void BeginFrame();
         void EndFrame();
 
-        // All dynamically built vulkan objects
+        // Dynamically built vulkan objects
         std::unordered_map<U64, RenderPass>     m_renderPasses;
         std::unordered_map<U64, Framebuffer>    m_framebuffers;
+        std::unordered_map<U64, Pipeline>       m_pipelines;
 
         // Context information
         RenderPass*     m_currentRenderPass;
         Framebuffer*    m_currentFramebuffer;
+        Pipeline*       m_currentPipeline;
 
         struct Attachment
         {
@@ -71,7 +77,7 @@ namespace Graphics { namespace Vulkan {
         Attachment m_colorAttachment;
         Attachment m_depthAttachment;
 
-        void _Reset();
+        void _ClearContext();
         RenderPass* _GetRenderPass();
         Framebuffer* _GetFramebuffer(RenderPass* renderPass);
 

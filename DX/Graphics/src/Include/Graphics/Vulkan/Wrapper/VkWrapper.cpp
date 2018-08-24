@@ -387,6 +387,26 @@ namespace Graphics { namespace Vulkan {
     }
 
     //----------------------------------------------------------------------
+    void CmdBuffer::resolveImage( ColorImage* src, ColorImage* dst )
+    {
+        VkImageResolve region{};
+        region.srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, VK_REMAINING_ARRAY_LAYERS };
+        region.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, VK_REMAINING_ARRAY_LAYERS };
+        region.extent = { src->width, dst->width };
+        vkCmdResolveImage( cmd, src->img, src->layout, dst->img, dst->layout, 1, &region );
+    }
+
+    //----------------------------------------------------------------------
+    void CmdBuffer::resolveImage( DepthImage* src, DepthImage* dst )
+    {
+        VkImageResolve region{};
+        region.srcSubresource = { VK_IMAGE_ASPECT_DEPTH_BIT, 0, 0, VK_REMAINING_ARRAY_LAYERS };
+        region.dstSubresource = { VK_IMAGE_ASPECT_DEPTH_BIT, 0, 0, VK_REMAINING_ARRAY_LAYERS };
+        region.extent = { src->width, dst->width };
+        vkCmdResolveImage( cmd, src->img, src->layout, dst->img, dst->layout, 1, &region );
+    }
+
+    //----------------------------------------------------------------------
     void CmdBuffer::beginRenderPass( RenderPass* renderPass, Framebuffer* fbo, std::array<VkClearValue, 2> clearValues )
     {
         VkRenderPassBeginInfo beginInfo{ VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO };
@@ -409,5 +429,56 @@ namespace Graphics { namespace Vulkan {
         vkCmdEndRenderPass( cmd );
     }
 
+    //----------------------------------------------------------------------
+    void CmdBuffer::setViewport( VkViewport viewport )
+    {
+        vkCmdSetViewport( cmd, 0, 1, &viewport );
+    }
+
+    //----------------------------------------------------------------------
+    void CmdBuffer::draw( U32 vertexCount, U32 instanceCount, U32 firstVertex, U32 firstInstance )
+    {
+        vkCmdDraw( cmd, vertexCount, instanceCount, firstVertex, firstInstance );
+    }
+
+    //**********************************************************************
+    // Pipeline
+    //**********************************************************************
+
+    //----------------------------------------------------------------------
+    void Pipeline::createGraphics()
+    {
+        VkGraphicsPipelineCreateInfo createInfo{ VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO };
+        createInfo.flags;
+        createInfo.stageCount;
+        createInfo.pStages;
+        createInfo.pVertexInputState;
+        createInfo.pInputAssemblyState;
+        createInfo.pTessellationState;
+        createInfo.pViewportState;
+        createInfo.pRasterizationState;
+        createInfo.pMultisampleState;
+        createInfo.pDepthStencilState;
+        createInfo.pColorBlendState;
+        createInfo.pDynamicState;
+        createInfo.layout;
+        createInfo.renderPass;
+        createInfo.subpass;
+        createInfo.basePipelineHandle;
+        createInfo.basePipelineIndex;
+
+        vkCreateGraphicsPipelines( g_vulkan.device, VK_NULL_HANDLE, 1, &createInfo, ALLOCATOR, &pipeline );
+    }
+
+    //----------------------------------------------------------------------
+    void Pipeline::release()
+    {
+        if (pipeline)
+        {
+            vkDeviceWaitIdle( g_vulkan.device );
+            vkDestroyPipeline( g_vulkan.device, pipeline, ALLOCATOR );
+            pipeline = VK_NULL_HANDLE;
+        }
+    }
 
 } } // End namespaces
