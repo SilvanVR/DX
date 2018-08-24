@@ -4,7 +4,10 @@
 #Blend 			SrcAlpha OneMinusSrcAlpha
 #Queue 			Transparent
 
-// ----------------------------------------------
+//----------------------------------------------
+// D3D11
+//----------------------------------------------
+#d3d11
 #shader vertex
 
 #include "/engine/shaders/includes/engineVS.hlsl"

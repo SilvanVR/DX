@@ -4,7 +4,10 @@
 #ZTest			Off
 #Queue 			Background
 
-// ----------------------------------------------
+//----------------------------------------------
+// D3D11
+//----------------------------------------------
+#d3d11
 #shader vertex
 
 #include "/engine/shaders/includes/engineVS.hlsl"
