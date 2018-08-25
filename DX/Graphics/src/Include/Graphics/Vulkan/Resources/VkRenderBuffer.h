@@ -44,16 +44,16 @@ namespace Graphics { namespace Vulkan {
 
         union
         {
-            ColorImage m_colorImage;
-            DepthImage m_depthImage;
+            ColorImage* m_colorImage;
+            DepthImage* m_depthImage;
         };
         union
         {
-            ColorImage m_colorImageMS;
-            DepthImage m_depthImageMS;
+            ColorImage* m_colorImageMS;
+            DepthImage* m_depthImageMS;
         };
 
-        ImageView m_imageView;
+        ImageView* m_imageView;
 
         //----------------------------------------------------------------------
         // ITexture Interface

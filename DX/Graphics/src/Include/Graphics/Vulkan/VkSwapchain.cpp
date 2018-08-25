@@ -23,8 +23,7 @@ namespace Graphics { namespace Vulkan {
     //----------------------------------------------------------------------
     void Swapchain::shutdown( VkInstance instance, VkDevice device )
     {
-        for (auto& swapImg : m_images)
-            swapImg.view.release();
+        _DestroyImageViews();
         vkDestroySwapchainKHR( device, m_swapchain, ALLOCATOR );
         vkDestroySurfaceKHR( instance, m_surface, ALLOCATOR );
     }
@@ -73,8 +72,7 @@ namespace Graphics { namespace Vulkan {
     //----------------------------------------------------------------------
     void Swapchain::recreate( bool vsync )
     {
-        for (auto& swapImg : m_images)
-            swapImg.view.release();
+        _DestroyImageViews();
         create( g_vulkan.gpu.physicalDevice, g_vulkan.device, vsync );
     }
 
@@ -93,14 +91,14 @@ namespace Graphics { namespace Vulkan {
         {
             // Transition layout only if image is not already in that layout. 
             // This can happen when the swapchain image was actually used as a rendertarget.
-            if (m_images[m_currentImageIndex].image.layout != VK_IMAGE_LAYOUT_PRESENT_SRC_KHR)
-                cmd.setImageLayout( &m_images[m_currentImageIndex].image, targetLayout,
+            if (m_images[m_currentImageIndex].image->layout != VK_IMAGE_LAYOUT_PRESENT_SRC_KHR)
+                cmd.setImageLayout( m_images[m_currentImageIndex].image, targetLayout,
                                     VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT, VK_ACCESS_MEMORY_READ_BIT,
                                     VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT );
         }
         else if (targetLayout == VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)
         {
-            cmd.setImageLayout( &m_images[m_currentImageIndex].image, targetLayout,
+            cmd.setImageLayout( m_images[m_currentImageIndex].image, targetLayout,
                                 VK_ACCESS_MEMORY_READ_BIT, VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT, 
                                 VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
         }
@@ -133,7 +131,7 @@ namespace Graphics { namespace Vulkan {
     //----------------------------------------------------------------------
     void Swapchain::bindForRendering()
     {
-        g_vulkan.ctx.OMSetRenderTarget( &m_images[m_currentImageIndex].view, VK_NULL_HANDLE, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR );
+        g_vulkan.ctx.OMSetRenderTarget( m_images[m_currentImageIndex].view, VK_NULL_HANDLE, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR );
     }
 
     //----------------------------------------------------------------------
@@ -205,22 +203,30 @@ namespace Graphics { namespace Vulkan {
         ArrayList<VkImage> swapchainImages( swapchainImageCount );
         vkGetSwapchainImagesKHR( device, m_swapchain, &swapchainImageCount, swapchainImages.data() );
 
-        CmdBuffer cmd;
-        cmd.create( g_vulkan.queueFamilyGraphicsIndex, VK_COMMAND_POOL_CREATE_TRANSIENT_BIT );
+        CmdBuffer cmd( g_vulkan.queueFamilyGraphicsIndex, VK_COMMAND_POOL_CREATE_TRANSIENT_BIT );
         cmd.begin( VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT );
 
         m_images.resize( swapchainImageCount );
         for (I32 i = 0; i < swapchainImages.size(); ++i)
         {
-            m_images[i].image.create( swapchainImages[i], width, height, format, VK_SAMPLE_COUNT_1_BIT );
-            m_images[i].view.create( m_images[i].image );
-            cmd.setImageLayout( &m_images[i].image, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
+            m_images[i].image = g_vulkan.createColorImage( swapchainImages[i], width, height, format, VK_SAMPLE_COUNT_1_BIT );
+            m_images[i].view = g_vulkan.createImageView( m_images[i].image );
+            cmd.setImageLayout( m_images[i].image, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
                                 VK_ACCESS_MEMORY_READ_BIT, VK_ACCESS_MEMORY_WRITE_BIT,
                                 VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT, VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT );
         }
         cmd.exec( g_vulkan.graphicsQueue );
         cmd.wait();
-        cmd.release();
+    }
+
+    //----------------------------------------------------------------------
+    void Swapchain::_DestroyImageViews()
+    {
+        for (auto& swapImg : m_images)
+        {
+            swapImg.image->release();
+            swapImg.view->release();
+        }
     }
 
 } } // End namespaces

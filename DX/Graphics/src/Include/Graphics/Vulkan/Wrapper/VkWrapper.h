@@ -7,37 +7,51 @@
 
     Contains several wrapper classes for vulkan objects, e.g. command-buffer,
     render-pass etc.
-    P.S. All types are default copyable. This means there is nothing done in
-    the deconstructor. To ensure that a resource will be deleted "release()" MUST be called.
 **********************************************************************/
 
 #include <Vulkan/vulkan.h>
 #include "../Ext/vk_mem_alloc.h"
 
 namespace Graphics { namespace Vulkan {
-
+ 
     //**********************************************************************
-    class IImage
+    class IVulkanResource
     {
     public:
+        IVulkanResource() = default;
+        virtual ~IVulkanResource() {}
+
+        inline bool release();
+        inline void addRef();
+    private:
+        U32 m_useCount = 1;
+        NULL_COPY_AND_ASSIGN(IVulkanResource)
+    };
+
+    //**********************************************************************
+    class IImage : public IVulkanResource
+    {
+    public:
+        IImage(U32 width, U32 height, VkFormat format, VkSampleCountFlagBits samples, VkImageLayout layout)
+            : width(width), height(height), format(format), samples(samples), layout(layout) {}
+
         //----------------------------------------------------------------------
         U32                     width   = 0;
         U32                     height  = 0;
         VkFormat                format  = VK_FORMAT_UNDEFINED;
         VkSampleCountFlagBits   samples = VK_SAMPLE_COUNT_1_BIT;
+        VkImageLayout           layout  = VK_IMAGE_LAYOUT_UNDEFINED;
         VkImage                 img     = VK_NULL_HANDLE;
         VmaAllocation           mem     = VK_NULL_HANDLE;
-        VkImageLayout           layout  = VK_IMAGE_LAYOUT_UNDEFINED;
     };
 
     //**********************************************************************
     class ColorImage : public IImage
     {
     public:
-        //----------------------------------------------------------------------
-        void create(U32 width, U32 height, VkFormat format, VkSampleCountFlagBits samples, VkImageUsageFlags usage, VmaMemoryUsage memUsage);
-        void create(VkImage image, U32 width, U32 height, VkFormat format, VkSampleCountFlagBits samples);
-        void release();
+        ColorImage(U32 width, U32 height, VkFormat format, VkSampleCountFlagBits samples, VkImageUsageFlags usage, VmaMemoryUsage memUsage);
+        ColorImage(VkImage image, U32 width, U32 height, VkFormat format, VkSampleCountFlagBits samples);
+        ~ColorImage();
     };
 
     //**********************************************************************
@@ -45,17 +59,17 @@ namespace Graphics { namespace Vulkan {
     {
     public:
         //----------------------------------------------------------------------
-        void create(U32 width, U32 height, VkFormat format, VkSampleCountFlagBits samples);
-        void release();
+        DepthImage(U32 width, U32 height, VkFormat format, VkSampleCountFlagBits samples);
+        ~DepthImage();
     };
 
     //**********************************************************************
-    class ImageView
+    class ImageView : public IVulkanResource
     {
     public:
-        void create(ColorImage& image);
-        void create(DepthImage& image);
-        void release();
+        ImageView(ColorImage* image);
+        ImageView(DepthImage* image);
+        ~ImageView();
 
         //----------------------------------------------------------------------
         VkImageView view = VK_NULL_HANDLE;
@@ -63,7 +77,7 @@ namespace Graphics { namespace Vulkan {
     };
 
     //**********************************************************************
-    class RenderPass
+    class RenderPass : public IVulkanResource
     {
     public:
         struct AttachmentDescription
@@ -74,19 +88,19 @@ namespace Graphics { namespace Vulkan {
         };
 
         //----------------------------------------------------------------------
-        void create(const AttachmentDescription& color, const AttachmentDescription& depth);
-        void release();
+        RenderPass(const AttachmentDescription& color, const AttachmentDescription& depth);
+        ~RenderPass();
 
         VkRenderPass             renderPass = VK_NULL_HANDLE;
         ArrayList<VkImageLayout> newLayouts;
     };
 
     //**********************************************************************
-    class Framebuffer
+    class Framebuffer : public IVulkanResource
     {
     public:
-        void create(RenderPass* renderPass, ImageView* colorView, ImageView* depthView);
-        void release();
+        Framebuffer(RenderPass* renderPass, ImageView* colorView, ImageView* depthView);
+        ~Framebuffer();
 
         U32 getWidth();
         U32 getHeight();
@@ -96,11 +110,12 @@ namespace Graphics { namespace Vulkan {
     };
 
     //**********************************************************************
-    class CmdBuffer
+    class CmdBuffer : public IVulkanResource
     {
     public:
-        void create(U32 queueFamilyIndex, VkCommandPoolCreateFlags poolFlags = {}, VkFenceCreateFlags fenceFlags = {});
-        void release();
+        CmdBuffer(U32 queueFamilyIndex, VkCommandPoolCreateFlags poolFlags = {}, VkFenceCreateFlags fenceFlags = {});
+        ~CmdBuffer();
+
         void begin(VkCommandBufferUsageFlags flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
         void exec(VkQueue queue, VkSemaphore waitSemaphore = VK_NULL_HANDLE, VkSemaphore signalSemaphore = VK_NULL_HANDLE);
         void wait();
@@ -110,11 +125,11 @@ namespace Graphics { namespace Vulkan {
                                              VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask);
         void resolveImage(ColorImage* src, ColorImage* dst);
         void resolveImage(DepthImage* src, DepthImage* dst);
-        void setViewport(VkViewport viewport);
-        void draw(U32 vertexCount, U32 instanceCount, U32 firstVertex, U32 firstInstance);
-
         void beginRenderPass(RenderPass* renderPass, Framebuffer* fbo, std::array<VkClearValue, 2> clearValues);
         void endRenderPass();
+        void bindGraphicsPipeline(VkPipeline pipeline);
+        void setViewport(VkViewport viewport);
+        void draw(U32 vertexCount, U32 instanceCount, U32 firstVertex, U32 firstInstance);
 
         VkCommandPool   pool = VK_NULL_HANDLE;
         VkCommandBuffer cmd  = VK_NULL_HANDLE;
@@ -122,9 +137,12 @@ namespace Graphics { namespace Vulkan {
     };
 
     //**********************************************************************
-    class GraphicsPipeline
+    class GraphicsPipeline : public IVulkanResource
     {
     public:
+        GraphicsPipeline() = default;
+        ~GraphicsPipeline();
+
         void addShaderModule(VkShaderStageFlagBits shaderStage, VkShaderModule shaderModule, CString entryPoint);
         void setVertexInputState(const ArrayList<VkVertexInputBindingDescription>& inputDesc, const ArrayList<VkVertexInputAttributeDescription>& attrDesc);
         void setInputAssemblyState(VkPrimitiveTopology topology, VkBool32 restartEnable = VK_FALSE);
@@ -140,7 +158,6 @@ namespace Graphics { namespace Vulkan {
                                 VkBlendFactor srcAlphaBlend, VkBlendFactor dstAlphaBlend, VkBlendOp alphaBlendOp);
         void addDynamicState(VkDynamicState dynamicState);
         void buildPipeline(VkPipelineLayout layout, VkRenderPass renderPass, U32 subPass = 0);
-        void release();
 
         VkPipeline pipeline;
 
@@ -164,7 +181,6 @@ namespace Graphics { namespace Vulkan {
         VkPipelineColorBlendStateCreateInfo             m_colorBlendState{ VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO };
 
         ArrayList<VkDynamicState>                       m_dynamicStates;
-
     };
 
 } } // End namespaces

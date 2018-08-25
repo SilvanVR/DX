@@ -42,8 +42,8 @@ namespace Graphics { namespace Vulkan {
 
         struct SwapchainImage
         {
-            ColorImage image;
-            ImageView view;
+            ColorImage* image;
+            ImageView* view;
         };
         ArrayList<SwapchainImage>   m_images;
         U32                         m_currentImageIndex = 0;
@@ -53,6 +53,7 @@ namespace Graphics { namespace Vulkan {
         VkSurfaceFormatKHR _ChooseSurfaceFormat(VkPhysicalDevice physicalDevice, VkFormat requestedFormat);
         U32 _GetDesiredNumberOfSwapchainImages(VkSurfaceCapabilitiesKHR surfaceCapabilities, VkPresentModeKHR swapchainPresentMode);
         void _CreateImageViews(VkDevice device, U32 width, U32 height, VkFormat format);
+        void _DestroyImageViews();
 
         NULL_COPY_AND_ASSIGN(Swapchain)
     };

@@ -11,18 +11,35 @@
 namespace Graphics { namespace Vulkan {
 
     //**********************************************************************
-    // Image
+    // IVulkanResource
     //**********************************************************************
+
+    //----------------------------------------------------------------------
+    bool IVulkanResource::release()
+    {
+        m_useCount--;
+        if (m_useCount == 0)
+        {
+            vkDeviceWaitIdle( g_vulkan.device );
+            delete this;
+        }
+        return m_useCount == 0;
+    }
+
+    //----------------------------------------------------------------------
+    void IVulkanResource::addRef()
+    {
+        m_useCount++;
+    }
 
     //**********************************************************************
     // ColorImage
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    void ColorImage::create( U32 width, U32 height, VkFormat format, VkSampleCountFlagBits samples, VkImageUsageFlags usage, VmaMemoryUsage memUsage )
+    ColorImage::ColorImage( U32 width, U32 height, VkFormat format, VkSampleCountFlagBits samples, VkImageUsageFlags usage, VmaMemoryUsage memUsage )
+        : IImage( width, height, format, samples, VK_IMAGE_LAYOUT_UNDEFINED )
     {
-        this->width = width; this->height = height; this->format = format; this->samples = samples; this->layout = VK_IMAGE_LAYOUT_UNDEFINED;
-
         VkImageCreateInfo createInfo{ VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
         createInfo.imageType     = VK_IMAGE_TYPE_2D;
         createInfo.format        = format;
@@ -40,17 +57,17 @@ namespace Graphics { namespace Vulkan {
     }
 
     //----------------------------------------------------------------------
-    void ColorImage::create( VkImage image, U32 width, U32 height, VkFormat format, VkSampleCountFlagBits samples )
+    ColorImage::ColorImage( VkImage image, U32 width, U32 height, VkFormat format, VkSampleCountFlagBits samples )
+        : IImage( width, height, format, samples, VK_IMAGE_LAYOUT_UNDEFINED )
     {
-        this->img = image; this->width = width; this->height = height; this->format = format; this->samples = samples; this->layout = VK_IMAGE_LAYOUT_UNDEFINED;
+        this->img = image;
     }
 
     //----------------------------------------------------------------------
-    void ColorImage::release()
+    ColorImage::~ColorImage()
     {
-        if (img)
+        if (img && mem)
         {
-            vkDeviceWaitIdle( g_vulkan.device );
             vmaDestroyImage( g_vulkan.allocator, img, mem );
             img = VK_NULL_HANDLE;
         }
@@ -61,10 +78,9 @@ namespace Graphics { namespace Vulkan {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    void DepthImage::create( U32 width, U32 height, VkFormat format, VkSampleCountFlagBits samples )
+    DepthImage::DepthImage( U32 width, U32 height, VkFormat format, VkSampleCountFlagBits samples )
+        : IImage( width, height, format, samples, VK_IMAGE_LAYOUT_UNDEFINED )
     {
-        this->width = width; this->height = height; this->format = format; this->samples = samples; this->layout = VK_IMAGE_LAYOUT_UNDEFINED;
-
         VkImageCreateInfo createInfo{ VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
         createInfo.imageType     = VK_IMAGE_TYPE_2D;
         createInfo.format        = format;
@@ -82,11 +98,10 @@ namespace Graphics { namespace Vulkan {
     }
 
     //----------------------------------------------------------------------
-    void DepthImage::release()
+    DepthImage::~DepthImage()
     {
-        if (img)
+        if (img && mem)
         {
-            vkDeviceWaitIdle( g_vulkan.device );
             vmaDestroyImage( g_vulkan.allocator, img, mem );
             img = VK_NULL_HANDLE;
         }
@@ -97,14 +112,15 @@ namespace Graphics { namespace Vulkan {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    void ImageView::create( ColorImage& image )
+    ImageView::ImageView( ColorImage* image )
+        : img( image )
     {
-        img = &image;
+        img->addRef();
 
         VkImageViewCreateInfo viewCreateInfo{ VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO };
-        viewCreateInfo.image                        = image.img;
+        viewCreateInfo.image                        = image->img;
         viewCreateInfo.viewType                     = VK_IMAGE_VIEW_TYPE_2D;
-        viewCreateInfo.format                       = image.format;
+        viewCreateInfo.format                       = image->format;
         viewCreateInfo.subresourceRange.aspectMask  = VK_IMAGE_ASPECT_COLOR_BIT;
         viewCreateInfo.subresourceRange.layerCount  = VK_REMAINING_ARRAY_LAYERS;
         viewCreateInfo.subresourceRange.levelCount  = VK_REMAINING_MIP_LEVELS;
@@ -112,14 +128,15 @@ namespace Graphics { namespace Vulkan {
     }
 
     //----------------------------------------------------------------------
-    void ImageView::create( DepthImage& image )
+    ImageView::ImageView( DepthImage* image )
+        : img( image )
     {
-        img = &image;
+        img->addRef();
 
         VkImageViewCreateInfo viewCreateInfo{ VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO };
-        viewCreateInfo.image                        = image.img;
+        viewCreateInfo.image                        = image->img;
         viewCreateInfo.viewType                     = VK_IMAGE_VIEW_TYPE_2D;
-        viewCreateInfo.format                       = image.format;
+        viewCreateInfo.format                       = image->format;
         viewCreateInfo.subresourceRange.aspectMask  = VK_IMAGE_ASPECT_DEPTH_BIT;
         viewCreateInfo.subresourceRange.layerCount  = VK_REMAINING_ARRAY_LAYERS;
         viewCreateInfo.subresourceRange.levelCount  = VK_REMAINING_MIP_LEVELS;
@@ -127,11 +144,12 @@ namespace Graphics { namespace Vulkan {
     }
 
     //----------------------------------------------------------------------
-    void ImageView::release()
+    ImageView::~ImageView()
     {
+        img->release();
+
         if (view)
         {
-            vkDeviceWaitIdle( g_vulkan.device );
             vkDestroyImageView( g_vulkan.device, view, ALLOCATOR );
             view = VK_NULL_HANDLE;
         }
@@ -142,7 +160,7 @@ namespace Graphics { namespace Vulkan {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    void RenderPass::create( const AttachmentDescription& color, const AttachmentDescription& depth )
+    RenderPass::RenderPass( const AttachmentDescription& color, const AttachmentDescription& depth )
     {
         ArrayList<VkAttachmentDescription> attachments;
 
@@ -214,11 +232,10 @@ namespace Graphics { namespace Vulkan {
     }
 
     //----------------------------------------------------------------------
-    void RenderPass::release()
+    RenderPass::~RenderPass()
     {
         if (renderPass)
         {
-            vkDeviceWaitIdle( g_vulkan.device );
             vkDestroyRenderPass( g_vulkan.device, renderPass, ALLOCATOR );
             renderPass = VK_NULL_HANDLE;
         }
@@ -229,18 +246,20 @@ namespace Graphics { namespace Vulkan {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    void Framebuffer::create( RenderPass* renderPass, ImageView* colorView, ImageView* depthView )
+    Framebuffer::Framebuffer( RenderPass* renderPass, ImageView* colorView, ImageView* depthView )
     {
         ArrayList<VkImageView> views;
         VkFramebufferCreateInfo createInfo{ VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO };
         if (colorView)
         {
             attachments.push_back( colorView );
+            colorView->addRef();
             views.push_back( colorView->view );
         }
         if (depthView)
         {
             attachments.push_back( depthView );
+            depthView->addRef();
             views.push_back( depthView->view );
         }
         createInfo.renderPass       = renderPass->renderPass;
@@ -254,11 +273,12 @@ namespace Graphics { namespace Vulkan {
     }
 
     //----------------------------------------------------------------------
-    void Framebuffer::release()
+    Framebuffer::~Framebuffer()
     {
+        for (auto& attachment : attachments)
+            attachment->release();
         if (framebuffer)
         {
-            vkDeviceWaitIdle( g_vulkan.device );
             vkDestroyFramebuffer( g_vulkan.device, framebuffer, ALLOCATOR );
             framebuffer = VK_NULL_HANDLE;
         }
@@ -281,7 +301,7 @@ namespace Graphics { namespace Vulkan {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    void CmdBuffer::create( U32 queueFamilyIndex, VkCommandPoolCreateFlags poolFlags, VkFenceCreateFlags fenceFlags )
+    CmdBuffer::CmdBuffer( U32 queueFamilyIndex, VkCommandPoolCreateFlags poolFlags, VkFenceCreateFlags fenceFlags )
     {
         VkCommandPoolCreateInfo createInfo{ VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO };
         createInfo.flags = poolFlags;
@@ -300,17 +320,15 @@ namespace Graphics { namespace Vulkan {
     }
 
     //----------------------------------------------------------------------
-    void CmdBuffer::release()
+    CmdBuffer::~CmdBuffer()
     {
         if (pool)
         {
-            vkDeviceWaitIdle( g_vulkan.device );
             vkDestroyCommandPool( g_vulkan.device, pool, ALLOCATOR );
             pool = VK_NULL_HANDLE;
         }
         if (fence)
         {
-            vkDeviceWaitIdle( g_vulkan.device );
             vkDestroyFence( g_vulkan.device, fence, ALLOCATOR );
             fence = VK_NULL_HANDLE;
         }
@@ -427,6 +445,12 @@ namespace Graphics { namespace Vulkan {
     void CmdBuffer::endRenderPass()
     {
         vkCmdEndRenderPass( cmd );
+    }
+
+    //----------------------------------------------------------------------
+    void CmdBuffer::bindGraphicsPipeline( VkPipeline pipeline )
+    {
+        vkCmdBindPipeline( cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline );
     }
 
     //----------------------------------------------------------------------
@@ -593,7 +617,7 @@ namespace Graphics { namespace Vulkan {
     }
 
     //----------------------------------------------------------------------
-    void GraphicsPipeline::release()
+    GraphicsPipeline::~GraphicsPipeline()
     {
         if (pipeline)
         {

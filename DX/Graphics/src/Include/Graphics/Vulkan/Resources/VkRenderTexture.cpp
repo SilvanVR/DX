@@ -32,17 +32,17 @@ namespace Graphics { namespace Vulkan {
         {
             colorBuffer->_ClearResolvedFlag();
             depthBuffer->_ClearResolvedFlag();
-            g_vulkan.ctx.OMSetRenderTarget( &colorBuffer->m_imageView, &depthBuffer->m_imageView );
+            g_vulkan.ctx.OMSetRenderTarget( colorBuffer->m_imageView, depthBuffer->m_imageView );
         }
         else if (depthBuffer)
         {
             depthBuffer->_ClearResolvedFlag();
-            g_vulkan.ctx.OMSetRenderTarget( VK_NULL_HANDLE, &depthBuffer->m_imageView );
+            g_vulkan.ctx.OMSetRenderTarget( VK_NULL_HANDLE, depthBuffer->m_imageView );
         }
         else
         {
             colorBuffer->_ClearResolvedFlag();
-            g_vulkan.ctx.OMSetRenderTarget( &colorBuffer->m_imageView, VK_NULL_HANDLE );
+            g_vulkan.ctx.OMSetRenderTarget( colorBuffer->m_imageView, VK_NULL_HANDLE );
         }
     }
 

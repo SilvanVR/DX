@@ -41,9 +41,9 @@ namespace Graphics { namespace Vulkan {
         _CreateGPUAllocator();
         for (U32 i = 0; i < NUM_FRAME_DATA; i++)
         {
-            m_frameData[i].cmd.create( queueFamilyGraphicsIndex, 
-                                       VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
-                                       VK_FENCE_CREATE_SIGNALED_BIT );
+            m_frameData[i].cmd = new CmdBuffer( queueFamilyGraphicsIndex, 
+                                                VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
+                                                VK_FENCE_CREATE_SIGNALED_BIT );
 
             VkSemaphoreCreateInfo semaphoreCreateInfo{ VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO };
             vkCreateSemaphore( g_vulkan.device, &semaphoreCreateInfo, ALLOCATOR, &m_frameData[i].semPresentComplete );
@@ -59,7 +59,7 @@ namespace Graphics { namespace Vulkan {
         ctx.Shutdown();
         for (U32 i = 0; i < NUM_FRAME_DATA; i++)
         {
-            m_frameData[i].cmd.release();
+            m_frameData[i].cmd->release();
             vkDestroySemaphore( g_vulkan.device, m_frameData[i].semPresentComplete, ALLOCATOR );
             vkDestroySemaphore( g_vulkan.device, m_frameData[i].semRenderingFinished, ALLOCATOR );
         }
@@ -90,6 +90,52 @@ namespace Graphics { namespace Vulkan {
     //**********************************************************************
     // PUBLIC
     //**********************************************************************
+
+    //----------------------------------------------------------------------
+    ColorImage* Platform::createColorImage(U32 width, U32 height, VkFormat format, VkSampleCountFlagBits samples, VkImageUsageFlags usage, VmaMemoryUsage memUsage)
+    {
+        return new ColorImage( width, height, format, samples, usage, memUsage );
+    }
+
+    //----------------------------------------------------------------------
+    ColorImage* Platform::createColorImage( VkImage image, U32 width, U32 height, VkFormat format, VkSampleCountFlagBits samples )
+    {
+        return new ColorImage( image, width, height, format, samples );
+    }
+
+    //----------------------------------------------------------------------
+    DepthImage* Platform::createDepthImage( U32 width, U32 height, VkFormat format, VkSampleCountFlagBits samples )
+    {
+        return new DepthImage( width, height, format, samples );
+    }
+
+    //----------------------------------------------------------------------
+    ImageView* Platform::createImageView( ColorImage* color )
+    {
+        return new ImageView( color );
+    }
+
+    //----------------------------------------------------------------------
+    ImageView* Platform::createImageView( DepthImage* depth )
+    {
+        return new ImageView( depth );
+    }
+
+    //----------------------------------------------------------------------
+    RenderPass* Platform::createRenderPass( const RenderPass::AttachmentDescription& color, const RenderPass::AttachmentDescription& depth )
+    {
+        // Check if renderpass already exists
+
+        return new RenderPass( color, depth );
+    }
+
+    //----------------------------------------------------------------------
+    Framebuffer* Platform::createFramebuffer( RenderPass* renderPass, ImageView* colorView, ImageView* depthView )
+    {
+        // Check if fbo already exists
+
+        return new Framebuffer( renderPass, colorView, depthView );
+    }
 
     //**********************************************************************
     // PUBLIC - FRIEND
@@ -362,10 +408,10 @@ namespace Graphics { namespace Vulkan {
     void Context::Shutdown()
     {
         for(auto& [hash, fb] : m_framebuffers)
-            fb.release();
+            fb->release();
         m_framebuffers.clear();
         for(auto& [hash, rp] : m_renderPasses)
-            rp.release();
+            rp->release();
         m_renderPasses.clear();
     }
 
@@ -441,7 +487,7 @@ namespace Graphics { namespace Vulkan {
     //----------------------------------------------------------------------
     void Context::Draw( U32 vertexCount, U32 instanceCount, U32 firstVertex, U32 firstInstance )
     {
-        g_vulkan.curDrawCmd().draw( vertexCount, instanceCount, firstVertex, firstInstance );
+        //g_vulkan.curDrawCmd().draw( vertexCount, instanceCount, firstVertex, firstInstance );
     }
 
     //**********************************************************************
@@ -513,9 +559,9 @@ namespace Graphics { namespace Vulkan {
                 depthAttachment.loadOp      = _GetLoadOp( m_depthAttachment.clearMode );
                 depthAttachment.finalLayout = m_depthAttachment.finalLayout;
             }
-            m_renderPasses[hash].create( colorAttachment, depthAttachment );
+            m_renderPasses[hash] = g_vulkan.createRenderPass( colorAttachment, depthAttachment );
         }
-        return &m_renderPasses[hash];
+        return m_renderPasses[hash];
     }
 
     //----------------------------------------------------------------------
@@ -534,8 +580,8 @@ namespace Graphics { namespace Vulkan {
             return nullptr;
 
         if (m_framebuffers.find(hash) == m_framebuffers.end())
-            m_framebuffers[hash].create( renderPass, m_colorAttachment.view, m_depthAttachment.view );
-        return &m_framebuffers[hash];
+            m_framebuffers[hash] = g_vulkan.createFramebuffer( renderPass, m_colorAttachment.view, m_depthAttachment.view );
+        return m_framebuffers[hash];
     }
 
 } } // End namespaces

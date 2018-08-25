@@ -58,9 +58,9 @@ namespace Graphics { namespace Vulkan {
         void EndFrame();
 
         // Dynamically built vulkan objects
-        std::unordered_map<U64, RenderPass>         m_renderPasses;
-        std::unordered_map<U64, Framebuffer>        m_framebuffers;
-        std::unordered_map<U64, GraphicsPipeline>   m_pipelines;
+        std::unordered_map<U64, RenderPass*>        m_renderPasses;
+        std::unordered_map<U64, Framebuffer*>       m_framebuffers;
+        std::unordered_map<U64, GraphicsPipeline*>  m_pipelines;
 
         // Context information
         RenderPass*         m_currentRenderPass;
@@ -104,7 +104,7 @@ namespace Graphics { namespace Vulkan {
         {
             VkSemaphore semPresentComplete;
             VkSemaphore semRenderingFinished;
-            CmdBuffer   cmd;
+            CmdBuffer*  cmd;
         };
     public:
         Platform() = default;
@@ -121,8 +121,17 @@ namespace Graphics { namespace Vulkan {
         Context         ctx;
 
         //----------------------------------------------------------------------
-        CmdBuffer& curDrawCmd() { return m_frameData[m_frameDataIndex].cmd; }
+        CmdBuffer& curDrawCmd() { return *m_frameData[m_frameDataIndex].cmd; }
         FrameData& curFrameData() { return m_frameData[m_frameDataIndex]; }
+
+        //----------------------------------------------------------------------
+        ColorImage* createColorImage(U32 width, U32 height, VkFormat format, VkSampleCountFlagBits samples, VkImageUsageFlags usage, VmaMemoryUsage memUsage);
+        ColorImage* createColorImage(VkImage image, U32 width, U32 height, VkFormat format, VkSampleCountFlagBits samples);
+        DepthImage* createDepthImage(U32 width, U32 height, VkFormat format, VkSampleCountFlagBits samples);
+        ImageView*  createImageView(ColorImage* color);
+        ImageView*  createImageView(DepthImage* depth);
+        RenderPass* createRenderPass(const RenderPass::AttachmentDescription& color, const RenderPass::AttachmentDescription& depth);
+        Framebuffer* createFramebuffer(RenderPass* renderPass, ImageView* colorView, ImageView* depthView);
 
     private:
         static const I32 NUM_FRAME_DATA = 2;
