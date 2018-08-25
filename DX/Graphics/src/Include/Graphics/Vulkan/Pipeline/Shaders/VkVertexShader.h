@@ -19,10 +19,12 @@ namespace Graphics { namespace Vulkan {
         ~VertexShader() = default;
 
         //----------------------------------------------------------------------
-        const VertexLayout& getVertexLayout() const { return m_vertexLayout; }
+        const VertexLayout&         getVertexLayout()   const { return m_vertexLayout; }
+        const VertexInputLayout&    getVkInputLayout()  const { return m_vkVertexInputLayout; }
 
     private:
-        VertexLayout m_vertexLayout;
+        VertexLayout        m_vertexLayout;
+        VertexInputLayout   m_vkVertexInputLayout;
 
         //----------------------------------------------------------------------
         virtual void _ShaderReflection(const ArrayList<uint32_t>& spv) override;

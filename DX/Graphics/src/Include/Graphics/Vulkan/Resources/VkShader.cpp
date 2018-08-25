@@ -22,14 +22,28 @@ namespace Graphics { namespace Vulkan {
     //----------------------------------------------------------------------
     void Shader::bind()
     {
-        // Bind pipeline
-        //g_vulkan.ctx.bindPipeline( m_pipeline );
+        if (m_pipelineLayout == VK_NULL_HANDLE)
+            _CreatePipelineLayout();
+
+        g_vulkan.ctx.SetPipelineLayout( m_pipelineLayout );
+        g_vulkan.ctx.SetVertexShader( m_pVertexShader->getVkShaderModule(), m_pVertexShader->getEntryPoint() );
+        g_vulkan.ctx.IASetInputLayout( m_pVertexShader->getVkInputLayout() );
+        g_vulkan.ctx.OMSetBlendState( 0, m_blendState );
+        g_vulkan.ctx.OMSetDepthStencilState( m_depthStencilState );
+        g_vulkan.ctx.RSSetState( m_rzState );
+
+        if (m_pFragmentShader)
+            g_vulkan.ctx.SetFragmentShader( m_pFragmentShader->getVkShaderModule(), m_pFragmentShader->getEntryPoint() );
+        if (m_pGeometryShader)
+            g_vulkan.ctx.SetGeometryShader( m_pGeometryShader->getVkShaderModule(), m_pGeometryShader->getEntryPoint() );
 
         //// Bind constant buffers and textures
         //if (m_shaderDataVS) m_shaderDataVS->bind( ShaderType::Vertex );
         //if (m_shaderDataPS) m_shaderDataPS->bind( ShaderType::Fragment );
         //if (m_shaderDataGS) m_shaderDataGS->bind( ShaderType::Geometry );
         //_BindTextures();
+
+        // Create descriptor-set layouts from shaders
     }
 
     //----------------------------------------------------------------------
@@ -265,6 +279,45 @@ namespace Graphics { namespace Vulkan {
         //if (m_shaderDataVS) m_shaderDataVS->update( name, pData );
         //if (m_shaderDataPS) m_shaderDataPS->update( name, pData );
         //if (m_shaderDataGS) m_shaderDataGS->update( name, pData );
+    }
+
+    //----------------------------------------------------------------------
+    void Shader::_CreatePipelineLayout()
+    {
+        //ArrayList<VkDescriptorSetLayoutBinding> bindings;
+        //for (auto& ubo : m_pVertexShader->getUniformBufferBindings())
+        //{
+        //    VkDescriptorSetLayoutBinding binding{};
+        //    binding.binding         = ubo.getBindingSlot();
+        //    binding.descriptorCount = 1;
+        //    binding.descriptorType  = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        //    binding.stageFlags      = VK_PIPELINE_STAGE_VERTEX_SHADER_BIT;
+        //    bindings.push_back( binding );
+        //}
+        //for (auto& res : m_pVertexShader->getResourceDeclarations())
+        //{
+        //    VkDescriptorSetLayoutBinding binding{};
+        //    binding.binding         = res.getBindingSlot();
+        //    binding.descriptorCount = 1;
+        //    binding.descriptorType  = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        //    binding.stageFlags      = VK_PIPELINE_STAGE_VERTEX_SHADER_BIT;
+        //    bindings.push_back( binding ); 
+        //}
+
+        //VkDescriptorSetLayoutCreateInfo createInfo2{ VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO };
+        //createInfo2.bindingCount = (U32)bindings.size();
+        //createInfo2.pBindings = bindings.data();
+
+        //VkDescriptorSetLayout descriptorSetLayout;
+        //vkCreateDescriptorSetLayout( g_vulkan.device, &createInfo2, ALLOCATOR, &descriptorSetLayout );
+
+        VkPipelineLayoutCreateInfo createInfo{ VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO };
+        createInfo.setLayoutCount           = 0;
+        createInfo.pSetLayouts              = VK_NULL_HANDLE;
+        createInfo.pushConstantRangeCount   = 0;
+        createInfo.pPushConstantRanges      = VK_NULL_HANDLE;
+
+        vkCreatePipelineLayout( g_vulkan.device, &createInfo, ALLOCATOR, &m_pipelineLayout );
     }
 
 } } // End namespaces

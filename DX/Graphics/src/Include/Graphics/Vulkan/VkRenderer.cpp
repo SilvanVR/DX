@@ -516,7 +516,7 @@ namespace Graphics {
         renderContext.BindMaterial( material );
 
         g_vulkan.ctx.RSSetViewports({ viewport.topLeftX, viewport.topLeftY, viewport.width, viewport.height, 0.0f, 1.0f });
-        //g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+        g_vulkan.ctx.IASetPrimitiveTopology( VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP );
         g_vulkan.ctx.Draw(3);
     }
 

@@ -37,6 +37,7 @@ namespace Graphics { namespace Vulkan {
         const ShaderResourceDeclaration*                    getResourceDeclaration(StringID name) const;
         const VkShaderModule&                               getVkShaderModule()         const { return m_shaderModule; }
         const PushConstant&                                 getPushConstant()           const { return m_pushConstant; }
+        CString                                             getEntryPoint()             const { return m_entryPoint.c_str(); }
 
         //----------------------------------------------------------------------
         // @Return:
@@ -67,6 +68,7 @@ namespace Graphics { namespace Vulkan {
         VkShaderModule  m_shaderModule;
         ShaderType      m_shaderType = ShaderType::Unknown;
         OS::Path        m_filePath;
+        String          m_entryPoint;
 
         // Resources + UBO's bound to this shader
         ArrayList<ShaderUniformBufferDeclaration>   m_uniformBuffers;

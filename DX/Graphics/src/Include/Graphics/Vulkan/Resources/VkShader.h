@@ -62,9 +62,10 @@ namespace Graphics { namespace Vulkan {
         std::unique_ptr<GeometryShader> m_pGeometryShader = nullptr;
         
         VkPipelineColorBlendAttachmentState     m_blendState{};
-        VkPipelineDepthStencilStateCreateInfo   m_depthStencilState{};
-        VkPipelineRasterizationStateCreateInfo  m_rzState{};
-        VkPipeline m_pipeline;
+        VkPipelineDepthStencilStateCreateInfo   m_depthStencilState{ VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO };
+        VkPipelineRasterizationStateCreateInfo  m_rzState{ VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO };
+
+        VkPipelineLayout m_pipelineLayout = VK_NULL_HANDLE;
 
         // Contains the data in a contiguous block of memory. Will be empty if not used for a shader.
         //std::unique_ptr<MappedConstantBuffer> m_shaderDataVS = nullptr;
@@ -84,6 +85,7 @@ namespace Graphics { namespace Vulkan {
         void _CreateVSConstantBuffer();
         void _CreatePSConstantBuffer();
         void _CreateGSConstantBuffer();
+        void _CreatePipelineLayout();
 
         NULL_COPY_AND_ASSIGN(Shader)
     };

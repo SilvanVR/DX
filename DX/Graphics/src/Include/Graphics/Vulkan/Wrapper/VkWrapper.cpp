@@ -470,21 +470,26 @@ namespace Graphics { namespace Vulkan {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    void GraphicsPipeline::addShaderModule( VkShaderStageFlagBits shaderStage, VkShaderModule shaderModule, CString entryPoint )
+    GraphicsPipeline::GraphicsPipeline()
+    {
+        m_rasterizationState.lineWidth = 1.0f;
+    }
+
+    //----------------------------------------------------------------------
+    void GraphicsPipeline::setShaderModule( VkShaderStageFlagBits shaderStage, VkShaderModule shaderModule, CString entryPoint )
     {
         VkPipelineShaderStageCreateInfo shaderStageInfo{ VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO };
         shaderStageInfo.stage  = shaderStage;
         shaderStageInfo.module = shaderModule;
         shaderStageInfo.pName  = entryPoint;
 
-        m_shaderStages.push_back( shaderStageInfo );
+        m_shaderStages[shaderStage] = shaderStageInfo;
     }
 
     //----------------------------------------------------------------------
-    void GraphicsPipeline::setVertexInputState( const ArrayList<VkVertexInputBindingDescription>& inputDesc, const ArrayList<VkVertexInputAttributeDescription>& attrDesc )
+    void GraphicsPipeline::setVertexInputState( const VertexInputLayout& inputLayout )
     {
-        m_vertexInputBindingDesc = inputDesc;
-        m_vertexInputAttrDesc    = attrDesc;
+        m_vertexInputLayout = inputLayout;
     }
 
     //----------------------------------------------------------------------
@@ -492,6 +497,12 @@ namespace Graphics { namespace Vulkan {
     {
         m_inputAssemblyState.primitiveRestartEnable = restartEnable;
         m_inputAssemblyState.topology               = topology;
+    }
+
+    //----------------------------------------------------------------------
+    void GraphicsPipeline::setRasterizationState( const VkPipelineRasterizationStateCreateInfo& rzState )
+    {
+        m_rasterizationState = rzState;
     }
 
     //----------------------------------------------------------------------
@@ -513,9 +524,14 @@ namespace Graphics { namespace Vulkan {
     }
 
     //----------------------------------------------------------------------
-    void GraphicsPipeline::setMultisampleState( VkSampleCountFlagBits samples, VkBool32 alphaToCoverabeEnable, VkBool32 alphaToOneEnable )
+    void GraphicsPipeline::setMultisampleState( VkSampleCountFlagBits samples )
     {
         m_multisampleState.rasterizationSamples  = samples;
+    }
+
+    //----------------------------------------------------------------------
+    void GraphicsPipeline::setMultisampleState( VkBool32 alphaToCoverabeEnable, VkBool32 alphaToOneEnable )
+    {
         m_multisampleState.alphaToCoverageEnable = alphaToCoverabeEnable;
         m_multisampleState.alphaToOneEnable      = alphaToOneEnable;
     }
@@ -525,6 +541,12 @@ namespace Graphics { namespace Vulkan {
     {
         m_multisampleState.sampleShadingEnable = sampleShadingEnable;
         m_multisampleState.minSampleShading    = minSampleShading;
+    }
+
+    //----------------------------------------------------------------------
+    void GraphicsPipeline::setDepthStencilState( const VkPipelineDepthStencilStateCreateInfo& dsState )
+    {
+        m_depthStencilState = dsState;
     }
 
     //----------------------------------------------------------------------
@@ -552,13 +574,21 @@ namespace Graphics { namespace Vulkan {
     }
 
     //----------------------------------------------------------------------
-    void GraphicsPipeline::addBlendAttachment( VkBlendFactor srcColorBlend, VkBlendFactor dstColorBlend, VkBlendOp colorBlendOp )
+    void GraphicsPipeline::setBlendState( U32 index, const VkPipelineColorBlendAttachmentState& blendState )
     {
-        addBlendAttachment( srcColorBlend, dstColorBlend, colorBlendOp, VK_BLEND_FACTOR_ONE, VK_BLEND_FACTOR_ZERO, VK_BLEND_OP_ADD );
+        if (index >= m_colorBlendAttachmentStates.size())
+            m_colorBlendAttachmentStates.resize( index + 1 );
+        m_colorBlendAttachmentStates[index] = blendState;
     }
 
     //----------------------------------------------------------------------
-    void GraphicsPipeline::addBlendAttachment( VkBlendFactor srcColorBlend, VkBlendFactor dstColorBlend, VkBlendOp colorBlendOp,
+    void GraphicsPipeline::setBlendAttachment( U32 index, VkBlendFactor srcColorBlend, VkBlendFactor dstColorBlend, VkBlendOp colorBlendOp )
+    {
+        setBlendAttachment( index, srcColorBlend, dstColorBlend, colorBlendOp, VK_BLEND_FACTOR_ONE, VK_BLEND_FACTOR_ZERO, VK_BLEND_OP_ADD );
+    }
+
+    //----------------------------------------------------------------------
+    void GraphicsPipeline::setBlendAttachment( U32 index, VkBlendFactor srcColorBlend, VkBlendFactor dstColorBlend, VkBlendOp colorBlendOp,
                                                VkBlendFactor srcAlphaBlend, VkBlendFactor dstAlphaBlend, VkBlendOp alphaBlendOp )
     {
         VkPipelineColorBlendAttachmentState blendState{};
@@ -570,7 +600,9 @@ namespace Graphics { namespace Vulkan {
         blendState.alphaBlendOp        = alphaBlendOp;
         blendState.colorWriteMask      = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
 
-        m_colorBlendAttachmentStates.push_back( blendState );
+        if (index >= m_colorBlendAttachmentStates.size())
+            m_colorBlendAttachmentStates.resize( index + 1 );
+        m_colorBlendAttachmentStates[index] = blendState;
     }
 
     //----------------------------------------------------------------------
@@ -580,13 +612,19 @@ namespace Graphics { namespace Vulkan {
     }
 
     //----------------------------------------------------------------------
-    void GraphicsPipeline::buildPipeline( VkPipelineLayout layout, VkRenderPass renderPass, U32 subPass )
+    void GraphicsPipeline::setPipelineLayout( VkPipelineLayout pipelineLayout )
+    {
+        m_pipelineLayout = pipelineLayout;
+    }
+
+    //----------------------------------------------------------------------
+    void GraphicsPipeline::buildPipeline( VkRenderPass renderPass, U32 subPass )
     {
         VkPipelineVertexInputStateCreateInfo vertexInputState{ VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO };
-        vertexInputState.vertexBindingDescriptionCount    = (U32)m_vertexInputBindingDesc.size();
-        vertexInputState.pVertexBindingDescriptions       = m_vertexInputBindingDesc.data();
-        vertexInputState.vertexAttributeDescriptionCount  = (U32)m_vertexInputAttrDesc.size();
-        vertexInputState.pVertexAttributeDescriptions     = m_vertexInputAttrDesc.data();
+        vertexInputState.vertexBindingDescriptionCount    = (U32)m_vertexInputLayout.bindingDesc.size();
+        vertexInputState.pVertexBindingDescriptions       = m_vertexInputLayout.bindingDesc.data();
+        vertexInputState.vertexAttributeDescriptionCount  = (U32)m_vertexInputLayout.attrDesc.size();
+        vertexInputState.pVertexAttributeDescriptions     = m_vertexInputLayout.attrDesc.data();
 
         m_colorBlendState.attachmentCount = (U32)m_colorBlendAttachmentStates.size();
         m_colorBlendState.pAttachments    = m_colorBlendAttachmentStates.data();
@@ -595,9 +633,13 @@ namespace Graphics { namespace Vulkan {
         dynamicState.dynamicStateCount  = (U32)m_dynamicStates.size();
         dynamicState.pDynamicStates     = m_dynamicStates.data();
 
+        ArrayList<VkPipelineShaderStageCreateInfo> shaderStages;
+        for (auto& [shaderType, shaderStage] : m_shaderStages)
+            shaderStages.push_back( shaderStage );
+
         VkGraphicsPipelineCreateInfo createInfo{ VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO };
-        createInfo.stageCount           = (U32)m_shaderStages.size();
-        createInfo.pStages              = m_shaderStages.data();
+        createInfo.stageCount           = (U32)shaderStages.size();
+        createInfo.pStages              = shaderStages.data();
         createInfo.pVertexInputState    = &vertexInputState;
         createInfo.pInputAssemblyState  = &m_inputAssemblyState;
         createInfo.pTessellationState   = VK_NULL_HANDLE;
@@ -607,7 +649,7 @@ namespace Graphics { namespace Vulkan {
         createInfo.pDepthStencilState   = &m_depthStencilState;
         createInfo.pColorBlendState     = &m_colorBlendState;
         createInfo.pDynamicState        = &dynamicState;
-        createInfo.layout               = layout;
+        createInfo.layout               = m_pipelineLayout;
         createInfo.renderPass           = renderPass;
         createInfo.subpass              = subPass;
         createInfo.basePipelineHandle   = VK_NULL_HANDLE;

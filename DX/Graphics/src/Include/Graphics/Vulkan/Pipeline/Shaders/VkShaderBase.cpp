@@ -67,6 +67,8 @@ namespace Graphics { namespace Vulkan {
         if ( not path.exists() )
             throw std::runtime_error( "Missing shader-file: '" + path.toString() + "'." );
 
+        m_entryPoint = entryPoint;
+
         // Load file
         OS::BinaryFile binaryShaderFile( path, OS::EFileMode::READ );
         String content = binaryShaderFile.readAll();
@@ -84,6 +86,7 @@ namespace Graphics { namespace Vulkan {
     //----------------------------------------------------------------------
     void ShaderBase::compileFromSource( const String& source, CString entryPoint )
     {
+        m_entryPoint = entryPoint;
         String shaderName = GetShaderTypeName( m_shaderType );
 
         StringID hash = SID( source.c_str() );

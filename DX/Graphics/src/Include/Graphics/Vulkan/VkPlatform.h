@@ -42,10 +42,19 @@ namespace Graphics { namespace Vulkan {
     public:
         void SetClearColor(Color color);
         void SetClearDepthStencil(F32 depth, U32 stencil);
+        void SetPipelineLayout(VkPipelineLayout pipelineLayout);
+        void IASetInputLayout(const VertexInputLayout& inputLayout);
+        void IASetPrimitiveTopology(VkPrimitiveTopology topology);
+        void SetVertexShader(VkShaderModule module, CString entryPoint);
+        void SetFragmentShader(VkShaderModule module, CString entryPoint);
+        void SetGeometryShader(VkShaderModule module, CString entryPoint);
         void OMSetRenderTarget(ImageView* color, ImageView* depth, 
                                VkImageLayout finalColorLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, 
                                VkImageLayout finalDepthLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+        void OMSetBlendState(U32 index, const VkPipelineColorBlendAttachmentState& blendState);
+        void OMSetDepthStencilState(const VkPipelineDepthStencilStateCreateInfo& dsState);
         void RSSetViewports(VkViewport viewport);
+        void RSSetState(const VkPipelineRasterizationStateCreateInfo& rzState);
         void ResolveImage(ColorImage* src, ColorImage* dst);
         void ResolveImage(DepthImage* src, DepthImage* dst);
         void Draw(U32 vertexCount, U32 instanceCount = 1, U32 firstVertex = 0, U32 firstInstance = 0);
@@ -61,11 +70,13 @@ namespace Graphics { namespace Vulkan {
         std::unordered_map<U64, RenderPass*>        m_renderPasses;
         std::unordered_map<U64, Framebuffer*>       m_framebuffers;
         std::unordered_map<U64, GraphicsPipeline*>  m_pipelines;
+        GraphicsPipeline*                           m_currentPipeline;
 
         // Context information
         RenderPass*         m_currentRenderPass;
         Framebuffer*        m_currentFramebuffer;
-        GraphicsPipeline*   m_currentPipeline;
+        bool                m_pipelineWasModified = false;
+        GraphicsPipeline*   m_currentBoundPipeline;
 
         struct Attachment
         {
@@ -78,13 +89,15 @@ namespace Graphics { namespace Vulkan {
         Attachment m_depthAttachment;
 
         void _ClearContext();
-        RenderPass* _GetRenderPass();
-        Framebuffer* _GetFramebuffer(RenderPass* renderPass);
+        RenderPass*     _GetRenderPass();
+        Framebuffer*    _GetFramebuffer(RenderPass* renderPass);
 
         U64 _RenderPassHash(Attachment& attachment);
         U64 _FramebufferHash(RenderPass* renderPass, Attachment& attachment);
 
         VkAttachmentLoadOp _GetLoadOp(ClearMode clearMode);
+
+        void _BindGraphicsPipeline();
     } ;
 
     //----------------------------------------------------------------------
@@ -125,13 +138,14 @@ namespace Graphics { namespace Vulkan {
         FrameData& curFrameData() { return m_frameData[m_frameDataIndex]; }
 
         //----------------------------------------------------------------------
-        ColorImage* createColorImage(U32 width, U32 height, VkFormat format, VkSampleCountFlagBits samples, VkImageUsageFlags usage, VmaMemoryUsage memUsage);
-        ColorImage* createColorImage(VkImage image, U32 width, U32 height, VkFormat format, VkSampleCountFlagBits samples);
-        DepthImage* createDepthImage(U32 width, U32 height, VkFormat format, VkSampleCountFlagBits samples);
-        ImageView*  createImageView(ColorImage* color);
-        ImageView*  createImageView(DepthImage* depth);
-        RenderPass* createRenderPass(const RenderPass::AttachmentDescription& color, const RenderPass::AttachmentDescription& depth);
-        Framebuffer* createFramebuffer(RenderPass* renderPass, ImageView* colorView, ImageView* depthView);
+        ColorImage*         createColorImage(U32 width, U32 height, VkFormat format, VkSampleCountFlagBits samples, VkImageUsageFlags usage, VmaMemoryUsage memUsage);
+        ColorImage*         createColorImage(VkImage image, U32 width, U32 height, VkFormat format, VkSampleCountFlagBits samples);
+        DepthImage*         createDepthImage(U32 width, U32 height, VkFormat format, VkSampleCountFlagBits samples);
+        ImageView*          createImageView(ColorImage* color);
+        ImageView*          createImageView(DepthImage* depth);
+        RenderPass*         createRenderPass(const RenderPass::AttachmentDescription& color, const RenderPass::AttachmentDescription& depth);
+        Framebuffer*        createFramebuffer(RenderPass* renderPass, ImageView* colorView, ImageView* depthView);
+        GraphicsPipeline*   createGraphicsPipeline();
 
     private:
         static const I32 NUM_FRAME_DATA = 2;

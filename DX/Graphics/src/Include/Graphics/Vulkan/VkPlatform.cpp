@@ -124,17 +124,19 @@ namespace Graphics { namespace Vulkan {
     //----------------------------------------------------------------------
     RenderPass* Platform::createRenderPass( const RenderPass::AttachmentDescription& color, const RenderPass::AttachmentDescription& depth )
     {
-        // Check if renderpass already exists
-
         return new RenderPass( color, depth );
     }
 
     //----------------------------------------------------------------------
     Framebuffer* Platform::createFramebuffer( RenderPass* renderPass, ImageView* colorView, ImageView* depthView )
     {
-        // Check if fbo already exists
-
         return new Framebuffer( renderPass, colorView, depthView );
+    }
+
+    //----------------------------------------------------------------------
+    GraphicsPipeline* Platform::createGraphicsPipeline()
+    {
+        return new GraphicsPipeline();
     }
 
     //**********************************************************************
@@ -401,7 +403,11 @@ namespace Graphics { namespace Vulkan {
     //----------------------------------------------------------------------
     void Context::Init()
     {
+        m_currentPipeline = g_vulkan.createGraphicsPipeline();
+        m_currentPipeline->addDynamicState( VK_DYNAMIC_STATE_SCISSOR );
+        m_currentPipeline->addDynamicState( VK_DYNAMIC_STATE_VIEWPORT );
 
+        m_pipelines[0] = m_currentPipeline;
     }
 
     //----------------------------------------------------------------------
@@ -413,6 +419,9 @@ namespace Graphics { namespace Vulkan {
         for(auto& [hash, rp] : m_renderPasses)
             rp->release();
         m_renderPasses.clear();
+        for (auto& [hash, pipe] : m_pipelines)
+            pipe->release();
+        m_pipelines.clear();
     }
 
     //----------------------------------------------------------------------
@@ -448,8 +457,51 @@ namespace Graphics { namespace Vulkan {
     }
 
     //----------------------------------------------------------------------
+    void Context::SetPipelineLayout( VkPipelineLayout pipelineLayout )
+    {
+        m_pipelineWasModified = true;
+        m_currentPipeline->setPipelineLayout( pipelineLayout );
+    }
+
+    //----------------------------------------------------------------------
+    void Context::IASetInputLayout( const VertexInputLayout& inputLayout )
+    {
+        m_pipelineWasModified = true;
+        m_currentPipeline->setVertexInputState( inputLayout );
+    }
+
+    //----------------------------------------------------------------------
+    void Context::IASetPrimitiveTopology( VkPrimitiveTopology topology )
+    {
+        m_pipelineWasModified = true;
+        m_currentPipeline->setInputAssemblyState( topology );
+    }
+
+    //----------------------------------------------------------------------
+    void Context::SetVertexShader( VkShaderModule module, CString entryPoint )
+    {
+        m_pipelineWasModified = true;
+        m_currentPipeline->setShaderModule( VK_SHADER_STAGE_VERTEX_BIT, module, entryPoint );
+    }
+
+    //----------------------------------------------------------------------
+    void Context::SetFragmentShader( VkShaderModule module, CString entryPoint )
+    {
+        m_pipelineWasModified = true;
+        m_currentPipeline->setShaderModule( VK_SHADER_STAGE_FRAGMENT_BIT, module, entryPoint );
+    }
+
+    //----------------------------------------------------------------------
+    void Context::SetGeometryShader( VkShaderModule module, CString entryPoint )
+    {
+        m_pipelineWasModified = true;
+        m_currentPipeline->setShaderModule( VK_SHADER_STAGE_GEOMETRY_BIT, module, entryPoint );
+    }
+
+    //----------------------------------------------------------------------
     void Context::OMSetRenderTarget( ImageView* color, ImageView* depth, VkImageLayout finalColorLayout, VkImageLayout finalDepthLayout )
     {
+        m_pipelineWasModified = true;
         if (m_currentRenderPass)
             g_vulkan.curDrawCmd().endRenderPass();
 
@@ -467,9 +519,30 @@ namespace Graphics { namespace Vulkan {
     }
 
     //----------------------------------------------------------------------
+    void Context::OMSetBlendState( U32 index, const VkPipelineColorBlendAttachmentState& blendState )
+    {
+        m_pipelineWasModified = true;
+        m_currentPipeline->setBlendState( index, blendState );
+    }
+
+    //----------------------------------------------------------------------
+    void Context::OMSetDepthStencilState( const VkPipelineDepthStencilStateCreateInfo& dsState )
+    {
+        m_pipelineWasModified = true;
+        m_currentPipeline->setDepthStencilState( dsState );
+    }
+
+    //----------------------------------------------------------------------
     void Context::RSSetViewports( VkViewport viewport )
     {
         g_vulkan.curDrawCmd().setViewport( viewport );
+    }
+
+    //----------------------------------------------------------------------
+    void Context::RSSetState( const VkPipelineRasterizationStateCreateInfo& rzState )
+    {
+        m_pipelineWasModified = true;
+        m_currentPipeline->setRasterizationState( rzState );
     }
 
     //----------------------------------------------------------------------
@@ -487,7 +560,9 @@ namespace Graphics { namespace Vulkan {
     //----------------------------------------------------------------------
     void Context::Draw( U32 vertexCount, U32 instanceCount, U32 firstVertex, U32 firstInstance )
     {
-        //g_vulkan.curDrawCmd().draw( vertexCount, instanceCount, firstVertex, firstInstance );
+        if (m_pipelineWasModified || m_currentBoundPipeline == nullptr)
+            _BindGraphicsPipeline();
+        g_vulkan.curDrawCmd().draw( vertexCount, instanceCount, firstVertex, firstInstance );
     }
 
     //**********************************************************************
@@ -499,8 +574,9 @@ namespace Graphics { namespace Vulkan {
     {
         m_colorAttachment = {};
         m_depthAttachment = {};
-        m_currentRenderPass  = VK_NULL_HANDLE;
-        m_currentFramebuffer = VK_NULL_HANDLE;
+        m_currentRenderPass     = VK_NULL_HANDLE;
+        m_currentFramebuffer    = VK_NULL_HANDLE;
+        m_currentBoundPipeline  = VK_NULL_HANDLE;
     }
 
     //----------------------------------------------------------------------
@@ -582,6 +658,20 @@ namespace Graphics { namespace Vulkan {
         if (m_framebuffers.find(hash) == m_framebuffers.end())
             m_framebuffers[hash] = g_vulkan.createFramebuffer( renderPass, m_colorAttachment.view, m_depthAttachment.view );
         return m_framebuffers[hash];
+    }
+
+    //----------------------------------------------------------------------
+    void Context::_BindGraphicsPipeline()
+    {
+        // Create new VkPipeline if not already done and bind it
+        if (m_currentPipeline->pipeline == VK_NULL_HANDLE)
+        {
+            m_currentPipeline->setMultisampleState( m_currentFramebuffer->attachments[0]->img->samples );
+            m_currentPipeline->buildPipeline( m_currentRenderPass->renderPass, 0 );
+        }
+
+        m_currentBoundPipeline = m_currentPipeline;
+        g_vulkan.curDrawCmd().bindGraphicsPipeline( m_currentBoundPipeline->pipeline );
     }
 
 } } // End namespaces

@@ -137,39 +137,50 @@ namespace Graphics { namespace Vulkan {
     };
 
     //**********************************************************************
+    struct VertexInputLayout
+    {
+        ArrayList<VkVertexInputBindingDescription>   bindingDesc;
+        ArrayList<VkVertexInputAttributeDescription> attrDesc;
+    };
+
+    //**********************************************************************
     class GraphicsPipeline : public IVulkanResource
     {
     public:
-        GraphicsPipeline() = default;
+        GraphicsPipeline();
         ~GraphicsPipeline();
 
-        void addShaderModule(VkShaderStageFlagBits shaderStage, VkShaderModule shaderModule, CString entryPoint);
-        void setVertexInputState(const ArrayList<VkVertexInputBindingDescription>& inputDesc, const ArrayList<VkVertexInputAttributeDescription>& attrDesc);
+        void setShaderModule(VkShaderStageFlagBits shaderStage, VkShaderModule shaderModule, CString entryPoint);
+        void setVertexInputState(const VertexInputLayout& inputLayout);
         void setInputAssemblyState(VkPrimitiveTopology topology, VkBool32 restartEnable = VK_FALSE);
+        void setRasterizationState(const VkPipelineRasterizationStateCreateInfo& rzState);
         void setRasterizationState(VkBool32 depthClampEnable, VkPolygonMode polygonMode, VkCullModeFlags cullMode, VkFrontFace frontFace);
         void setRasterizationState(VkBool32 depthBiasEnable, F32 depthBiasConstantFactor, F32 depthBiasClamp, F32 depthBiasSlopeFactor);
-        void setMultisampleState(VkSampleCountFlagBits samples, VkBool32 alphaToCoverabeEnable, VkBool32 alphaToOneEnable);
+        void setMultisampleState(VkSampleCountFlagBits samples);
+        void setMultisampleState(VkBool32 alphaToCoverageEnable, VkBool32 alphaToOneEnable);
         void setMultisampleState(VkBool32 sampleShadingEnable, F32 minSampleShading);
+        void setDepthStencilState(const VkPipelineDepthStencilStateCreateInfo& dsState);
         void setDepthStencilState(VkBool32 depthTestEnable, VkBool32 depthWriteEnable, VkCompareOp depthCompareOp);
         void setDepthStencilState(VkBool32 stencilTestEnable, VkStencilOpState front, VkStencilOpState back);
         void setDepthStencilState(VkBool32 depthBoundsTestEnable, F32 minBounds, F32 maxBounds);
-        void addBlendAttachment(VkBlendFactor srcColorBlend, VkBlendFactor dstColorBlend, VkBlendOp colorBlendOp);
-        void addBlendAttachment(VkBlendFactor srcColorBlend, VkBlendFactor dstColorBlend, VkBlendOp colorBlendOp,
+        void setBlendState(U32 index, const VkPipelineColorBlendAttachmentState& blendState);
+        void setBlendAttachment(U32 index, VkBlendFactor srcColorBlend, VkBlendFactor dstColorBlend, VkBlendOp colorBlendOp);
+        void setBlendAttachment(U32 index, VkBlendFactor srcColorBlend, VkBlendFactor dstColorBlend, VkBlendOp colorBlendOp,
                                 VkBlendFactor srcAlphaBlend, VkBlendFactor dstAlphaBlend, VkBlendOp alphaBlendOp);
         void addDynamicState(VkDynamicState dynamicState);
-        void buildPipeline(VkPipelineLayout layout, VkRenderPass renderPass, U32 subPass = 0);
+        void setPipelineLayout(VkPipelineLayout pipelineLayout);
+        void buildPipeline(VkRenderPass renderPass, U32 subPass = 0);
 
-        VkPipeline pipeline;
+        VkPipeline pipeline = VK_NULL_HANDLE;
 
     private:
-        ArrayList<VkPipelineShaderStageCreateInfo>      m_shaderStages;
+        HashMap<VkShaderStageFlagBits, VkPipelineShaderStageCreateInfo> m_shaderStages;
 
-        ArrayList<VkVertexInputBindingDescription>      m_vertexInputBindingDesc;
-        ArrayList<VkVertexInputAttributeDescription>    m_vertexInputAttrDesc;
+        VertexInputLayout                               m_vertexInputLayout;
 
         VkPipelineInputAssemblyStateCreateInfo          m_inputAssemblyState{ VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO };
 
-        VkPipelineViewportStateCreateInfo               m_viewportState{ VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO };
+        VkPipelineViewportStateCreateInfo               m_viewportState{ VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO, 0, 0, 1, 0, 1 };
 
         VkPipelineRasterizationStateCreateInfo          m_rasterizationState{ VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO };
 
@@ -181,6 +192,8 @@ namespace Graphics { namespace Vulkan {
         VkPipelineColorBlendStateCreateInfo             m_colorBlendState{ VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO };
 
         ArrayList<VkDynamicState>                       m_dynamicStates;
+
+        VkPipelineLayout                                m_pipelineLayout;
     };
 
 } } // End namespaces
