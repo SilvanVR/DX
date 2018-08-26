@@ -120,9 +120,6 @@
     <ClCompile Include="src\Include\Graphics\Vulkan\VkUtility.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Include\Graphics\Vulkan\Ext\impl.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\Include\Graphics\Vulkan\VkPlatform.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -136,42 +133,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Include\Graphics\Vulkan\Resources\VkMesh.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\VkVertexShader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\VkFragmentShader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\VkGeometryShader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\VkShaderBase.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\SpirvCross\spirv_cfg.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\SpirvCross\spirv_cpp.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\SpirvCross\spirv_cross.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\SpirvCross\spirv_cross_util.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\SpirvCross\spirv_glsl.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\SpirvCross\spirv_hlsl.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\SpirvCross\spirv_msl.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\SpirvCross\spirv_reflect.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Include\Graphics\Vulkan\Resources\VkMaterial.cpp">
@@ -192,7 +153,7 @@
     <ClCompile Include="src\Include\Graphics\Vulkan\Resources\VkTexture2DArray.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Include\Graphics\Vulkan\Wrapper\VkWrapper.cpp">
+    <ClCompile Include="src\Include\Graphics\Vulkan\Pipeline\VkShaderModule.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -344,12 +305,6 @@
     <ClInclude Include="src\Include\Graphics\Vulkan\VkUtility.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Include\Graphics\Vulkan\Ext\vk_mem_alloc.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Include\Graphics\Vulkan\Ext\simple_vulkan_synchronization.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\Include\Graphics\Vulkan\VkPlatform.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -368,49 +323,7 @@
     <ClInclude Include="src\Include\Graphics\Vulkan\Resources\VkShader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\VkVertexShader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\VkFragmentShader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\VkGeometryShader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\Include\Graphics\Vulkan\Resources\VkMesh.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\VkShaderBase.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\SpirvCross\spirv_reflect.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\SpirvCross\spirv.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\SpirvCross\spirv_cfg.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\SpirvCross\spirv_common.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\SpirvCross\spirv_cpp.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\SpirvCross\spirv_cross.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\SpirvCross\spirv_cross_util.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\SpirvCross\spirv_glsl.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\SpirvCross\spirv_hlsl.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Include\Graphics\Vulkan\Pipeline\Shaders\SpirvCross\spirv_msl.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Include\Graphics\Vulkan\Resources\VkMaterial.h">
@@ -431,7 +344,7 @@
     <ClInclude Include="src\Include\Graphics\Vulkan\Resources\VkTexture2DArray.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Include\Graphics\Vulkan\Wrapper\VkWrapper.h">
+    <ClInclude Include="src\Include\Graphics\Vulkan\Pipeline\VkShaderModule.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

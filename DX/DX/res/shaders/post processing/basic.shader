@@ -75,6 +75,11 @@ layout (location = 0) out vec4 outColor;
 // Descriptor-Sets
 layout (set = 0, binding = 0) uniform sampler2D Input0_S;
 
+layout (set = 0, binding = 1) uniform UBO
+{
+	vec4 test;
+};
+
 void main()
 {
 	outColor = texture(Input0_S, inUV);

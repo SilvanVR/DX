@@ -42,19 +42,6 @@ namespace Graphics { namespace Vulkan {
     private:
         bool m_resolved = false;
 
-        union
-        {
-            ColorImage* m_colorImage;
-            DepthImage* m_depthImage;
-        };
-        union
-        {
-            ColorImage* m_colorImageMS;
-            DepthImage* m_depthImageMS;
-        };
-
-        ImageView* m_imageView;
-
         //----------------------------------------------------------------------
         // ITexture Interface
         //----------------------------------------------------------------------

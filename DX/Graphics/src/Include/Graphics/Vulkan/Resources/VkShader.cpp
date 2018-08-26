@@ -6,36 +6,47 @@
     date: August 17, 2018
 **********************************************************************/
 
-#include "../Pipeline/Shaders/VkVertexShader.h"
-#include "../Pipeline/Shaders/VkFragmentShader.h"
-#include "../Pipeline/Shaders/VkGeometryShader.h"
+#include "../Pipeline/VkShaderModule.h"
 #include "../VkUtility.h"
+
+// Input ending with this are treated as instance attributes
+#define SEMANTIC_INSTANCED "_INSTANCE"
 
 namespace Graphics { namespace Vulkan {
 
     //----------------------------------------------------------------------
     Shader::Shader()
     {
-        _CreatePipeline();
+        setDepthStencilState({});
+        setRasterizationState({});
+    }
+
+    //----------------------------------------------------------------------
+    Shader::~Shader()
+    {
+        vezDestroyPipeline( g_vulkan.device, m_pipeline );
+        vezDestroyVertexInputFormat( g_vulkan.device, m_vertexInputFormat );
     }
 
     //----------------------------------------------------------------------
     void Shader::bind()
     {
-        if (m_pipelineLayout == VK_NULL_HANDLE)
-            _CreatePipelineLayout();
+        if (m_pipeline == VK_NULL_HANDLE)
+        {
+            _CreatePipeline();
+            _PipelineResourceReflection( m_pipeline );
+        }
 
-        g_vulkan.ctx.SetPipelineLayout( m_pipelineLayout );
-        g_vulkan.ctx.SetVertexShader( m_pVertexShader->getVkShaderModule(), m_pVertexShader->getEntryPoint() );
-        g_vulkan.ctx.IASetInputLayout( m_pVertexShader->getVkInputLayout() );
+        g_vulkan.ctx.SetVertexShader( m_pVertexShader->getVkShaderModule() );
+        //g_vulkan.ctx.IASetInputLayout( m_pVertexShader->getVkInputLayout() );
         g_vulkan.ctx.OMSetBlendState( 0, m_blendState );
         g_vulkan.ctx.OMSetDepthStencilState( m_depthStencilState );
         g_vulkan.ctx.RSSetState( m_rzState );
 
         if (m_pFragmentShader)
-            g_vulkan.ctx.SetFragmentShader( m_pFragmentShader->getVkShaderModule(), m_pFragmentShader->getEntryPoint() );
+            g_vulkan.ctx.SetFragmentShader( m_pFragmentShader->getVkShaderModule() );
         if (m_pGeometryShader)
-            g_vulkan.ctx.SetGeometryShader( m_pGeometryShader->getVkShaderModule(), m_pGeometryShader->getEntryPoint() );
+            g_vulkan.ctx.SetGeometryShader( m_pGeometryShader->getVkShaderModule() );
 
         //// Bind constant buffers and textures
         //if (m_shaderDataVS) m_shaderDataVS->bind( ShaderType::Vertex );
@@ -59,8 +70,8 @@ namespace Graphics { namespace Vulkan {
     //----------------------------------------------------------------------
     void Shader::compileFromFile( const OS::Path& vertPath, const OS::Path& fragPath, CString entryPoint )
     {
-        m_pVertexShader.reset( new Vulkan::VertexShader() );
-        m_pFragmentShader.reset( new Vulkan::FragmentShader() );
+        m_pVertexShader.reset( new Vulkan::ShaderModule( ShaderType::Vertex ) );
+        m_pFragmentShader.reset( new Vulkan::ShaderModule( ShaderType::Fragment ) );
 
         m_pVertexShader->compileFromFile( vertPath, entryPoint );
         m_pFragmentShader->compileFromFile( fragPath, entryPoint );
@@ -79,7 +90,7 @@ namespace Graphics { namespace Vulkan {
     //----------------------------------------------------------------------
     void Shader::compileVertexShaderFromSource( const String& src, CString entryPoint )
     {
-        auto vertShader = std::make_unique<Vulkan::VertexShader>();
+        auto vertShader = std::make_unique<Vulkan::ShaderModule>( ShaderType::Vertex );
 
         vertShader->compileFromSource( src, entryPoint );
 
@@ -90,7 +101,7 @@ namespace Graphics { namespace Vulkan {
     //----------------------------------------------------------------------
     void Shader::compileFragmentShaderFromSource( const String& src, CString entryPoint )
     {
-        auto pixelShader = std::make_unique<Vulkan::FragmentShader>();
+        auto pixelShader = std::make_unique<Vulkan::ShaderModule>( ShaderType::Fragment );
         pixelShader->compileFromSource( src, entryPoint );
 
         m_pFragmentShader.swap( pixelShader );
@@ -100,7 +111,7 @@ namespace Graphics { namespace Vulkan {
     //----------------------------------------------------------------------
     void Shader::compileGeometryShaderFromSource( const String& src, CString entryPoint )
     {
-        auto geometryShader = std::make_unique<Vulkan::GeometryShader>();
+        auto geometryShader = std::make_unique<Vulkan::ShaderModule>( ShaderType::Geometry );
         geometryShader->compileFromSource( src, entryPoint );
 
         m_pGeometryShader.swap( geometryShader );
@@ -110,63 +121,48 @@ namespace Graphics { namespace Vulkan {
     //----------------------------------------------------------------------
     const VertexLayout& Shader::getVertexLayout() const 
     { 
-        return m_pVertexShader->getVertexLayout(); 
+        return m_vertexLayout;
     }
 
     //----------------------------------------------------------------------
     const ShaderUniformBufferDeclaration* Shader::getVSUniformMaterialBuffer() const 
     {
-        return m_pVertexShader->getMaterialBufferDeclaration();
+        return nullptr;
     }
 
     //----------------------------------------------------------------------
     const ShaderUniformBufferDeclaration* Shader::getFSUniformMaterialBuffer() const 
     { 
-        return m_pFragmentShader->getMaterialBufferDeclaration();
+        return nullptr;
     }
 
     //----------------------------------------------------------------------
     const ShaderUniformBufferDeclaration* Shader::getGSUniformMaterialBuffer() const 
     { 
-        return m_pGeometryShader->getMaterialBufferDeclaration();
+        return nullptr;
     }
 
     //----------------------------------------------------------------------
     const ShaderUniformBufferDeclaration* Shader::getVSUniformShaderBuffer() const
     {
-        return m_pVertexShader->getShaderBufferDeclaration();
+        return nullptr;
     }
 
     //----------------------------------------------------------------------
     const ShaderUniformBufferDeclaration* Shader::getFSUniformShaderBuffer() const
     {
-        return m_pFragmentShader->getShaderBufferDeclaration();
+        return nullptr;
     }
 
     //----------------------------------------------------------------------
     const ShaderUniformBufferDeclaration* Shader::getGSUniformShaderBuffer() const
     {
-        return m_pGeometryShader->getShaderBufferDeclaration();
+        return nullptr;
     }
 
     //----------------------------------------------------------------------
     const ShaderResourceDeclaration* Shader::getShaderResource( StringID name ) const
     {
-        auto decl1 = m_pVertexShader->getResourceDeclaration( name );
-        auto decl2 = m_pFragmentShader ? m_pFragmentShader->getResourceDeclaration( name ) : nullptr;
-        auto decl3 = m_pGeometryShader ? m_pGeometryShader->getResourceDeclaration( name ) : nullptr;
-
-        if ( decl1 && decl2 && decl3 )
-            LOG_WARN_RENDERING( "Shader::getShaderResource(): Resource with name '" + name.toString() + "' exists in more than one shader." );
-
-        if (decl1)
-            return decl1;
-        else if (decl2)
-            return decl2;
-        else if (decl3)
-            return decl3;
-
-        // Not found
         return nullptr;
     }
 
@@ -232,8 +228,168 @@ namespace Graphics { namespace Vulkan {
     //----------------------------------------------------------------------
     void Shader::_CreatePipeline()
     {
-        setDepthStencilState({});
-        setRasterizationState({});
+        // Add shader modules
+        ArrayList<VezPipelineShaderStageCreateInfo> shaderStageCreateInfos;
+        VezPipelineShaderStageCreateInfo stageCreateInfo{};
+        if (m_pVertexShader)
+        {
+            stageCreateInfo.module = m_pVertexShader->getVkShaderModule();
+            shaderStageCreateInfos.push_back( stageCreateInfo );
+        }
+        if (m_pFragmentShader)
+        {
+            stageCreateInfo.module = m_pFragmentShader->getVkShaderModule();
+            shaderStageCreateInfos.push_back( stageCreateInfo );
+        }
+        if (m_pGeometryShader)
+        {
+            stageCreateInfo.module = m_pGeometryShader->getVkShaderModule();
+            shaderStageCreateInfos.push_back( stageCreateInfo );
+        }
+
+        // Create pipeline
+        VezGraphicsPipelineCreateInfo pipelineCreateInfo = {};
+        pipelineCreateInfo.stageCount = static_cast<uint32_t>( shaderStageCreateInfos.size() );
+        pipelineCreateInfo.pStages    = shaderStageCreateInfos.data();
+        VALIDATE( vezCreateGraphicsPipeline( g_vulkan.device, &pipelineCreateInfo, &m_pipeline ) );
+    }
+
+    //----------------------------------------------------------------------
+    void Shader::_PipelineResourceReflection( VezPipeline pipeline )
+    {
+        U32 resourceCount;
+        vezEnumeratePipelineResources( pipeline, &resourceCount, NULL );
+        ArrayList<VezPipelineResource> resources( resourceCount );
+        vezEnumeratePipelineResources( pipeline, &resourceCount, resources.data() );
+
+        _CreateVertexLayout( resources );
+        _CreateShaderResources( resources );
+    }
+
+    //----------------------------------------------------------------------
+    // @Return: VkFormat and sizeInBytes for the corresponding resource.
+    //----------------------------------------------------------------------
+    std::pair<VkFormat, U32> GetTypeInfo( const VezPipelineResource& resource )
+    {
+        switch (resource.baseType)
+        {
+        case VEZ_PIPELINE_RESOURCE_BASE_TYPE_INT:
+        {
+            switch (resource.vecSize)
+            {
+            case 1: return { VK_FORMAT_R32_SINT, 4 };
+            case 2: return { VK_FORMAT_R32G32_SINT, 8 };
+            case 3: return { VK_FORMAT_R32G32B32_SINT, 12 };
+            case 4: return { VK_FORMAT_R32G32B32A32_SINT, 16 };
+            }
+        }
+        case VEZ_PIPELINE_RESOURCE_BASE_TYPE_UINT:
+        {
+            switch (resource.vecSize)
+            {
+            case 1: return { VK_FORMAT_R32_UINT, 4 };
+            case 2: return { VK_FORMAT_R32G32_UINT, 8 };
+            case 3: return { VK_FORMAT_R32G32B32_UINT, 12 };
+            case 4: return { VK_FORMAT_R32G32B32A32_UINT, 16 };
+            }
+        }
+        case VEZ_PIPELINE_RESOURCE_BASE_TYPE_FLOAT:
+        {
+            switch (resource.vecSize)
+            {
+            case 1: return { VK_FORMAT_R32_SFLOAT, 4 };
+            case 2: return { VK_FORMAT_R32G32_SFLOAT, 8 };
+            case 3: return { VK_FORMAT_R32G32B32_SFLOAT, 12 };
+            case 4: return { VK_FORMAT_R32G32B32A32_SFLOAT, 16 };
+            }
+        }
+        case VEZ_PIPELINE_RESOURCE_BASE_TYPE_DOUBLE:
+        {
+            switch (resource.vecSize)
+            {
+            case 1: return { VK_FORMAT_R64_SFLOAT, 8 };
+            case 2: return { VK_FORMAT_R64G64_SFLOAT, 16 };
+            case 3: return { VK_FORMAT_R64G64B64_SFLOAT, 24 };
+            case 4: return { VK_FORMAT_R64G64B64A64_SFLOAT, 32 };
+            }
+            break;
+        }
+        }
+        LOG_WARN_RENDERING( "VkShader::_CreateVertexLayout(): Unknown vertex inputs." );
+        return { VK_FORMAT_UNDEFINED, 0 };
+    }
+
+    //----------------------------------------------------------------------
+    void Shader::_CreateVertexLayout( const ArrayList<VezPipelineResource>& resources )
+    {
+        ArrayList<VkVertexInputBindingDescription>      bindingDescriptions;
+        ArrayList<VkVertexInputAttributeDescription>    attribDescriptions;
+        for (auto& res : resources)
+        {
+            if (not (res.stages & VK_SHADER_STAGE_VERTEX_BIT)) // Skip fragment input
+                continue;
+
+            switch (res.resourceType)
+            {
+            case VEZ_PIPELINE_RESOURCE_TYPE_INPUT:
+            {
+                String name = res.name;
+                Size pos = name.find( SEMANTIC_INSTANCED );
+                constexpr Size sizeOfInstancedName = (sizeof(SEMANTIC_INSTANCED) / sizeof(char)) - 1;
+                Size posIfNameIsAtEnd = name.size() - sizeOfInstancedName;
+                bool instanced = (pos != String::npos) && (pos == posIfNameIsAtEnd);
+
+                if (instanced)  // Cut-off the "SEMANTIC_INSTANCED"
+                    name = name.substr( 0, pos );
+
+                auto [format, sizeInBytes] = GetTypeInfo( res );
+
+                VkVertexInputAttributeDescription attrDesc{};
+                attrDesc.binding    = res.binding;
+                attrDesc.location   = res.location;
+                attrDesc.format     = format;
+                attribDescriptions.push_back( attrDesc );
+
+                VkVertexInputBindingDescription bindingDesc{};
+                bindingDesc.inputRate = instanced ? VK_VERTEX_INPUT_RATE_INSTANCE : VK_VERTEX_INPUT_RATE_VERTEX;
+                bindingDesc.binding   = res.binding;
+                bindingDesc.stride    = sizeInBytes;
+                bindingDescriptions.push_back( bindingDesc );
+
+                m_vertexLayout.add( { SID( name.c_str() ), sizeInBytes, instanced } );
+                break;
+            }
+            }
+        }
+        VezVertexInputFormatCreateInfo vertexInputFormatCreateInfo = {};
+        vertexInputFormatCreateInfo.vertexBindingDescriptionCount   = static_cast<U32>( bindingDescriptions.size() );
+        vertexInputFormatCreateInfo.pVertexBindingDescriptions      = bindingDescriptions.data();
+        vertexInputFormatCreateInfo.vertexAttributeDescriptionCount = static_cast<U32>( attribDescriptions.size() );
+        vertexInputFormatCreateInfo.pVertexAttributeDescriptions    = attribDescriptions.data();
+        VALIDATE( vezCreateVertexInputFormat( g_vulkan.device, &vertexInputFormatCreateInfo, &m_vertexInputFormat ) );
+    }
+
+    //----------------------------------------------------------------------
+    void Shader::_CreateShaderResources( const ArrayList<VezPipelineResource>& resources )
+    {
+        for (auto& res : resources)
+        {
+            switch (res.resourceType)
+            {
+            case VEZ_PIPELINE_RESOURCE_TYPE_UNIFORM_BUFFER:
+            {
+                ShaderUniformBufferDeclaration ubo( SID(res.name), res.set, res.binding, res.size );
+                // @TODO: Parse members
+                m_uniformBuffers.push_back( ubo );
+                break;
+            }
+            case VEZ_PIPELINE_RESOURCE_TYPE_SAMPLED_IMAGE:
+            case VEZ_PIPELINE_RESOURCE_TYPE_COMBINED_IMAGE_SAMPLER:
+                ShaderType shaderType = ShaderType::Unknown;
+                m_shaderResources.emplace_back( shaderType, res.set, res.binding, SID(res.name), DataType::Texture2D );
+                break;
+            }
+        }
     }
 
     //----------------------------------------------------------------------
@@ -279,45 +435,6 @@ namespace Graphics { namespace Vulkan {
         //if (m_shaderDataVS) m_shaderDataVS->update( name, pData );
         //if (m_shaderDataPS) m_shaderDataPS->update( name, pData );
         //if (m_shaderDataGS) m_shaderDataGS->update( name, pData );
-    }
-
-    //----------------------------------------------------------------------
-    void Shader::_CreatePipelineLayout()
-    {
-        //ArrayList<VkDescriptorSetLayoutBinding> bindings;
-        //for (auto& ubo : m_pVertexShader->getUniformBufferBindings())
-        //{
-        //    VkDescriptorSetLayoutBinding binding{};
-        //    binding.binding         = ubo.getBindingSlot();
-        //    binding.descriptorCount = 1;
-        //    binding.descriptorType  = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-        //    binding.stageFlags      = VK_PIPELINE_STAGE_VERTEX_SHADER_BIT;
-        //    bindings.push_back( binding );
-        //}
-        //for (auto& res : m_pVertexShader->getResourceDeclarations())
-        //{
-        //    VkDescriptorSetLayoutBinding binding{};
-        //    binding.binding         = res.getBindingSlot();
-        //    binding.descriptorCount = 1;
-        //    binding.descriptorType  = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        //    binding.stageFlags      = VK_PIPELINE_STAGE_VERTEX_SHADER_BIT;
-        //    bindings.push_back( binding ); 
-        //}
-
-        //VkDescriptorSetLayoutCreateInfo createInfo2{ VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO };
-        //createInfo2.bindingCount = (U32)bindings.size();
-        //createInfo2.pBindings = bindings.data();
-
-        //VkDescriptorSetLayout descriptorSetLayout;
-        //vkCreateDescriptorSetLayout( g_vulkan.device, &createInfo2, ALLOCATOR, &descriptorSetLayout );
-
-        VkPipelineLayoutCreateInfo createInfo{ VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO };
-        createInfo.setLayoutCount           = 0;
-        createInfo.pSetLayouts              = VK_NULL_HANDLE;
-        createInfo.pushConstantRangeCount   = 0;
-        createInfo.pPushConstantRanges      = VK_NULL_HANDLE;
-
-        vkCreatePipelineLayout( g_vulkan.device, &createInfo, ALLOCATOR, &m_pipelineLayout );
     }
 
 } } // End namespaces

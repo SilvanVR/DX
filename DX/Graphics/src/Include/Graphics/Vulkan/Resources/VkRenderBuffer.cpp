@@ -73,10 +73,10 @@ namespace Graphics { namespace Vulkan {
     void RenderBuffer::bindForRendering()
     {
         _ClearResolvedFlag();
-        if ( isDepthBuffer() )
-            g_vulkan.ctx.OMSetRenderTarget( VK_NULL_HANDLE, m_imageView );
-        else
-            g_vulkan.ctx.OMSetRenderTarget( m_imageView, VK_NULL_HANDLE );
+        //if ( isDepthBuffer() )
+        //    g_vulkan.ctx.OMSetRenderTarget( VK_NULL_HANDLE, m_imageView );
+        //else
+        //    g_vulkan.ctx.OMSetRenderTarget( m_imageView, VK_NULL_HANDLE );
     }
 
     //**********************************************************************
@@ -91,7 +91,7 @@ namespace Graphics { namespace Vulkan {
         {
             if (not m_resolved)
             {
-                g_vulkan.ctx.ResolveImage( m_colorImageMS, m_colorImage );
+                //g_vulkan.ctx.ResolveImage( m_colorImageMS, m_colorImage );
                 m_resolved = true;
             }
         }
@@ -134,42 +134,32 @@ namespace Graphics { namespace Vulkan {
     //----------------------------------------------------------------------
     void RenderBuffer::_CreateImage( bool isDepthBuffer )
     {
-        // If multisampling was requested create an additional buffer in which we render, but have to resolve it before using it in a shader
-        if (isDepthBuffer)
-        {
-            auto format = Utility::TranslateDepthFormat( m_depthFormat );
-            m_depthImage = g_vulkan.createDepthImage( m_width, m_height, format, VK_SAMPLE_COUNT_1_BIT );
-            if (isMultisampled())
-                m_depthImageMS = g_vulkan.createDepthImage( m_width, m_height, format, Utility::TranslateSampleCount( m_samplingDescription ) );
-            m_imageView = g_vulkan.createImageView( m_depthImage );
-        }
-        else
-        {
-            auto format = Utility::TranslateTextureFormat( m_format );
-            m_colorImage = g_vulkan.createColorImage( m_width, m_height, format, VK_SAMPLE_COUNT_1_BIT, 
-                                                      VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VMA_MEMORY_USAGE_GPU_ONLY );
+        //// If multisampling was requested create an additional buffer in which we render, but have to resolve it before using it in a shader
+        //if (isDepthBuffer)
+        //{
+        //    auto format = Utility::TranslateDepthFormat( m_depthFormat );
+        //    m_depthImage = g_vulkan.createDepthImage( m_width, m_height, format, VK_SAMPLE_COUNT_1_BIT );
+        //    if (isMultisampled())
+        //        m_depthImageMS = g_vulkan.createDepthImage( m_width, m_height, format, Utility::TranslateSampleCount( m_samplingDescription ) );
+        //    m_imageView = g_vulkan.createImageView( m_depthImage );
+        //}
+        //else
+        //{
+        //    auto format = Utility::TranslateTextureFormat( m_format );
+        //    m_colorImage = g_vulkan.createColorImage( m_width, m_height, format, VK_SAMPLE_COUNT_1_BIT, 
+        //                                              VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VMA_MEMORY_USAGE_GPU_ONLY );
 
-            if (isMultisampled())
-                m_colorImageMS = g_vulkan.createColorImage( m_width, m_height, format, Utility::TranslateSampleCount( m_samplingDescription ),
-                                                            VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VMA_MEMORY_USAGE_GPU_ONLY );
-            m_imageView = g_vulkan.createImageView( m_colorImage );
-        }
+        //    if (isMultisampled())
+        //        m_colorImageMS = g_vulkan.createColorImage( m_width, m_height, format, Utility::TranslateSampleCount( m_samplingDescription ),
+        //                                                    VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VMA_MEMORY_USAGE_GPU_ONLY );
+        //    m_imageView = g_vulkan.createImageView( m_colorImage );
+        //}
     }
 
     //----------------------------------------------------------------------
     void RenderBuffer::_DestroyBuffers( bool isDepthBuffer )
     {
-        m_imageView->release();
-        if (isDepthBuffer)
-        {
-            m_depthImage->release();
-            if (m_depthImageMS) m_depthImageMS->release();
-        }
-        else
-        {
-            m_colorImage->release();
-            if (m_colorImageMS) m_colorImageMS->release();
-        }
+
     }
 
 } } // End namespaces

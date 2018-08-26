@@ -9,5 +9,3 @@
 #include "VkPlatform.h"
 
 extern Graphics::Vulkan::Platform g_vulkan;
-
-#define VK_RELEASE(x) if(x){ x->Release(); x = nullptr; }

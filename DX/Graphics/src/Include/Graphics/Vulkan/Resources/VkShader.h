@@ -12,16 +12,14 @@
 namespace Graphics { namespace Vulkan {
 
     //----------------------------------------------------------------------
-    class VertexShader;
-    class FragmentShader;
-    class GeometryShader;
+    class ShaderModule;
 
     //**********************************************************************
     class Shader : public IShader
     {
     public:
         Shader();
-        ~Shader() = default;
+        ~Shader();
 
         //----------------------------------------------------------------------
         // IShader Interface
@@ -42,30 +40,33 @@ namespace Graphics { namespace Vulkan {
         bool                                    hasFragmentShader()     const override { return m_pFragmentShader != nullptr; }
         bool                                    hasGeometryShader()     const override { return m_pGeometryShader != nullptr; }
         bool                                    hasTessellationShader() const override { return false; }
-
-        void _SetInt(StringID name, I32 val)                            override { _UpdateConstantBuffer(name, &val); }
-        void _SetFloat(StringID name, F32 val)                          override { _UpdateConstantBuffer(name, &val); }
-        void _SetVec4(StringID name, const Math::Vec4& vec)             override { _UpdateConstantBuffer(name, &vec); }
-        void _SetMatrix(StringID name, const DirectX::XMMATRIX& matrix) override { _UpdateConstantBuffer(name, &matrix); }
-
-        void setRasterizationState(const RasterizationState& rzState) override;
-        void setDepthStencilState(const DepthStencilState& dsState) override;
-        void setBlendState(const BlendState& bState) override;
-
-        //----------------------------------------------------------------------
-        const VertexShader*     getVertexShader() const { return m_pVertexShader.get(); }
-        const FragmentShader*   getFragmentShader() const { return m_pFragmentShader.get(); }
+        void                                    setRasterizationState(const RasterizationState& rzState) override;
+        void                                    setDepthStencilState(const DepthStencilState& dsState) override;
+        void                                    setBlendState(const BlendState& bState) override;
 
     private:
-        std::unique_ptr<VertexShader>   m_pVertexShader = nullptr;
-        std::unique_ptr<FragmentShader> m_pFragmentShader  = nullptr;
-        std::unique_ptr<GeometryShader> m_pGeometryShader = nullptr;
+        std::unique_ptr<ShaderModule> m_pVertexShader = nullptr;
+        std::unique_ptr<ShaderModule> m_pFragmentShader  = nullptr;
+        std::unique_ptr<ShaderModule> m_pGeometryShader = nullptr;
         
+        VezPipeline             m_pipeline          = VK_NULL_HANDLE;
+        VezVertexInputFormat    m_vertexInputFormat = VK_NULL_HANDLE;
+
         VkPipelineColorBlendAttachmentState     m_blendState{};
         VkPipelineDepthStencilStateCreateInfo   m_depthStencilState{ VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO };
         VkPipelineRasterizationStateCreateInfo  m_rzState{ VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO };
 
-        VkPipelineLayout m_pipelineLayout = VK_NULL_HANDLE;
+        // Custom api independant data structures
+        VertexLayout m_vertexLayout;
+        ArrayList<ShaderUniformBufferDeclaration>   m_uniformBuffers;
+        ArrayList<ShaderResourceDeclaration>        m_shaderResources;
+
+        struct ShaderStageData
+        {
+            ShaderUniformBufferDeclaration* shaderUBO   = nullptr;
+            ShaderUniformBufferDeclaration* materialUBO = nullptr;
+        };
+
 
         // Contains the data in a contiguous block of memory. Will be empty if not used for a shader.
         //std::unique_ptr<MappedConstantBuffer> m_shaderDataVS = nullptr;
@@ -75,17 +76,23 @@ namespace Graphics { namespace Vulkan {
         //----------------------------------------------------------------------
         // IShader Interface
         //----------------------------------------------------------------------
+        void _SetInt(StringID name, I32 val)                            override { _UpdateConstantBuffer(name, &val); }
+        void _SetFloat(StringID name, F32 val)                          override { _UpdateConstantBuffer(name, &val); }
+        void _SetVec4(StringID name, const Math::Vec4& vec)             override { _UpdateConstantBuffer(name, &vec); }
+        void _SetMatrix(StringID name, const DirectX::XMMATRIX& matrix) override { _UpdateConstantBuffer(name, &matrix); }
         void bind() override;
         void unbind() override;
 
         //----------------------------------------------------------------------
         void _CreatePipeline();
+        void _PipelineResourceReflection(VezPipeline pipeline);
+        void _CreateVertexLayout(const ArrayList<VezPipelineResource>& resources);
+        void _CreateShaderResources(const ArrayList<VezPipelineResource>& resources);
         void _CreateConstantBuffers();
         void _UpdateConstantBuffer(StringID name, const void* pData);
         void _CreateVSConstantBuffer();
         void _CreatePSConstantBuffer();
         void _CreateGSConstantBuffer();
-        void _CreatePipelineLayout();
 
         NULL_COPY_AND_ASSIGN(Shader)
     };

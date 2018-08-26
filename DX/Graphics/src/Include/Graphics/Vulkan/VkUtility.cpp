@@ -191,17 +191,16 @@ namespace Graphics { namespace Vulkan { namespace Utility {
         return VK_FORMAT_UNDEFINED;
     }
 
-    ////----------------------------------------------------------------------
-    //VkFormat TranslateDepthFormatSRV( DepthFormat depth )
-    //{
-    //    switch (depth)
-    //    {
-    //    case DepthFormat::D16:      return VK_FORMAT_R16_SFLOAT; break;
-    //    case DepthFormat::D24S8:    return DXGI_FORMAT_R24G8_TYPELESS; break;
-    //    case DepthFormat::D32:      return DXGI_FORMAT_R32_TYPELESS; break;
-    //    }
-    //    ASSERT( false && "Oops! Depth format parameter are invalid." );
-    //    return VK_FORMAT_UNDEFINED;
-    //}
+    //----------------------------------------------------------------------
+    VkShaderStageFlagBits TranslateShaderStage( ShaderType shaderType )
+    {
+        switch (shaderType)
+        {
+        case ShaderType::Vertex:    return VK_SHADER_STAGE_VERTEX_BIT;
+        case ShaderType::Fragment:  return VK_SHADER_STAGE_FRAGMENT_BIT;
+        case ShaderType::Geometry:  return VK_SHADER_STAGE_GEOMETRY_BIT;
+        }
+        return {};
+    }
 
 } } }

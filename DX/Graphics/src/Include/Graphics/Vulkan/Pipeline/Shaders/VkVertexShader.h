@@ -20,11 +20,12 @@ namespace Graphics { namespace Vulkan {
 
         //----------------------------------------------------------------------
         const VertexLayout&         getVertexLayout()   const { return m_vertexLayout; }
-        const VertexInputLayout&    getVkInputLayout()  const { return m_vkVertexInputLayout; }
 
     private:
         VertexLayout        m_vertexLayout;
-        VertexInputLayout   m_vkVertexInputLayout;
+
+        ArrayList<VkVertexInputAttributeDescription>    m_attrDesc;
+        ArrayList<VkVertexInputBindingDescription>      m_bindingDesc;
 
         //----------------------------------------------------------------------
         virtual void _ShaderReflection(const ArrayList<uint32_t>& spv) override;

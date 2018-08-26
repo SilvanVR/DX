@@ -21,6 +21,8 @@
 #include "Resources/VkTexture2DArray.h"
 #include "VR/OculusRift/oculus_rift_vk.h"
 
+#define SWAPCHAIN_FORMAT VK_FORMAT_B8G8R8A8_UNORM
+
 namespace Graphics {
 
     using namespace Vulkan;
@@ -73,10 +75,10 @@ namespace Graphics {
         if ( not hasHMD() )
         {
             g_vulkan.CreateInstance({ VK_KHR_SURFACE_EXTENSION_NAME, VK_KHR_WIN32_SURFACE_EXTENSION_NAME });
-            m_swapchain.init( g_vulkan.instance, m_window );
+            m_swapchain.createSurface( g_vulkan.instance, m_window );
             g_vulkan.SelectPhysicalDevice();
             g_vulkan.CreateDevice( m_swapchain.getSurfaceKHR(), { VK_KHR_SWAPCHAIN_EXTENSION_NAME }, GetDeviceFeatures() );
-            m_swapchain.create( g_vulkan.gpu.physicalDevice, g_vulkan.device, m_vsync );
+            m_swapchain.createSwapchain( g_vulkan.device, m_window->getWidth(), m_window->getHeight(), SWAPCHAIN_FORMAT );
             g_vulkan.Init();
         }
 
@@ -206,7 +208,7 @@ namespace Graphics {
             return;
 
         // Recreate swapchain buffers
-        m_swapchain.recreate( m_vsync );
+        m_swapchain.recreate( w, h );
     }
 
     //**********************************************************************
@@ -219,10 +221,10 @@ namespace Graphics {
         if (m_window->getWidth() == 0 || m_window->getHeight() == 0)
             return;
 
+        _CheckVSync();
+
         // Record all commands
         g_vulkan.BeginFrame();
-        m_swapchain.acquireNextImageIndex( UINT64_MAX, g_vulkan.curFrameData().semPresentComplete );
-        m_swapchain.setImageLayout( g_vulkan.curDrawCmd(), VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL );
         {
             _LockQueue();
             for (auto& cmd : m_pendingCmdQueue)
@@ -230,8 +232,7 @@ namespace Graphics {
             m_pendingCmdQueue.clear();
             _UnlockQueue();
         }
-        m_swapchain.setImageLayout( g_vulkan.curDrawCmd(), VK_IMAGE_LAYOUT_PRESENT_SRC_KHR );
-        g_vulkan.EndFrame( g_vulkan.curFrameData().semPresentComplete, g_vulkan.curFrameData().semRenderingFinished );
+        g_vulkan.EndFrame();
 
         // Present rendered image to screen/hmd
         if ( hasHMD() )
@@ -282,13 +283,6 @@ namespace Graphics {
         return false;
     }
 
-    //----------------------------------------------------------------------
-    void VkRenderer::setVSync( bool enabled )
-    { 
-        IRenderer::setVSync( enabled );
-        m_swapchain.recreate( m_vsync );
-    }
-
     //**********************************************************************
     // PRIVATE
     //**********************************************************************
@@ -306,6 +300,19 @@ namespace Graphics {
     {
         m_gpuDescription.name = g_vulkan.gpu.properties.deviceName;
         m_gpuDescription.maxDedicatedMemoryMB = g_vulkan.gpu.memoryProperties.memoryHeaps[0].size;
+    }
+
+    //----------------------------------------------------------------------
+    void VkRenderer::_CheckVSync()
+    {
+        static bool lastVsync = m_vsync;
+        if (lastVsync != m_vsync)
+        {
+            auto result = vezDeviceSetVSync( g_vulkan.device, m_vsync );
+            if (result != VK_SUCCESS)
+                LOG_WARN_RENDERING( "VkRenderer: Could not set vsync. Reason: Feature not present yet." );
+            lastVsync = m_vsync;
+        }
     }
 
     //**********************************************************************
@@ -517,7 +524,7 @@ namespace Graphics {
 
         g_vulkan.ctx.RSSetViewports({ viewport.topLeftX, viewport.topLeftY, viewport.width, viewport.height, 0.0f, 1.0f });
         g_vulkan.ctx.IASetPrimitiveTopology( VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP );
-        g_vulkan.ctx.Draw(3);
+        //g_vulkan.ctx.Draw(3);
     }
 
     //**********************************************************************

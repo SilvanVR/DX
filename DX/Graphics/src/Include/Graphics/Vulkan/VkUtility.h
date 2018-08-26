@@ -35,6 +35,8 @@ namespace Graphics { namespace Vulkan { namespace Utility {
 
     //----------------------------------------------------------------------
     VkFormat TranslateDepthFormat( DepthFormat depth );
-    //VkFormat TranslateDepthFormatSRV( DepthFormat depth );
+
+    //----------------------------------------------------------------------
+    VkShaderStageFlagBits TranslateShaderStage(ShaderType shaderType);
 
 } } }

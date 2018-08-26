@@ -38,16 +38,10 @@ namespace Graphics { namespace Vulkan {
     void Platform::Init()
     {
         ASSERT( device && "Init function should be called after creating a device!" );
-        _CreateGPUAllocator();
         for (U32 i = 0; i < NUM_FRAME_DATA; i++)
         {
-            m_frameData[i].cmd = new CmdBuffer( queueFamilyGraphicsIndex, 
-                                                VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
-                                                VK_FENCE_CREATE_SIGNALED_BIT );
-
-            VkSemaphoreCreateInfo semaphoreCreateInfo{ VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO };
-            vkCreateSemaphore( g_vulkan.device, &semaphoreCreateInfo, ALLOCATOR, &m_frameData[i].semPresentComplete );
-            vkCreateSemaphore( g_vulkan.device, &semaphoreCreateInfo, ALLOCATOR, &m_frameData[i].semRenderingFinished );
+            VezCommandBufferAllocateInfo allocateInfo{ NULL, graphicsQueue, 1 };
+            vezAllocateCommandBuffers( device, &allocateInfo, &m_frameData[i].cmd );
         }
         ctx.Init();
     }
@@ -58,86 +52,52 @@ namespace Graphics { namespace Vulkan {
         vkDeviceWaitIdle( device );
         ctx.Shutdown();
         for (U32 i = 0; i < NUM_FRAME_DATA; i++)
-        {
-            m_frameData[i].cmd->release();
-            vkDestroySemaphore( g_vulkan.device, m_frameData[i].semPresentComplete, ALLOCATOR );
-            vkDestroySemaphore( g_vulkan.device, m_frameData[i].semRenderingFinished, ALLOCATOR );
-        }
-        vmaDestroyAllocator( allocator );
+            vezFreeCommandBuffers( device, 1, &m_frameData[i].cmd );
         vkDestroyDevice( device, ALLOCATOR );
 #ifdef VALIDATION_LAYERS 
         _DestroyDebugCallback( instance );
 #endif
-        vkDestroyInstance( instance, ALLOCATOR );
+        vezDestroyInstance( instance );
     }
 
     //----------------------------------------------------------------------
     void Platform::BeginFrame()
     {
         m_frameDataIndex = (m_frameDataIndex + 1) % NUM_FRAME_DATA;
-        curDrawCmd().wait();
-        curDrawCmd().begin();
+
+        // Wait on fence, so cmd can be safely reused
+        auto& curFD = curFrameData();
+        if (curFD.fence)
+        {
+            vezWaitForFences(device, 1, &curFD.fence, VK_TRUE, ~0);
+            vezDestroyFence(device, curFD.fence);
+            curFD.fence = VK_NULL_HANDLE;
+        }
+
+        // Begin recording
+        vezBeginCommandBuffer( curFrameData().cmd, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT );
+
         ctx.BeginFrame();
     }
 
     //----------------------------------------------------------------------
-    void Platform::EndFrame( VkSemaphore waitSemaphore, VkSemaphore signalSemaphore )
+    void Platform::EndFrame()
     {
         ctx.EndFrame();
-        curDrawCmd().exec( graphicsQueue, waitSemaphore, signalSemaphore );
+
+        vezEndCommandBuffer( curFrameData().cmd );
+
+        VezSubmitInfo submitInfo = {};
+        submitInfo.signalSemaphoreCount = 1;
+        submitInfo.pSignalSemaphores    = &curFrameData().semRenderingFinished;
+        submitInfo.commandBufferCount   = 1;
+        submitInfo.pCommandBuffers      = &curDrawCmd();
+        vezQueueSubmit( graphicsQueue, 1, &submitInfo, &curFrameData().fence );
     }
 
     //**********************************************************************
     // PUBLIC
     //**********************************************************************
-
-    //----------------------------------------------------------------------
-    ColorImage* Platform::createColorImage(U32 width, U32 height, VkFormat format, VkSampleCountFlagBits samples, VkImageUsageFlags usage, VmaMemoryUsage memUsage)
-    {
-        return new ColorImage( width, height, format, samples, usage, memUsage );
-    }
-
-    //----------------------------------------------------------------------
-    ColorImage* Platform::createColorImage( VkImage image, U32 width, U32 height, VkFormat format, VkSampleCountFlagBits samples )
-    {
-        return new ColorImage( image, width, height, format, samples );
-    }
-
-    //----------------------------------------------------------------------
-    DepthImage* Platform::createDepthImage( U32 width, U32 height, VkFormat format, VkSampleCountFlagBits samples )
-    {
-        return new DepthImage( width, height, format, samples );
-    }
-
-    //----------------------------------------------------------------------
-    ImageView* Platform::createImageView( ColorImage* color )
-    {
-        return new ImageView( color );
-    }
-
-    //----------------------------------------------------------------------
-    ImageView* Platform::createImageView( DepthImage* depth )
-    {
-        return new ImageView( depth );
-    }
-
-    //----------------------------------------------------------------------
-    RenderPass* Platform::createRenderPass( const RenderPass::AttachmentDescription& color, const RenderPass::AttachmentDescription& depth )
-    {
-        return new RenderPass( color, depth );
-    }
-
-    //----------------------------------------------------------------------
-    Framebuffer* Platform::createFramebuffer( RenderPass* renderPass, ImageView* colorView, ImageView* depthView )
-    {
-        return new Framebuffer( renderPass, colorView, depthView );
-    }
-
-    //----------------------------------------------------------------------
-    GraphicsPipeline* Platform::createGraphicsPipeline()
-    {
-        return new GraphicsPipeline();
-    }
 
     //**********************************************************************
     // PUBLIC - FRIEND
@@ -146,7 +106,14 @@ namespace Graphics { namespace Vulkan {
     //----------------------------------------------------------------------
     void Platform::CreateInstance( const ArrayList<String>& extensions )
     {
-        VkInstanceCreateInfo instanceInfo{ VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO };
+        VezApplicationInfo appInfo{};
+        appInfo.pApplicationName = "DX_VkRenderer";
+        appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
+        appInfo.pEngineName = "MyEngine";
+        appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
+
+        VezInstanceCreateInfo instanceInfo{};
+        instanceInfo.pApplicationInfo = &appInfo;
 
         auto instanceLayers = _GetRequiredInstanceLayers();
         instanceInfo.enabledLayerCount       = (U32)instanceLayers.size();
@@ -159,17 +126,7 @@ namespace Graphics { namespace Vulkan {
         instanceInfo.enabledExtensionCount   = (U32)instanceExtensions.size();
         instanceInfo.ppEnabledExtensionNames = instanceExtensions.data();
 
-        VkApplicationInfo appInfo{ VK_STRUCTURE_TYPE_APPLICATION_INFO };
-        appInfo.pApplicationName = "DX_VkRenderer";
-        appInfo.pEngineName = "DX_Engine";
-
-        U32 apiVersion = 0;
-        VALIDATE( vkEnumerateInstanceVersion( &apiVersion ) );
-        appInfo.apiVersion = VK_MAKE_VERSION( 1, 1, 0 ) <= apiVersion ? VK_MAKE_VERSION( 1, 1, 0 ) : VK_MAKE_VERSION( 1, 0, 0 );
-
-        instanceInfo.pApplicationInfo = &appInfo;
-
-        VALIDATE( vkCreateInstance( &instanceInfo, ALLOCATOR, &instance ) );
+        VALIDATE( vezCreateInstance( &instanceInfo, &instance ) );
 
 #ifdef _DEBUG
         _EnableDebugCallback( instance );
@@ -183,99 +140,54 @@ namespace Graphics { namespace Vulkan {
         if (not physicalDevice)
         {
             U32 physicalDeviceCount;
-            vkEnumeratePhysicalDevices( instance, &physicalDeviceCount, NULL );
+            vezEnumeratePhysicalDevices( instance, &physicalDeviceCount, NULL );
             ArrayList<VkPhysicalDevice> physicalDevices( physicalDeviceCount );
-            vkEnumeratePhysicalDevices( instance, &physicalDeviceCount, physicalDevices.data() );
+            vezEnumeratePhysicalDevices( instance, &physicalDeviceCount, physicalDevices.data() );
             if (physicalDeviceCount == 0) LOG_ERROR_RENDERING( "VkRenderer: No GPU found on your system." );
 
             // Pick first discrete gpu
             for (auto& pd : physicalDevices)
             {
                 VkPhysicalDeviceProperties props;
-                vkGetPhysicalDeviceProperties( pd, &props );
-                if (props.deviceType & VkPhysicalDeviceType::VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
+                vezGetPhysicalDeviceProperties( pd, &props );
+                if (props.deviceType & VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
                     gpu.physicalDevice = pd;
             }
 
             // No discrete gpu found. just pick first one
             if (not gpu.physicalDevice)
             {
-                LOG_WARN_RENDERING( "VkRenderer: No Discrete GPU found. Using another one. Performance might be not optimal." );
+                LOG_WARN_RENDERING( "VkRenderer: No Discrete GPU found. Using another one. Performance might be really bad." );
                 gpu.physicalDevice = physicalDevices[0];
             }
         }
 
         // Query all capabilities
         U32 queueCount;
-        vkGetPhysicalDeviceQueueFamilyProperties( gpu.physicalDevice, &queueCount, NULL );
+        vezGetPhysicalDeviceQueueFamilyProperties( gpu.physicalDevice, &queueCount, NULL );
         gpu.queueFamilyProperties.resize( queueCount );
-        vkGetPhysicalDeviceQueueFamilyProperties( gpu.physicalDevice, &queueCount, gpu.queueFamilyProperties.data() );
+        vezGetPhysicalDeviceQueueFamilyProperties( gpu.physicalDevice, &queueCount, gpu.queueFamilyProperties.data() );
 
-        vkGetPhysicalDeviceProperties( gpu.physicalDevice, &gpu.properties );
+        vezGetPhysicalDeviceProperties( gpu.physicalDevice, &gpu.properties );
         vkGetPhysicalDeviceMemoryProperties( gpu.physicalDevice, &gpu.memoryProperties );
-        vkGetPhysicalDeviceFeatures( gpu.physicalDevice, &gpu.supportedFeatures );
+        vezGetPhysicalDeviceFeatures( gpu.physicalDevice, &gpu.supportedFeatures );
     }
 
     //----------------------------------------------------------------------
     void Platform::CreateDevice( VkSurfaceKHR surface, const ArrayList<String>& extensions, const VkPhysicalDeviceFeatures& features )
     {
-        for (I32 i = 0; i < gpu.queueFamilyProperties.size(); ++i)
-        {
-            VkBool32 supportsPresent;
-            vkGetPhysicalDeviceSurfaceSupportKHR( gpu.physicalDevice, i, surface, &supportsPresent );
-
-            if (gpu.queueFamilyProperties[i].queueFlags & VK_QUEUE_GRAPHICS_BIT && queueFamilyGraphicsIndex < 0)
-                queueFamilyGraphicsIndex = i;
-            if (supportsPresent && gpu.queueFamilyProperties[i].queueFlags & VK_QUEUE_TRANSFER_BIT && queueFamilyTransferIndex < 0)
-                queueFamilyTransferIndex = i;
-        }
-        ASSERT( queueFamilyGraphicsIndex >= 0 && queueFamilyTransferIndex >= 0 && "VkRenderer: Couldn't find required queues." );
-
-        ArrayList<VkDeviceQueueCreateInfo> queueInfos;
-        F32 queuePriorities[] = { 1.0f, 0.0f };
-
-        I32 drawQueueIndex, xferQueueIndex;
-        VkDeviceQueueCreateInfo graphicQueueInfo{ VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO };
-        if (queueFamilyGraphicsIndex == queueFamilyTransferIndex)
-        {
-            drawQueueIndex = 0;
-            xferQueueIndex = 1;
-            graphicQueueInfo.queueFamilyIndex  = queueFamilyGraphicsIndex;
-            graphicQueueInfo.queueCount        = 2;
-            graphicQueueInfo.pQueuePriorities  = &queuePriorities[0];
-            queueInfos.push_back( graphicQueueInfo );
-        }
-        else
-        {
-            drawQueueIndex = xferQueueIndex = 0;
-            graphicQueueInfo.queueFamilyIndex  = queueFamilyGraphicsIndex;
-            graphicQueueInfo.queueCount        = 1;
-            graphicQueueInfo.pQueuePriorities  = &queuePriorities[0];
-            queueInfos.push_back( graphicQueueInfo );
-        
-            graphicQueueInfo.queueFamilyIndex  = queueFamilyTransferIndex;
-            graphicQueueInfo.queueCount        = 1;
-            graphicQueueInfo.pQueuePriorities  = &queuePriorities[1];
-            queueInfos.push_back( graphicQueueInfo );
-        }
-
         ArrayList<CString> deviceExtensions;
         for (auto& ext : extensions)
             deviceExtensions.push_back( ext.data() );
 
-        VkDeviceCreateInfo deviceInfo = {};
-        deviceInfo.sType                    = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-        deviceInfo.pNext                    = nullptr;
-        deviceInfo.queueCreateInfoCount     = (U32)queueInfos.size();
-        deviceInfo.pQueueCreateInfos        = queueInfos.data();
+        VezDeviceCreateInfo deviceInfo = {};
         deviceInfo.enabledExtensionCount    = (U32)deviceExtensions.size();
         deviceInfo.ppEnabledExtensionNames  = deviceExtensions.data();
-        deviceInfo.pEnabledFeatures         = &features;
 
-        vkCreateDevice( gpu.physicalDevice, &deviceInfo, ALLOCATOR, &device );
+        vezCreateDevice( gpu.physicalDevice, &deviceInfo, &device );
 
-        vkGetDeviceQueue( device, queueFamilyGraphicsIndex, drawQueueIndex, &graphicsQueue );
-        vkGetDeviceQueue( device, queueFamilyTransferIndex, xferQueueIndex, &transferQueue );
+        vezGetDeviceGraphicsQueue( device, 0, &graphicsQueue );
+        vezGetDeviceTransferQueue( device, 0, &transferQueue );
     }
 
     //**********************************************************************
@@ -313,10 +225,10 @@ namespace Graphics { namespace Vulkan {
     ArrayList<CString> Platform::_GetRequiredInstanceLayers()
     {
         U32 instanceLayerCount;
-        vkEnumerateInstanceLayerProperties( &instanceLayerCount, NULL );
+        vezEnumerateInstanceLayerProperties( &instanceLayerCount, NULL );
 
         ArrayList<VkLayerProperties> instanceLayerProperties( instanceLayerCount );
-        VALIDATE( vkEnumerateInstanceLayerProperties( &instanceLayerCount, instanceLayerProperties.data() ) );
+        VALIDATE( vezEnumerateInstanceLayerProperties( &instanceLayerCount, instanceLayerProperties.data() ) );
 
         ArrayList<CString> instanceLayers;
 #ifdef _DEBUG
@@ -341,9 +253,9 @@ namespace Graphics { namespace Vulkan {
     void Platform::_CheckInstanceExtensions( ArrayList<CString>& extensions )
     {
         U32 extensionCount;
-        vkEnumerateInstanceExtensionProperties( NULL, &extensionCount, NULL );
+        vezEnumerateInstanceExtensionProperties( NULL, &extensionCount, NULL );
         ArrayList<VkExtensionProperties> extensionProperties( extensionCount );
-        VALIDATE( vkEnumerateInstanceExtensionProperties( NULL, &extensionCount, extensionProperties.data() ) );
+        VALIDATE( vezEnumerateInstanceExtensionProperties( NULL, &extensionCount, extensionProperties.data() ) );
 
         for (auto it = extensions.begin(); it != extensions.end();)
         {
@@ -365,9 +277,9 @@ namespace Graphics { namespace Vulkan {
     void Platform::_CheckDeviceExtensions( ArrayList<CString>& extensions )
     {
         U32 extensionCount;
-        vkEnumerateDeviceExtensionProperties( gpu.physicalDevice, NULL, &extensionCount, NULL );
+        vezEnumerateDeviceExtensionProperties( gpu.physicalDevice, NULL, &extensionCount, NULL );
         ArrayList<VkExtensionProperties> extensionProperties( extensionCount );
-        VALIDATE( vkEnumerateInstanceExtensionProperties( NULL, &extensionCount, extensionProperties.data() ) );
+        VALIDATE( vezEnumerateDeviceExtensionProperties( gpu.physicalDevice, NULL, &extensionCount, extensionProperties.data() ) );
 
         for (auto it = extensions.begin(); it != extensions.end();)
         {
@@ -385,17 +297,6 @@ namespace Graphics { namespace Vulkan {
         }
     }
 
-    //----------------------------------------------------------------------
-    void Platform::_CreateGPUAllocator()
-    {
-        VmaAllocatorCreateInfo allocatorInfo = {};
-        allocatorInfo.physicalDevice = gpu.physicalDevice;
-        allocatorInfo.device = device;
-        allocatorInfo.pAllocationCallbacks = ALLOCATOR;
-
-        vmaCreateAllocator( &allocatorInfo, &allocator );
-    }
-
     //**********************************************************************
     // CONTEXT
     //**********************************************************************
@@ -403,38 +304,23 @@ namespace Graphics { namespace Vulkan {
     //----------------------------------------------------------------------
     void Context::Init()
     {
-        m_currentPipeline = g_vulkan.createGraphicsPipeline();
-        m_currentPipeline->addDynamicState( VK_DYNAMIC_STATE_SCISSOR );
-        m_currentPipeline->addDynamicState( VK_DYNAMIC_STATE_VIEWPORT );
-
-        m_pipelines[0] = m_currentPipeline;
     }
 
     //----------------------------------------------------------------------
     void Context::Shutdown()
     {
-        for(auto& [hash, fb] : m_framebuffers)
-            fb->release();
-        m_framebuffers.clear();
-        for(auto& [hash, rp] : m_renderPasses)
-            rp->release();
-        m_renderPasses.clear();
-        for (auto& [hash, pipe] : m_pipelines)
-            pipe->release();
-        m_pipelines.clear();
     }
 
     //----------------------------------------------------------------------
     void Context::BeginFrame()
     {
-        _ClearContext();
+
     }
 
     //----------------------------------------------------------------------
     void Context::EndFrame()
     {
-        if (m_currentRenderPass)
-            g_vulkan.curDrawCmd().endRenderPass();
+
     }
 
     //**********************************************************************
@@ -444,234 +330,101 @@ namespace Graphics { namespace Vulkan {
     //----------------------------------------------------------------------
     void Context::SetClearColor( Color color )
     {
-        auto colorNormalized = color.normalized();
-        m_colorAttachment.clearValue.color = { colorNormalized[0], colorNormalized[1], colorNormalized[2], colorNormalized[3] };
-        m_colorAttachment.clearMode = ClearMode::Clear;
+
     }
 
     //----------------------------------------------------------------------
     void Context::SetClearDepthStencil( F32 depth, U32 stencil ) 
     {
-        m_depthAttachment.clearValue.depthStencil = { depth, stencil };
-        m_depthAttachment.clearMode = ClearMode::Clear;
+
     }
 
     //----------------------------------------------------------------------
     void Context::SetPipelineLayout( VkPipelineLayout pipelineLayout )
     {
-        m_pipelineWasModified = true;
-        m_currentPipeline->setPipelineLayout( pipelineLayout );
+
     }
 
     //----------------------------------------------------------------------
-    void Context::IASetInputLayout( const VertexInputLayout& inputLayout )
-    {
-        m_pipelineWasModified = true;
-        m_currentPipeline->setVertexInputState( inputLayout );
-    }
+    //void Context::IASetInputLayout( const VertexInputLayout& inputLayout )
+    //{
+
+    //}
 
     //----------------------------------------------------------------------
     void Context::IASetPrimitiveTopology( VkPrimitiveTopology topology )
     {
-        m_pipelineWasModified = true;
-        m_currentPipeline->setInputAssemblyState( topology );
+
     }
 
     //----------------------------------------------------------------------
-    void Context::SetVertexShader( VkShaderModule module, CString entryPoint )
+    void Context::SetVertexShader( VkShaderModule module )
     {
-        m_pipelineWasModified = true;
-        m_currentPipeline->setShaderModule( VK_SHADER_STAGE_VERTEX_BIT, module, entryPoint );
+
     }
 
     //----------------------------------------------------------------------
-    void Context::SetFragmentShader( VkShaderModule module, CString entryPoint )
+    void Context::SetFragmentShader( VkShaderModule module )
     {
-        m_pipelineWasModified = true;
-        m_currentPipeline->setShaderModule( VK_SHADER_STAGE_FRAGMENT_BIT, module, entryPoint );
+
     }
 
     //----------------------------------------------------------------------
-    void Context::SetGeometryShader( VkShaderModule module, CString entryPoint )
+    void Context::SetGeometryShader( VkShaderModule module )
     {
-        m_pipelineWasModified = true;
-        m_currentPipeline->setShaderModule( VK_SHADER_STAGE_GEOMETRY_BIT, module, entryPoint );
+
     }
 
     //----------------------------------------------------------------------
-    void Context::OMSetRenderTarget( ImageView* color, ImageView* depth, VkImageLayout finalColorLayout, VkImageLayout finalDepthLayout )
-    {
-        m_pipelineWasModified = true;
-        if (m_currentRenderPass)
-            g_vulkan.curDrawCmd().endRenderPass();
+    //void Context::OMSetRenderTarget( ImageView* color, ImageView* depth, VkImageLayout finalColorLayout, VkImageLayout finalDepthLayout )
+    //{
 
-        m_colorAttachment.view = color;
-        m_depthAttachment.view = depth;
-        m_colorAttachment.finalLayout = finalColorLayout;
-        m_depthAttachment.finalLayout = finalDepthLayout;
-
-        m_currentRenderPass = _GetRenderPass();
-        if (m_currentRenderPass)
-        {
-            m_currentFramebuffer = _GetFramebuffer( m_currentRenderPass );
-            g_vulkan.curDrawCmd().beginRenderPass( m_currentRenderPass, m_currentFramebuffer, { m_colorAttachment.clearValue, m_depthAttachment.clearValue } );
-        }
-    }
+    //}
 
     //----------------------------------------------------------------------
     void Context::OMSetBlendState( U32 index, const VkPipelineColorBlendAttachmentState& blendState )
     {
-        m_pipelineWasModified = true;
-        m_currentPipeline->setBlendState( index, blendState );
+
     }
 
     //----------------------------------------------------------------------
     void Context::OMSetDepthStencilState( const VkPipelineDepthStencilStateCreateInfo& dsState )
     {
-        m_pipelineWasModified = true;
-        m_currentPipeline->setDepthStencilState( dsState );
+
     }
 
     //----------------------------------------------------------------------
     void Context::RSSetViewports( VkViewport viewport )
     {
-        g_vulkan.curDrawCmd().setViewport( viewport );
+ 
     }
 
     //----------------------------------------------------------------------
     void Context::RSSetState( const VkPipelineRasterizationStateCreateInfo& rzState )
     {
-        m_pipelineWasModified = true;
-        m_currentPipeline->setRasterizationState( rzState );
+
     }
 
     //----------------------------------------------------------------------
-    void Context::ResolveImage( ColorImage* src, ColorImage* dst )
-    {
-        g_vulkan.curDrawCmd().resolveImage( src, dst );
-    }
+    //void Context::ResolveImage( ColorImage* src, ColorImage* dst )
+    //{
+    //    g_vulkan.curDrawCmd().resolveImage( src, dst );
+    //}
 
-    //----------------------------------------------------------------------
-    void Context::ResolveImage( DepthImage* src, DepthImage* dst )
-    {
-        g_vulkan.curDrawCmd().resolveImage( src, dst );
-    }
+    ////----------------------------------------------------------------------
+    //void Context::ResolveImage( DepthImage* src, DepthImage* dst )
+    //{
+    //    g_vulkan.curDrawCmd().resolveImage( src, dst );
+    //}
 
-    //----------------------------------------------------------------------
-    void Context::Draw( U32 vertexCount, U32 instanceCount, U32 firstVertex, U32 firstInstance )
-    {
-        if (m_pipelineWasModified || m_currentBoundPipeline == nullptr)
-            _BindGraphicsPipeline();
-        g_vulkan.curDrawCmd().draw( vertexCount, instanceCount, firstVertex, firstInstance );
-    }
+    ////----------------------------------------------------------------------
+    //void Context::Draw( U32 vertexCount, U32 instanceCount, U32 firstVertex, U32 firstInstance )
+    //{
+    //    g_vulkan.curDrawCmd().draw( vertexCount, instanceCount, firstVertex, firstInstance );
+    //}
 
     //**********************************************************************
     // PRIVATE
     //**********************************************************************
-
-    //----------------------------------------------------------------------
-    void Context::_ClearContext()
-    {
-        m_colorAttachment = {};
-        m_depthAttachment = {};
-        m_currentRenderPass     = VK_NULL_HANDLE;
-        m_currentFramebuffer    = VK_NULL_HANDLE;
-        m_currentBoundPipeline  = VK_NULL_HANDLE;
-    }
-
-    //----------------------------------------------------------------------
-    VkAttachmentLoadOp Context::_GetLoadOp( ClearMode clearMode )
-    {
-        switch (clearMode)
-        {
-        case ClearMode::DontCare:   return VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-        case ClearMode::Load:       return VK_ATTACHMENT_LOAD_OP_LOAD;
-        case ClearMode::Clear:      return VK_ATTACHMENT_LOAD_OP_CLEAR;
-        }
-        ASSERT(false);
-        return VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-    }
-
-    //----------------------------------------------------------------------
-    U64 Context::_RenderPassHash( Attachment& attachment )
-    {
-        return attachment.view->img->format * attachment.view->img->samples * (U64)attachment.clearMode * attachment.finalLayout;
-    }
-
-    //----------------------------------------------------------------------
-    U64 Context::_FramebufferHash( RenderPass* renderPass, Attachment& attachment )
-    {
-        auto view = attachment.view;
-        return (U64)renderPass->renderPass * (U64)view->view * view->img->width * view->img->height;
-    }
-
-    //----------------------------------------------------------------------
-    RenderPass* Context::_GetRenderPass()
-    {
-        U64 hash = 0;
-        if (m_colorAttachment.view && m_depthAttachment.view)
-            hash = _RenderPassHash( m_colorAttachment ) ^ _RenderPassHash( m_depthAttachment );
-        else if (m_colorAttachment.view)
-            hash = _RenderPassHash( m_colorAttachment );
-        else if (m_depthAttachment.view)
-            hash = _RenderPassHash( m_depthAttachment );
-
-        if (hash == 0)
-            return nullptr;
-
-        if (m_renderPasses.find(hash) == m_renderPasses.end())
-        {
-            RenderPass::AttachmentDescription colorAttachment{};
-            if (m_colorAttachment.view)
-            {
-                colorAttachment.img             = m_colorAttachment.view->img;
-                colorAttachment.loadOp          = _GetLoadOp( m_colorAttachment.clearMode );
-                colorAttachment.finalLayout     = m_colorAttachment.finalLayout;
-            }
-            RenderPass::AttachmentDescription depthAttachment{};
-            if (m_depthAttachment.view)
-            {
-                depthAttachment.img         = m_depthAttachment.view->img;
-                depthAttachment.loadOp      = _GetLoadOp( m_depthAttachment.clearMode );
-                depthAttachment.finalLayout = m_depthAttachment.finalLayout;
-            }
-            m_renderPasses[hash] = g_vulkan.createRenderPass( colorAttachment, depthAttachment );
-        }
-        return m_renderPasses[hash];
-    }
-
-    //----------------------------------------------------------------------
-    Framebuffer* Context::_GetFramebuffer( RenderPass* renderPass )
-    {
-        ASSERT( renderPass->renderPass );
-        U64 hash = 0;
-        if (m_colorAttachment.view && m_depthAttachment.view)
-            hash = _FramebufferHash( renderPass, m_colorAttachment ) ^ _FramebufferHash( renderPass, m_depthAttachment );
-        else if (m_colorAttachment.view)
-            hash = _FramebufferHash( renderPass, m_colorAttachment );
-        else if (m_depthAttachment.view)
-            hash = _FramebufferHash( renderPass, m_depthAttachment );
-
-        if (hash == 0)
-            return nullptr;
-
-        if (m_framebuffers.find(hash) == m_framebuffers.end())
-            m_framebuffers[hash] = g_vulkan.createFramebuffer( renderPass, m_colorAttachment.view, m_depthAttachment.view );
-        return m_framebuffers[hash];
-    }
-
-    //----------------------------------------------------------------------
-    void Context::_BindGraphicsPipeline()
-    {
-        // Create new VkPipeline if not already done and bind it
-        if (m_currentPipeline->pipeline == VK_NULL_HANDLE)
-        {
-            m_currentPipeline->setMultisampleState( m_currentFramebuffer->attachments[0]->img->samples );
-            m_currentPipeline->buildPipeline( m_currentRenderPass->renderPass, 0 );
-        }
-
-        m_currentBoundPipeline = m_currentPipeline;
-        g_vulkan.curDrawCmd().bindGraphicsPipeline( m_currentBoundPipeline->pipeline );
-    }
 
 } } // End namespaces

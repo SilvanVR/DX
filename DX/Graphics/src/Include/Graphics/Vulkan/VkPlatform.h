@@ -9,11 +9,8 @@
 **********************************************************************/
 
 #define VK_USE_PLATFORM_WIN32_KHR
-#include <vulkan/vulkan.h>
-#include "OS/Window/window.h"
+#include "Ext/VEZ.h"
 #include "Logging/logging.h"
-#include "Ext/vk_mem_alloc.h"
-#include "Wrapper/VkWrapper.h"
 
 #define ALLOCATOR nullptr
 
@@ -37,27 +34,25 @@ namespace Graphics { namespace Vulkan {
     //**********************************************************************
     class Context
     {
-        enum class ClearMode { DontCare = 0, Clear, Load };
-
     public:
         void SetClearColor(Color color);
         void SetClearDepthStencil(F32 depth, U32 stencil);
         void SetPipelineLayout(VkPipelineLayout pipelineLayout);
-        void IASetInputLayout(const VertexInputLayout& inputLayout);
+        //void IASetInputLayout(const VertexInputLayout& inputLayout);
         void IASetPrimitiveTopology(VkPrimitiveTopology topology);
-        void SetVertexShader(VkShaderModule module, CString entryPoint);
-        void SetFragmentShader(VkShaderModule module, CString entryPoint);
-        void SetGeometryShader(VkShaderModule module, CString entryPoint);
-        void OMSetRenderTarget(ImageView* color, ImageView* depth, 
-                               VkImageLayout finalColorLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, 
-                               VkImageLayout finalDepthLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+        void SetVertexShader(VkShaderModule module);
+        void SetFragmentShader(VkShaderModule module);
+        void SetGeometryShader(VkShaderModule module);
+        //void OMSetRenderTarget(ImageView* color, ImageView* depth, 
+        //                       VkImageLayout finalColorLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, 
+        //                       VkImageLayout finalDepthLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
         void OMSetBlendState(U32 index, const VkPipelineColorBlendAttachmentState& blendState);
         void OMSetDepthStencilState(const VkPipelineDepthStencilStateCreateInfo& dsState);
         void RSSetViewports(VkViewport viewport);
         void RSSetState(const VkPipelineRasterizationStateCreateInfo& rzState);
-        void ResolveImage(ColorImage* src, ColorImage* dst);
-        void ResolveImage(DepthImage* src, DepthImage* dst);
-        void Draw(U32 vertexCount, U32 instanceCount = 1, U32 firstVertex = 0, U32 firstInstance = 0);
+        //void ResolveImage(ColorImage* src, ColorImage* dst);
+        //void ResolveImage(DepthImage* src, DepthImage* dst);
+        //void Draw(U32 vertexCount, U32 instanceCount = 1, U32 firstVertex = 0, U32 firstInstance = 0);
 
     private:
         friend class Platform;
@@ -65,39 +60,6 @@ namespace Graphics { namespace Vulkan {
         void Shutdown();
         void BeginFrame();
         void EndFrame();
-
-        // Dynamically built vulkan objects
-        std::unordered_map<U64, RenderPass*>        m_renderPasses;
-        std::unordered_map<U64, Framebuffer*>       m_framebuffers;
-        std::unordered_map<U64, GraphicsPipeline*>  m_pipelines;
-        GraphicsPipeline*                           m_currentPipeline;
-
-        // Context information
-        RenderPass*         m_currentRenderPass;
-        Framebuffer*        m_currentFramebuffer;
-        bool                m_pipelineWasModified = false;
-        GraphicsPipeline*   m_currentBoundPipeline;
-
-        struct Attachment
-        {
-            ImageView*      view;
-            ClearMode       clearMode;
-            VkClearValue    clearValue;
-            VkImageLayout   finalLayout;
-        };
-        Attachment m_colorAttachment;
-        Attachment m_depthAttachment;
-
-        void _ClearContext();
-        RenderPass*     _GetRenderPass();
-        Framebuffer*    _GetFramebuffer(RenderPass* renderPass);
-
-        U64 _RenderPassHash(Attachment& attachment);
-        U64 _FramebufferHash(RenderPass* renderPass, Attachment& attachment);
-
-        VkAttachmentLoadOp _GetLoadOp(ClearMode clearMode);
-
-        void _BindGraphicsPipeline();
     } ;
 
     //----------------------------------------------------------------------
@@ -115,10 +77,11 @@ namespace Graphics { namespace Vulkan {
     {
         struct FrameData
         {
-            VkSemaphore semPresentComplete;
-            VkSemaphore semRenderingFinished;
-            CmdBuffer*  cmd;
+            VkFence             fence = VK_NULL_HANDLE;
+            VkSemaphore         semRenderingFinished = VK_NULL_HANDLE;
+            VezCommandBuffer    cmd = VK_NULL_HANDLE;
         };
+
     public:
         Platform() = default;
         ~Platform() = default;
@@ -126,26 +89,13 @@ namespace Graphics { namespace Vulkan {
         VkInstance      instance                    = VK_NULL_HANDLE;
         VkDevice        device                      = VK_NULL_HANDLE;
         GPU             gpu;
-        I32             queueFamilyGraphicsIndex    = -1;
-        I32             queueFamilyTransferIndex    = -1;
         VkQueue         graphicsQueue               = VK_NULL_HANDLE;
         VkQueue         transferQueue               = VK_NULL_HANDLE;
-        VmaAllocator    allocator                   = VK_NULL_HANDLE;
         Context         ctx;
 
         //----------------------------------------------------------------------
-        CmdBuffer& curDrawCmd() { return *m_frameData[m_frameDataIndex].cmd; }
-        FrameData& curFrameData() { return m_frameData[m_frameDataIndex]; }
-
-        //----------------------------------------------------------------------
-        ColorImage*         createColorImage(U32 width, U32 height, VkFormat format, VkSampleCountFlagBits samples, VkImageUsageFlags usage, VmaMemoryUsage memUsage);
-        ColorImage*         createColorImage(VkImage image, U32 width, U32 height, VkFormat format, VkSampleCountFlagBits samples);
-        DepthImage*         createDepthImage(U32 width, U32 height, VkFormat format, VkSampleCountFlagBits samples);
-        ImageView*          createImageView(ColorImage* color);
-        ImageView*          createImageView(DepthImage* depth);
-        RenderPass*         createRenderPass(const RenderPass::AttachmentDescription& color, const RenderPass::AttachmentDescription& depth);
-        Framebuffer*        createFramebuffer(RenderPass* renderPass, ImageView* colorView, ImageView* depthView);
-        GraphicsPipeline*   createGraphicsPipeline();
+        VezCommandBuffer&   curDrawCmd()    { return m_frameData[m_frameDataIndex].cmd; }
+        FrameData&          curFrameData()  { return m_frameData[m_frameDataIndex]; }
 
     private:
         static const I32 NUM_FRAME_DATA = 2;
@@ -161,14 +111,13 @@ namespace Graphics { namespace Vulkan {
         void Shutdown();
 
         void BeginFrame();
-        void EndFrame(VkSemaphore waitSemaphore, VkSemaphore signalSemaphore);
+        void EndFrame();
 
         //----------------------------------------------------------------------
         ArrayList<CString> _GetRequiredInstanceLayers();
         ArrayList<CString> _GetRequiredInstanceExtensions();
         void _CheckInstanceExtensions(ArrayList<CString>& extensions);
         void _CheckDeviceExtensions(ArrayList<CString>& extensions);
-        void _CreateGPUAllocator();
 
 #ifdef VALIDATION_LAYERS
         VkDebugUtilsMessengerEXT m_debugMessenger;

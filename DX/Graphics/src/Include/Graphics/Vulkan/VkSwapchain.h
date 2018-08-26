@@ -22,38 +22,24 @@ namespace Graphics { namespace Vulkan {
         VkSurfaceKHR getSurfaceKHR() const { return m_surface; }
 
         //----------------------------------------------------------------------
-        void init(VkInstance instance, OS::Window* window);
-        void create(VkPhysicalDevice physicalDevice, VkDevice device, bool vsync);
+        void createSurface(VkInstance instance, OS::Window* window);
+        void createSwapchain(VkDevice device, U32 width, U32 height, VkFormat requestedFormat);
         void shutdown(VkInstance instance, VkDevice device);
-
-        //----------------------------------------------------------------------
-        void acquireNextImageIndex(U64 timeout, VkSemaphore signalSem = VK_NULL_HANDLE, VkFence fence = VK_NULL_HANDLE);
-        void recreate(bool vsync);
         void present(VkQueue queue, VkSemaphore waitSemaphore = VK_NULL_HANDLE);
         void bindForRendering();
         void clear(Color color);
-        void setImageLayout(CmdBuffer& cmd, VkImageLayout targetLayout);
+        void recreate(U32 w, U32 h);
 
     private:
-        VkSurfaceKHR    m_surface   = VK_NULL_HANDLE;
-        VkSwapchainKHR  m_swapchain = VK_NULL_HANDLE;
-        VkExtent2D      m_currentExtent{};
-        bool            m_vsync;
-
-        struct SwapchainImage
-        {
-            ColorImage* image;
-            ImageView* view;
-        };
-        ArrayList<SwapchainImage>   m_images;
-        U32                         m_currentImageIndex = 0;
+        VkSurfaceKHR        m_surface   = VK_NULL_HANDLE;
+        VezSwapchain        m_swapchain = VK_NULL_HANDLE;
+        VkSurfaceFormatKHR  m_surfaceFormat{ VK_FORMAT_UNDEFINED };
+        VkImage             m_swapchainImage = VK_NULL_HANDLE;
+        VkExtent2D          m_extent{};
 
         //----------------------------------------------------------------------
-        VkPresentModeKHR _ChoosePresentMode(VkPhysicalDevice physicalDevice, bool vsync);
-        VkSurfaceFormatKHR _ChooseSurfaceFormat(VkPhysicalDevice physicalDevice, VkFormat requestedFormat);
-        U32 _GetDesiredNumberOfSwapchainImages(VkSurfaceCapabilitiesKHR surfaceCapabilities, VkPresentModeKHR swapchainPresentMode);
-        void _CreateImageViews(VkDevice device, U32 width, U32 height, VkFormat format);
-        void _DestroyImageViews();
+        void _CreateImage(U32 width, U32 height, VkFormat format);
+        void _DestroyImage();
 
         NULL_COPY_AND_ASSIGN(Swapchain)
     };
