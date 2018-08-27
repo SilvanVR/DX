@@ -37,16 +37,11 @@ namespace Graphics { namespace Vulkan {
             _PipelineResourceReflection( m_pipeline );
         }
 
-        g_vulkan.ctx.SetVertexShader( m_pVertexShader->getVkShaderModule() );
-        //g_vulkan.ctx.IASetInputLayout( m_pVertexShader->getVkInputLayout() );
+        g_vulkan.ctx.BindPipeline( m_pipeline );
+        g_vulkan.ctx.IASetInputLayout( m_vertexInputFormat );
         g_vulkan.ctx.OMSetBlendState( 0, m_blendState );
         g_vulkan.ctx.OMSetDepthStencilState( m_depthStencilState );
         g_vulkan.ctx.RSSetState( m_rzState );
-
-        if (m_pFragmentShader)
-            g_vulkan.ctx.SetFragmentShader( m_pFragmentShader->getVkShaderModule() );
-        if (m_pGeometryShader)
-            g_vulkan.ctx.SetGeometryShader( m_pGeometryShader->getVkShaderModule() );
 
         //// Bind constant buffers and textures
         //if (m_shaderDataVS) m_shaderDataVS->bind( ShaderType::Vertex );
@@ -188,7 +183,6 @@ namespace Graphics { namespace Vulkan {
         m_rzState.depthBiasConstantFactor   = rzState.depthBias;
         m_rzState.depthBiasClamp            = rzState.depthBiasClamp;
         m_rzState.depthBiasSlopeFactor      = rzState.slopeScaledDepthBias;
-        m_rzState.lineWidth                 = 1.0f;
     }
 
     //----------------------------------------------------------------------
@@ -200,8 +194,6 @@ namespace Graphics { namespace Vulkan {
 
         m_depthStencilState.depthBoundsTestEnable = VK_FALSE;
         m_depthStencilState.stencilTestEnable = VK_FALSE;
-        m_depthStencilState.minDepthBounds = 0.0f;
-        m_depthStencilState.maxDepthBounds = 1.0f;
     }
 
     //----------------------------------------------------------------------
@@ -386,6 +378,14 @@ namespace Graphics { namespace Vulkan {
             case VEZ_PIPELINE_RESOURCE_TYPE_SAMPLED_IMAGE:
             case VEZ_PIPELINE_RESOURCE_TYPE_COMBINED_IMAGE_SAMPLER:
                 ShaderType shaderType = ShaderType::Unknown;
+                if (res.stages & VK_SHADER_STAGE_VERTEX_BIT)
+                    shaderType = ShaderType::Vertex;
+                else if(res.stages & VK_SHADER_STAGE_FRAGMENT_BIT)
+                    shaderType = ShaderType::Fragment;
+                else if(res.stages & VK_SHADER_STAGE_GEOMETRY_BIT)
+                    shaderType = ShaderType::Geometry;
+                ASSERT( shaderType != ShaderType::Unknown );
+
                 m_shaderResources.emplace_back( shaderType, res.set, res.binding, SID(res.name), DataType::Texture2D );
                 break;
             }

@@ -25,6 +25,8 @@
 
 namespace Graphics {
 
+    static constexpr StringID POST_PROCESS_INPUT_NAME = StringID( "_Input" ); 
+
     using namespace Vulkan;
 
     //----------------------------------------------------------------------
@@ -79,8 +81,9 @@ namespace Graphics {
             g_vulkan.SelectPhysicalDevice();
             g_vulkan.CreateDevice( m_swapchain.getSurfaceKHR(), { VK_KHR_SWAPCHAIN_EXTENSION_NAME }, GetDeviceFeatures() );
             m_swapchain.createSwapchain( g_vulkan.device, m_window->getWidth(), m_window->getHeight(), SWAPCHAIN_FORMAT );
-            g_vulkan.Init();
         }
+
+        g_vulkan.ctx.Init();
 
         _SetGPUDescription();
         _CreateGlobalBuffer();
@@ -92,6 +95,7 @@ namespace Graphics {
     void VkRenderer::shutdown()
     {
         vkDeviceWaitIdle( g_vulkan.device );
+        g_vulkan.ctx.Shutdown();
         m_swapchain.shutdown( g_vulkan.instance, g_vulkan.device );
         SAFE_DELETE( m_hmd );
         SAFE_DELETE( m_cubeMesh );
@@ -111,12 +115,16 @@ namespace Graphics {
                 case GPUCommand::SET_CAMERA:
                 {
                     auto& cmd = *reinterpret_cast<GPUC_SetCamera*>( command.get() );
-                    _SetCamera( &cmd.camera );
+                    //_SetCamera( &cmd.camera );
+                    m_swapchain.clear(Color::RED);
+                    m_swapchain.bindForRendering();
+                    g_vulkan.ctx.RSSetViewports({ 0, 0, (F32)m_window->getWidth(), (F32)m_window->getHeight(), 0, 1 });
                     break;
                 }
                 case GPUCommand::END_CAMERA:
                 {
                     auto& cmd = *reinterpret_cast<GPUC_EndCamera*>( command.get() );
+                    g_vulkan.ctx.EndRenderPass();
                     renderContext.Reset();
                     break;
                 }
@@ -163,8 +171,8 @@ namespace Graphics {
                 {
                     auto& cmd = *reinterpret_cast<GPUC_DrawFullscreenQuad*>( command.get() );
                     auto currRT = renderContext.getRenderTarget();
-                    //D3D11_VIEWPORT vp = { 0, 0, (F32)currRT->getWidth(), (F32)currRT->getHeight(), 0, 1 };
-                    //_DrawFullScreenQuad( cmd.material, vp );
+                    ViewportRect vp = { 0, 0, (F32)currRT->getWidth(), (F32)currRT->getHeight() };
+                    _DrawFullScreenQuad( cmd.material, vp );
                     break;
                 }
                 case GPUCommand::RENDER_CUBEMAP:
@@ -176,14 +184,16 @@ namespace Graphics {
                 case GPUCommand::BLIT:
                 {
                     auto& cmd = *reinterpret_cast<GPUC_Blit*>( command.get() );
-                    _Blit( cmd.src, cmd.dst, cmd.material );
+                    //_Blit( cmd.src, cmd.dst, cmd.material );
                     break;
                 }
                 case GPUCommand::SET_SCISSOR:
                 {
                     auto& cmd = *reinterpret_cast<GPUC_SetScissor*>( command.get() );
-                    //const D3D11_RECT r = { cmd.rect.left, cmd.rect.top, cmd.rect.right, cmd.rect.bottom };
-                    //g_pImmediateContext->RSSetScissorRects( 1, &r );
+                    VkRect2D scissor{};
+                    scissor.offset = { cmd.rect.left, cmd.rect.top };
+                    scissor.extent = { (U32)(cmd.rect.right - cmd.rect.left), (U32)(cmd.rect.top - cmd.rect.bottom) };
+                    g_vulkan.ctx.RSSetScissor( scissor );
                     break;
                 }
                 case GPUCommand::SET_CAMERA_MATRIX:
@@ -221,24 +231,26 @@ namespace Graphics {
         if (m_window->getWidth() == 0 || m_window->getHeight() == 0)
             return;
 
+        vezDeviceWaitIdle(g_vulkan.device);
+
         _CheckVSync();
 
         // Record all commands
-        g_vulkan.BeginFrame();
+        g_vulkan.ctx.BeginFrame();
         {
             _LockQueue();
             for (auto& cmd : m_pendingCmdQueue)
-                _ExecuteCommandBuffer( cmd );
+               _ExecuteCommandBuffer( cmd );
             m_pendingCmdQueue.clear();
             _UnlockQueue();
         }
-        g_vulkan.EndFrame();
+        g_vulkan.ctx.EndFrame();
 
         // Present rendered image to screen/hmd
         if ( hasHMD() )
             m_hmd->distortAndPresent( m_frameCount );
 
-        m_swapchain.present( g_vulkan.graphicsQueue, g_vulkan.curFrameData().semRenderingFinished );
+        m_swapchain.present( g_vulkan.graphicsQueue, g_vulkan.ctx.curFrameData().semRenderingFinished );
 
         m_frameCount++;
     }
@@ -305,12 +317,10 @@ namespace Graphics {
     //----------------------------------------------------------------------
     void VkRenderer::_CheckVSync()
     {
-        static bool lastVsync = m_vsync;
+        static bool lastVsync = !m_vsync; // Enforce setting vsync the first time
         if (lastVsync != m_vsync)
         {
-            auto result = vezDeviceSetVSync( g_vulkan.device, m_vsync );
-            if (result != VK_SUCCESS)
-                LOG_WARN_RENDERING( "VkRenderer: Could not set vsync. Reason: Feature not present yet." );
+            m_swapchain.setVSync( m_vsync );
             lastVsync = m_vsync;
         }
     }
@@ -347,20 +357,20 @@ namespace Graphics {
 
         if ( camera->isBlittingToScreen() )
         {
-            //D3D11_VIEWPORT vp = { 0, 0, (F32)renderTarget->getWidth(), (F32)renderTarget->getHeight(), 0, 1 };
-            //g_pImmediateContext->RSSetViewports( 1, &vp );
+            VkViewport vp = { 0, 0, (F32)renderTarget->getWidth(), (F32)renderTarget->getHeight(), 0, 1 };
+            g_vulkan.ctx.RSSetViewports( vp );
         }
         else
         {
             // Set viewport (Translate to pixel coordinates first)
-            //D3D11_VIEWPORT vp = {};
-            //auto viewport = camera->getViewport();
-            //vp.TopLeftX = viewport.topLeftX * renderTarget->getWidth();
-            //vp.TopLeftY = viewport.topLeftY * renderTarget->getHeight();
-            //vp.Width    = viewport.width    * renderTarget->getWidth();
-            //vp.Height   = viewport.height   * renderTarget->getHeight();
-            //vp.MaxDepth = 1.0f;
-            //g_pImmediateContext->RSSetViewports( 1, &vp );
+            VkViewport vp = {};
+            auto viewport = camera->getViewport();
+            vp.x        = viewport.topLeftX * renderTarget->getWidth();
+            vp.y        = viewport.topLeftY * renderTarget->getHeight();
+            vp.width    = viewport.width    * renderTarget->getWidth();
+            vp.height   = viewport.height   * renderTarget->getHeight();
+            vp.maxDepth = 1.0f;
+            g_vulkan.ctx.RSSetViewports( vp );
         }
 
         // Update camera buffer
@@ -392,16 +402,60 @@ namespace Graphics {
     //----------------------------------------------------------------------
     void VkRenderer::_BindMesh( IMesh* mesh, const MaterialPtr& material, const DirectX::XMMATRIX& modelMatrix, I32 subMeshIndex )
     {
+        // Measuring per frame data
+        auto curCamera = renderContext.getCamera();
+        if (curCamera)
+        {
+            auto& camInfo = curCamera->getFrameInfo();
+            camInfo.drawCalls++;
+            camInfo.numTriangles += mesh->getIndexCount( subMeshIndex ) / 3;
+            camInfo.numVertices += mesh->getVertexCount(); // This is actually not correct, cause i need the vertex-count from the submesh
+        }
+
+        // Update global buffer if necessary
+        //if ( D3D11::ConstantBufferManager::hasGlobalBuffer() )
+        //    GLOBAL_BUFFER.flush();
+
+        //// Update light buffer if necessary
+        //if ( D3D11::ConstantBufferManager::hasLightBuffer() )
+        //    _FlushLightBuffer();
+
+        // Bind shader, possibly a replacement shader
+        auto shader = material->getShader();
+        if (curCamera)
+        {
+            if ( auto& camShader = curCamera->getReplacementShader() )
+            {
+                if ( auto& matShader = material->getReplacementShader( curCamera->getReplacementShaderTag() ) )
+                    shader = matShader;
+                else
+                    shader = camShader;
+            }
+        }
+
+        // Bind shader and material
+        renderContext.BindShader( shader );
+        renderContext.BindMaterial( material );
+
+        // Update per object buffer
+        g_vulkan.ctx.PushConstants( 0, sizeof( DirectX::XMMATRIX ), &modelMatrix );
+
+        // Bind mesh
+        mesh->bind( shader->getVertexLayout(), subMeshIndex );
     }
 
     //----------------------------------------------------------------------
     void VkRenderer::_DrawMesh( IMesh* mesh, const MaterialPtr& material, const DirectX::XMMATRIX& modelMatrix, I32 subMeshIndex )
     {
+        _BindMesh( mesh, material, modelMatrix, subMeshIndex );
+        g_vulkan.ctx.DrawIndexed( mesh->getIndexCount( subMeshIndex ), 1, 0, mesh->getBaseVertex( subMeshIndex ), 0 );
     }
 
     //----------------------------------------------------------------------
     void VkRenderer::_DrawMeshInstanced( IMesh* mesh, const MaterialPtr& material, const DirectX::XMMATRIX& modelMatrix, I32 instanceCount )
     {
+        _BindMesh( mesh, material, modelMatrix, 0 );
+        g_vulkan.ctx.DrawIndexed( mesh->getIndexCount( 0 ), instanceCount, 0, mesh->getBaseVertex( 0 ), 0 );
     }
 
     //----------------------------------------------------------------------
@@ -436,9 +490,9 @@ namespace Graphics {
             1, 5, 6, 1, 6, 2,
             4, 0, 3, 4, 3, 7
         };
-        //m_cubeMesh = createMesh();
-        //m_cubeMesh->setVertices( cubeVertices );
-        //m_cubeMesh->setIndices( cubeIndices );
+        m_cubeMesh = createMesh();
+        m_cubeMesh->setVertices( cubeVertices );
+        m_cubeMesh->setIndices( cubeIndices );
     }
 
     //----------------------------------------------------------------------
@@ -524,7 +578,7 @@ namespace Graphics {
 
         g_vulkan.ctx.RSSetViewports({ viewport.topLeftX, viewport.topLeftY, viewport.width, viewport.height, 0.0f, 1.0f });
         g_vulkan.ctx.IASetPrimitiveTopology( VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP );
-        //g_vulkan.ctx.Draw(3);
+        g_vulkan.ctx.Draw(3);
     }
 
     //**********************************************************************

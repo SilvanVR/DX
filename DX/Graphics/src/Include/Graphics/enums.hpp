@@ -39,6 +39,7 @@ namespace Graphics {
     // Determines buffer types / update mechanism
     enum class BufferUsage
     {
+        Unknown,
         Immutable = 1,  // Can't be updated once created.
         LongLived,      // Expected to be updated occasionally.
         Frequently      // Expected to be updated every frame.

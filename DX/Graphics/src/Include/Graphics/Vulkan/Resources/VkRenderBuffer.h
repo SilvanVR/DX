@@ -19,7 +19,7 @@ namespace Graphics { namespace Vulkan {
         friend class RenderTexture;
     public:
         RenderBuffer() {}
-        ~RenderBuffer() { _DestroyBuffers(m_isDepthBuffer); }
+        ~RenderBuffer() { _DestroyFramebuffer(m_isDepthBuffer); }
 
         //----------------------------------------------------------------------
         // ITexture Interface
@@ -42,14 +42,21 @@ namespace Graphics { namespace Vulkan {
     private:
         bool m_resolved = false;
 
+        struct
+        {
+            VkImage     img = VK_NULL_HANDLE;
+            VkImageView view = VK_NULL_HANDLE;
+            Framebuffer fbo;
+        } m_framebuffer, m_framebufferMS;
+
         //----------------------------------------------------------------------
         // ITexture Interface
         //----------------------------------------------------------------------
         void _UpdateSampler() override {}
 
         //----------------------------------------------------------------------
-        void _CreateImage(bool isDepthBuffer);
-        void _DestroyBuffers(bool isDepthBuffer);
+        void _CreateFramebuffer(bool isDepthBuffer);
+        void _DestroyFramebuffer(bool isDepthBuffer);
         inline void _ClearResolvedFlag() { m_resolved = false; }
 
         NULL_COPY_AND_ASSIGN(RenderBuffer)

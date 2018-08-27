@@ -69,24 +69,24 @@ namespace Graphics
         //----------------------------------------------------------------------
         // Clears the color/depth buffer with the given color, depth and stencil data.
         //----------------------------------------------------------------------
-        void clear(Color color, F32 depth, U8 stencil);
+        virtual void clear(Color color, F32 depth, U8 stencil);
 
         //----------------------------------------------------------------------
         // Clears the depth buffer with the given depth and stencil data.
         //----------------------------------------------------------------------
-        void clearDepthStencil(F32 depth, U8 stencil);
+        virtual void clearDepthStencil(F32 depth, U8 stencil);
 
         //----------------------------------------------------------------------
-        void create(const RenderBufferPtr& colorBuffer, const RenderBufferPtr& depthBuffer = nullptr);
-        void create(const ArrayList<RenderBufferPtr>& colorBuffers, const ArrayList<RenderBufferPtr>& depthBuffers);
+        virtual void create(const RenderBufferPtr& colorBuffer, const RenderBufferPtr& depthBuffer = nullptr);
+        virtual void create(const ArrayList<RenderBufferPtr>& colorBuffers, const ArrayList<RenderBufferPtr>& depthBuffers);
 
         //----------------------------------------------------------------------
         // Recreate all buffers in this render texture.
         //----------------------------------------------------------------------
-        void recreate(U32 w, U32 h);
-        void recreate(SamplingDescription samplingDesc) { recreate(getWidth(), getHeight(), samplingDesc); }
-        void recreate(U32 w, U32 h, SamplingDescription samplingDesc);
-        void recreate(Graphics::TextureFormat format);
+        virtual void recreate(U32 w, U32 h);
+        virtual void recreate(SamplingDescription samplingDesc) { recreate(getWidth(), getHeight(), samplingDesc); }
+        virtual void recreate(U32 w, U32 h, SamplingDescription samplingDesc);
+        virtual void recreate(Graphics::TextureFormat format);
 
     protected:
         F32  m_scaleFactor = 1.0f;

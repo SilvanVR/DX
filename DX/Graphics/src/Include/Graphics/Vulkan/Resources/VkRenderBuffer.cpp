@@ -21,7 +21,7 @@ namespace Graphics { namespace Vulkan {
         m_isDepthBuffer = false;
         m_samplingDescription = samplingDesc;
 
-        _CreateImage( m_isDepthBuffer );
+        _CreateFramebuffer( m_isDepthBuffer );
     }
 
     //----------------------------------------------------------------------
@@ -32,7 +32,7 @@ namespace Graphics { namespace Vulkan {
         m_depthFormat = format;
         m_samplingDescription = samplingDesc;
 
-        _CreateImage( m_isDepthBuffer );
+        _CreateFramebuffer( m_isDepthBuffer );
     }
 
     //----------------------------------------------------------------------
@@ -47,8 +47,8 @@ namespace Graphics { namespace Vulkan {
         m_width = w;
         m_height = h;
         m_samplingDescription = samplingDesc;
-        _DestroyBuffers( m_isDepthBuffer );
-        _CreateImage( m_isDepthBuffer );
+        _DestroyFramebuffer( m_isDepthBuffer );
+        _CreateFramebuffer( m_isDepthBuffer );
     }
 
     //----------------------------------------------------------------------
@@ -56,8 +56,8 @@ namespace Graphics { namespace Vulkan {
     {
         ASSERT( isColorBuffer() && "Renderbuffer is not a color buffer!" );
         m_format = format;
-        _DestroyBuffers( m_isDepthBuffer );
-        _CreateImage( m_isDepthBuffer );
+        _DestroyFramebuffer( m_isDepthBuffer );
+        _CreateFramebuffer( m_isDepthBuffer );
     }
 
     //----------------------------------------------------------------------
@@ -65,18 +65,15 @@ namespace Graphics { namespace Vulkan {
     {
         ASSERT( isDepthBuffer() && "Renderbuffer is not a depth buffer!");
         m_depthFormat = format;
-        _DestroyBuffers( m_isDepthBuffer );
-        _CreateImage( m_isDepthBuffer );
+        _DestroyFramebuffer( m_isDepthBuffer );
+        _CreateFramebuffer( m_isDepthBuffer );
     }
 
     //----------------------------------------------------------------------
     void RenderBuffer::bindForRendering()
     {
         _ClearResolvedFlag();
-        //if ( isDepthBuffer() )
-        //    g_vulkan.ctx.OMSetRenderTarget( VK_NULL_HANDLE, m_imageView );
-        //else
-        //    g_vulkan.ctx.OMSetRenderTarget( m_imageView, VK_NULL_HANDLE );
+        g_vulkan.ctx.OMSetRenderTarget( m_framebuffer.fbo );
     }
 
     //**********************************************************************
@@ -91,7 +88,7 @@ namespace Graphics { namespace Vulkan {
         {
             if (not m_resolved)
             {
-                //g_vulkan.ctx.ResolveImage( m_colorImageMS, m_colorImage );
+                g_vulkan.ctx.ResolveImage( m_framebufferMS.img, m_framebuffer.img, { m_width, m_height });
                 m_resolved = true;
             }
         }
@@ -117,14 +114,14 @@ namespace Graphics { namespace Vulkan {
     void RenderBuffer::clearColor( Color color )
     {
         ASSERT( not isDepthBuffer() );
-        g_vulkan.ctx.SetClearColor( color );
+        isMultisampled() ? m_framebufferMS.fbo.setClearColor( color ) : m_framebuffer.fbo.setClearColor( color );
     }
 
     //----------------------------------------------------------------------
     void RenderBuffer::clearDepthStencil( F32 depth, U8 stencil )
     {
         ASSERT( isDepthBuffer() );
-        g_vulkan.ctx.SetClearDepthStencil( depth, stencil );
+        isMultisampled() ? m_framebufferMS.fbo.setClearDepthStencil( depth, stencil ) : m_framebuffer.fbo.setClearDepthStencil( depth, stencil );
     }
 
     //**********************************************************************
@@ -132,34 +129,48 @@ namespace Graphics { namespace Vulkan {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    void RenderBuffer::_CreateImage( bool isDepthBuffer )
+    void RenderBuffer::_CreateFramebuffer( bool isDepthBuffer )
     {
-        //// If multisampling was requested create an additional buffer in which we render, but have to resolve it before using it in a shader
-        //if (isDepthBuffer)
-        //{
-        //    auto format = Utility::TranslateDepthFormat( m_depthFormat );
-        //    m_depthImage = g_vulkan.createDepthImage( m_width, m_height, format, VK_SAMPLE_COUNT_1_BIT );
-        //    if (isMultisampled())
-        //        m_depthImageMS = g_vulkan.createDepthImage( m_width, m_height, format, Utility::TranslateSampleCount( m_samplingDescription ) );
-        //    m_imageView = g_vulkan.createImageView( m_depthImage );
-        //}
-        //else
-        //{
-        //    auto format = Utility::TranslateTextureFormat( m_format );
-        //    m_colorImage = g_vulkan.createColorImage( m_width, m_height, format, VK_SAMPLE_COUNT_1_BIT, 
-        //                                              VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VMA_MEMORY_USAGE_GPU_ONLY );
+        VezImageCreateInfo imageCreateInfo{};
+        imageCreateInfo.imageType   = VK_IMAGE_TYPE_2D;
+        imageCreateInfo.format      = isDepthBuffer ? Utility::TranslateDepthFormat( m_depthFormat ) : Utility::TranslateTextureFormat( m_format );
+        imageCreateInfo.extent      = { m_width, m_height, 1 };
+        imageCreateInfo.mipLevels   = 1;
+        imageCreateInfo.arrayLayers = 1;
+        imageCreateInfo.samples     = VK_SAMPLE_COUNT_1_BIT;
+        imageCreateInfo.tiling      = VK_IMAGE_TILING_OPTIMAL;
+        imageCreateInfo.usage       = isDepthBuffer ? VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT : VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+        VALIDATE( vezCreateImage( g_vulkan.device, VEZ_MEMORY_GPU_ONLY, &imageCreateInfo, &m_framebuffer.img ) );
 
-        //    if (isMultisampled())
-        //        m_colorImageMS = g_vulkan.createColorImage( m_width, m_height, format, Utility::TranslateSampleCount( m_samplingDescription ),
-        //                                                    VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VMA_MEMORY_USAGE_GPU_ONLY );
-        //    m_imageView = g_vulkan.createImageView( m_colorImage );
-        //}
+        VezImageViewCreateInfo viewCreateInfo{};
+        viewCreateInfo.image    = m_framebuffer.img;
+        viewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+        viewCreateInfo.format   = imageCreateInfo.format;
+        viewCreateInfo.subresourceRange = { 0, 1, 0, 1 };
+        VALIDATE( vezCreateImageView( g_vulkan.device, &viewCreateInfo, &m_framebuffer.view ) );
+
+        m_framebuffer.fbo.create( m_width, m_height, 1, &m_framebuffer.view );
+
+        // If multisampling was requested create an additional buffer in which we render, but have to resolve it before using it in a shader
+        if (isMultisampled())
+        {
+            imageCreateInfo.samples = Utility::TranslateSampleCount( m_samplingDescription );
+            VALIDATE( vezCreateImage( g_vulkan.device, VEZ_MEMORY_GPU_ONLY, &imageCreateInfo, &m_framebufferMS.img ) );
+            VALIDATE( vezCreateImageView( g_vulkan.device, &viewCreateInfo, &m_framebufferMS.view ) );
+            m_framebufferMS.fbo.create( m_width, m_height, 1, &m_framebufferMS.view );
+        }
     }
 
     //----------------------------------------------------------------------
-    void RenderBuffer::_DestroyBuffers( bool isDepthBuffer )
+    void RenderBuffer::_DestroyFramebuffer( bool isDepthBuffer )
     {
+        vezDestroyImage( g_vulkan.device, m_framebuffer.img );
+        vezDestroyImageView( g_vulkan.device, m_framebuffer.view );
+        m_framebuffer.fbo.destroy();
 
+        vezDestroyImage( g_vulkan.device, m_framebufferMS.img );
+        vezDestroyImageView( g_vulkan.device, m_framebufferMS.view );
+        m_framebufferMS.fbo.destroy();
     }
 
 } } // End namespaces

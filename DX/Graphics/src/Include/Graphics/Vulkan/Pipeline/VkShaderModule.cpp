@@ -61,10 +61,14 @@ namespace Graphics { namespace Vulkan {
         {
             _CompileGLSL( source, entryPoint );
 
-            // Store compiled binary data into file
-            LOG_WARN_RENDERING( "VkShaderModule: Saving precompiled shaders on disk not supported yet." );
-            /*OS::BinaryFile binaryShaderFile( binaryShaderPath, OS::EFileMode::WRITE );
-            binaryShaderFile.write( (const Byte*)spv.data(), spv.size() * sizeof(uint32_t) );*/
+            //U32 codeSize;
+            //vezGetShaderModuleBinary( m_shaderModule, &codeSize, NULL );
+            //ArrayList<uint32_t> spv( codeSize );
+            //vezGetShaderModuleBinary( m_shaderModule, &codeSize, NULL );
+
+            //// Store compiled binary data into file
+            //OS::BinaryFile binaryShaderFile( binaryShaderPath, OS::EFileMode::WRITE );
+            //binaryShaderFile.write( (const Byte*)spv.data(), spv.size() * sizeof(uint32_t) );
         }
         else
         {
@@ -72,11 +76,13 @@ namespace Graphics { namespace Vulkan {
             OS::BinaryFile binaryShaderFile( binaryShaderPath, OS::EFileMode::READ );
             String content = binaryShaderFile.readAll();
 
+            ArrayList<uint32_t> spv( content.begin(), content.end() );
+
             // This should always work
             VezShaderModuleCreateInfo createInfo = {};
             createInfo.stage        = Utility::TranslateShaderStage( m_shaderType );
-            createInfo.codeSize     = static_cast<U32>(source.size());
-            createInfo.pGLSLSource  = source.c_str();
+            createInfo.codeSize     = static_cast<U32>( spv.size() );
+            createInfo.pCode        = spv.data();
             createInfo.pEntryPoint  = entryPoint;
             vezCreateShaderModule( g_vulkan.device, &createInfo, &m_shaderModule );
         }

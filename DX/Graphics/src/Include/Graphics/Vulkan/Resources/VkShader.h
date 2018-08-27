@@ -45,28 +45,22 @@ namespace Graphics { namespace Vulkan {
         void                                    setBlendState(const BlendState& bState) override;
 
     private:
+        // Shader modules
         std::unique_ptr<ShaderModule> m_pVertexShader = nullptr;
         std::unique_ptr<ShaderModule> m_pFragmentShader  = nullptr;
         std::unique_ptr<ShaderModule> m_pGeometryShader = nullptr;
-        
-        VezPipeline             m_pipeline          = VK_NULL_HANDLE;
-        VezVertexInputFormat    m_vertexInputFormat = VK_NULL_HANDLE;
 
-        VkPipelineColorBlendAttachmentState     m_blendState{};
-        VkPipelineDepthStencilStateCreateInfo   m_depthStencilState{ VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO };
-        VkPipelineRasterizationStateCreateInfo  m_rzState{ VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO };
+        // Pipeline state
+        VezPipeline                     m_pipeline          = VK_NULL_HANDLE;
+        VezVertexInputFormat            m_vertexInputFormat = VK_NULL_HANDLE;
+        VezColorBlendAttachmentState    m_blendState{};
+        VezRasterizationState           m_rzState{};
+        VezDepthStencilState            m_depthStencilState{};
 
         // Custom api independant data structures
         VertexLayout m_vertexLayout;
         ArrayList<ShaderUniformBufferDeclaration>   m_uniformBuffers;
         ArrayList<ShaderResourceDeclaration>        m_shaderResources;
-
-        struct ShaderStageData
-        {
-            ShaderUniformBufferDeclaration* shaderUBO   = nullptr;
-            ShaderUniformBufferDeclaration* materialUBO = nullptr;
-        };
-
 
         // Contains the data in a contiguous block of memory. Will be empty if not used for a shader.
         //std::unique_ptr<MappedConstantBuffer> m_shaderDataVS = nullptr;

@@ -1678,10 +1678,20 @@ public:
         go->addComponent<Components::AudioListener>();
         go->getComponent<Components::Transform>()->position = Math::Vec3(0, 1, -1);
 
-        auto vrCam = go->addComponent<Components::VRCamera>(Components::ScreenDisplay::LeftEye, Graphics::MSAASamples::Four);
-        go->addComponent<Components::VRFPSCamera>();
-        //go->addComponent<PostProcess>(ASSETS.getMaterial("/materials/post processing/color_grading.material"));
-        go->addComponent<Components::VRBasicTouch>(Core::MeshGenerator::CreateCubeUV(0.1f), ASSETS.getMaterial("/materials/blinn_phong/cube.material"));
+        if (RENDERER.hasHMD())
+        {
+            auto vrCam = go->addComponent<Components::VRCamera>(Components::ScreenDisplay::LeftEye, Graphics::MSAASamples::Four);
+            go->addComponent<Components::VRFPSCamera>();
+            //go->addComponent<PostProcess>(ASSETS.getMaterial("/materials/post processing/color_grading.material"));
+            go->addComponent<Components::VRBasicTouch>(Core::MeshGenerator::CreateCubeUV(0.1f), ASSETS.getMaterial("/materials/blinn_phong/cube.material"));
+        }
+        else
+        {
+            LOG_WARN( "VRScene(): VR is disabled or no VR headset found." );
+            go->addComponent<Components::Camera>();
+            go->getComponent<Components::Transform>()->position = Math::Vec3(0, 1, -15);
+            go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 0.1f);
+        }
 
         RENDERER.setGlobalFloat(SID("_Ambient"), 0.1f);
 

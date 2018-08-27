@@ -39,13 +39,13 @@ namespace Graphics { namespace Vulkan {
 
         vezGetSwapchainSurfaceFormat( m_swapchain, &m_surfaceFormat );
 
-        _CreateImage( width, height, m_surfaceFormat.format );
+        _CreateSwapchainFBO( width, height, m_surfaceFormat.format );
     }
 
     //----------------------------------------------------------------------
     void Swapchain::shutdown( VkInstance instance, VkDevice device )
     {
-        _DestroyImage();
+        _DestroySwapchainFBO();
         vezDestroySwapchain( device, m_swapchain );
         vkDestroySurfaceKHR( instance, m_surface, ALLOCATOR );
     }
@@ -53,8 +53,8 @@ namespace Graphics { namespace Vulkan {
     //----------------------------------------------------------------------
     void Swapchain::recreate( U32 w, U32 h )
     {
-        _DestroyImage();
-        _CreateImage( w, h, m_surfaceFormat.format );
+        _DestroySwapchainFBO();
+        _CreateSwapchainFBO( w, h, m_surfaceFormat.format );
     }
 
     //----------------------------------------------------------------------
@@ -68,7 +68,7 @@ namespace Graphics { namespace Vulkan {
         presentInfo.pWaitDstStageMask   = &waitDstStageMask;
         presentInfo.swapchainCount      = 1;
         presentInfo.pSwapchains         = &m_swapchain;
-        presentInfo.pImages             = &m_swapchainImage;
+        presentInfo.pImages             = &m_framebuffer.img;
         if ( vezQueuePresent( queue, &presentInfo ) != VK_SUCCESS )
             recreate( m_extent.width, m_extent.height );
     }
@@ -76,74 +76,35 @@ namespace Graphics { namespace Vulkan {
     //----------------------------------------------------------------------
     void Swapchain::bindForRendering()
     {
-        //g_vulkan.ctx.OMSetRenderTarget( m_images[m_currentImageIndex].view, VK_NULL_HANDLE, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR );
+        g_vulkan.ctx.OMSetRenderTarget( m_framebuffer.fbo );
     }
 
     //----------------------------------------------------------------------
     void Swapchain::clear( Color color )
     {
-        g_vulkan.ctx.SetClearColor( color );
+        //VezImageSubresourceRange range{ 0,1,0,1 };
+        //VkClearColorValue clearColor{};
+        //clearColor.float32[0] = 1.0f;
+        //clearColor.float32[1] = 1.0f;
+        //vezCmdClearColorImage(g_vulkan.ctx.curDrawCmd(), m_framebuffer.img, &clearColor, 1, &range );
+        m_framebuffer.fbo.setClearColor( color );
+    }
+
+    //----------------------------------------------------------------------
+    void Swapchain::setVSync( bool enabled )
+    {
+        LOG_WARN_RENDERING("VSYNC NOT SUPPORTED");
+        //VALIDATE( vezSwapchainSetVSync( m_swapchain, enabled ) );
     }
 
     //**********************************************************************
     // PRIVATE
     //**********************************************************************
 
-    ////----------------------------------------------------------------------
-    //VkSurfaceFormatKHR Swapchain::_ChooseSurfaceFormat( VkPhysicalDevice physicalDevice, VkFormat requestedFormat )
-    //{
-    //    U32 surfFmtCount;
-    //    vezGetPhysicalDeviceSurfaceFormats( physicalDevice, m_surface, &surfFmtCount, NULL );
-    //    ArrayList<VkSurfaceFormatKHR> surfaceFormats( surfFmtCount );
-    //    vezGetPhysicalDeviceSurfaceFormats( physicalDevice, m_surface, &surfFmtCount, surfaceFormats.data() );
-
-    //    for (auto surfFormat : surfaceFormats)
-    //    {
-    //        if (surfFormat.format == requestedFormat)
-    //            return surfFormat;
-    //    }
-    //    LOG_WARN_RENDERING( "Vulkan::Swapchain: Could not find the requested format. Using another one instead." );
-    //    return surfaceFormats[0];
-    //}
-
-    ////----------------------------------------------------------------------
-    //VkPresentModeKHR Swapchain::_ChoosePresentMode( VkPhysicalDevice physicalDevice, bool vsync )
-    //{
-    //    U32 presentModeCount;
-    //    vkGetPhysicalDeviceSurfacePresentModesKHR( physicalDevice, m_surface, &presentModeCount, NULL );
-    //    ArrayList<VkPresentModeKHR> presentModes( presentModeCount );
-    //    vkGetPhysicalDeviceSurfacePresentModesKHR( physicalDevice, m_surface, &presentModeCount, presentModes.data() );
-
-    //    if (not vsync)
-    //    {
-    //        for (auto pm : presentModes) // Try to find and use mailbox mode if available
-    //            if (pm == VK_PRESENT_MODE_MAILBOX_KHR)
-    //                return VK_PRESENT_MODE_MAILBOX_KHR;
-    //        for (auto pm : presentModes) // Otherwise use immediate mode if available
-    //            if (pm == VK_PRESENT_MODE_IMMEDIATE_KHR)
-    //                return VK_PRESENT_MODE_IMMEDIATE_KHR;
-    //        LOG_WARN_RENDERING( "Vulkan::Swapchain: NOT using vsync is not supported. Presentation will be vsynced." );
-    //    }
-    //    return VK_PRESENT_MODE_FIFO_KHR;
-    //}
-
-    ////----------------------------------------------------------------------
-    //U32 Swapchain::_GetDesiredNumberOfSwapchainImages( VkSurfaceCapabilitiesKHR surfaceCapabilities, VkPresentModeKHR swapchainPresentMode )
-    //{
-    //    //Try to use Tripple buffering if Mailbox mode is available
-    //    U32 imageCount = swapchainPresentMode == VK_PRESENT_MODE_MAILBOX_KHR ? 3 : 2;
-
-    //    // Application must settle for fewer images than desired
-    //    if (imageCount > surfaceCapabilities.maxImageCount)
-    //        imageCount = surfaceCapabilities.maxImageCount;
-
-    //    return imageCount;
-    //}
-
     //----------------------------------------------------------------------
-    void Swapchain::_CreateImage( U32 width, U32 height, VkFormat format )
+    void Swapchain::_CreateSwapchainFBO( U32 width, U32 height, VkFormat format )
     {
-        VezImageCreateInfo imageCreateInfo = {};
+        VezImageCreateInfo imageCreateInfo{};
         imageCreateInfo.imageType   = VK_IMAGE_TYPE_2D;
         imageCreateInfo.format      = format;
         imageCreateInfo.extent      = { width, height, 1 };
@@ -151,14 +112,25 @@ namespace Graphics { namespace Vulkan {
         imageCreateInfo.arrayLayers = 1;
         imageCreateInfo.samples     = VK_SAMPLE_COUNT_1_BIT;
         imageCreateInfo.tiling      = VK_IMAGE_TILING_OPTIMAL;
-        imageCreateInfo.usage       = VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
-        vezCreateImage( g_vulkan.device, VEZ_MEMORY_GPU_ONLY, &imageCreateInfo, &m_swapchainImage );
+        imageCreateInfo.usage       = VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+        VALIDATE( vezCreateImage( g_vulkan.device, VEZ_MEMORY_GPU_ONLY, &imageCreateInfo, &m_framebuffer.img ) );
+
+        VezImageViewCreateInfo viewCreateInfo{};
+        viewCreateInfo.image    = m_framebuffer.img;
+        viewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+        viewCreateInfo.format   = format;
+        viewCreateInfo.subresourceRange = { 0, 1, 0, 1 };
+        VALIDATE( vezCreateImageView( g_vulkan.device, &viewCreateInfo, &m_framebuffer.view ) );
+
+        m_framebuffer.fbo.create( width, height, 1, &m_framebuffer.view );
     }
 
     //----------------------------------------------------------------------
-    void Swapchain::_DestroyImage()
+    void Swapchain::_DestroySwapchainFBO()
     {
-        vezDestroyImage( g_vulkan.device, m_swapchainImage );
+        vezDestroyImage( g_vulkan.device, m_framebuffer.img );
+        vezDestroyImageView( g_vulkan.device, m_framebuffer.view );
+        m_framebuffer.fbo.destroy();
     }
 
 } } // End namespaces

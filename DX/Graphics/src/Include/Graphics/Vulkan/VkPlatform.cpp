@@ -35,64 +35,14 @@ namespace Graphics { namespace Vulkan {
     }
 
     //----------------------------------------------------------------------
-    void Platform::Init()
-    {
-        ASSERT( device && "Init function should be called after creating a device!" );
-        for (U32 i = 0; i < NUM_FRAME_DATA; i++)
-        {
-            VezCommandBufferAllocateInfo allocateInfo{ NULL, graphicsQueue, 1 };
-            vezAllocateCommandBuffers( device, &allocateInfo, &m_frameData[i].cmd );
-        }
-        ctx.Init();
-    }
-
-    //----------------------------------------------------------------------
     void Platform::Shutdown()
     {
         vkDeviceWaitIdle( device );
-        ctx.Shutdown();
-        for (U32 i = 0; i < NUM_FRAME_DATA; i++)
-            vezFreeCommandBuffers( device, 1, &m_frameData[i].cmd );
         vkDestroyDevice( device, ALLOCATOR );
 #ifdef VALIDATION_LAYERS 
         _DestroyDebugCallback( instance );
 #endif
         vezDestroyInstance( instance );
-    }
-
-    //----------------------------------------------------------------------
-    void Platform::BeginFrame()
-    {
-        m_frameDataIndex = (m_frameDataIndex + 1) % NUM_FRAME_DATA;
-
-        // Wait on fence, so cmd can be safely reused
-        auto& curFD = curFrameData();
-        if (curFD.fence)
-        {
-            vezWaitForFences(device, 1, &curFD.fence, VK_TRUE, ~0);
-            vezDestroyFence(device, curFD.fence);
-            curFD.fence = VK_NULL_HANDLE;
-        }
-
-        // Begin recording
-        vezBeginCommandBuffer( curFrameData().cmd, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT );
-
-        ctx.BeginFrame();
-    }
-
-    //----------------------------------------------------------------------
-    void Platform::EndFrame()
-    {
-        ctx.EndFrame();
-
-        vezEndCommandBuffer( curFrameData().cmd );
-
-        VezSubmitInfo submitInfo = {};
-        submitInfo.signalSemaphoreCount = 1;
-        submitInfo.pSignalSemaphores    = &curFrameData().semRenderingFinished;
-        submitInfo.commandBufferCount   = 1;
-        submitInfo.pCommandBuffers      = &curDrawCmd();
-        vezQueueSubmit( graphicsQueue, 1, &submitInfo, &curFrameData().fence );
     }
 
     //**********************************************************************
@@ -298,29 +248,116 @@ namespace Graphics { namespace Vulkan {
     }
 
     //**********************************************************************
+    // FRAMEBUFFER
+    //**********************************************************************
+
+    //----------------------------------------------------------------------
+    void Framebuffer::create( U32 width, U32 height, U32 attachmentCount, const VkImageView* pImageViews )
+    {
+        m_attachmentRefs.resize( attachmentCount );
+        for (I32 i = 0; i < m_attachmentRefs.size(); i++)
+        {
+            m_attachmentRefs[i].clearValue.depthStencil.depth = 1.0f;
+            m_attachmentRefs[i].loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+            m_attachmentRefs[i].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+        }
+
+        VezFramebufferCreateInfo fboCreateInfo{};
+        fboCreateInfo.width             = width;
+        fboCreateInfo.height            = height;
+        fboCreateInfo.attachmentCount   = attachmentCount;
+        fboCreateInfo.pAttachments      = pImageViews;
+        vezCreateFramebuffer( g_vulkan.device, &fboCreateInfo, &framebuffer );
+    }
+
+    //----------------------------------------------------------------------
+    void Framebuffer::destroy()
+    { 
+        vezDestroyFramebuffer( g_vulkan.device, framebuffer );
+        framebuffer = VK_NULL_HANDLE;
+        m_attachmentRefs.clear();
+    }
+
+    //----------------------------------------------------------------------
+    void Framebuffer::setClearColor( Color color )
+    {
+        for (auto& ref : m_attachmentRefs)
+        {
+            ref.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+            auto colorNorm = color.normalized();
+            ref.clearValue.color = { colorNorm[0], colorNorm[1], colorNorm[2], colorNorm[3] };
+        }
+    }
+
+    //----------------------------------------------------------------------
+    void Framebuffer::setClearDepthStencil( F32 depth, U32 stencil )
+    {
+        for (auto& ref : m_attachmentRefs)
+        {
+            ref.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+            ref.clearValue.depthStencil = { depth, stencil };
+        }
+    }
+
+    //**********************************************************************
     // CONTEXT
     //**********************************************************************
 
     //----------------------------------------------------------------------
     void Context::Init()
     {
+        ASSERT( g_vulkan.device && "Init function should be called after creating a device!" );
+        for (U32 i = 0; i < NUM_FRAME_DATA; i++)
+        {
+            VezCommandBufferAllocateInfo allocateInfo{ NULL, g_vulkan.graphicsQueue, 1 };
+            vezAllocateCommandBuffers( g_vulkan.device, &allocateInfo, &m_frameData[i].cmd );
+        }
     }
 
     //----------------------------------------------------------------------
     void Context::Shutdown()
     {
+        for (U32 i = 0; i < NUM_FRAME_DATA; i++)
+        {
+            vezFreeCommandBuffers( g_vulkan.device, 1, &m_frameData[i].cmd );
+            m_frameData[i].fence = VK_NULL_HANDLE;
+            m_frameData[i].semRenderingFinished = VK_NULL_HANDLE;
+        }
     }
 
     //----------------------------------------------------------------------
     void Context::BeginFrame()
     {
+        _ClearContext();
 
+        // Wait on fence, so cmd can be safely reused
+        auto& curFD = curFrameData();
+        if (curFD.fence)
+        {
+            VALIDATE( vezWaitForFences( g_vulkan.device, 1, &curFD.fence, VK_TRUE, ~0 ) );
+            vezDestroyFence( g_vulkan.device, curFD.fence );
+            curFD.fence = VK_NULL_HANDLE;
+        }
+
+        // Begin recording
+        VALIDATE( vezResetCommandBuffer( curFrameData().cmd ) );
+        VALIDATE( vezBeginCommandBuffer( curFrameData().cmd, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT ) );
     }
 
     //----------------------------------------------------------------------
     void Context::EndFrame()
     {
+        if (m_insideRenderPass)
+            EndRenderPass();
 
+        VALIDATE( vezEndCommandBuffer( curFrameData().cmd ) );
+
+        VezSubmitInfo submitInfo = {};
+        submitInfo.signalSemaphoreCount = 1;
+        submitInfo.pSignalSemaphores    = &curFrameData().semRenderingFinished;
+        submitInfo.commandBufferCount   = 1;
+        submitInfo.pCommandBuffers      = &curDrawCmd();
+        VALIDATE( vezQueueSubmit( g_vulkan.graphicsQueue, 1, &submitInfo, &curFrameData().fence ) );
     }
 
     //**********************************************************************
@@ -328,103 +365,132 @@ namespace Graphics { namespace Vulkan {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    void Context::SetClearColor( Color color )
+    void Context::IASetInputLayout( const VezVertexInputFormat& inputLayout )
     {
-
+        vezCmdSetVertexInputFormat( curDrawCmd(), inputLayout );
     }
-
-    //----------------------------------------------------------------------
-    void Context::SetClearDepthStencil( F32 depth, U32 stencil ) 
-    {
-
-    }
-
-    //----------------------------------------------------------------------
-    void Context::SetPipelineLayout( VkPipelineLayout pipelineLayout )
-    {
-
-    }
-
-    //----------------------------------------------------------------------
-    //void Context::IASetInputLayout( const VertexInputLayout& inputLayout )
-    //{
-
-    //}
 
     //----------------------------------------------------------------------
     void Context::IASetPrimitiveTopology( VkPrimitiveTopology topology )
     {
-
+        VezInputAssemblyState stateInfo{};
+        stateInfo.topology = topology;
+        vezCmdSetInputAssemblyState( curDrawCmd(), &stateInfo );
     }
 
     //----------------------------------------------------------------------
-    void Context::SetVertexShader( VkShaderModule module )
+    void Context::IASetVertexBuffers( U32 firstBinding, U32 bindingCount, const VkBuffer* pBuffers, const VkDeviceSize* pOffsets )
     {
-
+        vezCmdBindVertexBuffers( curDrawCmd(), firstBinding, bindingCount, pBuffers, pOffsets );
     }
 
     //----------------------------------------------------------------------
-    void Context::SetFragmentShader( VkShaderModule module )
+    void Context::IASetIndexBuffer( VkBuffer buffer, VkDeviceSize offset, VkIndexType indexType )
     {
-
+        vezCmdBindIndexBuffer( curDrawCmd(), buffer, offset, indexType );
     }
 
     //----------------------------------------------------------------------
-    void Context::SetGeometryShader( VkShaderModule module )
+    void Context::BindPipeline( VezPipeline pipeline )
     {
-
+        vezCmdBindPipeline( curDrawCmd(), pipeline );
     }
 
     //----------------------------------------------------------------------
-    //void Context::OMSetRenderTarget( ImageView* color, ImageView* depth, VkImageLayout finalColorLayout, VkImageLayout finalDepthLayout )
-    //{
-
-    //}
-
-    //----------------------------------------------------------------------
-    void Context::OMSetBlendState( U32 index, const VkPipelineColorBlendAttachmentState& blendState )
+    void Context::OMSetRenderTarget( const Framebuffer& fbo )
     {
+        if (m_insideRenderPass) // End previous renderpass if any
+            EndRenderPass();
 
+        // Begin a new render pass
+        auto& attachmentReferences = fbo.getAttachmentReferences();
+        VezRenderPassBeginInfo beginInfo = {};
+        beginInfo.framebuffer       = fbo.framebuffer;
+        beginInfo.attachmentCount   = static_cast<uint32_t>( attachmentReferences.size() );
+        beginInfo.pAttachments      = attachmentReferences.data();
+        vezCmdBeginRenderPass( curDrawCmd(), &beginInfo );
+        m_insideRenderPass = true;
     }
 
     //----------------------------------------------------------------------
-    void Context::OMSetDepthStencilState( const VkPipelineDepthStencilStateCreateInfo& dsState )
+    void Context::OMSetBlendState( U32 index, const VezColorBlendAttachmentState& blendAttachmentState )
     {
+        VezColorBlendState blendState{};
+        blendState.attachmentCount = 1;
+        blendState.pAttachments = &blendAttachmentState;
+        vezCmdSetColorBlendState( curDrawCmd(), &blendState );
+    }
 
+    //----------------------------------------------------------------------
+    void Context::OMSetDepthStencilState( const VezDepthStencilState& dsState )
+    {
+        vezCmdSetDepthStencilState( curDrawCmd(), &dsState );
     }
 
     //----------------------------------------------------------------------
     void Context::RSSetViewports( VkViewport viewport )
     {
- 
+        vezCmdSetViewport( curDrawCmd(), 0, 1, &viewport );
+        vezCmdSetViewportState( curDrawCmd(), 1 );
     }
 
     //----------------------------------------------------------------------
-    void Context::RSSetState( const VkPipelineRasterizationStateCreateInfo& rzState )
+    void Context::RSSetScissor( VkRect2D scissor)
     {
-
+        vezCmdSetScissor( curDrawCmd(), 0, 1, &scissor );
     }
 
     //----------------------------------------------------------------------
-    //void Context::ResolveImage( ColorImage* src, ColorImage* dst )
-    //{
-    //    g_vulkan.curDrawCmd().resolveImage( src, dst );
-    //}
+    void Context::RSSetState( const VezRasterizationState& rzState )
+    {
+        vezCmdSetRasterizationState( curDrawCmd(), &rzState );
+    }
 
-    ////----------------------------------------------------------------------
-    //void Context::ResolveImage( DepthImage* src, DepthImage* dst )
-    //{
-    //    g_vulkan.curDrawCmd().resolveImage( src, dst );
-    //}
+    //----------------------------------------------------------------------
+    void Context::ResolveImage( VkImage src, VkImage dst, VkExtent2D extent )
+    {
+        VezImageResolve region{};
+        region.extent.width  = extent.width;
+        region.extent.height = extent.height;
+        region.extent.depth  = 1;
+        vezCmdResolveImage( curDrawCmd(), src, dst, 1, &region );
+    }
 
-    ////----------------------------------------------------------------------
-    //void Context::Draw( U32 vertexCount, U32 instanceCount, U32 firstVertex, U32 firstInstance )
-    //{
-    //    g_vulkan.curDrawCmd().draw( vertexCount, instanceCount, firstVertex, firstInstance );
-    //}
+    //----------------------------------------------------------------------
+    void Context::Draw( U32 vertexCount, U32 instanceCount, U32 firstVertex, U32 firstInstance )
+    {
+        vezCmdDraw( curDrawCmd(), vertexCount, instanceCount, firstVertex, firstInstance );
+    }
+
+    //----------------------------------------------------------------------
+    void Context::DrawIndexed (U32 indexCount, U32 instanceCount, U32 firstVertex, U32 vertexOffset, U32 firstInstance )
+    {
+        vezCmdDrawIndexed( curDrawCmd(), indexCount, instanceCount, firstVertex, vertexOffset, firstInstance );
+    }
+
+    //----------------------------------------------------------------------
+    void Context::PushConstants( U32 offset, U32 size, const void* pValues )
+    {
+        vezCmdPushConstants( curDrawCmd(), offset, size, pValues );
+    }
+
+    //----------------------------------------------------------------------
+    void Context::EndRenderPass()
+    {
+        vezCmdEndRenderPass( curDrawCmd() );
+        m_insideRenderPass = false;
+    }
 
     //**********************************************************************
     // PRIVATE
     //**********************************************************************
+
+    //----------------------------------------------------------------------
+    void Context::_ClearContext()
+    {
+        m_frameDataIndex = (m_frameDataIndex + 1) % NUM_FRAME_DATA;
+        curFrameData().semRenderingFinished = VK_NULL_HANDLE;
+        m_insideRenderPass = false;
+    }
 
 } } // End namespaces

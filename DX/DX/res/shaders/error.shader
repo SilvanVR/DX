@@ -34,11 +34,11 @@ float4 main( float4 PosH : SV_POSITION ) : SV_Target
 
 #include "/engine/shaders/includes/vulkan/engineVS.glsl"
 
-layout (location = 0) in vec3 inPos;
+layout (location = 0) in vec3 VERTEX_POSITION;
 
 void main()
 {
-	gl_Position = TO_CLIP_SPACE( inPos );
+	gl_Position = TO_CLIP_SPACE( VERTEX_POSITION );
 }
 
 // ----------------------------------------------

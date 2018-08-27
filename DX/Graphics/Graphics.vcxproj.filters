@@ -156,6 +156,9 @@
     <ClCompile Include="src\Include\Graphics\Vulkan\Pipeline\VkShaderModule.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Include\Graphics\Vulkan\Pipeline\VkBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\stdafx.h">
@@ -345,6 +348,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Include\Graphics\Vulkan\Pipeline\VkShaderModule.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Include\Graphics\Vulkan\Pipeline\VkBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

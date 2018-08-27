@@ -2,6 +2,13 @@
 #extension GL_ARB_separate_shader_objects : enable
 #extension GL_ARB_shading_language_420pack : enable
 
+// Predefined vertex streams
+#define VERTEX_POSITION POSITION
+#define VERTEX_COLOR	COLOR
+#define VERTEX_UV		TEXCOORD
+#define VERTEX_NORMAL	NORMAL
+#define VERTEX_TANGENT	TANGENT
+
 // PER OBJECT PUSH CONSTANT
 layout (std140, push_constant) uniform PushConstant 
 {

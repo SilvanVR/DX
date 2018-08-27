@@ -29,17 +29,24 @@ namespace Graphics { namespace Vulkan {
         void bindForRendering();
         void clear(Color color);
         void recreate(U32 w, U32 h);
+        void setVSync(bool enabled);
 
     private:
         VkSurfaceKHR        m_surface   = VK_NULL_HANDLE;
         VezSwapchain        m_swapchain = VK_NULL_HANDLE;
         VkSurfaceFormatKHR  m_surfaceFormat{ VK_FORMAT_UNDEFINED };
-        VkImage             m_swapchainImage = VK_NULL_HANDLE;
         VkExtent2D          m_extent{};
 
+        struct
+        {
+            VkImage     img  = VK_NULL_HANDLE;
+            VkImageView view = VK_NULL_HANDLE;
+            Framebuffer fbo; 
+        } m_framebuffer;
+
         //----------------------------------------------------------------------
-        void _CreateImage(U32 width, U32 height, VkFormat format);
-        void _DestroyImage();
+        void _CreateSwapchainFBO(U32 width, U32 height, VkFormat format);
+        void _DestroySwapchainFBO();
 
         NULL_COPY_AND_ASSIGN(Swapchain)
     };

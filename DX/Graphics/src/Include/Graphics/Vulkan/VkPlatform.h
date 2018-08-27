@@ -32,34 +32,79 @@ namespace Graphics { class VkRenderer; }
 namespace Graphics { namespace Vulkan {
 
     //**********************************************************************
-    class Context
+    // Simple wrapper for a VezFramebuffer and VezAttachmentReferences
+    //**********************************************************************
+    class Framebuffer
     {
     public:
-        void SetClearColor(Color color);
-        void SetClearDepthStencil(F32 depth, U32 stencil);
-        void SetPipelineLayout(VkPipelineLayout pipelineLayout);
-        //void IASetInputLayout(const VertexInputLayout& inputLayout);
-        void IASetPrimitiveTopology(VkPrimitiveTopology topology);
-        void SetVertexShader(VkShaderModule module);
-        void SetFragmentShader(VkShaderModule module);
-        void SetGeometryShader(VkShaderModule module);
-        //void OMSetRenderTarget(ImageView* color, ImageView* depth, 
-        //                       VkImageLayout finalColorLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, 
-        //                       VkImageLayout finalDepthLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-        void OMSetBlendState(U32 index, const VkPipelineColorBlendAttachmentState& blendState);
-        void OMSetDepthStencilState(const VkPipelineDepthStencilStateCreateInfo& dsState);
-        void RSSetViewports(VkViewport viewport);
-        void RSSetState(const VkPipelineRasterizationStateCreateInfo& rzState);
-        //void ResolveImage(ColorImage* src, ColorImage* dst);
-        //void ResolveImage(DepthImage* src, DepthImage* dst);
-        //void Draw(U32 vertexCount, U32 instanceCount = 1, U32 firstVertex = 0, U32 firstInstance = 0);
+        VezFramebuffer framebuffer = VK_NULL_HANDLE;
+
+        //----------------------------------------------------------------------
+        void create(U32 width, U32 height, U32 attachmentCount, const VkImageView* pImageViews);
+        void destroy();
+
+        //----------------------------------------------------------------------
+        // Set's the clear color for all attachments.
+        //----------------------------------------------------------------------
+        void setClearColor(Color color);
+
+        //----------------------------------------------------------------------
+        // Set's the clear depth/stencil for all attachments.
+        //----------------------------------------------------------------------
+        void setClearDepthStencil(F32 depth, U32 stencil);
+
+        //----------------------------------------------------------------------
+        const ArrayList<VezAttachmentReference>& getAttachmentReferences() const { return m_attachmentRefs; }
 
     private:
-        friend class Platform;
+        ArrayList<VezAttachmentReference> m_attachmentRefs;
+    };
+
+    //**********************************************************************
+    class Context
+    {
+        static const I32 NUM_FRAME_DATA = 2;
+        struct FrameData
+        {
+            VkFence             fence = VK_NULL_HANDLE; // Signaled when cmd has finished execution
+            VkSemaphore         semRenderingFinished = VK_NULL_HANDLE;
+            VezCommandBuffer    cmd = VK_NULL_HANDLE;
+        };
+        std::array<FrameData, NUM_FRAME_DATA> m_frameData;
+        U32 m_frameDataIndex = 0;
+
+    public:
+        //----------------------------------------------------------------------
+        VezCommandBuffer&   curDrawCmd() { return m_frameData[m_frameDataIndex].cmd; }
+        FrameData&          curFrameData() { return m_frameData[m_frameDataIndex]; }
+
+        //----------------------------------------------------------------------
+        void IASetInputLayout(const VezVertexInputFormat& inputLayout);
+        void IASetPrimitiveTopology(VkPrimitiveTopology topology);
+        void IASetVertexBuffers(U32 firstBinding, U32 bindingCount, const VkBuffer* pBuffers, const VkDeviceSize* offsets);
+        void IASetIndexBuffer(VkBuffer buffer, VkDeviceSize offset, VkIndexType indexType);
+        void BindPipeline(VezPipeline pipeline);
+        void OMSetRenderTarget(const Framebuffer& fbo);
+        void OMSetBlendState(U32 index, const VezColorBlendAttachmentState& blendState);
+        void OMSetDepthStencilState(const VezDepthStencilState& dsState);
+        void RSSetViewports(VkViewport viewport);
+        void RSSetScissor(VkRect2D scissor);
+        void RSSetState(const VezRasterizationState& rzState);
+        void ResolveImage(VkImage src, VkImage dst, VkExtent2D extent);
+        void Draw(U32 vertexCount, U32 instanceCount = 1, U32 firstVertex = 0, U32 firstInstance = 0);
+        void DrawIndexed(U32 indexCount, U32 instanceCount, U32 firstVertex, U32 vertexOffset, U32 firstInstance);
+        void PushConstants(U32 offset, U32 size, const void* pValues);
+        void EndRenderPass();
+
+    private:
+        friend class VkRenderer;
         void Init();
         void Shutdown();
         void BeginFrame();
         void EndFrame();
+
+        void _ClearContext();
+        bool m_insideRenderPass = false;
     } ;
 
     //----------------------------------------------------------------------
@@ -75,13 +120,6 @@ namespace Graphics { namespace Vulkan {
     //**********************************************************************
     class Platform
     {
-        struct FrameData
-        {
-            VkFence             fence = VK_NULL_HANDLE;
-            VkSemaphore         semRenderingFinished = VK_NULL_HANDLE;
-            VezCommandBuffer    cmd = VK_NULL_HANDLE;
-        };
-
     public:
         Platform() = default;
         ~Platform() = default;
@@ -93,25 +131,13 @@ namespace Graphics { namespace Vulkan {
         VkQueue         transferQueue               = VK_NULL_HANDLE;
         Context         ctx;
 
-        //----------------------------------------------------------------------
-        VezCommandBuffer&   curDrawCmd()    { return m_frameData[m_frameDataIndex].cmd; }
-        FrameData&          curFrameData()  { return m_frameData[m_frameDataIndex]; }
-
     private:
-        static const I32 NUM_FRAME_DATA = 2;
-        std::array<FrameData, NUM_FRAME_DATA> m_frameData;
-        U32 m_frameDataIndex = 0;
-
         //----------------------------------------------------------------------
         friend class Graphics::VkRenderer;
         void CreateInstance(const ArrayList<String>& extensions);
         void SelectPhysicalDevice(VkPhysicalDevice gpu = nullptr);
         void CreateDevice(VkSurfaceKHR surface, const ArrayList<String>& extensions, const VkPhysicalDeviceFeatures& features);
-        void Init();
         void Shutdown();
-
-        void BeginFrame();
-        void EndFrame();
 
         //----------------------------------------------------------------------
         ArrayList<CString> _GetRequiredInstanceLayers();

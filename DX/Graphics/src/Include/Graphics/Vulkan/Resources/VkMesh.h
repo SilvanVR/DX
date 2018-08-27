@@ -7,11 +7,10 @@
 **********************************************************************/
 
 #include "i_mesh.h"
+#include "Vulkan/Vulkan.hpp"
+#include "../Pipeline/VkBuffer.h"
 
 namespace Graphics { namespace Vulkan {
-
-    class VertexBuffer;
-    class IndexBuffer;
 
     //**********************************************************************
     class Mesh : public IMesh
@@ -21,10 +20,8 @@ namespace Graphics { namespace Vulkan {
         ~Mesh() { _Clear(); }
 
     private:
-        HashMap<StringID, VertexBuffer*> m_pVertexBuffers;
-
-        // Array of index buffer. One indexbuffer for each submesh.
-        ArrayList<IndexBuffer*> m_pIndexBuffers;
+        HashMap<StringID, VertexBuffer>  m_vertexBuffers;
+        ArrayList<IndexBuffer>           m_indexBuffers;
 
         //----------------------------------------------------------------------
         // IMesh Interface
