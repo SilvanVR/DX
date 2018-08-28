@@ -99,7 +99,7 @@ namespace Graphics { namespace Vulkan {
     {
         VkShaderStageFlagBits shaderStage = Utility::TranslateShaderStage( m_shaderType );
         if (not shaderStage)
-            throw new std::runtime_error( "VkShaderModule: Unsupported shader type." );
+            throw std::runtime_error( "VkShaderModule: Unsupported shader type." );
 
         VezShaderModuleCreateInfo createInfo = {};
         createInfo.stage        = shaderStage;
@@ -117,7 +117,7 @@ namespace Graphics { namespace Vulkan {
             vezGetShaderModuleInfoLog( m_shaderModule, &infoLogSize, &infoLog[0] );
 
             vezDestroyShaderModule( g_vulkan.device, m_shaderModule );
-            throw new std::runtime_error( infoLog );
+            throw std::runtime_error( infoLog );
         }
     }
 
