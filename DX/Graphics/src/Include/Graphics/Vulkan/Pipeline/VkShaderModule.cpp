@@ -30,6 +30,8 @@ namespace Graphics { namespace Vulkan {
         if ( not path.exists() )
             throw std::runtime_error( "Missing shader-file: '" + path.toString() + "'." );
 
+        m_entryPoint = entryPoint;
+
         // Load file
         OS::BinaryFile binaryShaderFile( path, OS::EFileMode::READ );
         String content = binaryShaderFile.readAll();
@@ -46,6 +48,8 @@ namespace Graphics { namespace Vulkan {
     //----------------------------------------------------------------------
     void ShaderModule::compileFromSource( const String& source, CString entryPoint )
     {
+        m_entryPoint = entryPoint;
+
         String shaderName = GetShaderTypeName( m_shaderType );
 
         StringID hash = SID( source.c_str() );
@@ -61,14 +65,14 @@ namespace Graphics { namespace Vulkan {
         {
             _CompileGLSL( source, entryPoint );
 
-            //U32 codeSize;
-            //vezGetShaderModuleBinary( m_shaderModule, &codeSize, NULL );
-            //ArrayList<uint32_t> spv( codeSize );
-            //vezGetShaderModuleBinary( m_shaderModule, &codeSize, NULL );
+            U32 codeSize;
+            vezGetShaderModuleBinary( m_shaderModule, &codeSize, NULL );
+            ArrayList<uint32_t> spv( codeSize );
+            VALIDATE( vezGetShaderModuleBinary( m_shaderModule, &codeSize, spv.data() ) );
 
-            //// Store compiled binary data into file
-            //OS::BinaryFile binaryShaderFile( binaryShaderPath, OS::EFileMode::WRITE );
-            //binaryShaderFile.write( (const Byte*)spv.data(), spv.size() * sizeof(uint32_t) );
+            // Store compiled binary data into file
+            OS::BinaryFile binaryShaderFile( binaryShaderPath, OS::EFileMode::WRITE );
+            binaryShaderFile.write( (const Byte*)spv.data(), spv.size() * sizeof(uint32_t) );
         }
         else
         {
@@ -76,15 +80,17 @@ namespace Graphics { namespace Vulkan {
             OS::BinaryFile binaryShaderFile( binaryShaderPath, OS::EFileMode::READ );
             String content = binaryShaderFile.readAll();
 
-            ArrayList<uint32_t> spv( content.begin(), content.end() );
+            U32 codeSize = (U32)content.size() / sizeof(uint32_t);
+            ArrayList<uint32_t> spv( codeSize );
+            memcpy( spv.data(), content.data(), codeSize );
 
             // This should always work
             VezShaderModuleCreateInfo createInfo = {};
             createInfo.stage        = Utility::TranslateShaderStage( m_shaderType );
-            createInfo.codeSize     = static_cast<U32>( spv.size() );
+            createInfo.codeSize     = codeSize;
             createInfo.pCode        = spv.data();
             createInfo.pEntryPoint  = entryPoint;
-            vezCreateShaderModule( g_vulkan.device, &createInfo, &m_shaderModule );
+            VALIDATE( vezCreateShaderModule( g_vulkan.device, &createInfo, &m_shaderModule ) );
         }
     }
 

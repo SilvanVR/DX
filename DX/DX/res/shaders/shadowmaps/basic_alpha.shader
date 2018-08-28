@@ -68,15 +68,15 @@ void main(FragmentIn fin)
 
 #include "/engine/shaders/includes/vulkan/engineVS.glsl"
 
-layout (location = 0) in vec3 inPos;
-layout (location = 1) in vec2 inUV;
+layout (location = 0) in vec3 VERTEX_POSITION;
+layout (location = 1) in vec2 VERTEX_UV;
 
 layout (location = 0) out vec2 outUV;
 
 void main()
 {
-	outUV = inUV;
-	gl_Position = TO_CLIP_SPACE( inPos );
+	outUV = VERTEX_UV;
+	gl_Position = TO_CLIP_SPACE( VERTEX_POSITION );
 }
 
 // ----------------------------------------------

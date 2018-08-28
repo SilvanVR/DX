@@ -226,16 +226,19 @@ namespace Graphics { namespace Vulkan {
         if (m_pVertexShader)
         {
             stageCreateInfo.module = m_pVertexShader->getVkShaderModule();
+            stageCreateInfo.pEntryPoint = m_pVertexShader->getEntryPoint();
             shaderStageCreateInfos.push_back( stageCreateInfo );
         }
         if (m_pFragmentShader)
         {
             stageCreateInfo.module = m_pFragmentShader->getVkShaderModule();
+            stageCreateInfo.pEntryPoint = m_pFragmentShader->getEntryPoint();
             shaderStageCreateInfos.push_back( stageCreateInfo );
         }
         if (m_pGeometryShader)
         {
             stageCreateInfo.module = m_pGeometryShader->getVkShaderModule();
+            stageCreateInfo.pEntryPoint = m_pGeometryShader->getEntryPoint();
             shaderStageCreateInfos.push_back( stageCreateInfo );
         }
 

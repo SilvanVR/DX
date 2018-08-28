@@ -64,14 +64,14 @@ float main(FragmentIn fin) : SV_Depth
 
 #include "/engine/shaders/includes/vulkan/engineVS.glsl"
 
-layout (location = 0) in vec3 inPos;
+layout (location = 0) in vec3 VERTEX_POSITION;
 
 layout (location = 0) out vec3 outWorldPos;
 
 void main()
 {
-	outWorldPos = TO_WORLD_SPACE( inPos );
-	gl_Position = TO_CLIP_SPACE( inPos );
+	outWorldPos = TO_WORLD_SPACE( VERTEX_POSITION );
+	gl_Position = TO_CLIP_SPACE( VERTEX_POSITION );
 }
 
 // ----------------------------------------------

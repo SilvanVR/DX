@@ -24,13 +24,15 @@ namespace Graphics { namespace Vulkan {
         void compileFromSource(const String& shaderSource, CString entryPoint);
 
         //----------------------------------------------------------------------
-        const OS::Path&       getFilePath()               const { return m_filePath; }
-        const VkShaderModule& getVkShaderModule()         const { return m_shaderModule; }
+        const OS::Path&         getFilePath()       const { return m_filePath; }
+        const VkShaderModule&   getVkShaderModule() const { return m_shaderModule; }
+        CString                 getEntryPoint()     const { return m_entryPoint.c_str(); }
 
     private:
         VkShaderModule  m_shaderModule;
         ShaderType      m_shaderType = ShaderType::Unknown;
         OS::Path        m_filePath;
+        String          m_entryPoint;
 
         void _CompileGLSL(const String& source, CString entryPoint);
 
