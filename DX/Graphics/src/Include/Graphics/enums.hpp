@@ -9,6 +9,7 @@
     application.
 **********************************************************************/
 
+#include "Common/enum_class_operators.hpp"
 
 namespace Graphics {
 
@@ -21,13 +22,12 @@ namespace Graphics {
 
     enum class ShaderType
     {
-        Unknown = -1,
-        Vertex,
-        Fragment,
-        Geometry,
-        Tessellation,
-        NUM_SHADER_TYPES
+        Unknown      = 0 << 0,
+        Vertex       = 1 << 0,
+        Fragment     = 1 << 1,
+        Geometry     = 1 << 2
     };
+    ENABLE_BITMASK_OPERATORS(ShaderType)
 
     // Available index-formats for an index buffer
     enum class IndexFormat

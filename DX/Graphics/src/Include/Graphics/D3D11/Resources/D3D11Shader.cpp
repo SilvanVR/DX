@@ -16,7 +16,8 @@ namespace Graphics { namespace D3D11 {
     //----------------------------------------------------------------------
     Shader::Shader()
     {
-        _CreatePipeline();
+        setDepthStencilState({});
+        setRasterizationState({});
     }
 
     //----------------------------------------------------------------------
@@ -122,63 +123,6 @@ namespace Graphics { namespace D3D11 {
     }
 
     //----------------------------------------------------------------------
-    const ShaderUniformBufferDeclaration* Shader::getVSUniformMaterialBuffer() const 
-    {
-        return m_pVertexShader->getMaterialBufferDeclaration();
-    }
-
-    //----------------------------------------------------------------------
-    const ShaderUniformBufferDeclaration* Shader::getFSUniformMaterialBuffer() const 
-    { 
-        return m_pPixelShader->getMaterialBufferDeclaration(); 
-    }
-
-    //----------------------------------------------------------------------
-    const ShaderUniformBufferDeclaration* Shader::getGSUniformMaterialBuffer() const 
-    { 
-        return m_pGeometryShader->getMaterialBufferDeclaration();
-    }
-
-    //----------------------------------------------------------------------
-    const ShaderUniformBufferDeclaration* Shader::getVSUniformShaderBuffer() const
-    {
-        return m_pVertexShader->getShaderBufferDeclaration();
-    }
-
-    //----------------------------------------------------------------------
-    const ShaderUniformBufferDeclaration* Shader::getFSUniformShaderBuffer() const
-    {
-        return m_pPixelShader->getShaderBufferDeclaration();
-    }
-
-    //----------------------------------------------------------------------
-    const ShaderUniformBufferDeclaration* Shader::getGSUniformShaderBuffer() const
-    {
-        return m_pGeometryShader->getShaderBufferDeclaration();
-    }
-
-    //----------------------------------------------------------------------
-    const ShaderResourceDeclaration* Shader::getShaderResource( StringID name ) const
-    {
-        auto decl1 = m_pVertexShader->getResourceDeclaration( name );
-        auto decl2 = m_pPixelShader ? m_pPixelShader->getResourceDeclaration( name ) : nullptr;
-        auto decl3 = m_pGeometryShader ? m_pGeometryShader->getResourceDeclaration( name ) : nullptr;
-
-        if ( decl1 && decl2 && decl3 )
-            LOG_WARN_RENDERING( "Shader::getShaderResource(): Resource with name '" + name.toString() + "' exists in more than one shader." );
-
-        if (decl1)
-            return decl1;
-        else if (decl2)
-            return decl2;
-        else if (decl3)
-            return decl3;
-
-        // Not found
-        return nullptr;
-    }
-
-    //----------------------------------------------------------------------
     void Shader::setRasterizationState( const RasterizationState& rzState )
     {
         D3D11_RASTERIZER_DESC rsDesc = {};
@@ -240,16 +184,69 @@ namespace Graphics { namespace D3D11 {
         HR( g_pDevice->CreateBlendState( &blendDesc, &m_pBlendState.releaseAndGet() ) );
     }
 
+    //----------------------------------------------------------------------
+    void _AddUbos( ArrayList<ShaderUniformBufferDeclaration>& list, const ArrayList<ShaderUniformBufferDeclaration>& ubos )
+    {
+        for (auto& ubo : ubos)
+        {
+            // Check if ubo already exists.
+            auto it = std::find( list.begin(), list.end(), ubo );
+            if (it == list.end()) // Ubo didn't exist, add it
+                list.push_back( ubo );
+            else // Ubo already exist, add shader-stage
+                it->_AddShaderStage( ubo.getShaderStages() );
+        }
+    }
+
+    //----------------------------------------------------------------------
+    void _AddShaderResource( ArrayList<ShaderResourceDeclaration>& list, const ArrayList<ShaderResourceDeclaration>& resources )
+    {
+        for (auto& res : resources)
+        {
+            // Check if ubo already exists.
+            auto it = std::find( list.begin(), list.end(), res );
+            if (it == list.end()) // Ubo didn't exist, add it
+                list.push_back( res );
+            else // Ubo already exist, add shader-stage
+                it->_AddShaderStage( res.getShaderStages() );
+        }
+    }
+
+    //----------------------------------------------------------------------
+    void Shader::createPipeline()
+    {
+        m_uniformBuffers.clear();
+        m_shaderResources.clear();
+
+        if (m_pVertexShader)
+        {
+            auto ubos = m_pVertexShader->getConstantBufferBindings();
+            _AddUbos( m_uniformBuffers, ubos );
+
+            auto resources = m_pVertexShader->getResourceDeclarations();
+            _AddShaderResource( m_shaderResources, resources );
+        }
+        if (m_pPixelShader)
+        {
+            auto ubos = m_pPixelShader->getConstantBufferBindings();
+            _AddUbos( m_uniformBuffers, ubos );
+
+            auto resources = m_pPixelShader->getResourceDeclarations();
+            _AddShaderResource( m_shaderResources, resources );
+        }
+        if (m_pGeometryShader)
+        {
+            auto ubos = m_pGeometryShader->getConstantBufferBindings();
+            _AddUbos( m_uniformBuffers, ubos );
+
+            auto resources = m_pGeometryShader->getResourceDeclarations();
+            _AddShaderResource( m_shaderResources, resources );
+        }
+    }
+
     //**********************************************************************
     // PRIVATE
     //**********************************************************************
-
-    //----------------------------------------------------------------------
-    void Shader::_CreatePipeline()
-    {
-        setDepthStencilState({});
-        setRasterizationState({});
-    }
 
     //----------------------------------------------------------------------
     void Shader::_CreateVSConstantBuffer()

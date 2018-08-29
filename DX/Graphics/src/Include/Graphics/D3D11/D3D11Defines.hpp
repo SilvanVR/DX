@@ -10,6 +10,3 @@
 
 // If a semantic ends with this (sem-index excluded) it will be treated as an instance attribute
 #define SEMANTIC_INSTANCED      "_INSTANCE"
-
-#define MATERIAL_NAME           "material"
-#define SHADER_NAME             "shader"

@@ -15,7 +15,6 @@
 #define VERTEX_SHADER                   "vertex"
 #define FRAGMENT_SHADER                 "fragment"
 #define GEOMETRY_SHADER                 "geometry"
-#define TESSELLATION_SHADER             "tessellation"
 
 #define RASTERIZATION_CULL                      "#cull"
 #define RASTERIZATION_CULL_FRONT                "front"
@@ -38,7 +37,6 @@
 
 #define SHADER_QUEUE                    "#queue"
 
-#define NUM_SHADER_TYPES                (I32)Graphics::ShaderType::NUM_SHADER_TYPES
 #define INCLUDE_NAME                    "#include"
 
 #define D3D11_NAME                       "#d3d11"
@@ -49,6 +47,15 @@ namespace Assets {
     //**********************************************************************
     class ShaderParser
     {
+        enum ShaderMapping
+        {
+            None     = 0,
+            Vertex   = 1,
+            Fragment = 2,
+            Geometry = 3,
+            NUM_SHADER_TYPES
+        };
+
     public:
         //----------------------------------------------------------------------
         // Tries to load a custom shader file format from the given file.
@@ -60,8 +67,8 @@ namespace Assets {
         static ShaderPtr LoadShader( const OS::Path& filePath )
         {
             auto shader = RESOURCES.createShader();
-            UpdateShader( shader, filePath );
             shader->setName( filePath.getFileName() );
+            UpdateShader( shader, filePath );
             return shader;
         }
 
@@ -83,13 +90,12 @@ namespace Assets {
             {
                 if ( not shaderSources[i].empty() )
                 {
-                    switch ((Graphics::ShaderType)(i-1))
+                    switch ((ShaderMapping)(i))
                     {
-                    case Graphics::ShaderType::Vertex:   shader->compileVertexShaderFromSource( shaderSources[i], "main" ); break;
-                    case Graphics::ShaderType::Fragment: shader->compileFragmentShaderFromSource( shaderSources[i], "main" ); break;
-                    case Graphics::ShaderType::Geometry: shader->compileGeometryShaderFromSource( shaderSources[i], "main" ); break;
-                    case Graphics::ShaderType::Tessellation:
-                        ASSERT( "Shadertype not supported yet!" );
+                    case ShaderMapping::Vertex:   shader->compileVertexShaderFromSource( shaderSources[i], "main" ); break;
+                    case ShaderMapping::Fragment: shader->compileFragmentShaderFromSource( shaderSources[i], "main" ); break;
+                    case ShaderMapping::Geometry: shader->compileGeometryShaderFromSource( shaderSources[i], "main" ); break;
+                    ASSERT( "Shadertype not supported yet!" );
                     }
                 }
             }
@@ -99,6 +105,9 @@ namespace Assets {
             _SetDepthStencilState( shader, shaderSources[0], filePath );
             _SetBlendState( shader, shaderSources[0], filePath );
             _SetShaderPriority( shader, shaderSources[0], filePath );
+
+            // Create pipeline & reflect resources
+            shader->createPipeline();
         }
 
     private:
@@ -123,7 +132,7 @@ namespace Assets {
             OS::BinaryFile file( filePath, OS::EFileMode::READ );
 
             auto api = Graphics::API::Unknown;
-            auto type = Graphics::ShaderType::Unknown;
+            auto type = ShaderMapping::None;
             std::array<String, NUM_SHADER_TYPES> shaderSources;
             while ( not file.eof() )
             {
@@ -146,13 +155,11 @@ namespace Assets {
                         throw std::runtime_error( "ShaderParser(): No #API specification before a #shader. Please add '#vulkan' or '#d3d11' before." );
 
                     if (line.find( VERTEX_SHADER ) != String::npos)
-                        type = Graphics::ShaderType::Vertex;
+                        type = Vertex;
                     else if (line.find( FRAGMENT_SHADER ) != String::npos)
-                        type = Graphics::ShaderType::Fragment;
+                        type = Fragment;
                     else if (line.find( GEOMETRY_SHADER ) != String::npos)
-                        type = Graphics::ShaderType::Geometry;
-                    else if (line.find( TESSELLATION_SHADER ) != String::npos)
-                        type = Graphics::ShaderType::Tessellation;
+                        type = Geometry;
                 }
                 else if ( line.find( INCLUDE_NAME ) != String::npos && api == RENDERER.getAPI() )
                 {
@@ -163,7 +170,7 @@ namespace Assets {
                         OS::Path fullPath = isVirtualPath ? includeFilePath : filePath.getDirectoryPath() + includeFilePath;
 
                         OS::BinaryFile includeFile( fullPath, OS::EFileMode::READ );
-                        shaderSources[(I32)type + 1].append( includeFile.readAll() );
+                        shaderSources[type].append( includeFile.readAll() );
                     }
                     catch (const std::runtime_error& e) {
                         LOG_WARN( "Could not include file '" + includeFilePath + "' in shader-file '" + filePath.toString() + "'. Reason: " + e.what() );
@@ -172,7 +179,7 @@ namespace Assets {
                 else
                 {
                     if (api == RENDERER.getAPI() || api == Graphics::API::Unknown)
-                        shaderSources[(I32)type + 1].append( line + '\n' );
+                        shaderSources[type].append( line + '\n' );
                 }
             }
 

@@ -41,34 +41,6 @@ namespace Graphics { namespace D3D11 {
     }
 
     //----------------------------------------------------------------------
-    const ShaderUniformBufferDeclaration* ShaderBase::getMaterialBufferDeclaration() const
-    {
-        for ( auto& ubo : m_constantBuffers )
-        {
-            String lower = StringUtils::toLower( ubo.getName().toString() );
-            if ( lower.find( MATERIAL_NAME ) != String::npos )
-                return &ubo;
-        }
-
-        // This shader has no material set
-        return nullptr;
-    }
-
-    //----------------------------------------------------------------------
-    const ShaderUniformBufferDeclaration* ShaderBase::getShaderBufferDeclaration() const
-    {
-        for ( auto& ubo : m_constantBuffers )
-        {
-            String lower = StringUtils::toLower( ubo.getName().toString() );
-            if ( lower.find( SHADER_NAME ) != String::npos )
-                return &ubo;
-        }
-
-        // This shader has no shader set
-        return nullptr;
-    }
-
-    //----------------------------------------------------------------------
     const ShaderResourceDeclaration* ShaderBase::getResourceDeclaration( StringID name ) const
     {
         for (auto& decl : m_resourceDeclarations)
@@ -223,7 +195,7 @@ namespace Graphics { namespace D3D11 {
         D3D11_SHADER_BUFFER_DESC bufferDesc;
         HR( cb->GetDesc( &bufferDesc ) );
 
-        ShaderUniformBufferDeclaration buffer( SID( bufferDesc.Name ), bindSlot, bufferDesc.Size );
+        ShaderUniformBufferDeclaration buffer( m_shaderType, SID( bufferDesc.Name ), bindSlot, bufferDesc.Size );
 
         for (U32 j = 0; j < bufferDesc.Variables; j++)
         {

@@ -21,7 +21,9 @@
 #include "Resources/VkTexture2DArray.h"
 #include "VR/OculusRift/oculus_rift_vk.h"
 
-#define SWAPCHAIN_FORMAT VK_FORMAT_B8G8R8A8_UNORM
+#define SWAPCHAIN_FORMAT    VK_FORMAT_B8G8R8A8_UNORM
+#define ENGINE_VS_PATH      "/engine/shaders/includes/vulkan/engineVS.glsl"
+#define ENGINE_FS_PATH      "/engine/shaders/includes/vulkan/engineFS.glsl"
 
 namespace Graphics {
 
@@ -86,7 +88,7 @@ namespace Graphics {
         g_vulkan.ctx.Init();
 
         _SetGPUDescription();
-        _CreateGlobalBuffer();
+        _CreateGlobalBuffersFromFile( ENGINE_VS_PATH, ENGINE_FS_PATH );
         _CreateCubeMesh();
         LOG_RENDERING( "Done initializing Vulkan... (Using " + getGPUDescription().name + ")" );
     } 
@@ -359,6 +361,7 @@ namespace Graphics {
         {
             VkViewport vp = { 0, 0, (F32)renderTarget->getWidth(), (F32)renderTarget->getHeight(), 0, 1 };
             g_vulkan.ctx.RSSetViewports( vp );
+            g_vulkan.ctx.RSSetScissor({ { (I32)vp.x, (I32)vp.y }, { (U32)vp.width, (U32)vp.height } });
         }
         else
         {
@@ -371,6 +374,7 @@ namespace Graphics {
             vp.height   = viewport.height   * renderTarget->getHeight();
             vp.maxDepth = 1.0f;
             g_vulkan.ctx.RSSetViewports( vp );
+            g_vulkan.ctx.RSSetScissor({ { (I32)vp.x, (I32)vp.y }, { (U32)vp.width, (U32)vp.height } });
         }
 
         // Update camera buffer
@@ -464,8 +468,48 @@ namespace Graphics {
     }
 
     //----------------------------------------------------------------------
-    void VkRenderer::_CreateGlobalBuffer()
+    void VkRenderer::_CreateGlobalBuffersFromFile( const String& engineVS, const String& engineFS )
     {
+        try {
+            OS::BinaryFile vertFile(engineVS, OS::EFileMode::READ );
+            String vertSrc = vertFile.readAll();
+            vertSrc += "                \
+            void main()                 \
+            {                           \
+                gl_Position = vec4(0);  \
+            }";
+
+            OS::BinaryFile fragFile( engineFS, OS::EFileMode::READ );
+            String fragSrc = fragFile.readAll();
+            fragSrc += 
+            "layout (location = 0) out vec4 outColor;   \
+            void main()                                 \
+            {                                           \
+                outColor = vec4(1,1,1,1);               \
+            }";
+
+            auto shader = std::unique_ptr<Graphics::Shader>( createShader() );
+            try {
+                shader->compileVertexShaderFromSource( vertSrc, "main" );
+                shader->compileFragmentShaderFromSource( fragSrc, "main" );
+                shader->createPipeline();
+
+                auto ubos = shader->getUniformBufferDeclarations();
+                for (auto& ubo : ubos)
+                {
+
+                    LOG(ubo.getName().toString());
+                }
+
+            }
+            catch (const std::runtime_error& e) {
+                LOG_ERROR_RENDERING( "Could not precompile '" + engineFS + "' for buffer creation. This is mandatory. Reason: " + e.what() );
+            }
+        } 
+        catch (const std::runtime_error& ex)
+        {
+            LOG_WARN_RENDERING( String( "Could not open ' " + engineFS + "'. This might cause some issues. Reason: " ) + ex.what() );
+        }
     }
 
     //----------------------------------------------------------------------
@@ -526,7 +570,7 @@ namespace Graphics {
         renderContext.BindRendertarget( dst, m_frameCount );
 
         // Set texture in material
-        //material->setTexture( POST_PROCESS_INPUT_NAME, input->getColorBuffer() );
+        material->setTexture( POST_PROCESS_INPUT_NAME, input->getColorBuffer() );
 
         ViewportRect vp = {};
         if (dst == SCREEN_BUFFER) // Blit to Screen and/or HMD depending on camera setting
@@ -577,6 +621,7 @@ namespace Graphics {
         renderContext.BindMaterial( material );
 
         g_vulkan.ctx.RSSetViewports({ viewport.topLeftX, viewport.topLeftY, viewport.width, viewport.height, 0.0f, 1.0f });
+        g_vulkan.ctx.RSSetScissor({ {(I32)viewport.topLeftX, (I32)viewport.topLeftY}, { (U32)viewport.width, (U32)viewport.height } });
         g_vulkan.ctx.IASetPrimitiveTopology( VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP );
         g_vulkan.ctx.Draw(3);
     }

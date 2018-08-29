@@ -52,20 +52,6 @@ namespace Graphics { namespace D3D11 {
         //----------------------------------------------------------------------
         const ShaderUniformBufferDeclaration* getUniformBufferDeclaration(StringID name) const;
 
-        //----------------------------------------------------------------------
-        // @Return:
-        //  Constant buffer info about first constant buffer with name "material" in it.
-        //  Nullptr if not existent.
-        //----------------------------------------------------------------------
-        const ShaderUniformBufferDeclaration* getMaterialBufferDeclaration() const;
-
-        //----------------------------------------------------------------------
-        // @Return:
-        //  Constant buffer info about first constant buffer with name "shader" in it.
-        //  Nullptr if not existent.
-        //----------------------------------------------------------------------
-        const ShaderUniformBufferDeclaration* getShaderBufferDeclaration() const;
-
     protected:
         ComPtr<ID3D11ShaderReflection>          m_pShaderReflection     = nullptr;
         ShaderType                              m_shaderType            = ShaderType::Unknown;

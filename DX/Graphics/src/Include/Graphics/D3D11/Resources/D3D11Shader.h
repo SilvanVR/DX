@@ -27,22 +27,16 @@ namespace Graphics { namespace D3D11 {
         //----------------------------------------------------------------------
         // IShader Interface
         //----------------------------------------------------------------------
-        void                                    compileFromFile(const OS::Path& vertPath, const OS::Path& fragPath, CString entryPoint) override;
-        void                                    compileFromSource(const String& vertSrc, const String& fragSrc, CString entryPoint) override;
-        void                                    compileVertexShaderFromSource(const String& src, CString entryPoint) override;
-        void                                    compileFragmentShaderFromSource(const String& src, CString entryPoint) override;
-        void                                    compileGeometryShaderFromSource(const String& src, CString entryPoint) override;
-        const VertexLayout&                     getVertexLayout() const override;
-        const ShaderResourceDeclaration*        getShaderResource(StringID name) const override;
-        const ShaderUniformBufferDeclaration*   getVSUniformMaterialBuffer() const override;
-        const ShaderUniformBufferDeclaration*   getFSUniformMaterialBuffer() const override;
-        const ShaderUniformBufferDeclaration*   getGSUniformMaterialBuffer() const override;
-        const ShaderUniformBufferDeclaration*   getVSUniformShaderBuffer() const override;
-        const ShaderUniformBufferDeclaration*   getFSUniformShaderBuffer() const override;
-        const ShaderUniformBufferDeclaration*   getGSUniformShaderBuffer() const override;
-        bool                                    hasFragmentShader()     const override { return m_pPixelShader != nullptr; }
-        bool                                    hasGeometryShader()     const override { return m_pGeometryShader != nullptr; }
-        bool                                    hasTessellationShader() const override { return false; }
+        void                compileFromFile(const OS::Path& vertPath, const OS::Path& fragPath, CString entryPoint) override;
+        void                compileFromSource(const String& vertSrc, const String& fragSrc, CString entryPoint) override;
+        void                compileVertexShaderFromSource(const String& src, CString entryPoint) override;
+        void                compileFragmentShaderFromSource(const String& src, CString entryPoint) override;
+        void                compileGeometryShaderFromSource(const String& src, CString entryPoint) override;
+        const VertexLayout& getVertexLayout() const override;
+        bool                hasFragmentShader()     const override { return m_pPixelShader != nullptr; }
+        bool                hasGeometryShader()     const override { return m_pGeometryShader != nullptr; }
+        bool                hasTessellationShader() const override { return false; }
+        void                createPipeline() override;
 
         void _SetInt(StringID name, I32 val)                            override { _UpdateConstantBuffer(name, &val); }
         void _SetFloat(StringID name, F32 val)                          override { _UpdateConstantBuffer(name, &val); }
@@ -78,7 +72,6 @@ namespace Graphics { namespace D3D11 {
         void unbind() override;
 
         //----------------------------------------------------------------------
-        void _CreatePipeline();
         void _CreateConstantBuffers();
         void _UpdateConstantBuffer(StringID name, const void* pData);
         void _CreateVSConstantBuffer();

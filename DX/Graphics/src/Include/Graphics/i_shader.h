@@ -95,9 +95,9 @@ namespace Graphics {
         //----------------------------------------------------------------------
         // Change pipeline states for rendering this shader
         //----------------------------------------------------------------------
-        virtual void setRasterizationState(const RasterizationState& rzState ) = 0;
-        virtual void setDepthStencilState(const DepthStencilState& dsState ) = 0;
-        virtual void setBlendState(const BlendState& bState ) = 0;
+        virtual void setRasterizationState(const RasterizationState& rzState) = 0;
+        virtual void setDepthStencilState(const DepthStencilState& dsState) = 0;
+        virtual void setBlendState(const BlendState& bState) = 0;
 
         //----------------------------------------------------------------------
         // @Return:
@@ -106,26 +106,39 @@ namespace Graphics {
         virtual const VertexLayout& getVertexLayout() const = 0;
 
         //----------------------------------------------------------------------
+        // Usually creates the pipeline for this shader and reflects all resources.
+        // Should be called after every shader-stage has been compiled.
+        //----------------------------------------------------------------------
+        virtual void createPipeline() = 0;
+
+        //----------------------------------------------------------------------
+        // @Return:
+        //  All Resources used by this shaders.
+        //----------------------------------------------------------------------
+        const ArrayList<ShaderUniformBufferDeclaration>& getUniformBufferDeclarations() const { return m_uniformBuffers; }
+        const ArrayList<ShaderResourceDeclaration>&      getResourceDeclarations()      const { return m_shaderResources; }
+
+        //----------------------------------------------------------------------
         // @Return:
         //  Information about the corresponding uniform buffer which is used by a material.
         //----------------------------------------------------------------------
-        virtual const ShaderUniformBufferDeclaration* getVSUniformMaterialBuffer() const = 0;
-        virtual const ShaderUniformBufferDeclaration* getFSUniformMaterialBuffer() const = 0;
-        virtual const ShaderUniformBufferDeclaration* getGSUniformMaterialBuffer() const = 0;
+        const ShaderUniformBufferDeclaration* getVSUniformMaterialBuffer() const;
+        const ShaderUniformBufferDeclaration* getFSUniformMaterialBuffer() const;
+        const ShaderUniformBufferDeclaration* getGSUniformMaterialBuffer() const;
 
         //----------------------------------------------------------------------
         // @Return:
         //  Information about the corresponding uniform buffer which is used by a shader.
         //----------------------------------------------------------------------
-        virtual const ShaderUniformBufferDeclaration* getVSUniformShaderBuffer() const = 0;
-        virtual const ShaderUniformBufferDeclaration* getFSUniformShaderBuffer() const = 0;
-        virtual const ShaderUniformBufferDeclaration* getGSUniformShaderBuffer() const = 0;
+        const ShaderUniformBufferDeclaration* getVSUniformShaderBuffer() const;
+        const ShaderUniformBufferDeclaration* getFSUniformShaderBuffer() const;
+        const ShaderUniformBufferDeclaration* getGSUniformShaderBuffer() const;
 
         //----------------------------------------------------------------------
         // @Return:
         //  The resource declaration with name 'name' across all shader stages. Nullptr if not existent.
         //----------------------------------------------------------------------
-        virtual const ShaderResourceDeclaration* getShaderResource(StringID name) const = 0;
+        const ShaderResourceDeclaration* getShaderResource(StringID name) const;
 
         //----------------------------------------------------------------------
         // @Return:
@@ -245,7 +258,12 @@ namespace Graphics {
         HashMap<StringID, DirectX::XMMATRIX>    m_matrixMap;
         HashMap<StringID, TexturePtr>           m_textureMap;
 
-        ShaderReloadCallback                    m_reloadCallback = nullptr;
+        // Can be set & invoked for shader recompilation
+        ShaderReloadCallback m_reloadCallback = nullptr;
+
+        // All shader resources from all shaders
+        ArrayList<ShaderUniformBufferDeclaration> m_uniformBuffers;
+        ArrayList<ShaderResourceDeclaration>      m_shaderResources;
 
         // Bind all textures in the texture map
         void _BindTextures();
@@ -263,6 +281,8 @@ namespace Graphics {
         friend class VkRenderer;
         virtual void bind() = 0;
         virtual void unbind() = 0;
+
+        const ShaderUniformBufferDeclaration* _GetUniformMaterialBuffer(const String& name, Graphics::ShaderType shaderType) const;
 
         NULL_COPY_AND_ASSIGN(IShader)
     };

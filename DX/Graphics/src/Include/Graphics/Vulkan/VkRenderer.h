@@ -72,7 +72,7 @@ namespace Graphics {
 
         //----------------------------------------------------------------------
         void _SetGPUDescription();
-        void _CreateGlobalBuffer();
+        void _CreateGlobalBuffersFromFile(const String& engineVS, const String& engineFS);
         void _CreateCubeMesh();
         void _SetLimits();
 

@@ -7,6 +7,10 @@
 **********************************************************************/
 
 #include "Logging/logging.h"
+#include "Common/string_utils.h"
+
+#define MATERIAL_NAME "material"
+#define SHADER_NAME   "shader"
 
 namespace Graphics {
 
@@ -97,6 +101,51 @@ namespace Graphics {
             return typeFS;
 
         return DataType::Unknown;
+    }
+
+    //----------------------------------------------------------------------
+    const ShaderUniformBufferDeclaration* IShader::getVSUniformMaterialBuffer() const
+    {
+        return _GetUniformMaterialBuffer( MATERIAL_NAME, ShaderType::Vertex );
+    }
+
+    //----------------------------------------------------------------------
+    const ShaderUniformBufferDeclaration* IShader::getFSUniformMaterialBuffer() const
+    {
+        return _GetUniformMaterialBuffer( MATERIAL_NAME, ShaderType::Fragment );
+    }
+
+    //----------------------------------------------------------------------
+    const ShaderUniformBufferDeclaration* IShader::getGSUniformMaterialBuffer() const
+    {
+        return _GetUniformMaterialBuffer( MATERIAL_NAME, ShaderType::Geometry );
+    }
+
+    //----------------------------------------------------------------------
+    const ShaderUniformBufferDeclaration* IShader::getVSUniformShaderBuffer() const
+    {
+        return _GetUniformMaterialBuffer( SHADER_NAME, ShaderType::Vertex );
+    }
+
+    //----------------------------------------------------------------------
+    const ShaderUniformBufferDeclaration* IShader::getFSUniformShaderBuffer() const
+    {
+        return _GetUniformMaterialBuffer( SHADER_NAME, ShaderType::Fragment );
+    }
+
+    //----------------------------------------------------------------------
+    const ShaderUniformBufferDeclaration* IShader::getGSUniformShaderBuffer() const
+    {
+        return _GetUniformMaterialBuffer( SHADER_NAME, ShaderType::Geometry );
+    }
+
+    //----------------------------------------------------------------------
+    const ShaderResourceDeclaration* IShader::getShaderResource( StringID name ) const
+    {
+        for (auto& res : m_shaderResources)
+            if (res.getName() == name)
+                return &res;
+        return nullptr;
     }
 
     //**********************************************************************
@@ -260,7 +309,7 @@ namespace Graphics {
         {
             auto shaderRes = getShaderResource( pair.first );
             if (shaderRes) // shader res can be null when the shaders was reloaded but the res no longer exists in it
-                pair.second->bind( shaderRes->getShaderType(), shaderRes->getBindingSlot() );
+                pair.second->bind( shaderRes->getShaderStages(), shaderRes->getBindingSlot() );
         }
     }
 
@@ -272,6 +321,25 @@ namespace Graphics {
         m_vec4Map.clear();
         m_matrixMap.clear();
         m_textureMap.clear();
+    }
+
+    //**********************************************************************
+    // PRIVATE
+    //**********************************************************************
+
+    //----------------------------------------------------------------------
+    const ShaderUniformBufferDeclaration* IShader::_GetUniformMaterialBuffer( const String& name, Graphics::ShaderType shaderType ) const
+    {
+        for (auto& ubo : m_uniformBuffers)
+        {
+            if (not (I32)(ubo.getShaderStages() & shaderType))
+                continue; // Skip if ubo is not in given shader-stage
+
+            String lower = StringUtils::toLower( ubo.getName().toString() );
+            if ( lower.find( name ) != String::npos )
+                return &ubo;
+        }
+        return nullptr;
     }
 
 } // End namespaces

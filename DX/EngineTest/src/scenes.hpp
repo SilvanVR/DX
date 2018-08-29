@@ -1689,7 +1689,7 @@ public:
         {
             LOG_WARN( "VRScene(): VR is disabled or no VR headset found." );
             go->addComponent<Components::Camera>();
-            go->getComponent<Components::Transform>()->position = Math::Vec3(0, 1, -15);
+            go->getComponent<Components::Transform>()->position = Math::Vec3(0, 1, -3);
             go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 0.1f);
         }
 

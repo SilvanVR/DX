@@ -24,25 +24,19 @@ namespace Graphics { namespace Vulkan {
         //----------------------------------------------------------------------
         // IShader Interface
         //----------------------------------------------------------------------
-        void                                    compileFromFile(const OS::Path& vertPath, const OS::Path& fragPath, CString entryPoint) override;
-        void                                    compileFromSource(const String& vertSrc, const String& fragSrc, CString entryPoint) override;
-        void                                    compileVertexShaderFromSource(const String& src, CString entryPoint) override;
-        void                                    compileFragmentShaderFromSource(const String& src, CString entryPoint) override;
-        void                                    compileGeometryShaderFromSource(const String& src, CString entryPoint) override;
-        const VertexLayout&                     getVertexLayout() const override;
-        const ShaderResourceDeclaration*        getShaderResource(StringID name) const override;
-        const ShaderUniformBufferDeclaration*   getVSUniformMaterialBuffer() const override;
-        const ShaderUniformBufferDeclaration*   getFSUniformMaterialBuffer() const override;
-        const ShaderUniformBufferDeclaration*   getGSUniformMaterialBuffer() const override;
-        const ShaderUniformBufferDeclaration*   getVSUniformShaderBuffer() const override;
-        const ShaderUniformBufferDeclaration*   getFSUniformShaderBuffer() const override;
-        const ShaderUniformBufferDeclaration*   getGSUniformShaderBuffer() const override;
-        bool                                    hasFragmentShader()     const override { return m_pFragmentShader != nullptr; }
-        bool                                    hasGeometryShader()     const override { return m_pGeometryShader != nullptr; }
-        bool                                    hasTessellationShader() const override { return false; }
-        void                                    setRasterizationState(const RasterizationState& rzState) override;
-        void                                    setDepthStencilState(const DepthStencilState& dsState) override;
-        void                                    setBlendState(const BlendState& bState) override;
+        void                compileFromFile(const OS::Path& vertPath, const OS::Path& fragPath, CString entryPoint) override;
+        void                compileFromSource(const String& vertSrc, const String& fragSrc, CString entryPoint) override;
+        void                compileVertexShaderFromSource(const String& src, CString entryPoint) override;
+        void                compileFragmentShaderFromSource(const String& src, CString entryPoint) override;
+        void                compileGeometryShaderFromSource(const String& src, CString entryPoint) override;
+        const VertexLayout& getVertexLayout() const override;
+        bool                hasFragmentShader()     const override { return m_pFragmentShader != nullptr; }
+        bool                hasGeometryShader()     const override { return m_pGeometryShader != nullptr; }
+        bool                hasTessellationShader() const override { return false; }
+        void                setRasterizationState(const RasterizationState& rzState) override;
+        void                setDepthStencilState(const DepthStencilState& dsState) override;
+        void                setBlendState(const BlendState& bState) override;
+        void                createPipeline() override;
 
     private:
         // Shader modules
@@ -59,8 +53,6 @@ namespace Graphics { namespace Vulkan {
 
         // Custom api independant data structures
         VertexLayout m_vertexLayout;
-        ArrayList<ShaderUniformBufferDeclaration>   m_uniformBuffers;
-        ArrayList<ShaderResourceDeclaration>        m_shaderResources;
 
         // Contains the data in a contiguous block of memory. Will be empty if not used for a shader.
         //std::unique_ptr<MappedConstantBuffer> m_shaderDataVS = nullptr;

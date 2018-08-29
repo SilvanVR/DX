@@ -31,25 +31,18 @@ namespace Graphics { namespace Vulkan {
     //----------------------------------------------------------------------
     void Shader::bind()
     {
-        if (m_pipeline == VK_NULL_HANDLE)
-        {
-            _CreatePipeline();
-            _PipelineResourceReflection( m_pipeline );
-        }
-
+        ASSERT( m_pipeline && "Pipeline object is VK_NULL! Did you forget to call 'createPipeline()'?" );
         g_vulkan.ctx.BindPipeline( m_pipeline );
         g_vulkan.ctx.IASetInputLayout( m_vertexInputFormat );
         g_vulkan.ctx.OMSetBlendState( 0, m_blendState );
         g_vulkan.ctx.OMSetDepthStencilState( m_depthStencilState );
         g_vulkan.ctx.RSSetState( m_rzState );
 
-        //// Bind constant buffers and textures
+        //// Bind ubos and textures
         //if (m_shaderDataVS) m_shaderDataVS->bind( ShaderType::Vertex );
         //if (m_shaderDataPS) m_shaderDataPS->bind( ShaderType::Fragment );
         //if (m_shaderDataGS) m_shaderDataGS->bind( ShaderType::Geometry );
         //_BindTextures();
-
-        // Create descriptor-set layouts from shaders
     }
 
     //----------------------------------------------------------------------
@@ -120,48 +113,6 @@ namespace Graphics { namespace Vulkan {
     }
 
     //----------------------------------------------------------------------
-    const ShaderUniformBufferDeclaration* Shader::getVSUniformMaterialBuffer() const 
-    {
-        return nullptr;
-    }
-
-    //----------------------------------------------------------------------
-    const ShaderUniformBufferDeclaration* Shader::getFSUniformMaterialBuffer() const 
-    { 
-        return nullptr;
-    }
-
-    //----------------------------------------------------------------------
-    const ShaderUniformBufferDeclaration* Shader::getGSUniformMaterialBuffer() const 
-    { 
-        return nullptr;
-    }
-
-    //----------------------------------------------------------------------
-    const ShaderUniformBufferDeclaration* Shader::getVSUniformShaderBuffer() const
-    {
-        return nullptr;
-    }
-
-    //----------------------------------------------------------------------
-    const ShaderUniformBufferDeclaration* Shader::getFSUniformShaderBuffer() const
-    {
-        return nullptr;
-    }
-
-    //----------------------------------------------------------------------
-    const ShaderUniformBufferDeclaration* Shader::getGSUniformShaderBuffer() const
-    {
-        return nullptr;
-    }
-
-    //----------------------------------------------------------------------
-    const ShaderResourceDeclaration* Shader::getShaderResource( StringID name ) const
-    {
-        return nullptr;
-    }
-
-    //----------------------------------------------------------------------
     void Shader::setRasterizationState( const RasterizationState& rzState )
     {
         switch (rzState.fillMode)
@@ -213,6 +164,13 @@ namespace Graphics { namespace Vulkan {
         m_blendState.colorWriteMask      = bs.writeMask;
     }
 
+    //----------------------------------------------------------------------
+    void Shader::createPipeline()
+    {
+        _CreatePipeline();
+        _PipelineResourceReflection( m_pipeline );
+    }
+
     //**********************************************************************
     // PRIVATE
     //**********************************************************************
@@ -220,6 +178,8 @@ namespace Graphics { namespace Vulkan {
     //----------------------------------------------------------------------
     void Shader::_CreatePipeline()
     {
+        ASSERT( m_pipeline == VK_NULL_HANDLE );
+
         // Add shader modules
         ArrayList<VezPipelineShaderStageCreateInfo> shaderStageCreateInfos;
         VezPipelineShaderStageCreateInfo stageCreateInfo{};
@@ -369,27 +329,27 @@ namespace Graphics { namespace Vulkan {
     {
         for (auto& res : resources)
         {
+            ShaderType shaderStages = ShaderType::Unknown;
+            if (res.stages & VK_SHADER_STAGE_VERTEX_BIT)
+                shaderStages |= ShaderType::Vertex;
+            else if(res.stages & VK_SHADER_STAGE_FRAGMENT_BIT)
+                shaderStages |= ShaderType::Fragment;
+            else if(res.stages & VK_SHADER_STAGE_GEOMETRY_BIT)
+                shaderStages |= ShaderType::Geometry;
+            ASSERT( shaderStages != ShaderType::Unknown );
+
             switch (res.resourceType)
             {
             case VEZ_PIPELINE_RESOURCE_TYPE_UNIFORM_BUFFER:
             {
-                ShaderUniformBufferDeclaration ubo( SID(res.name), res.set, res.binding, res.size );
+                ShaderUniformBufferDeclaration ubo( shaderStages, SID(res.name), res.set, res.binding, res.size );
                 // @TODO: Parse members
                 m_uniformBuffers.push_back( ubo );
                 break;
             }
             case VEZ_PIPELINE_RESOURCE_TYPE_SAMPLED_IMAGE:
             case VEZ_PIPELINE_RESOURCE_TYPE_COMBINED_IMAGE_SAMPLER:
-                ShaderType shaderType = ShaderType::Unknown;
-                if (res.stages & VK_SHADER_STAGE_VERTEX_BIT)
-                    shaderType = ShaderType::Vertex;
-                else if(res.stages & VK_SHADER_STAGE_FRAGMENT_BIT)
-                    shaderType = ShaderType::Fragment;
-                else if(res.stages & VK_SHADER_STAGE_GEOMETRY_BIT)
-                    shaderType = ShaderType::Geometry;
-                ASSERT( shaderType != ShaderType::Unknown );
-
-                m_shaderResources.emplace_back( shaderType, res.set, res.binding, SID(res.name), DataType::Texture2D );
+                m_shaderResources.emplace_back( shaderStages, res.set, res.binding, SID(res.name), DataType::Texture2D );
                 break;
             }
         }
