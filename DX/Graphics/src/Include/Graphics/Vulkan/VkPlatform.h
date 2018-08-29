@@ -96,6 +96,7 @@ namespace Graphics { namespace Vulkan {
         void PushConstants(U32 offset, U32 size, const void* pValues);
         void EndRenderPass();
         void SetBuffer(VkBuffer buffer, U32 set, U32 binding);
+        void SetImage(VkImageView imageView, VkSampler sampler, U32 set, U32 binding);
 
     private:
         friend class VkRenderer;

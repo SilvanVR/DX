@@ -482,9 +482,15 @@ namespace Graphics { namespace Vulkan {
     }
 
     //----------------------------------------------------------------------
-    void Context::SetBuffer(VkBuffer buffer, U32 set, U32 binding)
+    void Context::SetBuffer( VkBuffer buffer, U32 set, U32 binding )
     {
         vezCmdBindBuffer( curDrawCmd(), buffer, 0, VK_WHOLE_SIZE, set, binding, 0 );
+    }
+
+    //----------------------------------------------------------------------
+    void Context::SetImage( VkImageView imageView, VkSampler sampler, U32 set, U32 binding )
+    {
+        vezCmdBindImageView( curDrawCmd(), imageView, sampler, set, binding, 0 );
     }
 
     //**********************************************************************

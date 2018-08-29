@@ -110,12 +110,7 @@ namespace Graphics
         // Heap allocated mem for pixels. How large it is depends on width/height and the format
         ArrayList<Byte>     m_pixels;
 
-    private:
-        //----------------------------------------------------------------------
-        ITexture2D(const ITexture2D& other)               = delete;
-        ITexture2D& operator = (const ITexture2D& other)  = delete;
-        ITexture2D(ITexture2D&& other)                    = delete;
-        ITexture2D& operator = (ITexture2D&& other)       = delete;
+        NULL_COPY_AND_ASSIGN(ITexture2D)
     };
 
     using Texture2D = ITexture2D;

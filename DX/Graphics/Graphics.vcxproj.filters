@@ -162,6 +162,9 @@
     <ClCompile Include="src\Include\Graphics\Vulkan\Pipeline\VkMappedUniformBuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Include\Graphics\Vulkan\Resources\VkBindableTexture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\stdafx.h">
@@ -357,6 +360,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Include\Graphics\Vulkan\Pipeline\VkMappedUniformBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Include\Graphics\Vulkan\Resources\VkBindableTexture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

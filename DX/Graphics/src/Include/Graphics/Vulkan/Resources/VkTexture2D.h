@@ -7,6 +7,7 @@
 **********************************************************************/
 
 #include "i_texture2d.hpp"
+#include "Vulkan/Vulkan.hpp"
 
 namespace Graphics { namespace Vulkan {
 
@@ -28,6 +29,12 @@ namespace Graphics { namespace Vulkan {
         bool m_generateMips;
         bool m_keepPixelsInRAM;
         bool m_gpuUpToDate = false;
+
+        struct
+        {
+            VkImage     img;
+            VkImageView view;
+        } m_image;
 
         //----------------------------------------------------------------------
         // ITexture Interface

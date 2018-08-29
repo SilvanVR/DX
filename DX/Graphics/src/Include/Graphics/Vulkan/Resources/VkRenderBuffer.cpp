@@ -93,21 +93,8 @@ namespace Graphics { namespace Vulkan {
             }
         }
 
-        // Bind descriptor-set containing this image
-
-        //switch (shaderType)
-        //{
-        //case ShaderType::Vertex:
-        //    g_pImmediateContext->VSSetShaderResources( slot, 1, &m_pTextureView );
-        //    g_pImmediateContext->VSSetSamplers( slot, 1, &m_pSampleState );
-        //    break;
-        //case ShaderType::Fragment:
-        //    g_pImmediateContext->PSSetShaderResources( slot, 1, &m_pTextureView );
-        //    g_pImmediateContext->PSSetSamplers( slot, 1, &m_pSampleState );
-        //    break;
-        //default:
-        //    ASSERT( false );
-        //}
+        // Bind image
+        g_vulkan.ctx.SetImage( m_framebuffer.view, m_sampler, set, 0 );
     }
 
     //----------------------------------------------------------------------

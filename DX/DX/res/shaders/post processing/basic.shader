@@ -73,10 +73,9 @@ layout (location = 0) in vec2 inUV;
 layout (location = 0) out vec4 outColor;
 
 // Descriptor-Sets
-//layout (set = 0, binding = 0) uniform sampler2D _Input0_S;
+layout (set = 0, binding = 0) uniform sampler2D _Input;
 
 void main()
 {
-	//outColor = texture(_Input0_S, inUV);
-	outColor = vec4(1,1,0,1);
+	outColor = texture(_Input, inUV);
 }

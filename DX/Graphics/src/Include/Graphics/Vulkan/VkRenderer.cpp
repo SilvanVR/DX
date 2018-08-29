@@ -27,17 +27,17 @@
 
 namespace Graphics {
 
-    static constexpr StringID POST_PROCESS_INPUT_NAME   = StringID( "_Input" );
-    static constexpr StringID CAMERA_UBO_NAME           = StringID( "CAMERA" );
-    static constexpr StringID GLOBAL_UBO_NAME           = StringID( "GLOBAL" );
-    static constexpr StringID LIGHTS_UBO_NAME           = StringID( "LIGHTS" );
+    static StringID POST_PROCESS_INPUT_NAME   = SID( "_Input" );
+    static StringID CAMERA_UBO_NAME           = SID( "CAMERA" );
+    static StringID GLOBAL_UBO_NAME           = SID( "GLOBAL" );
+    static StringID LIGHTS_UBO_NAME           = SID( "LIGHTS" );
 
-    static constexpr StringID CAM_POS_NAME              = StringID( "_CameraPos" );
-    static constexpr StringID CAM_VIEW_PROJ_NAME        = StringID( "_ViewProj" );
-    static constexpr StringID CAM_ZNEAR_NAME            = StringID( "_zNear" );
-    static constexpr StringID CAM_ZFAR_NAME             = StringID( "_zFar" );
-    static constexpr StringID CAM_VIEW_MATRIX_NAME      = StringID( "_View" );
-    static constexpr StringID CAM_PROJ_MATRIX_NAME      = StringID( "_Proj" );
+    static StringID CAM_POS_NAME              = SID( "_CameraPos" );
+    static StringID CAM_VIEW_PROJ_NAME        = SID( "_ViewProj" );
+    static StringID CAM_ZNEAR_NAME            = SID( "_zNear" );
+    static StringID CAM_ZFAR_NAME             = SID( "_zFar" );
+    static StringID CAM_VIEW_MATRIX_NAME      = SID( "_View" );
+    static StringID CAM_PROJ_MATRIX_NAME      = SID( "_Proj" );
 
     //static constexpr StringID LIGHT_COUNT_NAME          = StringID( "_LightCount" );
     //static constexpr StringID LIGHT_BUFFER_NAME         = StringID( "_Lights" );
@@ -135,10 +135,10 @@ namespace Graphics {
                 case GPUCommand::SET_CAMERA:
                 {
                     auto& cmd = *reinterpret_cast<GPUC_SetCamera*>( command.get() );
-                    //_SetCamera( &cmd.camera );
-                    m_swapchain.clear(Color::RED);
-                    m_swapchain.bindForRendering();
-                    g_vulkan.ctx.RSSetViewports({ 0, 0, (F32)m_window->getWidth(), (F32)m_window->getHeight(), 0, 1 });
+                    _SetCamera( &cmd.camera );
+                    //m_swapchain.clear(Color::RED);
+                    //m_swapchain.bindForRendering();
+                    //g_vulkan.ctx.RSSetViewports({ 0, 0, (F32)m_window->getWidth(), (F32)m_window->getHeight(), 0, 1 });
                     break;
                 }
                 case GPUCommand::END_CAMERA:
@@ -204,7 +204,7 @@ namespace Graphics {
                 case GPUCommand::BLIT:
                 {
                     auto& cmd = *reinterpret_cast<GPUC_Blit*>( command.get() );
-                    //_Blit( cmd.src, cmd.dst, cmd.material );
+                    _Blit( cmd.src, cmd.dst, cmd.material );
                     break;
                 }
                 case GPUCommand::SET_SCISSOR:
@@ -259,8 +259,8 @@ namespace Graphics {
         g_vulkan.ctx.BeginFrame();
         {
             _LockQueue();
-            for (auto& cmd : m_pendingCmdQueue)
-               _ExecuteCommandBuffer( cmd );
+     /*       for (auto& cmd : m_pendingCmdQueue)
+               _ExecuteCommandBuffer( cmd );*/
             m_pendingCmdQueue.clear();
             _UnlockQueue();
         }
@@ -457,7 +457,7 @@ namespace Graphics {
         ubo.zNear = camera->getZNear();
         ubo.zFar = camera->getZFar();
 
-        m_cameraBuffer->update( &ubo, (U32)sizeof(CameraUBO) );
+        //m_cameraBuffer->update( &ubo, (U32)sizeof(CameraUBO) );
     }
 
     //----------------------------------------------------------------------
@@ -554,18 +554,12 @@ namespace Graphics {
                 auto ubos = shader->getUniformBufferDeclarations();
                 for (auto& ubo : ubos)
                 {
-                    switch ( ubo.getName().id )
-                    {
-                    case CAMERA_UBO_NAME.id:
+                    if (ubo.getName() == CAMERA_UBO_NAME)
                         m_cameraBuffer = new Vulkan::MappedUniformBuffer( ubo, BufferUsage::Frequently );
-                        break;
-                    case GLOBAL_UBO_NAME.id:
+                    else if(ubo.getName() == GLOBAL_UBO_NAME)
                         m_globalBuffer = new Vulkan::MappedUniformBuffer( ubo, BufferUsage::Frequently );
-                        break;
-                    case LIGHTS_UBO_NAME.id:
+                    else if(ubo.getName() == LIGHTS_UBO_NAME)
                         m_lightBuffer = new Vulkan::MappedUniformBuffer( ubo, BufferUsage::Frequently );
-                        break;
-                    }
                 }
                 if (not m_cameraBuffer) LOG_ERROR_RENDERING( "VkRenderer::_CreateGlobalBuffersFromFile(): Could not find camera buffer." );
                 if (not m_globalBuffer) LOG_ERROR_RENDERING( "VkRenderer::_CreateGlobalBuffersFromFile(): Could not find global buffer." );

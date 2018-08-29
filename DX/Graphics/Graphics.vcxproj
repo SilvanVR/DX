@@ -209,6 +209,7 @@
     <ClCompile Include="src\Include\Graphics\Vulkan\Pipeline\VkBuffer.cpp" />
     <ClCompile Include="src\Include\Graphics\Vulkan\Pipeline\VkMappedUniformBuffer.cpp" />
     <ClCompile Include="src\Include\Graphics\Vulkan\Pipeline\VkShaderModule.cpp" />
+    <ClCompile Include="src\Include\Graphics\Vulkan\Resources\VkBindableTexture.cpp" />
     <ClCompile Include="src\Include\Graphics\Vulkan\Resources\VkCubemap.cpp" />
     <ClCompile Include="src\Include\Graphics\Vulkan\Resources\VkMaterial.cpp" />
     <ClCompile Include="src\Include\Graphics\Vulkan\Resources\VkMesh.cpp" />
@@ -280,6 +281,7 @@
     <ClInclude Include="src\Include\Graphics\Vulkan\Pipeline\VkBuffer.h" />
     <ClInclude Include="src\Include\Graphics\Vulkan\Pipeline\VkMappedUniformBuffer.h" />
     <ClInclude Include="src\Include\Graphics\Vulkan\Pipeline\VkShaderModule.h" />
+    <ClInclude Include="src\Include\Graphics\Vulkan\Resources\VkBindableTexture.h" />
     <ClInclude Include="src\Include\Graphics\Vulkan\Resources\VkCubemap.h" />
     <ClInclude Include="src\Include\Graphics\Vulkan\Resources\VkMaterial.h" />
     <ClInclude Include="src\Include\Graphics\Vulkan\Resources\VkMesh.h" />

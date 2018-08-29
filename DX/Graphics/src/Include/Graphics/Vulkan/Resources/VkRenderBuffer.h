@@ -8,13 +8,14 @@
 
 #include "i_renderBuffer.hpp"
 #include "Vulkan/Vulkan.hpp"
+#include "../Resources/VkBindableTexture.h"
 
 namespace Graphics { namespace Vulkan {
 
     class RenderTexture;
 
     //**********************************************************************
-    class RenderBuffer : public IRenderBuffer
+    class RenderBuffer : public IRenderBuffer, public IBindableTexture
     {
         friend class RenderTexture;
     public:
@@ -52,12 +53,12 @@ namespace Graphics { namespace Vulkan {
         //----------------------------------------------------------------------
         // ITexture Interface
         //----------------------------------------------------------------------
-        void _UpdateSampler() override {}
+        void _UpdateSampler() override { IBindableTexture::_RecreateSampler( m_anisoLevel, m_filter, m_clampMode ); }
 
         //----------------------------------------------------------------------
         void _CreateFramebuffer(bool isDepthBuffer);
         void _DestroyFramebuffer(bool isDepthBuffer);
-        inline void _ClearResolvedFlag() { m_resolved = false; }
+        void _ClearResolvedFlag() { m_resolved = false; }
 
         NULL_COPY_AND_ASSIGN(RenderBuffer)
     };
