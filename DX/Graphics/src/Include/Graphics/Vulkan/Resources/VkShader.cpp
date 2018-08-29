@@ -38,11 +38,11 @@ namespace Graphics { namespace Vulkan {
         g_vulkan.ctx.OMSetDepthStencilState( m_depthStencilState );
         g_vulkan.ctx.RSSetState( m_rzState );
 
-        //// Bind ubos and textures
-        //if (m_shaderDataVS) m_shaderDataVS->bind( ShaderType::Vertex );
-        //if (m_shaderDataPS) m_shaderDataPS->bind( ShaderType::Fragment );
-        //if (m_shaderDataGS) m_shaderDataGS->bind( ShaderType::Geometry );
-        //_BindTextures();
+        // Bind ubos and textures
+        if (m_shaderDataVS) m_shaderDataVS->bind();
+        if (m_shaderDataFS) m_shaderDataFS->bind();
+        if (m_shaderDataGS) m_shaderDataGS->bind();
+        _BindTextures();
     }
 
     //----------------------------------------------------------------------
@@ -359,24 +359,24 @@ namespace Graphics { namespace Vulkan {
     void Shader::_CreateVSConstantBuffer()
     {
         _ClearAllMaps();
-        //if ( auto cb = getVSUniformShaderBuffer() )
-        //    m_shaderDataVS.reset( new MappedConstantBuffer( *cb, BufferUsage::LongLived ) );
+        if ( auto cb = getVSUniformShaderBuffer() )
+            m_shaderDataVS.reset( new MappedUniformBuffer( *cb, BufferUsage::LongLived ) );
     }
 
     //----------------------------------------------------------------------
     void Shader::_CreatePSConstantBuffer()
     {
         _ClearAllMaps();
-        //if ( auto cb = getFSUniformShaderBuffer() )
-        //    m_shaderDataPS.reset( new MappedConstantBuffer( *cb, BufferUsage::LongLived ) );
+        if ( auto cb = getFSUniformShaderBuffer() )
+            m_shaderDataFS.reset( new MappedUniformBuffer( *cb, BufferUsage::LongLived ) );
     }
 
     //----------------------------------------------------------------------
     void Shader::_CreateGSConstantBuffer()
     {
         _ClearAllMaps();
-        //if ( auto cb = getGSUniformShaderBuffer() )
-        //    m_shaderDataGS.reset( new MappedConstantBuffer( *cb, BufferUsage::LongLived ) );
+        if ( auto cb = getGSUniformShaderBuffer() )
+            m_shaderDataGS.reset( new MappedUniformBuffer( *cb, BufferUsage::LongLived ) );
     }
 
     //----------------------------------------------------------------------
@@ -395,9 +395,9 @@ namespace Graphics { namespace Vulkan {
         // Because the super shader class issues if the uniform does not exist,
         // i dont have to do it here. The update call on the corresponding mapped buffer
         // will do nothing if the name does not exist.
-        //if (m_shaderDataVS) m_shaderDataVS->update( name, pData );
-        //if (m_shaderDataPS) m_shaderDataPS->update( name, pData );
-        //if (m_shaderDataGS) m_shaderDataGS->update( name, pData );
+        if (m_shaderDataVS) m_shaderDataVS->update( name, pData );
+        if (m_shaderDataFS) m_shaderDataFS->update( name, pData );
+        if (m_shaderDataGS) m_shaderDataGS->update( name, pData );
     }
 
 } } // End namespaces

@@ -57,7 +57,6 @@ namespace Graphics { namespace Vulkan {
     void MappedUniformBuffer::bind()
     {
         flush();
-
         g_vulkan.ctx.SetBuffer( m_GPUBuffer->buffer, m_bufferInfo.getBindingSet(), m_bufferInfo.getBindingSlot() );
     }
 

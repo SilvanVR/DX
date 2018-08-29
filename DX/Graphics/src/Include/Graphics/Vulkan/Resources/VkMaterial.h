@@ -7,6 +7,7 @@
 **********************************************************************/
 
 #include "i_material.h"
+#include "../Pipeline/VkMappedUniformBuffer.h"
 
 namespace Graphics { namespace Vulkan {
 
@@ -15,22 +16,22 @@ namespace Graphics { namespace Vulkan {
     {
     public:
         Material() = default;
-        ~Material() { _DestroyConstantBuffers(); }
+        ~Material() { _DestroyUniformBuffers(); }
 
         //----------------------------------------------------------------------
         // IMaterial Interface
         //----------------------------------------------------------------------
-        void _SetInt(StringID name, I32 val)                            override { _UpdateConstantBuffer(name, &val); }
-        void _SetFloat(StringID name, F32 val)                          override { _UpdateConstantBuffer(name, &val); }
-        void _SetVec4(StringID name, const Math::Vec4& vec)             override { _UpdateConstantBuffer(name, &vec); }
-        void _SetMatrix(StringID name, const DirectX::XMMATRIX& matrix) override { _UpdateConstantBuffer(name, &matrix); }
+        void _SetInt(StringID name, I32 val)                            override { _UpdateUniformBuffer(name, &val); }
+        void _SetFloat(StringID name, F32 val)                          override { _UpdateUniformBuffer(name, &val); }
+        void _SetVec4(StringID name, const Math::Vec4& vec)             override { _UpdateUniformBuffer(name, &vec); }
+        void _SetMatrix(StringID name, const DirectX::XMMATRIX& matrix) override { _UpdateUniformBuffer(name, &matrix); }
         void _SetTexture(StringID name, const TexturePtr& texture)      override {}
 
     private:
         // Contains the material data in a contiguous block of memory. Will be empty if not used for a shader.
-        //MappedConstantBuffer* m_materialDataVS = nullptr;
-        //MappedConstantBuffer* m_materialDataPS = nullptr;
-        //MappedConstantBuffer* m_materialDataGS = nullptr;
+        MappedUniformBuffer* m_materialDataVS = nullptr;
+        MappedUniformBuffer* m_materialDataFS = nullptr;
+        MappedUniformBuffer* m_materialDataGS = nullptr;
 
         //----------------------------------------------------------------------
         // IMaterial Interface
@@ -39,9 +40,9 @@ namespace Graphics { namespace Vulkan {
         void _ChangedShader() override;
 
         //----------------------------------------------------------------------
-        void _DestroyConstantBuffers();
-        void _CreateConstantBuffers();
-        void _UpdateConstantBuffer(StringID name, const void* pData);
+        void _DestroyUniformBuffers();
+        void _CreateUniformBuffers();
+        void _UpdateUniformBuffer(StringID name, const void* pData);
 
         NULL_COPY_AND_ASSIGN(Material)
     };

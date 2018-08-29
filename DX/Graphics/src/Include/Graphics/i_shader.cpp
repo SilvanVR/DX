@@ -21,39 +21,15 @@ namespace Graphics {
     //----------------------------------------------------------------------
     DataType IShader::getDataTypeOfMaterialProperty( StringID name )
     {
-        auto typeVS = DataType::Unknown;
-        auto typeFS = DataType::Unknown;
-        auto typeGS = DataType::Unknown;
-
-        if ( auto VSBuffer = getVSUniformMaterialBuffer() )
-            if ( auto member = VSBuffer->getMember( name ) )
-                typeVS = member->getDataType();
-
-        if ( hasFragmentShader() )
+        for (auto& ubo : m_uniformBuffers)
         {
-            if ( auto FSBuffer = getFSUniformMaterialBuffer() )
-                if ( auto member = FSBuffer->getMember( name ) )
-                    typeFS = member->getDataType();
+            String lower = StringUtils::toLower( ubo.getName().toString() );
+            if (lower.find( MATERIAL_NAME ) == String::npos)
+                continue;
+
+            if (auto member = ubo.getMember(name))
+                return member->getDataType();
         }
-
-        if ( hasGeometryShader() )
-        {
-            if ( auto GSBuffer = getGSUniformMaterialBuffer() )
-                if ( auto member = GSBuffer->getMember( name ) )
-                    typeGS = member->getDataType();
-        }
-
-        if (typeVS != DataType::Unknown && typeFS != DataType::Unknown && typeGS != DataType::Unknown)
-            LOG_WARN_RENDERING( "IShader::getDataTypeOfMaterialProperty(): A shader property exists in multiple shader stages. "
-                                "This might cause issues. Consider renaming one of the properties with name: " + name.toString() );
-
-        if (typeVS != DataType::Unknown)
-            return typeVS;
-        else if (typeFS != DataType::Unknown)
-            return typeFS;
-        else if (typeGS != DataType::Unknown)
-            return typeGS;
-
         return DataType::Unknown;
     }
 
@@ -79,64 +55,48 @@ namespace Graphics {
     }
 
     //----------------------------------------------------------------------
-    DataType IShader::getDataTypeOfShaderProperty( StringID name )
+    DataType IShader::getDataTypeOfShaderMember( StringID name )
     {
-        auto typeVS = DataType::Unknown;
-        if ( auto VSBuffer = getVSUniformShaderBuffer() )
-            if ( auto member = VSBuffer->getMember( name ) )
-                typeVS = member->getDataType();
-
-        auto typeFS = DataType::Unknown;
-        if ( auto FSBuffer = getFSUniformShaderBuffer() )
-            if ( auto member = FSBuffer->getMember( name ) )
-                typeFS = member->getDataType();
-
-        if (typeVS != DataType::Unknown && typeFS != DataType::Unknown)
-            LOG_WARN_RENDERING( "IShader::getDataTypeOfMaterialProperty(): A IShader property exists in multiple shader stages. "
-                                "This might cause issues. Consider renaming one of the properties with name: " + name.toString() );
-
-        if (typeVS != DataType::Unknown)
-            return typeVS;
-        else if (typeFS != DataType::Unknown)
-            return typeFS;
-
+        for ( auto& ubo : m_uniformBuffers)
+            if ( auto member = ubo.getMember( name ) )
+                return member->getDataType();
         return DataType::Unknown;
     }
 
     //----------------------------------------------------------------------
     const ShaderUniformBufferDeclaration* IShader::getVSUniformMaterialBuffer() const
     {
-        return _GetUniformMaterialBuffer( MATERIAL_NAME, ShaderType::Vertex );
+        return _GetUniformBuffer( MATERIAL_NAME, ShaderType::Vertex );
     }
 
     //----------------------------------------------------------------------
     const ShaderUniformBufferDeclaration* IShader::getFSUniformMaterialBuffer() const
     {
-        return _GetUniformMaterialBuffer( MATERIAL_NAME, ShaderType::Fragment );
+        return _GetUniformBuffer( MATERIAL_NAME, ShaderType::Fragment );
     }
 
     //----------------------------------------------------------------------
     const ShaderUniformBufferDeclaration* IShader::getGSUniformMaterialBuffer() const
     {
-        return _GetUniformMaterialBuffer( MATERIAL_NAME, ShaderType::Geometry );
+        return _GetUniformBuffer( MATERIAL_NAME, ShaderType::Geometry );
     }
 
     //----------------------------------------------------------------------
     const ShaderUniformBufferDeclaration* IShader::getVSUniformShaderBuffer() const
     {
-        return _GetUniformMaterialBuffer( SHADER_NAME, ShaderType::Vertex );
+        return _GetUniformBuffer( SHADER_NAME, ShaderType::Vertex );
     }
 
     //----------------------------------------------------------------------
     const ShaderUniformBufferDeclaration* IShader::getFSUniformShaderBuffer() const
     {
-        return _GetUniformMaterialBuffer( SHADER_NAME, ShaderType::Fragment );
+        return _GetUniformBuffer( SHADER_NAME, ShaderType::Fragment );
     }
 
     //----------------------------------------------------------------------
     const ShaderUniformBufferDeclaration* IShader::getGSUniformShaderBuffer() const
     {
-        return _GetUniformMaterialBuffer( SHADER_NAME, ShaderType::Geometry );
+        return _GetUniformBuffer( SHADER_NAME, ShaderType::Geometry );
     }
 
     //----------------------------------------------------------------------
@@ -328,7 +288,7 @@ namespace Graphics {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    const ShaderUniformBufferDeclaration* IShader::_GetUniformMaterialBuffer( const String& name, Graphics::ShaderType shaderType ) const
+    const ShaderUniformBufferDeclaration* IShader::_GetUniformBuffer( const String& name, Graphics::ShaderType shaderType ) const
     {
         for (auto& ubo : m_uniformBuffers)
         {

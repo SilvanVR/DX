@@ -219,10 +219,10 @@ namespace Graphics {
                 case GPUCommand::SET_CAMERA_MATRIX:
                 {
                     auto& cmd = *reinterpret_cast<GPUC_SetCameraMatrix*>( command.get() );
-    /*                if ( not CAMERA_BUFFER.update( cmd.name, &cmd.matrix ) )
-                        LOG_WARN_RENDERING( "D3D11: Could not update the camera buffer ["+cmd.name.toString()+"]." );
+                    if ( not m_cameraBuffer->update( cmd.name, &cmd.matrix ) )
+                        LOG_WARN_RENDERING( "VkRenderer: Could not update the camera buffer ["+cmd.name.toString()+"]." );
                     else
-                        CAMERA_BUFFER.flush();*/
+                        m_cameraBuffer->flush();
                     break;
                 }
                 default:
@@ -698,6 +698,8 @@ namespace Graphics {
     //----------------------------------------------------------------------
     bool VkRenderer::_UpdateGlobalBuffer( StringID name, const void* data )
     {
+        return true;
+
         if (not m_globalBuffer)
             return false;
         return m_globalBuffer->update( name, data );

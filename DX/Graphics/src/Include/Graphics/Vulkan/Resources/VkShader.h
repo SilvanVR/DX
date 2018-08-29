@@ -8,6 +8,7 @@
 
 #include "../../i_shader.h"
 #include "Vulkan/Vulkan.hpp"
+#include "../Pipeline/VkMappedUniformBuffer.h"
 
 namespace Graphics { namespace Vulkan {
 
@@ -55,9 +56,9 @@ namespace Graphics { namespace Vulkan {
         VertexLayout m_vertexLayout;
 
         // Contains the data in a contiguous block of memory. Will be empty if not used for a shader.
-        //std::unique_ptr<MappedConstantBuffer> m_shaderDataVS = nullptr;
-        //std::unique_ptr<MappedConstantBuffer> m_shaderDataPS = nullptr;
-        //std::unique_ptr<MappedConstantBuffer> m_shaderDataGS = nullptr;
+        std::unique_ptr<MappedUniformBuffer> m_shaderDataVS = nullptr;
+        std::unique_ptr<MappedUniformBuffer> m_shaderDataFS = nullptr;
+        std::unique_ptr<MappedUniformBuffer> m_shaderDataGS = nullptr;
 
         //----------------------------------------------------------------------
         // IShader Interface

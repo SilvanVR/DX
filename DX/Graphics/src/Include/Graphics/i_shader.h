@@ -156,16 +156,15 @@ namespace Graphics {
 
         //----------------------------------------------------------------------
         // @Return:
-        //  The datatype of a property with the given name. Issues a warning if the
-        //  name exists in more than one shader stage. (This does not include shader resources like textures)
+        //  The datatype of a property with the given name. (This does not include shader resources like textures)
         //----------------------------------------------------------------------
-        DataType getDataTypeOfShaderProperty(StringID name);
+        DataType getDataTypeOfShaderMember(StringID name);
 
         //----------------------------------------------------------------------
         // @Return:
         //  True if the property exists and is considered to be part of the shader. (This does not include shader resources like textures)
         //----------------------------------------------------------------------
-        bool hasShaderProperty(StringID name) { return getDataTypeOfShaderProperty(name) != DataType::Unknown; }
+        bool hasShaderProperty(StringID name) { return getDataTypeOfShaderMember(name) != DataType::Unknown; }
 
         //----------------------------------------------------------------------
         // @Return:
@@ -282,7 +281,7 @@ namespace Graphics {
         virtual void bind() = 0;
         virtual void unbind() = 0;
 
-        const ShaderUniformBufferDeclaration* _GetUniformMaterialBuffer(const String& name, Graphics::ShaderType shaderType) const;
+        const ShaderUniformBufferDeclaration* _GetUniformBuffer(const String& name, Graphics::ShaderType shaderType) const;
 
         NULL_COPY_AND_ASSIGN(IShader)
     };
