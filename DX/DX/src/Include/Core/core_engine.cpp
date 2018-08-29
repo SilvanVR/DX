@@ -130,7 +130,7 @@ namespace Core {
         auto& graphicsEngine = Locator::getRenderer();
 
         // Update global buffer
-        static constexpr StringID TIME_NAME = StringID( "_Time" );
+        static StringID TIME_NAME = SID( "_Time" );
         graphicsEngine.setGlobalFloat( TIME_NAME, (F32)TIME.getTime() );
 
         Events::EventDispatcher::GetEvent( EVENT_FRAME_BEGIN ).invoke();

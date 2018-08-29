@@ -13,7 +13,7 @@ namespace Graphics { namespace Vulkan {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    void Buffer::create( const void* data, U32 sizeInBytes, BufferUsage updateFreq, VkBufferUsageFlags vkUsageFlags )
+    void Buffer::create( U32 sizeInBytes, BufferUsage updateFreq, VkBufferUsageFlags vkUsageFlags, const void* pInitialData )
     {
         ASSERT( buffer == VK_NULL_HANDLE && "Buffer was already created." );
 
@@ -38,7 +38,8 @@ namespace Graphics { namespace Vulkan {
         VALIDATE( vezCreateBuffer( g_vulkan.device, memType, &bufferCreateInfo, &buffer ) );
 
         // Upload the data to gpu
-        update( data, sizeInBytes );
+        if (pInitialData)
+            update( pInitialData, sizeInBytes );
     }
 
     //----------------------------------------------------------------------
@@ -81,21 +82,21 @@ namespace Graphics { namespace Vulkan {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    void VertexBuffer::create( const void* data, U32 sizeInBytes, BufferUsage usage )
+    void VertexBuffer::create( U32 sizeInBytes, BufferUsage usage, const void* pInitialData )
     {
-        Buffer::create( data, sizeInBytes, usage, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT );
+        Buffer::create( sizeInBytes, usage, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, pInitialData );
     }
 
     //----------------------------------------------------------------------
-    void IndexBuffer::create( const void* data, U32 sizeInBytes, BufferUsage usage )
+    void IndexBuffer::create( U32 sizeInBytes, BufferUsage usage, const void* pInitialData )
     {
-        Buffer::create( data, sizeInBytes, usage, VK_BUFFER_USAGE_INDEX_BUFFER_BIT );
+        Buffer::create( sizeInBytes, usage, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, pInitialData );
     }
 
     //----------------------------------------------------------------------
-    void UniformBuffer::create( const void* data, U32 sizeInBytes, BufferUsage usage )
+    void UniformBuffer::create( U32 sizeInBytes, BufferUsage usage, const void* pInitialData )
     {
-        Buffer::create( data, sizeInBytes, usage, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT );
+        Buffer::create( sizeInBytes, usage, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, pInitialData );
     }
 
 } } // End namespaces

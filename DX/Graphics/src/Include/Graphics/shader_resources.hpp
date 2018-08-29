@@ -80,7 +80,7 @@ namespace Graphics {
 
         // Constructor for vulkan
         ShaderUniformBufferDeclaration(ShaderType shaderStages, StringID name, U32 set, U32 binding, U32 sizeInBytes)
-            : m_name(name), m_bindingSet(set), m_bindingSlot(binding), m_sizeInBytes(sizeInBytes) {}
+            : m_shaderStages(shaderStages), m_name(name), m_bindingSet(set), m_bindingSlot(binding), m_sizeInBytes(sizeInBytes) {}
 
         inline U32                                          getSize()           const { return m_sizeInBytes; }
         inline U32                                          getBindingSlot()    const { return m_bindingSlot; }

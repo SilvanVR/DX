@@ -31,9 +31,10 @@ layout (set = 1, binding = 0) uniform CAMERA
 {
 	mat4 view;
 	mat4 proj;	
+	vec3 pos;
+	float PAD;
 	float zNear;
 	float zFar;
-	vec3 pos;
 } _Camera;
 
 //----------------------------------------------------------------------

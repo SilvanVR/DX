@@ -332,9 +332,9 @@ namespace Graphics { namespace Vulkan {
             ShaderType shaderStages = ShaderType::Unknown;
             if (res.stages & VK_SHADER_STAGE_VERTEX_BIT)
                 shaderStages |= ShaderType::Vertex;
-            else if(res.stages & VK_SHADER_STAGE_FRAGMENT_BIT)
+            if(res.stages & VK_SHADER_STAGE_FRAGMENT_BIT)
                 shaderStages |= ShaderType::Fragment;
-            else if(res.stages & VK_SHADER_STAGE_GEOMETRY_BIT)
+            if(res.stages & VK_SHADER_STAGE_GEOMETRY_BIT)
                 shaderStages |= ShaderType::Geometry;
             ASSERT( shaderStages != ShaderType::Unknown );
 

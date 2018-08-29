@@ -207,6 +207,7 @@
     <ClCompile Include="src\Include\Graphics\VR\OculusRift\oculus_rift.cpp" />
     <ClCompile Include="src\Include\Graphics\VR\vr.cpp" />
     <ClCompile Include="src\Include\Graphics\Vulkan\Pipeline\VkBuffer.cpp" />
+    <ClCompile Include="src\Include\Graphics\Vulkan\Pipeline\VkMappedUniformBuffer.cpp" />
     <ClCompile Include="src\Include\Graphics\Vulkan\Pipeline\VkShaderModule.cpp" />
     <ClCompile Include="src\Include\Graphics\Vulkan\Resources\VkCubemap.cpp" />
     <ClCompile Include="src\Include\Graphics\Vulkan\Resources\VkMaterial.cpp" />
@@ -277,6 +278,7 @@
     <ClInclude Include="src\Include\Graphics\VR\OculusRift\oculus_rift_vk.h" />
     <ClInclude Include="src\Include\Graphics\VR\vr.h" />
     <ClInclude Include="src\Include\Graphics\Vulkan\Pipeline\VkBuffer.h" />
+    <ClInclude Include="src\Include\Graphics\Vulkan\Pipeline\VkMappedUniformBuffer.h" />
     <ClInclude Include="src\Include\Graphics\Vulkan\Pipeline\VkShaderModule.h" />
     <ClInclude Include="src\Include\Graphics\Vulkan\Resources\VkCubemap.h" />
     <ClInclude Include="src\Include\Graphics\Vulkan\Resources\VkMaterial.h" />

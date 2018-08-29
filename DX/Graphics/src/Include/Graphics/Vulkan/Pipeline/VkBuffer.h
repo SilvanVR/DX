@@ -7,7 +7,7 @@
 **********************************************************************/
 
 #include "Vulkan/Vulkan.hpp"
-#include "enums.hpp"
+#include "../../enums.hpp"
 
 namespace Graphics { namespace Vulkan {
 
@@ -24,7 +24,7 @@ namespace Graphics { namespace Vulkan {
         BufferUsage usage = BufferUsage::Unknown;
 
     protected:
-        void create(const void* data, U32 sizeInBytes, BufferUsage usage, VkBufferUsageFlags vkUsageFlags);
+        void create(U32 sizeInBytes, BufferUsage usage, VkBufferUsageFlags vkUsageFlags, const void* pInitialData = nullptr);
     };
 
     //**********************************************************************
@@ -32,7 +32,7 @@ namespace Graphics { namespace Vulkan {
     {
     public:
         //----------------------------------------------------------------------
-        void create(const void* data, U32 sizeInBytes, BufferUsage usage);
+        void create(U32 sizeInBytes, BufferUsage usage, const void* pInitialData = nullptr);
     };
 
     //**********************************************************************
@@ -40,7 +40,7 @@ namespace Graphics { namespace Vulkan {
     {
     public:
         //----------------------------------------------------------------------
-        void create(const void* data, U32 sizeInBytes, BufferUsage usage);
+        void create(U32 sizeInBytes, BufferUsage usage, const void* pInitialData = nullptr);
     };
 
     //**********************************************************************
@@ -48,7 +48,7 @@ namespace Graphics { namespace Vulkan {
     {
     public:
         //----------------------------------------------------------------------
-        void create(const void* data, U32 sizeInBytes, BufferUsage usage);
+        void create(U32 sizeInBytes, BufferUsage usage, const void* pInitialData = nullptr);
     };
 
 } } // End namespaces

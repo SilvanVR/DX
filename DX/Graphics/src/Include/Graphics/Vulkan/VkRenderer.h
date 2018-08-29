@@ -9,6 +9,7 @@
 #include "Vulkan.hpp"
 #include "../i_renderer.h"
 #include "VkSwapchain.h"
+#include "Pipeline/VkMappedUniformBuffer.h"
 
 namespace Graphics {
 
@@ -60,6 +61,10 @@ namespace Graphics {
         Vulkan::Swapchain   m_swapchain;
         IMesh*              m_cubeMesh      = nullptr;
 
+        Vulkan::MappedUniformBuffer* m_globalBuffer = nullptr;
+        Vulkan::MappedUniformBuffer* m_cameraBuffer = nullptr;
+        Vulkan::MappedUniformBuffer* m_lightBuffer  = nullptr;
+
         //----------------------------------------------------------------------
         inline void _SetCamera(Camera* camera);
         inline void _BindMesh(IMesh* mesh, const MaterialPtr& material, const DirectX::XMMATRIX& modelMatrix, I32 subMeshIndex);
@@ -72,13 +77,14 @@ namespace Graphics {
 
         //----------------------------------------------------------------------
         void _SetGPUDescription();
-        void _CreateGlobalBuffersFromFile(const String& engineVS, const String& engineFS);
+        void _CreateRequiredUniformBuffersFromFile(const String& engineVS, const String& engineFS);
         void _CreateCubeMesh();
         void _SetLimits();
 
         void _FlushLightBuffer();
         void _ExecuteCommandBuffer(const CommandBuffer& cmd);
         void _CheckVSync();
+        bool _UpdateGlobalBuffer(StringID name, const void* data);
 
         //----------------------------------------------------------------------
         // IRenderer Interface

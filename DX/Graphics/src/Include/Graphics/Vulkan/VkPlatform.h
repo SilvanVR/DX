@@ -95,6 +95,7 @@ namespace Graphics { namespace Vulkan {
         void DrawIndexed(U32 indexCount, U32 instanceCount, U32 firstVertex, U32 vertexOffset, U32 firstInstance);
         void PushConstants(U32 offset, U32 size, const void* pValues);
         void EndRenderPass();
+        void SetBuffer(VkBuffer buffer, U32 set, U32 binding);
 
     private:
         friend class VkRenderer;

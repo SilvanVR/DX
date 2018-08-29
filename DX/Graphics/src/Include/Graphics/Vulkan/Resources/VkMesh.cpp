@@ -62,7 +62,7 @@ namespace Graphics { namespace Vulkan {
     void Mesh::_CreateBuffer( StringID name, const VertexStreamBase& vs )
     {
         ASSERT( m_vertexBuffers.find( name ) != m_vertexBuffers.end() && "Buffer already exists!" );
-        m_vertexBuffers[name].create( vs.data(), vs.bufferSize(), m_bufferUsage );
+        m_vertexBuffers[name].create( vs.bufferSize(), m_bufferUsage, vs.data() );
     }
 
     //----------------------------------------------------------------------
@@ -84,12 +84,12 @@ namespace Graphics { namespace Vulkan {
                 ArrayList<U16> indicesU16( subMesh.indices.size() );
                 for (U32 i = 0; i < indicesU16.size(); i++)
                     indicesU16[i] = subMesh.indices[i];
-                m_indexBuffers[index].create( indicesU16.data(), U32(indicesU16.size() * sizeof(U16)), m_bufferUsage);
+                m_indexBuffers[index].create( U32(indicesU16.size() * sizeof(U16)), m_bufferUsage, indicesU16.data() );
                 break;
             }
             case IndexFormat::U32:
             {
-                m_indexBuffers[index].create( subMesh.indices.data(), U32(subMesh.indices.size() * sizeof(U16)), m_bufferUsage );
+                m_indexBuffers[index].create( U32(subMesh.indices.size() * sizeof(U16)), m_bufferUsage, subMesh.indices.data() );
                 break;
             }
         }

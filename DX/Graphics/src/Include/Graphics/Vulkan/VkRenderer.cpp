@@ -27,7 +27,22 @@
 
 namespace Graphics {
 
-    static constexpr StringID POST_PROCESS_INPUT_NAME = StringID( "_Input" ); 
+    static constexpr StringID POST_PROCESS_INPUT_NAME   = StringID( "_Input" );
+    static constexpr StringID CAMERA_UBO_NAME           = StringID( "CAMERA" );
+    static constexpr StringID GLOBAL_UBO_NAME           = StringID( "GLOBAL" );
+    static constexpr StringID LIGHTS_UBO_NAME           = StringID( "LIGHTS" );
+
+    static constexpr StringID CAM_POS_NAME              = StringID( "_CameraPos" );
+    static constexpr StringID CAM_VIEW_PROJ_NAME        = StringID( "_ViewProj" );
+    static constexpr StringID CAM_ZNEAR_NAME            = StringID( "_zNear" );
+    static constexpr StringID CAM_ZFAR_NAME             = StringID( "_zFar" );
+    static constexpr StringID CAM_VIEW_MATRIX_NAME      = StringID( "_View" );
+    static constexpr StringID CAM_PROJ_MATRIX_NAME      = StringID( "_Proj" );
+
+    //static constexpr StringID LIGHT_COUNT_NAME          = StringID( "_LightCount" );
+    //static constexpr StringID LIGHT_BUFFER_NAME         = StringID( "_Lights" );
+    //static constexpr StringID LIGHT_VIEW_PROJ_NAME      = StringID( "_LightViewProj" );
+    //static constexpr StringID LIGHT_CSM_SPLITS_NAME     = StringID( "_CSMSplits" );
 
     using namespace Vulkan;
 
@@ -88,7 +103,7 @@ namespace Graphics {
         g_vulkan.ctx.Init();
 
         _SetGPUDescription();
-        _CreateGlobalBuffersFromFile( ENGINE_VS_PATH, ENGINE_FS_PATH );
+        _CreateRequiredUniformBuffersFromFile( ENGINE_VS_PATH, ENGINE_FS_PATH );
         _CreateCubeMesh();
         LOG_RENDERING( "Done initializing Vulkan... (Using " + getGPUDescription().name + ")" );
     } 
@@ -97,6 +112,9 @@ namespace Graphics {
     void VkRenderer::shutdown()
     {
         vkDeviceWaitIdle( g_vulkan.device );
+        SAFE_DELETE( m_globalBuffer );
+        SAFE_DELETE( m_cameraBuffer );
+        SAFE_DELETE( m_lightBuffer );
         g_vulkan.ctx.Shutdown();
         m_swapchain.shutdown( g_vulkan.instance, g_vulkan.device );
         SAFE_DELETE( m_hmd );
@@ -270,31 +288,56 @@ namespace Graphics {
     //----------------------------------------------------------------------
     bool VkRenderer::setGlobalFloat( StringID name, F32 value )
     {
-        return false;
+        if (not _UpdateGlobalBuffer( name, &value))
+        {
+            LOG_WARN_RENDERING( "Global-Float '" + name.toString() + "' does not exist. Did you spell it correctly?" );
+            return false;
+        }
+        return true;
     }
 
     //----------------------------------------------------------------------
     bool VkRenderer::setGlobalInt( StringID name, I32 value )
     {
-        return false;
+        if (not _UpdateGlobalBuffer( name, &value))
+        {
+            LOG_WARN_RENDERING( "Global-Int '" + name.toString() + "' does not exist. Did you spell it correctly?" );
+            return false;
+        }
+        return true;
     }
 
     //----------------------------------------------------------------------
     bool VkRenderer::setGlobalVector4( StringID name, const Math::Vec4& vec4 )
     {
-        return false;
+        if (not _UpdateGlobalBuffer( name, &vec4 ))
+        {
+            LOG_WARN_RENDERING( "Global-Vec4 '" + name.toString() + "' does not exist. Did you spell it correctly?" );
+            return false;
+        }
+        return true;
     }
 
     //----------------------------------------------------------------------
     bool VkRenderer::setGlobalColor( StringID name, Color color )
     {
-        return false;
+        if (not _UpdateGlobalBuffer( name, color.normalized().data() ))
+        {
+            LOG_WARN_RENDERING( "Global-color '" + name.toString() + "' does not exist. Did you spell it correctly?" );
+            return false;
+        }
+        return true;
     }
 
     //----------------------------------------------------------------------
     bool VkRenderer::setGlobalMatrix( StringID name, const DirectX::XMMATRIX& matrix )
     {
-        return false;
+        if (not _UpdateGlobalBuffer( name, &matrix ))
+        {
+            LOG_WARN_RENDERING( "Global-Matrix '" + name.toString() + "' does not exist. Did you spell it correctly?" );
+            return false;
+        }
+        return true;
     }
 
     //**********************************************************************
@@ -377,30 +420,44 @@ namespace Graphics {
             g_vulkan.ctx.RSSetScissor({ { (I32)vp.x, (I32)vp.y }, { (U32)vp.width, (U32)vp.height } });
         }
 
-        // Update camera buffer
-    /*    if ( not CAMERA_BUFFER.update( CAM_VIEW_PROJ_NAME, &camera->getViewProjectionMatrix() ) )
-            LOG_ERROR_RENDERING( "D3D11: Could not update the view-projection matrix in the camera buffer!" );
+        //auto modelMatrix = camera->getModelMatrix();
+        //auto translation = modelMatrix.r[3];
+        //if ( not m_cameraBuffer->update( CAM_POS_NAME, &translation ) )
+        //    LOG_ERROR_RENDERING( "Vulkan: Could not update the camera buffer [position]. Fix this!" );
 
+        //auto zFar = camera->getZFar();
+        //if ( not m_cameraBuffer->update( CAM_ZFAR_NAME, &zFar ) )
+        //    LOG_ERROR_RENDERING( "Vulkan: Could not update the camera buffer [zFar]. Fix this!" );
+
+        //auto zNear = camera->getZNear();
+        //if ( not m_cameraBuffer->update( CAM_ZNEAR_NAME, &zNear ) )
+        //    LOG_ERROR_RENDERING( "Vulkan: Could not update the camera buffer [zNear]. Fix this!" );
+
+        //if ( not m_cameraBuffer->update( CAM_VIEW_MATRIX_NAME, &camera->getViewMatrix() ) )
+        //    LOG_ERROR_RENDERING( "Vulkan: Could not update the camera buffer [View]. Fix this!" );
+
+        //if ( not m_cameraBuffer->update( CAM_PROJ_MATRIX_NAME, &camera->getProjectionMatrix() ) )
+        //    LOG_ERROR_RENDERING( "Vulkan: Could not update the camera buffer [Projection]. Fix this!" );
+        //m_cameraBuffer->flush();
+
+        struct CameraUBO
+        {
+            DirectX::XMMATRIX view;
+            DirectX::XMMATRIX proj;
+            DirectX::XMVECTOR pos;
+            float zNear;
+            float zFar;
+        } ubo;
+
+        ubo.view = camera->getViewMatrix();
+        ubo.proj = camera->getProjectionMatrix();
         auto modelMatrix = camera->getModelMatrix();
         auto translation = modelMatrix.r[3];
-        if ( not CAMERA_BUFFER.update( CAM_POS_NAME, &translation ) )
-            LOG_ERROR_RENDERING( "D3D11: Could not update the camera buffer [position]. Fix this!" );
+        ubo.pos = translation;
+        ubo.zNear = camera->getZNear();
+        ubo.zFar = camera->getZFar();
 
-        auto zFar = camera->getZFar();
-        if ( not CAMERA_BUFFER.update( CAM_ZFAR_NAME, &zFar ) )
-            LOG_ERROR_RENDERING( "D3D11: Could not update the camera buffer [zFar]. Fix this!" );
-
-        auto zNear = camera->getZNear();
-        if ( not CAMERA_BUFFER.update( CAM_ZNEAR_NAME, &zNear ) )
-            LOG_ERROR_RENDERING( "D3D11: Could not update the camera buffer [zNear]. Fix this!" );
-
-        if ( not CAMERA_BUFFER.update( CAM_VIEW_MATRIX_NAME, &camera->getViewMatrix() ) )
-            LOG_ERROR_RENDERING( "D3D11: Could not update the camera buffer [View]. Fix this!" );
-
-        if ( not CAMERA_BUFFER.update( CAM_PROJ_MATRIX_NAME, &camera->getProjectionMatrix() ) )
-            LOG_ERROR_RENDERING( "D3D11: Could not update the camera buffer [Projection]. Fix this!" );
-
-        CAMERA_BUFFER.flush();*/
+        m_cameraBuffer->update( &ubo, (U32)sizeof(CameraUBO) );
     }
 
     //----------------------------------------------------------------------
@@ -468,7 +525,7 @@ namespace Graphics {
     }
 
     //----------------------------------------------------------------------
-    void VkRenderer::_CreateGlobalBuffersFromFile( const String& engineVS, const String& engineFS )
+    void VkRenderer::_CreateRequiredUniformBuffersFromFile( const String& engineVS, const String& engineFS )
     {
         try {
             OS::BinaryFile vertFile(engineVS, OS::EFileMode::READ );
@@ -497,10 +554,22 @@ namespace Graphics {
                 auto ubos = shader->getUniformBufferDeclarations();
                 for (auto& ubo : ubos)
                 {
-
-                    LOG(ubo.getName().toString());
+                    switch ( ubo.getName().id )
+                    {
+                    case CAMERA_UBO_NAME.id:
+                        m_cameraBuffer = new Vulkan::MappedUniformBuffer( ubo, BufferUsage::Frequently );
+                        break;
+                    case GLOBAL_UBO_NAME.id:
+                        m_globalBuffer = new Vulkan::MappedUniformBuffer( ubo, BufferUsage::Frequently );
+                        break;
+                    case LIGHTS_UBO_NAME.id:
+                        m_lightBuffer = new Vulkan::MappedUniformBuffer( ubo, BufferUsage::Frequently );
+                        break;
+                    }
                 }
-
+                if (not m_cameraBuffer) LOG_ERROR_RENDERING( "VkRenderer::_CreateGlobalBuffersFromFile(): Could not find camera buffer." );
+                if (not m_globalBuffer) LOG_ERROR_RENDERING( "VkRenderer::_CreateGlobalBuffersFromFile(): Could not find global buffer." );
+                if (not m_lightBuffer)  LOG_ERROR_RENDERING( "VkRenderer::_CreateGlobalBuffersFromFile(): Could not find light buffer." );
             }
             catch (const std::runtime_error& e) {
                 LOG_ERROR_RENDERING( "Could not precompile '" + engineFS + "' for buffer creation. This is mandatory. Reason: " + e.what() );
@@ -624,6 +693,14 @@ namespace Graphics {
         g_vulkan.ctx.RSSetScissor({ {(I32)viewport.topLeftX, (I32)viewport.topLeftY}, { (U32)viewport.width, (U32)viewport.height } });
         g_vulkan.ctx.IASetPrimitiveTopology( VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP );
         g_vulkan.ctx.Draw(3);
+    }
+
+    //----------------------------------------------------------------------
+    bool VkRenderer::_UpdateGlobalBuffer( StringID name, const void* data )
+    {
+        if (not m_globalBuffer)
+            return false;
+        return m_globalBuffer->update( name, data );
     }
 
     //**********************************************************************

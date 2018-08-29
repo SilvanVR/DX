@@ -481,6 +481,12 @@ namespace Graphics { namespace Vulkan {
         m_insideRenderPass = false;
     }
 
+    //----------------------------------------------------------------------
+    void Context::SetBuffer(VkBuffer buffer, U32 set, U32 binding)
+    {
+        vezCmdBindBuffer( curDrawCmd(), buffer, 0, VK_WHOLE_SIZE, set, binding, 0 );
+    }
+
     //**********************************************************************
     // PRIVATE
     //**********************************************************************
