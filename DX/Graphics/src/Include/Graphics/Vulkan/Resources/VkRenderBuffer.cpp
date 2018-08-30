@@ -21,6 +21,7 @@ namespace Graphics { namespace Vulkan {
         m_isDepthBuffer = false;
         m_samplingDescription = samplingDesc;
 
+        _CreateSampler( m_anisoLevel, m_filter, m_clampMode );
         _CreateFramebuffer( m_isDepthBuffer );
     }
 
@@ -32,6 +33,7 @@ namespace Graphics { namespace Vulkan {
         m_depthFormat = format;
         m_samplingDescription = samplingDesc;
 
+        _CreateSampler( m_anisoLevel, m_filter, m_clampMode );
         _CreateFramebuffer( m_isDepthBuffer );
     }
 
@@ -101,14 +103,14 @@ namespace Graphics { namespace Vulkan {
     void RenderBuffer::clearColor( Color color )
     {
         ASSERT( not isDepthBuffer() );
-        isMultisampled() ? m_framebufferMS.fbo.setClearColor( color ) : m_framebuffer.fbo.setClearColor( color );
+        isMultisampled() ? m_framebufferMS.fbo.setClearColor( 0, color ) : m_framebuffer.fbo.setClearColor( 0, color );
     }
 
     //----------------------------------------------------------------------
     void RenderBuffer::clearDepthStencil( F32 depth, U8 stencil )
     {
         ASSERT( isDepthBuffer() );
-        isMultisampled() ? m_framebufferMS.fbo.setClearDepthStencil( depth, stencil ) : m_framebuffer.fbo.setClearDepthStencil( depth, stencil );
+        isMultisampled() ? m_framebufferMS.fbo.setClearDepthStencil( 0, depth, stencil ) : m_framebuffer.fbo.setClearDepthStencil( 0, depth, stencil );
     }
 
     //**********************************************************************

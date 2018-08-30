@@ -23,8 +23,8 @@ namespace Graphics { namespace Vulkan {
         msg += pCallbackData->pMessage;
 
         // There is a bug in ovr_CreateTextureSwapChainVk which throws this error.
-        if (msg.find("[Validation] vkCreateImage: The combination of format") != String::npos)
-            return VK_FALSE;
+        //if (msg.find("[Validation] vkCreateImage: The combination of format") != String::npos)
+        //    return VK_FALSE;
 
         if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT)  LOG( msg );
         if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT)     LOG( msg );
@@ -124,7 +124,7 @@ namespace Graphics { namespace Vulkan {
     }
 
     //----------------------------------------------------------------------
-    void Platform::CreateDevice( VkSurfaceKHR surface, const ArrayList<String>& extensions, const VkPhysicalDeviceFeatures& features )
+    void Platform::CreateDevice( const ArrayList<String>& extensions, const VkPhysicalDeviceFeatures& features )
     {
         ArrayList<CString> deviceExtensions;
         for (auto& ext : extensions)
@@ -257,7 +257,7 @@ namespace Graphics { namespace Vulkan {
         m_attachmentRefs.resize( attachmentCount );
         for (I32 i = 0; i < m_attachmentRefs.size(); i++)
         {
-            m_attachmentRefs[i].clearValue.depthStencil.depth = 1.0f;
+            m_attachmentRefs[i].clearValue = {};
             m_attachmentRefs[i].loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
             m_attachmentRefs[i].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
         }
@@ -279,24 +279,20 @@ namespace Graphics { namespace Vulkan {
     }
 
     //----------------------------------------------------------------------
-    void Framebuffer::setClearColor( Color color )
+    void Framebuffer::setClearColor( U32 attachmentIndex, Color color )
     {
-        for (auto& ref : m_attachmentRefs)
-        {
-            ref.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-            auto colorNorm = color.normalized();
-            ref.clearValue.color = { colorNorm[0], colorNorm[1], colorNorm[2], colorNorm[3] };
-        }
+        auto& ref = m_attachmentRefs[attachmentIndex];
+        ref.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+        auto colorNorm = color.normalized();
+        ref.clearValue.color = { colorNorm[0], colorNorm[1], colorNorm[2], colorNorm[3] };
     }
 
     //----------------------------------------------------------------------
-    void Framebuffer::setClearDepthStencil( F32 depth, U32 stencil )
+    void Framebuffer::setClearDepthStencil( U32 attachmentIndex, F32 depth, U32 stencil )
     {
-        for (auto& ref : m_attachmentRefs)
-        {
-            ref.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-            ref.clearValue.depthStencil = { depth, stencil };
-        }
+        auto& ref = m_attachmentRefs[attachmentIndex];
+        ref.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+        ref.clearValue.depthStencil = { depth, stencil };
     }
 
     //**********************************************************************
@@ -341,7 +337,7 @@ namespace Graphics { namespace Vulkan {
 
         // Begin recording
         VALIDATE( vezResetCommandBuffer( curFrameData().cmd ) );
-        VALIDATE( vezBeginCommandBuffer( curFrameData().cmd, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT ) );
+        VALIDATE( vezBeginCommandBuffer( curFrameData().cmd, VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT) );
     }
 
     //----------------------------------------------------------------------
@@ -491,6 +487,16 @@ namespace Graphics { namespace Vulkan {
     void Context::SetImage( VkImageView imageView, VkSampler sampler, U32 set, U32 binding )
     {
         vezCmdBindImageView( curDrawCmd(), imageView, sampler, set, binding, 0 );
+    }
+
+    //----------------------------------------------------------------------
+    void Context::GenerateMips( VkImage img, U32 mipLevels )
+    {
+        ASSERT(false);
+        //VezImageBlit blitInfo{};
+        //blitInfo.srcSubresource.mipLevel = ;
+        //blitInfo.dstSubresource.mipLevel = ;
+        //vezCmdBlitImage(cmd, src, dst, 1, &blitInfo, VK_FILTER_LINEAR);
     }
 
     //**********************************************************************

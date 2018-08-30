@@ -46,12 +46,12 @@ namespace Graphics { namespace Vulkan {
         //----------------------------------------------------------------------
         // Set's the clear color for all attachments.
         //----------------------------------------------------------------------
-        void setClearColor(Color color);
+        void setClearColor(U32 attachmentIndex, Color color);
 
         //----------------------------------------------------------------------
         // Set's the clear depth/stencil for all attachments.
         //----------------------------------------------------------------------
-        void setClearDepthStencil(F32 depth, U32 stencil);
+        void setClearDepthStencil(U32 attachmentIndex, F32 depth, U32 stencil);
 
         //----------------------------------------------------------------------
         const ArrayList<VezAttachmentReference>& getAttachmentReferences() const { return m_attachmentRefs; }
@@ -97,6 +97,7 @@ namespace Graphics { namespace Vulkan {
         void EndRenderPass();
         void SetBuffer(VkBuffer buffer, U32 set, U32 binding);
         void SetImage(VkImageView imageView, VkSampler sampler, U32 set, U32 binding);
+        void GenerateMips(VkImage img, U32 mipLevels);
 
     private:
         friend class VkRenderer;
@@ -138,7 +139,7 @@ namespace Graphics { namespace Vulkan {
         friend class Graphics::VkRenderer;
         void CreateInstance(const ArrayList<String>& extensions);
         void SelectPhysicalDevice(VkPhysicalDevice gpu = nullptr);
-        void CreateDevice(VkSurfaceKHR surface, const ArrayList<String>& extensions, const VkPhysicalDeviceFeatures& features);
+        void CreateDevice(const ArrayList<String>& extensions, const VkPhysicalDeviceFeatures& features);
         void Shutdown();
 
         //----------------------------------------------------------------------

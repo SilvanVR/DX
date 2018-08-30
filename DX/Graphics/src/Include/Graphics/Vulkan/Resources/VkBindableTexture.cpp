@@ -17,7 +17,7 @@ namespace Graphics { namespace Vulkan {
     }
 
     //----------------------------------------------------------------------
-    void IBindableTexture::bind( U32 set, U32 binding )
+    void IBindableTexture::bind( VkImageView view, const ShaderResourceDeclaration& res )
     {
         if (not m_gpuUpToDate)
         {
@@ -28,10 +28,11 @@ namespace Graphics { namespace Vulkan {
         if (m_generateMips)
         {
             //g_pImmediateContext->GenerateMips( m_pTextureView );
+            //g_vulkan.ctx.GenerateMips(img, mipLevels);
             m_generateMips = false;
         }
 
-        //g_vulkan.ctx.SetImage( view, m_sampler, set, binding );
+        g_vulkan.ctx.SetImage( view, m_sampler, res.getBindingSet(), res.getBindingSlot() );
     }
 
     //----------------------------------------------------------------------

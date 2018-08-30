@@ -96,7 +96,7 @@ namespace Graphics {
             g_vulkan.CreateInstance({ VK_KHR_SURFACE_EXTENSION_NAME, VK_KHR_WIN32_SURFACE_EXTENSION_NAME });
             m_swapchain.createSurface( g_vulkan.instance, m_window );
             g_vulkan.SelectPhysicalDevice();
-            g_vulkan.CreateDevice( m_swapchain.getSurfaceKHR(), { VK_KHR_SWAPCHAIN_EXTENSION_NAME }, GetDeviceFeatures() );
+            g_vulkan.CreateDevice({ VK_KHR_SWAPCHAIN_EXTENSION_NAME }, GetDeviceFeatures() );
             m_swapchain.createSwapchain( g_vulkan.device, m_window->getWidth(), m_window->getHeight(), SWAPCHAIN_FORMAT );
         }
 
@@ -139,6 +139,7 @@ namespace Graphics {
                     //m_swapchain.clear(Color::RED);
                     //m_swapchain.bindForRendering();
                     //g_vulkan.ctx.RSSetViewports({ 0, 0, (F32)m_window->getWidth(), (F32)m_window->getHeight(), 0, 1 });
+                    //g_vulkan.ctx.RSSetScissor({ { 0, 0 }, { m_window->getWidth(), m_window->getHeight() } });
                     break;
                 }
                 case GPUCommand::END_CAMERA:
@@ -248,23 +249,30 @@ namespace Graphics {
     //----------------------------------------------------------------------
     void VkRenderer::present()
     {
-        if (m_window->getWidth() == 0 || m_window->getHeight() == 0)
+        if (m_window->getWidth() == 0 || m_window->getHeight() == 0 || m_pendingCmdQueue.empty())
             return;
 
-        vezDeviceWaitIdle(g_vulkan.device);
-
         _CheckVSync();
+
+        vezDeviceWaitIdle(g_vulkan.device);
 
         // Record all commands
         g_vulkan.ctx.BeginFrame();
         {
-            _LockQueue();
-     /*       for (auto& cmd : m_pendingCmdQueue)
-               _ExecuteCommandBuffer( cmd );*/
-            m_pendingCmdQueue.clear();
-            _UnlockQueue();
+            m_globalBuffer->bind();
+            m_cameraBuffer->bind();
+            m_lightBuffer->bind();
+            {
+                _LockQueue();
+                //for (auto& cmd : m_pendingCmdQueue)
+                   //_ExecuteCommandBuffer( cmd );
+                m_pendingCmdQueue.clear();
+                _UnlockQueue();
+            }
         }
         g_vulkan.ctx.EndFrame();
+
+        vezDeviceWaitIdle(g_vulkan.device);
 
         // Present rendered image to screen/hmd
         if ( hasHMD() )
@@ -474,12 +482,12 @@ namespace Graphics {
         }
 
         // Update global buffer if necessary
-        //if ( D3D11::ConstantBufferManager::hasGlobalBuffer() )
-        //    GLOBAL_BUFFER.flush();
+        if ( m_globalBuffer )
+            m_globalBuffer->flush();
 
-        //// Update light buffer if necessary
-        //if ( D3D11::ConstantBufferManager::hasLightBuffer() )
-        //    _FlushLightBuffer();
+        // Update light buffer if necessary
+        if ( m_lightBuffer )
+            _FlushLightBuffer();
 
         // Bind shader, possibly a replacement shader
         auto shader = material->getShader();
@@ -635,7 +643,7 @@ namespace Graphics {
         // Set texture in material
         material->setTexture( POST_PROCESS_INPUT_NAME, input->getColorBuffer() );
 
-        ViewportRect vp = {};
+        ViewportRect vp{};
         if (dst == SCREEN_BUFFER) // Blit to Screen and/or HMD depending on camera setting
         {
             auto curCamera = renderContext.getCamera();

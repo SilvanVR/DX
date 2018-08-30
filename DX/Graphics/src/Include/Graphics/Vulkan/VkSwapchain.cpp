@@ -69,8 +69,10 @@ namespace Graphics { namespace Vulkan {
         presentInfo.swapchainCount      = 1;
         presentInfo.pSwapchains         = &m_swapchain;
         presentInfo.pImages             = &m_framebuffer.img;
-        if ( vezQueuePresent( queue, &presentInfo ) != VK_SUCCESS )
-            recreate( m_extent.width, m_extent.height );
+
+        auto result = vezQueuePresent( queue, &presentInfo );
+        if ( result != VK_SUCCESS )
+            LOG_WARN_RENDERING( "VkRenderer: Could not present image to the surface." );
     }
 
     //----------------------------------------------------------------------
@@ -87,13 +89,13 @@ namespace Graphics { namespace Vulkan {
         //clearColor.float32[0] = 1.0f;
         //clearColor.float32[1] = 1.0f;
         //vezCmdClearColorImage(g_vulkan.ctx.curDrawCmd(), m_framebuffer.img, &clearColor, 1, &range );
-        m_framebuffer.fbo.setClearColor( color );
+        m_framebuffer.fbo.setClearColor( 0, color );
     }
 
     //----------------------------------------------------------------------
     void Swapchain::setVSync( bool enabled )
     {
-        LOG_WARN_RENDERING("VSYNC NOT SUPPORTED");
+        LOG_WARN_RENDERING("VkRenderer: VSYNC NOT SUPPORTED");
         VALIDATE( vezSwapchainSetVSync( m_swapchain, enabled ) );
     }
 

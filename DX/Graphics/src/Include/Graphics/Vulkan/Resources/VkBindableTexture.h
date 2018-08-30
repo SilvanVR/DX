@@ -8,6 +8,7 @@
 
 #include "enums.hpp"
 #include "Vulkan/Vulkan.hpp"
+#include "shader_resources.hpp"
 
 namespace Graphics { namespace Vulkan {
 
@@ -22,7 +23,7 @@ namespace Graphics { namespace Vulkan {
         // This functions binds this texture to the given shader at the given set + binding.
         // Default implementation is provided, but can be overriden if desired.
         //----------------------------------------------------------------------
-        virtual void bind(U32 set, U32 binding);
+        virtual void bind(VkImageView view, const ShaderResourceDeclaration& res);
 
     protected:
         bool m_gpuUpToDate      = true;

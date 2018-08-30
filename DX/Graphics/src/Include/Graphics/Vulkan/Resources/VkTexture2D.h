@@ -8,11 +8,12 @@
 
 #include "i_texture2d.hpp"
 #include "Vulkan/Vulkan.hpp"
+#include "VkBindableTexture.h"
 
 namespace Graphics { namespace Vulkan {
 
     //**********************************************************************
-    class Texture2D : public ITexture2D
+    class Texture2D : public ITexture2D, public IBindableTexture
     {
     public:
         Texture2D() = default;
@@ -26,10 +27,6 @@ namespace Graphics { namespace Vulkan {
         void apply(bool updateMips, bool keepPixelsInRAM) override;
 
     private:
-        bool m_generateMips;
-        bool m_keepPixelsInRAM;
-        bool m_gpuUpToDate = false;
-
         struct
         {
             VkImage     img;
@@ -39,8 +36,8 @@ namespace Graphics { namespace Vulkan {
         //----------------------------------------------------------------------
         // ITexture Interface
         //----------------------------------------------------------------------
-        void _UpdateSampler() override {}
-        void bind(const ShaderResourceDeclaration& res) override {}
+        void _UpdateSampler() override { IBindableTexture::_RecreateSampler( m_anisoLevel, m_filter, m_clampMode ); }
+        void bind(const ShaderResourceDeclaration& res) override { IBindableTexture::bind( m_image.view, res ); }
 
         //----------------------------------------------------------------------
         void _CreateTexture();
