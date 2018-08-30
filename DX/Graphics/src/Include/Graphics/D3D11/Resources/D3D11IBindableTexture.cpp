@@ -17,7 +17,7 @@ namespace Graphics { namespace D3D11 {
     }
 
     //----------------------------------------------------------------------
-    void IBindableTexture::bind( ShaderType shaderType, U32 slot )
+    void IBindableTexture::bind( const ShaderResourceDeclaration& res )
     {
         if (not m_gpuUpToDate)
         {
@@ -31,18 +31,15 @@ namespace Graphics { namespace D3D11 {
             m_generateMips = false;
         }
 
-        switch (shaderType)
+        if ((I32)(res.getShaderStages() & ShaderType::Vertex))
         {
-        case ShaderType::Vertex:
-            g_pImmediateContext->VSSetSamplers( slot, 1, &m_pSampleState );
-            g_pImmediateContext->VSSetShaderResources( slot, 1, &m_pTextureView );
-            break;
-        case ShaderType::Fragment:
-            g_pImmediateContext->PSSetSamplers( slot, 1, &m_pSampleState );
-            g_pImmediateContext->PSSetShaderResources( slot, 1, &m_pTextureView );
-            break;
-        default:
-            ASSERT(false);
+            g_pImmediateContext->VSSetSamplers( res.getBindingSlot(), 1, &m_pSampleState );
+            g_pImmediateContext->VSSetShaderResources( res.getBindingSlot(), 1, &m_pTextureView );
+        }
+        if ((I32)(res.getShaderStages() & ShaderType::Fragment))
+        {
+            g_pImmediateContext->PSSetSamplers( res.getBindingSlot(), 1, &m_pSampleState );
+            g_pImmediateContext->PSSetShaderResources( res.getBindingSlot(), 1, &m_pTextureView );
         }
     }
 

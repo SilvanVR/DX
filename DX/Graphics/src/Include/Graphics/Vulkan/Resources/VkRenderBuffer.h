@@ -25,7 +25,7 @@ namespace Graphics { namespace Vulkan {
         //----------------------------------------------------------------------
         // ITexture Interface
         //----------------------------------------------------------------------
-        void bind(ShaderType shaderType, U32 slot) override;
+        void bind(const ShaderResourceDeclaration& res) override;
 
         //----------------------------------------------------------------------
         // IRenderBuffer Interface

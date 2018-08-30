@@ -81,7 +81,7 @@ namespace Graphics { namespace Vulkan {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    void RenderBuffer::bind( ShaderType shaderType, U32 set )
+    void RenderBuffer::bind( const ShaderResourceDeclaration& res )
     {
         // If the renderbuffer is multisampled itself, we must resolve it to the non-multisampled buffer and bind that to the shader then
         if ( isMultisampled() )
@@ -94,7 +94,7 @@ namespace Graphics { namespace Vulkan {
         }
 
         // Bind image
-        g_vulkan.ctx.SetImage( m_framebuffer.view, m_sampler, set, 0 );
+        g_vulkan.ctx.SetImage( m_framebuffer.view, m_sampler, res.getBindingSet(), res.getBindingSlot() );
     }
 
     //----------------------------------------------------------------------

@@ -30,7 +30,7 @@ namespace Graphics { namespace D3D11 {
         // ITexture Interface
         //----------------------------------------------------------------------
         void _UpdateSampler() override { SAFE_RELEASE( m_pSampleState ); _CreateSampler( m_anisoLevel, m_filter, m_clampMode ); }
-        void bind(ShaderType shaderType, U32 bindSlot) override { IBindableTexture::bind(shaderType, bindSlot); }
+        void bind(const ShaderResourceDeclaration& res) override { IBindableTexture::bind(res); }
 
         //----------------------------------------------------------------------
         void _CreateTextureArray();

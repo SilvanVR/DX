@@ -32,7 +32,7 @@ namespace Graphics { namespace Vulkan {
         // ITexture Interface
         //----------------------------------------------------------------------
         void _UpdateSampler() override {}
-        void bind(ShaderType shaderType, U32 bindSlot) override {}
+        void bind(const ShaderResourceDeclaration& res) override {}
 
         //----------------------------------------------------------------------
         void _CreateTexture(Mips mips);

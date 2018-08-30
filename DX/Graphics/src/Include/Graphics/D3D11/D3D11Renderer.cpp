@@ -31,6 +31,19 @@ namespace Graphics {
     #define SHADOW_MAP_3D_SLOT_BEGIN    13
     #define SHADOW_MAP_ARRAY_SLOT_BEGIN 14
 
+    static ArrayList<ShaderResourceDeclaration> SHADOW_MAP_2D_RESOURCE_DECLS{
+        { ShaderType::Fragment, SHADOW_MAP_2D_SLOT_BEGIN + 0, SID("ShadowMap2D"), DataType::Texture2D },
+        { ShaderType::Fragment, SHADOW_MAP_2D_SLOT_BEGIN + 1, SID("ShadowMap2D"), DataType::Texture2D },
+        { ShaderType::Fragment, SHADOW_MAP_2D_SLOT_BEGIN + 2, SID("ShadowMap2D"), DataType::Texture2D },
+        { ShaderType::Fragment, SHADOW_MAP_2D_SLOT_BEGIN + 3, SID("ShadowMap2D"), DataType::Texture2D },
+    };
+    static ArrayList<ShaderResourceDeclaration> SHADOW_MAP_3D_RESOURCE_DECLS{
+        { ShaderType::Fragment, SHADOW_MAP_3D_SLOT_BEGIN + 0, SID("ShadowMap2D"), DataType::Texture2D }
+    };
+    static ArrayList<ShaderResourceDeclaration> SHADOW_MAP_ARRAY_RESOURCE_DECLS{
+        { ShaderType::Fragment, SHADOW_MAP_ARRAY_SLOT_BEGIN + 0, SID("ShadowMap2D"), DataType::Texture2D },
+    };
+
     #define GLOBAL_BUFFER D3D11::ConstantBufferManager::getGlobalBuffer()
     #define OBJECT_BUFFER D3D11::ConstantBufferManager::getObjectBuffer()
     #define CAMERA_BUFFER D3D11::ConstantBufferManager::getCameraBuffer()
@@ -71,20 +84,20 @@ namespace Graphics {
         {
             auto tex = createTexture2D();
             tex->create(2, 2, Graphics::TextureFormat::R8, false);
-            for (auto i = SHADOW_MAP_2D_SLOT_BEGIN; i < SHADOW_MAP_2D_SLOT_BEGIN + MAX_SHADOWMAPS_2D; i++)
-                tex->bind(Graphics::ShaderType::Fragment, i);
+            for (auto& res : SHADOW_MAP_2D_RESOURCE_DECLS)
+                tex->bind( res );
             delete tex;
 
             auto cube = createCubemap();
             cube->create(2, Graphics::TextureFormat::R8);
-            for (auto i = SHADOW_MAP_3D_SLOT_BEGIN; i < SHADOW_MAP_3D_SLOT_BEGIN + MAX_SHADOWMAPS_3D; i++)
-                cube->bind(Graphics::ShaderType::Fragment, i);
+            for (auto& res : SHADOW_MAP_3D_RESOURCE_DECLS)
+                cube->bind( res );
             delete cube;
 
             auto texArray = createTexture2DArray();
             texArray->create(2, 2, 1, Graphics::TextureFormat::R8);
-            for (auto i = SHADOW_MAP_2D_SLOT_BEGIN; i < SHADOW_MAP_ARRAY_SLOT_BEGIN + MAX_SHADOWMAPS_ARRAY; i++)
-                texArray->bind(Graphics::ShaderType::Fragment, i);
+            for (auto& res : SHADOW_MAP_ARRAY_RESOURCE_DECLS)
+                texArray->bind( res );
             delete texArray;
         }
     } 
@@ -605,7 +618,7 @@ namespace Graphics {
                         {
                             lights[i].shadowMapIndex = curShadowMap2DIndex;
                             lightViewProjs[curShadowMap2DIndex] = renderContext.lights[i]->getShadowViewProjection();
-                            renderContext.lights[i]->getShadowMap()->bind( Graphics::ShaderType::Fragment, SHADOW_MAP_2D_SLOT_BEGIN + curShadowMap2DIndex );
+                            renderContext.lights[i]->getShadowMap()->bind( SHADOW_MAP_2D_RESOURCE_DECLS[curShadowMap2DIndex] );
                             curShadowMap2DIndex++;
                         }
                         break;
@@ -615,11 +628,11 @@ namespace Graphics {
                         {
                             lights[i].shadowMapIndex = curShadowMapArrayIndex;
 
-                            auto& splits = dirLight->getCSMSplits();                            
+                            auto& splits = dirLight->getCSMSplits();
                             if ( not LIGHT_BUFFER.update( LIGHT_CSM_SPLITS_NAME, splits.data() ) )
                                 LOG_ERROR_RENDERING( "Failed to update light-buffer. Something is horribly broken! Fix this!" );
 
-                            renderContext.lights[i]->getShadowMap()->bind( Graphics::ShaderType::Fragment, SHADOW_MAP_ARRAY_SLOT_BEGIN + curShadowMapArrayIndex);
+                            renderContext.lights[i]->getShadowMap()->bind( SHADOW_MAP_ARRAY_RESOURCE_DECLS[curShadowMapArrayIndex] );
                             curShadowMapArrayIndex++;
                         }
                         break;
@@ -645,7 +658,7 @@ namespace Graphics {
                         {
                             lights[i].shadowMapIndex = curShadowMap2DIndex;
                             lightViewProjs[curShadowMap2DIndex] = renderContext.lights[i]->getShadowViewProjection();
-                            renderContext.lights[i]->getShadowMap()->bind( Graphics::ShaderType::Fragment, SHADOW_MAP_2D_SLOT_BEGIN + curShadowMap2DIndex );
+                            renderContext.lights[i]->getShadowMap()->bind( SHADOW_MAP_2D_RESOURCE_DECLS[curShadowMap2DIndex] );
                             curShadowMap2DIndex++;
                         }
                         break;
@@ -671,7 +684,7 @@ namespace Graphics {
                         if ( curShadowMap3DIndex < MAX_SHADOWMAPS_3D )
                         {
                             lights[i].shadowMapIndex = curShadowMap3DIndex;
-                            renderContext.lights[i]->getShadowMap()->bind( Graphics::ShaderType::Fragment, SHADOW_MAP_3D_SLOT_BEGIN + curShadowMap3DIndex );
+                            renderContext.lights[i]->getShadowMap()->bind( SHADOW_MAP_3D_RESOURCE_DECLS[curShadowMap3DIndex] );
                             curShadowMap3DIndex++;
                         }
                         break;

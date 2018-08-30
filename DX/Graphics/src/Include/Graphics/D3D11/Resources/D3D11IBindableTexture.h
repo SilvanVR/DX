@@ -10,6 +10,7 @@
 
 #include "enums.hpp"
 #include "../D3D11Utility.h"
+#include "shader_resources.hpp"
 
 namespace Graphics { namespace D3D11 {
 
@@ -21,10 +22,9 @@ namespace Graphics { namespace D3D11 {
         virtual ~IBindableTexture();
 
         //----------------------------------------------------------------------
-        // This functions binds this texture to the given shader at the given slot.
         // Default implementation is provided, but can be overriden if desired.
         //----------------------------------------------------------------------
-        virtual void bind(ShaderType shaderType, U32 slot);
+        virtual void bind(const ShaderResourceDeclaration& res);
 
         //----------------------------------------------------------------------
         // @Return:

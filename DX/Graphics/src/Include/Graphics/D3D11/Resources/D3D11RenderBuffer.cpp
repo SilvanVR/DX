@@ -86,7 +86,7 @@ namespace Graphics { namespace D3D11 {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    void RenderBuffer::bind( ShaderType shaderType, U32 slot )
+    void RenderBuffer::bind( const ShaderResourceDeclaration& res )
     {
         // If the renderbuffer is multisampled itself, we must resolve it to the non-multisampled buffer and bind that to the shader then
         if ( isMultisampled() )
@@ -105,18 +105,15 @@ namespace Graphics { namespace D3D11 {
             }
         }
 
-        switch (shaderType)
+        if ((I32)(res.getShaderStages() & ShaderType::Vertex))
         {
-        case ShaderType::Vertex:
-            g_pImmediateContext->VSSetShaderResources( slot, 1, &m_pTextureView );
-            g_pImmediateContext->VSSetSamplers( slot, 1, &m_pSampleState );
-            break;
-        case ShaderType::Fragment:
-            g_pImmediateContext->PSSetShaderResources( slot, 1, &m_pTextureView );
-            g_pImmediateContext->PSSetSamplers( slot, 1, &m_pSampleState );
-            break;
-        default:
-            ASSERT( false );
+            g_pImmediateContext->VSSetSamplers( res.getBindingSlot(), 1, &m_pSampleState );
+            g_pImmediateContext->VSSetShaderResources( res.getBindingSlot(), 1, &m_pTextureView );
+        }
+        if ((I32)(res.getShaderStages() & ShaderType::Fragment))
+        {
+            g_pImmediateContext->PSSetSamplers( res.getBindingSlot(), 1, &m_pSampleState );
+            g_pImmediateContext->PSSetShaderResources( res.getBindingSlot(), 1, &m_pTextureView );
         }
     }
 

@@ -8,6 +8,7 @@
 **********************************************************************/
 
 #include "enums.hpp"
+#include "shader_resources.hpp"
 #include <cmath>
 
 namespace Graphics
@@ -55,6 +56,7 @@ namespace Graphics
 
         //----------------------------------------------------------------------
         // Indicates that something related to sampling has been changed.
+        //----------------------------------------------------------------------
         virtual void _UpdateSampler() = 0;
 
     private:
@@ -63,7 +65,7 @@ namespace Graphics
         friend class IRenderTexture;
         friend class D3D11Renderer;
         friend class VkRenderer;
-        virtual void bind(ShaderType shaderType, U32 bindSlot) = 0;
+        virtual void bind(const ShaderResourceDeclaration& res) = 0;
 
         NULL_COPY_AND_ASSIGN(ITexture)
     };

@@ -269,7 +269,7 @@ namespace Graphics {
         {
             auto shaderRes = getShaderResource( pair.first );
             if (shaderRes) // shader res can be null when the shaders was reloaded but the res no longer exists in it
-                pair.second->bind( shaderRes->getShaderStages(), shaderRes->getBindingSlot() );
+                pair.second->bind( *shaderRes );
         }
     }
 

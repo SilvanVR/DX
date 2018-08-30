@@ -114,10 +114,10 @@ namespace Graphics
     }
 
     //----------------------------------------------------------------------
-    void IRenderTexture::bind( ShaderType shaderType, U32 bindSlot )
+    void IRenderTexture::bind(const ShaderResourceDeclaration& res )
     {
         auto prev = _PreviousBufferIndex();
-        m_renderBuffers[prev].m_colorBuffer->bind( shaderType, bindSlot );
+        m_renderBuffers[prev].m_colorBuffer->bind( res );
     }
 
     //**********************************************************************

@@ -40,7 +40,7 @@ namespace Graphics { namespace D3D11 {
         //----------------------------------------------------------------------
         // D3D11ITexture Interface
         //----------------------------------------------------------------------
-        void bind(ShaderType shaderType, U32 slot) override;
+        void bind(const ShaderResourceDeclaration& res) override;
 
     private:
         union
