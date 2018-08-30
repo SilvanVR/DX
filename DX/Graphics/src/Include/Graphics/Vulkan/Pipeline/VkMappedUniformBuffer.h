@@ -24,6 +24,7 @@ namespace Graphics { namespace Vulkan {
         //----------------------------------------------------------------------
         bool                                  gpuIsUpToDate() const { return m_gpuUpToDate; }
         const ShaderUniformBufferDeclaration& getBufferInfo() const { return m_bufferInfo; }
+        VkBuffer                              getVkBuffer()   const { return m_GPUBuffer->buffer; }
 
         //----------------------------------------------------------------------
         // Update the given uniform 'name' with the given data. !! ONLY ON THE CPU !!

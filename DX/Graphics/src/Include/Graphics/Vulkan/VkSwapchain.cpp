@@ -63,7 +63,7 @@ namespace Graphics { namespace Vulkan {
         VkPipelineStageFlags waitDstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 
         VezPresentInfo presentInfo = {};
-        presentInfo.waitSemaphoreCount  = 1;
+        presentInfo.waitSemaphoreCount  = waitSemaphore ? 1 : 0;
         presentInfo.pWaitSemaphores     = &waitSemaphore;
         presentInfo.pWaitDstStageMask   = &waitDstStageMask;
         presentInfo.swapchainCount      = 1;

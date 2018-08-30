@@ -21,6 +21,8 @@
 #include "Resources/VkTexture2DArray.h"
 #include "VR/OculusRift/oculus_rift_vk.h"
 
+#include "Math/math_utils.h"
+
 #define SWAPCHAIN_FORMAT    VK_FORMAT_B8G8R8A8_UNORM
 #define ENGINE_VS_PATH      "/engine/shaders/includes/vulkan/engineVS.glsl"
 #define ENGINE_FS_PATH      "/engine/shaders/includes/vulkan/engineFS.glsl"
@@ -105,6 +107,7 @@ namespace Graphics {
         _SetGPUDescription();
         _CreateRequiredUniformBuffersFromFile( ENGINE_VS_PATH, ENGINE_FS_PATH );
         _CreateCubeMesh();
+
         LOG_RENDERING( "Done initializing Vulkan... (Using " + getGPUDescription().name + ")" );
     } 
 
@@ -136,10 +139,6 @@ namespace Graphics {
                 {
                     auto& cmd = *reinterpret_cast<GPUC_SetCamera*>( command.get() );
                     _SetCamera( &cmd.camera );
-                    //m_swapchain.clear(Color::RED);
-                    //m_swapchain.bindForRendering();
-                    //g_vulkan.ctx.RSSetViewports({ 0, 0, (F32)m_window->getWidth(), (F32)m_window->getHeight(), 0, 1 });
-                    //g_vulkan.ctx.RSSetScissor({ { 0, 0 }, { m_window->getWidth(), m_window->getHeight() } });
                     break;
                 }
                 case GPUCommand::END_CAMERA:
@@ -254,8 +253,6 @@ namespace Graphics {
 
         _CheckVSync();
 
-        vezDeviceWaitIdle(g_vulkan.device);
-
         // Record all commands
         g_vulkan.ctx.BeginFrame();
         {
@@ -264,15 +261,13 @@ namespace Graphics {
             m_lightBuffer->bind();
             {
                 _LockQueue();
-                //for (auto& cmd : m_pendingCmdQueue)
-                   //_ExecuteCommandBuffer( cmd );
+                for (auto& cmd : m_pendingCmdQueue)
+                   _ExecuteCommandBuffer( cmd );
                 m_pendingCmdQueue.clear();
                 _UnlockQueue();
             }
         }
         g_vulkan.ctx.EndFrame();
-
-        vezDeviceWaitIdle(g_vulkan.device);
 
         // Present rendered image to screen/hmd
         if ( hasHMD() )

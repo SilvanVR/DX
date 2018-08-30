@@ -36,13 +36,34 @@ namespace Graphics { namespace Vulkan {
         OS::BinaryFile binaryShaderFile( path, OS::EFileMode::READ );
         String content = binaryShaderFile.readAll();
 
-        ArrayList<uint32_t> spv( content.begin(), content.end() );
+        VezShaderModuleCreateInfo createInfo = {};
+        createInfo.stage        = Utility::TranslateShaderStage( m_shaderType );
+        createInfo.pEntryPoint  = entryPoint;
+        if (path.getExtension() == "spv")
+        {
+            U32 codeSize = (U32)content.size() / sizeof(uint32_t);
+            ArrayList<uint32_t> spv( codeSize );
+            memcpy( spv.data(), content.data(), codeSize );
+            createInfo.pCode = spv.data();
+            createInfo.codeSize     = codeSize;
+        }
+        else
+        {
+            createInfo.pGLSLSource = content.data();
+            createInfo.codeSize    = content.size();
+        }
+        auto result = vezCreateShaderModule( g_vulkan.device, &createInfo, &m_shaderModule );
+        if (result != VK_SUCCESS && m_shaderModule != VK_NULL_HANDLE)
+        {
+            // If shader module creation failed get the error log.
+            U32 infoLogSize = 0;
+            vezGetShaderModuleInfoLog( m_shaderModule, &infoLogSize, nullptr );
+            String infoLog( infoLogSize, '\0' );
+            vezGetShaderModuleInfoLog( m_shaderModule, &infoLogSize, &infoLog[0] );
 
-        // Create shader module
-        VkShaderModuleCreateInfo createInfo{ VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO };
-        createInfo.pCode    = spv.data();
-        createInfo.codeSize = spv.size() * sizeof(uint32_t);
-        vkCreateShaderModule( g_vulkan.device, &createInfo, ALLOCATOR, &m_shaderModule );
+            vezDestroyShaderModule( g_vulkan.device, m_shaderModule );
+            throw std::runtime_error( infoLog );
+        }
     }
 
     //----------------------------------------------------------------------

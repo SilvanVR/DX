@@ -23,6 +23,9 @@ namespace Graphics { namespace Vulkan {
         ~Shader();
 
         //----------------------------------------------------------------------
+        VezPipeline getVezPipeline() const { return m_pipeline; }
+
+        //----------------------------------------------------------------------
         // IShader Interface
         //----------------------------------------------------------------------
         void                compileFromFile(const OS::Path& vertPath, const OS::Path& fragPath, CString entryPoint) override;

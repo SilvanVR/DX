@@ -41,6 +41,7 @@ namespace Graphics { namespace Vulkan {
     void MappedUniformBuffer::update( const void* data, U32 sizeInBytes )
     {
         m_GPUBuffer->update( data, sizeInBytes );
+        m_gpuUpToDate = true;
     }
 
     //----------------------------------------------------------------------

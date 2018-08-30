@@ -48,3 +48,35 @@ float4 main(FragmentIn fin) : SV_Target
 {
     return fin.Color * color;
 }
+
+//----------------------------------------------
+// Vulkan
+//----------------------------------------------
+#vulkan
+#shader vertex
+
+#include "/engine/shaders/includes/vulkan/engineVS.glsl"
+
+layout (location = 0) in vec3 VERTEX_POSITION;
+layout (location = 1) in vec4 VERTEX_COLOR;
+
+layout (location = 0) out vec4 outColor;
+
+void main()
+{
+	outColor = VERTEX_COLOR;
+	gl_Position = TO_CLIP_SPACE( VERTEX_POSITION );
+}
+
+// ----------------------------------------------
+#shader fragment
+
+#include "/engine/shaders/includes/vulkan/engineFS.glsl"
+
+layout (location = 0) in vec4 inColor;
+layout (location = 0) out vec4 outColor;
+
+void main()
+{
+	outColor = inColor;
+}

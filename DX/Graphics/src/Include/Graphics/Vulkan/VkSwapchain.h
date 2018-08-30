@@ -19,7 +19,8 @@ namespace Graphics { namespace Vulkan {
         ~Swapchain() = default;
 
         //----------------------------------------------------------------------
-        VkSurfaceKHR getSurfaceKHR() const { return m_surface; }
+        VkSurfaceKHR    getSurfaceKHR() const { return m_surface; }
+        VezFramebuffer  getVezFramebuffer() const { return m_framebuffer.fbo.framebuffer; }
 
         //----------------------------------------------------------------------
         void createSurface(VkInstance instance, OS::Window* window);

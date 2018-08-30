@@ -267,6 +267,7 @@ namespace Graphics { namespace Vulkan {
         fboCreateInfo.height            = height;
         fboCreateInfo.attachmentCount   = attachmentCount;
         fboCreateInfo.pAttachments      = pImageViews;
+        fboCreateInfo.layers            = 1;
         vezCreateFramebuffer( g_vulkan.device, &fboCreateInfo, &framebuffer );
     }
 
@@ -336,8 +337,7 @@ namespace Graphics { namespace Vulkan {
         }
 
         // Begin recording
-        VALIDATE( vezResetCommandBuffer( curFrameData().cmd ) );
-        VALIDATE( vezBeginCommandBuffer( curFrameData().cmd, VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT) );
+        VALIDATE( vezBeginCommandBuffer( curFrameData().cmd, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT) );
     }
 
     //----------------------------------------------------------------------

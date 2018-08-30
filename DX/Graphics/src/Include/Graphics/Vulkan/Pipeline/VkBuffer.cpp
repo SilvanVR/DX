@@ -57,7 +57,7 @@ namespace Graphics { namespace Vulkan {
         case BufferUsage::Frequently:
         {
             void* pData;
-            vezMapBuffer( g_vulkan.device, buffer, 0, VK_WHOLE_SIZE, &pData );
+            VALIDATE( vezMapBuffer( g_vulkan.device, buffer, 0, VK_WHOLE_SIZE, &pData ) );
             memcpy( pData, data, sizeInBytes );
             vezUnmapBuffer( g_vulkan.device, buffer );
             break;
