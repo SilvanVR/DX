@@ -13,11 +13,13 @@ namespace Graphics { namespace Vulkan {
     //----------------------------------------------------------------------
     IBindableTexture::~IBindableTexture()
     {
+        vezDestroyImage( g_vulkan.device, m_image.img );
+        vezDestroyImageView( g_vulkan.device, m_image.view );
         _DestroySampler();
     }
 
     //----------------------------------------------------------------------
-    void IBindableTexture::bind( VkImageView view, const ShaderResourceDeclaration& res )
+    void IBindableTexture::bind( const ShaderResourceDeclaration& res )
     {
         if (not m_gpuUpToDate)
         {
@@ -27,12 +29,11 @@ namespace Graphics { namespace Vulkan {
 
         if (m_generateMips)
         {
-            //g_pImmediateContext->GenerateMips( m_pTextureView );
             //g_vulkan.ctx.GenerateMips(img, mipLevels);
             m_generateMips = false;
         }
 
-        g_vulkan.ctx.SetImage( view, m_sampler, res.getBindingSet(), res.getBindingSlot() );
+        g_vulkan.ctx.SetImage( m_image.view, m_sampler, res.getBindingSet(), res.getBindingSlot() );
     }
 
     //----------------------------------------------------------------------

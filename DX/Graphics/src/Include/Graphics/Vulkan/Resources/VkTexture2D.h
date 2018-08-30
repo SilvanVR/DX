@@ -27,17 +27,12 @@ namespace Graphics { namespace Vulkan {
         void apply(bool updateMips, bool keepPixelsInRAM) override;
 
     private:
-        struct
-        {
-            VkImage     img;
-            VkImageView view;
-        } m_image;
 
         //----------------------------------------------------------------------
         // ITexture Interface
         //----------------------------------------------------------------------
         void _UpdateSampler() override { IBindableTexture::_RecreateSampler( m_anisoLevel, m_filter, m_clampMode ); }
-        void bind(const ShaderResourceDeclaration& res) override { IBindableTexture::bind( m_image.view, res ); }
+        void bind(const ShaderResourceDeclaration& res) override { IBindableTexture::bind(res); }
 
         //----------------------------------------------------------------------
         void _CreateTexture();

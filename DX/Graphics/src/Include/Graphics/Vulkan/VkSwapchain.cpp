@@ -84,11 +84,6 @@ namespace Graphics { namespace Vulkan {
     //----------------------------------------------------------------------
     void Swapchain::clear( Color color )
     {
-        //VezImageSubresourceRange range{ 0,1,0,1 };
-        //VkClearColorValue clearColor{};
-        //clearColor.float32[0] = 1.0f;
-        //clearColor.float32[1] = 1.0f;
-        //vezCmdClearColorImage(g_vulkan.ctx.curDrawCmd(), m_framebuffer.img, &clearColor, 1, &range );
         m_framebuffer.fbo.setClearColor( 0, color );
     }
 

@@ -131,7 +131,6 @@ namespace Graphics { namespace Vulkan {
         VkDevice        device                      = VK_NULL_HANDLE;
         GPU             gpu;
         VkQueue         graphicsQueue               = VK_NULL_HANDLE;
-        VkQueue         transferQueue               = VK_NULL_HANDLE;
         Context         ctx;
 
     private:

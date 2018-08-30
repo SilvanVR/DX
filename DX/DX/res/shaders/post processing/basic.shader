@@ -1,6 +1,7 @@
 // ----------------------------------------------
 #Fill			Solid
-#Cull 			Front
+#Cull 			None
+#ZTest 			Off
 #ZWrite 		Off
 #Queue 			Geometry
 
@@ -78,4 +79,5 @@ layout (set = 0, binding = 0) uniform sampler2D _Input;
 void main()
 {
 	outColor = texture(_Input, inUV);
+	//outColor = vec4(inUV,0,1);
 }

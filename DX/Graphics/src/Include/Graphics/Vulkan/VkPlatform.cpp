@@ -38,7 +38,7 @@ namespace Graphics { namespace Vulkan {
     void Platform::Shutdown()
     {
         vkDeviceWaitIdle( device );
-        vkDestroyDevice( device, ALLOCATOR );
+        vezDestroyDevice( device );
 #ifdef VALIDATION_LAYERS 
         _DestroyDebugCallback( instance );
 #endif
@@ -137,7 +137,6 @@ namespace Graphics { namespace Vulkan {
         vezCreateDevice( gpu.physicalDevice, &deviceInfo, &device );
 
         vezGetDeviceGraphicsQueue( device, 0, &graphicsQueue );
-        vezGetDeviceTransferQueue( device, 0, &transferQueue );
     }
 
     //**********************************************************************
@@ -180,7 +179,8 @@ namespace Graphics { namespace Vulkan {
         ArrayList<VkLayerProperties> instanceLayerProperties( instanceLayerCount );
         VALIDATE( vezEnumerateInstanceLayerProperties( &instanceLayerCount, instanceLayerProperties.data() ) );
 
-        ArrayList<CString> instanceLayers;
+        static ArrayList<CString> instanceLayers;
+        instanceLayers.clear();
 #ifdef _DEBUG
         CString validationLayers = "VK_LAYER_LUNARG_standard_validation";
         bool found = estl::find_if( instanceLayerProperties, [validationLayers](VkLayerProperties prop) { return strcmp(prop.layerName, validationLayers) > 0; } );
@@ -431,7 +431,7 @@ namespace Graphics { namespace Vulkan {
     }
 
     //----------------------------------------------------------------------
-    void Context::RSSetScissor( VkRect2D scissor)
+    void Context::RSSetScissor( VkRect2D scissor )
     {
         vezCmdSetScissor( curDrawCmd(), 0, 1, &scissor );
     }

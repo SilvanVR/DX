@@ -23,12 +23,18 @@ namespace Graphics { namespace Vulkan {
         // This functions binds this texture to the given shader at the given set + binding.
         // Default implementation is provided, but can be overriden if desired.
         //----------------------------------------------------------------------
-        virtual void bind(VkImageView view, const ShaderResourceDeclaration& res);
+        virtual void bind(const ShaderResourceDeclaration& res);
 
     protected:
         bool m_gpuUpToDate      = true;
         bool m_generateMips     = true;
         bool m_keepPixelsInRAM  = false;
+
+        struct
+        {
+            VkImage     img = VK_NULL_HANDLE;
+            VkImageView view = VK_NULL_HANDLE;
+        } m_image;
 
         VkSampler m_sampler = VK_NULL_HANDLE;
 

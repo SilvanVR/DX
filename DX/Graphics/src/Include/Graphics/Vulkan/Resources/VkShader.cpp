@@ -178,7 +178,8 @@ namespace Graphics { namespace Vulkan {
     //----------------------------------------------------------------------
     void Shader::_CreatePipeline()
     {
-        ASSERT( m_pipeline == VK_NULL_HANDLE );
+        // Destroy old pipeline if any
+        vezDestroyPipeline( g_vulkan.device, m_pipeline );
 
         // Add shader modules
         ArrayList<VezPipelineShaderStageCreateInfo> shaderStageCreateInfos;
