@@ -35,13 +35,13 @@ namespace Graphics { namespace Vulkan {
         //----------------------------------------------------------------------
         // IBindableTexture Interface
         //----------------------------------------------------------------------
-        void _PushToGPU();
+        void _PushToGPU() override;
+        void _GenerateMips() override;
 
         //----------------------------------------------------------------------
         void _CreateTexture();
         void _CreateTexture(const void* pData);
 
-        //----------------------------------------------------------------------
         NULL_COPY_AND_ASSIGN(Texture2D)
     };
 

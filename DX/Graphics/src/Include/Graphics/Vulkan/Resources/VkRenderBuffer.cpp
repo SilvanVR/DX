@@ -162,4 +162,17 @@ namespace Graphics { namespace Vulkan {
         m_framebufferMS.fbo.destroy();
     }
 
+    //----------------------------------------------------------------------
+    void RenderBuffer::_PushToGPU() 
+    { 
+        LOG_WARN_RENDERING( "VkRenderBuffer:_PushToGPU() called, which should not have happened!" );
+    }
+
+    //----------------------------------------------------------------------
+    void RenderBuffer::_GenerateMips()
+    {
+        LOG_WARN_RENDERING( "VkRenderBuffer: Mip-Map generation not supported on RenderBuffers!" );
+        //g_vulkan.ctx.GenerateMips( m_framebuffer.img, m_width, m_height, m_mipCount );
+    }
+
 } } // End namespaces

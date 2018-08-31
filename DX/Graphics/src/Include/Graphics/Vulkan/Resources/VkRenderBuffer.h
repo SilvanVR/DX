@@ -56,6 +56,12 @@ namespace Graphics { namespace Vulkan {
         void _UpdateSampler() override { IBindableTexture::_RecreateSampler( m_anisoLevel, m_filter, m_clampMode ); }
 
         //----------------------------------------------------------------------
+        // IBindableTexture Interface
+        //----------------------------------------------------------------------
+        void _PushToGPU() override;
+        void _GenerateMips() override;
+
+        //----------------------------------------------------------------------
         void _CreateFramebuffer(bool isDepthBuffer);
         void _DestroyFramebuffer(bool isDepthBuffer);
         void _ClearResolvedFlag() { m_resolved = false; }

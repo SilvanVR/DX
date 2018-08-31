@@ -80,4 +80,10 @@ namespace Graphics { namespace Vulkan {
             m_pixels.clear();
     }
 
+    //----------------------------------------------------------------------
+    void Texture2DArray::_GenerateMips()
+    {
+        g_vulkan.ctx.GenerateMips( m_image.img, m_width, m_height, m_mipCount, m_depth );
+    }
+
 } } // End namespaces

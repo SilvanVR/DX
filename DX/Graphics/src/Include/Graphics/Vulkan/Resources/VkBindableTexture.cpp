@@ -33,7 +33,7 @@ namespace Graphics { namespace Vulkan {
 
         if (m_generateMips)
         {
-            //g_vulkan.ctx.GenerateMips(img, mipLevels);
+            _GenerateMips();
             m_generateMips = false;
         }
 

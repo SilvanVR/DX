@@ -59,7 +59,12 @@ namespace Graphics { namespace Vulkan {
         //----------------------------------------------------------------------
         // Pushes the pixel data to the GPU before binding if gpu is not up to date.
         //----------------------------------------------------------------------
-        virtual void _PushToGPU() {}
+        virtual void _PushToGPU() = 0;
+
+        //----------------------------------------------------------------------
+        // Generate mips for whole texture
+        //----------------------------------------------------------------------
+        virtual void _GenerateMips() = 0;
 
         NULL_COPY_AND_ASSIGN(IBindableTexture)
     };

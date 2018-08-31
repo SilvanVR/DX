@@ -82,4 +82,10 @@ namespace Graphics { namespace Vulkan {
         }
     }
 
+    //----------------------------------------------------------------------
+    void Cubemap::_GenerateMips()
+    {
+        g_vulkan.ctx.GenerateMips( m_image.img, m_width, m_height, m_mipCount, 6 );
+    }
+
 } } // End namespaces

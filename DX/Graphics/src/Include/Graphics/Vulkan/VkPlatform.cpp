@@ -490,13 +490,35 @@ namespace Graphics { namespace Vulkan {
     }
 
     //----------------------------------------------------------------------
-    void Context::GenerateMips( VkImage img, U32 mipLevels )
+    void Context::GenerateMips( VkImage img, U32 width, U32 height, U32 mipLevels, VkFilter filter )
     {
-        ASSERT(false);
-        //VezImageBlit blitInfo{};
-        //blitInfo.srcSubresource.mipLevel = ;
-        //blitInfo.dstSubresource.mipLevel = ;
-        //vezCmdBlitImage(cmd, src, dst, 1, &blitInfo, VK_FILTER_LINEAR);
+        GenerateMips( img, width, height, mipLevels, 1, filter );
+    }
+
+    //----------------------------------------------------------------------
+    void Context::GenerateMips( VkImage img, U32 width, U32 height, U32 mipLevels, U32 layers, VkFilter filter )
+    {
+        for (U32 layer = 0; layer < layers; ++layer)
+        {
+            for (U32 mip = 0; mip < (mipLevels - 1); ++mip)
+            {
+                VezImageBlit blitInfo{};
+                blitInfo.srcSubresource.mipLevel        = mip;
+                blitInfo.srcSubresource.baseArrayLayer  = layer;
+                blitInfo.srcSubresource.layerCount      = 1;
+                blitInfo.srcOffsets[1].x                = I32(width  >> mip);
+                blitInfo.srcOffsets[1].y                = I32(height >> mip);
+                blitInfo.srcOffsets[1].z                = 1;
+
+                blitInfo.dstSubresource.mipLevel        = mip + 1;
+                blitInfo.dstSubresource.baseArrayLayer  = layer;
+                blitInfo.dstSubresource.layerCount      = 1;
+                blitInfo.dstOffsets[1].x                = I32(width  >> (mip + 1));
+                blitInfo.dstOffsets[1].y                = I32(height >> (mip + 1));
+                blitInfo.dstOffsets[1].z                = 1;
+                vezCmdBlitImage( curDrawCmd(), img, img, 1, &blitInfo, filter );
+            }
+        }
     }
 
     //**********************************************************************

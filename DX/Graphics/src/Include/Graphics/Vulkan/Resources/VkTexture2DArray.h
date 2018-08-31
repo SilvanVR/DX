@@ -34,7 +34,8 @@ namespace Graphics { namespace Vulkan {
         //----------------------------------------------------------------------
         // IBindableTexture Interface
         //----------------------------------------------------------------------
-        void _PushToGPU();
+        void _PushToGPU() override;
+        void _GenerateMips() override;
 
         //----------------------------------------------------------------------
         void _CreateTextureArray();

@@ -97,7 +97,8 @@ namespace Graphics { namespace Vulkan {
         void EndRenderPass();
         void SetBuffer(VkBuffer buffer, U32 set, U32 binding);
         void SetImage(VkImageView imageView, VkSampler sampler, U32 set, U32 binding);
-        void GenerateMips(VkImage img, U32 mipLevels);
+        void GenerateMips(VkImage img, U32 width, U32 height, U32 mipLevels, VkFilter filter = VK_FILTER_LINEAR);
+        void GenerateMips(VkImage img, U32 width, U32 height, U32 mipLevels, U32 layers, VkFilter filter = VK_FILTER_LINEAR);
 
     private:
         friend class VkRenderer;
