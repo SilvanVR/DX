@@ -38,10 +38,10 @@ namespace Graphics {
         { ShaderType::Fragment, SHADOW_MAP_2D_SLOT_BEGIN + 3, SID("ShadowMap2D"), DataType::Texture2D },
     };
     static ArrayList<ShaderResourceDeclaration> SHADOW_MAP_3D_RESOURCE_DECLS{
-        { ShaderType::Fragment, SHADOW_MAP_3D_SLOT_BEGIN + 0, SID("ShadowMap2D"), DataType::Texture2D }
+        { ShaderType::Fragment, SHADOW_MAP_3D_SLOT_BEGIN + 0, SID("ShadowMapCube"), DataType::TextureCubemap }
     };
     static ArrayList<ShaderResourceDeclaration> SHADOW_MAP_ARRAY_RESOURCE_DECLS{
-        { ShaderType::Fragment, SHADOW_MAP_ARRAY_SLOT_BEGIN + 0, SID("ShadowMap2D"), DataType::Texture2D },
+        { ShaderType::Fragment, SHADOW_MAP_ARRAY_SLOT_BEGIN + 0, SID("ShadowMapArray"), DataType::Texture2D },
     };
 
     #define GLOBAL_BUFFER D3D11::ConstantBufferManager::getGlobalBuffer()

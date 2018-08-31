@@ -41,10 +41,28 @@ namespace Graphics {
     static StringID CAM_VIEW_MATRIX_NAME      = SID( "_View" );
     static StringID CAM_PROJ_MATRIX_NAME      = SID( "_Proj" );
 
-    //static constexpr StringID LIGHT_COUNT_NAME          = StringID( "_LightCount" );
-    //static constexpr StringID LIGHT_BUFFER_NAME         = StringID( "_Lights" );
-    //static constexpr StringID LIGHT_VIEW_PROJ_NAME      = StringID( "_LightViewProj" );
-    //static constexpr StringID LIGHT_CSM_SPLITS_NAME     = StringID( "_CSMSplits" );
+    static StringID LIGHT_COUNT_NAME          = SID( "_LightCount" );
+    static StringID LIGHT_BUFFER_NAME         = SID( "_Lights" );
+    static StringID LIGHT_VIEW_PROJ_NAME      = SID( "_LightViewProj" );
+    static StringID LIGHT_CSM_SPLITS_NAME     = SID( "_CSMSplits" );
+
+    #define SHADOW_MAPS_SET                 0
+    #define SHADOW_MAP_2D_BINDING_BEGIN     0
+    #define SHADOW_MAP_3D_BINDING_BEGIN     4
+    #define SHADOW_MAP_ARRAY_BINDING_BEGIN  5
+
+    static ArrayList<ShaderResourceDeclaration> SHADOW_MAP_2D_RESOURCE_DECLS{
+        { ShaderType::Fragment, SHADOW_MAPS_SET, SHADOW_MAP_2D_BINDING_BEGIN + 0, SID("ShadowMap2D"), DataType::Texture2D },
+        { ShaderType::Fragment, SHADOW_MAPS_SET, SHADOW_MAP_2D_BINDING_BEGIN + 1, SID("ShadowMap2D"), DataType::Texture2D },
+        { ShaderType::Fragment, SHADOW_MAPS_SET, SHADOW_MAP_2D_BINDING_BEGIN + 2, SID("ShadowMap2D"), DataType::Texture2D },
+        { ShaderType::Fragment, SHADOW_MAPS_SET, SHADOW_MAP_2D_BINDING_BEGIN + 3, SID("ShadowMap2D"), DataType::Texture2D },
+    };
+    static ArrayList<ShaderResourceDeclaration> SHADOW_MAP_3D_RESOURCE_DECLS{
+        { ShaderType::Fragment, SHADOW_MAPS_SET,SHADOW_MAP_3D_BINDING_BEGIN + 0, SID("ShadowMapCube"), DataType::TextureCubemap }
+    };
+    static ArrayList<ShaderResourceDeclaration> SHADOW_MAP_ARRAY_RESOURCE_DECLS{
+        { ShaderType::Fragment, SHADOW_MAPS_SET,SHADOW_MAP_ARRAY_BINDING_BEGIN + 0, SID("ShadowMapArray"), DataType::Texture2D },
+    };
 
     using namespace Vulkan;
 
@@ -526,6 +544,156 @@ namespace Graphics {
     //----------------------------------------------------------------------
     void VkRenderer::_FlushLightBuffer()
     {
+        if ( not renderContext.lightsUpdated )
+            return;
+        renderContext.lightsUpdated = false;
+
+        renderContext.getCamera()->getFrameInfo().numLights = renderContext.lightCount;
+
+        // Update light count
+        if ( not m_lightBuffer->update( LIGHT_COUNT_NAME, &renderContext.lightCount ) )
+            LOG_ERROR_RENDERING( "Failed to update light-count. Something is horribly broken! Fix this!" );
+
+        struct Light
+        {
+            Math::Vec3  position;               // 12 bytes
+            I32         lightType;              // 4 bytes
+            //----------------------------------- (16 byte boundary)
+            Math::Vec3  direction;              // 12 bytes
+            F32         intensity;              // 4 bytes
+            //----------------------------------- (16 byte boundary)
+            Math::Vec4  color;                  // 16 bytes
+            //----------------------------------- (16 byte boundary)
+            F32         spotAngle;              // 4 bytes
+            F32         range;                  // 4 bytes
+            I32         shadowMapIndex;         // 4 bytes
+            I32         shadowType;             // 4 bytes
+            //----------------------------------- (16 byte boundary)
+        } lights[MAX_LIGHTS];
+
+        I32 curShadowMap2DIndex = 0;
+        I32 curShadowMap3DIndex = 0;
+        I32 curShadowMapArrayIndex = 0;
+        DirectX::XMMATRIX lightViewProjs[MAX_SHADOWMAPS_2D];
+
+        // Update light array
+        for (I32 i = 0; i < renderContext.lightCount; ++i)
+        {
+            lights[i].color     = renderContext.lights[i]->getColor().normalized();
+            lights[i].intensity = renderContext.lights[i]->getIntensity();
+            lights[i].lightType = (I32)renderContext.lights[i]->getLightType();
+            lights[i].shadowMapIndex = -1;
+            lights[i].shadowType = (I32)renderContext.lights[i]->getShadowType();
+
+            switch ( renderContext.lights[i]->getLightType() )
+            {
+            case LightType::Directional:
+            {
+                auto dirLight = reinterpret_cast<const DirectionalLight*>( renderContext.lights[i] );
+                lights[i].direction = dirLight->getDirection();
+
+                if ( dirLight->shadowsEnabled() )
+                {
+                    lights[i].range = dirLight->getShadowRange();
+
+                    switch ( dirLight->getShadowType() )
+                    {
+                    case ShadowType::Hard:
+                    case ShadowType::Soft:
+                        if ( curShadowMap2DIndex < MAX_SHADOWMAPS_2D )
+                        {
+                            lights[i].shadowMapIndex = curShadowMap2DIndex;
+                            lightViewProjs[curShadowMap2DIndex] = renderContext.lights[i]->getShadowViewProjection();
+                            renderContext.lights[i]->getShadowMap()->bind( SHADOW_MAP_2D_RESOURCE_DECLS[curShadowMap2DIndex] );
+                            curShadowMap2DIndex++;
+                        }
+                        break;
+                    case ShadowType::CSM:
+                    case ShadowType::CSMSoft:
+                        if (curShadowMapArrayIndex < MAX_SHADOWMAPS_ARRAY)
+                        {
+                            lights[i].shadowMapIndex = curShadowMapArrayIndex;
+
+                            auto& splits = dirLight->getCSMSplits();
+                            if ( not m_lightBuffer->update( LIGHT_CSM_SPLITS_NAME, splits.data() ) )
+                                LOG_ERROR_RENDERING( "Failed to update light-buffer. Something is horribly broken! Fix this!" );
+
+                            renderContext.lights[i]->getShadowMap()->bind( SHADOW_MAP_ARRAY_RESOURCE_DECLS[curShadowMapArrayIndex] );
+                            curShadowMapArrayIndex++;
+                        }
+                        break;
+                    }
+                }
+                break;
+            }
+            case LightType::Spot:
+            {
+                auto spotLight = reinterpret_cast<const SpotLight*>( renderContext.lights[i] );
+                lights[i].position  = spotLight->getPosition();
+                lights[i].range     = spotLight->getRange();
+                lights[i].spotAngle = spotLight->getAngle();
+                lights[i].direction = spotLight->getDirection();
+
+                if ( spotLight->shadowsEnabled() )
+                {
+                    switch ( spotLight->getShadowType() )
+                    {
+                    case ShadowType::Hard:
+                    case ShadowType::Soft:
+                        if ( curShadowMap2DIndex < MAX_SHADOWMAPS_2D )
+                        {
+                            lights[i].shadowMapIndex = curShadowMap2DIndex;
+                            lightViewProjs[curShadowMap2DIndex] = renderContext.lights[i]->getShadowViewProjection();
+                            renderContext.lights[i]->getShadowMap()->bind( SHADOW_MAP_2D_RESOURCE_DECLS[curShadowMap2DIndex] );
+                            curShadowMap2DIndex++;
+                        }
+                        break;
+                    case ShadowType::CSM:
+                    case ShadowType::CSMSoft:
+                        LOG_WARN_RENDERING( "ShadowType CSM in Spot-Light, which is not supported!" );
+                    }
+                }
+                break;
+            }
+            case LightType::Point:
+            {
+                auto pointLight = reinterpret_cast<const PointLight*>( renderContext.lights[i] );
+                lights[i].position  = pointLight->getPosition();
+                lights[i].range = pointLight->getRange();
+
+                if ( pointLight->shadowsEnabled() )
+                {
+                    switch ( pointLight->getShadowType() )
+                    {
+                    case ShadowType::Hard:
+                    case ShadowType::Soft:
+                        if ( curShadowMap3DIndex < MAX_SHADOWMAPS_3D )
+                        {
+                            lights[i].shadowMapIndex = curShadowMap3DIndex;
+                            renderContext.lights[i]->getShadowMap()->bind( SHADOW_MAP_3D_RESOURCE_DECLS[curShadowMap3DIndex] );
+                            curShadowMap3DIndex++;
+                        }
+                        break;
+                    case ShadowType::CSM:
+                    case ShadowType::CSMSoft:
+                        LOG_WARN_RENDERING( "ShadowType CSM in Point-Light, which is not supported!" );
+                    }
+                }
+                break;
+            }
+            default:
+                ASSERT( false && "Unknown light type!" );
+            }
+        }
+
+        if ( not m_lightBuffer->update( LIGHT_BUFFER_NAME, &lights ) )
+            LOG_ERROR_RENDERING( "Failed to update light-buffer. Something is horribly broken! Fix this!" );
+
+        if ( not m_lightBuffer->update( LIGHT_VIEW_PROJ_NAME, &lightViewProjs ) )
+            LOG_ERROR_RENDERING( "Failed to update light-buffer [ViewProjections]. Something is horribly broken! Fix this!" );
+
+        // Update gpu buffer
+        m_lightBuffer->flush();
     }
 
     //----------------------------------------------------------------------
