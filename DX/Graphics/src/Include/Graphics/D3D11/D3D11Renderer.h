@@ -11,6 +11,7 @@
 #include "../i_renderer.h"
 #include "D3D11.hpp"
 #include "D3D11Swapchain.h"
+#include "Pipeline/Buffers/D3D11MappedConstantBuffer.h"
 
 namespace Graphics {
 
@@ -62,6 +63,11 @@ namespace Graphics {
         D3D11::Swapchain*   m_pSwapchain    = nullptr;
         IMesh*              m_cubeMesh      = nullptr;
 
+        D3D11::MappedConstantBuffer* m_objectBuffer = nullptr;
+        D3D11::MappedConstantBuffer* m_globalBuffer = nullptr;
+        D3D11::MappedConstantBuffer* m_cameraBuffer = nullptr;
+        D3D11::MappedConstantBuffer* m_lightBuffer  = nullptr;
+
         //----------------------------------------------------------------------
         inline void _SetCamera(Camera* camera);
         inline void _BindMesh(IMesh* mesh, const MaterialPtr& material, const DirectX::XMMATRIX& modelMatrix, I32 subMeshIndex);
@@ -79,13 +85,14 @@ namespace Graphics {
         void _CreateDeviceAndContext();
         void _CreateSwapchain();
         void _SetGPUDescription();
+        void _CreateRequiredUniformBuffersFromFile(const String& engineVS, const String& engineFS);
         void _ReportLiveObjects();
-        void _CreateGlobalBuffer();
         void _CreateCubeMesh();
         void _SetLimits();
 
         void _FlushLightBuffer();
         void _ExecuteCommandBuffer(const CommandBuffer& cmd);
+        bool _UpdateGlobalBuffer(StringID name, const void* data);
 
         //----------------------------------------------------------------------
         // IRenderer Interface

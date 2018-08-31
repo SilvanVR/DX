@@ -6,8 +6,8 @@
     date: December 6, 2017
 **********************************************************************/
 
-#include "D3D11/D3D11.hpp"
-#include "enums.hpp"
+#include "../../D3D11.hpp"
+#include "../../../enums.hpp"
 
 namespace Graphics { namespace D3D11 {
 

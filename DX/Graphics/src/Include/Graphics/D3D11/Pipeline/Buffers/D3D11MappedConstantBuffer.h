@@ -7,7 +7,7 @@
 **********************************************************************/
 
 #include "D3D11Buffers.h"
-#include "shader_resources.hpp"
+#include "../../../shader_resources.hpp"
 
 namespace Graphics { namespace D3D11 {
 

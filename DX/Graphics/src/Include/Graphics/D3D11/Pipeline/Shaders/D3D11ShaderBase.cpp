@@ -140,9 +140,6 @@ namespace Graphics { namespace D3D11 {
         HR( m_pShaderReflection->GetDesc( &shaderDesc ) );
 
         _ReflectResources( shaderDesc );
-
-        // Add constant buffers to the manager, which creates real buffers for it depending on specific keywords
-        ConstantBufferManager::ReflectConstantBuffers( m_constantBuffers );
     }
 
     //----------------------------------------------------------------------

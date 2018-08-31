@@ -15,17 +15,22 @@
 #include "Resources/D3D11Cubemap.h"
 #include "Resources/D3D11Texture2DArray.h"
 #include "Resources/D3D11RenderBuffer.h"
-#include "D3D11ConstantBufferManager.h"
 #include "OS/FileSystem/file.h"
 #include "Lighting/lights.h"
 #include "D3D11Utility.h"
 #include "camera.h"
 #include "VR/vr.h"
 #include "VR/OculusRift/oculus_rift_dx.h"
+#include "Common/string_utils.h"
 
 using namespace DirectX;
 
 namespace Graphics {
+
+    static String GLOBAL_BUFFER_KEYWORD( "global" );
+    static String OBJECT_BUFFER_KEYWORD( "object" );
+    static String CAMERA_BUFFER_KEYWORD( "camera" );
+    static String LIGHT_BUFFER_KEYWORD ( "light"  );
 
     #define SHADOW_MAP_2D_SLOT_BEGIN    9
     #define SHADOW_MAP_3D_SLOT_BEGIN    13
@@ -70,7 +75,7 @@ namespace Graphics {
     {
         _SetLimits();
         _InitD3D11();
-        _CreateGlobalBuffer();
+        _CreateRequiredUniformBuffersFromFile("/engine/shaders/includes/engineVS.hlsl", "/engine/shaders/includes/enginePS.hlsl");
         _CreateCubeMesh();
 
   /*      VR::Device hmd = VR::GetFirstSupportedHMDAndInitialize();
@@ -106,10 +111,13 @@ namespace Graphics {
     void D3D11Renderer::shutdown()
     {
         _DestroyAllTempRenderTargets();
+        SAFE_DELETE( m_objectBuffer );
+        SAFE_DELETE( m_cameraBuffer );
+        SAFE_DELETE( m_globalBuffer );
+        SAFE_DELETE( m_lightBuffer );
         SAFE_DELETE( m_hmd );
         SAFE_DELETE( m_cubeMesh );
         renderContext.Reset();
-        D3D11::ConstantBufferManager::Destroy();
         _DeinitD3D11();
     }
 
@@ -203,10 +211,10 @@ namespace Graphics {
                 case GPUCommand::SET_CAMERA_MATRIX:
                 {
                     auto& cmd = *reinterpret_cast<GPUC_SetCameraMatrix*>( command.get() );
-                    if ( not CAMERA_BUFFER.update( cmd.name, &cmd.matrix ) )
+                    if ( not m_cameraBuffer->update( cmd.name, &cmd.matrix ) )
                         LOG_WARN_RENDERING( "D3D11: Could not update the camera buffer ["+cmd.name.toString()+"]." );
                     else
-                        CAMERA_BUFFER.flush();
+                        m_cameraBuffer->flush();
                     break;
                 }
                 default:
@@ -267,66 +275,56 @@ namespace Graphics {
     //----------------------------------------------------------------------
     bool D3D11Renderer::setGlobalFloat( StringID name, F32 value )
     {
-        if ( not D3D11::ConstantBufferManager::hasGlobalBuffer() )
-            return false;
-
-        bool success = GLOBAL_BUFFER.update( name, &value );
-        if ( not success)
+        if (not _UpdateGlobalBuffer( name, &value ))
+        {
             LOG_WARN_RENDERING( "Global-Float '" + name.toString() + "' does not exist. Did you spell it correctly?" );
-
-        return success;
+            return false;
+        }
+        return true;
     }
-
+    
     //----------------------------------------------------------------------
     bool D3D11Renderer::setGlobalInt( StringID name, I32 value )
     {
-        if ( not D3D11::ConstantBufferManager::hasGlobalBuffer() )
-            return false;
-
-        bool success = GLOBAL_BUFFER.update( name, &value );
-        if ( not success)
+        if (not _UpdateGlobalBuffer( name, &value ))
+        {
             LOG_WARN_RENDERING( "Global-Int '" + name.toString() + "' does not exist. Did you spell it correctly?" );
-
-        return success;
+            return false;
+        }
+        return true;
     }
 
     //----------------------------------------------------------------------
     bool D3D11Renderer::setGlobalVector4( StringID name, const Math::Vec4& vec4 )
     {
-        if ( not D3D11::ConstantBufferManager::hasGlobalBuffer() )
-            return false;
-
-        bool success = GLOBAL_BUFFER.update( name, &vec4 );
-        if ( not success)
+        if (not _UpdateGlobalBuffer( name, &vec4 ))
+        {
             LOG_WARN_RENDERING( "Global-Vec4 '" + name.toString() + "' does not exist. Did you spell it correctly?" );
-
-        return success;
+            return false;
+        }
+        return true;
     }
 
     //----------------------------------------------------------------------
     bool D3D11Renderer::setGlobalColor( StringID name, Color color )
     {
-        if ( not D3D11::ConstantBufferManager::hasGlobalBuffer() )
+        if (not _UpdateGlobalBuffer( name, color.normalized().data() ))
+        {
+            LOG_WARN_RENDERING( "Global-color '" + name.toString() + "' does not exist. Did you spell it correctly?" );
             return false;
-
-        bool success = GLOBAL_BUFFER.update( name, color.normalized().data() );
-        if ( not success)
-            LOG_WARN_RENDERING( "Global-Color '" + name.toString() + "' does not exist. Did you spell it correctly?" );
-
-        return success;
+        }
+        return true;
     }
 
     //----------------------------------------------------------------------
     bool D3D11Renderer::setGlobalMatrix( StringID name, const DirectX::XMMATRIX& matrix )
     {
-        if ( not D3D11::ConstantBufferManager::hasGlobalBuffer() )
-            return false;
-
-        bool success = GLOBAL_BUFFER.update( name, &matrix);
-        if ( not success)
+        if (not _UpdateGlobalBuffer( name, &matrix ))
+        {
             LOG_WARN_RENDERING( "Global-Matrix '" + name.toString() + "' does not exist. Did you spell it correctly?" );
-
-        return success;
+            return false;
+        }
+        return true;
     }
 
     //**********************************************************************
@@ -472,29 +470,29 @@ namespace Graphics {
         }
 
         // Update camera buffer
-        if ( not CAMERA_BUFFER.update( CAM_VIEW_PROJ_NAME, &camera->getViewProjectionMatrix() ) )
+        if ( not m_cameraBuffer->update( CAM_VIEW_PROJ_NAME, &camera->getViewProjectionMatrix() ) )
             LOG_ERROR_RENDERING( "D3D11: Could not update the view-projection matrix in the camera buffer!" );
 
         auto modelMatrix = camera->getModelMatrix();
         auto translation = modelMatrix.r[3];
-        if ( not CAMERA_BUFFER.update( CAM_POS_NAME, &translation ) )
+        if ( not m_cameraBuffer->update( CAM_POS_NAME, &translation ) )
             LOG_ERROR_RENDERING( "D3D11: Could not update the camera buffer [position]. Fix this!" );
 
         auto zFar = camera->getZFar();
-        if ( not CAMERA_BUFFER.update( CAM_ZFAR_NAME, &zFar ) )
+        if ( not m_cameraBuffer->update( CAM_ZFAR_NAME, &zFar ) )
             LOG_ERROR_RENDERING( "D3D11: Could not update the camera buffer [zFar]. Fix this!" );
 
         auto zNear = camera->getZNear();
-        if ( not CAMERA_BUFFER.update( CAM_ZNEAR_NAME, &zNear ) )
+        if ( not m_cameraBuffer->update( CAM_ZNEAR_NAME, &zNear ) )
             LOG_ERROR_RENDERING( "D3D11: Could not update the camera buffer [zNear]. Fix this!" );
 
-        if ( not CAMERA_BUFFER.update( CAM_VIEW_MATRIX_NAME, &camera->getViewMatrix() ) )
+        if ( not m_cameraBuffer->update( CAM_VIEW_MATRIX_NAME, &camera->getViewMatrix() ) )
             LOG_ERROR_RENDERING( "D3D11: Could not update the camera buffer [View]. Fix this!" );
 
-        if ( not CAMERA_BUFFER.update( CAM_PROJ_MATRIX_NAME, &camera->getProjectionMatrix() ) )
+        if ( not m_cameraBuffer->update( CAM_PROJ_MATRIX_NAME, &camera->getProjectionMatrix() ) )
             LOG_ERROR_RENDERING( "D3D11: Could not update the camera buffer [Projection]. Fix this!" );
 
-        CAMERA_BUFFER.flush();
+        m_cameraBuffer->flush();
     }
 
     //----------------------------------------------------------------------
@@ -511,11 +509,11 @@ namespace Graphics {
         }
 
         // Update global buffer if necessary
-        if ( D3D11::ConstantBufferManager::hasGlobalBuffer() )
-            GLOBAL_BUFFER.flush();
+        if (m_globalBuffer)
+            m_globalBuffer->flush();
 
         // Update light buffer if necessary
-        if ( D3D11::ConstantBufferManager::hasLightBuffer() )
+        if (m_lightBuffer)
             _FlushLightBuffer();
 
         // Bind shader, possibly a replacement shader
@@ -536,7 +534,7 @@ namespace Graphics {
         renderContext.BindMaterial( material );
 
         // Update per object buffer
-        OBJECT_BUFFER.update( &modelMatrix, sizeof( DirectX::XMMATRIX ) );
+        m_objectBuffer->update( &modelMatrix, sizeof( DirectX::XMMATRIX ) );
 
         // Bind mesh
         mesh->bind( shader->getVertexLayout(), subMeshIndex );
@@ -568,7 +566,7 @@ namespace Graphics {
         renderContext.getCamera()->getFrameInfo().numLights = renderContext.lightCount;
 
         // Update light count
-        if ( not LIGHT_BUFFER.update( LIGHT_COUNT_NAME, &renderContext.lightCount ) )
+        if ( not m_lightBuffer->update( LIGHT_COUNT_NAME, &renderContext.lightCount ) )
             LOG_ERROR_RENDERING( "Failed to update light-count. Something is horribly broken! Fix this!" );
 
         struct Light
@@ -632,7 +630,7 @@ namespace Graphics {
                             lights[i].shadowMapIndex = curShadowMapArrayIndex;
 
                             auto& splits = dirLight->getCSMSplits();
-                            if ( not LIGHT_BUFFER.update( LIGHT_CSM_SPLITS_NAME, splits.data() ) )
+                            if ( not m_lightBuffer->update( LIGHT_CSM_SPLITS_NAME, splits.data() ) )
                                 LOG_ERROR_RENDERING( "Failed to update light-buffer. Something is horribly broken! Fix this!" );
 
                             renderContext.lights[i]->getShadowMap()->bind( SHADOW_MAP_ARRAY_RESOURCE_DECLS[curShadowMapArrayIndex] );
@@ -703,41 +701,90 @@ namespace Graphics {
             }
         }
 
-        if ( not LIGHT_BUFFER.update( LIGHT_BUFFER_NAME, &lights ) )
+        if ( not m_lightBuffer->update( LIGHT_BUFFER_NAME, &lights ) )
             LOG_ERROR_RENDERING( "Failed to update light-buffer. Something is horribly broken! Fix this!" );
 
-        if ( not LIGHT_BUFFER.update( LIGHT_VIEW_PROJ_NAME, &lightViewProjs ) )
+        if ( not m_lightBuffer->update( LIGHT_VIEW_PROJ_NAME, &lightViewProjs ) )
             LOG_ERROR_RENDERING( "Failed to update light-buffer [ViewProjections]. Something is horribly broken! Fix this!" );
 
         // Update gpu buffer
-        LIGHT_BUFFER.flush();
+        m_lightBuffer->flush();
     }
 
     //----------------------------------------------------------------------
-    void D3D11Renderer::_CreateGlobalBuffer()
+    void D3D11Renderer::_CreateRequiredUniformBuffersFromFile( const String& engineVS, const String& engineFS )
     {
-        // This is a small hack in order to create the global buffer as early as possible.
-        // Otherwise calling setGlobalFloat(...) etc. does not work before the first shader using the global buffers has been compiled.
         try {
-            OS::BinaryFile file( "/engine/shaders/includes/enginePS.hlsl" );
+            OS::BinaryFile vertFile( engineVS, OS::EFileMode::READ );
+            String vertSrc = vertFile.readAll();
+            vertSrc += "\
+            float4 main( float3 PosL : POSITION ) : SV_POSITION \
+            {                                                   \
+                return TO_CLIP_SPACE( PosL );                   \
+            }";
 
-            String fragSrc = file.readAll();
+            OS::BinaryFile fragFile( engineFS, OS::EFileMode::READ );
+            String fragSrc = fragFile.readAll();
             fragSrc += "float4 main() : SV_Target                       \
             {                                                           \
                 return float4(1,1,1,1) * _Time * _zNear * _LightCount;  \
             }";
 
-            auto shader = std::unique_ptr<Shader>( createShader() );
+            auto shader = std::unique_ptr<Graphics::Shader>( createShader() );
             try {
+                shader->compileVertexShaderFromSource( vertSrc, "main" );
                 shader->compileFragmentShaderFromSource( fragSrc, "main" );
+                shader->createPipeline();
+
+                auto ubos = shader->getUniformBufferDeclarations();
+                for (auto& ubo : ubos)
+                {
+                    String lower = StringUtils::toLower( ubo.getName().toString() );
+                    if (lower.find( OBJECT_BUFFER_KEYWORD ) != String::npos)
+                        if (not m_objectBuffer)
+                        {
+                            m_objectBuffer = new D3D11::MappedConstantBuffer( ubo, BufferUsage::Frequently );
+                            m_objectBuffer->bind( ShaderType::Vertex );
+                        }
+                        else LOG_WARN_RENDERING( "D3D11Renderer::_CreateGlobalBuffersFromFile(): Found another object ubo." );
+                    else if (lower.find( CAMERA_BUFFER_KEYWORD ) != String::npos)
+                        if (not m_cameraBuffer)
+                        {
+                            m_cameraBuffer = new D3D11::MappedConstantBuffer( ubo, BufferUsage::Frequently );
+                            m_cameraBuffer->bind( ShaderType::Vertex );
+                            m_cameraBuffer->bind( ShaderType::Fragment );
+                            m_cameraBuffer->bind( ShaderType::Geometry );
+                        }
+                        else LOG_WARN_RENDERING( "D3D11Renderer::_CreateGlobalBuffersFromFile(): Found another camera ubo." );
+                    else if(lower.find( GLOBAL_BUFFER_KEYWORD ) != String::npos)
+                        if (not m_globalBuffer)
+                        {
+                            m_globalBuffer = new D3D11::MappedConstantBuffer( ubo, BufferUsage::Frequently );
+                            m_globalBuffer->bind( ShaderType::Vertex );
+                            m_globalBuffer->bind( ShaderType::Fragment );
+                            m_globalBuffer->bind( ShaderType::Geometry );
+                        }
+                        else LOG_WARN_RENDERING( "D3D11Renderer::_CreateGlobalBuffersFromFile(): Found another global ubo." );
+                    else if(lower.find( LIGHT_BUFFER_KEYWORD ) != String::npos)
+                        if (not m_lightBuffer)
+                        {
+                            m_lightBuffer = new D3D11::MappedConstantBuffer( ubo, BufferUsage::Frequently );
+                            m_lightBuffer->bind( ShaderType::Fragment );
+                        }
+                        else LOG_WARN_RENDERING( "D3D11Renderer::_CreateGlobalBuffersFromFile(): Found another light ubo." );
+                }
+                if (not m_objectBuffer) LOG_ERROR_RENDERING( "D3D11Renderer::_CreateGlobalBuffersFromFile(): Could not find object buffer." );
+                if (not m_cameraBuffer) LOG_ERROR_RENDERING( "D3D11Renderer::_CreateGlobalBuffersFromFile(): Could not find camera buffer." );
+                if (not m_globalBuffer) LOG_ERROR_RENDERING( "D3D11Renderer::_CreateGlobalBuffersFromFile(): Could not find global buffer." );
+                if (not m_lightBuffer)  LOG_ERROR_RENDERING( "D3D11Renderer::_CreateGlobalBuffersFromFile(): Could not find light buffer." );
             }
-            catch (const std::runtime_error&) {
-                LOG_WARN_RENDERING( "Could not precompile enginePS.hlsl for buffer creation. This might cause some issues." );
+            catch (const std::runtime_error& e) {
+                LOG_ERROR_RENDERING( "Could not precompile '" + engineFS + "' for buffer creation. This is mandatory. Reason: " + e.what() );
             }
         } 
         catch (const std::runtime_error& ex)
         {
-            LOG_WARN_RENDERING( String( "Could not open enginePS.hlsl. This might cause some issues. Reason: " ) + ex.what() );
+            LOG_WARN_RENDERING( String( "Could not open ' " + engineFS + "'. This might cause some issues. Reason: " ) + ex.what() );
         }
     }
 
@@ -813,9 +860,9 @@ namespace Graphics {
 
             auto view = DirectX::XMMatrixLookToLH( { 0, 0, 0, 0 }, directions[face], ups[face] );
             auto viewProj = view * projection;
-            if ( not CAMERA_BUFFER.update( CAM_VIEW_PROJ_NAME, &viewProj ) )
+            if ( not m_cameraBuffer->update( CAM_VIEW_PROJ_NAME, &viewProj ) )
                 LOG_ERROR_RENDERING( "D3D11::RenderCubemap(): Could not update the view-projection matrix in the camera buffer!" );
-            CAMERA_BUFFER.flush();
+            m_cameraBuffer->flush();
 
             _DrawMesh( m_cubeMesh, material, DirectX::XMMatrixIdentity(), 0 );
             _CopyTexture( colorBuffer, 0, 0, cubemap, face, dstMip );
@@ -900,6 +947,14 @@ namespace Graphics {
         g_pImmediateContext->RSSetViewports( 1, &viewport );
         g_pImmediateContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP );
         g_pImmediateContext->Draw( 3, 0 );
+    }
+
+    //----------------------------------------------------------------------
+    bool D3D11Renderer::_UpdateGlobalBuffer( StringID name, const void* data )
+    {
+        if (not m_globalBuffer)
+            return false;
+        return m_globalBuffer->update(name, data);
     }
 
     //**********************************************************************

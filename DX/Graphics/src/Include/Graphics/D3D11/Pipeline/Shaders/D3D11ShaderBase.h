@@ -7,10 +7,9 @@
 **********************************************************************/
 
 #include "D3D11/D3D11.hpp"
-#include "D3D11/D3D11ConstantBufferManager.h"
 #include "OS/FileSystem/path.h"
-#include <d3dcompiler.h>
 #include "shader_resources.hpp"
+#include <d3dcompiler.h>
 #include <functional>
 
 namespace Graphics { namespace D3D11 {

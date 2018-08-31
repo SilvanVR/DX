@@ -20,8 +20,7 @@
 #include "Resources/VkRenderTexture.h"
 #include "Resources/VkTexture2DArray.h"
 #include "VR/OculusRift/oculus_rift_vk.h"
-
-#include "Math/math_utils.h"
+#include "Common/string_utils.h"
 
 #define SWAPCHAIN_FORMAT    VK_FORMAT_B8G8R8A8_UNORM
 #define ENGINE_VS_PATH      "/engine/shaders/includes/vulkan/engineVS.glsl"
@@ -29,11 +28,11 @@
 
 namespace Graphics {
 
-    static StringID POST_PROCESS_INPUT_NAME   = SID( "_Input" );
-    static StringID CAMERA_UBO_NAME           = SID( "CAMERA" );
-    static StringID GLOBAL_UBO_NAME           = SID( "GLOBAL" );
-    static StringID LIGHTS_UBO_NAME           = SID( "LIGHTS" );
+    static String CAMERA_UBO_KEYWORD     ( "camera" );
+    static String GLOBAL_UBO_KEYWORD     ( "global" );
+    static String LIGHTS_UBO_KEYWORD     ( "lights" );
 
+    static StringID POST_PROCESS_INPUT_NAME   = SID( "_Input" );
     static StringID CAM_POS_NAME              = SID( "_CameraPos" );
     static StringID CAM_VIEW_PROJ_NAME        = SID( "_ViewProj" );
     static StringID CAM_ZNEAR_NAME            = SID( "_zNear" );
@@ -726,12 +725,19 @@ namespace Graphics {
                 auto ubos = shader->getUniformBufferDeclarations();
                 for (auto& ubo : ubos)
                 {
-                    if (ubo.getName() == CAMERA_UBO_NAME)
-                        m_cameraBuffer = new Vulkan::MappedUniformBuffer( ubo, BufferUsage::Frequently );
-                    else if(ubo.getName() == GLOBAL_UBO_NAME)
-                        m_globalBuffer = new Vulkan::MappedUniformBuffer( ubo, BufferUsage::Frequently );
-                    else if(ubo.getName() == LIGHTS_UBO_NAME)
-                        m_lightBuffer = new Vulkan::MappedUniformBuffer( ubo, BufferUsage::Frequently );
+                    String lower = StringUtils::toLower( ubo.getName().toString() );
+                    if ( lower.find( CAMERA_UBO_KEYWORD ) != String::npos )
+                        if (not m_cameraBuffer)
+                            m_cameraBuffer = new Vulkan::MappedUniformBuffer( ubo, BufferUsage::Frequently );
+                        else LOG_WARN_RENDERING( "VkRenderer::_CreateGlobalBuffersFromFile(): Found another camera ubo." );
+                    else if(lower.find( GLOBAL_UBO_KEYWORD ) != String::npos)
+                        if (not m_globalBuffer)
+                            m_globalBuffer = new Vulkan::MappedUniformBuffer( ubo, BufferUsage::Frequently );
+                        else LOG_WARN_RENDERING( "VkRenderer::_CreateGlobalBuffersFromFile(): Found another global ubo." );
+                    else if(lower.find( LIGHTS_UBO_KEYWORD ) != String::npos)
+                        if (not m_lightBuffer)
+                            m_lightBuffer = new Vulkan::MappedUniformBuffer( ubo, BufferUsage::Frequently );
+                        else LOG_WARN_RENDERING( "VkRenderer::_CreateGlobalBuffersFromFile(): Found another light ubo." );
                 }
                 if (not m_cameraBuffer) LOG_ERROR_RENDERING( "VkRenderer::_CreateGlobalBuffersFromFile(): Could not find camera buffer." );
                 if (not m_globalBuffer) LOG_ERROR_RENDERING( "VkRenderer::_CreateGlobalBuffersFromFile(): Could not find global buffer." );
