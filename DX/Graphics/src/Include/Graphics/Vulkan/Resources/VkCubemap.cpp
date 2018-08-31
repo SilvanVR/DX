@@ -7,6 +7,7 @@
 **********************************************************************/
 
 #include "Utils/utils.h"
+#include "Vulkan/VkUtility.h"
 
 namespace Graphics { namespace Vulkan {
 
@@ -20,22 +21,12 @@ namespace Graphics { namespace Vulkan {
         ASSERT( size > 0 );
         ITexture::_Init( TextureDimension::Cube, size, size, format );
 
-        m_generateMips = (mips == Mips::Generate);
+        setGenerateMips( mips == Mips::Generate );
         if (mips == Mips::Generate || mips == Mips::Create)
             _UpdateMipCount();
 
-        // Create D3D11 Resources
-        _CreateTexture( mips );
-        _CreateShaderResourceView();
-    }
-
-    //----------------------------------------------------------------------
-    void Cubemap::apply( bool updateMips, bool keepPixelsInRAM )
-    {
-        m_keepPixelsInRAM = keepPixelsInRAM;
-        m_gpuUpToDate = false;
-        if (m_mipCount > 1)
-            m_generateMips = updateMips;
+        _CreateTexture();
+        _CreateSampler( m_anisoLevel, m_filter, m_clampMode );
     }
 
     //**********************************************************************
@@ -43,15 +34,29 @@ namespace Graphics { namespace Vulkan {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    void Cubemap::_CreateTexture( Mips mips )
+    void Cubemap::_CreateTexture()
     {
-        bool createMips = (mips != Mips::None);
+        VezImageCreateInfo imageCreateInfo = {};
+        imageCreateInfo.imageType   = VK_IMAGE_TYPE_2D;
+        imageCreateInfo.format      = Utility::TranslateTextureFormat( m_format );
+        imageCreateInfo.extent      = { m_width, m_height, 1 };
+        imageCreateInfo.mipLevels   = m_mipCount;
+        imageCreateInfo.arrayLayers = 6;
+        imageCreateInfo.samples     = VK_SAMPLE_COUNT_1_BIT;
+        imageCreateInfo.tiling      = VK_IMAGE_TILING_OPTIMAL;
+        imageCreateInfo.usage       = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
+        if (m_mipCount > 1)
+            imageCreateInfo.usage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+        VALIDATE( vezCreateImage( g_vulkan.device, VEZ_MEMORY_GPU_ONLY, &imageCreateInfo, &m_image.img ) );
 
-    }
-
-    //----------------------------------------------------------------------
-    void Cubemap::_CreateShaderResourceView()
-    {
+        // Create the image view for binding the texture as a resource.
+        VezImageViewCreateInfo imageViewCreateInfo = {};
+        imageViewCreateInfo.image    = m_image.img;
+        imageViewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_CUBE;
+        imageViewCreateInfo.format   = imageCreateInfo.format;
+        imageViewCreateInfo.subresourceRange.layerCount = VK_REMAINING_ARRAY_LAYERS;
+        imageViewCreateInfo.subresourceRange.levelCount = VK_REMAINING_MIP_LEVELS;
+        VALIDATE( vezCreateImageView( g_vulkan.device, &imageViewCreateInfo, &m_image.view ) );
 
     }
 
@@ -63,11 +68,16 @@ namespace Graphics { namespace Vulkan {
         for (U32 face = 0; face < NUM_FACES; face++)
         {
             // Upload data to gpu
-            //U32 faceLevel = D3D11CalcSubresource( 0, face, m_mipCount );
-            //g_pImmediateContext->UpdateSubresource( m_pTexture, faceLevel, NULL, m_facePixels[(I32)face].data(), rowPitch, 0 );
+            VezImageSubDataInfo subDataInfo = {};
+            subDataInfo.imageSubresource.mipLevel       = 0;
+            subDataInfo.imageSubresource.baseArrayLayer = face;
+            subDataInfo.imageSubresource.layerCount     = 1;
+            subDataInfo.imageExtent                     = { m_width, m_height, 1 };
+            subDataInfo.dataRowLength                   = rowPitch;
+            vezImageSubData( g_vulkan.device, m_image.img, &subDataInfo, m_facePixels[(I32)face].data() );
 
             // Free mem in RAM if desired
-            if ( not m_keepPixelsInRAM )
+            if ( not keepPixelsInRAM() )
                 m_facePixels[(I32)face].clear();
         }
     }

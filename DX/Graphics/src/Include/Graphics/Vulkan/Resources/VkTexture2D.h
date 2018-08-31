@@ -7,7 +7,6 @@
 **********************************************************************/
 
 #include "i_texture2d.hpp"
-#include "Vulkan/Vulkan.hpp"
 #include "VkBindableTexture.h"
 
 namespace Graphics { namespace Vulkan {
@@ -24,10 +23,9 @@ namespace Graphics { namespace Vulkan {
         //----------------------------------------------------------------------
         void create(U32 width, U32 height, TextureFormat format, bool generateMips) override;
         void create(U32 width, U32 height, TextureFormat format, const void* pData) override;
-        void apply(bool updateMips, bool keepPixelsInRAM) override;
+        void apply(bool updateMips, bool keepPixelsInRAM) override { IBindableTexture::apply(updateMips, keepPixelsInRAM); }
 
     private:
-
         //----------------------------------------------------------------------
         // ITexture Interface
         //----------------------------------------------------------------------
@@ -35,9 +33,13 @@ namespace Graphics { namespace Vulkan {
         void bind(const ShaderResourceDeclaration& res) override { IBindableTexture::bind(res); }
 
         //----------------------------------------------------------------------
+        // IBindableTexture Interface
+        //----------------------------------------------------------------------
+        void _PushToGPU();
+
+        //----------------------------------------------------------------------
         void _CreateTexture();
         void _CreateTexture(const void* pData);
-        void _PushToGPU();
 
         //----------------------------------------------------------------------
         NULL_COPY_AND_ASSIGN(Texture2D)

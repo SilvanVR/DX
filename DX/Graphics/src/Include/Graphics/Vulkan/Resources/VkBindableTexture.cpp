@@ -18,6 +18,10 @@ namespace Graphics { namespace Vulkan {
         _DestroySampler();
     }
 
+    //**********************************************************************
+    // PROTECTED
+    //**********************************************************************
+
     //----------------------------------------------------------------------
     void IBindableTexture::bind( const ShaderResourceDeclaration& res )
     {
@@ -37,9 +41,23 @@ namespace Graphics { namespace Vulkan {
     }
 
     //----------------------------------------------------------------------
+    void IBindableTexture::apply( bool updateMips, bool keepPixelsInRAM )
+    {
+        m_keepPixelsInRAM = keepPixelsInRAM;
+        m_gpuUpToDate = false;
+        m_generateMips = updateMips;
+    }
+
+    //**********************************************************************
+    // PRIVATE
+    //**********************************************************************
+
+    //----------------------------------------------------------------------
     void IBindableTexture::_CreateSampler( U32 anisoLevel, TextureFilter filter, TextureAddressMode addressMode )
     {
-        ASSERT( m_sampler == VK_NULL_HANDLE );
+        // Destroy old sampler if any
+        _DestroySampler();
+
         auto vkFilter = Utility::TranslateFilter( filter );
         auto vkClampMode = Utility::TranslateClampMode( addressMode );
 

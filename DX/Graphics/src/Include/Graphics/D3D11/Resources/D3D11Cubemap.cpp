@@ -30,15 +30,6 @@ namespace Graphics { namespace D3D11 {
         _CreateSampler( m_anisoLevel, m_filter, m_clampMode );
     }
 
-    //----------------------------------------------------------------------
-    void Cubemap::apply( bool updateMips, bool keepPixelsInRAM )
-    {
-        m_keepPixelsInRAM = keepPixelsInRAM;
-        m_gpuUpToDate = false;
-        if (m_mipCount > 1)
-            m_generateMips = updateMips;
-    }
-
     //**********************************************************************
     // PRIVATE
     //**********************************************************************

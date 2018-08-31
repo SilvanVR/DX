@@ -1,4 +1,4 @@
-#version 400
+#version 450
 #extension GL_ARB_separate_shader_objects : enable
 #extension GL_ARB_shading_language_420pack : enable
 
@@ -17,13 +17,14 @@ layout (set = 0, binding = 0) uniform GLOBAL
 } _Global;
 
 // Per camera ubo
-layout (set = 1, binding = 0) uniform CAMERA
+layout (set = 0, binding = 1) uniform CAMERA
 {
 	mat4 view;
 	mat4 proj;	
+	vec3 pos;
+	float PAD;
 	float zNear;
 	float zFar;
-	vec3 pos;
 } _Camera;
 
 struct Light
@@ -44,7 +45,7 @@ struct Light
 };  // Total:                           // 80 bytes (4 * 16)
  
 // Light ubo
-layout (set = 2, binding = 0) uniform LIGHTS
+layout (set = 0, binding = 2) uniform LIGHTS
 {
 	Light 	lights[MAX_LIGHTS];
 	int 	count; // 4 bytes

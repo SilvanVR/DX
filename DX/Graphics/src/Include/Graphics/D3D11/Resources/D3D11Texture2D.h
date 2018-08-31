@@ -24,7 +24,7 @@ namespace Graphics { namespace D3D11 {
         //----------------------------------------------------------------------
         void create(U32 width, U32 height, TextureFormat format, bool generateMips) override;
         void create(U32 width, U32 height, TextureFormat format, const void* pData) override;
-        void apply(bool updateMips, bool keepPixelsInRAM) override;
+        void apply(bool updateMips, bool keepPixelsInRAM) override { IBindableTexture::apply(updateMips, keepPixelsInRAM); }
 
     private:
         //----------------------------------------------------------------------

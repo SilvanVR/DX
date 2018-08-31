@@ -16,6 +16,10 @@ namespace Graphics { namespace D3D11 {
         SAFE_RELEASE( m_pTextureView );
     }
 
+    //**********************************************************************
+    // PROTECTED
+    //**********************************************************************
+
     //----------------------------------------------------------------------
     void IBindableTexture::bind( const ShaderResourceDeclaration& res )
     {
@@ -42,6 +46,18 @@ namespace Graphics { namespace D3D11 {
             g_pImmediateContext->PSSetShaderResources( res.getBindingSlot(), 1, &m_pTextureView );
         }
     }
+
+    //----------------------------------------------------------------------
+    void IBindableTexture::apply( bool updateMips, bool keepPixelsInRAM )
+    {
+        m_keepPixelsInRAM = keepPixelsInRAM;
+        m_gpuUpToDate = false;
+        m_generateMips = updateMips;
+    }
+
+    //**********************************************************************
+    // PRIVATE
+    //**********************************************************************
 
     //----------------------------------------------------------------------
     void IBindableTexture::_CreateSampler( U32 anisoLevel, TextureFilter filter, TextureAddressMode addressMode )

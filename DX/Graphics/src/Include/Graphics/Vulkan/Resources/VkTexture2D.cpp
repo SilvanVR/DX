@@ -18,11 +18,12 @@ namespace Graphics { namespace Vulkan {
         ITexture::_Init( TextureDimension::Tex2D, width, height, format );
 
         m_isImmutable = false;
-        m_generateMips = generateMips;
-        if (m_generateMips)
+        setGenerateMips( generateMips );
+        if (generateMips)
             _UpdateMipCount();
 
         _CreateTexture();
+        _CreateSampler( m_anisoLevel, m_filter, m_clampMode );
     }
 
     //----------------------------------------------------------------------
@@ -31,22 +32,10 @@ namespace Graphics { namespace Vulkan {
         ASSERT( width > 0 && height > 0 && pData != nullptr && m_width == 0 && "Invalid params or texture were already created" );
         ITexture::_Init( TextureDimension::Tex2D, width, height, format );
 
-        m_generateMips = false;
+        setGenerateMips( false );
         m_isImmutable = true;
         _CreateTexture( pData );
-    }
-
-    //**********************************************************************
-    // PUBLIC
-    //**********************************************************************
-
-    //----------------------------------------------------------------------
-    void Texture2D::apply( bool updateMips, bool keepPixelsInRAM )
-    { 
-        m_keepPixelsInRAM = keepPixelsInRAM;
-        m_gpuUpToDate = false; 
-        if (m_mipCount > 1)
-            m_generateMips = updateMips;
+        _CreateSampler( m_anisoLevel, m_filter, m_clampMode );
     }
 
     //**********************************************************************
@@ -65,6 +54,9 @@ namespace Graphics { namespace Vulkan {
         imageCreateInfo.samples     = VK_SAMPLE_COUNT_1_BIT;
         imageCreateInfo.tiling      = VK_IMAGE_TILING_OPTIMAL;
         imageCreateInfo.usage       = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
+        if (m_mipCount > 1)
+            imageCreateInfo.usage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+
         VALIDATE( vezCreateImage( g_vulkan.device, VEZ_MEMORY_GPU_ONLY, &imageCreateInfo, &m_image.img ) );
 
         // Create the image view for binding the texture as a resource.
@@ -86,7 +78,7 @@ namespace Graphics { namespace Vulkan {
         subDataInfo.imageSubresource.mipLevel = 0;
         subDataInfo.imageSubresource.layerCount = 1;
         subDataInfo.imageExtent = { m_width, m_height, 1 };
-        subDataInfo.dataRowLength = getWidth() * ByteCountFromTextureFormat( m_format );
+        //subDataInfo.dataRowLength = getWidth() * ByteCountFromTextureFormat( m_format );
         vezImageSubData( g_vulkan.device, m_image.img, &subDataInfo, pData );
     }
 
@@ -100,10 +92,10 @@ namespace Graphics { namespace Vulkan {
         subDataInfo.imageSubresource.mipLevel = 0;
         subDataInfo.imageSubresource.layerCount = 1;
         subDataInfo.imageExtent = { m_width, m_height, 1 };
-        subDataInfo.dataRowLength = getWidth() * ByteCountFromTextureFormat( m_format );
+        //subDataInfo.dataRowLength = getWidth() * ByteCountFromTextureFormat( m_format );
         vezImageSubData( g_vulkan.device, m_image.img, &subDataInfo, m_pixels.data() );
 
-        if ( not m_keepPixelsInRAM )
+        if ( not keepPixelsInRAM() )
             m_pixels.clear();
     }
 

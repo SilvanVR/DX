@@ -19,16 +19,24 @@ namespace Graphics { namespace Vulkan {
         IBindableTexture() = default;
         virtual ~IBindableTexture();
 
+    protected:
         //----------------------------------------------------------------------
-        // This functions binds this texture to the given shader at the given set + binding.
+        VkSampler   getSampler()        const { return m_sampler; }
+        bool        keepPixelsInRAM()   const { return m_keepPixelsInRAM; }
+
+        void        setGenerateMips(bool generateMips) { m_generateMips = generateMips; }
+
+        //----------------------------------------------------------------------
+        // This functions binds this texture to the given set + binding.
         // Default implementation is provided, but can be overriden if desired.
         //----------------------------------------------------------------------
         virtual void bind(const ShaderResourceDeclaration& res);
 
-    protected:
-        bool m_gpuUpToDate      = true;
-        bool m_generateMips     = true;
-        bool m_keepPixelsInRAM  = false;
+        //----------------------------------------------------------------------
+        // Apply changes. Next time this texture will be binded, pixel data will
+        // be uploaded first and/or mips generated.
+        //----------------------------------------------------------------------
+        void apply(bool updateMips, bool keepPixelsInRAM);
 
         struct
         {
@@ -36,12 +44,17 @@ namespace Graphics { namespace Vulkan {
             VkImageView view = VK_NULL_HANDLE;
         } m_image;
 
-        VkSampler m_sampler = VK_NULL_HANDLE;
-
         //----------------------------------------------------------------------
         void _RecreateSampler(U32 anisoLevel, TextureFilter filter, TextureAddressMode addressMode) { _DestroySampler(); _CreateSampler(anisoLevel, filter, addressMode); }
         void _CreateSampler(U32 anisoLevel, TextureFilter filter, TextureAddressMode addressMode);
         void _DestroySampler();
+
+    private:
+        bool m_keepPixelsInRAM  = false;
+        bool m_gpuUpToDate      = true;
+        bool m_generateMips     = true;
+
+        VkSampler m_sampler = VK_NULL_HANDLE;
 
         //----------------------------------------------------------------------
         // Pushes the pixel data to the GPU before binding if gpu is not up to date.

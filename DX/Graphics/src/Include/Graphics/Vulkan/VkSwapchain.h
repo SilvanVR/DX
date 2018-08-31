@@ -28,7 +28,7 @@ namespace Graphics { namespace Vulkan {
         void shutdown(VkInstance instance, VkDevice device);
         void present(VkQueue queue, VkSemaphore waitSemaphore = VK_NULL_HANDLE);
         void bindForRendering();
-        void clear(Color color);
+        void setClearColor(Color color);
         void recreate(U32 w, U32 h);
         void setVSync(bool enabled);
 

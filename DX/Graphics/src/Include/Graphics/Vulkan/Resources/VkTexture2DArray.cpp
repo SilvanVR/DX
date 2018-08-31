@@ -7,6 +7,7 @@
 **********************************************************************/
 
 #include "Utils/utils.h"
+#include "Vulkan/VkUtility.h"
 
 namespace Graphics { namespace Vulkan {
 
@@ -17,25 +18,12 @@ namespace Graphics { namespace Vulkan {
         ITexture::_Init( TextureDimension::Tex2DArray, width, height, format );
 
         m_depth = depth;
-        m_generateMips = generateMips;
-        if (m_generateMips)
+        setGenerateMips( generateMips );
+        if (generateMips)
             _UpdateMipCount();
 
         _CreateTextureArray();
-        _CreateShaderResourveView();
-    }
-
-    //**********************************************************************
-    // PUBLIC
-    //**********************************************************************
-
-    //----------------------------------------------------------------------
-    void Texture2DArray::apply( bool updateMips, bool keepPixelsInRAM )
-    { 
-        m_keepPixelsInRAM = keepPixelsInRAM;
-        m_gpuUpToDate = false; 
-        if (m_mipCount > 1)
-            m_generateMips = updateMips;
+        _CreateSampler( m_anisoLevel, m_filter, m_clampMode );
     }
 
     //**********************************************************************
@@ -45,13 +33,28 @@ namespace Graphics { namespace Vulkan {
     //----------------------------------------------------------------------
     void Texture2DArray::_CreateTextureArray()
     {
+        VezImageCreateInfo imageCreateInfo = {};
+        imageCreateInfo.imageType   = VK_IMAGE_TYPE_2D;
+        imageCreateInfo.format      = Utility::TranslateTextureFormat( m_format );
+        imageCreateInfo.extent      = { m_width, m_height, 1 };
+        imageCreateInfo.mipLevels   = m_mipCount;
+        imageCreateInfo.arrayLayers = m_depth;
+        imageCreateInfo.samples     = VK_SAMPLE_COUNT_1_BIT;
+        imageCreateInfo.tiling      = VK_IMAGE_TILING_OPTIMAL;
+        imageCreateInfo.usage       = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
+        if (m_mipCount > 1)
+            imageCreateInfo.usage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
 
-    }
+        VALIDATE( vezCreateImage( g_vulkan.device, VEZ_MEMORY_GPU_ONLY, &imageCreateInfo, &m_image.img ) );
 
-    //----------------------------------------------------------------------
-    void Texture2DArray::_CreateShaderResourveView()
-    {
-
+        // Create the image view for binding the texture as a resource.
+        VezImageViewCreateInfo imageViewCreateInfo = {};
+        imageViewCreateInfo.image    = m_image.img;
+        imageViewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D_ARRAY;
+        imageViewCreateInfo.format   = imageCreateInfo.format;
+        imageViewCreateInfo.subresourceRange.layerCount = VK_REMAINING_ARRAY_LAYERS;
+        imageViewCreateInfo.subresourceRange.levelCount = VK_REMAINING_MIP_LEVELS;
+        VALIDATE( vezCreateImageView( g_vulkan.device, &imageViewCreateInfo, &m_image.view ) );
     }
 
     //----------------------------------------------------------------------
@@ -63,11 +66,17 @@ namespace Graphics { namespace Vulkan {
         U32 rowPitch = ( getWidth() * ByteCountFromTextureFormat( m_format ) );
         for ( U32 slice = 0; slice < m_pixels.size(); slice++ )
         {
-            //U32 sliceLevel = D3D11CalcSubresource( 0, slice, m_mipCount );
-            //g_pImmediateContext->UpdateSubresource( m_pTexture, sliceLevel, NULL, m_pixels[slice].data(), rowPitch, 0 );
+            // Upload the host side data
+            VezImageSubDataInfo subDataInfo = {};
+            subDataInfo.imageSubresource.mipLevel       = 0;
+            subDataInfo.imageSubresource.baseArrayLayer = slice;
+            subDataInfo.imageSubresource.layerCount     = 1;
+            subDataInfo.imageExtent                     = { m_width, m_height, 1 };
+            subDataInfo.dataRowLength                   = rowPitch;
+            vezImageSubData( g_vulkan.device, m_image.img, &subDataInfo, m_pixels[slice].data() );
         }
 
-        if ( not m_keepPixelsInRAM )
+        if ( not keepPixelsInRAM() )
             m_pixels.clear();
     }
 

@@ -256,8 +256,8 @@ namespace Graphics {
         // Record all commands
         g_vulkan.ctx.BeginFrame();
         {
-            m_globalBuffer->bind();
             m_cameraBuffer->bind();
+            m_globalBuffer->bind();
             m_lightBuffer->bind();
             {
                 _LockQueue();

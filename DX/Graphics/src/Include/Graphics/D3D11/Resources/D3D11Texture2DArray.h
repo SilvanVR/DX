@@ -23,7 +23,7 @@ namespace Graphics { namespace D3D11 {
         // ITexture2DArray Interface
         //----------------------------------------------------------------------
         void create(U32 width, U32 height, U32 depth, TextureFormat format, bool generateMips) override;
-        void apply(bool updateMips, bool keepPixelsInRAM) override;
+        void apply(bool updateMips, bool keepPixelsInRAM) override { IBindableTexture::apply(updateMips, keepPixelsInRAM); }
 
     private:
         //----------------------------------------------------------------------

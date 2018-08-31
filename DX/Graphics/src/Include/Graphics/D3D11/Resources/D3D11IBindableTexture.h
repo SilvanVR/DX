@@ -27,6 +27,12 @@ namespace Graphics { namespace D3D11 {
         virtual void bind(const ShaderResourceDeclaration& res);
 
         //----------------------------------------------------------------------
+        // Apply changes. Next time this texture will be binded, pixel data will
+        // be uploaded first and/or mips generated.
+        //----------------------------------------------------------------------
+        void apply(bool updateMips, bool keepPixelsInRAM);
+
+        //----------------------------------------------------------------------
         // @Return:
         //  D3D11Texture for this texture.
         //----------------------------------------------------------------------

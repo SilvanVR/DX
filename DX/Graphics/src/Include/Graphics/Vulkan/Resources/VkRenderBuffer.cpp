@@ -96,7 +96,7 @@ namespace Graphics { namespace Vulkan {
         }
 
         // Bind image
-        g_vulkan.ctx.SetImage( m_framebuffer.view, m_sampler, res.getBindingSet(), res.getBindingSlot() );
+        g_vulkan.ctx.SetImage( m_framebuffer.view, getSampler(), res.getBindingSet(), res.getBindingSlot() );
     }
 
     //----------------------------------------------------------------------

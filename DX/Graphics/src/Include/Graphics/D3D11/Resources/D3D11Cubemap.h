@@ -23,7 +23,7 @@ namespace Graphics { namespace D3D11 {
         // ICubemap Interface
         //----------------------------------------------------------------------
         void create(I32 size, TextureFormat format, Mips mips) override;
-        void apply(bool updateMips, bool keepPixelsInRAM) override;
+        void apply(bool updateMips, bool keepPixelsInRAM) override { IBindableTexture::apply(updateMips, keepPixelsInRAM); }
 
     private:
         //----------------------------------------------------------------------

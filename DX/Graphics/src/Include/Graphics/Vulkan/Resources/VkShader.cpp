@@ -214,9 +214,9 @@ namespace Graphics { namespace Vulkan {
     void Shader::_PipelineResourceReflection( VezPipeline pipeline )
     {
         U32 resourceCount;
-        vezEnumeratePipelineResources( pipeline, &resourceCount, NULL );
+        VALIDATE( vezEnumeratePipelineResources( pipeline, &resourceCount, NULL ) );
         ArrayList<VezPipelineResource> resources( resourceCount );
-        vezEnumeratePipelineResources( pipeline, &resourceCount, resources.data() );
+        VALIDATE( vezEnumeratePipelineResources( pipeline, &resourceCount, resources.data() ) );
 
         _CreateVertexLayout( resources );
         _CreateShaderResources( resources );

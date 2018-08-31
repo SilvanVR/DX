@@ -82,7 +82,7 @@ namespace Graphics { namespace Vulkan {
     }
 
     //----------------------------------------------------------------------
-    void Swapchain::clear( Color color )
+    void Swapchain::setClearColor( Color color )
     {
         m_framebuffer.fbo.setClearColor( 0, color );
     }
@@ -120,6 +120,7 @@ namespace Graphics { namespace Vulkan {
         VALIDATE( vezCreateImageView( g_vulkan.device, &viewCreateInfo, &m_framebuffer.view ) );
 
         m_framebuffer.fbo.create( width, height, 1, &m_framebuffer.view );
+        setClearColor( Color::BLACK );
     }
 
     //----------------------------------------------------------------------

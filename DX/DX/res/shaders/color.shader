@@ -62,11 +62,11 @@ float4 main(FragmentIn fin) : SV_Target
 layout (location = 0) in vec3 VERTEX_POSITION;
 layout (location = 1) in vec4 VERTEX_COLOR;
 
-layout (location = 0) out vec4 outColor;
+layout (location = 0) out vec4 outColorVS;
 
 void main()
 {
-	outColor = VERTEX_COLOR;
+	outColorVS = VERTEX_COLOR;
 	gl_Position = TO_CLIP_SPACE( VERTEX_POSITION );
 }
 
