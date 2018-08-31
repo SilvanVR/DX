@@ -105,6 +105,7 @@ namespace Graphics {
     //----------------------------------------------------------------------
     void D3D11Renderer::shutdown()
     {
+        _DestroyAllTempRenderTargets();
         SAFE_DELETE( m_hmd );
         SAFE_DELETE( m_cubeMesh );
         renderContext.Reset();
@@ -231,6 +232,8 @@ namespace Graphics {
     //----------------------------------------------------------------------
     void D3D11Renderer::present()
     {
+        _CheckAndDestroyTemporaryRenderTargets();
+
         // Execute command buffers
         _LockQueue();
         for (auto& cmd : m_pendingCmdQueue)
@@ -794,9 +797,8 @@ namespace Graphics {
         U32 height = U32( cubemap->getHeight() * std::pow( 0.5, dstMip ) );
 
         // Create temporary render texture
-        auto colorBuffer = createRenderBuffer();
+        auto colorBuffer = _CreateTempRenderTarget();
         colorBuffer->create( width, height, cubemap->getFormat() );
-
         colorBuffer->bindForRendering();
 
         // Setup viewport matching the render texture
@@ -817,13 +819,7 @@ namespace Graphics {
 
             _DrawMesh( m_cubeMesh, material, DirectX::XMMatrixIdentity(), 0 );
             _CopyTexture( colorBuffer, 0, 0, cubemap, face, dstMip );
-
-            // Unfortunately on my laptop if i dont flush here the driver crashes sometimes... 
-            // (probably because the colorbuffer gets deleted before the rendering has been finished) -> Need to delete the buffer later
-            g_pImmediateContext->Flush();
         }
-
-        SAFE_DELETE( colorBuffer );
     }
 
     //----------------------------------------------------------------------

@@ -99,11 +99,21 @@ namespace Graphics {
         //----------------------------------------------------------------------
         void _LockQueue();
         void _UnlockQueue();
+        IRenderBuffer* _CreateTempRenderTarget(I32 maxFramesAlive = 2);
+        void _CheckAndDestroyTemporaryRenderTargets();
+        void _DestroyAllTempRenderTargets();
 
         //----------------------------------------------------------------------
         virtual void OnWindowSizeChanged(U16 w, U16 h) = 0;
 
     private:
+        struct TempRenderTarget
+        {
+            IRenderBuffer* rt;
+            I32 frameAliveCount; // Amount of frames this RT will be alive
+        };
+        ArrayList<TempRenderTarget> m_tempRenderTargets;
+
         void _OnWindowSizeChanged();
 
         NULL_COPY_AND_ASSIGN(IRenderer)

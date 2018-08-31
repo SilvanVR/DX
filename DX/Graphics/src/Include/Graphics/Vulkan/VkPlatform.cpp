@@ -521,6 +521,12 @@ namespace Graphics { namespace Vulkan {
         }
     }
 
+    //----------------------------------------------------------------------
+    void Context::CopyImage( VkImage src, VkImage dst, U32 regionCount, const VezImageCopy* pRegions )
+    {
+        vezCmdCopyImage( curDrawCmd(), src, dst, regionCount, pRegions );
+    }
+
     //**********************************************************************
     // PRIVATE
     //**********************************************************************

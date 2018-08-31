@@ -40,6 +40,11 @@ namespace Graphics { namespace Vulkan {
         void recreate(Graphics::DepthFormat format) override;
         void bindForRendering() override;
 
+        //----------------------------------------------------------------------
+        // IBindableTexture Interface
+        //----------------------------------------------------------------------
+        VkImage getVkImage() const override { return m_framebuffer.img; }
+
     private:
         bool m_resolved = false;
 

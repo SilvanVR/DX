@@ -72,26 +72,25 @@ namespace Graphics {
     {
         _SetLimits();
 
-  /*      VR::Device hmd = VR::GetFirstSupportedHMDAndInitialize();
-        switch (hmd)
-        {
-        case VR::Device::OculusRift:
-        {
-            auto vkOculus = new VR::OculusRiftVk();
-            g_vulkan.CreateInstance( vkOculus->getRequiredInstanceExtentions() );
-            m_swapchain.init( g_vulkan.instance, m_window );
-            g_vulkan.SelectPhysicalDevice( vkOculus->getPhysicalDevice( g_vulkan.instance ) );
-            g_vulkan.CreateDevice( m_swapchain.getSurfaceKHR(), vkOculus->getRequiredDeviceExtentions(), GetDeviceFeatures() );
-            vkOculus->setSynchronizationQueueVk( g_vulkan.graphicsQueue );
-            vkOculus->createEyeBuffers( g_vulkan.device );
-            m_swapchain.create( g_vulkan.gpu.physicalDevice, g_vulkan.device, m_vsync );
-            g_vulkan.Init();
-            m_hmd = vkOculus; 
-            break;
-        }
-        default:
-            LOG_WARN_RENDERING( "VR not supported on your system." );
-        }*/
+        //VR::Device hmd = VR::GetFirstSupportedHMDAndInitialize();
+        //switch (hmd)
+        //{
+        //case VR::Device::OculusRift:
+        //{
+        //    auto vkOculus = new VR::OculusRiftVk();
+        //    g_vulkan.CreateInstance( vkOculus->getRequiredInstanceExtentions() );
+        //    m_swapchain.createSurface( g_vulkan.instance, m_window );
+        //    g_vulkan.SelectPhysicalDevice( vkOculus->getPhysicalDevice( g_vulkan.instance ) );
+        //    g_vulkan.CreateDevice({ VK_KHR_SWAPCHAIN_EXTENSION_NAME }, GetDeviceFeatures() );
+        //    vkOculus->setSynchronizationQueueVk( g_vulkan.graphicsQueue );
+        //    vkOculus->createEyeBuffers( g_vulkan.device );
+        //    m_swapchain.createSwapchain( g_vulkan.device, m_window->getWidth(), m_window->getHeight(), SWAPCHAIN_FORMAT );
+        //    m_hmd = vkOculus; 
+        //    break;
+        //}
+        //default:
+        //    LOG_WARN_RENDERING( "VR not supported on your system." );
+        //}
 
         if ( not hasHMD() )
         {
@@ -115,6 +114,7 @@ namespace Graphics {
     void VkRenderer::shutdown()
     {
         vkDeviceWaitIdle( g_vulkan.device );
+        _DestroyAllTempRenderTargets();
         SAFE_DELETE( m_globalBuffer );
         SAFE_DELETE( m_cameraBuffer );
         SAFE_DELETE( m_lightBuffer );
@@ -252,6 +252,7 @@ namespace Graphics {
             return;
 
         _CheckVSync();
+        _CheckAndDestroyTemporaryRenderTargets();
 
         // Record all commands
         g_vulkan.ctx.BeginFrame();
@@ -291,7 +292,7 @@ namespace Graphics {
     //----------------------------------------------------------------------
     bool VkRenderer::setGlobalFloat( StringID name, F32 value )
     {
-        if (not _UpdateGlobalBuffer( name, &value))
+        if (not _UpdateGlobalBuffer( name, &value ))
         {
             LOG_WARN_RENDERING( "Global-Float '" + name.toString() + "' does not exist. Did you spell it correctly?" );
             return false;
@@ -302,7 +303,7 @@ namespace Graphics {
     //----------------------------------------------------------------------
     bool VkRenderer::setGlobalInt( StringID name, I32 value )
     {
-        if (not _UpdateGlobalBuffer( name, &value))
+        if (not _UpdateGlobalBuffer( name, &value ))
         {
             LOG_WARN_RENDERING( "Global-Int '" + name.toString() + "' does not exist. Did you spell it correctly?" );
             return false;
@@ -608,11 +609,60 @@ namespace Graphics {
     //----------------------------------------------------------------------
     void VkRenderer::_CopyTexture( ITexture* srcTex, I32 srcElement, I32 srcMip, ITexture* dstTex, I32 dstElement, I32 dstMip )
     {
+        VezImageCopy region{};
+        region.extent = { srcTex->getWidth(), srcTex->getHeight(), 1 };
+        region.srcSubresource.mipLevel          = srcMip;
+        region.srcSubresource.baseArrayLayer    = srcElement;
+        region.srcSubresource.layerCount        = 1;
+        region.dstSubresource.mipLevel          = dstMip;
+        region.dstSubresource.baseArrayLayer    = dstElement;
+        region.dstSubresource.layerCount        = 1;
+
+        auto vkSrcTex = reinterpret_cast<Vulkan::IBindableTexture*>( srcTex );
+        auto vkDstTex = reinterpret_cast<Vulkan::IBindableTexture*>( dstTex );
+        g_vulkan.ctx.CopyImage( vkSrcTex->getVkImage(), vkDstTex->getVkImage(), 1, &region);
     }
 
     //----------------------------------------------------------------------
     void VkRenderer::_RenderCubemap( ICubemap* cubemap, const MaterialPtr& material, U32 dstMip )
     {
+         DirectX::XMVECTOR directions[] = {
+            { 1, 0, 0, 0 }, { -1,  0,  0, 0 },
+            { 0, 1, 0, 0 }, {  0, -1,  0, 0 },
+            { 0, 0, 1, 0 }, {  0,  0, -1, 0 },
+        };
+        DirectX::XMVECTOR ups[] = {
+            { 0, 1,  0, 0 }, { 0, 1, 0, 0 },
+            { 0, 0, -1, 0 }, { 0, 0, 1, 0 },
+            { 0, 1,  0, 0 }, { 0, 1, 0, 0 },
+        };
+
+        U32 width = U32( cubemap->getWidth() * std::pow( 0.5, dstMip ) );
+        U32 height = U32( cubemap->getHeight() * std::pow( 0.5, dstMip ) );
+
+        // Create temporary render texture
+        auto colorBuffer = _CreateTempRenderTarget();
+        colorBuffer->create( width, height, cubemap->getFormat() );
+        colorBuffer->bindForRendering();
+        colorBuffer->clearColor( Color::BLACK );
+
+        // Setup viewport matching the render texture
+        VkViewport vp = { 0, 0, (F32)colorBuffer->getWidth(), (F32)colorBuffer->getHeight(), 0, 1 };
+        g_vulkan.ctx.RSSetViewports( vp );
+
+        // Render into render texture for each face and copy the result into the cubemaps face
+        auto projection = DirectX::XMMatrixPerspectiveFovLH( DirectX::XMConvertToRadians( 90.0f ), 1.0f, 0.1f, 10.0f );
+        for (I32 face = 0; face < 6; face++)
+        {
+            auto view = DirectX::XMMatrixLookToLH( { 0, 0, 0, 0 }, directions[face], ups[face] );
+            auto viewProj = view * projection;
+            if ( not m_cameraBuffer->update( CAM_VIEW_PROJ_NAME, &viewProj ) )
+                LOG_ERROR_RENDERING( "D3D11::RenderCubemap(): Could not update the view-projection matrix in the camera buffer!" );
+            m_cameraBuffer->flush();
+
+            _DrawMesh( m_cubeMesh, material, DirectX::XMMatrixIdentity(), 0 );
+            _CopyTexture( colorBuffer, 0, 0, cubemap, face, dstMip );
+        }
     }
 
     //----------------------------------------------------------------------

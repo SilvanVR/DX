@@ -99,6 +99,7 @@ namespace Graphics { namespace Vulkan {
         void SetImage(VkImageView imageView, VkSampler sampler, U32 set, U32 binding);
         void GenerateMips(VkImage img, U32 width, U32 height, U32 mipLevels, VkFilter filter = VK_FILTER_LINEAR);
         void GenerateMips(VkImage img, U32 width, U32 height, U32 mipLevels, U32 layers, VkFilter filter = VK_FILTER_LINEAR);
+        void CopyImage(VkImage src, VkImage dst, U32 regionCount,const VezImageCopy* pRegions);
 
     private:
         friend class VkRenderer;

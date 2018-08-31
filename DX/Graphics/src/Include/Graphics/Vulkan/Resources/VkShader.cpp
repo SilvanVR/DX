@@ -48,7 +48,7 @@ namespace Graphics { namespace Vulkan {
     //----------------------------------------------------------------------
     void Shader::unbind()
     {
-        //g_vulkan.ctx.bindPipeline( VK_NULL_HANDLE );
+        // Do nothing here
     }
 
     //**********************************************************************

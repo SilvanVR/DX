@@ -54,6 +54,39 @@ namespace Graphics {
     }
 
     //----------------------------------------------------------------------
+    IRenderBuffer* IRenderer::_CreateTempRenderTarget( I32 maxFramesAlive )
+    {
+        TempRenderTarget tempRT{ createRenderBuffer(), maxFramesAlive };
+        return m_tempRenderTargets.emplace_back( tempRT ).rt;
+    }
+
+    //----------------------------------------------------------------------
+    void IRenderer::_CheckAndDestroyTemporaryRenderTargets()
+    {
+        for (auto it = m_tempRenderTargets.begin(); it != m_tempRenderTargets.end();)
+        {
+            --it->frameAliveCount;
+            if (it->frameAliveCount)
+            {
+                ++it;
+            }
+            else
+            {
+                SAFE_DELETE( it->rt );
+                it = m_tempRenderTargets.erase( it );
+            }
+        }
+    }
+
+    //----------------------------------------------------------------------
+    void IRenderer::_DestroyAllTempRenderTargets()
+    {
+        for (auto& rt : m_tempRenderTargets)
+            SAFE_DELETE( rt.rt );
+        m_tempRenderTargets.clear();
+    }
+
+    //----------------------------------------------------------------------
     // PRIVATE
     //----------------------------------------------------------------------
 

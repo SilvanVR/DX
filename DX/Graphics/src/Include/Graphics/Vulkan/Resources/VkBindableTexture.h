@@ -19,6 +19,9 @@ namespace Graphics { namespace Vulkan {
         IBindableTexture() = default;
         virtual ~IBindableTexture();
 
+        //----------------------------------------------------------------------
+        virtual VkImage getVkImage() const { return m_image.img; }
+
     protected:
         //----------------------------------------------------------------------
         VkSampler   getSampler()        const { return m_sampler; }

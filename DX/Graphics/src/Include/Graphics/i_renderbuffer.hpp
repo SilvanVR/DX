@@ -65,7 +65,7 @@ namespace Graphics
         // P.S. Using this binds only a color OR depth texture but never both. For this use a render-texture.
         //----------------------------------------------------------------------
         friend class D3D11Renderer;
-        friend class VulkanRenderer;
+        friend class VkRenderer;
         virtual void bindForRendering() = 0;
 
         //----------------------------------------------------------------------
