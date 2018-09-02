@@ -90,7 +90,6 @@ namespace Graphics { namespace Vulkan {
     //----------------------------------------------------------------------
     void Swapchain::setVSync( bool enabled )
     {
-        LOG_WARN_RENDERING("VkRenderer: VSYNC NOT SUPPORTED");
         VALIDATE( vezSwapchainSetVSync( m_swapchain, enabled ) );
     }
 

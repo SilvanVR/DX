@@ -138,7 +138,7 @@ namespace Graphics { namespace D3D11 {
                 sizeInBytes = 16;
             }
 
-            _AddToVertexLayout( semanticName.c_str(), paramDesc.SemanticIndex, sizeInBytes, instanced );
+            _AddToVertexLayout( semanticName.c_str(), paramDesc.SemanticIndex, sizeInBytes, elementDesc.InputSlot, instanced );
 
             inputLayoutDesc.push_back( elementDesc );
         }
@@ -152,7 +152,7 @@ namespace Graphics { namespace D3D11 {
     }
 
     //----------------------------------------------------------------------
-    void VertexShader::_AddToVertexLayout( const String& semanticName, U32 semanticIndex, U32 sizeInBytes, bool instanced )
+    void VertexShader::_AddToVertexLayout( const String& semanticName, U32 semanticIndex, U32 sizeInBytes, U32 binding, bool instanced )
     {
         if ( semanticName.substr(0,3) == SEMANTIC_SYSTEM ) // Skip system semantics
             return;
@@ -174,6 +174,7 @@ namespace Graphics { namespace D3D11 {
         InputLayoutDescription input;
         input.instanced     = instanced;
         input.sizeInBytes   = sizeInBytes;
+        input.binding       = binding;
         input.name          = nameAsID;
         m_vertexLayout.add( input );
     }

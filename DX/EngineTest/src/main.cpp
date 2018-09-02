@@ -42,6 +42,9 @@ public:
 
         createGameObject("Grid")->addComponent<GridGeneration>(20);
 
+        //auto cube = Core::MeshGenerator::CreateCube(1.0f, Color::BLUE);
+        //createGameObject("Cube")->addComponent<Components::MeshRenderer>(cube, ASSETS.getColorMaterial());
+
         LOG("TestScene initialized!", Color::RED);
     }
 

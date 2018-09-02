@@ -33,12 +33,11 @@ namespace Graphics {
     static String LIGHTS_UBO_KEYWORD     ( "lights" );
 
     static StringID POST_PROCESS_INPUT_NAME   = SID( "_Input" );
-    static StringID CAM_POS_NAME              = SID( "_CameraPos" );
-    static StringID CAM_VIEW_PROJ_NAME        = SID( "_ViewProj" );
-    static StringID CAM_ZNEAR_NAME            = SID( "_zNear" );
-    static StringID CAM_ZFAR_NAME             = SID( "_zFar" );
-    static StringID CAM_VIEW_MATRIX_NAME      = SID( "_View" );
-    static StringID CAM_PROJ_MATRIX_NAME      = SID( "_Proj" );
+    static StringID CAM_POS_NAME              = SID( "pos" );
+    static StringID CAM_ZNEAR_NAME            = SID( "zNear" );
+    static StringID CAM_ZFAR_NAME             = SID( "zFar" );
+    static StringID CAM_VIEW_MATRIX_NAME      = SID( "view" );
+    static StringID CAM_PROJ_MATRIX_NAME      = SID( "proj" );
 
     static StringID LIGHT_COUNT_NAME          = SID( "_LightCount" );
     static StringID LIGHT_BUFFER_NAME         = SID( "_Lights" );
@@ -441,42 +440,42 @@ namespace Graphics {
             g_vulkan.ctx.RSSetScissor({ { (I32)vp.x, (I32)vp.y }, { (U32)vp.width, (U32)vp.height } });
         }
 
-        //auto modelMatrix = camera->getModelMatrix();
-        //auto translation = modelMatrix.r[3];
-        //if ( not m_cameraBuffer->update( CAM_POS_NAME, &translation ) )
-        //    LOG_ERROR_RENDERING( "Vulkan: Could not update the camera buffer [position]. Fix this!" );
-
-        //auto zFar = camera->getZFar();
-        //if ( not m_cameraBuffer->update( CAM_ZFAR_NAME, &zFar ) )
-        //    LOG_ERROR_RENDERING( "Vulkan: Could not update the camera buffer [zFar]. Fix this!" );
-
-        //auto zNear = camera->getZNear();
-        //if ( not m_cameraBuffer->update( CAM_ZNEAR_NAME, &zNear ) )
-        //    LOG_ERROR_RENDERING( "Vulkan: Could not update the camera buffer [zNear]. Fix this!" );
-
-        //if ( not m_cameraBuffer->update( CAM_VIEW_MATRIX_NAME, &camera->getViewMatrix() ) )
-        //    LOG_ERROR_RENDERING( "Vulkan: Could not update the camera buffer [View]. Fix this!" );
-
-        //if ( not m_cameraBuffer->update( CAM_PROJ_MATRIX_NAME, &camera->getProjectionMatrix() ) )
-        //    LOG_ERROR_RENDERING( "Vulkan: Could not update the camera buffer [Projection]. Fix this!" );
-        //m_cameraBuffer->flush();
-
-        struct CameraUBO
-        {
-            DirectX::XMMATRIX view;
-            DirectX::XMMATRIX proj;
-            DirectX::XMVECTOR pos;
-            float zNear;
-            float zFar;
-        } ubo;
-
-        ubo.view = camera->getViewMatrix();
-        ubo.proj = camera->getProjectionMatrix();
         auto modelMatrix = camera->getModelMatrix();
         auto translation = modelMatrix.r[3];
-        ubo.pos = translation;
-        ubo.zNear = camera->getZNear();
-        ubo.zFar = camera->getZFar();
+        if ( not m_cameraBuffer->update( CAM_POS_NAME, &translation ) )
+            LOG_ERROR_RENDERING( "Vulkan: Could not update the camera buffer [position]. Fix this!" );
+
+        auto zFar = camera->getZFar();
+        if ( not m_cameraBuffer->update( CAM_ZFAR_NAME, &zFar ) )
+            LOG_ERROR_RENDERING( "Vulkan: Could not update the camera buffer [zFar]. Fix this!" );
+
+        auto zNear = camera->getZNear();
+        if ( not m_cameraBuffer->update( CAM_ZNEAR_NAME, &zNear ) )
+            LOG_ERROR_RENDERING( "Vulkan: Could not update the camera buffer [zNear]. Fix this!" );
+
+        if ( not m_cameraBuffer->update( CAM_VIEW_MATRIX_NAME, &camera->getViewMatrix() ) )
+            LOG_ERROR_RENDERING( "Vulkan: Could not update the camera buffer [View]. Fix this!" );
+
+        if ( not m_cameraBuffer->update( CAM_PROJ_MATRIX_NAME, &camera->getProjectionMatrix() ) )
+            LOG_ERROR_RENDERING( "Vulkan: Could not update the camera buffer [Projection]. Fix this!" );
+        m_cameraBuffer->flush();
+
+        //struct CameraUBO
+        //{
+        //    DirectX::XMMATRIX view;
+        //    DirectX::XMMATRIX proj;
+        //    DirectX::XMVECTOR pos;
+        //    float zNear;
+        //    float zFar;
+        //} ubo;
+
+        //ubo.view = camera->getViewMatrix();
+        //ubo.proj = camera->getProjectionMatrix();
+        //auto modelMatrix = camera->getModelMatrix();
+        //auto translation = modelMatrix.r[3];
+        //ubo.pos = translation;
+        //ubo.zNear = camera->getZNear();
+        //ubo.zFar = camera->getZFar();
 
         //m_cameraBuffer->update( &ubo, (U32)sizeof(CameraUBO) );
     }
@@ -829,9 +828,10 @@ namespace Graphics {
         for (I32 face = 0; face < 6; face++)
         {
             auto view = DirectX::XMMatrixLookToLH( { 0, 0, 0, 0 }, directions[face], ups[face] );
-            auto viewProj = view * projection;
-            if ( not m_cameraBuffer->update( CAM_VIEW_PROJ_NAME, &viewProj ) )
-                LOG_ERROR_RENDERING( "D3D11::RenderCubemap(): Could not update the view-projection matrix in the camera buffer!" );
+            if ( not m_cameraBuffer->update( CAM_VIEW_MATRIX_NAME, &view ) )
+                LOG_ERROR_RENDERING( "Vulkan: Could not update the camera buffer [View]. Fix this!" );
+            if ( not m_cameraBuffer->update( CAM_PROJ_MATRIX_NAME, &projection ) )
+                LOG_ERROR_RENDERING( "Vulkan: Could not update the camera buffer [Projection]. Fix this!" );
             m_cameraBuffer->flush();
 
             _DrawMesh( m_cubeMesh, material, DirectX::XMMatrixIdentity(), 0 );
@@ -919,8 +919,6 @@ namespace Graphics {
     //----------------------------------------------------------------------
     bool VkRenderer::_UpdateGlobalBuffer( StringID name, const void* data )
     {
-        return true;
-
         if (not m_globalBuffer)
             return false;
         return m_globalBuffer->update( name, data );

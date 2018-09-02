@@ -14,9 +14,10 @@ namespace Graphics {
     // Description for one vertex input
     struct InputLayoutDescription
     {
-        StringID name;
-        U32 sizeInBytes;
-        bool instanced = false;
+        StringID    name;
+        U32         sizeInBytes = 0;
+        U32         binding     = 0;
+        bool        instanced   = false;
     };
 
     //**********************************************************************
@@ -34,7 +35,7 @@ namespace Graphics {
         //----------------------------------------------------------------------
         // Add a new layout description to this vertex-layout
         //----------------------------------------------------------------------
-        void add(InputLayoutDescription inputDesc){ m_layoutDescription.emplace_back( inputDesc ); }
+        void add(InputLayoutDescription inputDesc){ m_layoutDescription.emplace_back( inputDesc ); _SortAfterBinding(); }
 
         //----------------------------------------------------------------------
         // Clear this vertex layout
@@ -43,6 +44,11 @@ namespace Graphics {
 
     private:
         ArrayList<InputLayoutDescription> m_layoutDescription;
+
+        void _SortAfterBinding()
+        {
+            std::sort( m_layoutDescription.begin(), m_layoutDescription.end(), [](auto& b1, auto& b2) { return b1.binding < b2.binding; } );
+        }
 
         NULL_COPY_AND_ASSIGN(VertexLayout)
     };

@@ -278,6 +278,10 @@ namespace Graphics { namespace Vulkan {
     //----------------------------------------------------------------------
     void Shader::_CreateVertexLayout( const ArrayList<VezPipelineResource>& resources )
     {
+        // Make sure old information will be deleted
+        m_vertexLayout.clear();
+        vezDestroyVertexInputFormat( g_vulkan.device, m_vertexInputFormat );
+
         ArrayList<VkVertexInputBindingDescription>      bindingDescriptions;
         ArrayList<VkVertexInputAttributeDescription>    attribDescriptions;
         for (auto& res : resources)
@@ -301,22 +305,23 @@ namespace Graphics { namespace Vulkan {
                 auto [format, sizeInBytes] = GetTypeInfo( res );
 
                 VkVertexInputAttributeDescription attrDesc{};
-                attrDesc.binding    = res.binding;
+                attrDesc.binding    = res.location; // We use the location as the same binding
                 attrDesc.location   = res.location;
                 attrDesc.format     = format;
                 attribDescriptions.push_back( attrDesc );
 
                 VkVertexInputBindingDescription bindingDesc{};
                 bindingDesc.inputRate = instanced ? VK_VERTEX_INPUT_RATE_INSTANCE : VK_VERTEX_INPUT_RATE_VERTEX;
-                bindingDesc.binding   = res.binding;
+                bindingDesc.binding   = attrDesc.binding;
                 bindingDesc.stride    = sizeInBytes;
                 bindingDescriptions.push_back( bindingDesc );
 
-                m_vertexLayout.add( { SID( name.c_str() ), sizeInBytes, instanced } );
+                m_vertexLayout.add( { SID( name.c_str() ), sizeInBytes, attrDesc.binding, instanced } );
                 break;
             }
             }
         }
+
         VezVertexInputFormatCreateInfo vertexInputFormatCreateInfo = {};
         vertexInputFormatCreateInfo.vertexBindingDescriptionCount   = static_cast<U32>( bindingDescriptions.size() );
         vertexInputFormatCreateInfo.pVertexBindingDescriptions      = bindingDescriptions.data();
@@ -343,9 +348,40 @@ namespace Graphics { namespace Vulkan {
             {
             case VEZ_PIPELINE_RESOURCE_TYPE_UNIFORM_BUFFER:
             {
-                ShaderUniformBufferDeclaration ubo( shaderStages, SID(res.name), res.set, res.binding, res.size );
-                // @TODO: Parse members
-                m_uniformBuffers.push_back( ubo );
+                if (String(res.name) == "GLOBAL")
+                {
+                    ShaderUniformBufferDeclaration ubo( shaderStages, SID(res.name), res.set, res.binding, res.size );
+                    ubo._AddUniformDecl({ SID("_Time"), 0, sizeof(F32), DataType::Float });
+                    ubo._AddUniformDecl({ SID("_Ambient"), 4, sizeof(F32), DataType::Float });
+                    m_uniformBuffers.push_back( ubo );
+                }
+                else if (String(res.name) == "CAMERA")
+                {
+                    ShaderUniformBufferDeclaration ubo(shaderStages, SID(res.name), res.set, res.binding, 152);
+                    U32 offset = 0;
+                    ubo._AddUniformDecl({ SID("view"), offset, sizeof(DirectX::XMMATRIX), DataType::Matrix });
+                    offset += sizeof(DirectX::XMMATRIX);
+                    ubo._AddUniformDecl({ SID("proj"), offset, sizeof(DirectX::XMMATRIX), DataType::Matrix });
+                    offset += sizeof(DirectX::XMMATRIX);
+                    ubo._AddUniformDecl({ SID("pos"), offset, sizeof(Math::Vec4), DataType::Vec4 });
+                    offset += sizeof(Math::Vec4);
+                    ubo._AddUniformDecl({ SID("zNear"), offset, sizeof(F32), DataType::Float });
+                    offset += sizeof(F32);
+                    ubo._AddUniformDecl({ SID("zFar"), offset, sizeof(F32), DataType::Float });
+                    m_uniformBuffers.push_back( ubo );
+                }
+                else if (String(res.name) == "LIGHTS")
+                {
+                    ShaderUniformBufferDeclaration ubo(shaderStages, SID(res.name), res.set, res.binding, res.size);
+                    U32 offset = 0;
+                    m_uniformBuffers.push_back( ubo );
+                }
+                else
+                {
+                    ShaderUniformBufferDeclaration ubo( shaderStages, SID(res.name), res.set, res.binding, res.size );
+                    // @TODO: Parse members
+                    m_uniformBuffers.push_back( ubo );
+                }
                 break;
             }
             case VEZ_PIPELINE_RESOURCE_TYPE_SAMPLED_IMAGE:

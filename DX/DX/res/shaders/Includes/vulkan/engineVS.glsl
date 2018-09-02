@@ -37,10 +37,15 @@ layout (set = 0, binding = 1) uniform CAMERA
 	float zFar;
 } _Camera;
 
+
 //----------------------------------------------------------------------
 vec4 TO_CLIP_SPACE( vec4 vert )
 {
-	mat4 mvp = _Camera.proj * _Camera.view * _Object.world;
+    mat4 VULKAN_CLIP = { { 1.0,  0.0, 0.0, 0.0 },
+                         { 0.0, -1.0, 0.0, 0.0 },
+                         { 0.0,  0.0, 0.5, 0.5 },
+                         { 0.0,  0.0, 0.0, 1.0 } };
+	mat4 mvp = VULKAN_CLIP * _Camera.proj * _Camera.view * _Object.world;
     return mvp * vert;
 }
 
