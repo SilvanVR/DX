@@ -78,7 +78,6 @@ namespace Graphics { namespace Vulkan {
         subDataInfo.imageSubresource.mipLevel = 0;
         subDataInfo.imageSubresource.layerCount = 1;
         subDataInfo.imageExtent = { m_width, m_height, 1 };
-        //subDataInfo.dataRowLength = getWidth() * ByteCountFromTextureFormat( m_format );
         vezImageSubData( g_vulkan.device, m_image.img, &subDataInfo, pData );
     }
 
@@ -88,11 +87,10 @@ namespace Graphics { namespace Vulkan {
         ASSERT( not m_pixels.empty() );
 
         // Upload the host side data
-        VezImageSubDataInfo subDataInfo = {};
+        VezImageSubDataInfo subDataInfo{};
         subDataInfo.imageSubresource.mipLevel = 0;
         subDataInfo.imageSubresource.layerCount = 1;
         subDataInfo.imageExtent = { m_width, m_height, 1 };
-        //subDataInfo.dataRowLength = getWidth() * ByteCountFromTextureFormat( m_format );
         vezImageSubData( g_vulkan.device, m_image.img, &subDataInfo, m_pixels.data() );
 
         if ( not keepPixelsInRAM() )

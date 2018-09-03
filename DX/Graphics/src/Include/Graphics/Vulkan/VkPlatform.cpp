@@ -252,8 +252,10 @@ namespace Graphics { namespace Vulkan {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    void Framebuffer::create( U32 width, U32 height, U32 attachmentCount, const VkImageView* pImageViews )
+    void Framebuffer::create( U32 width, U32 height, U32 attachmentCount, const VkImageView* pImageViews, VkSampleCountFlagBits samples )
     {
+        this->samples = samples;
+
         m_attachmentRefs.resize( attachmentCount );
         for (I32 i = 0; i < m_attachmentRefs.size(); i++)
         {
@@ -398,6 +400,15 @@ namespace Graphics { namespace Vulkan {
         if (m_insideRenderPass) // End previous renderpass if any
             EndRenderPass();
 
+        // Set multisample state 
+        VezMultisampleState stateInfo{};
+        stateInfo.alphaToCoverageEnable = VK_FALSE;
+        stateInfo.alphaToOneEnable      = VK_FALSE;
+        stateInfo.rasterizationSamples  = fbo.samples;
+        stateInfo.sampleShadingEnable   = VK_FALSE;
+        stateInfo.minSampleShading      = 1.0f;
+        vezCmdSetMultisampleState( curDrawCmd(), &stateInfo );
+
         // Begin a new render pass
         auto& attachmentReferences = fbo.getAttachmentReferences();
         VezRenderPassBeginInfo beginInfo = {};
@@ -446,6 +457,8 @@ namespace Graphics { namespace Vulkan {
     void Context::ResolveImage( VkImage src, VkImage dst, VkExtent2D extent )
     {
         VezImageResolve region{};
+        region.srcSubresource.layerCount = 1;
+        region.dstSubresource.layerCount = 1;
         region.extent.width  = extent.width;
         region.extent.height = extent.height;
         region.extent.depth  = 1;

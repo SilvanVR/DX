@@ -9,6 +9,10 @@
 #define VERTEX_NORMAL	NORMAL
 #define VERTEX_TANGENT	TANGENT
 
+#define CAMERA_POS 		_Camera.pos
+#define CAMERA_VIEW 	_Camera.view
+#define CAMERA_PROJ 	VULKAN_CLIP * _Camera.proj
+
 // PER OBJECT PUSH CONSTANT
 layout (std140, push_constant) uniform PushConstant 
 {
@@ -37,15 +41,16 @@ layout (set = 0, binding = 1) uniform CAMERA
 	float zFar;
 } _Camera;
 
+// Vulkan clip space has inverted Y and half Z. This fixes it.
+const mat4 VULKAN_CLIP = { { 1.0,  0.0, 0.0, 0.0 },
+                           { 0.0, -1.0, 0.0, 0.0 },
+                           { 0.0,  0.0, 0.5, 0.0 },
+                           { 0.0,  0.0, 0.0, 1.0 } };
 
 //----------------------------------------------------------------------
 vec4 TO_CLIP_SPACE( vec4 vert )
 {
-    mat4 VULKAN_CLIP = { { 1.0,  0.0, 0.0, 0.0 },
-                         { 0.0, -1.0, 0.0, 0.0 },
-                         { 0.0,  0.0, 0.5, 0.5 },
-                         { 0.0,  0.0, 0.0, 1.0 } };
-	mat4 mvp = VULKAN_CLIP * _Camera.proj * _Camera.view * _Object.world;
+	mat4 mvp =  VULKAN_CLIP * _Camera.proj * _Camera.view * _Object.world;
     return mvp * vert;
 }
 

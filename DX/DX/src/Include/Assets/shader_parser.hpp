@@ -84,6 +84,8 @@ namespace Assets {
 
             // Parse shader file
             std::array<String, NUM_SHADER_TYPES> shaderSources = _SplitShaderFile( filePath );
+            if (shaderSources[ShaderMapping::Vertex].empty())
+                throw std::runtime_error( "Vertex shader source is empty. Forgot to add #d3d11 or #vulkan?" );
 
             // Compile each shader
             for (I32 i = 1; i < shaderSources.size(); i++)

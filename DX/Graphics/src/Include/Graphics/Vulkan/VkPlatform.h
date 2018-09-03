@@ -38,9 +38,10 @@ namespace Graphics { namespace Vulkan {
     {
     public:
         VezFramebuffer framebuffer = VK_NULL_HANDLE;
+        VkSampleCountFlagBits samples = VK_SAMPLE_COUNT_1_BIT;
 
         //----------------------------------------------------------------------
-        void create(U32 width, U32 height, U32 attachmentCount, const VkImageView* pImageViews);
+        void create(U32 width, U32 height, U32 attachmentCount, const VkImageView* pImageViews, VkSampleCountFlagBits samples);
         void destroy();
 
         //----------------------------------------------------------------------

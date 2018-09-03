@@ -211,10 +211,16 @@ namespace Graphics {
                 case GPUCommand::SET_CAMERA_MATRIX:
                 {
                     auto& cmd = *reinterpret_cast<GPUC_SetCameraMatrix*>( command.get() );
-                    if ( not m_cameraBuffer->update( cmd.name, &cmd.matrix ) )
-                        LOG_WARN_RENDERING( "D3D11: Could not update the camera buffer ["+cmd.name.toString()+"]." );
-                    else
-                        m_cameraBuffer->flush();
+                    StringID name;
+                    switch (cmd.member)
+                    {
+                    case CameraMember::View:             name = CAM_VIEW_MATRIX_NAME; break;
+                    case CameraMember::Projection:       name = CAM_PROJ_MATRIX_NAME; break;
+                    case CameraMember::ViewProjection:   name = CAM_VIEW_PROJ_NAME;   break;
+                    default: LOG_WARN_RENDERING("VkRenderer: Command [SET_CAMERA_MATRIX]: Unsupported Camera Matrix.");
+                    }
+                    m_cameraBuffer->update( name, &cmd.matrix );
+                    m_cameraBuffer->flush();
                     break;
                 }
                 default:

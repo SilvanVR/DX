@@ -146,8 +146,7 @@ namespace Components {
         auto proj = DirectX::XMMatrixOrthographicOffCenterLH( draw_data->DisplayPos.x, draw_data->DisplayPos.x + draw_data->DisplaySize.x,
                                                               draw_data->DisplayPos.y + draw_data->DisplaySize.y, draw_data->DisplayPos.y,
                                                               -1, 1 );
-        static const StringID PROJ_NAME = SID( "_Proj" );
-        m_cmd.setCameraMatrix( PROJ_NAME, proj );
+        m_cmd.setCameraMatrix( Graphics::CameraMember::Projection, proj );
 
         auto& positionStream = m_dynamicMesh->getVertexStream<Math::Vec3>( Graphics::SID_VERTEX_POSITION );
         auto& uvStream       = m_dynamicMesh->getVertexStream<Math::Vec2>( Graphics::SID_VERTEX_UV );

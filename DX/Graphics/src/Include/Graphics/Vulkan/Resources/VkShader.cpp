@@ -321,6 +321,8 @@ namespace Graphics { namespace Vulkan {
             }
             }
         }
+        std::sort( bindingDescriptions.begin(), bindingDescriptions.end(), [](auto& b1, auto& b2) { return b1.binding < b2.binding; } );
+        std::sort( attribDescriptions.begin(), attribDescriptions.end(), [](auto& b1, auto& b2) { return b1.binding < b2.binding; } );
 
         VezVertexInputFormatCreateInfo vertexInputFormatCreateInfo = {};
         vertexInputFormatCreateInfo.vertexBindingDescriptionCount   = static_cast<U32>( bindingDescriptions.size() );

@@ -187,9 +187,9 @@ namespace Graphics {
     }
 
     //----------------------------------------------------------------------
-    void CommandBuffer::setCameraMatrix( StringID name, const DirectX::XMMATRIX& matrix )
+    void CommandBuffer::setCameraMatrix( CameraMember member, const DirectX::XMMATRIX& matrix )
     {
-        m_gpuCommands.push_back( std::make_unique<GPUC_SetCameraMatrix>( name, matrix ) );
+        m_gpuCommands.push_back( std::make_unique<GPUC_SetCameraMatrix>( member, matrix ) );
     }
 
 } // End namespaces

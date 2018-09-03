@@ -69,7 +69,7 @@ void main()
 	outColor = VERTEX_COLOR;
 	gl_Position = TO_CLIP_SPACE( VERTEX_POSITION );
 }
-
+ 
 // ----------------------------------------------
 #shader fragment
 
@@ -77,7 +77,7 @@ void main()
 
 layout (location = 0) in vec4 inColor;
 layout (location = 0) out vec4 outColor;
-
+ 
 void main()
 {
 	outColor = inColor;

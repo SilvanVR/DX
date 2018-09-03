@@ -75,7 +75,7 @@ namespace Graphics { namespace Vulkan {
     void RenderBuffer::bindForRendering()
     {
         _ClearResolvedFlag();
-        g_vulkan.ctx.OMSetRenderTarget( m_framebuffer.fbo );
+        g_vulkan.ctx.OMSetRenderTarget( isMultisampled() ? m_framebufferMS.fbo : m_framebuffer.fbo );
     }
 
     //**********************************************************************
@@ -138,15 +138,16 @@ namespace Graphics { namespace Vulkan {
         viewCreateInfo.subresourceRange = { 0, 1, 0, 1 };
         VALIDATE( vezCreateImageView( g_vulkan.device, &viewCreateInfo, &m_framebuffer.view ) );
 
-        m_framebuffer.fbo.create( m_width, m_height, 1, &m_framebuffer.view );
+        m_framebuffer.fbo.create( m_width, m_height, 1, &m_framebuffer.view, VK_SAMPLE_COUNT_1_BIT );
 
         // If multisampling was requested create an additional buffer in which we render, but have to resolve it before using it in a shader
         if (isMultisampled())
         {
             imageCreateInfo.samples = Utility::TranslateSampleCount( m_samplingDescription );
             VALIDATE( vezCreateImage( g_vulkan.device, VEZ_MEMORY_GPU_ONLY, &imageCreateInfo, &m_framebufferMS.img ) );
+            viewCreateInfo.image = m_framebufferMS.img;
             VALIDATE( vezCreateImageView( g_vulkan.device, &viewCreateInfo, &m_framebufferMS.view ) );
-            m_framebufferMS.fbo.create( m_width, m_height, 1, &m_framebufferMS.view );
+            m_framebufferMS.fbo.create( m_width, m_height, 1, &m_framebufferMS.view, imageCreateInfo.samples );
         }
     }
 

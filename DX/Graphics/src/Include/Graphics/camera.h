@@ -43,6 +43,20 @@ namespace Graphics {
         BlitToScreenAndRightEye = 1 << 4,   // Blit to screen and right eye
     };
 
+    //----------------------------------------------------------------------
+    enum class CameraMember // Possible members in the camera-buffer on the gpu.
+    {
+        Unknown = 0,
+        View,
+        Projection,
+        Position,
+        zNear,
+        zFar,
+        ProjectionInv,
+        ViewInv,
+        ViewProjection
+    };
+
     //**********************************************************************
     class Camera
     {

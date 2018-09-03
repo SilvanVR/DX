@@ -110,17 +110,35 @@ namespace Graphics { namespace Vulkan {
         {
             U32 count = 0;
             VkImageView imageViews[2];
+            VkSampleCountFlagBits samples = VK_SAMPLE_COUNT_1_BIT;
             if (hasColorBuffer())
             {
                 auto colorBuffer = reinterpret_cast<Vulkan::RenderBuffer*>( m_renderBuffers[i].m_colorBuffer.get() );
-                imageViews[count++] = colorBuffer->m_framebuffer.view;
+                if (colorBuffer->isMultisampled())
+                {
+                    imageViews[count++] = colorBuffer->m_framebufferMS.view;
+                    samples = colorBuffer->m_framebufferMS.fbo.samples;
+                }
+                else
+                {
+                    imageViews[count++] = colorBuffer->m_framebuffer.view;
+                }
             }
             if (hasDepthBuffer())
             {
                 auto depthBuffer = reinterpret_cast<Vulkan::RenderBuffer*>( m_renderBuffers[i].m_depthBuffer.get() );
-                imageViews[count++] = depthBuffer->m_framebuffer.view;
+                if (depthBuffer->isMultisampled())
+                {
+                    imageViews[count++] = depthBuffer->m_framebufferMS.view;
+                    samples = depthBuffer->m_framebufferMS.fbo.samples;
+                }
+                else
+                {
+                    imageViews[count++] = depthBuffer->m_framebuffer.view;
+                }
             }
-            m_fbos[i].create( getWidth(), getHeight(), count, imageViews );
+            ASSERT( count > 0 );
+            m_fbos[i].create( getWidth(), getHeight(), count, imageViews, samples );
         }
     }
 
@@ -129,6 +147,7 @@ namespace Graphics { namespace Vulkan {
     {
         for (auto& fbo : m_fbos)
             fbo.destroy();
+        m_fbos.clear();
     }
 
 } } // End namespaces

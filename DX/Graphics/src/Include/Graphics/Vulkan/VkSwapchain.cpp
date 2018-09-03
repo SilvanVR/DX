@@ -118,7 +118,7 @@ namespace Graphics { namespace Vulkan {
         viewCreateInfo.subresourceRange = { 0, 1, 0, 1 };
         VALIDATE( vezCreateImageView( g_vulkan.device, &viewCreateInfo, &m_framebuffer.view ) );
 
-        m_framebuffer.fbo.create( width, height, 1, &m_framebuffer.view );
+        m_framebuffer.fbo.create( width, height, 1, &m_framebuffer.view, imageCreateInfo.samples );
         setClearColor( Color::BLACK );
     }
 

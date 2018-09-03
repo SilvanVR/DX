@@ -32,7 +32,7 @@ namespace Graphics {
     static String GLOBAL_UBO_KEYWORD     ( "global" );
     static String LIGHTS_UBO_KEYWORD     ( "lights" );
 
-    static StringID POST_PROCESS_INPUT_NAME   = SID( "_Input" );
+    static StringID POST_PROCESS_INPUT_NAME   = SID( "_MainTex" );
     static StringID CAM_POS_NAME              = SID( "pos" );
     static StringID CAM_ZNEAR_NAME            = SID( "zNear" );
     static StringID CAM_ZFAR_NAME             = SID( "zFar" );
@@ -228,17 +228,22 @@ namespace Graphics {
                     auto& cmd = *reinterpret_cast<GPUC_SetScissor*>( command.get() );
                     VkRect2D scissor{};
                     scissor.offset = { cmd.rect.left, cmd.rect.top };
-                    scissor.extent = { (U32)(cmd.rect.right - cmd.rect.left), (U32)(cmd.rect.top - cmd.rect.bottom) };
+                    scissor.extent = { (U32)(cmd.rect.right - cmd.rect.left), (U32)(cmd.rect.bottom - cmd.rect.top) };
                     g_vulkan.ctx.RSSetScissor( scissor );
                     break;
                 }
                 case GPUCommand::SET_CAMERA_MATRIX:
                 {
                     auto& cmd = *reinterpret_cast<GPUC_SetCameraMatrix*>( command.get() );
-                    if ( not m_cameraBuffer->update( cmd.name, &cmd.matrix ) )
-                        LOG_WARN_RENDERING( "VkRenderer: Could not update the camera buffer ["+cmd.name.toString()+"]." );
-                    else
-                        m_cameraBuffer->flush();
+                    StringID name;
+                    switch (cmd.member)
+                    {
+                    case CameraMember::View:       name = CAM_VIEW_MATRIX_NAME; break;
+                    case CameraMember::Projection: name = CAM_PROJ_MATRIX_NAME; break;
+                    default: LOG_WARN_RENDERING( "VkRenderer: Command [SET_CAMERA_MATRIX]: Unsupported Camera Matrix." );
+                    }
+                    m_cameraBuffer->update( name, &cmd.matrix );
+                    m_cameraBuffer->flush();
                     break;
                 }
                 default:
@@ -459,25 +464,6 @@ namespace Graphics {
         if ( not m_cameraBuffer->update( CAM_PROJ_MATRIX_NAME, &camera->getProjectionMatrix() ) )
             LOG_ERROR_RENDERING( "Vulkan: Could not update the camera buffer [Projection]. Fix this!" );
         m_cameraBuffer->flush();
-
-        //struct CameraUBO
-        //{
-        //    DirectX::XMMATRIX view;
-        //    DirectX::XMMATRIX proj;
-        //    DirectX::XMVECTOR pos;
-        //    float zNear;
-        //    float zFar;
-        //} ubo;
-
-        //ubo.view = camera->getViewMatrix();
-        //ubo.proj = camera->getProjectionMatrix();
-        //auto modelMatrix = camera->getModelMatrix();
-        //auto translation = modelMatrix.r[3];
-        //ubo.pos = translation;
-        //ubo.zNear = camera->getZNear();
-        //ubo.zFar = camera->getZFar();
-
-        //m_cameraBuffer->update( &ubo, (U32)sizeof(CameraUBO) );
     }
 
     //----------------------------------------------------------------------

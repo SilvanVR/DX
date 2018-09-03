@@ -173,11 +173,11 @@ namespace Graphics {
     //**********************************************************************
     struct GPUC_SetCameraMatrix : public GPUCommandBase
     {
-        GPUC_SetCameraMatrix(StringID name, const DirectX::XMMATRIX& matrix)
+        GPUC_SetCameraMatrix(CameraMember name, const DirectX::XMMATRIX& matrix)
             : GPUCommandBase( GPUCommand::SET_CAMERA_MATRIX ),
-            name( name ), matrix( matrix ) {}
+            member( name ), matrix( matrix ) {}
 
-        StringID name;
+        CameraMember member;
         DirectX::XMMATRIX matrix;
     };
 
