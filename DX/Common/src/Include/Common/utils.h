@@ -8,6 +8,8 @@
     Some utility functions, which dont belong to anywhere else.
 **********************************************************************/
 
+#include "data_types.hpp"
+
 namespace Utils
 {
 
@@ -29,5 +31,11 @@ namespace Utils
     //**********************************************************************
     String memoryAddressToString(void* address);
 
+
+    //**********************************************************************
+    // @Return:
+    //  Size in bytes for the corresponding type. 0 if not valid for the given type.
+    //**********************************************************************
+    Size GetSizeInBytesOfType(DataType dataType);
 
 }

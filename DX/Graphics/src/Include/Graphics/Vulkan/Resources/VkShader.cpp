@@ -8,6 +8,7 @@
 
 #include "../Pipeline/VkShaderModule.h"
 #include "../VkUtility.h"
+#include "Common/utils.h"
 
 // Input ending with this are treated as instance attributes
 #define SEMANTIC_INSTANCED "_INSTANCE"
@@ -223,13 +224,50 @@ namespace Graphics { namespace Vulkan {
     }
 
     //----------------------------------------------------------------------
+    DataType TranslateVezDataType( const VezBaseType vezBaseType, U32 vecSize )
+    {
+        switch (vecSize)
+        {
+        case 1:
+            switch (vezBaseType)
+            {
+            case VEZ_BASE_TYPE_BOOL:    return DataType::Boolean;
+            case VEZ_BASE_TYPE_CHAR:    return DataType::Char;
+            case VEZ_BASE_TYPE_INT:     return DataType::Int;
+            case VEZ_BASE_TYPE_UINT:    return DataType::UInt;
+            case VEZ_BASE_TYPE_UINT64:  return DataType::UInt64;
+            case VEZ_BASE_TYPE_HALF:    return DataType::Half;
+            case VEZ_BASE_TYPE_FLOAT:   return DataType::Float;
+            case VEZ_BASE_TYPE_DOUBLE:  return DataType::Double;
+            case VEZ_BASE_TYPE_STRUCT:  return DataType::Struct;
+            }
+        case 2:
+            switch (vezBaseType)
+            {
+            case VEZ_BASE_TYPE_FLOAT:   return DataType::Vec2;
+            }
+        case 3:
+            switch (vezBaseType)
+            {
+            case VEZ_BASE_TYPE_FLOAT:   return DataType::Vec3;
+            }
+        case 4:
+            switch (vezBaseType)
+            {
+            case VEZ_BASE_TYPE_FLOAT:   return DataType::Vec4;
+            }
+        }
+        return DataType::Unknown;
+    }
+
+    //----------------------------------------------------------------------
     // @Return: VkFormat and sizeInBytes for the corresponding resource.
     //----------------------------------------------------------------------
     std::pair<VkFormat, U32> GetTypeInfo( const VezPipelineResource& resource )
     {
         switch (resource.baseType)
         {
-        case VEZ_PIPELINE_RESOURCE_BASE_TYPE_INT:
+        case VEZ_BASE_TYPE_INT:
         {
             switch (resource.vecSize)
             {
@@ -239,7 +277,7 @@ namespace Graphics { namespace Vulkan {
             case 4: return { VK_FORMAT_R32G32B32A32_SINT, 16 };
             }
         }
-        case VEZ_PIPELINE_RESOURCE_BASE_TYPE_UINT:
+        case VEZ_BASE_TYPE_UINT:
         {
             switch (resource.vecSize)
             {
@@ -249,7 +287,7 @@ namespace Graphics { namespace Vulkan {
             case 4: return { VK_FORMAT_R32G32B32A32_UINT, 16 };
             }
         }
-        case VEZ_PIPELINE_RESOURCE_BASE_TYPE_FLOAT:
+        case VEZ_BASE_TYPE_FLOAT:
         {
             switch (resource.vecSize)
             {
@@ -259,7 +297,7 @@ namespace Graphics { namespace Vulkan {
             case 4: return { VK_FORMAT_R32G32B32A32_SFLOAT, 16 };
             }
         }
-        case VEZ_PIPELINE_RESOURCE_BASE_TYPE_DOUBLE:
+        case VEZ_BASE_TYPE_DOUBLE:
         {
             switch (resource.vecSize)
             {
@@ -350,40 +388,17 @@ namespace Graphics { namespace Vulkan {
             {
             case VEZ_PIPELINE_RESOURCE_TYPE_UNIFORM_BUFFER:
             {
-                if (String(res.name) == "GLOBAL")
+                ShaderUniformBufferDeclaration ubo( shaderStages, SID(res.name), res.set, res.binding, res.size );
+                auto member = res.pMembers;
+                while (member)
                 {
-                    ShaderUniformBufferDeclaration ubo( shaderStages, SID(res.name), res.set, res.binding, res.size );
-                    ubo._AddUniformDecl({ SID("_Time"), 0, sizeof(F32), DataType::Float });
-                    ubo._AddUniformDecl({ SID("_Ambient"), 4, sizeof(F32), DataType::Float });
-                    m_uniformBuffers.push_back( ubo );
+                    DataType dataType = TranslateVezDataType( member->baseType, member->vecSize );
+                    if (member->size == 64)
+                        dataType = DataType::Matrix; // Small hack for now
+                    ubo._AddUniformDecl({ SID( member->name ), member->offset, member->size, dataType, member->arraySize });
+                    member = member->pNext;
                 }
-                else if (String(res.name) == "CAMERA")
-                {
-                    ShaderUniformBufferDeclaration ubo(shaderStages, SID(res.name), res.set, res.binding, 152);
-                    U32 offset = 0;
-                    ubo._AddUniformDecl({ SID("view"), offset, sizeof(DirectX::XMMATRIX), DataType::Matrix });
-                    offset += sizeof(DirectX::XMMATRIX);
-                    ubo._AddUniformDecl({ SID("proj"), offset, sizeof(DirectX::XMMATRIX), DataType::Matrix });
-                    offset += sizeof(DirectX::XMMATRIX);
-                    ubo._AddUniformDecl({ SID("pos"), offset, sizeof(Math::Vec4), DataType::Vec4 });
-                    offset += sizeof(Math::Vec4);
-                    ubo._AddUniformDecl({ SID("zNear"), offset, sizeof(F32), DataType::Float });
-                    offset += sizeof(F32);
-                    ubo._AddUniformDecl({ SID("zFar"), offset, sizeof(F32), DataType::Float });
-                    m_uniformBuffers.push_back( ubo );
-                }
-                else if (String(res.name) == "LIGHTS")
-                {
-                    ShaderUniformBufferDeclaration ubo(shaderStages, SID(res.name), res.set, res.binding, res.size);
-                    U32 offset = 0;
-                    m_uniformBuffers.push_back( ubo );
-                }
-                else
-                {
-                    ShaderUniformBufferDeclaration ubo( shaderStages, SID(res.name), res.set, res.binding, res.size );
-                    // @TODO: Parse members
-                    m_uniformBuffers.push_back( ubo );
-                }
+                m_uniformBuffers.push_back( ubo );
                 break;
             }
             case VEZ_PIPELINE_RESOURCE_TYPE_SAMPLED_IMAGE:

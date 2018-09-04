@@ -67,16 +67,16 @@ namespace Graphics { namespace Vulkan {
         static const I32 NUM_FRAME_DATA = 2;
         struct FrameData
         {
-            VkFence             fence = VK_NULL_HANDLE; // Signaled when cmd has finished execution
-            VkSemaphore         semRenderingFinished = VK_NULL_HANDLE;
-            VezCommandBuffer    cmd = VK_NULL_HANDLE;
+            VkFence         fence = VK_NULL_HANDLE; // Signaled when cmd has finished execution
+            VkSemaphore     semRenderingFinished = VK_NULL_HANDLE;
+            VkCommandBuffer cmd = VK_NULL_HANDLE;
         };
         std::array<FrameData, NUM_FRAME_DATA> m_frameData;
         U32 m_frameDataIndex = 0;
 
     public:
         //----------------------------------------------------------------------
-        VezCommandBuffer&   curDrawCmd() { return m_frameData[m_frameDataIndex].cmd; }
+        VkCommandBuffer&    curDrawCmd() { return m_frameData[m_frameDataIndex].cmd; }
         FrameData&          curFrameData() { return m_frameData[m_frameDataIndex]; }
 
         //----------------------------------------------------------------------

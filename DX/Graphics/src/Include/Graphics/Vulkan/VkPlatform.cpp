@@ -348,7 +348,7 @@ namespace Graphics { namespace Vulkan {
         if (m_insideRenderPass)
             EndRenderPass();
 
-        VALIDATE( vezEndCommandBuffer( curFrameData().cmd ) );
+        VALIDATE( vezEndCommandBuffer() );
 
         VezSubmitInfo submitInfo = {};
         submitInfo.signalSemaphoreCount = 1;
@@ -365,7 +365,7 @@ namespace Graphics { namespace Vulkan {
     //----------------------------------------------------------------------
     void Context::IASetInputLayout( const VezVertexInputFormat& inputLayout )
     {
-        vezCmdSetVertexInputFormat( curDrawCmd(), inputLayout );
+        vezCmdSetVertexInputFormat( inputLayout );
     }
 
     //----------------------------------------------------------------------
@@ -373,25 +373,25 @@ namespace Graphics { namespace Vulkan {
     {
         VezInputAssemblyState stateInfo{};
         stateInfo.topology = topology;
-        vezCmdSetInputAssemblyState( curDrawCmd(), &stateInfo );
+        vezCmdSetInputAssemblyState( &stateInfo );
     }
 
     //----------------------------------------------------------------------
     void Context::IASetVertexBuffers( U32 firstBinding, U32 bindingCount, const VkBuffer* pBuffers, const VkDeviceSize* pOffsets )
     {
-        vezCmdBindVertexBuffers( curDrawCmd(), firstBinding, bindingCount, pBuffers, pOffsets );
+        vezCmdBindVertexBuffers( firstBinding, bindingCount, pBuffers, pOffsets );
     }
 
     //----------------------------------------------------------------------
     void Context::IASetIndexBuffer( VkBuffer buffer, VkDeviceSize offset, VkIndexType indexType )
     {
-        vezCmdBindIndexBuffer( curDrawCmd(), buffer, offset, indexType );
+        vezCmdBindIndexBuffer( buffer, offset, indexType );
     }
 
     //----------------------------------------------------------------------
     void Context::BindPipeline( VezPipeline pipeline )
     {
-        vezCmdBindPipeline( curDrawCmd(), pipeline );
+        vezCmdBindPipeline( pipeline );
     }
 
     //----------------------------------------------------------------------
@@ -407,7 +407,7 @@ namespace Graphics { namespace Vulkan {
         stateInfo.rasterizationSamples  = fbo.samples;
         stateInfo.sampleShadingEnable   = VK_FALSE;
         stateInfo.minSampleShading      = 1.0f;
-        vezCmdSetMultisampleState( curDrawCmd(), &stateInfo );
+        vezCmdSetMultisampleState( &stateInfo );
 
         // Begin a new render pass
         auto& attachmentReferences = fbo.getAttachmentReferences();
@@ -415,7 +415,7 @@ namespace Graphics { namespace Vulkan {
         beginInfo.framebuffer       = fbo.framebuffer;
         beginInfo.attachmentCount   = static_cast<uint32_t>( attachmentReferences.size() );
         beginInfo.pAttachments      = attachmentReferences.data();
-        vezCmdBeginRenderPass( curDrawCmd(), &beginInfo );
+        vezCmdBeginRenderPass( &beginInfo );
         m_insideRenderPass = true;
     }
 
@@ -425,32 +425,32 @@ namespace Graphics { namespace Vulkan {
         VezColorBlendState blendState{};
         blendState.attachmentCount = 1;
         blendState.pAttachments = &blendAttachmentState;
-        vezCmdSetColorBlendState( curDrawCmd(), &blendState );
+        vezCmdSetColorBlendState( &blendState );
     }
 
     //----------------------------------------------------------------------
     void Context::OMSetDepthStencilState( const VezDepthStencilState& dsState )
     {
-        vezCmdSetDepthStencilState( curDrawCmd(), &dsState );
+        vezCmdSetDepthStencilState( &dsState );
     }
 
     //----------------------------------------------------------------------
     void Context::RSSetViewports( VkViewport viewport )
     {
-        vezCmdSetViewport( curDrawCmd(), 0, 1, &viewport );
-        vezCmdSetViewportState( curDrawCmd(), 1 );
+        vezCmdSetViewport( 0, 1, &viewport );
+        vezCmdSetViewportState( 1 );
     }
 
     //----------------------------------------------------------------------
     void Context::RSSetScissor( VkRect2D scissor )
     {
-        vezCmdSetScissor( curDrawCmd(), 0, 1, &scissor );
+        vezCmdSetScissor( 0, 1, &scissor );
     }
 
     //----------------------------------------------------------------------
     void Context::RSSetState( const VezRasterizationState& rzState )
     {
-        vezCmdSetRasterizationState( curDrawCmd(), &rzState );
+        vezCmdSetRasterizationState( &rzState );
     }
 
     //----------------------------------------------------------------------
@@ -462,44 +462,44 @@ namespace Graphics { namespace Vulkan {
         region.extent.width  = extent.width;
         region.extent.height = extent.height;
         region.extent.depth  = 1;
-        vezCmdResolveImage( curDrawCmd(), src, dst, 1, &region );
+        vezCmdResolveImage( src, dst, 1, &region );
     }
 
     //----------------------------------------------------------------------
     void Context::Draw( U32 vertexCount, U32 instanceCount, U32 firstVertex, U32 firstInstance )
     {
-        vezCmdDraw( curDrawCmd(), vertexCount, instanceCount, firstVertex, firstInstance );
+        vezCmdDraw( vertexCount, instanceCount, firstVertex, firstInstance );
     }
 
     //----------------------------------------------------------------------
     void Context::DrawIndexed (U32 indexCount, U32 instanceCount, U32 firstVertex, U32 vertexOffset, U32 firstInstance )
     {
-        vezCmdDrawIndexed( curDrawCmd(), indexCount, instanceCount, firstVertex, vertexOffset, firstInstance );
+        vezCmdDrawIndexed( indexCount, instanceCount, firstVertex, vertexOffset, firstInstance );
     }
 
     //----------------------------------------------------------------------
     void Context::PushConstants( U32 offset, U32 size, const void* pValues )
     {
-        vezCmdPushConstants( curDrawCmd(), offset, size, pValues );
+        vezCmdPushConstants( offset, size, pValues );
     }
 
     //----------------------------------------------------------------------
     void Context::EndRenderPass()
     {
-        vezCmdEndRenderPass( curDrawCmd() );
+        vezCmdEndRenderPass();
         m_insideRenderPass = false;
     }
 
     //----------------------------------------------------------------------
     void Context::SetBuffer( VkBuffer buffer, U32 set, U32 binding )
     {
-        vezCmdBindBuffer( curDrawCmd(), buffer, 0, VK_WHOLE_SIZE, set, binding, 0 );
+        vezCmdBindBuffer( buffer, 0, VK_WHOLE_SIZE, set, binding, 0 );
     }
 
     //----------------------------------------------------------------------
     void Context::SetImage( VkImageView imageView, VkSampler sampler, U32 set, U32 binding )
     {
-        vezCmdBindImageView( curDrawCmd(), imageView, sampler, set, binding, 0 );
+        vezCmdBindImageView( imageView, sampler, set, binding, 0 );
     }
 
     //----------------------------------------------------------------------
@@ -529,7 +529,7 @@ namespace Graphics { namespace Vulkan {
                 blitInfo.dstOffsets[1].x                = I32(width  >> (mip + 1));
                 blitInfo.dstOffsets[1].y                = I32(height >> (mip + 1));
                 blitInfo.dstOffsets[1].z                = 1;
-                vezCmdBlitImage( curDrawCmd(), img, img, 1, &blitInfo, filter );
+                vezCmdBlitImage( img, img, 1, &blitInfo, filter );
             }
         }
     }
@@ -537,7 +537,7 @@ namespace Graphics { namespace Vulkan {
     //----------------------------------------------------------------------
     void Context::CopyImage( VkImage src, VkImage dst, U32 regionCount, const VezImageCopy* pRegions )
     {
-        vezCmdCopyImage( curDrawCmd(), src, dst, regionCount, pRegions );
+        vezCmdCopyImage( src, dst, regionCount, pRegions );
     }
 
     //**********************************************************************

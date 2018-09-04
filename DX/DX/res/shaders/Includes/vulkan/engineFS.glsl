@@ -12,8 +12,8 @@
 // Per frame global ubo
 layout (set = 0, binding = 0) uniform GLOBAL
 {
-	float time;
-	float ambient;
+	float _Time;
+	float _Ambient;
 } _Global;
 
 // Per camera ubo

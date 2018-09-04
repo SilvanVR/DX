@@ -47,6 +47,26 @@ namespace Utils
         return "0x" + stream.str();
     }
 
-
+    //----------------------------------------------------------------------
+    Size GetSizeInBytesOfType( DataType dataType )
+    {
+        switch (dataType)
+        {
+        case DataType::Boolean:   return 1;
+        case DataType::Char:      return 1;
+        case DataType::Half:      return 2;
+        case DataType::Float:     return 4;
+        case DataType::Int:       return 4;
+        case DataType::UInt:      return 4;
+        case DataType::UInt64:    return 8;
+        case DataType::Double:    return 8;
+        case DataType::Vec2:      return 8;
+        case DataType::Vec3:      return 12;
+        case DataType::Vec4:      return 16;
+        case DataType::Matrix:    return 64;
+        case DataType::Color:     return 1;
+        }
+        return 0;
+    }
 
 }
