@@ -872,6 +872,9 @@ namespace Graphics {
 
             _DrawMesh( m_cubeMesh, material, DirectX::XMMatrixIdentity(), 0 );
             _CopyTexture( colorBuffer, 0, 0, cubemap, face, dstMip );
+
+            // Unfortunately on my laptop if i dont flush here the driver crashes sometimes... 
+            g_pImmediateContext->Flush();
         }
     }
 
