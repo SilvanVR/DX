@@ -57,3 +57,40 @@ float4 main(FragmentIn fin) : SV_Target
 	float4 textureColor = Cubemap.Sample(sampler0, normalize(fin.tex));	
 	return textureColor;
 }
+
+//----------------------------------------------
+// Vulkan
+//----------------------------------------------
+#vulkan
+#shader vertex
+
+#include "/engine/shaders/includes/vulkan/engineVS.glsl"
+
+layout (location = 0) in vec3 VERTEX_POSITION;
+
+layout (location = 0) out vec3 outUVW;
+
+void main()
+{
+    outUVW = VERTEX_POSITION;
+	gl_Position = TO_CLIP_SPACE( VERTEX_POSITION );
+}
+ 
+// ----------------------------------------------
+#shader fragment
+
+#include "/engine/shaders/includes/vulkan/engineFS.glsl"
+
+// In data
+layout (location = 0) in vec3 inUVW;
+
+// Out data
+layout (location = 0) out vec4 outColor; 
+
+// Descriptor-Sets
+layout (set = 1, binding = 0) uniform samplerCube Cubemap;
+ 
+void main()
+{
+	outColor = texture(Cubemap, normalize(inUVW));
+}

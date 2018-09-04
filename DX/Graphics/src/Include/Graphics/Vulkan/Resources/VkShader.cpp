@@ -179,6 +179,9 @@ namespace Graphics { namespace Vulkan {
     //----------------------------------------------------------------------
     void Shader::_CreatePipeline()
     {
+        m_uniformBuffers.clear();
+        m_shaderResources.clear();
+
         // Destroy old pipeline if any
         vezDestroyPipeline( g_vulkan.device, m_pipeline );
 

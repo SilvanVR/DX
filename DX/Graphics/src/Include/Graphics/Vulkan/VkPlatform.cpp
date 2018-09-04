@@ -260,7 +260,7 @@ namespace Graphics { namespace Vulkan {
         for (I32 i = 0; i < m_attachmentRefs.size(); i++)
         {
             m_attachmentRefs[i].clearValue = {};
-            m_attachmentRefs[i].loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+            m_attachmentRefs[i].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
             m_attachmentRefs[i].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
         }
 

@@ -73,7 +73,6 @@ namespace Graphics { namespace Vulkan {
             subDataInfo.imageSubresource.baseArrayLayer = face;
             subDataInfo.imageSubresource.layerCount     = 1;
             subDataInfo.imageExtent                     = { m_width, m_height, 1 };
-            subDataInfo.dataRowLength                   = rowPitch;
             vezImageSubData( g_vulkan.device, m_image.img, &subDataInfo, m_facePixels[(I32)face].data() );
 
             // Free mem in RAM if desired

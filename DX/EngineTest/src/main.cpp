@@ -42,8 +42,8 @@ public:
 
         createGameObject("Grid")->addComponent<GridGeneration>(20);
 
-        //auto cube = Core::MeshGenerator::CreateCube(1.0f, Color::BLUE);
-        //createGameObject("Cube")->addComponent<Components::MeshRenderer>(cube, ASSETS.getColorMaterial());
+        auto cube = Core::MeshGenerator::CreateCubeUV(1.0f);
+        createGameObject("Cube")->addComponent<Components::MeshRenderer>(cube, ASSETS.getMaterial("/materials/texture.material"));
 
         LOG("TestScene initialized!", Color::RED);
     }
@@ -133,7 +133,7 @@ public:
         Locator::getRenderer().setGlobalFloat(SID("_Ambient"), 0.5f);
 
         //Locator::getSceneManager().LoadSceneAsync(new SceneGUISelectSceneMenu());
-        Locator::getSceneManager().LoadSceneAsync(new TestScene());
+        Locator::getSceneManager().LoadSceneAsync(new CubemapScene());
     }
 
     //----------------------------------------------------------------------
