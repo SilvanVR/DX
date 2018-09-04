@@ -129,13 +129,15 @@ namespace Graphics { namespace Vulkan {
         imageCreateInfo.samples     = VK_SAMPLE_COUNT_1_BIT;
         imageCreateInfo.tiling      = VK_IMAGE_TILING_OPTIMAL;
         imageCreateInfo.usage       = isDepthBuffer ? VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT : VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+        imageCreateInfo.usage |= VK_IMAGE_USAGE_SAMPLED_BIT;
         VALIDATE( vezCreateImage( g_vulkan.device, VEZ_MEMORY_GPU_ONLY, &imageCreateInfo, &m_framebuffer.img ) );
 
         VezImageViewCreateInfo viewCreateInfo{};
-        viewCreateInfo.image    = m_framebuffer.img;
-        viewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-        viewCreateInfo.format   = imageCreateInfo.format;
-        viewCreateInfo.subresourceRange = { 0, 1, 0, 1 };
+        viewCreateInfo.image                        = m_framebuffer.img;
+        viewCreateInfo.viewType                     = VK_IMAGE_VIEW_TYPE_2D;
+        viewCreateInfo.format                       = imageCreateInfo.format;
+        viewCreateInfo.subresourceRange.layerCount  = VK_REMAINING_ARRAY_LAYERS;
+        viewCreateInfo.subresourceRange.levelCount  = VK_REMAINING_MIP_LEVELS;
         VALIDATE( vezCreateImageView( g_vulkan.device, &viewCreateInfo, &m_framebuffer.view ) );
 
         m_framebuffer.fbo.create( m_width, m_height, 1, &m_framebuffer.view, VK_SAMPLE_COUNT_1_BIT );

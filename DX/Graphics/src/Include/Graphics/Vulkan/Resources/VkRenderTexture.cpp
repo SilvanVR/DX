@@ -86,7 +86,8 @@ namespace Graphics { namespace Vulkan {
         for (auto& fbo : m_fbos)
         {
             fbo.setClearColor( 0, color );
-            fbo.setClearDepthStencil( 1, depth, stencil );
+            if ( hasDepthBuffer() )
+                fbo.setClearDepthStencil( 1, depth, stencil );
         }
     }
 

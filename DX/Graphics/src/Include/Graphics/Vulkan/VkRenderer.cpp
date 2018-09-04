@@ -830,15 +830,15 @@ namespace Graphics {
     {
         auto currRT = renderContext.getRenderTarget();
         if (currRT == SCREEN_BUFFER && dst == SCREEN_BUFFER)
-            LOG_WARN_RENDERING("D3D11[Blit]: Target texture was previously screen, so the content will probably be overriden. This can"
-                " occur if two blits in succession with both target = nullptr (to screen) were recorded.");
+            LOG_WARN_RENDERING( "VkRenderer[Blit]: Target texture was previously screen, so the content will probably be overriden. This can "
+                                "occur if two blits in succession with both target = nullptr (to screen) were recorded." );
 
         // Use the src texture as the input IF not null. Otherwise use the current bound render target.
         auto input = src.get() ? src.get() : currRT;
         if (input == SCREEN_BUFFER)
         {
-            LOG_WARN_RENDERING("D3D11[Blit]: Previous render target was screen, which can't be used as input! This happens when a blit-command "
-                "with src=nullptr (to screen) was recorded but a previous blit had dst=nullptr (to screen)");
+            LOG_WARN_RENDERING( "VkRenderer[Blit]: Previous render target was screen, which can't be used as input! This happens when a blit-command "
+                                "with src=nullptr (to screen) was recorded but a previous blit had dst=nullptr (to screen)" );
             return;
         }
 
@@ -848,7 +848,7 @@ namespace Graphics {
         // Set texture in material
         material->setTexture( POST_PROCESS_INPUT_NAME, input->getColorBuffer() );
 
-        ViewportRect vp{};
+        ViewportRect vp;
         if (dst == SCREEN_BUFFER) // Blit to Screen and/or HMD depending on camera setting
         {
             auto curCamera = renderContext.getCamera();
