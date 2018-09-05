@@ -90,13 +90,13 @@ layout (location = 1) in vec2 inUV;
 layout (location = 0) out vec4 outColor;
 
 // Descriptor-Sets
-layout (set = 1, binding = 0) uniform sampler2D _MainTex;
-layout (set = 1, binding = 1) uniform UBOPerMaterial
+layout (set = SET_FIRST, binding = 0) uniform sampler2D tex;
+layout (set = SET_FIRST, binding = 1) uniform UBOPerMaterial
 {
 	float opacity;
 } ubo;
 
 void main()
 {
-	outColor = texture(_MainTex, inUV) * ubo.opacity;
+	outColor = texture(tex, inUV) * ubo.opacity;
 }

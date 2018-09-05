@@ -133,7 +133,7 @@ public:
         Locator::getRenderer().setGlobalFloat(SID("_Ambient"), 0.5f);
 
         //Locator::getSceneManager().LoadSceneAsync(new SceneGUISelectSceneMenu());
-        Locator::getSceneManager().LoadSceneAsync(new TexArrayScene());
+        Locator::getSceneManager().LoadSceneAsync(new TestScene());
     }
 
     //----------------------------------------------------------------------
@@ -143,7 +143,7 @@ public:
             _OpenMenu();
 
         if (KEYBOARD.wasKeyPressed(Key::Zero))
-            Locator::getSceneManager().LoadSceneAsync(new TestScene());
+            Locator::getSceneManager().LoadScene(new TestScene());
 
         // VR
         {
@@ -198,7 +198,7 @@ private:
     //----------------------------------------------------------------------
     void _OpenMenu() const
     {
-        Locator::getSceneManager().LoadSceneAsync(new SceneGUISelectSceneMenu);
+        Locator::getSceneManager().LoadScene(new SceneGUISelectSceneMenu);
     }
 };
 
