@@ -4,6 +4,7 @@
 
 #define MAX_LIGHTS 					16
 #define ALPHA_THRESHOLD 			0.1
+#define SET_FIRST                   1
 
 //----------------------------------------------------------------------
 // Descriptor-Sets

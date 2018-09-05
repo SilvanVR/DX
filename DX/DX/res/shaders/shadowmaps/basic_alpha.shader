@@ -87,7 +87,7 @@ void main()
 layout (location = 0) in vec2 inUV;
 
 // Descriptor-Sets
-layout (set = 0, binding = 0) uniform sampler2D Albedo_S;
+layout (set = SET_FIRST, binding = 0) uniform sampler2D Albedo_S;
 
 void main()
 {

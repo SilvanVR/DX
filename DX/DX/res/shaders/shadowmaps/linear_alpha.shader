@@ -98,7 +98,7 @@ layout (location = 0) in vec2 inUV;
 layout (location = 1) in vec3 inWorldPos;
 
 // Descriptor-Sets
-layout (set = 0, binding = 0) uniform sampler2D Albedo_S;
+layout (set = SET_FIRST, binding = 0) uniform sampler2D Albedo_S;
 
 void main()
 {

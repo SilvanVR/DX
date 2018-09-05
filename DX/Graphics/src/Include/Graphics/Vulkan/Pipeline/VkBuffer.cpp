@@ -23,7 +23,6 @@ namespace Graphics { namespace Vulkan {
         VezMemoryFlagsBits memType = VEZ_MEMORY_GPU_ONLY;
 
         VezBufferCreateInfo bufferCreateInfo = {};
-        bufferCreateInfo.usage = vkUsageFlags;
         switch (usage)
         {
         case BufferUsage::Immutable:
@@ -35,6 +34,7 @@ namespace Graphics { namespace Vulkan {
         }
 
         bufferCreateInfo.size = sizeInBytes;
+        bufferCreateInfo.usage = vkUsageFlags;
         VALIDATE( vezCreateBuffer( g_vulkan.device, memType, &bufferCreateInfo, &buffer ) );
 
         // Upload the data to gpu
