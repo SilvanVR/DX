@@ -13,6 +13,7 @@ namespace Graphics { namespace Vulkan {
     //----------------------------------------------------------------------
     IBindableTexture::~IBindableTexture()
     {
+        vezDeviceWaitIdle( g_vulkan.device );
         vezDestroyImage( g_vulkan.device, m_image.img );
         vezDestroyImageView( g_vulkan.device, m_image.view );
         _DestroySampler();

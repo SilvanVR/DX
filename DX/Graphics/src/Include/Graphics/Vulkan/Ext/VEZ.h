@@ -193,6 +193,7 @@ typedef struct VezMemberInfo
     uint32_t offset;
     uint32_t size;
     uint32_t vecSize;
+    uint32_t columns;
     uint32_t arraySize;
     char name[VK_MAX_DESCRIPTION_SIZE];
     const VezMemberInfo* pNext;
@@ -210,9 +211,10 @@ typedef struct VezPipelineResource
     uint32_t location;
     uint32_t inputAttachmentIndex;
     uint32_t vecSize;
+    uint32_t columns;
     uint32_t arraySize;
     uint32_t offset;
-    uint32_t size;    
+    uint32_t size;
     char name[VK_MAX_DESCRIPTION_SIZE];
     const VezMemberInfo* pMembers;
 } VezPipelineResource;
@@ -273,6 +275,7 @@ typedef struct VezBufferViewCreateInfo
 typedef struct VezImageCreateInfo
 {
     const void* pNext;
+    VkImageCreateFlags flags;
     VkImageType imageType;
     VkFormat format;
     VkExtent3D extent;

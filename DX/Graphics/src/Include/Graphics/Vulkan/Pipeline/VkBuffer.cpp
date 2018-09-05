@@ -70,6 +70,7 @@ namespace Graphics { namespace Vulkan {
     {
         if (buffer)
         {
+            vezDeviceWaitIdle( g_vulkan.device );
             vezDestroyBuffer( g_vulkan.device, buffer );
             buffer = VK_NULL_HANDLE;
             size = 0;

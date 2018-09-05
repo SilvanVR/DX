@@ -45,6 +45,7 @@ namespace Graphics { namespace Vulkan {
     //----------------------------------------------------------------------
     void Swapchain::shutdown( VkInstance instance, VkDevice device )
     {
+        vezDeviceWaitIdle( g_vulkan.device );
         _DestroySwapchainFBO();
         vezDestroySwapchain( device, m_swapchain );
         vkDestroySurfaceKHR( instance, m_surface, ALLOCATOR );

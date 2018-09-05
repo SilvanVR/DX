@@ -17,6 +17,7 @@ namespace Graphics { namespace Vulkan {
     //----------------------------------------------------------------------
     ShaderModule::~ShaderModule()
     {
+        vezDeviceWaitIdle( g_vulkan.device );
         vezDestroyShaderModule( g_vulkan.device, m_shaderModule );
     }
 

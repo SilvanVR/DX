@@ -88,7 +88,7 @@ layout (location = 0) in vec3 inUVW;
 layout (location = 0) out vec4 outColor; 
 
 // Descriptor-Sets
-layout (set = 1, binding = 0) uniform samplerCube Cubemap;
+layout (set = SET_FIRST, binding = 0) uniform samplerCube Cubemap;
  
 void main()
 {

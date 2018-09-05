@@ -45,6 +45,7 @@ namespace Graphics { namespace Vulkan {
         imageCreateInfo.samples     = VK_SAMPLE_COUNT_1_BIT;
         imageCreateInfo.tiling      = VK_IMAGE_TILING_OPTIMAL;
         imageCreateInfo.usage       = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
+        imageCreateInfo.flags       = VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT;
         if (m_mipCount > 1)
             imageCreateInfo.usage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
         VALIDATE( vezCreateImage( g_vulkan.device, VEZ_MEMORY_GPU_ONLY, &imageCreateInfo, &m_image.img ) );

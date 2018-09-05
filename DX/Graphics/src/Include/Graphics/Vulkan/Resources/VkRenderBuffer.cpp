@@ -156,6 +156,7 @@ namespace Graphics { namespace Vulkan {
     //----------------------------------------------------------------------
     void RenderBuffer::_DestroyFramebuffer( bool isDepthBuffer )
     {
+        vezDeviceWaitIdle( g_vulkan.device );
         vezDestroyImage( g_vulkan.device, m_framebuffer.img );
         vezDestroyImageView( g_vulkan.device, m_framebuffer.view );
         m_framebuffer.fbo.destroy();

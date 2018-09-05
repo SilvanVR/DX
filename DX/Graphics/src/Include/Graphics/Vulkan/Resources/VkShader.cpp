@@ -25,6 +25,7 @@ namespace Graphics { namespace Vulkan {
     //----------------------------------------------------------------------
     Shader::~Shader()
     {
+        vezDeviceWaitIdle( g_vulkan.device );
         vezDestroyPipeline( g_vulkan.device, m_pipeline );
         vezDestroyVertexInputFormat( g_vulkan.device, m_vertexInputFormat );
     }
@@ -183,6 +184,7 @@ namespace Graphics { namespace Vulkan {
         m_shaderResources.clear();
 
         // Destroy old pipeline if any
+        vezDeviceWaitIdle( g_vulkan.device );
         vezDestroyPipeline( g_vulkan.device, m_pipeline );
 
         // Add shader modules

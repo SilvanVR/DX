@@ -22,6 +22,21 @@ namespace Graphics { namespace Vulkan {
 
         msg += pCallbackData->pMessage;
 
+
+        // There is a bug in vezCreateSwapchain which throws this error.
+        static I32 count = 6;
+        if (msg.find("[Validation] Invalid usage flag") != String::npos && count--)
+            return VK_FALSE;
+
+        static I32 count2 = 6;
+        if (msg.find("[Validation] vkCreateFramebuffer") != String::npos && count2--)
+            return VK_FALSE;
+
+        if (msg.find("[Validation] vkCmdPipelineBarrier()") != String::npos)
+            return VK_FALSE;
+        if (msg.find("[Validation] vkCmdResolveImage()") != String::npos)
+            return VK_FALSE;
+
         // There is a bug in ovr_CreateTextureSwapChainVk which throws this error.
         //if (msg.find("[Validation] vkCreateImage: The combination of format") != String::npos)
         //    return VK_FALSE;
@@ -276,6 +291,7 @@ namespace Graphics { namespace Vulkan {
     //----------------------------------------------------------------------
     void Framebuffer::destroy()
     { 
+        vezDeviceWaitIdle( g_vulkan.device );
         vezDestroyFramebuffer( g_vulkan.device, framebuffer );
         framebuffer = VK_NULL_HANDLE;
         m_attachmentRefs.clear();
