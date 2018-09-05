@@ -48,7 +48,6 @@ namespace Graphics { namespace Vulkan {
         } m_image;
 
         //----------------------------------------------------------------------
-        void _RecreateSampler(U32 anisoLevel, TextureFilter filter, TextureAddressMode addressMode) { _DestroySampler(); _CreateSampler(anisoLevel, filter, addressMode); }
         void _CreateSampler(U32 anisoLevel, TextureFilter filter, TextureAddressMode addressMode);
         void _DestroySampler();
 

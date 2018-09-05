@@ -58,7 +58,7 @@ namespace Graphics { namespace Vulkan {
         //----------------------------------------------------------------------
         // ITexture Interface
         //----------------------------------------------------------------------
-        void _UpdateSampler() override { IBindableTexture::_RecreateSampler( m_anisoLevel, m_filter, m_clampMode ); }
+        void _UpdateSampler() override { IBindableTexture::_CreateSampler( m_anisoLevel, m_filter, m_clampMode ); }
 
         //----------------------------------------------------------------------
         // IBindableTexture Interface

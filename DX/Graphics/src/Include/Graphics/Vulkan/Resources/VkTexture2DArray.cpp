@@ -63,16 +63,13 @@ namespace Graphics { namespace Vulkan {
         ASSERT( not m_pixels.empty() );
 
         // Upload data to gpu
-        U32 rowPitch = ( getWidth() * ByteCountFromTextureFormat( m_format ) );
         for ( U32 slice = 0; slice < m_pixels.size(); slice++ )
         {
-            // Upload the host side data
             VezImageSubDataInfo subDataInfo = {};
             subDataInfo.imageSubresource.mipLevel       = 0;
             subDataInfo.imageSubresource.baseArrayLayer = slice;
             subDataInfo.imageSubresource.layerCount     = 1;
             subDataInfo.imageExtent                     = { m_width, m_height, 1 };
-            subDataInfo.dataRowLength                   = rowPitch;
             vezImageSubData( g_vulkan.device, m_image.img, &subDataInfo, m_pixels[slice].data() );
         }
 

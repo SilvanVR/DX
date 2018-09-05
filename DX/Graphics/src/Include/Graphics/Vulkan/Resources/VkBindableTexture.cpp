@@ -82,6 +82,7 @@ namespace Graphics { namespace Vulkan {
     void IBindableTexture::_DestroySampler()
     {
         vkDestroySampler( g_vulkan.device, m_sampler, ALLOCATOR );
+        m_sampler = VK_NULL_HANDLE;
     }
 
 } } // End namespaces
