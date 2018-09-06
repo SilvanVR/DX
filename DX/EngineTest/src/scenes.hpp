@@ -625,7 +625,7 @@ public:
     {
         // Camera
         auto go = createGameObject("Camera");
-        auto cam = go->addComponent<Components::Camera>();
+        auto cam = go->addComponent<Components::Camera>(45.0f, 0.1f, 1000.0f, Graphics::MSAASamples::One);
         cam->setClearColor(Color::BLUE);
         go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -10);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA);

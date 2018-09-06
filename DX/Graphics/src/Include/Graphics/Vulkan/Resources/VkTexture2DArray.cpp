@@ -18,9 +18,11 @@ namespace Graphics { namespace Vulkan {
         ITexture::_Init( TextureDimension::Tex2DArray, width, height, format );
 
         m_depth = depth;
-        setGenerateMips( generateMips );
         if (generateMips)
+        {
             _UpdateMipCount();
+            _GenerateMips();
+        }
 
         _CreateTextureArray();
         _CreateSampler( m_anisoLevel, m_filter, m_clampMode );

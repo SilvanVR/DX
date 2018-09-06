@@ -120,7 +120,7 @@ namespace Graphics { namespace Vulkan {
         imageCreateInfo.usage       = isDepthBuffer ? VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT : VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
         imageCreateInfo.usage |= VK_IMAGE_USAGE_SAMPLED_BIT;
         if (isMultisampled())
-            imageCreateInfo.usage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+            imageCreateInfo.usage |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;
         VALIDATE( vezCreateImage( g_vulkan.device, VEZ_MEMORY_GPU_ONLY, &imageCreateInfo, &m_framebuffer.img ) );
 
         VezImageViewCreateInfo viewCreateInfo{};
@@ -138,7 +138,7 @@ namespace Graphics { namespace Vulkan {
         {
             imageCreateInfo.samples = Utility::TranslateSampleCount( m_samplingDescription );
             imageCreateInfo.usage = isDepthBuffer ? VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT : VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-            imageCreateInfo.usage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+            imageCreateInfo.usage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
             VALIDATE( vezCreateImage( g_vulkan.device, VEZ_MEMORY_GPU_ONLY, &imageCreateInfo, &m_framebufferMS.img ) );
 
             viewCreateInfo.image = m_framebufferMS.img;

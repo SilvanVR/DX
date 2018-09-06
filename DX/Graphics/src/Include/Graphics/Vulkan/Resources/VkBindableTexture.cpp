@@ -32,12 +32,6 @@ namespace Graphics { namespace Vulkan {
             m_gpuUpToDate = true;
         }
 
-        if (m_generateMips)
-        {
-            _GenerateMips();
-            m_generateMips = false;
-        }
-
         g_vulkan.ctx.SetImage( m_image.view, m_sampler, res.getBindingSet(), res.getBindingSlot() );
     }
 
@@ -46,7 +40,8 @@ namespace Graphics { namespace Vulkan {
     {
         m_keepPixelsInRAM = keepPixelsInRAM;
         m_gpuUpToDate = false;
-        m_generateMips = updateMips;
+        if (updateMips)
+            _GenerateMips();
     }
 
     //**********************************************************************

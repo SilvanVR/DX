@@ -21,9 +21,11 @@ namespace Graphics { namespace Vulkan {
         ASSERT( size > 0 );
         ITexture::_Init( TextureDimension::Cube, size, size, format );
 
-        setGenerateMips( mips == Mips::Generate );
         if (mips == Mips::Generate || mips == Mips::Create)
+        {
             _UpdateMipCount();
+            _GenerateMips();
+        }
 
         _CreateTexture();
         _CreateSampler( m_anisoLevel, m_filter, m_clampMode );

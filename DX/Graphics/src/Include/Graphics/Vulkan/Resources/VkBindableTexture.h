@@ -27,8 +27,6 @@ namespace Graphics { namespace Vulkan {
         VkSampler   getSampler()        const { return m_sampler; }
         bool        keepPixelsInRAM()   const { return m_keepPixelsInRAM; }
 
-        void        setGenerateMips(bool generateMips) { m_generateMips = generateMips; }
-
         //----------------------------------------------------------------------
         // This functions binds this texture to the given set + binding.
         // Default implementation is provided, but can be overriden if desired.
@@ -54,7 +52,6 @@ namespace Graphics { namespace Vulkan {
     private:
         bool m_keepPixelsInRAM  = false;
         bool m_gpuUpToDate      = true;
-        bool m_generateMips     = true;
 
         VkSampler m_sampler = VK_NULL_HANDLE;
 

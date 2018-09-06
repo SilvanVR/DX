@@ -20,7 +20,7 @@ namespace Logging  {
     //**********************************************************************
     class ConsoleLogger : public ILogger
     {
-        static const U32 MSG_BUFFER_CAPACITY_BYTES = 2048;
+        static const U32 MSG_BUFFER_CAPACITY_BYTES = 8192;
 
     public:
         ConsoleLogger();

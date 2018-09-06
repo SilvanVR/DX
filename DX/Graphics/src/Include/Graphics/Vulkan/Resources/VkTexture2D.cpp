@@ -18,9 +18,11 @@ namespace Graphics { namespace Vulkan {
         ITexture::_Init( TextureDimension::Tex2D, width, height, format );
 
         m_isImmutable = false;
-        setGenerateMips( generateMips );
         if (generateMips)
+        {
             _UpdateMipCount();
+            _GenerateMips();
+        }
 
         _CreateTexture();
         _CreateSampler( m_anisoLevel, m_filter, m_clampMode );
@@ -32,7 +34,6 @@ namespace Graphics { namespace Vulkan {
         ASSERT( width > 0 && height > 0 && pData != nullptr && m_width == 0 && "Invalid params or texture were already created" );
         ITexture::_Init( TextureDimension::Tex2D, width, height, format );
 
-        setGenerateMips( false );
         m_isImmutable = true;
         _CreateTexture( pData );
         _CreateSampler( m_anisoLevel, m_filter, m_clampMode );

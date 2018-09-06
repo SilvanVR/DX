@@ -12,6 +12,7 @@
 #include "Ext/VEZ.h"
 #include "Logging/logging.h"
 #include <functional>
+#include <mutex>
 
 #define ALLOCATOR nullptr
 
@@ -65,8 +66,8 @@ namespace Graphics { namespace Vulkan {
         void setEndRenderPassCallback(const std::function<void()>& cb) { m_endRenderPassCallback = cb; }
 
     private:
-        ArrayList<VezAttachmentReference> m_attachmentRefs;
-        std::function<void()> m_endRenderPassCallback;
+        ArrayList<VezAttachmentReference>   m_attachmentRefs;
+        std::function<void()>               m_endRenderPassCallback;
     };
 
     //**********************************************************************
@@ -119,7 +120,11 @@ namespace Graphics { namespace Vulkan {
 
         void _ClearContext();
 
-        const Framebuffer*  m_curFramebuffer = nullptr;
+        const Framebuffer* m_curFramebuffer = nullptr;
+
+        // Stores functions for commands which must be executed outside of an render-pass and be thread-safe
+        std::mutex m_prePassFunctionLock;
+        ArrayList<std::function<void()>> m_prePassFunctions;
     } ;
 
     //----------------------------------------------------------------------

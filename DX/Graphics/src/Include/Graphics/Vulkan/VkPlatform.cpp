@@ -260,7 +260,7 @@ namespace Graphics { namespace Vulkan {
         for (I32 i = 0; i < m_attachmentRefs.size(); i++)
         {
             m_attachmentRefs[i].clearValue = {};
-            m_attachmentRefs[i].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+            m_attachmentRefs[i].loadOp  = VK_ATTACHMENT_LOAD_OP_LOAD;
             m_attachmentRefs[i].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
         }
 
@@ -341,6 +341,15 @@ namespace Graphics { namespace Vulkan {
 
         // Begin recording
         VALIDATE( vezBeginCommandBuffer( curFrameData().cmd, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT) );
+
+        // Execute pre-pass functions
+        std::unique_lock<std::mutex> lock( m_prePassFunctionLock );
+        if (not m_prePassFunctions.empty())
+        {
+            for (auto& func : m_prePassFunctions)
+                func();
+            m_prePassFunctions.clear();
+        }
     }
 
     //----------------------------------------------------------------------
@@ -513,27 +522,30 @@ namespace Graphics { namespace Vulkan {
     //----------------------------------------------------------------------
     void Context::GenerateMips( VkImage img, U32 width, U32 height, U32 mipLevels, U32 layers, VkFilter filter )
     {
-        for (U32 layer = 0; layer < layers; ++layer)
-        {
-            for (U32 mip = 0; mip < (mipLevels - 1); ++mip)
+        std::unique_lock<std::mutex> lock( m_prePassFunctionLock );
+        m_prePassFunctions.push_back([img, width, height, mipLevels, layers, filter] {
+            for (U32 layer = 0; layer < layers; ++layer)
             {
-                VezImageBlit blitInfo{};
-                blitInfo.srcSubresource.mipLevel        = mip;
-                blitInfo.srcSubresource.baseArrayLayer  = layer;
-                blitInfo.srcSubresource.layerCount      = 1;
-                blitInfo.srcOffsets[1].x                = I32(width  >> mip);
-                blitInfo.srcOffsets[1].y                = I32(height >> mip);
-                blitInfo.srcOffsets[1].z                = 1;
+                for (U32 mip = 0; mip < (mipLevels - 1); ++mip)
+                {
+                    VezImageBlit blitInfo{};
+                    blitInfo.srcSubresource.mipLevel        = mip;
+                    blitInfo.srcSubresource.baseArrayLayer  = layer;
+                    blitInfo.srcSubresource.layerCount      = 1;
+                    blitInfo.srcOffsets[1].x                = I32(width  >> mip);
+                    blitInfo.srcOffsets[1].y                = I32(height >> mip);
+                    blitInfo.srcOffsets[1].z                = 1;
 
-                blitInfo.dstSubresource.mipLevel        = mip + 1;
-                blitInfo.dstSubresource.baseArrayLayer  = layer;
-                blitInfo.dstSubresource.layerCount      = 1;
-                blitInfo.dstOffsets[1].x                = I32(width  >> (mip + 1));
-                blitInfo.dstOffsets[1].y                = I32(height >> (mip + 1));
-                blitInfo.dstOffsets[1].z                = 1;
-                vezCmdBlitImage( img, img, 1, &blitInfo, filter );
+                    blitInfo.dstSubresource.mipLevel        = mip + 1;
+                    blitInfo.dstSubresource.baseArrayLayer  = layer;
+                    blitInfo.dstSubresource.layerCount      = 1;
+                    blitInfo.dstOffsets[1].x                = I32(width  >> (mip + 1));
+                    blitInfo.dstOffsets[1].y                = I32(height >> (mip + 1));
+                    blitInfo.dstOffsets[1].z                = 1;
+                    vezCmdBlitImage( img, img, 1, &blitInfo, filter );
+                }
             }
-        }
+        });
     }
 
     //----------------------------------------------------------------------

@@ -120,12 +120,12 @@ namespace Graphics { namespace Vulkan {
         VALIDATE( vezCreateImageView( g_vulkan.device, &viewCreateInfo, &m_framebuffer.view ) );
 
         m_framebuffer.fbo.create( width, height, 1, &m_framebuffer.view, imageCreateInfo.samples );
-        setClearColor( Color::BLACK );
     }
 
     //----------------------------------------------------------------------
     void Swapchain::_DestroySwapchainFBO()
     {
+        vezDeviceWaitIdle( g_vulkan.device );
         vezDestroyImage( g_vulkan.device, m_framebuffer.img );
         vezDestroyImageView( g_vulkan.device, m_framebuffer.view );
         m_framebuffer.fbo.destroy();
