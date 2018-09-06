@@ -22,21 +22,6 @@ namespace Graphics { namespace Vulkan {
 
         msg += pCallbackData->pMessage;
 
-
-        // There is a bug in vezCreateSwapchain which throws this error.
-        static I32 count = 6;
-        if (msg.find("[Validation] Invalid usage flag") != String::npos && count--)
-            return VK_FALSE;
-
-        static I32 count2 = 6;
-        if (msg.find("[Validation] vkCreateFramebuffer") != String::npos && count2--)
-            return VK_FALSE;
-
-        if (msg.find("[Validation] vkCmdPipelineBarrier()") != String::npos)
-            return VK_FALSE;
-        if (msg.find("[Validation] vkCmdResolveImage()") != String::npos)
-            return VK_FALSE;
-
         // There is a bug in ovr_CreateTextureSwapChainVk which throws this error.
         //if (msg.find("[Validation] vkCreateImage: The combination of format") != String::npos)
         //    return VK_FALSE;
@@ -44,7 +29,7 @@ namespace Graphics { namespace Vulkan {
         if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT)  LOG( msg );
         if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT)     LOG( msg );
         if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT)  LOG_WARN( msg );
-        if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)    LOG_ERROR( msg );
+        if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)    LOG_WARN( msg );
 
         return VK_FALSE;
     }
@@ -361,7 +346,7 @@ namespace Graphics { namespace Vulkan {
     //----------------------------------------------------------------------
     void Context::EndFrame()
     {
-        if (m_insideRenderPass)
+        if (m_curFramebuffer)
             EndRenderPass();
 
         VALIDATE( vezEndCommandBuffer() );
@@ -411,9 +396,9 @@ namespace Graphics { namespace Vulkan {
     }
 
     //----------------------------------------------------------------------
-    void Context::OMSetRenderTarget( const Framebuffer& fbo )
+    void Context::OMSetRenderTarget( const Framebuffer& fbo, const std::function<void()>& endRenderPassCallback )
     {
-        if (m_insideRenderPass) // End previous renderpass if any
+        if (m_curFramebuffer) // End previous renderpass if any
             EndRenderPass();
 
         // Set multisample state 
@@ -432,7 +417,7 @@ namespace Graphics { namespace Vulkan {
         beginInfo.attachmentCount   = static_cast<uint32_t>( attachmentReferences.size() );
         beginInfo.pAttachments      = attachmentReferences.data();
         vezCmdBeginRenderPass( &beginInfo );
-        m_insideRenderPass = true;
+        m_curFramebuffer = &fbo;
     }
 
     //----------------------------------------------------------------------
@@ -503,7 +488,8 @@ namespace Graphics { namespace Vulkan {
     void Context::EndRenderPass()
     {
         vezCmdEndRenderPass();
-        m_insideRenderPass = false;
+        m_curFramebuffer->endRenderPass();
+        m_curFramebuffer = nullptr;
     }
 
     //----------------------------------------------------------------------
@@ -565,7 +551,6 @@ namespace Graphics { namespace Vulkan {
     {
         m_frameDataIndex = (m_frameDataIndex + 1) % NUM_FRAME_DATA;
         curFrameData().semRenderingFinished = VK_NULL_HANDLE;
-        m_insideRenderPass = false;
     }
 
 } } // End namespaces

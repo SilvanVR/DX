@@ -73,7 +73,7 @@ public:
     void init() override
     {
         auto gui = createGameObject("GUI");
-        gui->addComponent<Components::Camera>();
+        gui->addComponent<Components::Camera>(45.0f, 0.1f, 1000.0f, Graphics::MSAASamples::One);
         gui->addComponent<Components::GUI>();
 
         auto guiSceneMenu = gui->addComponent<GUISceneMenu>();

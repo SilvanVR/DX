@@ -11,6 +11,7 @@
 #define VK_USE_PLATFORM_WIN32_KHR
 #include "Ext/VEZ.h"
 #include "Logging/logging.h"
+#include <functional>
 
 #define ALLOCATOR nullptr
 
@@ -55,10 +56,17 @@ namespace Graphics { namespace Vulkan {
         void setClearDepthStencil(U32 attachmentIndex, F32 depth, U32 stencil);
 
         //----------------------------------------------------------------------
+        // Called after the render-pass has been ended. Used to resolve multisampled images.
+        //----------------------------------------------------------------------
+        void endRenderPass() const { if (m_endRenderPassCallback) m_endRenderPassCallback(); }
+
+        //----------------------------------------------------------------------
         const ArrayList<VezAttachmentReference>& getAttachmentReferences() const { return m_attachmentRefs; }
+        void setEndRenderPassCallback(const std::function<void()>& cb) { m_endRenderPassCallback = cb; }
 
     private:
         ArrayList<VezAttachmentReference> m_attachmentRefs;
+        std::function<void()> m_endRenderPassCallback;
     };
 
     //**********************************************************************
@@ -85,7 +93,7 @@ namespace Graphics { namespace Vulkan {
         void IASetVertexBuffers(U32 firstBinding, U32 bindingCount, const VkBuffer* pBuffers, const VkDeviceSize* offsets);
         void IASetIndexBuffer(VkBuffer buffer, VkDeviceSize offset, VkIndexType indexType);
         void BindPipeline(VezPipeline pipeline);
-        void OMSetRenderTarget(const Framebuffer& fbo);
+        void OMSetRenderTarget(const Framebuffer& fbo, const std::function<void()>& endRenderPassCallback = nullptr);
         void OMSetBlendState(U32 index, const VezColorBlendAttachmentState& blendState);
         void OMSetDepthStencilState(const VezDepthStencilState& dsState);
         void RSSetViewports(VkViewport viewport);
@@ -110,7 +118,8 @@ namespace Graphics { namespace Vulkan {
         void EndFrame();
 
         void _ClearContext();
-        bool m_insideRenderPass = false;
+
+        const Framebuffer*  m_curFramebuffer = nullptr;
     } ;
 
     //----------------------------------------------------------------------

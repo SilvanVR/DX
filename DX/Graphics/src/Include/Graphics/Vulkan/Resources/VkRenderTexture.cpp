@@ -40,11 +40,6 @@ namespace Graphics { namespace Vulkan {
 
         // Bind buffer
         g_vulkan.ctx.OMSetRenderTarget( m_fbos[m_bufferIndex] );
-
-        auto colorBuffer = reinterpret_cast<Vulkan::RenderBuffer*>( m_renderBuffers[m_bufferIndex].m_colorBuffer.get() );
-        auto depthBuffer = reinterpret_cast<Vulkan::RenderBuffer*>( m_renderBuffers[m_bufferIndex].m_depthBuffer.get() );
-        if (colorBuffer) colorBuffer->_ClearResolvedFlag();
-        if (depthBuffer) depthBuffer->_ClearResolvedFlag();
     }
 
     //----------------------------------------------------------------------
@@ -140,6 +135,16 @@ namespace Graphics { namespace Vulkan {
             }
             ASSERT( count > 0 );
             m_fbos[i].create( getWidth(), getHeight(), count, imageViews, samples );
+
+            if (samples != VK_SAMPLE_COUNT_1_BIT)
+            {
+                m_fbos[i].setEndRenderPassCallback([this, i] {
+                    auto colorBuffer = reinterpret_cast<Vulkan::RenderBuffer*>( m_renderBuffers[i].m_colorBuffer.get() );
+                    auto depthBuffer = reinterpret_cast<Vulkan::RenderBuffer*>( m_renderBuffers[i].m_depthBuffer.get() );
+                    if (colorBuffer) colorBuffer->_ResolveImage();
+                    if (depthBuffer) depthBuffer->_ResolveImage();
+                });
+            }
         }
     }
 

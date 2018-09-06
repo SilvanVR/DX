@@ -74,8 +74,7 @@ namespace Graphics { namespace Vulkan {
     //----------------------------------------------------------------------
     void RenderBuffer::bindForRendering()
     {
-        _ClearResolvedFlag();
-        g_vulkan.ctx.OMSetRenderTarget( isMultisampled() ? m_framebufferMS.fbo : m_framebuffer.fbo );
+        g_vulkan.ctx.OMSetRenderTarget( isMultisampled() ? m_framebufferMS.fbo : m_framebuffer.fbo, [this] { this->_ResolveImage(); } );
     }
 
     //**********************************************************************
@@ -85,16 +84,6 @@ namespace Graphics { namespace Vulkan {
     //----------------------------------------------------------------------
     void RenderBuffer::bind( const ShaderResourceDeclaration& res )
     {
-        // If the renderbuffer is multisampled itself, we must resolve it to the non-multisampled buffer and bind that to the shader then
-        if ( isMultisampled() )
-        {
-            if (not m_resolved)
-            {
-                g_vulkan.ctx.ResolveImage( m_framebufferMS.img, m_framebuffer.img, { m_width, m_height });
-                m_resolved = true;
-            }
-        }
-
         // Bind image
         g_vulkan.ctx.SetImage( m_framebuffer.view, getSampler(), res.getBindingSet(), res.getBindingSlot() );
     }
@@ -130,6 +119,8 @@ namespace Graphics { namespace Vulkan {
         imageCreateInfo.tiling      = VK_IMAGE_TILING_OPTIMAL;
         imageCreateInfo.usage       = isDepthBuffer ? VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT : VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
         imageCreateInfo.usage |= VK_IMAGE_USAGE_SAMPLED_BIT;
+        if (isMultisampled())
+            imageCreateInfo.usage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
         VALIDATE( vezCreateImage( g_vulkan.device, VEZ_MEMORY_GPU_ONLY, &imageCreateInfo, &m_framebuffer.img ) );
 
         VezImageViewCreateInfo viewCreateInfo{};
@@ -146,10 +137,17 @@ namespace Graphics { namespace Vulkan {
         if (isMultisampled())
         {
             imageCreateInfo.samples = Utility::TranslateSampleCount( m_samplingDescription );
+            imageCreateInfo.usage = isDepthBuffer ? VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT : VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+            imageCreateInfo.usage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
             VALIDATE( vezCreateImage( g_vulkan.device, VEZ_MEMORY_GPU_ONLY, &imageCreateInfo, &m_framebufferMS.img ) );
+
             viewCreateInfo.image = m_framebufferMS.img;
             VALIDATE( vezCreateImageView( g_vulkan.device, &viewCreateInfo, &m_framebufferMS.view ) );
+
             m_framebufferMS.fbo.create( m_width, m_height, 1, &m_framebufferMS.view, imageCreateInfo.samples );
+            m_framebufferMS.fbo.setEndRenderPassCallback([this] {
+                this->_ResolveImage();
+            });
         }
     }
 
@@ -177,6 +175,25 @@ namespace Graphics { namespace Vulkan {
     {
         LOG_WARN_RENDERING( "VkRenderBuffer: Mip-Map generation not supported on RenderBuffers!" );
         //g_vulkan.ctx.GenerateMips( m_framebuffer.img, m_width, m_height, m_mipCount );
+    }
+
+    //----------------------------------------------------------------------
+    void RenderBuffer::_ResolveImage()
+    {
+        ASSERT ( isMultisampled() );
+
+        if ( isDepthBuffer() )
+        {
+            static bool once = true;
+            if (once)
+            {
+                LOG_WARN_RENDERING( "VkRenderBuffer: _ResolveImage() on depth-buffer which is not supported (yet)." );
+                once = false;
+            }
+            return;
+        }
+
+        g_vulkan.ctx.ResolveImage( m_framebufferMS.img, m_framebuffer.img, { m_width, m_height });
     }
 
 } } // End namespaces

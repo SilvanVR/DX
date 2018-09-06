@@ -46,8 +46,6 @@ namespace Graphics { namespace Vulkan {
         VkImage getVkImage() const override { return m_framebuffer.img; }
 
     private:
-        bool m_resolved = false;
-
         struct
         {
             VkImage     img = VK_NULL_HANDLE;
@@ -69,7 +67,7 @@ namespace Graphics { namespace Vulkan {
         //----------------------------------------------------------------------
         void _CreateFramebuffer(bool isDepthBuffer);
         void _DestroyFramebuffer(bool isDepthBuffer);
-        void _ClearResolvedFlag() { m_resolved = false; }
+        void _ResolveImage();
 
         NULL_COPY_AND_ASSIGN(RenderBuffer)
     };
