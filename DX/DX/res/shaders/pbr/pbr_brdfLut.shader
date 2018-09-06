@@ -50,7 +50,7 @@ float GeometrySchlickGGX( float NdotV, float roughness )
 }
 
 //----------------------------------------------------------------------
-float GeometrySmith( vec3 N, vec3 V, vec3 L, float roughness )
+float GeometrySmith( float3 N, float3 V, float3 L, float roughness )
 {
     float NdotV = max( dot( N, V ), 0.0 );
     float NdotL = max( dot( N, L ), 0.0 );
