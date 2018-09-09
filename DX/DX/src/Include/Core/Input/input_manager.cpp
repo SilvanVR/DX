@@ -23,7 +23,7 @@ namespace Core { namespace Input {
         m_controller = new Controller();
 
         m_actionMapper = new ActionMapper( m_keyboard, m_mouse, m_controller );
-        m_axisMapper   = new AxisMapper( m_keyboard, m_mouse );
+        m_axisMapper   = new AxisMapper( m_keyboard, m_mouse, m_controller );
 
         // Register some default axes
         F64 acceleration = 4.0;

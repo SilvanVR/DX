@@ -9,6 +9,7 @@
 #include "Logging/logging.h"
 #include "Core/Input/devices/keyboard.h"
 #include "Core/Input/devices/mouse.h"
+#include "Core/Input/devices/controller.h"
 #include "Math/math_utils.h"
 
 namespace Core { namespace Input {
@@ -73,6 +74,27 @@ namespace Core { namespace Input {
     }
 
     //----------------------------------------------------------------------
+    void AxisMapper::registerAxis( const char* name, ControllerKey key0, ControllerKey key1, F64 acceleration, F64 damping )
+    {
+        StringID axisName = SID( name );
+        if ( m_axisMap.count( axisName ) == 0 )
+        {
+            // Register new axis
+            Axis axis;
+            axis.acceleration = acceleration;
+            axis.damping = damping;
+            axis.events.push_back( { EInputDevice::Controller, key0, key1 } );
+
+            m_axisMap[ axisName ] = axis;
+        }
+        else
+        {
+            // Axis already exists, just add new event
+            m_axisMap[ axisName ].events.push_back( { EInputDevice::Controller, key0, key1 } );
+        }
+    }
+
+    //----------------------------------------------------------------------
     void AxisMapper::unregisterAxis( const char* name )
     {
         StringID axisName = SID( name );
@@ -125,6 +147,10 @@ namespace Core { namespace Input {
                 case EInputDevice::Mouse:
                     key0Down = m_mouse->isKeyDown( evt.mouseKey0 );
                     key1Down = m_mouse->isKeyDown( evt.mouseKey1 );
+                    break;
+                case EInputDevice::Controller:
+                    key0Down = m_controller->isKeyDown( evt.controllerKey0 );
+                    key1Down = m_controller->isKeyDown( evt.controllerKey1 );
                     break;
                 default:
                     LOG_WARN( "AxisMapper::_UpdateInternalState(): Unknown input device." );

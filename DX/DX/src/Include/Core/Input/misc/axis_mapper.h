@@ -25,12 +25,14 @@ namespace Core { namespace Input {
     //----------------------------------------------------------------------
     class Keyboard;
     class Mouse;
+    class Controller;
 
     //**********************************************************************
     class AxisMapper
     {
     public:
-        AxisMapper(const Keyboard* keyboard, const Mouse* mouse) : m_keyboard( keyboard ), m_mouse( mouse ) {}
+        AxisMapper(const Keyboard* keyboard, const Mouse* mouse, const Controller* controller) 
+            : m_keyboard( keyboard ), m_mouse( mouse ), m_controller( controller ) {}
         ~AxisMapper() = default;
 
         //----------------------------------------------------------------------
@@ -63,6 +65,7 @@ namespace Core { namespace Input {
         //----------------------------------------------------------------------
         void registerAxis(const char* name, Key key0, Key key1, F64 acceleration = 1.0f, F64 damping = 1.0f);
         void registerAxis(const char* name, MouseKey key0, MouseKey key1, F64 acceleration = 1.0f, F64 damping = 1.0f);
+        void registerAxis(const char* name, ControllerKey key0, ControllerKey key1, F64 acceleration = 1.0f, F64 damping = 1.0f);
         void unregisterAxis(const char* name);
 
         //----------------------------------------------------------------------
@@ -75,25 +78,29 @@ namespace Core { namespace Input {
 
 
     private:
-        const Keyboard* m_keyboard                  = nullptr;
-        const Mouse*    m_mouse                     = nullptr;
-        F32             m_mouseWheelAcceleration    = 50.0f;
-        F32             m_mouseWheelDamping         = 7.0f;
+        const Keyboard*     m_keyboard                  = nullptr;
+        const Mouse*        m_mouse                     = nullptr;
+        const Controller*   m_controller                = nullptr;
+        F32                 m_mouseWheelAcceleration    = 50.0f;
+        F32                 m_mouseWheelDamping         = 7.0f;
 
         // <---------- AXIS ----------->
         struct AxisEvent
         {
             AxisEvent(EInputDevice _device, Key key0, Key key1) : device( _device ), keyboardKey0( key0 ), keyboardKey1( key1 ) {}
             AxisEvent(EInputDevice _device, MouseKey key0, MouseKey key1) : device( _device ), mouseKey0( key0 ), mouseKey1( key1 ) {}
+            AxisEvent(EInputDevice _device, ControllerKey key0, ControllerKey key1) : device( _device ), controllerKey0( key0 ), controllerKey1( key1 ) {}
 
             EInputDevice device;
             union {
-                Key      keyboardKey0;
-                MouseKey mouseKey0;
+                Key             keyboardKey0;
+                MouseKey        mouseKey0;
+                ControllerKey   controllerKey0;
             };
             union {
-                Key      keyboardKey1;
-                MouseKey mouseKey1;
+                Key             keyboardKey1;
+                MouseKey        mouseKey1;
+                ControllerKey   controllerKey1;
             };
         };
 
