@@ -174,7 +174,7 @@
     <ClInclude Include="src\Include\Memory\Allocators\iallocator.h" />
     <ClInclude Include="src\Include\Memory\Allocators\include.hpp" />
     <ClInclude Include="src\Include\Memory\Allocators\pool_allocator.h" />
-    <ClInclude Include="src\Include\Memory\Allocators\pool_list_allocator.hpp" />
+    <ClInclude Include="src\Include\Memory\Allocators\pool_list_allocator.h" />
     <ClInclude Include="src\Include\Memory\Allocators\stack_allocator.h" />
     <ClInclude Include="src\Include\Memory\Allocators\stack_allocator.hpp" />
     <ClInclude Include="src\Include\Memory\Allocators\universal_allocator.h" />
@@ -219,6 +219,7 @@
     <ClCompile Include="src\Include\Math\math_utils.cpp" />
     <ClCompile Include="src\Include\Memory\Allocators\iallocator.cpp" />
     <ClCompile Include="src\Include\Memory\Allocators\pool_allocator.cpp" />
+    <ClCompile Include="src\Include\Memory\Allocators\pool_list_allocator.cpp" />
     <ClCompile Include="src\Include\Memory\Allocators\stack_allocator.cpp" />
     <ClCompile Include="src\Include\Memory\Allocators\universal_allocator.cpp" />
     <ClCompile Include="src\Include\Memory\Allocators\universal_allocator_defragmented.cpp" />
