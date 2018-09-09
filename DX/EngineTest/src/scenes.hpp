@@ -1678,9 +1678,10 @@ public:
         go->addComponent<Components::AudioListener>();
         go->getComponent<Components::Transform>()->position = Math::Vec3(0, 1, -1);
 
+        Components::VRCamera* vrCam = nullptr;
         if (RENDERER.hasHMD())
         {
-            auto vrCam = go->addComponent<Components::VRCamera>(Components::ScreenDisplay::LeftEye, Graphics::MSAASamples::Four);
+            vrCam = go->addComponent<Components::VRCamera>(Components::ScreenDisplay::LeftEye, Graphics::MSAASamples::Four);
             go->addComponent<Components::VRFPSCamera>();
             //go->addComponent<PostProcess>(ASSETS.getMaterial("/materials/post processing/color_grading.material"));
             go->addComponent<Components::VRBasicTouch>(Core::MeshGenerator::CreateCubeUV(0.1f), ASSETS.getMaterial("/materials/blinn_phong/cube.material"));
@@ -1716,24 +1717,34 @@ public:
         auto ps = createGameObject("Particles!");
         ps->addComponent<Components::ParticleSystem>("/particles/ambient.ps");
 
-        //go->addComponent<Components::GUI>();
-        //go->addComponent<Components::GUIFPS>();
-        //go->addComponent<Components::GUICustom>([vrCam]() mutable {
-        //    ImGui::Begin("VR Demo", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
-        //    { // Spawn values
-        //        CString type[] = { "Left Eye", "Right Eye", "Both Eyes" };
-        //        static I32 type_current = 0;
-        //        ImGui::Combo("Display Mode", &type_current, type, sizeof(type) / sizeof(CString));
+        if (vrCam)
+        {
+            auto guiCamGO = createGameObject("Camera");
+            auto guiCam = guiCamGO->addComponent<Components::Camera>(45.0f, 0.1f, 1000.0f, Graphics::MSAASamples::One);
 
-        //        switch (type_current)
-        //        {
-        //        case 0: vrCam->setScreenDisplay(Components::ScreenDisplay::LeftEye); break;
-        //        case 1: vrCam->setScreenDisplay(Components::ScreenDisplay::RightEye); break;
-        //        case 2: vrCam->setScreenDisplay(Components::ScreenDisplay::BothEyes); break;
-        //        }
-        //    }
-        //    ImGui::End();
-        //});
+            // Do not render any gameobjects and do not clear the screen.
+            guiCam->setClearMode(Graphics::CameraClearMode::None);
+            guiCam->setCullingMask((LayerMask)Layer::None);
+
+            guiCamGO->addComponent<Components::GUI>();
+            guiCamGO->addComponent<Components::GUIFPS>();
+            guiCamGO->addComponent<Components::GUICustom>([vrCam]() mutable {
+                ImGui::Begin("VR Demo", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+                { // Spawn values
+                    CString type[] = { "Left Eye", "Right Eye", "Both Eyes" };
+                    static I32 type_current = 0;
+                    ImGui::Combo("Display Mode", &type_current, type, sizeof(type) / sizeof(CString));
+
+                    switch (type_current)
+                    {
+                    case 0: vrCam->setScreenDisplay(Components::ScreenDisplay::LeftEye); break;
+                    case 1: vrCam->setScreenDisplay(Components::ScreenDisplay::RightEye); break;
+                    case 2: vrCam->setScreenDisplay(Components::ScreenDisplay::BothEyes); break;
+                    }
+                }
+                ImGui::End();
+            });
+        }
 
         LOG("VRScene initialized!", Color::RED);
     }

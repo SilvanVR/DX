@@ -816,10 +816,6 @@ public:
             Locator::getSceneManager().LoadSceneAsync(new MyScene);
         if (KEYBOARD.wasKeyPressed(Key::P))
             PROFILER.logGPU();
-        if (KEYBOARD.wasKeyPressed(Key::F1))
-            Locator::getRenderer().setGlobalMaterialActive("NONE");
-        if (KEYBOARD.wasKeyPressed(Key::F2))
-            Locator::getRenderer().setGlobalMaterialActive("Wireframe");
         if (KEYBOARD.isKeyDown(Key::Escape))
             terminate();
     }
