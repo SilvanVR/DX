@@ -62,6 +62,7 @@ namespace Core { namespace Input {
     {
         m_keyboard->setChannels( channels );
         m_mouse->setChannels( channels );
+        m_controller->setChannels( channels );
     }
 
     //----------------------------------------------------------------------
