@@ -366,7 +366,7 @@ public:
         ImGui::Begin("Scenes");
         for (auto& scene : m_scenes)
             if (ImGui::Button(scene.first.c_str()))
-                Locator::getSceneManager().LoadScene(scene.second());
+                Locator::getSceneManager().LoadSceneAsync(scene.second());
         ImGui::End();
     }
 

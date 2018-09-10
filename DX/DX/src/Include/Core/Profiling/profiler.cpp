@@ -42,7 +42,7 @@ namespace Core { namespace Profiling {
 
         frameCounter++;
         secTimer += delta;
-        if (secTimer > 1.0f)
+        if (secTimer > 1_s)
         {
             m_fps = frameCounter;
 
