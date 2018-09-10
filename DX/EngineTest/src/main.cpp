@@ -132,8 +132,8 @@ public:
         Locator::getRenderer().setVSync(true);
         Locator::getRenderer().setGlobalFloat(SID("_Ambient"), 0.5f);
 
-        Locator::getSceneManager().LoadSceneAsync(new SceneGUISelectSceneMenu());
-        //Locator::getSceneManager().LoadSceneAsync(new TestScene());
+        //Locator::getSceneManager().LoadSceneAsync(new SceneGUISelectSceneMenu());
+        Locator::getSceneManager().LoadSceneAsync(new TestScene());
     }
 
     //----------------------------------------------------------------------

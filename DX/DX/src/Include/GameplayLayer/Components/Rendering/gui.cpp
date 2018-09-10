@@ -15,10 +15,13 @@
 #define SHADER_GUI_SLICE_NAME   "slice"
 
 //----------------------------------------------------------------------
-std::mutex& getMutex()
+std::unique_lock<std::mutex> ImGuiSetContextAndGetGuard( ImGuiContext* ctx )
 {
     static std::mutex mutex; // Ensures that the mutex will be first initialized when needed
-    return mutex;
+
+    std::unique_lock<std::mutex> guard( mutex );
+    ImGui::SetCurrentContext( ctx );
+    return std::move( guard );
 }
 
 namespace ImGui
@@ -74,9 +77,26 @@ namespace Components {
         ASSERT( m_camera && "This component requires a camera component attached to the gameobject!" );
         m_camera->addCommandBuffer( &m_cmd, Components::CameraEvent::Overlay );
 
-        // IMGUI
-        std::lock_guard<std::mutex> lock( getMutex() );
-        ImGui::SetCurrentContext( m_imguiContext );
+        // Mesh containing all the vertex/index data
+        m_dynamicMesh = RESOURCES.createMesh();
+        m_dynamicMesh->setBufferUsage( Graphics::BufferUsage::Frequently );
+
+        // Create vertex streams
+        m_dynamicMesh->createVertexStream<Math::Vec3>( Graphics::SID_VERTEX_POSITION );
+        m_dynamicMesh->createVertexStream<Math::Vec2>( Graphics::SID_VERTEX_UV );
+        m_dynamicMesh->createVertexStream<Math::Vec4>( Graphics::SID_VERTEX_COLOR );
+
+        // Retrieve GUI shader
+        m_guiShader = ASSETS.getShader( "/engine/shaders/gui.shader" );
+        m_guiShader->setName( "GUI" );
+    }
+
+    //----------------------------------------------------------------------
+    void GUI::init()
+    {
+        // Setup ImGUI. Must be done here and not in addedToGameObject(),
+        // otherwise the context might be fetched recursively
+        auto guard = ImGuiSetContextAndGetGuard( m_imguiContext );
         ImGuiIO& io = ImGui::GetIO();
         io.KeyMap[ImGuiKey_Tab]         = (I32)Key::Tab;
         io.KeyMap[ImGuiKey_LeftArrow]   = (I32)Key::Left;
@@ -108,19 +128,6 @@ namespace Components {
         m_fontAtlasMaterial = RESOURCES.createMaterial( ASSETS.getShader( "/engine/shaders/gui.shader" ) );
         m_fontAtlasMaterial->setTexture( SHADER_GUI_TEX_NAME, m_fontAtlas );
         io.Fonts->TexID = &m_fontAtlasMaterial;
-
-        // Mesh containing all the vertex/index data
-        m_dynamicMesh = RESOURCES.createMesh();
-        m_dynamicMesh->setBufferUsage( Graphics::BufferUsage::Frequently );
-
-        // Create vertex streams
-        m_dynamicMesh->createVertexStream<Math::Vec3>( Graphics::SID_VERTEX_POSITION );
-        m_dynamicMesh->createVertexStream<Math::Vec2>( Graphics::SID_VERTEX_UV );
-        m_dynamicMesh->createVertexStream<Math::Vec4>( Graphics::SID_VERTEX_COLOR );
-
-        // Retrieve GUI shader
-        m_guiShader = ASSETS.getShader( "/engine/shaders/gui.shader" );
-        m_guiShader->setName( "GUI" );
     }
 
     //----------------------------------------------------------------------
@@ -133,8 +140,7 @@ namespace Components {
     //----------------------------------------------------------------------
     void GUI::lateTick( Time::Seconds d )
     {
-        std::lock_guard<std::mutex> lock( getMutex() );
-        ImGui::SetCurrentContext( m_imguiContext );
+        auto guard = ImGuiSetContextAndGetGuard( m_imguiContext );
         ImGui::NewFrame();
         for (auto renderComponent : getGameObject()->getComponents<ImGUIRenderComponent>())
             renderComponent->OnImGUI();
@@ -223,7 +229,7 @@ namespace Components {
         if (not m_camera)
             return;
 
-        ImGui::SetCurrentContext( m_imguiContext );
+        auto guard = ImGuiSetContextAndGetGuard( m_imguiContext );
         ImGuiIO& io = ImGui::GetIO();
 
         auto& vp = m_camera->getViewport();
@@ -239,7 +245,7 @@ namespace Components {
     //----------------------------------------------------------------------
     void GUI::OnMousePressed( MouseKey key, KeyMod mod )
     {
-        ImGui::SetCurrentContext( m_imguiContext );
+        auto guard = ImGuiSetContextAndGetGuard( m_imguiContext );
         ImGuiIO& io = ImGui::GetIO();
         switch (key)
         {
@@ -252,7 +258,7 @@ namespace Components {
     //----------------------------------------------------------------------
     void GUI::OnMouseReleased( MouseKey key, KeyMod mod )
     {
-        ImGui::SetCurrentContext( m_imguiContext );
+        auto guard = ImGuiSetContextAndGetGuard( m_imguiContext );
         ImGuiIO& io = ImGui::GetIO();
         switch (key)
         {
@@ -265,7 +271,7 @@ namespace Components {
     //----------------------------------------------------------------------
     void GUI::OnMouseWheel( I16 delta )
     {
-        ImGui::SetCurrentContext( m_imguiContext );
+        auto guard = ImGuiSetContextAndGetGuard( m_imguiContext );
         ImGuiIO& io = ImGui::GetIO();
 
         io.MouseWheel = delta;
@@ -274,7 +280,7 @@ namespace Components {
     //----------------------------------------------------------------------
     void GUI::OnKeyPressed( Key key, KeyMod mod )
     {
-        ImGui::SetCurrentContext( m_imguiContext );
+        auto guard = ImGuiSetContextAndGetGuard( m_imguiContext );
         ImGuiIO& io = ImGui::GetIO();
         if (mod & KeyModBits::CONTROL)  io.KeyCtrl  = true;
         if (mod & KeyModBits::ALT)      io.KeyAlt   = true;
@@ -286,7 +292,7 @@ namespace Components {
     //----------------------------------------------------------------------
     void GUI::OnKeyReleased( Key key, KeyMod mod )
     {
-        ImGui::SetCurrentContext( m_imguiContext );
+        auto guard = ImGuiSetContextAndGetGuard( m_imguiContext );
         ImGuiIO& io = ImGui::GetIO();
         if (mod & KeyModBits::CONTROL)  io.KeyCtrl  = false;
         if (mod & KeyModBits::ALT)      io.KeyAlt   = false;
@@ -297,7 +303,7 @@ namespace Components {
     //----------------------------------------------------------------------
     void GUI::OnChar( char c )
     {
-        ImGui::SetCurrentContext( m_imguiContext );
+        auto guard = ImGuiSetContextAndGetGuard( m_imguiContext );
         ImGuiIO& io = ImGui::GetIO();
 
         io.AddInputCharacter( c );
@@ -310,7 +316,7 @@ namespace Components {
     //----------------------------------------------------------------------
     void GUI::_UpdateIMGUI( F32 delta )
     {
-        ImGui::SetCurrentContext( m_imguiContext );
+        auto guard = ImGuiSetContextAndGetGuard( m_imguiContext );
         ImGuiIO& io = ImGui::GetIO();
         io.DeltaTime = delta;
 

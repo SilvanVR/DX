@@ -36,6 +36,7 @@ namespace Components {
         // IComponent Interface
         //----------------------------------------------------------------------
         void addedToGameObject(GameObject* go) override;
+        void init() override;
         void preTick(Time::Seconds d) override;
         void lateTick(Time::Seconds d) override;
 
