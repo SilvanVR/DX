@@ -18,8 +18,6 @@
 
 namespace Core { namespace Resources {
 
-    #define HOT_RELOAD_INTERVAL_MILLIS  500
-
     //----------------------------------------------------------------------
     void ResourceManager::init()
     {
