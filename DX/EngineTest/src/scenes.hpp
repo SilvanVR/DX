@@ -1668,6 +1668,8 @@ public:
 
 class VRScene : public IScene
 {
+    Components::VRCamera* vrCam = nullptr;
+
 public:
     VRScene() : IScene("TestScene") {}
 
@@ -1678,7 +1680,6 @@ public:
         go->addComponent<Components::AudioListener>();
         go->getComponent<Components::Transform>()->position = Math::Vec3(0, 1, -1);
 
-        Components::VRCamera* vrCam = nullptr;
         if (RENDERER.hasHMD())
         {
             vrCam = go->addComponent<Components::VRCamera>(Components::ScreenDisplay::LeftEye, Graphics::MSAASamples::Four);
@@ -1717,36 +1718,53 @@ public:
         auto ps = createGameObject("Particles!");
         ps->addComponent<Components::ParticleSystem>("/particles/ambient.ps");
 
-        if (vrCam)
+        if (vrCam) // This does not work, because it is not supported by my engine to render into an offscreen FBO and blend that on top of it
         {
-            auto guiCamGO = createGameObject("Camera");
-            auto guiCam = guiCamGO->addComponent<Components::Camera>(45.0f, 0.1f, 1000.0f, Graphics::MSAASamples::One);
+            //auto guiCamGO = createGameObject("Camera");
+            //auto guiCam = guiCamGO->addComponent<Components::Camera>(45.0f, 0.1f, 1000.0f, Graphics::MSAASamples::One);
 
-            // Do not render any gameobjects and do not clear the screen.
-            guiCam->setClearMode(Graphics::CameraClearMode::None);
-            guiCam->setCullingMask((LayerMask)Layer::None);
+            //// Do not render any gameobjects and do not clear the screen.
+            ////guiCam->setClearMode(Graphics::CameraClearMode::Color);
+            //guiCam->setCullingMask((LayerMask)Layer::None);
+            //guiCam->getViewport().width = 0.5f;
+            //guiCam->getViewport().height = 0.5f;
 
-            guiCamGO->addComponent<Components::GUI>();
-            guiCamGO->addComponent<Components::GUIFPS>();
-            guiCamGO->addComponent<Components::GUICustom>([vrCam]() mutable {
-                ImGui::Begin("VR Demo", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
-                { // Spawn values
-                    CString type[] = { "Left Eye", "Right Eye", "Both Eyes" };
-                    static I32 type_current = 0;
-                    ImGui::Combo("Display Mode", &type_current, type, sizeof(type) / sizeof(CString));
+            //guiCamGO->addComponent<Components::GUI>();
+            //guiCamGO->addComponent<Components::GUICustom>([this]() mutable {
+            //    ImGui::Begin("VR Demo", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+            //    { // Spawn values
+            //        CString type[] = { "Left Eye", "Right Eye", "Both Eyes" };
+            //        static I32 type_current = 0;
+            //        ImGui::Combo("Display Mode", &type_current, type, sizeof(type) / sizeof(CString));
 
-                    switch (type_current)
-                    {
-                    case 0: vrCam->setScreenDisplay(Components::ScreenDisplay::LeftEye); break;
-                    case 1: vrCam->setScreenDisplay(Components::ScreenDisplay::RightEye); break;
-                    case 2: vrCam->setScreenDisplay(Components::ScreenDisplay::BothEyes); break;
-                    }
-                }
-                ImGui::End();
-            });
+            //        switch (type_current)
+            //        {
+            //        case 0: vrCam->setScreenDisplay(Components::ScreenDisplay::LeftEye); break;
+            //        case 1: vrCam->setScreenDisplay(Components::ScreenDisplay::RightEye); break;
+            //        case 2: vrCam->setScreenDisplay(Components::ScreenDisplay::BothEyes); break;
+            //        }
+            //    }
+            //    ImGui::End();
+            //});
         }
 
+        String info = "<<<< Info >>>>\n"
+                      "1: Display Left Eye on Screen\n"
+                      "2: Display Right Eye on Screen\n"
+                      "3: Display Both Eyes on Screen\n";
+        LOG(info, Color::BLUE);
+
         LOG("VRScene initialized!", Color::RED);
+    }
+
+    void tick(Time::Seconds delta) override
+    {
+        if (KEYBOARD.wasKeyPressed(Key::One))
+            vrCam->setScreenDisplay(Components::ScreenDisplay::LeftEye);
+        if (KEYBOARD.wasKeyPressed(Key::Two))
+            vrCam->setScreenDisplay(Components::ScreenDisplay::RightEye);
+        if (KEYBOARD.wasKeyPressed(Key::Three))
+            vrCam->setScreenDisplay(Components::ScreenDisplay::BothEyes);
     }
 
     void shutdown() override { LOG("VRScene Shutdown!", Color::RED); }
