@@ -78,6 +78,7 @@ public:
 
         auto guiSceneMenu = gui->addComponent<GUISceneMenu>();
         guiSceneMenu->registerScene<TestScene>("Test Scene");
+        guiSceneMenu->registerScene<SceneSplines>("Catmull-Rom Spline");
         guiSceneMenu->registerScene<VRScene>("VR Scene");
         guiSceneMenu->registerScene<SceneParticleSystem>("Particle System");
         guiSceneMenu->registerScene<ShadowScene>("Shadow Scene");

@@ -1751,3 +1751,98 @@ public:
 
     void shutdown() override { LOG("VRScene Shutdown!", Color::RED); }
 };
+
+
+
+class SceneSplines : public IScene
+{
+    ArrayList<Math::Vec3> controlPoints{ {-1, 0, 0 }, { 0, 1, 0 }, { 1, 0, 0 }, { 2, -1, 0 } };
+    Math::CatmullRomSpline m_spline;
+    MeshPtr m_mesh;
+
+public:
+    SceneSplines() : IScene("SceneSplines"), m_spline(controlPoints, true) {}
+
+    void init() override
+    {
+        // Camera 1
+        auto go = createGameObject("Camera");
+        go->addComponent<Components::Camera>(45.0f, 0.1f, 1000.0f, Graphics::MSAASamples::Eight);
+        go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -5);
+        go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 0.1f);
+
+        m_mesh = RESOURCES.createMesh();
+        m_mesh->setBufferUsage(Graphics::BufferUsage::Frequently);
+        auto mr = createGameObject("Spline")->addComponent<Components::MeshRenderer>(m_mesh, ASSETS.getColorMaterial());
+
+        CString message = "<<<< Controls >>>>\n"
+            "W/A/S/D: Move selected point.\n"
+            "Left/Right: Change selected point.\n"
+            "Up/Down: Increase/Decrease vertex count.\n";
+        LOG(message, Color::BLUE);
+
+        LOG("SceneSplines initialized!", Color::RED);
+    }
+
+    void tick(Time::Seconds delta) override
+    {
+        // Create spline vertices and modify mesh
+        ArrayList<Math::Vec3> vertices;
+        ArrayList<U32> indices;
+        U32 index = 0;
+
+        vertices.push_back(m_spline.getSplinePoint(0.0f));
+
+        static F32 steps = 0.05f;
+        for (F32 t = steps; t <= controlPoints.size(); t += steps)
+        {
+            vertices.push_back(m_spline.getSplinePoint(t));
+            indices.push_back(index);
+            indices.push_back(index + 1);
+            index++;
+        }
+        indices.push_back(index);
+        indices.push_back(0);
+
+        m_mesh->setVertices(vertices);
+        m_mesh->setIndices(indices, 0, Graphics::MeshTopology::Lines);
+        m_mesh->setColors(ArrayList<Color>(vertices.size(), Color::RED));
+
+        // Draw spline points
+        static I32 selectedPoint = 0;
+        for (I32 i = 0; i < controlPoints.size(); i++)
+        {
+            if (i == selectedPoint) continue;
+            DEBUG.drawSphere(controlPoints[i], 0.05f, Color::GREEN, 0);
+        }
+
+        // Draw selected spline point
+        DEBUG.drawSphere(controlPoints[selectedPoint], 0.05f, Color::BLUE, 0);
+
+        // Change selected point
+        if (KEYBOARD.wasKeyPressed(Key::Right)) selectedPoint = (selectedPoint + 1) % controlPoints.size();
+        if (KEYBOARD.wasKeyPressed(Key::Left))  --selectedPoint; if (selectedPoint < 0) selectedPoint += controlPoints.size();
+
+        // Change step count
+        if (KEYBOARD.isKeyDown(Key::Up))    steps = std::max(0.05f, steps - 0.2f * (F32)delta);
+        if (KEYBOARD.isKeyDown(Key::Down))  steps += 0.2f * (F32)delta;
+
+        // Print out vertex count if step count has changed
+        static F32 prevSteps = 0.0f;
+        if (prevSteps != steps)
+        {
+            LOG( "Vertex count: " + TS(vertices.size()), Color::BLUE );
+            prevSteps = steps;
+        }
+
+        // Move selected spline point
+        F32 strength = 2.0f;
+        if (KEYBOARD.isKeyDown(Key::W)) controlPoints[selectedPoint].y += strength * (F32)delta;
+        if (KEYBOARD.isKeyDown(Key::A)) controlPoints[selectedPoint].x -= strength * (F32)delta;
+        if (KEYBOARD.isKeyDown(Key::S)) controlPoints[selectedPoint].y -= strength * (F32)delta;
+        if (KEYBOARD.isKeyDown(Key::D)) controlPoints[selectedPoint].x += strength * (F32)delta;
+        m_spline.setControlPoints(controlPoints);
+    }
+
+    void shutdown() override { LOG("SceneSplines Shutdown!", Color::RED); }
+};

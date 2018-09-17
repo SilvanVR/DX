@@ -93,7 +93,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>F:\Git\DX\DX\Common\src;$(ProjectDir)src\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)src;$(ProjectDir)src\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_MBCS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
@@ -140,7 +140,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>F:\Git\DX\DX\Common\src;$(ProjectDir)src\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)src;$(ProjectDir)src\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_MBCS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
@@ -171,6 +171,7 @@
     <ClInclude Include="src\Include\Logging\null_logger.hpp" />
     <ClInclude Include="src\Include\Logging\shared_console_logger.hpp" />
     <ClInclude Include="src\Include\Math\rect.h" />
+    <ClInclude Include="src\Include\Math\splines.h" />
     <ClInclude Include="src\Include\Memory\Allocators\iallocator.h" />
     <ClInclude Include="src\Include\Memory\Allocators\include.hpp" />
     <ClInclude Include="src\Include\Memory\Allocators\pool_allocator.h" />
@@ -217,6 +218,7 @@
     <ClCompile Include="src\Include\Math\aabb.cpp" />
     <ClCompile Include="src\Include\Math\dxmath_wrapper.cpp" />
     <ClCompile Include="src\Include\Math\math_utils.cpp" />
+    <ClCompile Include="src\Include\Math\splines.cpp" />
     <ClCompile Include="src\Include\Memory\Allocators\iallocator.cpp" />
     <ClCompile Include="src\Include\Memory\Allocators\pool_allocator.cpp" />
     <ClCompile Include="src\Include\Memory\Allocators\pool_list_allocator.cpp" />

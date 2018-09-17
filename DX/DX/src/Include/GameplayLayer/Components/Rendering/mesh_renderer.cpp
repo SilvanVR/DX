@@ -34,7 +34,7 @@ namespace Components {
         m_mesh = mesh;
         if (m_mesh != nullptr)
         {
-            m_materials.resize( m_mesh->getSubMeshCount() );
+            m_materials.resize( std::max( (I32)m_mesh->getSubMeshCount(), 1 ) );
             for ( I32 i = 0; i < m_materials.size(); i++ )
                 if (m_materials[i] == nullptr)
                     m_materials[i] = ASSETS.getErrorMaterial();

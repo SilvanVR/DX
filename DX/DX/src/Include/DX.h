@@ -22,3 +22,4 @@
 #include "Events/event_dispatcher.h"
 #include "Common/string_utils.h"
 #include "Graphics/VR/vr.h"
+#include "Math/splines.h"
