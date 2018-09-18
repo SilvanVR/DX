@@ -49,11 +49,6 @@ namespace Graphics {
         { ShaderType::Fragment, SHADOW_MAP_ARRAY_SLOT_BEGIN + 0, SID("ShadowMapArray"), DataType::Texture2D },
     };
 
-    #define GLOBAL_BUFFER D3D11::ConstantBufferManager::getGlobalBuffer()
-    #define OBJECT_BUFFER D3D11::ConstantBufferManager::getObjectBuffer()
-    #define CAMERA_BUFFER D3D11::ConstantBufferManager::getCameraBuffer()
-    #define LIGHT_BUFFER  D3D11::ConstantBufferManager::getLightBuffer()
-
     static constexpr StringID LIGHT_COUNT_NAME              = StringID( "_LightCount" );
     static constexpr StringID LIGHT_BUFFER_NAME             = StringID( "_Lights" );
     static constexpr StringID LIGHT_VIEW_PROJ_NAME          = StringID( "_LightViewProj" );
