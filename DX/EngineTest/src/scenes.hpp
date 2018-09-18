@@ -1774,12 +1774,14 @@ public:
 };
 
 
-
 class SceneSplines : public IScene
 {
     ArrayList<Math::Vec3> controlPoints{ {-1, 0, 0 }, { 0, 1, 0 }, { 1, 0, 0 }, { 2, -1, 0 } };
     Math::CatmullRomSpline m_spline;
     MeshPtr m_mesh;
+
+    Components::Transform* m_shipTransform;
+    F32 m_shipSpeed = 1.0f;
 
 public:
     SceneSplines() : IScene("SceneSplines"), m_spline(controlPoints, true) {}
@@ -1794,7 +1796,14 @@ public:
 
         m_mesh = RESOURCES.createMesh();
         m_mesh->setBufferUsage(Graphics::BufferUsage::Frequently);
-        auto mr = createGameObject("Spline")->addComponent<Components::MeshRenderer>(m_mesh, ASSETS.getColorMaterial());
+        createGameObject("Spline")->addComponent<Components::MeshRenderer>(m_mesh, ASSETS.getColorMaterial());
+
+        auto ship = RESOURCES.createMesh();
+        ship->setVertices(ArrayList<Math::Vec3>{ { 0, 0.1f, 0 }, { 0, -0.1f, 0 }, { 0.3f, 0, 0 } });
+        ship->setIndices(ArrayList<U32>{ 0, 1, 2, 0 }, 0, Graphics::MeshTopology::LineStrip);
+        ship->setColors(ArrayList<Color>(ship->getVertexCount(), Color::ORANGE));
+        auto shipGO = createGameObject("Ship")->addComponent<Components::MeshRenderer>(ship, ASSETS.getColorMaterial());
+        m_shipTransform = shipGO->getGameObject()->getTransform();
 
         CString message = "<<<< Controls >>>>\n"
             "W/A/S/D: Move selected point.\n"
@@ -1812,12 +1821,12 @@ public:
         ArrayList<U32> indices;
         U32 index = 0;
 
-        vertices.push_back(m_spline.getSplinePoint(0.0f));
+        vertices.push_back(m_spline.getPoint(0.0f));
 
         static F32 steps = 0.05f;
         for (F32 t = steps; t <= controlPoints.size(); t += steps)
         {
-            vertices.push_back(m_spline.getSplinePoint(t));
+            vertices.push_back(m_spline.getPoint(t));
             indices.push_back(index);
             indices.push_back(index + 1);
             index++;
@@ -1863,6 +1872,26 @@ public:
         if (KEYBOARD.isKeyDown(Key::S)) controlPoints[selectedPoint].y -= strength * (F32)delta;
         if (KEYBOARD.isKeyDown(Key::D)) controlPoints[selectedPoint].x += strength * (F32)delta;
         m_spline.setControlPoints(controlPoints);
+
+        // Move ship across the spline
+        {
+            static F32 shipDistanceOnSpline = 0.0f;
+
+            shipDistanceOnSpline += m_shipSpeed * (F32)delta;
+            shipDistanceOnSpline = std::fmodf(shipDistanceOnSpline, m_spline.getTotalLength());
+
+            F32 normalizedOffset = m_spline.getNormalisedOffset(shipDistanceOnSpline);
+
+            // Position ship
+            auto newShipPos = m_spline.getPoint(normalizedOffset);
+            m_shipTransform->position = { newShipPos.x, newShipPos.y, 0 };
+
+            // Rotate ship
+            auto gradient = m_spline.getGradient(normalizedOffset);
+            F32 roll = Math::Rad2Deg(std::acos(gradient.dot({1,0,0})));
+            m_shipTransform->rotation = Math::Quat::FromEulerAngles(0.0f, 0.0f, gradient.y < 0 ? 360-roll : roll);
+            //DEBUG.drawLine(m_shipTransform->position - gradient * 0.5f, m_shipTransform->position + gradient*0.5f, Color::GREEN, 0);
+        }
     }
 
     void shutdown() override { LOG("SceneSplines Shutdown!", Color::RED); }

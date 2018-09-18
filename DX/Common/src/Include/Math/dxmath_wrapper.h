@@ -98,6 +98,7 @@ namespace Math {
         Vector3F    normalized() const;
         void        normalize();
         Vector3F    cross(const Vector3F& v) const;
+        F32         dot(const Vector3F& v) const;
         F32         maxValue() const;
         F32         minValue() const;
         F32         distance(const Vector3F& v) const;

@@ -121,11 +121,16 @@ namespace Math {
         z /= length;
     }
 
-
     //----------------------------------------------------------------------
     Vector3F Vector3F::cross( const Vector3F& v ) const
     {
         return Vector3F( y * v.z - v.y * z, v.x * z - x * v.z, x * v.y - v.x * y );
+    }
+
+    //----------------------------------------------------------------------
+    F32 Vector3F::dot( const Vector3F& v ) const
+    {
+        return x * v.x + y * v.y + z * v.z;
     }
 
     //----------------------------------------------------------------------

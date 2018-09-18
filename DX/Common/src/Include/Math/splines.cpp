@@ -16,15 +16,20 @@ namespace Math
         setControlPoints( controlPoints );
     }
 
+    //**********************************************************************
+    // PUBLIC
+    //**********************************************************************
+
     //----------------------------------------------------------------------
     void CatmullRomSpline::setControlPoints( const ArrayList<Math::Vec3>& controlPoints )
     {
         m_points = controlPoints;
         ASSERT( m_points.size() >= 4 && "Min. 4 points required!" );
+        _CalculateSegmentLengths();
     }
 
     //----------------------------------------------------------------------
-    Math::Vec3 CatmullRomSpline::getSplinePoint( F32 t )
+    Math::Vec3 CatmullRomSpline::getPoint( F32 t ) const
     {
         I32 p0, p1, p2, p3;
         if (not m_looped)
@@ -56,11 +61,11 @@ namespace Math
         F32 ty = m_points[p0].y * q1 + m_points[p1].y * q2 + m_points[p2].y * q3 + m_points[p3].y * q4;
         F32 tz = m_points[p0].z * q1 + m_points[p1].z * q2 + m_points[p2].z * q3 + m_points[p3].z * q4;
 
-        return { 0.5f*tx, 0.5f*ty, 0.5f * tz };
+        return Math::Vec3{ 0.5f*tx, 0.5f*ty, 0.5f*tz };
     }
 
     //----------------------------------------------------------------------
-    Math::Vec3 CatmullRomSpline::getSplineGradient( F32 t )
+    Math::Vec3 CatmullRomSpline::getGradient( F32 t ) const
     {
         I32 p0, p1, p2, p3;
         if (not m_looped)
@@ -92,7 +97,56 @@ namespace Math
         F32 ty = m_points[p0].y * q1 + m_points[p1].y * q2 + m_points[p2].y * q3 + m_points[p3].y * q4;
         F32 tz = m_points[p0].z * q1 + m_points[p1].z * q2 + m_points[p2].z * q3 + m_points[p3].z * q4;
 
-        return { 0.5f*tx, 0.5f*ty, 0.5f*tz };
+        return Math::Vec3{ 0.5f*tx, 0.5f*ty, 0.5f*tz }.normalized();
+    }
+
+    //----------------------------------------------------------------------
+    F32 CatmullRomSpline::getTotalLength() const
+    {
+        F32 totalLength = 0.0f;
+        for (I32 i = 0; i < (I32)m_points.size(); i++)
+            totalLength += getSegmentLength( i );
+        return totalLength;
+    }
+
+    //----------------------------------------------------------------------
+    F32 CatmullRomSpline::getNormalisedOffset( F32 p ) const
+    {
+        // Which node is the base?
+        I32 i = 0;
+        while (p > m_segmentLengths[i])
+        {
+            p -= m_segmentLengths[i];
+            i++;
+        }
+
+        // The fractional is the offset
+        return (F32)i + (p / m_segmentLengths[i]);
+    }
+
+    //**********************************************************************
+    // PRIVATE
+    //**********************************************************************
+
+    //----------------------------------------------------------------------
+    void CatmullRomSpline::_CalculateSegmentLengths()
+    {
+        m_segmentLengths.resize( m_points.size() );
+        F32 stepSize = 0.005f;
+        Math::Vec3 oldPoint, newPoint;
+
+        for (I32 point = 0; point < (I32)m_points.size(); point++)
+        {
+            F32 length = 0.0f;
+            oldPoint = getPoint( (F32)point );
+            for (F32 t = 0; t < 1.0f; t += stepSize)
+            {
+                newPoint = getPoint( (F32)point + t );
+                length += oldPoint.distance( newPoint );
+                oldPoint = newPoint;
+            }
+            m_segmentLengths[point] = length;
+        }
     }
 
 } // End namespaces
