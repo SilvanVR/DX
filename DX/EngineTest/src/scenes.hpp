@@ -1759,12 +1759,15 @@ public:
 
     void tick(Time::Seconds delta) override
     {
-        if (KEYBOARD.wasKeyPressed(Key::One))
-            vrCam->setScreenDisplay(Components::ScreenDisplay::LeftEye);
-        if (KEYBOARD.wasKeyPressed(Key::Two))
-            vrCam->setScreenDisplay(Components::ScreenDisplay::RightEye);
-        if (KEYBOARD.wasKeyPressed(Key::Three))
-            vrCam->setScreenDisplay(Components::ScreenDisplay::BothEyes);
+        if (vrCam)
+        {
+            if (KEYBOARD.wasKeyPressed(Key::One))
+                vrCam->setScreenDisplay(Components::ScreenDisplay::LeftEye);
+            if (KEYBOARD.wasKeyPressed(Key::Two))
+                vrCam->setScreenDisplay(Components::ScreenDisplay::RightEye);
+            if (KEYBOARD.wasKeyPressed(Key::Three))
+                vrCam->setScreenDisplay(Components::ScreenDisplay::BothEyes);
+        }
     }
 
     void shutdown() override { LOG("VRScene Shutdown!", Color::RED); }
@@ -1839,7 +1842,7 @@ public:
 
         // Change selected point
         if (KEYBOARD.wasKeyPressed(Key::Right)) selectedPoint = (selectedPoint + 1) % controlPoints.size();
-        if (KEYBOARD.wasKeyPressed(Key::Left))  --selectedPoint; if (selectedPoint < 0) selectedPoint += controlPoints.size();
+        if (KEYBOARD.wasKeyPressed(Key::Left))  --selectedPoint; if (selectedPoint < 0) selectedPoint += (I32)controlPoints.size();
 
         // Change step count
         if (KEYBOARD.isKeyDown(Key::Up))    steps = std::max(0.05f, steps - 0.2f * (F32)delta);
