@@ -175,6 +175,7 @@
     <ClInclude Include="src\components.hpp" />
     <ClInclude Include="src\scenes.hpp" />
     <ClInclude Include="src\stdafx.h" />
+    <ClInclude Include="src\thesis_scenes.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

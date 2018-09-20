@@ -1,4 +1,5 @@
 #include "scenes.hpp"
+#include "thesis_scenes.hpp"
 #include "OS/FileSystem/file.h"
 #include "OS/FileSystem/file_system.h"
 #define DISPLAY_CONSOLE 1
@@ -134,7 +135,7 @@ public:
         Locator::getRenderer().setGlobalFloat(SID("_Ambient"), 0.5f);
 
         //Locator::getSceneManager().LoadSceneAsync(new SceneGUISelectSceneMenu());
-        Locator::getSceneManager().LoadSceneAsync(new SceneSplines());
+        Locator::getSceneManager().LoadSceneAsync(new TSceneAlphaProblemDemo());
     }
 
     //----------------------------------------------------------------------
