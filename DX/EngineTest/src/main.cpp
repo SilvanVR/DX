@@ -26,8 +26,6 @@ class TestScene : public IScene
     Components::Camera* cam;
     GameObject* go;
 
-    GameObject* test;
-
 public:
     TestScene() : IScene("TestScene") {}
 
@@ -130,7 +128,7 @@ public:
         Locator::getRenderer().setGlobalFloat(SID("_Ambient"), 0.5f);
 
         //Locator::getSceneManager().LoadSceneAsync(new SceneGUISelectSceneMenu());
-        Locator::getSceneManager().LoadSceneAsync(new SceneGUI());
+        Locator::getSceneManager().LoadSceneAsync(new SceneSplines());
     }
 
     //----------------------------------------------------------------------

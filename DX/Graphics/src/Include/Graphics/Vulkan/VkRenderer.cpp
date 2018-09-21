@@ -242,6 +242,7 @@ namespace Graphics {
                     case CameraMember::Projection: name = CAM_PROJ_MATRIX_NAME; break;
                     default: LOG_WARN_RENDERING( "VkRenderer: Command [SET_CAMERA_MATRIX]: Unsupported Camera Matrix." );
                     }
+                    m_cameraBuffer->beginBuffer();
                     m_cameraBuffer->update( name, &cmd.matrix );
                     m_cameraBuffer->bind();
                     break;
