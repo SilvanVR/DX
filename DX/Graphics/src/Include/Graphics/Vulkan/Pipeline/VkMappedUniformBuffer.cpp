@@ -8,6 +8,10 @@
 
 namespace Graphics { namespace Vulkan {
 
+    //**********************************************************************
+    // MappedUniformBuffer
+    //**********************************************************************
+
     //----------------------------------------------------------------------
     MappedUniformBuffer::MappedUniformBuffer( const ShaderUniformBufferDeclaration& bufferInfo, BufferUsage usage )
         : m_bufferInfo( bufferInfo )
@@ -65,6 +69,45 @@ namespace Graphics { namespace Vulkan {
     {
         m_GPUBuffer.destroy();
         _aligned_free( m_CPUBuffer );
+    }
+
+    //**********************************************************************
+    // CachedMappedUniformBuffer
+    //**********************************************************************
+
+    //----------------------------------------------------------------------
+    CachedMappedUniformBuffer::~CachedMappedUniformBuffer()
+    {
+        for (auto& ubo : m_mappedUBOs)
+            SAFE_DELETE( ubo );
+    }
+
+    //----------------------------------------------------------------------
+    void CachedMappedUniformBuffer::newFrame()
+    {
+        m_bufferIndex = 0;
+    }
+
+    //----------------------------------------------------------------------
+    void CachedMappedUniformBuffer::beginBuffer()
+    {
+        if (m_bufferIndex == m_mappedUBOs.size())
+            m_mappedUBOs.push_back( new MappedUniformBuffer( m_bufferDecl, m_bufferUsage ) );
+        m_bufferIndex++;
+    }
+
+    //----------------------------------------------------------------------
+    bool CachedMappedUniformBuffer::update( StringID name, const void* data )
+    {
+        I32 index = m_bufferIndex - 1;
+        return m_mappedUBOs[index]->update( name, data );
+    }
+
+    //----------------------------------------------------------------------
+    void CachedMappedUniformBuffer::bind()
+    {
+        I32 index = m_bufferIndex - 1;
+        m_mappedUBOs[index]->bind();
     }
 
 } } // End namespaces

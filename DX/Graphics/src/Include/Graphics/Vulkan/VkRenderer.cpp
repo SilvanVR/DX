@@ -243,7 +243,7 @@ namespace Graphics {
                     default: LOG_WARN_RENDERING( "VkRenderer: Command [SET_CAMERA_MATRIX]: Unsupported Camera Matrix." );
                     }
                     m_cameraBuffer->update( name, &cmd.matrix );
-                    m_cameraBuffer->flush();
+                    m_cameraBuffer->bind();
                     break;
                 }
                 default:
@@ -278,9 +278,9 @@ namespace Graphics {
         // Record all commands
         g_vulkan.ctx.BeginFrame();
         {
-            m_cameraBuffer->bind();
             m_globalBuffer->bind();
-            m_lightBuffer->bind();
+            m_cameraBuffer->newFrame();
+            m_lightBuffer->newFrame();
             {
                 _LockQueue();
                 for (auto& cmd : m_pendingCmdQueue)
@@ -445,6 +445,7 @@ namespace Graphics {
             g_vulkan.ctx.RSSetScissor({ { (I32)vp.x, (I32)vp.y }, { (U32)vp.width, (U32)vp.height } });
         }
 
+        m_cameraBuffer->beginBuffer();
         auto modelMatrix = camera->getModelMatrix();
         auto translation = modelMatrix.r[3];
         if ( not m_cameraBuffer->update( CAM_POS_NAME, &translation ) )
@@ -463,7 +464,7 @@ namespace Graphics {
 
         if ( not m_cameraBuffer->update( CAM_PROJ_MATRIX_NAME, &camera->getProjectionMatrix() ) )
             LOG_ERROR_RENDERING( "Vulkan: Could not update the camera buffer [Projection]. Fix this!" );
-        m_cameraBuffer->flush();
+        m_cameraBuffer->bind();
     }
 
     //----------------------------------------------------------------------
@@ -533,6 +534,8 @@ namespace Graphics {
         renderContext.lightsUpdated = false;
 
         renderContext.getCamera()->getFrameInfo().numLights = renderContext.lightCount;
+
+        m_lightBuffer->beginBuffer();
 
         // Update light count
         if ( not m_lightBuffer->update( LIGHT_COUNT_NAME, &renderContext.lightCount ) )
@@ -677,7 +680,7 @@ namespace Graphics {
             LOG_ERROR_RENDERING( "Failed to update light-buffer [ViewProjections]. Something is horribly broken! Fix this!" );
 
         // Update gpu buffer
-        m_lightBuffer->flush();
+        m_lightBuffer->bind();
     }
 
     //----------------------------------------------------------------------
@@ -713,7 +716,7 @@ namespace Graphics {
                     String lower = StringUtils::toLower( ubo.getName().toString() );
                     if ( lower.find( CAMERA_UBO_KEYWORD ) != String::npos )
                         if (not m_cameraBuffer)
-                            m_cameraBuffer = new Vulkan::MappedUniformBuffer( ubo, BufferUsage::Frequently );
+                            m_cameraBuffer = new Vulkan::CachedMappedUniformBuffer( ubo, BufferUsage::Frequently );
                         else LOG_WARN_RENDERING( "VkRenderer::_CreateGlobalBuffersFromFile(): Found another camera ubo." );
                     else if(lower.find( GLOBAL_UBO_KEYWORD ) != String::npos)
                         if (not m_globalBuffer)
@@ -721,7 +724,7 @@ namespace Graphics {
                         else LOG_WARN_RENDERING( "VkRenderer::_CreateGlobalBuffersFromFile(): Found another global ubo." );
                     else if(lower.find( LIGHTS_UBO_KEYWORD ) != String::npos)
                         if (not m_lightBuffer)
-                            m_lightBuffer = new Vulkan::MappedUniformBuffer( ubo, BufferUsage::Frequently );
+                            m_lightBuffer = new Vulkan::CachedMappedUniformBuffer( ubo, BufferUsage::Frequently );
                         else LOG_WARN_RENDERING( "VkRenderer::_CreateGlobalBuffersFromFile(): Found another light ubo." );
                 }
                 if (not m_cameraBuffer) LOG_ERROR_RENDERING( "VkRenderer::_CreateGlobalBuffersFromFile(): Could not find camera buffer." );
@@ -813,12 +816,13 @@ namespace Graphics {
         auto projection = DirectX::XMMatrixPerspectiveFovLH( DirectX::XMConvertToRadians( 90.0f ), 1.0f, 0.1f, 10.0f );
         for (I32 face = 0; face < 6; face++)
         {
+            m_cameraBuffer->beginBuffer();
             auto view = DirectX::XMMatrixLookToLH( { 0, 0, 0, 0 }, directions[face], ups[face] );
             if ( not m_cameraBuffer->update( CAM_VIEW_MATRIX_NAME, &view ) )
                 LOG_ERROR_RENDERING( "Vulkan: Could not update the camera buffer [View]. Fix this!" );
             if ( not m_cameraBuffer->update( CAM_PROJ_MATRIX_NAME, &projection ) )
                 LOG_ERROR_RENDERING( "Vulkan: Could not update the camera buffer [Projection]. Fix this!" );
-            m_cameraBuffer->flush();
+            m_cameraBuffer->bind();
 
             _DrawMesh( m_cubeMesh, material, DirectX::XMMatrixIdentity(), 0 );
             _CopyTexture( colorBuffer, 0, 0, cubemap, face, dstMip );

@@ -61,9 +61,9 @@ namespace Graphics {
         Vulkan::Swapchain   m_swapchain;
         IMesh*              m_cubeMesh      = nullptr;
 
-        Vulkan::MappedUniformBuffer* m_globalBuffer = nullptr;
-        Vulkan::MappedUniformBuffer* m_cameraBuffer = nullptr;
-        Vulkan::MappedUniformBuffer* m_lightBuffer  = nullptr;
+        Vulkan::MappedUniformBuffer*        m_globalBuffer = nullptr;
+        Vulkan::CachedMappedUniformBuffer*  m_cameraBuffer = nullptr;
+        Vulkan::CachedMappedUniformBuffer*  m_lightBuffer  = nullptr;
 
         //----------------------------------------------------------------------
         inline void _SetCamera(Camera* camera);
