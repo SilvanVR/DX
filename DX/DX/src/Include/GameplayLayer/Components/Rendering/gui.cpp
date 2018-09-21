@@ -219,6 +219,20 @@ namespace Components {
         }
     }
 
+    //----------------------------------------------------------------------
+    void GUI::onActive()
+    {
+        m_camera->addCommandBuffer( &m_cmd );
+    }
+
+    //----------------------------------------------------------------------
+    void GUI::onInActive()
+    {
+        m_camera->removeCommandBuffer( &m_cmd );
+        _SetMouseInputExclusive( false );
+        _SetKeyboardInputExclusive( false );
+    }
+
     //**********************************************************************
     // LISTENER
     //**********************************************************************
@@ -336,28 +350,42 @@ namespace Components {
         bool consoleIsOpen = (KEYBOARD.getChannelMask() & EInputChannels::Console) != EInputChannels::None;
         if ( m_camera->isBlittingToScreen() && not consoleIsOpen )
         {
-            if (io.WantCaptureMouse) // Disable master channel + enable GUI Channel
-            {
-                MOUSE.setChannel( EInputChannels::GUI );
-                MOUSE.unsetChannel( EInputChannels::Master );
-            }
-            else
-            {
-                MOUSE.setChannel( EInputChannels::Master );
-                MOUSE.unsetChannel( EInputChannels::GUI );
-            }
-
-            if (io.WantCaptureKeyboard) // Disable master channel + enable GUI Channel
-            {
-                KEYBOARD.setChannel( EInputChannels::GUI );
-                KEYBOARD.unsetChannel( EInputChannels::Master );
-            }
-            else
-            {
+            _SetMouseInputExclusive( io.WantCaptureMouse );
+            _SetKeyboardInputExclusive( io.WantCaptureKeyboard );
+            if (not io.WantCaptureKeyboard)
                 memset( io.KeysDown, 0, 512 );
-                KEYBOARD.setChannel( EInputChannels::Master );
-                KEYBOARD.unsetChannel( EInputChannels::GUI );
-            }
+        }
+    }
+
+    //----------------------------------------------------------------------
+    void GUI::_SetMouseInputExclusive( bool enable )
+    {
+        using namespace Core::Input;
+        if (enable) // Disable master channel + enable GUI Channel
+        {
+            MOUSE.setChannel( EInputChannels::GUI );
+            MOUSE.unsetChannel( EInputChannels::Master );
+        }
+        else
+        {
+            MOUSE.setChannel( EInputChannels::Master );
+            MOUSE.unsetChannel( EInputChannels::GUI );
+        }
+    }
+
+    //----------------------------------------------------------------------
+    void GUI::_SetKeyboardInputExclusive( bool enable )
+    {
+        using namespace Core::Input;
+        if (enable) // Disable master channel + enable GUI Channel
+        {
+            KEYBOARD.setChannel( EInputChannels::GUI );
+            KEYBOARD.unsetChannel( EInputChannels::Master );
+        }
+        else
+        {
+            KEYBOARD.setChannel( EInputChannels::Master );
+            KEYBOARD.unsetChannel( EInputChannels::GUI );
         }
     }
 

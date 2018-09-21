@@ -132,6 +132,8 @@ namespace Core {
     void SceneManager::_SwitchToScene( IScene* newScene )
     {
         // Add new scene
+        auto sceneName = newScene->getName().toString();
+        sceneName.empty() ? LOG( "New scene loaded!", Color::RED ) : LOG( sceneName + " loaded!", Color::RED );
         m_sceneStack.push_back( newScene );
     }
 

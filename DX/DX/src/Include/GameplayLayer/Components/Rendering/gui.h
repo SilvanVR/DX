@@ -39,6 +39,8 @@ namespace Components {
         void init() override;
         void preTick(Time::Seconds d) override;
         void lateTick(Time::Seconds d) override;
+        void onActive() override;
+        void onInActive() override;
 
         //----------------------------------------------------------------------
         // IMouseListener Interface
@@ -65,6 +67,8 @@ namespace Components {
         MaterialPtr             m_fontAtlasMaterial;
 
         void _UpdateIMGUI(F32 delta);
+        void _SetMouseInputExclusive(bool enable);
+        void _SetKeyboardInputExclusive(bool enable);
 
         NULL_COPY_AND_ASSIGN(GUI)
     };

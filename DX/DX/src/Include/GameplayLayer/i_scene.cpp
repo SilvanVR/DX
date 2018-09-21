@@ -16,7 +16,7 @@
 
 //----------------------------------------------------------------------
 IScene::IScene( CString name ) 
-    : m_name( name ) 
+    : m_name( name, true ) 
 {
 }
 

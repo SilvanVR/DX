@@ -45,8 +45,6 @@ public:
 
         auto cube = Core::MeshGenerator::CreateCubeUV(1.0f);
         createGameObject("Cube")->addComponent<Components::MeshRenderer>(cube, ASSETS.getMaterial("/materials/texture.material"));
-
-        LOG("TestScene initialized!", Color::RED);
     }
 
     void tick(Time::Seconds delta) override
@@ -62,7 +60,7 @@ public:
         }
     }
 
-    void shutdown() override { LOG("TestScene Shutdown!", Color::RED); }
+    void shutdown() override { }
 };
 
 //----------------------------------------------------------------------
@@ -98,10 +96,7 @@ public:
         guiSceneMenu->registerScene<TexArrayScene>("Texture arrays");
         guiSceneMenu->registerScene<CubemapScene>("Cubemap");
         guiSceneMenu->registerScene<VertexGenScene>("Dynamic Vertex Buffer regeneration");
-
-        LOG("SceneGUISelectSceneMenu initialized!", Color::RED);
     }
-    void shutdown() override { LOG("SceneGUISelectSceneMenu Shutdown!", Color::RED); }
 };
 
 //----------------------------------------------------------------------
@@ -135,7 +130,7 @@ public:
         Locator::getRenderer().setGlobalFloat(SID("_Ambient"), 0.5f);
 
         //Locator::getSceneManager().LoadSceneAsync(new SceneGUISelectSceneMenu());
-        Locator::getSceneManager().LoadSceneAsync(new TSceneAlphaProblemDemo());
+        Locator::getSceneManager().LoadSceneAsync(new TSceneSunShadow());
     }
 
     //----------------------------------------------------------------------

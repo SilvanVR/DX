@@ -25,9 +25,9 @@ public:
     virtual ~IScene();
 
     //----------------------------------------------------------------------
-    virtual void init() = 0;
+    virtual void init() {}
     virtual void tick(Time::Seconds delta) {}
-    virtual void shutdown() = 0;
+    virtual void shutdown() {}
 
     //----------------------------------------------------------------------
     const StringID                      getName()               const { return m_name; }

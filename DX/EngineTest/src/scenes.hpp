@@ -76,19 +76,12 @@ public:
 
         //bool removed = go2->removeComponent( c );
         //bool destroyed = go2->removeComponent<Components::Transform>();
-
-        LOG("SceneCameras initialized!", Color::RED);
     }
 
     void tick(Time::Seconds delta)
     {
         if(KEYBOARD.wasKeyPressed(Key::T))
             go2->removeComponent<Components::MeshRenderer>();
-    }
-
-    void shutdown() override
-    {
-        LOG("SceneCameras Shutdown!", Color::RED);
     }
 };
 
@@ -137,8 +130,6 @@ public:
             goModel3->addComponent<ConstantRotation>(0.0f, 0.0f, 20.0f);
             mr = goModel3->addComponent<Components::MeshRenderer>(plane, ASSETS.getColorMaterial());
         }
-
-        LOG("VertexGenScene initialized!", Color::RED);
     }
 
     void tick( Time::Seconds d ) override
@@ -150,8 +141,6 @@ public:
         if (KEYBOARD.isKeyDown(Key::Subtract))
             goModel->getComponent<Components::Transform>()->scale.y -= speed * delta;
     }
-
-    void shutdown() override { LOG("VertexGenScene Shutdown!", Color::RED); }
 
 };
 
@@ -181,11 +170,7 @@ public:
             go->addComponent<Components::MeshRenderer>(cube, ASSETS.getColorMaterial());
             go->getComponent<Components::Transform>()->position = Math::Random::Vec3(-1,1).normalized() * sqrtf((F32)m_numObjects);
         }
-
-        LOG("ManyObjectsScene initialized!", Color::RED);
     }
-
-    void shutdown() override { LOG("ManyObjectsScene Shutdown!", Color::RED); }
 };
 
 class SceneMirror : public IScene
@@ -241,8 +226,6 @@ public:
         player->getTransform()->setParent(go->getTransform(), false);
         player->getTransform()->position = { 0, 0, -0.5f };
         player->getTransform()->rotation *= Math::Quat(Math::Vec3::UP, 180.0f);
-
-        LOG("SceneMirror initialized!", Color::RED);
     }
 
     void tick(Time::Seconds d) override
@@ -253,11 +236,6 @@ public:
             RESOURCES.setGlobalAnisotropicFiltering(4);
         if (KEYBOARD.wasKeyPressed(Key::NumPad3))
             RESOURCES.setGlobalAnisotropicFiltering(8);
-    }
-
-    void shutdown() override
-    {
-        LOG("SceneMirror Shutdown!", Color::RED);
     }
 };
 
@@ -294,11 +272,7 @@ public:
         auto go2 = createGameObject("Test2");
         go2->addComponent<Components::MeshRenderer>(sphere, material);
         go2->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, 0);
-
-        LOG("CubemapScene initialized!", Color::RED);
     }
-
-    void shutdown() override { LOG("CubemapScene Shutdown!", Color::RED); }
 };
 
 class TexArrayScene : public IScene
@@ -364,11 +338,7 @@ public:
         auto go4 = createGameObject("Test4");
         go4->addComponent<Components::MeshRenderer>(plane, material3);
         go4->getComponent<Components::Transform>()->position.x = 2;
-
-        LOG("TexArrayScene initialized!", Color::RED);
     }
-
-    void shutdown() override { LOG("TexArrayScene Shutdown!", Color::RED); }
 };
 
 class SceneGraphScene : public IScene
@@ -425,8 +395,6 @@ public:
 
         parent->getTransform()->addChild(child->getTransform());
         parent->getTransform()->addChild(child2->getTransform());
-
-        LOG("SceneGraphScene initialized!", Color::RED);
     }
 
     void tick(Time::Seconds d) override
@@ -437,8 +405,6 @@ public:
         if (KEYBOARD.wasKeyPressed(Key::G))
             child2->getTransform()->setParent(parent->getTransform());
     }
-
-    void shutdown() override { LOG("SceneGraphScene Shutdown!", Color::RED); }
 };
 
 
@@ -471,11 +437,7 @@ public:
 
         auto go2 = createGameObject("Obj");
         go2->addComponent<Components::MeshRenderer>(mesh, ASSETS.getColorMaterial());
-
-        LOG("SceneFrustumVisualization initialized!", Color::RED);
     }
-
-    void shutdown() override { LOG("SceneFrustumVisualization Shutdown!", Color::RED); }
 };
 
 
@@ -507,11 +469,7 @@ public:
         auto go4 = createGameObject("Obj");
         go4->addComponent<Components::MeshRenderer>(plane, mat);
         go4->getTransform()->position.z = -3;
-
-        LOG("TransparencyScene initialized!", Color::RED);
     }
-
-    void shutdown() override { LOG("TransparencyScene Shutdown!", Color::RED); }
 };
 
 class BlinnPhongLightingScene : public IScene
@@ -580,8 +538,6 @@ public:
         pl->getTransform()->position = { 3, 1, 0 };
         pl->addComponent<Components::Billboard>(ASSETS.getTexture2D("/engine/textures/pointLight.png"), 0.5f);
         pl->addComponent<AutoOrbiting>(20.0f);
-
-        LOG("BlinnPhongLightingScene initialized!", Color::RED);
     }
 
     void tick(Time::Seconds d) override
@@ -611,8 +567,6 @@ public:
         if (KEYBOARD.wasKeyPressed(Key::F))
             spot->setActive(!spot->isActive());
     }
-
-    void shutdown() override { LOG("BlinnPhongLightingScene Shutdown!", Color::RED); }
 };
 
 
@@ -635,11 +589,7 @@ public:
         planeMat->setTexture("tex", brdfLut.getTexture());
         auto plane = createGameObject("Plane");
         plane->addComponent<Components::MeshRenderer>(Core::MeshGenerator::CreatePlane(1), planeMat);
-
-        LOG("BRDFLUTScene initialized!", Color::RED);
     }
-
-    void shutdown() override { LOG("BRDFLUTScene Shutdown!", Color::RED); }
 };
 
 
@@ -743,11 +693,7 @@ public:
         //pl5->addComponent<Components::PointLight>(intensity, Math::Random::Color(), range);
         //pl5->getTransform()->position = { 5, -3, -3 };
         //pl5->addComponent<Components::Billboard>(ASSETS.getTexture2D("/engine/textures/pointLight.png"), 0.3f);
-
-        LOG("PBRSpheres initialized!", Color::RED);
     }
-
-    void shutdown() override { LOG("PBRSpheres Shutdown!", Color::RED); }
 };
 
 class ScenePBRPistol : public IScene
@@ -804,11 +750,7 @@ public:
         auto sun = createGameObject("Sun");
         sun->addComponent<Components::DirectionalLight>(5.0f, Color::WHITE);
         sun->getTransform()->rotation = Math::Quat::LookRotation(Math::Vec3{ 0,-1, 1 });
-
-        LOG("ScenePBRPistol initialized!", Color::RED);
     }
-
-    void shutdown() override { LOG("ScenePBRPistol Shutdown!", Color::RED); }
 };
 
 ArrayList<MaterialPtr> GeneratePBRMaterials(const ShaderPtr& pbrShader, const MeshPtr& mesh, const Assets::MeshMaterialInfo& materials)
@@ -915,11 +857,7 @@ public:
         pl->getTransform()->position = { 5, 2, 0 };
         pl->addComponent<Components::Billboard>(ASSETS.getTexture2D("/engine/textures/pointLight.png"), 0.5f);
         pl->addComponent<AutoOrbiting>(20.0f);
-
-        LOG("SponzaScene initialized!", Color::RED);
     }
-
-    void shutdown() override { LOG("SponzaScene Shutdown!", Color::RED); }
 };
 
 class ScenePostProcessMultiCamera : public IScene
@@ -991,11 +929,7 @@ public:
         auto obj = createGameObject("Obj");
         obj->addComponent<Components::MeshRenderer>(ASSETS.getMesh("/models/monkey.obj"), ASSETS.getMaterial("/materials/pbr/gold.pbrmaterial"));
         obj->addComponent<Components::Skybox>(cubemapHDR);
-
-        LOG("ScenePostProcessMultiCamera initialized!", Color::RED);
     }
-
-    void shutdown() override { LOG("ScenePostProcessMultiCamera Shutdown!", Color::RED); }
 };
 
 class SceneGUI : public IScene
@@ -1038,11 +972,7 @@ public:
         //guiScreenMat->setColor("tintColor", Color::WHITE);
         //rtGO->addComponent<Components::MeshRenderer>(Core::MeshGenerator::CreatePlane(), guiScreenMat);
         //rtGO->getTransform()->position = { 0, 1, 0 };
-
-        LOG("SceneGUI initialized!", Color::RED);
     }
-
-    void shutdown() override { LOG("SceneGUI Shutdown!", Color::RED); }
 };
 
 class ShadowScene : public IScene
@@ -1274,11 +1204,7 @@ public:
                 }
             }
         });
-
-        LOG("ShadowScene initialized!", Color::RED);
     }
-
-    void shutdown() override { LOG("ShadowScene Shutdown!", Color::RED); }
 };
 
 class SceneParticleSystem : public IScene
@@ -1659,11 +1585,7 @@ public:
             }
             ImGui::End();
         });
-
-        LOG("SceneParticleSystem initialized!", Color::RED);
     }
-
-    void shutdown() override { LOG("SceneParticleSystem Shutdown!", Color::RED); }
 };
 
 class VRScene : public IScene
@@ -1753,8 +1675,6 @@ public:
                       "2: Display Right Eye on Screen\n"
                       "3: Display Both Eyes on Screen\n";
         LOG(info, Color::BLUE);
-
-        LOG("VRScene initialized!", Color::RED);
     }
 
     void tick(Time::Seconds delta) override
@@ -1769,8 +1689,6 @@ public:
                 vrCam->setScreenDisplay(Components::ScreenDisplay::BothEyes);
         }
     }
-
-    void shutdown() override { LOG("VRScene Shutdown!", Color::RED); }
 };
 
 
@@ -1810,8 +1728,6 @@ public:
             "Left/Right: Change selected point.\n"
             "Up/Down: Increase/Decrease vertex count.\n";
         LOG(message, Color::BLUE);
-
-        LOG("SceneSplines initialized!", Color::RED);
     }
 
     void tick(Time::Seconds delta) override
@@ -1893,6 +1809,4 @@ public:
             //DEBUG.drawLine(m_shipTransform->position - gradient * 0.5f, m_shipTransform->position + gradient*0.5f, Color::GREEN, 0);
         }
     }
-
-    void shutdown() override { LOG("SceneSplines Shutdown!", Color::RED); }
 };

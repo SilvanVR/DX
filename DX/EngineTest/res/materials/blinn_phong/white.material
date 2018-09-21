@@ -1,0 +1,7 @@
+{
+
+"shader" : "/shaders/phong_shadow.shader",
+"_MainTex" : "/engine/textures/white.jpg",
+"uvScale" : 1
+
+}
