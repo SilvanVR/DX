@@ -698,6 +698,8 @@ public:
 
 class ScenePBRPistol : public IScene
 {
+    Tonemap* toneMapComponent;
+
 public:
     ScenePBRPistol() : IScene("ScenePBRPistol") {}
 
@@ -708,7 +710,7 @@ public:
         auto cam = go->addComponent<Components::Camera>(45.0f, 0.1f, 1000.0f, Graphics::MSAASamples::Four, true);
         go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -10);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA);
-        go->addComponent<Tonemap>();
+        toneMapComponent = go->addComponent<Tonemap>();
 
         // Environment map
         auto cubemapHDR = ASSETS.getCubemap("/cubemaps/canyon.hdr", 2048, true);
@@ -750,6 +752,12 @@ public:
         auto sun = createGameObject("Sun");
         sun->addComponent<Components::DirectionalLight>(5.0f, Color::WHITE);
         sun->getTransform()->rotation = Math::Quat::LookRotation(Math::Vec3{ 0,-1, 1 });
+    }
+
+    void tick(Time::Seconds d)
+    {
+        if (KEYBOARD.wasKeyPressed(Key::G))
+            toneMapComponent->setActive( not toneMapComponent->isActive() );
     }
 };
 

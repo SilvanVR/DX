@@ -307,16 +307,11 @@ class PostProcess : public Components::IComponent
     Graphics::CommandBuffer cmd[2];
     MaterialPtr m_material;
     bool m_hdr;
+    bool m_addedCommandBuffer = false;
 
 public:
     PostProcess(const MaterialPtr& material, bool hdr = false) : m_material(material), m_hdr(hdr) {}
-    ~PostProcess() { 
-        if (auto cam = getGameObject()->getComponent<Components::Camera>()) 
-            cam->removeCommandBuffer(&cmd[0]);
-        if (auto vrCam = getGameObject()->getComponent<Components::VRCamera>())
-            for (auto eye : { Graphics::VR::LeftEye, Graphics::VR::RightEye })
-                vrCam->getCameraForEye(eye).removeCommandBuffer(&cmd[eye]);
-    }
+    ~PostProcess() { _RemoveCommandBuffer(); }
 
     void addedToGameObject(GameObject* go)
     {
@@ -333,9 +328,6 @@ public:
                 // Create render target
                 auto rt = RESOURCES.createRenderTexture(hmdDesc.idealResolution[eye].x, hmdDesc.idealResolution[eye].y, m_hdr ? Graphics::TextureFormat::RGBAFloat : Graphics::TextureFormat::RGBA32, false);
                 cmd[eye].blit(PREVIOUS_BUFFER, rt, m_material);
-
-                // Attach command buffer to camera
-                vrCam->getCameraForEye(eye).addCommandBuffer(&cmd[eye], Components::CameraEvent::PostProcess);
             }
         }
         else if (cam)
@@ -343,9 +335,47 @@ public:
             // Create render target
             auto rt = RESOURCES.createRenderTexture(WINDOW.getWidth(), WINDOW.getHeight(), m_hdr ? Graphics::TextureFormat::RGBAFloat : Graphics::TextureFormat::RGBA32, true);
             cmd[0].blit(PREVIOUS_BUFFER, rt, m_material);
+        }
+        _AddCommandBuffer();
+    }
 
+    void onInActive() override { _RemoveCommandBuffer(); }
+    void onActive() override   { _AddCommandBuffer(); }
+
+private:
+    void _AddCommandBuffer()
+    {
+        if (m_addedCommandBuffer)
+            return;
+
+        auto cam = getGameObject()->getComponent<Components::Camera>();
+        auto vrCam = getGameObject()->getComponent<Components::VRCamera>();
+
+        if (vrCam)
+        {
+            auto hmdDesc = RENDERER.getVRDevice().getDescription();
+            for (auto eye : { Graphics::VR::LeftEye, Graphics::VR::RightEye })
+                vrCam->getCameraForEye(eye).addCommandBuffer(&cmd[eye], Components::CameraEvent::PostProcess);
+            m_addedCommandBuffer = true;
+        }
+        else if (cam)
+        {
             // Attach command buffer to camera
             cam->addCommandBuffer(&cmd[0], Components::CameraEvent::PostProcess);
+            m_addedCommandBuffer = true;
+        }
+    }
+
+    void _RemoveCommandBuffer()
+    {
+        if (m_addedCommandBuffer)
+        {
+            if (auto cam = getGameObject()->getComponent<Components::Camera>())
+                cam->removeCommandBuffer(&cmd[0]);
+            if (auto vrCam = getGameObject()->getComponent<Components::VRCamera>())
+                for (auto eye : { Graphics::VR::LeftEye, Graphics::VR::RightEye })
+                    vrCam->getCameraForEye(eye).removeCommandBuffer(&cmd[eye]);
+            m_addedCommandBuffer = false;
         }
     }
 };
