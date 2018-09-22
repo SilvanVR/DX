@@ -11,25 +11,25 @@
 namespace Graphics { namespace D3D11 {
 
     //----------------------------------------------------------------------
-    void RenderBuffer::create( U32 width, U32 height, TextureFormat format, SamplingDescription samplingDesc )
+    void RenderBuffer::create( U32 width, U32 height, TextureFormat format, MSAASamples samples )
     {
         ITexture::_Init( TextureDimension::Tex2D, width, height, format );
         m_isDepthBuffer = false;
 
-        _SetMultisampleDesc( samplingDesc );
+        _SetMultisampleDesc( samples );
 
         _CreateColorBufferAndViews();
         _CreateSampler( m_anisoLevel, m_filter, m_clampMode );
     }
 
     //----------------------------------------------------------------------
-    void RenderBuffer::create( U32 width, U32 height, DepthFormat format, SamplingDescription samplingDesc )
+    void RenderBuffer::create( U32 width, U32 height, DepthFormat format, MSAASamples samples )
     {
         ITexture::_Init( TextureDimension::Tex2D, width, height, TextureFormat::Depth );
         m_isDepthBuffer = true;
         m_depthFormat = format;
 
-        _SetMultisampleDesc( samplingDesc );
+        _SetMultisampleDesc( samples );
 
         _CreateDepthBufferAndViews();
         _CreateSampler( m_anisoLevel, m_filter, m_clampMode );
@@ -38,16 +38,16 @@ namespace Graphics { namespace D3D11 {
     //----------------------------------------------------------------------
     void RenderBuffer::recreate( U32 w, U32 h )
     {
-        recreate( w, h, m_samplingDescription );
+        recreate( w, h, m_sampleCount );
     }
 
     //----------------------------------------------------------------------
-    void RenderBuffer::recreate( U32 w, U32 h, SamplingDescription samplingDesc )
+    void RenderBuffer::recreate( U32 w, U32 h, MSAASamples samples )
     {
         m_width = w;
         m_height = h;
 
-        _SetMultisampleDesc( samplingDesc );
+        _SetMultisampleDesc( samples );
 
         _DestroyBufferAndViews();
         isDepthBuffer() ? _CreateDepthBufferAndViews() : _CreateColorBufferAndViews();
@@ -156,7 +156,7 @@ namespace Graphics { namespace D3D11 {
         // If multisampling was requested create an additional buffer in which we render, but have to resolve it before using it in a shader
         if ( isMultisampled() )
         {
-            textureDesc.SampleDesc = { m_samplingDescription.count, m_samplingDescription.quality };
+            textureDesc.SampleDesc = { (UINT)m_sampleCount, 0 };
             textureDesc.BindFlags  = D3D11_BIND_RENDER_TARGET;
             HR( g_pDevice->CreateTexture2D( &textureDesc, NULL, &m_pRenderBufferMS ) );
             HR( g_pDevice->CreateRenderTargetView( m_pRenderBufferMS, NULL, &m_pRenderTargetView ) );
@@ -179,7 +179,7 @@ namespace Graphics { namespace D3D11 {
         textureDesc.MipLevels      = 1;
         textureDesc.ArraySize      = 1;
         textureDesc.Format         = Utility::TranslateDepthFormatSRV( m_depthFormat );
-        textureDesc.SampleDesc     = { m_samplingDescription.count, m_samplingDescription.quality };
+        textureDesc.SampleDesc     = { (UINT)m_sampleCount, 0 };
         textureDesc.Usage          = D3D11_USAGE_DEFAULT;
         textureDesc.BindFlags      = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
         textureDesc.CPUAccessFlags = 0;
@@ -190,7 +190,7 @@ namespace Graphics { namespace D3D11 {
         D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc = {};
         dsvDesc.Flags = 0;
         dsvDesc.Format = Utility::TranslateDepthFormat( m_depthFormat );
-        dsvDesc.ViewDimension = m_samplingDescription.count > 1 ? D3D11_DSV_DIMENSION_TEXTURE2DMS : D3D11_DSV_DIMENSION_TEXTURE2D;
+        dsvDesc.ViewDimension = (I32)m_sampleCount > 1 ? D3D11_DSV_DIMENSION_TEXTURE2DMS : D3D11_DSV_DIMENSION_TEXTURE2D;
 
         HR( g_pDevice->CreateDepthStencilView( m_pTexture, &dsvDesc, &m_pDepthStencilView ) );
 
@@ -244,15 +244,15 @@ namespace Graphics { namespace D3D11 {
     }
 
     //----------------------------------------------------------------------
-    void RenderBuffer::_SetMultisampleDesc( SamplingDescription samplingDesc )
+    void RenderBuffer::_SetMultisampleDesc( MSAASamples samples )
     {
-        m_samplingDescription = samplingDesc;
+        m_sampleCount = samples;
 
         DXGI_FORMAT format = isDepthBuffer() ? Utility::TranslateDepthFormatSRV( m_depthFormat ) : Utility::TranslateTextureFormat( m_format );
-        if ( not Utility::MSAASamplesSupported( format, m_samplingDescription.count ) )
+        if ( not Utility::MSAASamplesSupported( format, (U8)m_sampleCount ) )
         { 
-            LOG_WARN_RENDERING( "D3D11: MSAA count (" + TS( m_samplingDescription.count ) + ") for render-buffer is not supported. Count will be set to 1." );
-            m_samplingDescription.count = 1;
+            LOG_WARN_RENDERING( "D3D11: MSAA count (" + TS( (I32)m_sampleCount ) + ") for render-buffer is not supported. Count will be set to 1." );
+            m_sampleCount = MSAASamples::One;
         }
     }
 

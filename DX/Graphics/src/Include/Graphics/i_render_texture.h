@@ -32,7 +32,7 @@ namespace Graphics
         bool                hasColorBuffer()            const { return getColorBuffer() != nullptr; }
         bool                hasDepthBuffer()            const { return getDepthBuffer() != nullptr; }
         F32                 getAspectRatio()            const { return getBuffer()->getAspectRatio(); }
-        SamplingDescription getSamplingDescription()    const { return getBuffer()->getSamplingDescription(); }
+        MSAASamples         getSampleCount()            const { return getBuffer()->getSampleCount(); }
 
         //----------------------------------------------------------------------
         // These set functions will be forwarded to all renderbuffers within this texture.
@@ -84,8 +84,8 @@ namespace Graphics
         // Recreate all buffers in this render texture.
         //----------------------------------------------------------------------
         virtual void recreate(U32 w, U32 h);
-        virtual void recreate(SamplingDescription samplingDesc);
-        virtual void recreate(U32 w, U32 h, SamplingDescription samplingDesc);
+        virtual void recreate(MSAASamples samples);
+        virtual void recreate(U32 w, U32 h, MSAASamples samples);
         virtual void recreate(Graphics::TextureFormat format);
 
     protected:

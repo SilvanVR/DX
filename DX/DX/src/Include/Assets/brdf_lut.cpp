@@ -13,7 +13,7 @@ namespace Assets {
     //----------------------------------------------------------------------
     BRDFLut::BRDFLut()
     {
-        m_brdfLut = RESOURCES.createRenderTexture( 512, 512, Graphics::TextureFormat::RGHalf );
+        m_brdfLut = RESOURCES.createRenderTexture( 512, 512, Graphics::TextureFormat::RGHalf, Graphics::MSAASamples::One );
         m_brdfLut->setAnisoLevel( 1 );
         m_brdfLut->setFilter( Graphics::TextureFilter::Bilinear );
         m_brdfLut->setClampMode( Graphics::TextureAddressMode::Clamp );

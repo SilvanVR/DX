@@ -43,7 +43,7 @@ public:
         createGameObject("Grid")->addComponent<GridGeneration>(20);
 
         auto cube = Core::MeshGenerator::CreateCubeUV(1.0f);
-        createGameObject("Cube")->addComponent<Components::MeshRenderer>(cube, ASSETS.getMaterial("/materials/texture.material"));
+        auto mr = createGameObject("Cube")->addComponent<Components::MeshRenderer>(cube, ASSETS.getMaterial("/materials/texture.material"));
     }
 
     void tick(Time::Seconds delta) override

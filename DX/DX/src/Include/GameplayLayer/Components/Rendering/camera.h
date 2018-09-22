@@ -68,7 +68,7 @@ namespace Components {
         void setCullingMask         (LayerMask cullingMask)                                         { m_cullingMask = cullingMask; }
         void setOrthoParams         (F32 left, F32 right, F32 bottom, F32 top, F32 zNear, F32 zFar) { m_camera.setOrthoParams(left, right, bottom, top, zNear, zFar); }
         void setPerspectiveParams   (F32 fovAngleYInDegree, F32 zNear, F32 zFar)                    { m_camera.setPerspectiveParams(fovAngleYInDegree, zNear, zFar); }
-        void setMultiSamples        (Graphics::MSAASamples sampleCount)                             { m_camera.getRenderTarget()->recreate({(U32)sampleCount}); }
+        void setMultiSamples        (Graphics::MSAASamples sampleCount)                             { m_camera.getRenderTarget()->recreate(sampleCount); }
         void setCameraFlags         (Graphics::CameraFlags flags)                                   { m_camera.setCameraFlags(flags); }
         void setProjection          (const DirectX::XMMATRIX& projection)                           { m_camera.setProjection(projection); }
         void setSuperSampling       (F32 screenResMod);

@@ -137,10 +137,10 @@ namespace Core { namespace Resources {
     }
 
     //----------------------------------------------------------------------
-    RenderTexturePtr ResourceManager::createRenderTexture( U32 width, U32 height, Graphics::TextureFormat format, Graphics::SamplingDescription samplingDesc )
+    RenderTexturePtr ResourceManager::createRenderTexture( U32 width, U32 height, Graphics::TextureFormat format, Graphics::MSAASamples samples )
     {
         auto colorBuffer = createRenderBuffer();
-        colorBuffer->create( width, height, format, samplingDesc );
+        colorBuffer->create( width, height, format, samples );
 
         auto renderTexture = createRenderTexture();
         renderTexture->create( colorBuffer );
@@ -151,7 +151,7 @@ namespace Core { namespace Resources {
     //----------------------------------------------------------------------
     RenderTexturePtr ResourceManager::createRenderTexture( U32 width, U32 height, Graphics::TextureFormat format, bool dynamicScale )
     {
-        auto renderTexture = createRenderTexture( width, height, format, {1, 0} );
+        auto renderTexture = createRenderTexture( width, height, format, Graphics::MSAASamples::One );
         renderTexture->setDynamicScreenScale( dynamicScale );
 
         return renderTexture;
@@ -166,13 +166,13 @@ namespace Core { namespace Resources {
         for (U32 i = 0; i < numBuffers; i++)
         {
             auto colorBuffer = createRenderBuffer();
-            colorBuffer->create( width, height, format, { (U32) sampleCount } );
+            colorBuffer->create( width, height, format, sampleCount );
             colorBuffers.push_back( colorBuffer );
 
             if (depth != Graphics::DepthFormat::None)
             {
                 auto depthBuffer = createRenderBuffer();
-                depthBuffer->create( width, height, depth, { (U32)sampleCount } );
+                depthBuffer->create( width, height, depth, sampleCount );
                 depthBuffers.push_back( depthBuffer );
             }
         }
@@ -189,13 +189,13 @@ namespace Core { namespace Resources {
                                                            Graphics::MSAASamples sampleCount, bool dynamicScale )
     {
         auto colorBuffer = createRenderBuffer();
-        colorBuffer->create( width, height, format, { (U32)sampleCount } );
+        colorBuffer->create( width, height, format, sampleCount );
 
         RenderBufferPtr depthBuffer = nullptr;
         if (depth != Graphics::DepthFormat::None)
         {
             depthBuffer = createRenderBuffer();
-            depthBuffer->create(width, height, depth, { (U32)sampleCount });
+            depthBuffer->create( width, height, depth, sampleCount );
         }
 
         auto renderTexture = createRenderTexture();

@@ -15,23 +15,23 @@ namespace Graphics { namespace Vulkan {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    void RenderBuffer::create( U32 width, U32 height, TextureFormat format, SamplingDescription samplingDesc )
+    void RenderBuffer::create( U32 width, U32 height, TextureFormat format, MSAASamples samples )
     {
         ITexture::_Init( TextureDimension::Tex2D, width, height, format );
         m_isDepthBuffer = false;
-        m_samplingDescription = samplingDesc;
+        m_sampleCount = samples;
 
         _CreateSampler( m_anisoLevel, m_filter, m_clampMode );
         _CreateFramebuffer( m_isDepthBuffer );
     }
 
     //----------------------------------------------------------------------
-    void RenderBuffer::create( U32 width, U32 height, DepthFormat format, SamplingDescription samplingDesc )
+    void RenderBuffer::create( U32 width, U32 height, DepthFormat format, MSAASamples samples )
     {
         ITexture::_Init( TextureDimension::Tex2D, width, height, TextureFormat::Depth );
         m_isDepthBuffer = true;
         m_depthFormat = format;
-        m_samplingDescription = samplingDesc;
+        m_sampleCount = samples;
 
         _CreateSampler( m_anisoLevel, m_filter, m_clampMode );
         _CreateFramebuffer( m_isDepthBuffer );
@@ -40,15 +40,15 @@ namespace Graphics { namespace Vulkan {
     //----------------------------------------------------------------------
     void RenderBuffer::recreate( U32 w, U32 h )
     {
-        recreate( w, h, m_samplingDescription );
+        recreate( w, h, m_sampleCount );
     }
 
     //----------------------------------------------------------------------
-    void RenderBuffer::recreate( U32 w, U32 h, SamplingDescription samplingDesc )
+    void RenderBuffer::recreate( U32 w, U32 h, MSAASamples samples )
     {
         m_width = w;
         m_height = h;
-        m_samplingDescription = samplingDesc;
+        m_sampleCount = samples;
         _DestroyFramebuffer( m_isDepthBuffer );
         _CreateFramebuffer( m_isDepthBuffer );
     }
@@ -136,7 +136,7 @@ namespace Graphics { namespace Vulkan {
         // If multisampling was requested create an additional buffer in which we render, but have to resolve it before using it in a shader
         if (isMultisampled())
         {
-            imageCreateInfo.samples = Utility::TranslateSampleCount( m_samplingDescription );
+            imageCreateInfo.samples = Utility::TranslateSampleCount( m_sampleCount );
             imageCreateInfo.usage = isDepthBuffer ? VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT : VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
             imageCreateInfo.usage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
             VALIDATE( vezCreateImage( g_vulkan.device, VEZ_MEMORY_GPU_ONLY, &imageCreateInfo, &m_framebufferMS.img ) );

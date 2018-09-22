@@ -27,12 +27,12 @@ namespace Graphics { namespace D3D11 {
         //----------------------------------------------------------------------
         // IRenderBuffer Interface
         //----------------------------------------------------------------------
-        void create(U32 width, U32 height, TextureFormat format, SamplingDescription samplingDesc) override;
-        void create(U32 width, U32 height, DepthFormat format, SamplingDescription samplingDesc) override;
+        void create(U32 width, U32 height, TextureFormat format, MSAASamples samples) override;
+        void create(U32 width, U32 height, DepthFormat format, MSAASamples samples) override;
         void clearColor(Color color) override;
         void clearDepthStencil(F32 depth, U8 stencil) override;
         void recreate(U32 w, U32 h) override;
-        void recreate(U32 w, U32 h, SamplingDescription sd) override;
+        void recreate(U32 w, U32 h, MSAASamples samples) override;
         void recreate(Graphics::TextureFormat format) override;
         void recreate(Graphics::DepthFormat format) override;
         void bindForRendering() override;
@@ -65,7 +65,7 @@ namespace Graphics { namespace D3D11 {
         void _CreateDepthBufferAndViews();
         void _CreateShaderResourceView();
         void _DestroyBufferAndViews();
-        void _SetMultisampleDesc(SamplingDescription samplingDesc);
+        void _SetMultisampleDesc(MSAASamples samples);
         inline void _ClearResolvedFlag() { m_resolved = false; }
 
         NULL_COPY_AND_ASSIGN(RenderBuffer)

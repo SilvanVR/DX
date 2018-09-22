@@ -22,10 +22,10 @@ namespace Graphics
         virtual ~IRenderBuffer() = default;
 
         //----------------------------------------------------------------------
-        const SamplingDescription&  getSamplingDescription()    const   { return m_samplingDescription; }
-        bool                        isDepthBuffer()             const   { return m_isDepthBuffer; }
-        bool                        isColorBuffer()             const   { return not m_isDepthBuffer; }
-        bool                        isMultisampled()            const   { return m_samplingDescription.count > 1;}
+        const MSAASamples           getSampleCount() const   { return m_sampleCount; }
+        bool                        isDepthBuffer()  const   { return m_isDepthBuffer; }
+        bool                        isColorBuffer()  const   { return not m_isDepthBuffer; }
+        bool                        isMultisampled() const   { return (I32)m_sampleCount > 1;}
 
         //----------------------------------------------------------------------
         // Creates a new color render buffer.
@@ -35,7 +35,7 @@ namespace Graphics
         //  "format": The texture format.
         //  "samplingDesc": Whether the buffer will be multisampled or not.
         //----------------------------------------------------------------------
-        virtual void create(U32 width, U32 height, TextureFormat format, SamplingDescription samplingDesc = { 1, 0 }) = 0;
+        virtual void create(U32 width, U32 height, TextureFormat format, MSAASamples samples = MSAASamples::One) = 0;
 
         //----------------------------------------------------------------------
         // Creates a new depth render buffer.
@@ -45,20 +45,20 @@ namespace Graphics
         //  "format": The texture format.
         //  "samplingDesc": Whether the buffer will be multisampled or not.
         //----------------------------------------------------------------------
-        virtual void create(U32 width, U32 height, DepthFormat format, SamplingDescription samplingDesc = { 1, 0 }) = 0;
+        virtual void create(U32 width, U32 height, DepthFormat format, MSAASamples samples = MSAASamples::One) = 0;
 
         //----------------------------------------------------------------------
         // Recreate all buffers in this render texture.
         //----------------------------------------------------------------------
         virtual void recreate(U32 w, U32 h) = 0;
-        virtual void recreate(U32 w, U32 h, SamplingDescription samplingDesc) = 0;
+        virtual void recreate(U32 w, U32 h, MSAASamples samples) = 0;
         virtual void recreate(Graphics::TextureFormat format) = 0;
         virtual void recreate(Graphics::DepthFormat format) = 0;
 
     protected:
-        SamplingDescription m_samplingDescription;
-        bool                m_isDepthBuffer;
-        DepthFormat         m_depthFormat;
+        MSAASamples m_sampleCount;
+        bool        m_isDepthBuffer;
+        DepthFormat m_depthFormat;
 
         //----------------------------------------------------------------------
         // Binds this renderbuffer to the output merger.

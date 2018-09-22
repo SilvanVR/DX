@@ -163,16 +163,14 @@ namespace Graphics { namespace Vulkan { namespace Utility {
     }
 
     //----------------------------------------------------------------------
-    VkSampleCountFlagBits TranslateSampleCount( SamplingDescription samplingDesc )
+    VkSampleCountFlagBits TranslateSampleCount( MSAASamples samples )
     {
-        switch (samplingDesc.count)
+        switch (samples)
         {
-        case 1: return VK_SAMPLE_COUNT_1_BIT;
-        case 2: return VK_SAMPLE_COUNT_2_BIT;
-        case 4: return VK_SAMPLE_COUNT_4_BIT;
-        case 8: return VK_SAMPLE_COUNT_8_BIT;
-        case 16: return VK_SAMPLE_COUNT_16_BIT;
-        case 32: return VK_SAMPLE_COUNT_32_BIT;
+        case MSAASamples::One:  return VK_SAMPLE_COUNT_1_BIT;
+        case MSAASamples::Two:  return VK_SAMPLE_COUNT_2_BIT;
+        case MSAASamples::Four:  return VK_SAMPLE_COUNT_4_BIT;
+        case MSAASamples::Eight: return VK_SAMPLE_COUNT_8_BIT;
         }
         ASSERT( false );
         return VK_SAMPLE_COUNT_1_BIT;

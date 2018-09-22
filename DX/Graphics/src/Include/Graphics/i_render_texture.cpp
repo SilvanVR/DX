@@ -75,20 +75,20 @@ namespace Graphics
     }
 
     //----------------------------------------------------------------------
-    void IRenderTexture::recreate( SamplingDescription samplingDesc )
+    void IRenderTexture::recreate( MSAASamples samples )
     { 
-        recreate( m_baseWidth, m_baseHeight, samplingDesc );
+        recreate( m_baseWidth, m_baseHeight, samples );
     }
 
     //----------------------------------------------------------------------
-    void IRenderTexture::recreate( U32 w, U32 h, SamplingDescription samplingDesc )
+    void IRenderTexture::recreate( U32 w, U32 h, MSAASamples samples )
     {
         m_baseWidth = w;
         m_baseHeight = h;
         for (auto& buffer : m_renderBuffers)
         {
-            if ( hasColorBuffer() ) buffer.m_colorBuffer->recreate( U32(w * m_scaleFactor), U32(h * m_scaleFactor), samplingDesc );
-            if ( hasDepthBuffer() ) buffer.m_depthBuffer->recreate( U32(w * m_scaleFactor), U32(h * m_scaleFactor), samplingDesc );
+            if ( hasColorBuffer() ) buffer.m_colorBuffer->recreate( U32(w * m_scaleFactor), U32(h * m_scaleFactor), samples );
+            if ( hasDepthBuffer() ) buffer.m_depthBuffer->recreate( U32(w * m_scaleFactor), U32(h * m_scaleFactor), samples );
         }
     }
 

@@ -31,7 +31,7 @@ namespace Graphics { namespace Vulkan { namespace Utility {
     VkFormat TranslateTextureFormat( TextureFormat format );
 
     //----------------------------------------------------------------------
-    VkSampleCountFlagBits TranslateSampleCount( SamplingDescription samplingDesc );
+    VkSampleCountFlagBits TranslateSampleCount( MSAASamples samples );
 
     //----------------------------------------------------------------------
     VkFormat TranslateDepthFormat( DepthFormat depth );

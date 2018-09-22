@@ -51,18 +51,18 @@ namespace Graphics { namespace Vulkan {
     }
 
     //----------------------------------------------------------------------
-    void RenderTexture::recreate( SamplingDescription samplingDesc )
+    void RenderTexture::recreate( MSAASamples samples )
     {
         _DestroyFramebuffers();
-        IRenderTexture::recreate( samplingDesc );
+        IRenderTexture::recreate( samples );
         _CreateFramebuffers();
     }
 
     //----------------------------------------------------------------------
-    void RenderTexture::recreate( U32 w, U32 h, SamplingDescription samplingDesc )
+    void RenderTexture::recreate( U32 w, U32 h, MSAASamples samples )
     {
         _DestroyFramebuffers();
-        IRenderTexture::recreate( w, h, samplingDesc );
+        IRenderTexture::recreate( w, h, samples );
         _CreateFramebuffers();
     }
 

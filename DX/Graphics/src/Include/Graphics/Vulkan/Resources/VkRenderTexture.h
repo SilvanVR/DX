@@ -27,8 +27,8 @@ namespace Graphics { namespace Vulkan {
         void clear(Color color, F32 depth, U8 stencil) override;
         void clearDepthStencil(F32 depth, U8 stencil) override;
         void recreate(U32 w, U32 h);
-        void recreate(SamplingDescription samplingDesc) override;
-        void recreate(U32 w, U32 h, SamplingDescription samplingDesc) override;
+        void recreate(MSAASamples samples) override;
+        void recreate(U32 w, U32 h, MSAASamples samples) override;
         void recreate(Graphics::TextureFormat format) override;
 
     private:

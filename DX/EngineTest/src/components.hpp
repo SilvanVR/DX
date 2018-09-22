@@ -333,7 +333,9 @@ public:
         else if (cam)
         {
             // Create render target
-            auto rt = RESOURCES.createRenderTexture(WINDOW.getWidth(), WINDOW.getHeight(), m_hdr ? Graphics::TextureFormat::RGBAFloat : Graphics::TextureFormat::RGBA32, true);
+            auto width = cam->getRenderTarget()->getWidth();
+            auto height = cam->getRenderTarget()->getHeight();
+            auto rt = RESOURCES.createRenderTexture(width, height, m_hdr ? Graphics::TextureFormat::RGBAFloat : Graphics::TextureFormat::RGBA32, true);
             cmd[0].blit(PREVIOUS_BUFFER, rt, m_material);
         }
         _AddCommandBuffer();
