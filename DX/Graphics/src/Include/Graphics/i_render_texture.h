@@ -25,8 +25,8 @@ namespace Graphics
         virtual ~IRenderTexture() = default;
 
         //----------------------------------------------------------------------
-        U32                 getWidth()                  const { return (U32)(getBuffer()->getWidth()); }
-        U32                 getHeight()                 const { return (U32)(getBuffer()->getHeight()); }
+        U32                 getWidth()                  const { return (U32)(m_baseWidth * m_scaleFactor); }
+        U32                 getHeight()                 const { return (U32)(m_baseHeight * m_scaleFactor); }
         bool                dynamicScales()             const { return m_dynamicScale; }
         F32                 getDynamicScaleFactor()     const { return m_scaleFactor; }
         bool                hasColorBuffer()            const { return getColorBuffer() != nullptr; }
@@ -84,12 +84,14 @@ namespace Graphics
         // Recreate all buffers in this render texture.
         //----------------------------------------------------------------------
         virtual void recreate(U32 w, U32 h);
-        virtual void recreate(SamplingDescription samplingDesc) { recreate(getWidth(), getHeight(), samplingDesc); }
+        virtual void recreate(SamplingDescription samplingDesc);
         virtual void recreate(U32 w, U32 h, SamplingDescription samplingDesc);
         virtual void recreate(Graphics::TextureFormat format);
 
     protected:
         F32  m_scaleFactor = 1.0f;
+        U32  m_baseWidth = 0;
+        U32  m_baseHeight = 0;
         bool m_dynamicScale = false; // If true it will be scaled automatically when the window resizes.
 
         struct RenderBuffers

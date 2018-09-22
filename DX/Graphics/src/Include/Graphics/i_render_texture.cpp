@@ -18,7 +18,7 @@ namespace Graphics
         if (scaleFactor != m_scaleFactor)
         {
             m_scaleFactor = scaleFactor;
-            recreate( getWidth(), getHeight() );
+            recreate( m_baseWidth, m_baseHeight );
         }
     }
 
@@ -43,6 +43,9 @@ namespace Graphics
         m_renderBuffers.resize( 1 );
         m_renderBuffers[0].m_colorBuffer = colorBuffer;
         m_renderBuffers[0].m_depthBuffer = depthBuffer;
+
+        m_baseWidth  = getBuffer()->getWidth();
+        m_baseHeight = getBuffer()->getHeight();
     }
 
     //----------------------------------------------------------------------
@@ -54,21 +57,34 @@ namespace Graphics
             m_renderBuffers[i].m_colorBuffer = colorBuffers[i];
             m_renderBuffers[i].m_depthBuffer = i < depthBuffers.size() ? depthBuffers[i] : nullptr;
         }
+
+        m_baseWidth  = getBuffer()->getWidth();
+        m_baseHeight = getBuffer()->getHeight();
     }
 
     //----------------------------------------------------------------------
     void IRenderTexture::recreate( U32 w, U32 h )
     {
+        m_baseWidth = w;
+        m_baseHeight = h;
         for (auto& buffer : m_renderBuffers)
         {
-            if ( hasColorBuffer() ) buffer.m_colorBuffer->recreate( U32(w * m_scaleFactor), U32(h * m_scaleFactor) );
-            if ( hasDepthBuffer() ) buffer.m_depthBuffer->recreate( U32(w * m_scaleFactor), U32(h * m_scaleFactor) );
+            if ( hasColorBuffer() ) buffer.m_colorBuffer->recreate( getWidth(), getHeight() );
+            if ( hasDepthBuffer() ) buffer.m_depthBuffer->recreate( getWidth(), getHeight() );
         }
+    }
+
+    //----------------------------------------------------------------------
+    void IRenderTexture::recreate( SamplingDescription samplingDesc )
+    { 
+        recreate( m_baseWidth, m_baseHeight, samplingDesc );
     }
 
     //----------------------------------------------------------------------
     void IRenderTexture::recreate( U32 w, U32 h, SamplingDescription samplingDesc )
     {
+        m_baseWidth = w;
+        m_baseHeight = h;
         for (auto& buffer : m_renderBuffers)
         {
             if ( hasColorBuffer() ) buffer.m_colorBuffer->recreate( U32(w * m_scaleFactor), U32(h * m_scaleFactor), samplingDesc );

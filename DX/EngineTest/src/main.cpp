@@ -38,6 +38,7 @@ public:
         go->getComponent<Components::Transform>()->position = Math::Vec3(0, 1, -5);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 0.1f);
         go->addComponent<Components::AudioListener>();
+        go->addComponent<PostProcess>(ASSETS.getMaterial("/materials/post processing/color_grading.material"));
 
         createGameObject("Grid")->addComponent<GridGeneration>(20);
 
@@ -55,6 +56,20 @@ public:
             index = (index + 1) % (sizeof(mscounts) / sizeof(U32));
             cam->setMultiSamples((Graphics::MSAASamples) newmscount);
             LOG("New Multisample-Count: " + TS(newmscount), Color::GREEN);
+        }
+
+        static F32 ss = 1.0f;
+        if (KEYBOARD.wasKeyPressed(Key::Up))
+        {
+            ss += 0.2f;
+            cam->setSuperSampling(ss);
+            LOG("Screen-Res Mod: " + TS(ss));
+        }
+        else if (KEYBOARD.wasKeyPressed(Key::Down))
+        {
+            ss -= 0.2f;
+            cam->setSuperSampling(ss);
+            LOG("Screen-Res Mod: " + TS(ss));
         }
     }
 
@@ -128,7 +143,7 @@ public:
         Locator::getRenderer().setGlobalFloat(SID("_Ambient"), 0.5f);
 
         //Locator::getSceneManager().LoadSceneAsync(new SceneGUISelectSceneMenu());
-        Locator::getSceneManager().LoadSceneAsync(new SceneSplines());
+        Locator::getSceneManager().LoadSceneAsync(new TestScene());
     }
 
     //----------------------------------------------------------------------
@@ -202,7 +217,7 @@ private:
     int main()
     {
         Game game;
-        game.start( gameName, 800, 600, Graphics::API::Vulkan );
+        game.start( gameName, 800, 600, Graphics::API::D3D11 );
 
         system("pause");
         return 0;
