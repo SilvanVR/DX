@@ -83,13 +83,13 @@ namespace Graphics {
 
         void _FlushLightBuffer();
         void _ExecuteCommandBuffer(const CommandBuffer& cmd);
-        void _CheckVSync();
         bool _UpdateGlobalBuffer(StringID name, const void* data);
 
         //----------------------------------------------------------------------
         // IRenderer Interface
         //----------------------------------------------------------------------
         void OnWindowSizeChanged(U16 w, U16 h) override;
+        void _VSyncChanged(bool b) override;
 
         //----------------------------------------------------------------------
         struct RenderContext

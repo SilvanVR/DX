@@ -80,9 +80,11 @@ namespace Graphics { namespace Vulkan {
         IRenderTexture::clear( color, depth, stencil );
         for (auto& fbo : m_fbos)
         {
-            fbo.setClearColor( 0, color );
+            I32 attachmentIndex = 0;
+            if ( hasColorBuffer() )
+                fbo.setClearColor( attachmentIndex++, color );
             if ( hasDepthBuffer() )
-                fbo.setClearDepthStencil( 1, depth, stencil );
+                fbo.setClearDepthStencil( attachmentIndex, depth, stencil );
         }
     }
 

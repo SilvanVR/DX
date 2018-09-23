@@ -6,6 +6,22 @@
 #define ALPHA_THRESHOLD 			0.1
 #define SET_FIRST                   1
 
+#define MAX_SHADOWMAPS_2D			4
+#define MAX_SHADOWMAPS_3D 			1
+#define DIRECTIONAL_LIGHT 			0
+#define POINT_LIGHT 				1
+#define SPOT_LIGHT 					2
+#define PI							3.14159265359
+#define GAMMA						2.2
+#define SHADOW_TRANSITION_DISTANCE 	1
+#define POISSON_DISK_SAMPLES 		16
+#define MAX_CSM_SPLITS				4	
+#define SHADOW_TYPE_NONE 			0
+#define SHADOW_TYPE_HARD 			1
+#define SHADOW_TYPE_SOFT			2
+#define SHADOW_TYPE_CSM				3
+#define SHADOW_TYPE_CSM_SOFT		4
+
 //----------------------------------------------------------------------
 // Descriptor-Sets
 //----------------------------------------------------------------------
@@ -30,13 +46,13 @@ layout (set = 0, binding = 1) uniform CAMERA
 
 struct Light
 {
-    vec4      	position;               // 16 bytes
+    vec3      	position;               // 12 bytes
 	int         lightType;              // 4 bytes
     //----------------------------------- (16 byte boundary)
-    vec4      	direction;              // 12 bytes
+    vec3      	direction;              // 12 bytes
 	float 		intensity;				// 4 bytes
     //----------------------------------- (16 byte boundary)
-    vec4      color;                  // 16 bytes
+    vec4        color;                  // 16 bytes
     //----------------------------------- (16 byte boundary)
     float       spotAngle;              // 4 bytes
     float       range;					// 4 bytes
@@ -45,9 +61,17 @@ struct Light
     //----------------------------------- (16 byte boundary)
 };  // Total:                           // 80 bytes (4 * 16)
  
+struct CSMSplit
+{
+	mat4 vp;
+	float range;
+};
+ 
 // Light ubo
 layout (set = 0, binding = 2) uniform LIGHTS
 {
-	Light 	lights[MAX_LIGHTS];
-	int 	count; // 4 bytes
+	Light 	 lights[MAX_LIGHTS];
+	mat4 	 viewProj[MAX_SHADOWMAPS_2D];
+	CSMSplit CSMSplits[MAX_CSM_SPLITS];
+	int 	 count; // 4 bytes
 } _Lights;

@@ -39,10 +39,10 @@ namespace Graphics {
     static StringID CAM_VIEW_MATRIX_NAME      = SID( "view" );
     static StringID CAM_PROJ_MATRIX_NAME      = SID( "proj" );
 
-    static StringID LIGHT_COUNT_NAME          = SID( "_LightCount" );
-    static StringID LIGHT_BUFFER_NAME         = SID( "_Lights" );
-    static StringID LIGHT_VIEW_PROJ_NAME      = SID( "_LightViewProj" );
-    static StringID LIGHT_CSM_SPLITS_NAME     = SID( "_CSMSplits" );
+    static StringID LIGHT_COUNT_NAME          = SID( "count" );
+    static StringID LIGHT_BUFFER_NAME         = SID( "lights" );
+    static StringID LIGHT_VIEW_PROJ_NAME      = SID( "viewProj" );
+    static StringID LIGHT_CSM_SPLITS_NAME     = SID( "CSMSplits" );
 
     #define SHADOW_MAPS_SET                 0
     #define SHADOW_MAP_2D_BINDING_BEGIN     0
@@ -263,6 +263,12 @@ namespace Graphics {
         m_swapchain.recreate( w, h );
     }
 
+    //----------------------------------------------------------------------
+    void VkRenderer::_VSyncChanged( bool enabled )
+    {
+        m_swapchain.setVSync( enabled );
+    }
+
     //**********************************************************************
     // PUBLIC
     //**********************************************************************
@@ -273,7 +279,6 @@ namespace Graphics {
         if (m_window->getWidth() == 0 || m_window->getHeight() == 0 || m_pendingCmdQueue.empty())
             return;
 
-        _CheckVSync();
         _CheckAndDestroyTemporaryRenderTargets();
 
         // Record all commands
@@ -383,17 +388,6 @@ namespace Graphics {
     {
         m_gpuDescription.name = g_vulkan.gpu.properties.deviceName;
         m_gpuDescription.maxDedicatedMemoryMB = g_vulkan.gpu.memoryProperties.memoryHeaps[0].size;
-    }
-
-    //----------------------------------------------------------------------
-    void VkRenderer::_CheckVSync()
-    {
-        static bool lastVsync = !m_vsync; // Enforce setting vsync the first time
-        if (lastVsync != m_vsync)
-        {
-            m_swapchain.setVSync( m_vsync );
-            lastVsync = m_vsync;
-        }
     }
 
     //**********************************************************************

@@ -97,6 +97,7 @@ namespace Graphics { namespace Vulkan {
         void OMSetRenderTarget(const Framebuffer& fbo, const std::function<void()>& endRenderPassCallback = nullptr);
         void OMSetBlendState(U32 index, const VezColorBlendAttachmentState& blendState);
         void OMSetDepthStencilState(const VezDepthStencilState& dsState);
+        void OMSetMultiSampleState(VkBool32 alphaToCoverageEnable, VkBool32 alphaToOneEnable);
         void RSSetViewports(VkViewport viewport);
         void RSSetScissor(VkRect2D scissor);
         void RSSetState(const VezRasterizationState& rzState);

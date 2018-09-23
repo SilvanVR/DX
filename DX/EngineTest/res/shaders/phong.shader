@@ -63,3 +63,47 @@ float4 main(FragmentIn fin) : SV_Target
 	float4 textureColor = albedo.Sample(sampler0, fin.Tex);
 	return APPLY_LIGHTING( textureColor, fin.WorldPos, fin.Normal ); 
 }
+
+//----------------------------------------------
+// Vulkan
+//----------------------------------------------
+#vulkan
+#shader vertex
+
+#include "/engine/shaders/includes/vulkan/engineVS.glsl"
+
+layout (location = 0) in vec3 VERTEX_POSITION;
+layout (location = 1) in vec2 VERTEX_UV;
+layout (location = 2) in vec3 VERTEX_NORMAL;
+
+layout (location = 0) out vec2 outUV;
+layout (location = 1) out vec3 outNormal;
+layout (location = 2) out vec3 outWorldPos;
+
+void main()
+{
+	outUV 		= VERTEX_UV;
+	outNormal 	= TRANSFORM_NORMAL( VERTEX_NORMAL );
+	outWorldPos = TO_WORLD_SPACE( VERTEX_POSITION );
+	gl_Position = TO_CLIP_SPACE( VERTEX_POSITION );
+}
+ 
+// ----------------------------------------------
+#shader fragment
+
+#include "/engine/shaders/includes/vulkan/engineFS.glsl"
+#include "/engine/shaders/includes/vulkan/blinn_phong.glsl"
+
+layout (location = 0) in vec2 inUV;
+layout (location = 1) in vec3 inNormal;
+layout (location = 2) in vec3 inWorldPos;
+
+layout (location = 0) out vec4 outColor;
+
+layout (set = SET_FIRST, binding = 0) uniform sampler2D albedo;
+ 
+void main()
+{
+	vec4 textureColor = texture( albedo, inUV );
+	outColor = APPLY_LIGHTING( textureColor, inWorldPos, inNormal );
+}

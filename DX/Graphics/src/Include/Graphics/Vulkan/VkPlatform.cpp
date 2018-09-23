@@ -410,15 +410,6 @@ namespace Graphics { namespace Vulkan {
         if (m_curFramebuffer) // End previous renderpass if any
             EndRenderPass();
 
-        // Set multisample state 
-        VezMultisampleState stateInfo{};
-        stateInfo.alphaToCoverageEnable = VK_FALSE;
-        stateInfo.alphaToOneEnable      = VK_FALSE;
-        stateInfo.rasterizationSamples  = fbo.samples;
-        stateInfo.sampleShadingEnable   = VK_FALSE;
-        stateInfo.minSampleShading      = 1.0f;
-        vezCmdSetMultisampleState( &stateInfo );
-
         // Begin a new render pass
         auto& attachmentReferences = fbo.getAttachmentReferences();
         VezRenderPassBeginInfo beginInfo = {};
@@ -442,6 +433,20 @@ namespace Graphics { namespace Vulkan {
     void Context::OMSetDepthStencilState( const VezDepthStencilState& dsState )
     {
         vezCmdSetDepthStencilState( &dsState );
+    }
+
+    //----------------------------------------------------------------------
+    void Context::OMSetMultiSampleState( VkBool32 alphaToCoverageEnable, VkBool32 alphaToOneEnable )
+    {
+        ASSERT( m_curFramebuffer != nullptr );
+
+        VezMultisampleState stateInfo{};
+        stateInfo.alphaToCoverageEnable = alphaToCoverageEnable;
+        stateInfo.alphaToOneEnable      = alphaToOneEnable;
+        stateInfo.rasterizationSamples  = m_curFramebuffer->samples;
+        stateInfo.sampleShadingEnable   = VK_FALSE;
+        stateInfo.minSampleShading      = 1.0f;
+        vezCmdSetMultisampleState( &stateInfo );
     }
 
     //----------------------------------------------------------------------

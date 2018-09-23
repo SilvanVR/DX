@@ -39,6 +39,7 @@ namespace Graphics { namespace Vulkan {
         g_vulkan.ctx.OMSetBlendState( 0, m_blendState );
         g_vulkan.ctx.OMSetDepthStencilState( m_depthStencilState );
         g_vulkan.ctx.RSSetState( m_rzState );
+        g_vulkan.ctx.OMSetMultiSampleState( m_alphaToCoverage, VK_FALSE );
 
         // Bind ubos and textures
         if (m_shaderDataVS) m_shaderDataVS->bind();
@@ -153,7 +154,8 @@ namespace Graphics { namespace Vulkan {
     void Shader::setBlendState( const BlendState& bState )
     {
         ASSERT( not bState.independentBlending && "Not supported" );
-        ASSERT( not bState.alphaToCoverage && "Not supported" );
+
+        m_alphaToCoverage = bState.alphaToCoverage;
 
         auto& bs = bState.blendStates[0];
         m_blendState.blendEnable         = bs.blendEnable;

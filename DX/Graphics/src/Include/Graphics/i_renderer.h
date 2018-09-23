@@ -43,7 +43,7 @@ namespace Graphics {
         bool                    hasHMD()            const { return m_hmd != nullptr; }
 
         //----------------------------------------------------------------------
-        void setVSync(bool enabled) { m_vsync = enabled; }
+        void setVSync(bool enabled) { m_vsync = enabled; _VSyncChanged(m_vsync); }
 
         //----------------------------------------------------------------------
         // Dispatches the given command buffer for execution on the gpu.
@@ -105,6 +105,7 @@ namespace Graphics {
 
         //----------------------------------------------------------------------
         virtual void OnWindowSizeChanged(U16 w, U16 h) = 0;
+        virtual void _VSyncChanged(bool b) {}
 
     private:
         struct TempRenderTarget

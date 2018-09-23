@@ -40,7 +40,7 @@ cbuffer cbBufferGlobal : register(b2)
 
 struct Light
 {
-    float3      position;               // 16 bytes
+    float3      position;               // 12 bytes
 	int         lightType;              // 4 bytes
     //----------------------------------- (16 byte boundary)
     float3      direction;              // 12 bytes

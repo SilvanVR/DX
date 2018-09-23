@@ -54,6 +54,7 @@ namespace Graphics { namespace Vulkan {
         VezColorBlendAttachmentState    m_blendState{};
         VezRasterizationState           m_rzState{};
         VezDepthStencilState            m_depthStencilState{};
+        bool                            m_alphaToCoverage = false;
 
         // Custom api independant data structures
         VertexLayout m_vertexLayout;
