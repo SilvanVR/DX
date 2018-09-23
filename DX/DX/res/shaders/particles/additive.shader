@@ -66,3 +66,48 @@ float4 main(FragmentIn fin) : SV_Target
 		discard;
 	return finalColor;
 }
+
+//----------------------------------------------
+// Vulkan
+//----------------------------------------------
+#vulkan
+#shader vertex
+
+#include "/engine/shaders/includes/vulkan/engineVS.glsl"
+
+layout (location = 0) in vec3 VERTEX_POSITION;
+layout (location = 1) in vec2 VERTEX_UV;
+layout (location = 2) in vec4 COLOR_INSTANCE;
+layout (location = 3) in mat4 MODEL_INSTANCE;
+
+layout (location = 0) out vec2 outUV;
+layout (location = 1) out vec4 outColor;
+
+void main()
+{
+	mat4 mvp = VULKAN_CLIP * _Camera.proj * _Camera.view * _Object.world * MODEL_INSTANCE;
+	
+	outUV = VERTEX_UV;
+	outColor = COLOR_INSTANCE;
+	gl_Position = mvp * vec4( VERTEX_POSITION, 1 );
+}
+
+// ----------------------------------------------
+#shader fragment
+
+#include "/engine/shaders/includes/vulkan/engineFS.glsl"
+
+// In data
+layout (location = 0) in vec2 inUV;
+layout (location = 1) in vec4 inColor;
+
+// Out data
+layout (location = 0) out vec4 outColor;
+
+// Descriptor-Sets
+layout (set = SET_FIRST, binding = 0) uniform sampler2D _MainTex;
+
+void main()
+{
+	outColor = texture(_MainTex, inUV) * inColor;
+}

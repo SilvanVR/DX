@@ -347,19 +347,23 @@ namespace Graphics { namespace Vulkan {
 
                 auto [format, sizeInBytes] = GetTypeInfo( res );
 
-                VkVertexInputAttributeDescription attrDesc{};
-                attrDesc.binding    = res.location; // We use the location as the same binding
-                attrDesc.location   = res.location;
-                attrDesc.format     = format;
-                attribDescriptions.push_back( attrDesc );
+                for (U32 i = 0; i < res.columns; i++)
+                {
+                    VkVertexInputAttributeDescription attrDesc{};
+                    attrDesc.binding    = res.location; // We use the location as the same binding
+                    attrDesc.location   = res.location + i;
+                    attrDesc.format     = format;
+                    attrDesc.offset     = i * sizeInBytes;
+                    attribDescriptions.push_back( attrDesc );
+                }
 
                 VkVertexInputBindingDescription bindingDesc{};
                 bindingDesc.inputRate = instanced ? VK_VERTEX_INPUT_RATE_INSTANCE : VK_VERTEX_INPUT_RATE_VERTEX;
-                bindingDesc.binding   = attrDesc.binding;
-                bindingDesc.stride    = sizeInBytes;
+                bindingDesc.binding   = res.location;
+                bindingDesc.stride    = sizeInBytes * res.columns;
                 bindingDescriptions.push_back( bindingDesc );
 
-                m_vertexLayout.add( { SID( name.c_str() ), sizeInBytes, attrDesc.binding, instanced } );
+                m_vertexLayout.add( { SID( name.c_str() ), bindingDesc.stride, res.location, instanced } );
                 break;
             }
             }
