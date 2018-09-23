@@ -161,6 +161,13 @@ namespace Components {
         for (U32 i = 0; i < m_currentParticleCount;)
         {
             m_particles[i].remainingLifetime -= d;
+            if (m_particles[i].remainingLifetime < 0_s)
+            {
+                // Move last living particle in this slot
+                m_particles[i] = m_particles[m_currentParticleCount - 1];
+                --m_currentParticleCount;
+                continue;
+            }
 
             // From 0 - 1 across the whole lifetime of the particle. 0 means particle just spawned, 1 it's near death.
             F32 lifeTimeNormalized = 1.0f - (F32)(m_particles[i].remainingLifetime / m_particles[i].startLifetime);
@@ -187,16 +194,7 @@ namespace Components {
             if (m_lifeTimeColorFnc)
                 m_particles[i].color = m_particles[i].spawnColor * m_lifeTimeColorFnc( lifeTimeNormalized );
 
-            if (m_particles[i].remainingLifetime < 0_s)
-            {
-                // Move last living particle in this slot
-                m_particles[i] = m_particles[m_currentParticleCount - 1];
-                --m_currentParticleCount;
-            }
-            else
-            {
-                ++i;
-            }
+            ++i;
         }
     }
 
