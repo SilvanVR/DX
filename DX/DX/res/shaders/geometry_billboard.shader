@@ -119,3 +119,98 @@ float4 main(FragmentIn fin) : SV_Target
 {
     return tex.Sample( sampler0, fin.UV );
 }
+
+//----------------------------------------------
+// Vulkan
+//----------------------------------------------
+#vulkan
+#shader vertex
+
+#include "/engine/shaders/includes/vulkan/engineVS.glsl"
+
+layout (location = 0) in vec3 VERTEX_POSITION;
+layout (location = 1) in vec2 VERTEX_UV;
+
+layout (location = 0) out vec3 outWorldPos;
+layout (location = 1) out vec2 outSize;
+
+void main()
+{
+    gl_Position = TO_CLIP_SPACE( VERTEX_POSITION );
+	outWorldPos = TO_WORLD_SPACE( VERTEX_POSITION );
+	outSize 	= VERTEX_UV;
+}
+
+// ----------------------------------------------
+#shader geometry
+
+#include "/engine/shaders/includes/vulkan/engineGS.glsl" 
+
+layout (location = 0) in vec3 inWorldPos[];
+layout (location = 1) in vec2 inSize[];
+
+layout (location = 0) out vec3 outNormal;
+layout (location = 1) out vec2 outUV;
+
+// This shader expands a single point into a quad using the uv-coords as a size param.
+// The point is the center of the quad.
+layout (points) in;
+layout (triangle_strip, max_vertices = 4) out;
+
+void main()
+{	
+	vec3 normal = normalize( _Camera.pos - inWorldPos[0] );
+	vec3 up = vec3(0,1,0);
+	vec3 right = normalize( cross( normal, up ) );
+	up = normalize( cross( right, normal ) );
+	
+	float halfWidth = inSize[0].x * 0.5f;
+	float halfHeight = inSize[0].y * 0.5f;
+	
+	vec3 upVector = halfHeight * up;
+	vec3 rightVector = halfWidth * right;
+	
+	vec4 v[4];
+	v[0] = vec4(inWorldPos[0] + rightVector - upVector, 1.0f);
+	v[1] = vec4(inWorldPos[0] - rightVector - upVector, 1.0f);
+	v[2] = vec4(inWorldPos[0] + rightVector + upVector, 1.0f);
+	v[3] = vec4(inWorldPos[0] - rightVector + upVector, 1.0f);
+
+	outNormal = normal;
+	
+	mat4 viewProj = VULKAN_CLIP * _Camera.proj * _Camera.view;
+	gl_Position  = viewProj * v[0];
+	outUV = vec2( 1, 1 );
+    EmitVertex();
+    
+	gl_Position  = viewProj * v[1];
+	outUV = vec2( 0, 1 );
+    EmitVertex();
+    
+	gl_Position  = viewProj * v[2];
+	outUV = vec2( 1, 0 );
+    EmitVertex();
+	
+	gl_Position  = viewProj * v[3];
+	outUV = vec2( 0, 0 );
+    EmitVertex();
+	
+    EndPrimitive();
+}
+
+// ----------------------------------------------
+#shader fragment
+
+#include "/engine/shaders/includes/vulkan/engineFS.glsl"
+
+layout (location = 0) in vec3 inNormal;
+layout (location = 1) in vec2 inUV;
+
+layout (location = 0) out vec4 outColor;
+
+layout (set = SET_FIRST, binding = 0) uniform sampler2D tex;
+
+void main()
+{
+    outColor = texture( tex, inUV );
+}
