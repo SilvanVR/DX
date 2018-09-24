@@ -37,17 +37,17 @@ vec4 DoDirectionalLight( Light light, vec3 V, vec3 P, vec3 N )
     vec4 diffuse = DoDiffuse( light, L, N );
     vec4 specular = DoSpecular( light, V, L, N );
 		 
-	// float shadow = 1.0;
-	// if (light.shadowType == SHADOW_TYPE_HARD)
-		// shadow = CALCULATE_SHADOW_DIR( P, light.range, light.shadowMapIndex );
-	// else if (light.shadowType == SHADOW_TYPE_SOFT)
-		// shadow = CALCULATE_SHADOW_DIR_SOFT( P, light.range, light.shadowMapIndex );
-	// else if (light.shadowType == SHADOW_TYPE_CSM)
-		// shadow = CALCULATE_SHADOW_CSM( P, light.shadowMapIndex );
-	// else if (light.shadowType == SHADOW_TYPE_CSM_SOFT)
-		// shadow = CALCULATE_SHADOW_CSM_SOFT( P, light.shadowMapIndex );
+	float shadow = 1.0;
+	if (light.shadowType == SHADOW_TYPE_HARD)
+		shadow = CALCULATE_SHADOW_DIR( P, light.range, light.shadowMapIndex );
+	else if (light.shadowType == SHADOW_TYPE_SOFT)
+		shadow = CALCULATE_SHADOW_DIR_SOFT( P, light.range, light.shadowMapIndex );
+	else if (light.shadowType == SHADOW_TYPE_CSM)
+		shadow = CALCULATE_SHADOW_CSM( P, light.shadowMapIndex );
+	else if (light.shadowType == SHADOW_TYPE_CSM_SOFT)
+		shadow = CALCULATE_SHADOW_CSM_SOFT( P, light.shadowMapIndex );
 		
-    return (diffuse + specular) ;
+    return (diffuse + specular) * shadow;
 }
 
 //----------------------------------------------------------------------
@@ -64,15 +64,15 @@ vec4 DoPointLight( Light light, vec3 V, vec3 P, vec3 N )
     vec4 diffuse = DoDiffuse( light, L, N ) * attenuation;
     vec4 specular = DoSpecular( light, V, L, N ) * attenuation;
  
-	// float shadow = 1.0;
-	// if (light.shadowType == SHADOW_TYPE_HARD)
-		// shadow = CALCULATE_SHADOW_3D( P, light.position, light.range, light.shadowMapIndex );
-	// else if (light.shadowType == SHADOW_TYPE_SOFT)
-		// shadow = CALCULATE_SHADOW_3D_SOFT( P, light.position, light.range, light.shadowMapIndex );
+	float shadow = 1.0;
+	if (light.shadowType == SHADOW_TYPE_HARD)
+		shadow = CALCULATE_SHADOW_3D( P, light.position, light.range, light.shadowMapIndex );
+	else if (light.shadowType == SHADOW_TYPE_SOFT)
+		shadow = CALCULATE_SHADOW_3D( P, light.position, light.range, light.shadowMapIndex );
 		
-	// shadow *= attenuation;
+	shadow *= attenuation;
 		
-    return (diffuse + specular);
+    return (diffuse + specular) * shadow;
 }
 
 //----------------------------------------------------------------------
@@ -98,16 +98,16 @@ vec4 DoSpotLight( Light light, vec3 V, vec3 P, vec3 N )
     vec4 diffuse = DoDiffuse( light, L, N ) * attenuation * spotIntensity;
     vec4 specular = DoSpecular( light, V, L, N ) * attenuation * spotIntensity;
  
-	// // Attenuation must be multiplied with the shadow in order to smoothly fade out the shadow
-	// float shadow = 1.0;
-	// if (light.shadowType == SHADOW_TYPE_HARD)
-		// shadow = CALCULATE_SHADOW_2D( P, light.shadowMapIndex );
-	// else if (light.shadowType == SHADOW_TYPE_SOFT)
-		// shadow = CALCULATE_SHADOW_2D_SOFT( P, light.shadowMapIndex );
+	// Attenuation must be multiplied with the shadow in order to smoothly fade out the shadow
+	float shadow = 1.0;
+	if (light.shadowType == SHADOW_TYPE_HARD)
+		shadow = CALCULATE_SHADOW_2D( P, light.shadowMapIndex );
+	else if (light.shadowType == SHADOW_TYPE_SOFT)
+		shadow = CALCULATE_SHADOW_2D_SOFT( P, light.shadowMapIndex );
 			
-	// shadow *= attenuation;
+	shadow *= attenuation;
 			
-    return (diffuse + specular);
+    return (diffuse + specular) * shadow;
 }
 
 //----------------------------------------------------------------------

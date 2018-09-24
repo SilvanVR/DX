@@ -45,9 +45,9 @@ namespace Graphics {
     static StringID LIGHT_CSM_SPLITS_NAME     = SID( "CSMSplits" );
 
     #define SHADOW_MAPS_SET                 0
-    #define SHADOW_MAP_2D_BINDING_BEGIN     0
-    #define SHADOW_MAP_3D_BINDING_BEGIN     4
-    #define SHADOW_MAP_ARRAY_BINDING_BEGIN  5
+    #define SHADOW_MAP_2D_BINDING_BEGIN     3
+    #define SHADOW_MAP_3D_BINDING_BEGIN     7
+    #define SHADOW_MAP_ARRAY_BINDING_BEGIN  8
 
     static ArrayList<ShaderResourceDeclaration> SHADOW_MAP_2D_RESOURCE_DECLS{
         { ShaderType::Fragment, SHADOW_MAPS_SET, SHADOW_MAP_2D_BINDING_BEGIN + 0, SID("ShadowMap2D"), DataType::Texture2D },
@@ -97,11 +97,11 @@ namespace Graphics {
         //    g_vulkan.CreateInstance( vkOculus->getRequiredInstanceExtentions() );
         //    m_swapchain.createSurface( g_vulkan.instance, m_window );
         //    g_vulkan.SelectPhysicalDevice( vkOculus->getPhysicalDevice( g_vulkan.instance ) );
-        //    g_vulkan.CreateDevice({ VK_KHR_SWAPCHAIN_EXTENSION_NAME }, GetDeviceFeatures() );
+        //    g_vulkan.CreateDevice( vkOculus->getRequiredDeviceExtentions(), GetDeviceFeatures() );
         //    vkOculus->setSynchronizationQueueVk( g_vulkan.graphicsQueue );
         //    vkOculus->createEyeBuffers( g_vulkan.device );
         //    m_swapchain.createSwapchain( g_vulkan.device, m_window->getWidth(), m_window->getHeight(), SWAPCHAIN_FORMAT );
-        //    m_hmd = vkOculus; 
+        //    m_hmd = vkOculus;
         //    break;
         //}
         //default:
@@ -276,7 +276,7 @@ namespace Graphics {
     //----------------------------------------------------------------------
     void VkRenderer::present()
     {
-        if (m_window->getWidth() == 0 || m_window->getHeight() == 0 || m_pendingCmdQueue.empty())
+        if (m_window->getWidth() == 0 || m_window->getHeight() == 0)
             return;
 
         _CheckAndDestroyTemporaryRenderTargets();
@@ -946,7 +946,7 @@ namespace Graphics {
         m_shader = nullptr;
         m_material = nullptr;
         lightCount = 0;
-        lightsUpdated = false;
+        lightsUpdated = true;
         m_renderTarget = nullptr;
     }
 

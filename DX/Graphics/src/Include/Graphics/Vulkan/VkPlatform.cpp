@@ -22,14 +22,10 @@ namespace Graphics { namespace Vulkan {
 
         msg += pCallbackData->pMessage;
 
-        // There is a bug in ovr_CreateTextureSwapChainVk which throws this error.
-        //if (msg.find("[Validation] vkCreateImage: The combination of format") != String::npos)
-        //    return VK_FALSE;
-
         if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT)  LOG( msg );
         if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT)     LOG( msg );
         if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT)  LOG_WARN( msg );
-        if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)    LOG_WARN( msg );
+        if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)    LOG( "[ERROR] " + msg, Color::RED );
 
         return VK_FALSE;
     }

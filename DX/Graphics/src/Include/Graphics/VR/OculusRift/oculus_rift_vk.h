@@ -14,7 +14,7 @@
 namespace Graphics { namespace VR {
 
     //----------------------------------------------------------------------
-    // Splits given extentions (splitted by whitespace) into an array-list
+    // Splits given extensions (splitted by whitespace) into an array-list
     //----------------------------------------------------------------------
     ArrayList<String> ParseOVRExtentionsVk( char* extentions, U32 size )
     {
@@ -31,69 +31,76 @@ namespace Graphics { namespace VR {
         return result;
     }
 
-
     //**********************************************************************
     class OculusSwapchainVk : public OculusSwapchain
     {
     public:
-        OculusSwapchainVk( ovrSession session, VkDevice device, I32 sizeW, I32 sizeH )
+        OculusSwapchainVk( ovrSession session, VkDevice device, I32 width, I32 height )
         {
             ovrTextureSwapChainDesc colorDesc = {};
-            colorDesc.Type = ovrTexture_2D;
-            colorDesc.Format = OVR_FORMAT_B8G8R8A8_UNORM;
-            colorDesc.ArraySize = 1;
-            colorDesc.Width = sizeW;
-            colorDesc.Height = sizeH;
-            colorDesc.MipLevels = 1;
+            colorDesc.Type        = ovrTexture_2D;
+            colorDesc.Format      = OVR_FORMAT_B8G8R8A8_UNORM; // OVR_FORMAT_B8G8R8A8_UNORM_SRGB used in sample
+            colorDesc.ArraySize   = 1;
+            colorDesc.Width       = width;
+            colorDesc.Height      = height;
+            colorDesc.MipLevels   = 1;
             colorDesc.SampleCount = 1;
             colorDesc.StaticImage = ovrFalse;
-            colorDesc.MiscFlags = ovrTextureMisc_DX_Typeless;
-            colorDesc.BindFlags = ovrTextureBind_DX_RenderTarget;
+            colorDesc.MiscFlags   = ovrTextureMisc_DX_Typeless;
+            colorDesc.BindFlags   = ovrTextureBind_DX_RenderTarget;
 
             ovr_CreateTextureSwapChainVk( session, device, &colorDesc, &m_swapChain );
             I32 count = 0;
             ovr_GetTextureSwapChainLength( session, m_swapChain, &count );
             m_imageViews.resize( count );
+            m_fbos.resize( count );
             for (I32 i = 0; i < count; ++i)
             {
                 VkImage image;
                 ovr_GetTextureSwapChainBufferVk( session, m_swapChain, i, &image );
-                VkImageViewCreateInfo createInfo{ VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO };
-                createInfo.format = VK_FORMAT_B8G8R8A8_UNORM;
-                createInfo.image = image;
+
+                VezImageViewCreateInfo createInfo{};
+                createInfo.format   = VK_FORMAT_B8G8R8A8_UNORM; // VK_FORMAT_B8G8R8A8_SRGB used in sample
+                createInfo.image    = image;
                 createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-                createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
                 createInfo.subresourceRange.layerCount = VK_REMAINING_ARRAY_LAYERS;
                 createInfo.subresourceRange.levelCount = VK_REMAINING_MIP_LEVELS;
-                vkCreateImageView( device, &createInfo, ALLOCATOR, &m_imageViews[i] );
+                VALIDATE( vezCreateImageView( device, &createInfo, &m_imageViews[i] ) );
+
+                m_fbos[i].create( width, height, 1, &m_imageViews[i], VK_SAMPLE_COUNT_1_BIT );
             }
         }
 
+        //----------------------------------------------------------------------
         ~OculusSwapchainVk()
         {
             for (auto& view : m_imageViews)
                 vkDestroyImageView( g_vulkan.device, view, ALLOCATOR );
+            for (auto& fbo : m_fbos)
+                fbo.destroy();
         }
 
         //----------------------------------------------------------------------
         // OculusSwapchain Interface
         //----------------------------------------------------------------------
-        void bindForRendering(ovrSession session) override
-        {
-        }
-
-        void clear(ovrSession session, Color color) override
-        {
-        }
-
-    private:
-        ArrayList<VkImageView> m_imageViews;
-        VkImageView _GetRTV( ovrSession session )
+        void bindForRendering( ovrSession session ) override
         {
             int index = 0;
             ovr_GetTextureSwapChainCurrentIndex( session, m_swapChain, &index );
-            return m_imageViews[index];
+            g_vulkan.ctx.OMSetRenderTarget( m_fbos[index] );
         }
+
+        //----------------------------------------------------------------------
+        void clear( ovrSession session, Color color ) override
+        {
+            int index = 0;
+            ovr_GetTextureSwapChainCurrentIndex( session, m_swapChain, &index );
+            m_fbos[index].setClearColor( 0, color );
+        }
+
+    private:
+        ArrayList<VkImageView>          m_imageViews;
+        ArrayList<Vulkan::Framebuffer>  m_fbos;
     };
 
     //**********************************************************************

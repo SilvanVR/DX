@@ -121,7 +121,7 @@ public:
     {
         // Camera 1
         auto go = createGameObject("Camera");
-        auto cam = go->addComponent<Components::Camera>();
+        auto cam = go->addComponent<Components::Camera>(45.0f, 0.1f, 1000.0f, Graphics::MSAASamples::One);
         go->getComponent<Components::Transform>()->position = Math::Vec3(0, 1, -5);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 0.1f);
         cam->setClearColor(Color(66, 134, 244));
@@ -138,16 +138,16 @@ public:
         obj->getTransform()->scale = { 0.5f };
         obj->getTransform()->position.y = 0.5f;
 
-        auto obj2 = createGameObject("obj");
-        obj2->addComponent<Components::MeshRenderer>(ASSETS.getMesh("/models/teapot.obj"), ASSETS.getMaterial("/materials/blinn_phong/white.material"));
-        obj2->getTransform()->scale = { 0.2f };
-        obj2->getTransform()->position.x = 1.5f;
+        //auto obj2 = createGameObject("obj");
+        //obj2->addComponent<Components::MeshRenderer>(ASSETS.getMesh("/models/teapot.obj"), ASSETS.getMaterial("/materials/blinn_phong/white.material"));
+        //obj2->getTransform()->scale = { 0.2f };
+        //obj2->getTransform()->position.x = 1.5f;
 
-        auto obj3 = createGameObject("obj");
-        obj3->addComponent<Components::MeshRenderer>(ASSETS.getMesh("/models/sphere.obj"), ASSETS.getMaterial("/materials/blinn_phong/white.material"));
-        obj3->getTransform()->scale = { 0.5f };
-        obj3->getTransform()->position.y = 0.5f;
-        obj3->getTransform()->position.x = -1.5f;
+        //auto obj3 = createGameObject("obj");
+        //obj3->addComponent<Components::MeshRenderer>(ASSETS.getMesh("/models/sphere.obj"), ASSETS.getMaterial("/materials/blinn_phong/white.material"));
+        //obj3->getTransform()->scale = { 0.5f };
+        //obj3->getTransform()->position.y = 0.5f;
+        //obj3->getTransform()->position.x = -1.5f;
 
         // LIGHTS
         auto plg = createGameObject("PL");
@@ -169,7 +169,6 @@ public:
         auto cam = go->addComponent<Components::Camera>();
         go->getComponent<Components::Transform>()->position = Math::Vec3(0, 1, -5);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 0.1f);
-        cam->setClearColor(Color(66, 134, 244));
 
         RENDERER.setGlobalFloat(SID("_Ambient"), 0.2f);
 
@@ -196,7 +195,7 @@ public:
 
         // LIGHTS
         auto slg = createGameObject("PL");
-        auto sl = slg->addComponent<Components::SpotLight>(1.0f, Color::WHITE, 45.0f, 20.0f);
+        auto sl = slg->addComponent<Components::SpotLight>(1.0f, Color::WHITE, 45.0f, 20.0f, true);
         slg->getTransform()->position = { 0, 2, -2 };
         slg->getTransform()->rotation = Math::Quat::LookRotation(Math::Vec3{ 0,-1, 1 });
         slg->addComponent<Components::Billboard>(ASSETS.getTexture2D("/engine/textures/spotLight.png"), 0.5f);

@@ -122,6 +122,7 @@ void main()
 	
 	if (textureColor.a < ALPHA_THRESHOLD) 
 		discard;  
-	
+ 
 	outColor = APPLY_LIGHTING( textureColor, inWorldPos, inNormal );
+	//outColor = VISUALIZE_CASCADES(inWorldPos);  
 }
