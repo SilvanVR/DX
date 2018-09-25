@@ -30,6 +30,7 @@ namespace Graphics { namespace Vulkan {
         //----------------------------------------------------------------------
         void _UpdateSampler() override { IBindableTexture::_CreateSampler(m_anisoLevel, m_filter, m_clampMode); }
         void bind(const ShaderResourceDeclaration& res) override { IBindableTexture::bind(res); }
+        U64* getNativeTexturePtr() const override { return reinterpret_cast<U64*>(m_image.img); }
 
         //----------------------------------------------------------------------
         // IBindableTexture Interface

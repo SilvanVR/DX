@@ -32,12 +32,6 @@ namespace Graphics { namespace D3D11 {
         //----------------------------------------------------------------------
         void apply(bool updateMips, bool keepPixelsInRAM);
 
-        //----------------------------------------------------------------------
-        // @Return:
-        //  D3D11Texture for this texture.
-        //----------------------------------------------------------------------
-        ID3D11Texture2D* getD3D11Texture() { return m_pTexture; }
-
     protected:
         ID3D11SamplerState*         m_pSampleState      = nullptr;
         ID3D11Texture2D*            m_pTexture          = nullptr;

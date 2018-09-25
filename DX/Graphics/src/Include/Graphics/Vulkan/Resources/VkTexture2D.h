@@ -24,6 +24,7 @@ namespace Graphics { namespace Vulkan {
         void create(U32 width, U32 height, TextureFormat format, bool generateMips) override;
         void create(U32 width, U32 height, TextureFormat format, const void* pData) override;
         void apply(bool updateMips, bool keepPixelsInRAM) override { IBindableTexture::apply(updateMips, keepPixelsInRAM); }
+        U64* getNativeTexturePtr() const override { return reinterpret_cast<U64*>(m_image.img); }
 
     private:
         //----------------------------------------------------------------------

@@ -36,6 +36,7 @@ namespace Graphics { namespace D3D11 {
         void recreate(Graphics::TextureFormat format) override;
         void recreate(Graphics::DepthFormat format) override;
         void bindForRendering() override;
+        U64* getNativeTexturePtr() const override { return reinterpret_cast<U64*>(m_pTexture); }
 
         //----------------------------------------------------------------------
         // D3D11ITexture Interface

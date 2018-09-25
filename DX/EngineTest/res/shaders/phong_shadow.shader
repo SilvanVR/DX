@@ -121,7 +121,7 @@ void main()
 	vec4 textureColor = texture( _MainTex, inUV * material.uvScale );
 	
 	if (textureColor.a < ALPHA_THRESHOLD) 
-		discard;  
+		discard;     
  
 	outColor = APPLY_LIGHTING( textureColor, inWorldPos, inNormal );
 	//outColor = VISUALIZE_CASCADES(inWorldPos);  

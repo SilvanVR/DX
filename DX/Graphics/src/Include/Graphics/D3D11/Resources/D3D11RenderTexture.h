@@ -26,6 +26,7 @@ namespace Graphics { namespace D3D11 {
         // IRenderTexture Interface
         //----------------------------------------------------------------------
         void bindForRendering(U64 frameIndex) override;
+        U64* getNativeTexturePtr() const override { return nullptr; }
 
     private:
         NULL_COPY_AND_ASSIGN(RenderTexture)

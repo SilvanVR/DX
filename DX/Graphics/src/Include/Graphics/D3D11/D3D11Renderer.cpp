@@ -819,12 +819,12 @@ namespace Graphics {
     //----------------------------------------------------------------------
     void D3D11Renderer::_CopyTexture( ITexture* srcTex, I32 srcElement, I32 srcMip, ITexture* dstTex, I32 dstElement, I32 dstMip )
     {
-        U32 dstSubResource = D3D11CalcSubresource( dstMip, dstElement, dstTex->getMipCount() );
         U32 srcSubResource = D3D11CalcSubresource( srcMip, srcElement, srcTex->getMipCount() );
-        D3D11::IBindableTexture* d3d11DstTex = dynamic_cast<D3D11::IBindableTexture*>( dstTex );
-        D3D11::IBindableTexture* d3d11SrcTex = dynamic_cast<D3D11::IBindableTexture*>( srcTex );
-        g_pImmediateContext->CopySubresourceRegion( d3d11DstTex->getD3D11Texture(), dstSubResource, 0, 0, 0,
-                                                    d3d11SrcTex->getD3D11Texture(), srcSubResource, NULL );
+        U32 dstSubResource = D3D11CalcSubresource( dstMip, dstElement, dstTex->getMipCount() );
+        auto d3d11SrcTex = reinterpret_cast<ID3D11Texture2D*>( srcTex->getNativeTexturePtr() );
+        auto d3d11DstTex = reinterpret_cast<ID3D11Texture2D*>( dstTex->getNativeTexturePtr() );
+        g_pImmediateContext->CopySubresourceRegion( d3d11DstTex, dstSubResource, 0, 0, 0,
+                                                    d3d11SrcTex, srcSubResource, NULL );
     }
 
     //----------------------------------------------------------------------

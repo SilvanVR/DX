@@ -40,6 +40,11 @@ namespace Graphics
         void setClampMode(TextureAddressMode clampMode) { m_clampMode = clampMode; _UpdateSampler(); }
         void setAnisoLevel(U32 level)                   { m_anisoLevel = level; _UpdateSampler(); }
 
+        //----------------------------------------------------------------------
+        // Pointer to the underlying graphics resource.
+        //----------------------------------------------------------------------
+        virtual U64* getNativeTexturePtr() const = 0;
+
     protected:
         U32                 m_width             = 0;
         U32                 m_height            = 0;

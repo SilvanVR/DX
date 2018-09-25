@@ -775,9 +775,9 @@ namespace Graphics {
         region.dstSubresource.baseArrayLayer    = dstElement;
         region.dstSubresource.layerCount        = 1;
 
-        auto vkSrcTex = reinterpret_cast<Vulkan::IBindableTexture*>( srcTex );
-        auto vkDstTex = reinterpret_cast<Vulkan::IBindableTexture*>( dstTex );
-        g_vulkan.ctx.CopyImage( vkSrcTex->getVkImage(), vkDstTex->getVkImage(), 1, &region);
+        auto srcImg = reinterpret_cast<VkImage>( srcTex->getNativeTexturePtr() );
+        auto dstImg = reinterpret_cast<VkImage>( dstTex->getNativeTexturePtr() );
+        g_vulkan.ctx.CopyImage( srcImg, dstImg, 1, &region );
     }
 
     //----------------------------------------------------------------------

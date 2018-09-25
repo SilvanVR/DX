@@ -26,6 +26,7 @@ namespace Graphics { namespace Vulkan {
         // ITexture Interface
         //----------------------------------------------------------------------
         void bind(const ShaderResourceDeclaration& res) override;
+        U64* getNativeTexturePtr() const override { return reinterpret_cast<U64*>(m_framebuffer.img); }
 
         //----------------------------------------------------------------------
         // IRenderBuffer Interface
@@ -39,11 +40,6 @@ namespace Graphics { namespace Vulkan {
         void recreate(Graphics::TextureFormat format) override;
         void recreate(Graphics::DepthFormat format) override;
         void bindForRendering() override;
-
-        //----------------------------------------------------------------------
-        // IBindableTexture Interface
-        //----------------------------------------------------------------------
-        VkImage getVkImage() const override { return m_framebuffer.img; }
 
     private:
         struct

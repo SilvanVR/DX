@@ -39,7 +39,7 @@ namespace Graphics { namespace VR {
         {
             ovrTextureSwapChainDesc colorDesc = {};
             colorDesc.Type        = ovrTexture_2D;
-            colorDesc.Format      = OVR_FORMAT_B8G8R8A8_UNORM; // OVR_FORMAT_B8G8R8A8_UNORM_SRGB used in sample
+            colorDesc.Format      = OVR_FORMAT_B8G8R8A8_UNORM_SRGB;
             colorDesc.ArraySize   = 1;
             colorDesc.Width       = width;
             colorDesc.Height      = height;
@@ -60,7 +60,7 @@ namespace Graphics { namespace VR {
                 ovr_GetTextureSwapChainBufferVk( session, m_swapChain, i, &image );
 
                 VezImageViewCreateInfo createInfo{};
-                createInfo.format   = VK_FORMAT_B8G8R8A8_UNORM; // VK_FORMAT_B8G8R8A8_SRGB used in sample
+                createInfo.format   = VK_FORMAT_B8G8R8A8_SRGB;
                 createInfo.image    = image;
                 createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
                 createInfo.subresourceRange.layerCount = VK_REMAINING_ARRAY_LAYERS;

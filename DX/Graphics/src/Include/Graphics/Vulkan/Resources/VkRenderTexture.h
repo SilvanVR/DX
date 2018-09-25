@@ -30,6 +30,7 @@ namespace Graphics { namespace Vulkan {
         void recreate(MSAASamples samples) override;
         void recreate(U32 w, U32 h, MSAASamples samples) override;
         void recreate(Graphics::TextureFormat format) override;
+        U64* getNativeTexturePtr() const override { return nullptr; }
 
     private:
         ArrayList<Framebuffer> m_fbos;
