@@ -454,8 +454,8 @@ namespace Components {
             F64 delta = (1000.0 / fps);
             ImGui::Text("FPS: %u (%.3f ms)", fps, delta);
             static bool vsync = Locator::getRenderer().isVSyncEnabled();
-            ImGui::Checkbox("Vsync", &vsync);
-            Locator::getRenderer().setVSync(vsync);
+            if (ImGui::Checkbox("Vsync", &vsync))
+                Locator::getRenderer().setVSync(vsync);
 
             if (ImGui::BeginPopupContextWindow())
             {

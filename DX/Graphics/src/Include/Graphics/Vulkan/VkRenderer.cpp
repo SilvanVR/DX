@@ -88,25 +88,25 @@ namespace Graphics {
     {
         _SetLimits();
 
-        VR::Device hmd = VR::GetFirstSupportedHMDAndInitialize();
-        switch (hmd)
-        {
-        case VR::Device::OculusRift:
-        {
-            auto vkOculus = new VR::OculusRiftVk();
-            g_vulkan.CreateInstance( vkOculus->getRequiredInstanceExtentions() );
-            m_swapchain.createSurface( g_vulkan.instance, m_window );
-            g_vulkan.SelectPhysicalDevice( vkOculus->getPhysicalDevice( g_vulkan.instance ) );
-            g_vulkan.CreateDevice( vkOculus->getRequiredDeviceExtentions(), GetDeviceFeatures() );
-            vkOculus->setSynchronizationQueueVk( g_vulkan.graphicsQueue );
-            vkOculus->createEyeBuffers( g_vulkan.device );
-            m_swapchain.createSwapchain( g_vulkan.device, m_window->getWidth(), m_window->getHeight(), SWAPCHAIN_FORMAT );
-            m_hmd = vkOculus;
-            break;
-        }
-        default:
-            LOG_WARN_RENDERING( "VR not supported on your system." );
-        }
+        //VR::Device hmd = VR::GetFirstSupportedHMDAndInitialize();
+        //switch (hmd)
+        //{
+        //case VR::Device::OculusRift:
+        //{
+        //    auto vkOculus = new VR::OculusRiftVk();
+        //    g_vulkan.CreateInstance( vkOculus->getRequiredInstanceExtentions() );
+        //    m_swapchain.createSurface( g_vulkan.instance, m_window );
+        //    g_vulkan.SelectPhysicalDevice( vkOculus->getPhysicalDevice( g_vulkan.instance ) );
+        //    g_vulkan.CreateDevice( vkOculus->getRequiredDeviceExtentions(), GetDeviceFeatures() );
+        //    vkOculus->setSynchronizationQueueVk( g_vulkan.graphicsQueue );
+        //    vkOculus->createEyeBuffers( g_vulkan.device );
+        //    m_swapchain.createSwapchain( g_vulkan.device, m_window->getWidth(), m_window->getHeight(), SWAPCHAIN_FORMAT );
+        //    m_hmd = vkOculus;
+        //    break;
+        //}
+        //default:
+        //    LOG_WARN_RENDERING( "VR not supported on your system." );
+        //}
 
         if ( not hasHMD() )
         {
@@ -224,7 +224,7 @@ namespace Graphics {
                 case GPUCommand::BLIT:
                 {
                     auto& cmd = *reinterpret_cast<GPUC_Blit*>( command.get() );
-                    //_Blit( cmd.src, cmd.dst, cmd.material );
+                    _Blit( cmd.src, cmd.dst, cmd.material );
                     break;
                 }
                 case GPUCommand::SET_SCISSOR:
