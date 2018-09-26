@@ -65,8 +65,8 @@ namespace Graphics { namespace Vulkan {
         imageViewCreateInfo.image    = m_image.img;
         imageViewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
         imageViewCreateInfo.format   = imageCreateInfo.format;
-        imageViewCreateInfo.subresourceRange.layerCount = VK_REMAINING_ARRAY_LAYERS;
-        imageViewCreateInfo.subresourceRange.levelCount = VK_REMAINING_MIP_LEVELS;
+        imageViewCreateInfo.subresourceRange.layerCount = 1;
+        imageViewCreateInfo.subresourceRange.levelCount = m_mipCount;
         VALIDATE( vezCreateImageView( g_vulkan.device, &imageViewCreateInfo, &m_image.view ) );
     }
 

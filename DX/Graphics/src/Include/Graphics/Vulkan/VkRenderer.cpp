@@ -88,25 +88,25 @@ namespace Graphics {
     {
         _SetLimits();
 
-        //VR::Device hmd = VR::GetFirstSupportedHMDAndInitialize();
-        //switch (hmd)
-        //{
-        //case VR::Device::OculusRift:
-        //{
-        //    auto vkOculus = new VR::OculusRiftVk();
-        //    g_vulkan.CreateInstance( vkOculus->getRequiredInstanceExtentions() );
-        //    m_swapchain.createSurface( g_vulkan.instance, m_window );
-        //    g_vulkan.SelectPhysicalDevice( vkOculus->getPhysicalDevice( g_vulkan.instance ) );
-        //    g_vulkan.CreateDevice( vkOculus->getRequiredDeviceExtentions(), GetDeviceFeatures() );
-        //    vkOculus->setSynchronizationQueueVk( g_vulkan.graphicsQueue );
-        //    vkOculus->createEyeBuffers( g_vulkan.device );
-        //    m_swapchain.createSwapchain( g_vulkan.device, m_window->getWidth(), m_window->getHeight(), SWAPCHAIN_FORMAT );
-        //    m_hmd = vkOculus;
-        //    break;
-        //}
-        //default:
-        //    LOG_WARN_RENDERING( "VR not supported on your system." );
-        //}
+        VR::Device hmd = VR::GetFirstSupportedHMDAndInitialize();
+        switch (hmd)
+        {
+        case VR::Device::OculusRift:
+        {
+            auto vkOculus = new VR::OculusRiftVk();
+            g_vulkan.CreateInstance( vkOculus->getRequiredInstanceExtentions() );
+            m_swapchain.createSurface( g_vulkan.instance, m_window );
+            g_vulkan.SelectPhysicalDevice( vkOculus->getPhysicalDevice( g_vulkan.instance ) );
+            g_vulkan.CreateDevice( vkOculus->getRequiredDeviceExtentions(), GetDeviceFeatures() );
+            vkOculus->setSynchronizationQueueVk( g_vulkan.graphicsQueue );
+            vkOculus->createEyeBuffers( g_vulkan.device );
+            m_swapchain.createSwapchain( g_vulkan.device, m_window->getWidth(), m_window->getHeight(), SWAPCHAIN_FORMAT );
+            m_hmd = vkOculus;
+            break;
+        }
+        default:
+            LOG_WARN_RENDERING( "VR not supported on your system." );
+        }
 
         if ( not hasHMD() )
         {
@@ -122,14 +122,18 @@ namespace Graphics {
         _SetGPUDescription();
         _CreateRequiredUniformBuffersFromFile( ENGINE_VS_PATH, ENGINE_FS_PATH );
         _CreateCubeMesh();
+        _CreateFakeShadowMaps();
 
         LOG_RENDERING( "Done initializing Vulkan... (Using " + getGPUDescription().name + ")" );
-    } 
+    }
 
     //----------------------------------------------------------------------
     void VkRenderer::shutdown()
     {
         vkDeviceWaitIdle( g_vulkan.device );
+        for (auto i = 0; i < MAX_SHADOWMAPS_2D; ++i) SAFE_DELETE( m_fakeShadowMaps2D[i] );
+        for (auto i = 0; i < MAX_SHADOWMAPS_3D; ++i) SAFE_DELETE( m_fakeShadowMaps3D[i] );
+        for (auto i = 0; i < MAX_SHADOWMAPS_ARRAY; ++i) SAFE_DELETE( m_fakeShadowMaps2DArray[i] );
         _DestroyAllTempRenderTargets();
         SAFE_DELETE( m_globalBuffer );
         SAFE_DELETE( m_cameraBuffer );
@@ -220,7 +224,7 @@ namespace Graphics {
                 case GPUCommand::BLIT:
                 {
                     auto& cmd = *reinterpret_cast<GPUC_Blit*>( command.get() );
-                    _Blit( cmd.src, cmd.dst, cmd.material );
+                    //_Blit( cmd.src, cmd.dst, cmd.material );
                     break;
                 }
                 case GPUCommand::SET_SCISSOR:
@@ -527,6 +531,14 @@ namespace Graphics {
         if ( not renderContext.lightsUpdated )
             return;
         renderContext.lightsUpdated = false;
+
+        // Bind fake shadow-maps, otherwise validation will complain
+        for (auto i = 0; i < SHADOW_MAP_2D_RESOURCE_DECLS.size(); ++i)
+            m_fakeShadowMaps2D[i]->bind( SHADOW_MAP_2D_RESOURCE_DECLS[i] );
+        for (auto i = 0; i < SHADOW_MAP_3D_RESOURCE_DECLS.size(); ++i)
+            m_fakeShadowMaps3D[i]->bind( SHADOW_MAP_3D_RESOURCE_DECLS[i] );
+        for (auto i = 0; i < SHADOW_MAP_ARRAY_RESOURCE_DECLS.size(); ++i)
+            m_fakeShadowMaps2DArray[i]->bind( SHADOW_MAP_ARRAY_RESOURCE_DECLS[i] );
 
         renderContext.getCamera()->getFrameInfo().numLights = renderContext.lightCount;
 
@@ -907,6 +919,29 @@ namespace Graphics {
         if (not m_globalBuffer)
             return false;
         return m_globalBuffer->update( name, data );
+    }
+
+    //----------------------------------------------------------------------
+    void VkRenderer::_CreateFakeShadowMaps()
+    {
+        // Gets rid of the warnings that a texture is not bound to a shadowmap slot
+        for (auto i = 0; i < SHADOW_MAP_2D_RESOURCE_DECLS.size(); ++i)
+        {
+            m_fakeShadowMaps2D[i] = createTexture2D();
+            m_fakeShadowMaps2D[i]->create( 2, 2, Graphics::TextureFormat::R8, false );
+        }
+
+        for (auto i = 0; i < SHADOW_MAP_3D_RESOURCE_DECLS.size(); ++i)
+        {
+            m_fakeShadowMaps3D[i] = createCubemap();
+            m_fakeShadowMaps3D[i]->create( 2, Graphics::TextureFormat::R8 );
+        }
+
+        for (auto i = 0; i < SHADOW_MAP_ARRAY_RESOURCE_DECLS.size(); ++i)
+        {
+            m_fakeShadowMaps2DArray[i] = createTexture2DArray();
+            m_fakeShadowMaps2DArray[i]->create( 2, 2, 1, Graphics::TextureFormat::R8 );
+        }
     }
 
     //**********************************************************************

@@ -11,6 +11,8 @@
 // Include API dependant header
 #include "LibOVR/OVR_CAPI_Vk.h"
 
+#include "Vulkan/Ext/VEZ_ext.h"
+
 namespace Graphics { namespace VR {
 
     //----------------------------------------------------------------------
@@ -39,7 +41,7 @@ namespace Graphics { namespace VR {
         {
             ovrTextureSwapChainDesc colorDesc = {};
             colorDesc.Type        = ovrTexture_2D;
-            colorDesc.Format      = OVR_FORMAT_B8G8R8A8_UNORM_SRGB;
+            colorDesc.Format      = OVR_FORMAT_B8G8R8A8_UNORM; // OVR_FORMAT_B8G8R8A8_UNORM_SRGB
             colorDesc.ArraySize   = 1;
             colorDesc.Width       = width;
             colorDesc.Height      = height;
@@ -59,15 +61,18 @@ namespace Graphics { namespace VR {
                 VkImage image;
                 ovr_GetTextureSwapChainBufferVk( session, m_swapChain, i, &image );
 
+                VkExtent3D extent{ (U32)width, (U32)height, 1 };
+                vezImportVkImage( device, image, VK_FORMAT_B8G8R8A8_UNORM, extent, VK_SAMPLE_COUNT_1_BIT, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL );
+
                 VezImageViewCreateInfo createInfo{};
-                createInfo.format   = VK_FORMAT_B8G8R8A8_SRGB;
+                createInfo.format   = VK_FORMAT_B8G8R8A8_UNORM; // VK_FORMAT_B8G8R8A8_SRGB
                 createInfo.image    = image;
                 createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-                createInfo.subresourceRange.layerCount = VK_REMAINING_ARRAY_LAYERS;
-                createInfo.subresourceRange.levelCount = VK_REMAINING_MIP_LEVELS;
+                createInfo.subresourceRange.layerCount = 1;
+                createInfo.subresourceRange.levelCount = 1;
                 VALIDATE( vezCreateImageView( device, &createInfo, &m_imageViews[i] ) );
 
-                m_fbos[i].create( width, height, 1, &m_imageViews[i], VK_SAMPLE_COUNT_1_BIT );
+                m_fbos[i].create( (U32)width, (U32)height, 1, &m_imageViews[i], VK_SAMPLE_COUNT_1_BIT );
             }
         }
 

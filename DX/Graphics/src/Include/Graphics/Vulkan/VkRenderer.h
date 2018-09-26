@@ -65,6 +65,10 @@ namespace Graphics {
         Vulkan::CachedMappedUniformBuffer*  m_cameraBuffer = nullptr;
         Vulkan::CachedMappedUniformBuffer*  m_lightBuffer  = nullptr;
 
+        ITexture2D*         m_fakeShadowMaps2D[MAX_SHADOWMAPS_2D];
+        ICubemap*           m_fakeShadowMaps3D[MAX_SHADOWMAPS_3D];
+        ITexture2DArray*    m_fakeShadowMaps2DArray[MAX_SHADOWMAPS_ARRAY];
+
         //----------------------------------------------------------------------
         inline void _SetCamera(Camera* camera);
         inline void _BindMesh(IMesh* mesh, const MaterialPtr& material, const DirectX::XMMATRIX& modelMatrix, I32 subMeshIndex);
@@ -80,6 +84,7 @@ namespace Graphics {
         void _CreateRequiredUniformBuffersFromFile(const String& engineVS, const String& engineFS);
         void _CreateCubeMesh();
         void _SetLimits();
+        void _CreateFakeShadowMaps();
 
         void _FlushLightBuffer();
         void _ExecuteCommandBuffer(const CommandBuffer& cmd);

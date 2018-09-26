@@ -128,8 +128,8 @@ namespace Graphics { namespace Vulkan {
         viewCreateInfo.image                        = m_framebuffer.img;
         viewCreateInfo.viewType                     = VK_IMAGE_VIEW_TYPE_2D;
         viewCreateInfo.format                       = imageCreateInfo.format;
-        viewCreateInfo.subresourceRange.layerCount  = VK_REMAINING_ARRAY_LAYERS;
-        viewCreateInfo.subresourceRange.levelCount  = VK_REMAINING_MIP_LEVELS;
+        viewCreateInfo.subresourceRange.layerCount  = 1;
+        viewCreateInfo.subresourceRange.levelCount  = 1;
         VALIDATE( vezCreateImageView( g_vulkan.device, &viewCreateInfo, &m_framebuffer.view ) );
 
         m_framebuffer.fbo.create( m_width, m_height, 1, &m_framebuffer.view, VK_SAMPLE_COUNT_1_BIT );
