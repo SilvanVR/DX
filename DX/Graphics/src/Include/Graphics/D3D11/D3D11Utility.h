@@ -33,6 +33,7 @@ namespace Graphics { namespace D3D11 { namespace Utility {
 
     //----------------------------------------------------------------------
     DXGI_FORMAT TranslateDepthFormat( TextureFormat depth );
+    DXGI_FORMAT TranslateDepthFormatBindable( TextureFormat depth );
     DXGI_FORMAT TranslateDepthFormatSRV( TextureFormat depth );
 
     //----------------------------------------------------------------------

@@ -20,7 +20,10 @@ namespace Graphics { namespace D3D11 {
         m_isImmutable = false;
         m_generateMips = generateMips;
         if (m_generateMips)
+        {
             _UpdateMipCount();
+            m_hasMips = true;
+        }
 
         _CreateTexture();
         _CreateShaderResourveView();
@@ -78,7 +81,7 @@ namespace Graphics { namespace D3D11 {
         texDesc.BindFlags           = D3D11_BIND_SHADER_RESOURCE;
         texDesc.CPUAccessFlags      = 0;
         texDesc.MiscFlags           = 0;
-        
+
         D3D11_SUBRESOURCE_DATA subResourceData = {};
         subResourceData.pSysMem = pData;
         subResourceData.SysMemPitch = m_width * ByteCountFromTextureFormat( m_format ) ;

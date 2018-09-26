@@ -52,7 +52,7 @@ namespace Graphics { namespace D3D11 {
     {
         m_keepPixelsInRAM = keepPixelsInRAM;
         m_gpuUpToDate = false;
-        m_generateMips = updateMips;
+        m_generateMips = m_hasMips ? updateMips : false;
     }
 
     //**********************************************************************

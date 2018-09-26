@@ -138,16 +138,16 @@ public:
         obj->getTransform()->scale = { 0.5f };
         obj->getTransform()->position.y = 0.5f;
 
-        //auto obj2 = createGameObject("obj");
-        //obj2->addComponent<Components::MeshRenderer>(ASSETS.getMesh("/models/teapot.obj"), ASSETS.getMaterial("/materials/blinn_phong/white.material"));
-        //obj2->getTransform()->scale = { 0.2f };
-        //obj2->getTransform()->position.x = 1.5f;
+        auto obj2 = createGameObject("obj");
+        obj2->addComponent<Components::MeshRenderer>(ASSETS.getMesh("/models/teapot.obj"), ASSETS.getMaterial("/materials/blinn_phong/white.material"));
+        obj2->getTransform()->scale = { 0.2f };
+        obj2->getTransform()->position.x = 1.5f;
 
-        //auto obj3 = createGameObject("obj");
-        //obj3->addComponent<Components::MeshRenderer>(ASSETS.getMesh("/models/sphere.obj"), ASSETS.getMaterial("/materials/blinn_phong/white.material"));
-        //obj3->getTransform()->scale = { 0.5f };
-        //obj3->getTransform()->position.y = 0.5f;
-        //obj3->getTransform()->position.x = -1.5f;
+        auto obj3 = createGameObject("obj");
+        obj3->addComponent<Components::MeshRenderer>(ASSETS.getMesh("/models/sphere.obj"), ASSETS.getMaterial("/materials/blinn_phong/white.material"));
+        obj3->getTransform()->scale = { 0.5f };
+        obj3->getTransform()->position.y = 0.5f;
+        obj3->getTransform()->position.x = -1.5f;
 
         // LIGHTS
         auto plg = createGameObject("PL");
@@ -316,7 +316,7 @@ public:
                     dlRange = dl->getShadowRange();
                     if (ImGui::SliderFloat("Shadow Range", &dlRange, 5.0f, 100.0f))
                         dl->setShadowRange(dlRange);
-                    ImGui::Image(dl->getShadowMap(), 0, Math::Vec2{ 200, 200 });
+                    ImGui::Image(dl->getShadowMap(), Math::Vec2{ 200, 200 });
                 }
                 else if (type_current > 2)
                 {

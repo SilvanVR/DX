@@ -15,6 +15,9 @@ namespace Graphics { namespace D3D11 {
     {
         ITexture::_Init( TextureDimension::Tex2D, width, height, format );
 
+        m_generateMips = false;
+        m_hasMips = m_mipCount > 1;
+
         _SetMultisampleDesc( samples );
 
         isDepthBuffer() ? _CreateDepthBufferAndViews() : _CreateColorBufferAndViews();
@@ -119,12 +122,12 @@ namespace Graphics { namespace D3D11 {
         D3D11_TEXTURE2D_DESC textureDesc;
         textureDesc.Width               = m_width;
         textureDesc.Height              = m_height;
-        textureDesc.MipLevels           = 1;
+        textureDesc.MipLevels           = m_mipCount;
         textureDesc.ArraySize           = 1;
         textureDesc.Format              = Utility::TranslateTextureFormat( m_format );
         textureDesc.Usage               = D3D11_USAGE_DEFAULT;
         textureDesc.CPUAccessFlags      = 0;
-        textureDesc.MiscFlags           = 0;
+        textureDesc.MiscFlags           = m_generateMips ? D3D11_RESOURCE_MISC_GENERATE_MIPS : 0;
         textureDesc.SampleDesc          = { 1, 0 };
         textureDesc.BindFlags           = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
 
@@ -136,6 +139,8 @@ namespace Graphics { namespace D3D11 {
         {
             textureDesc.SampleDesc = { (UINT)m_sampleCount, 0 };
             textureDesc.BindFlags  = D3D11_BIND_RENDER_TARGET;
+            if (m_generateMips)
+                textureDesc.BindFlags |= D3D11_BIND_SHADER_RESOURCE;
             HR( g_pDevice->CreateTexture2D( &textureDesc, NULL, &m_pRenderBufferMS ) );
             HR( g_pDevice->CreateRenderTargetView( m_pRenderBufferMS, NULL, &m_pRenderTargetView ) );
         }
@@ -156,7 +161,7 @@ namespace Graphics { namespace D3D11 {
         textureDesc.Height         = m_height;
         textureDesc.MipLevels      = 1;
         textureDesc.ArraySize      = 1;
-        textureDesc.Format         = Utility::TranslateDepthFormatSRV( m_format );
+        textureDesc.Format         = Utility::TranslateDepthFormatBindable( m_format );
         textureDesc.SampleDesc     = { (UINT)m_sampleCount, 0 };
         textureDesc.Usage          = D3D11_USAGE_DEFAULT;
         textureDesc.BindFlags      = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
@@ -182,13 +187,7 @@ namespace Graphics { namespace D3D11 {
 
         if ( isDepthBuffer() )
         {
-            switch (m_format)
-            {
-            case TextureFormat::D16:   srvDesc.Format = DXGI_FORMAT_R16_UNORM; break;
-            case TextureFormat::D24S8: srvDesc.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS; break;
-            case TextureFormat::D32:   srvDesc.Format = DXGI_FORMAT_R32_FLOAT; break;
-            ASSERT( false && "Ooops! Something is wrong here!" );
-            }
+            srvDesc.Format = Utility::TranslateDepthFormatSRV( m_format );
             srvDesc.ViewDimension = isMultisampled() ? D3D11_SRV_DIMENSION_TEXTURE2DMS : D3D11_SRV_DIMENSION_TEXTURE2D;
         }
         else
@@ -226,7 +225,7 @@ namespace Graphics { namespace D3D11 {
     {
         m_sampleCount = samples;
 
-        DXGI_FORMAT format = isDepthBuffer() ? Utility::TranslateDepthFormatSRV( m_format ) : Utility::TranslateTextureFormat( m_format );
+        DXGI_FORMAT format = isDepthBuffer() ? Utility::TranslateDepthFormatBindable( m_format ) : Utility::TranslateTextureFormat( m_format );
         if ( not Utility::MSAASamplesSupported( format, (U8)m_sampleCount ) )
         { 
             LOG_WARN_RENDERING( "D3D11: MSAA count (" + TS( (I32)m_sampleCount ) + ") for render-buffer is not supported. Count will be set to 1." );

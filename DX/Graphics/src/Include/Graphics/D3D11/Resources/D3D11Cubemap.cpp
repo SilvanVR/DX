@@ -22,11 +22,14 @@ namespace Graphics { namespace D3D11 {
 
         m_generateMips = (mips == Mips::Generate);
         if (mips == Mips::Generate || mips == Mips::Create)
+        {
             _UpdateMipCount();
+            m_hasMips = true;
+        }
 
-        // Create D3D11 Resources
-        _CreateTexture( mips );
-        _CreateShaderResourceView();
+        bool isDepthBuffer = IsDepthFormat( m_format );
+        _CreateTexture( mips, isDepthBuffer );
+        _CreateShaderResourceView( isDepthBuffer );
         _CreateSampler( m_anisoLevel, m_filter, m_clampMode );
     }
 
@@ -35,7 +38,7 @@ namespace Graphics { namespace D3D11 {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    void Cubemap::_CreateTexture( Mips mips )
+    void Cubemap::_CreateTexture( Mips mips, bool isDepthBuffer )
     {
         bool createMips = (mips != Mips::None);
 
@@ -44,7 +47,7 @@ namespace Graphics { namespace D3D11 {
         texDesc.Width               = getWidth();
         texDesc.MipLevels           = createMips ? 0 : 1;
         texDesc.ArraySize           = 6;
-        texDesc.Format              = Utility::TranslateTextureFormat( m_format );
+        texDesc.Format              = isDepthBuffer ? Utility::TranslateDepthFormatBindable( m_format ) : Utility::TranslateTextureFormat( m_format );
         texDesc.SampleDesc.Count    = 1;
         texDesc.SampleDesc.Quality  = 0;
         texDesc.Usage               = D3D11_USAGE_DEFAULT;
@@ -59,10 +62,10 @@ namespace Graphics { namespace D3D11 {
     }
 
     //----------------------------------------------------------------------
-    void Cubemap::_CreateShaderResourceView()
+    void Cubemap::_CreateShaderResourceView( bool isDepthBuffer )
     {
         D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
-        srvDesc.Format                      = Utility::TranslateTextureFormat( m_format );
+        srvDesc.Format                      = isDepthBuffer ? Utility::TranslateDepthFormatSRV( m_format ) : Utility::TranslateTextureFormat( m_format );
         srvDesc.ViewDimension               = D3D11_SRV_DIMENSION_TEXTURECUBE;
         srvDesc.TextureCube.MipLevels       = -1;
         srvDesc.TextureCube.MostDetailedMip = 0;

@@ -41,10 +41,10 @@ layout (set = 0, binding = 1) uniform CAMERA
 	float zFar;
 } _Camera;
 
-// Vulkan clip space has inverted Y and half Z. This fixes it.
+// Vulkan clip space has inverted Y. This fixes it.
 const mat4 VULKAN_CLIP = { { 1.0,  0.0, 0.0, 0.0 },
                            { 0.0, -1.0, 0.0, 0.0 },
-                           { 0.0,  0.0, 0.5, 0.0 },
+                           { 0.0,  0.0, 1.0, 0.0 },
                            { 0.0,  0.0, 0.0, 1.0 } };
 
 //----------------------------------------------------------------------

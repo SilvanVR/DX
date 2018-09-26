@@ -1,7 +1,8 @@
 //----------------------------------------------
 #Fill			Solid
-#Cull 			Front
+#Cull 			None
 #ZWrite 		Off
+#ZTest			Off
 
 //----------------------------------------------
 // D3D11
@@ -54,6 +55,48 @@ float4 main(FragmentIn fin) : SV_Target
 
 	return float4(result.rgb, c.a);
 }
+
+//----------------------------------------------
+// Vulkan
+//----------------------------------------------
+#vulkan
+#shader vertex
+
+#include "/engine/shaders/includes/vulkan/version.glsl"
+
+layout (location = 0) out vec2 outUV;
+
+void main()
+{
+	outUV = vec2((gl_VertexIndex << 1) & 2, gl_VertexIndex & 2);
+	gl_Position = vec4(outUV * 2.0f - 1.0f, 0.0f, 1.0f);
+}
+
+//----------------------------------------------
+#shader fragment
+
+#include "/engine/shaders/includes/vulkan/engineFS.glsl"
+
+layout (location = 0) in vec2 inUV;
+
+layout (location = 0) out vec4 outColor;
+
+layout (set = SET_FIRST, binding = 0) uniform sampler2D _MainTex;
+layout (set = SET_FIRST, binding = 1) uniform MATERIAL
+{
+	float contrast;
+};
+
+void main()
+{
+	vec4 c = texture( _MainTex, inUV );
+	
+	vec3 result = (c.rgb - 0.5) * (1.0 + contrast) + 0.5;
+
+	outColor = vec4( result.rgb, c.a );
+}
+
+
 
 
 

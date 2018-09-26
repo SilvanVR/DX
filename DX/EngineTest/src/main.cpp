@@ -38,7 +38,9 @@ public:
         go->getComponent<Components::Transform>()->position = Math::Vec3(0, 1, -5);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 0.1f);
         go->addComponent<Components::AudioListener>();
-        //go->addComponent<PostProcess>(ASSETS.getMaterial("/materials/post processing/color_grading.material"));
+        go->addComponent<PostProcess>(ASSETS.getMaterial("/materials/post processing/greyscale.material"));
+
+        //go->addComponent<Tonemap>();
 
         createGameObject("Grid")->addComponent<GridGeneration>(20);
 
@@ -143,7 +145,7 @@ public:
         Locator::getRenderer().setGlobalFloat(SID("_Ambient"), 0.5f);
 
         //Locator::getSceneManager().LoadSceneAsync(new SceneGUISelectSceneMenu());
-        Locator::getSceneManager().LoadScene(new TSceneSunShadow());
+        Locator::getSceneManager().LoadScene(new TestScene());
     }
 
     //----------------------------------------------------------------------

@@ -5,7 +5,7 @@
 #ZTest 			Less
 #Queue 			Geometry
 #DepthBias		50
-#DBSlopeScaled  3
+#DBSlopeScaled  10
 #DBClamp 		0
 #DepthClip		Off
 

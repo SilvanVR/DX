@@ -156,6 +156,9 @@ namespace Graphics { namespace Vulkan { namespace Utility {
         case TextureFormat::BC7:            return VK_FORMAT_BC7_UNORM_BLOCK; break;
         case TextureFormat::RG16:           return VK_FORMAT_R8G8_UINT; break;
         case TextureFormat::R8:             return VK_FORMAT_R8_UNORM; break;
+        case TextureFormat::D16:            return VK_FORMAT_D16_UNORM; break;
+        case TextureFormat::D24S8:          return VK_FORMAT_D24_UNORM_S8_UINT; break;
+        case TextureFormat::D32:            return VK_FORMAT_D32_SFLOAT; break;
         }
 
         ASSERT( false && "Oops! Texture format was unknown, which should never happen." );
@@ -174,19 +177,6 @@ namespace Graphics { namespace Vulkan { namespace Utility {
         }
         ASSERT( false );
         return VK_SAMPLE_COUNT_1_BIT;
-    }
-
-    //----------------------------------------------------------------------
-    VkFormat TranslateDepthFormat( TextureFormat depth )
-    {
-        switch (depth)
-        {
-        case TextureFormat::D16:      return VK_FORMAT_D16_UNORM; break;
-        case TextureFormat::D24S8:    return VK_FORMAT_D24_UNORM_S8_UINT; break;
-        case TextureFormat::D32:      return VK_FORMAT_D32_SFLOAT; break;
-        }
-        ASSERT( false && "Oops! Depth format parameter are invalid." );
-        return VK_FORMAT_UNDEFINED;
     }
 
     //----------------------------------------------------------------------

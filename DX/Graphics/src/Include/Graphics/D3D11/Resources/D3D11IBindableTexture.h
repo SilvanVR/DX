@@ -40,6 +40,7 @@ namespace Graphics { namespace D3D11 {
         bool                        m_gpuUpToDate      = true;
         bool                        m_generateMips     = true;
         bool                        m_keepPixelsInRAM  = false;
+        bool                        m_hasMips          = false;
 
         //----------------------------------------------------------------------
         void _CreateSampler(U32 anisoLevel, TextureFilter filter, TextureAddressMode addressMode);

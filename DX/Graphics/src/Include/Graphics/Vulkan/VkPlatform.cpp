@@ -461,6 +461,7 @@ namespace Graphics { namespace Vulkan {
     //----------------------------------------------------------------------
     void Context::RSSetState( const VezRasterizationState& rzState )
     {
+        vezCmdSetDepthBias( rzState.depthBiasConstantFactor, rzState.depthBiasClamp, rzState.depthBiasSlopeFactor );
         vezCmdSetRasterizationState( &rzState );
     }
 
@@ -523,6 +524,7 @@ namespace Graphics { namespace Vulkan {
     //----------------------------------------------------------------------
     void Context::GenerateMips( VkImage img, U32 width, U32 height, U32 mipLevels, U32 layers, VkFilter filter )
     {
+        ASSERT( img != VK_NULL_HANDLE );
         std::unique_lock<std::mutex> lock( m_prePassFunctionLock );
         m_prePassFunctions.push_back([img, width, height, mipLevels, layers, filter] {
             for (U32 layer = 0; layer < layers; ++layer)

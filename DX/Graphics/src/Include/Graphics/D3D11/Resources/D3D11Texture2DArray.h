@@ -34,8 +34,8 @@ namespace Graphics { namespace D3D11 {
         U64* getNativeTexturePtr() const override { return reinterpret_cast<U64*>( m_pTexture ); }
 
         //----------------------------------------------------------------------
-        void _CreateTextureArray();
-        void _CreateShaderResourveView();
+        void _CreateTextureArray(bool isDepthBuffer);
+        void _CreateShaderResourveView(bool isDepthBuffer);
 
         //----------------------------------------------------------------------
         // IBindableTexture Interface

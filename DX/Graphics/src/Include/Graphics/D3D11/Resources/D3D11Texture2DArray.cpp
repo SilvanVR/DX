@@ -20,10 +20,14 @@ namespace Graphics { namespace D3D11 {
         m_depth = depth;
         m_generateMips = generateMips;
         if (m_generateMips)
+        {
             _UpdateMipCount();
+            m_hasMips = true;
+        }
 
-        _CreateTextureArray();
-        _CreateShaderResourveView();
+        bool isDepthBuffer = IsDepthFormat( m_format );
+        _CreateTextureArray( isDepthBuffer );
+        _CreateShaderResourveView( isDepthBuffer );
         _CreateSampler( m_anisoLevel, m_filter, m_clampMode );
     }
 
@@ -32,14 +36,14 @@ namespace Graphics { namespace D3D11 {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    void Texture2DArray::_CreateTextureArray()
+    void Texture2DArray::_CreateTextureArray( bool isDepthBuffer )
     {
         D3D11_TEXTURE2D_DESC texDesc;
         texDesc.Height              = getHeight();
         texDesc.Width               = getWidth();
         texDesc.MipLevels           = m_generateMips ? 0 : 1;
         texDesc.ArraySize           = m_depth;
-        texDesc.Format              = Utility::TranslateTextureFormat( m_format );
+        texDesc.Format              = isDepthBuffer ? Utility::TranslateDepthFormatBindable( m_format ) : Utility::TranslateTextureFormat( m_format );
         texDesc.SampleDesc.Count    = 1;
         texDesc.SampleDesc.Quality  = 0;
         texDesc.Usage               = D3D11_USAGE_DEFAULT;
@@ -51,10 +55,10 @@ namespace Graphics { namespace D3D11 {
     }
 
     //----------------------------------------------------------------------
-    void Texture2DArray::_CreateShaderResourveView()
+    void Texture2DArray::_CreateShaderResourveView( bool isDepthBuffer )
     {
         D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
-        srvDesc.Format = Utility::TranslateTextureFormat( m_format );
+        srvDesc.Format = isDepthBuffer ? Utility::TranslateDepthFormatSRV( m_format ) : Utility::TranslateTextureFormat( m_format );
         srvDesc.ViewDimension = D3D_SRV_DIMENSION_TEXTURE2DARRAY;
         srvDesc.Texture2DArray.MostDetailedMip  = 0;
         srvDesc.Texture2DArray.MipLevels        = -1;

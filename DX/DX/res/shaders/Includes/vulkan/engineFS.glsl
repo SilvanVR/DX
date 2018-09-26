@@ -21,12 +21,11 @@
 #define SHADOW_TYPE_SOFT			2
 #define SHADOW_TYPE_CSM				3
 #define SHADOW_TYPE_CSM_SOFT		4
-#define SHADOW_BIAS 				0.001
 
-// Vulkan clip space has inverted Y and half Z. This fixes it.
+// Vulkan clip space has inverted Y. This fixes it.
 const mat4 VULKAN_CLIP = { { 1.0,  0.0, 0.0, 0.0 },
                            { 0.0, -1.0, 0.0, 0.0 },
-                           { 0.0,  0.0, 0.5, 0.0 },
+                           { 0.0,  0.0, 1.0, 0.0 },
                            { 0.0,  0.0, 0.0, 1.0 } };
 
 //----------------------------------------------------------------------
@@ -139,7 +138,7 @@ float PoisonDiskSampling( float currentDepth, vec2 uv, int shadowMapIndex, float
 	float invisibleSamples = 0;
 	for (int i=0; i<POISSON_DISK_SAMPLES; ++i){
 		float depthSample = SAMPLE_SHADOWMAP_2D( shadowMapIndex, uv + poissonDisk[i]/spacing );
-		if ( currentDepth > (depthSample+SHADOW_BIAS) )
+		if ( currentDepth > depthSample )
 			invisibleSamples++;
 	}	
 	return invisibleSamples / POISSON_DISK_SAMPLES;	
@@ -160,7 +159,7 @@ float CALCULATE_SHADOW_DIR( vec3 P, float shadowDistance, int shadowMapIndex )
 		float currentDepth = projCoords.z;		
 		float depthSample = SAMPLE_SHADOWMAP_2D( shadowMapIndex, uv );
 				
-		shadow = currentDepth > (depthSample+SHADOW_BIAS) ? 1.0 : 0.0;	
+		shadow = currentDepth > depthSample ? 1.0 : 0.0;	
 				
 		// Transition factor: 0 to 1 from [SHADOW-DISTANCE-TRANSITION, SHADOW-DISTANCE]
 		float distanceToCamera = length(P - _Camera.pos);
@@ -209,7 +208,7 @@ float CALCULATE_SHADOW_2D( vec3 P, int shadowMapIndex )
 
 		float currentDepth = projCoords.z;
 		float depthSample = SAMPLE_SHADOWMAP_2D( shadowMapIndex, uv );
-		shadow = currentDepth > (depthSample+SHADOW_BIAS) ? 1.0 : 0.0;
+		shadow = currentDepth > depthSample ? 1.0 : 0.0;
 	}	
 	return 1-shadow;
 }
@@ -434,4 +433,13 @@ vec3 TO_SRGB( vec3 color )
 {
 	float gammaInv = 1.0/GAMMA;
 	return vec3( pow( color.r, gammaInv ), pow( color.g, gammaInv ), pow( color.b, gammaInv ) ); 
+}
+
+//----------------------------------------------
+float linearDepth( float depthSample )
+{
+    depthSample   = 2.0 * depthSample - 1.0;
+    float zLinear = 2.0 * _Camera.zNear * _Camera.zFar / 
+	                (_Camera.zFar + _Camera.zNear - depthSample * (_Camera.zFar - _Camera.zNear));
+    return zLinear;
 }

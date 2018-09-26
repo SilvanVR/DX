@@ -17,15 +17,16 @@ namespace Graphics { namespace Vulkan {
         ASSERT( width > 0 && height > 0 && m_width == 0 && "Invalid params or texture were already created" );
         ITexture::_Init( TextureDimension::Tex2DArray, width, height, format );
 
-        m_depth = depth;
-        if (generateMips)
-        {
+        m_hasMips = generateMips;
+        if (m_hasMips)
             _UpdateMipCount();
-            _GenerateMips();
-        }
 
-        _CreateTextureArray();
+        m_depth = depth;
+        _CreateTextureArray( IsDepthFormat( m_format ) );
         _CreateSampler( m_anisoLevel, m_filter, m_clampMode );
+
+        if (generateMips)
+            _GenerateMips();
     }
 
     //**********************************************************************
@@ -33,7 +34,7 @@ namespace Graphics { namespace Vulkan {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    void Texture2DArray::_CreateTextureArray()
+    void Texture2DArray::_CreateTextureArray( bool isDepthBuffer )
     {
         VezImageCreateInfo imageCreateInfo = {};
         imageCreateInfo.imageType   = VK_IMAGE_TYPE_2D;
@@ -46,6 +47,8 @@ namespace Graphics { namespace Vulkan {
         imageCreateInfo.usage       = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
         if (m_mipCount > 1)
             imageCreateInfo.usage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+        if (isDepthBuffer)
+            imageCreateInfo.usage |= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
 
         VALIDATE( vezCreateImage( g_vulkan.device, VEZ_MEMORY_GPU_ONLY, &imageCreateInfo, &m_image.img ) );
 

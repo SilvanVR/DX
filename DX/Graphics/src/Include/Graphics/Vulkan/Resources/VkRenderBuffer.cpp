@@ -19,6 +19,9 @@ namespace Graphics { namespace Vulkan {
     {
         ITexture::_Init( TextureDimension::Tex2D, width, height, format );
 
+        if (m_mipCount > 1)
+            m_hasMips = true;
+
         m_sampleCount = samples;
 
         _CreateFramebuffer( isDepthBuffer() );
@@ -90,15 +93,15 @@ namespace Graphics { namespace Vulkan {
     {
         VezImageCreateInfo imageCreateInfo{};
         imageCreateInfo.imageType   = VK_IMAGE_TYPE_2D;
-        imageCreateInfo.format      = isDepthBuffer ? Utility::TranslateDepthFormat( m_format ) : Utility::TranslateTextureFormat( m_format );
+        imageCreateInfo.format      = Utility::TranslateTextureFormat( m_format );
         imageCreateInfo.extent      = { m_width, m_height, 1 };
         imageCreateInfo.mipLevels   = 1;
         imageCreateInfo.arrayLayers = 1;
         imageCreateInfo.samples     = VK_SAMPLE_COUNT_1_BIT;
         imageCreateInfo.tiling      = VK_IMAGE_TILING_OPTIMAL;
         imageCreateInfo.usage       = isDepthBuffer ? VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT : VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-        imageCreateInfo.usage |= VK_IMAGE_USAGE_SAMPLED_BIT;
-        imageCreateInfo.usage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+        imageCreateInfo.usage      |= VK_IMAGE_USAGE_SAMPLED_BIT;
+        imageCreateInfo.usage      |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
         if (isMultisampled())
             imageCreateInfo.usage |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;
         VALIDATE( vezCreateImage( g_vulkan.device, VEZ_MEMORY_GPU_ONLY, &imageCreateInfo, &m_framebuffer.img ) );

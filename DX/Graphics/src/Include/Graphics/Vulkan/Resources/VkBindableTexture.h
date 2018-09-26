@@ -41,6 +41,7 @@ namespace Graphics { namespace Vulkan {
             VkImage     img = VK_NULL_HANDLE;
             VkImageView view = VK_NULL_HANDLE;
         } m_image;
+        bool m_hasMips = false;
 
         //----------------------------------------------------------------------
         void _CreateSampler(U32 anisoLevel, TextureFilter filter, TextureAddressMode addressMode);

@@ -1,7 +1,8 @@
 // ----------------------------------------------
 #Fill			Solid
-#Cull 			Front
+#Cull 			None
 #ZWrite 		Off
+#ZTest 			Off
 
 //----------------------------------------------
 // D3D11
@@ -46,4 +47,38 @@ float4 main(FragmentIn fin) : SV_Target
 	float4 color = _MainTex.Sample(_Sampler0, uv);
 	float lum = (color.r * 0.2126) + (color.g * 0.7152) + (color.b * 0.0722);
 	return float4(lum,lum,lum, 1);
+}
+
+//----------------------------------------------
+// Vulkan
+//----------------------------------------------
+#vulkan
+#shader vertex
+
+#include "/engine/shaders/includes/vulkan/version.glsl"
+
+layout (location = 0) out vec2 outUV;
+
+void main()
+{
+	outUV = vec2((gl_VertexIndex << 1) & 2, gl_VertexIndex & 2);
+	gl_Position = vec4(outUV * 2.0f - 1.0f, 0.0f, 1.0f);
+}
+
+//----------------------------------------------
+#shader fragment
+
+#include "/engine/shaders/includes/vulkan/engineFS.glsl"
+
+layout (location = 0) in vec2 inUV;
+
+layout (location = 0) out vec4 outColor;
+
+layout (set = SET_FIRST, binding = 0) uniform sampler2D _MainTex;
+
+void main()
+{
+	vec4 color = texture( _MainTex, inUV );
+	float lum = (color.r * 0.2126) + (color.g * 0.7152) + (color.b * 0.0722);
+	outColor = vec4( lum, lum, lum, 1 );
 }

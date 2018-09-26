@@ -39,7 +39,7 @@ namespace Graphics { namespace Vulkan {
         void _GenerateMips() override;
 
         //----------------------------------------------------------------------
-        void _CreateTexture();
+        void _CreateTexture(bool isDepthBuffer);
 
         NULL_COPY_AND_ASSIGN(Cubemap)
     };

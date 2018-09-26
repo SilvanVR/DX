@@ -40,7 +40,7 @@ namespace Graphics { namespace Vulkan {
     {
         m_keepPixelsInRAM = keepPixelsInRAM;
         m_gpuUpToDate = false;
-        if (updateMips)
+        if (updateMips && m_hasMips)
             _GenerateMips();
     }
 

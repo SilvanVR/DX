@@ -110,19 +110,19 @@ namespace Components {
         case Graphics::ShadowMapQuality::Low:
             shadowMapSize = 256;
             tempRTFormat = Graphics::TextureFormat::D16;
-            cubeMapFormat = Graphics::TextureFormat::R16; break;
+            cubeMapFormat = Graphics::TextureFormat::D16; break;
         case Graphics::ShadowMapQuality::Medium:
             shadowMapSize = 512;
             tempRTFormat = Graphics::TextureFormat::D16;
-            cubeMapFormat = Graphics::TextureFormat::R16; break;
+            cubeMapFormat = Graphics::TextureFormat::D16; break;
         case Graphics::ShadowMapQuality::High:
             shadowMapSize = 1024;
             tempRTFormat = Graphics::TextureFormat::D32;
-            cubeMapFormat = Graphics::TextureFormat::RFloat; break;
+            cubeMapFormat = Graphics::TextureFormat::D32; break;
         case Graphics::ShadowMapQuality::Insane:
             shadowMapSize = 2048;
             tempRTFormat = Graphics::TextureFormat::D32;
-            cubeMapFormat = Graphics::TextureFormat::RFloat; break;
+            cubeMapFormat = Graphics::TextureFormat::D32; break;
         }
 
         if (shadowMapSize > 0)

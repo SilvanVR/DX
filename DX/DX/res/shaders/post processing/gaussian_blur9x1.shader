@@ -1,7 +1,8 @@
 // ----------------------------------------------
 #Fill			Solid
-#Cull 			Front
+#Cull 			None
 #ZWrite 		Off
+#ZTest			Off
 
 //----------------------------------------------
 // D3D11
@@ -72,4 +73,68 @@ float4 main( FragmentIn fin ) : SV_Target
 	
 	return float4(result, 1.0);
 }
+
+
+//----------------------------------------------
+// Vulkan
+//----------------------------------------------
+#vulkan
+#shader vertex
+
+#include "/engine/shaders/includes/vulkan/version.glsl"
+
+layout (location = 0) out vec2 outUV;
+
+void main()
+{
+	outUV = vec2((gl_VertexIndex << 1) & 2, gl_VertexIndex & 2);
+	gl_Position = vec4(outUV * 2.0f - 1.0f, 0.0f, 1.0f);
+}
+
+//----------------------------------------------
+#shader fragment
+
+#include "/engine/shaders/includes/vulkan/engineFS.glsl"
+
+layout (location = 0) in vec2 inUV;
+
+layout (location = 0) out vec4 outColor;
+
+layout (set = SET_FIRST, binding = 0) uniform sampler2D _MainTex;
+layout (set = SET_FIRST, binding = 1) uniform MATERIAL
+{
+	int 	horizontal;
+	float 	blurScale;
+};
+
+void main()
+{
+	const float weight[5] = { 0.227027, 0.1945946, 0.1216216, 0.054054, 0.016216 };
+
+	ivec2 texSize = textureSize( _MainTex, 0 );
+	
+	vec3 result = texture( _MainTex, inUV ).rgb * weight[0];
+	for(int i = 1; i < 5; ++i)
+	{
+		if (horizontal == 1)
+		{
+			float width = texSize[0];
+			vec2 tex_offset = vec2(1.0 / width * blurScale);
+			result += texture( _MainTex, inUV + vec2(tex_offset.x * i, 0.0)).rgb * weight[i];
+			result += texture( _MainTex, inUV - vec2(tex_offset.x * i, 0.0)).rgb * weight[i];
+		}
+		else
+		{
+			float height = texSize[1];
+			vec2 tex_offset = vec2(1.0 / height * blurScale);
+			result += texture( _MainTex, inUV + vec2(0.0, tex_offset.y * i)).rgb * weight[i];
+			result += texture( _MainTex, inUV - vec2(0.0, tex_offset.y * i)).rgb * weight[i];
+		}
+	}
+	
+	outColor = vec4(result, 1.0);
+}
+
+
+
 

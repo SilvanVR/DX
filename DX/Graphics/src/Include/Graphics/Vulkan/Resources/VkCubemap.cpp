@@ -24,11 +24,14 @@ namespace Graphics { namespace Vulkan {
         if (mips == Mips::Generate || mips == Mips::Create)
         {
             _UpdateMipCount();
-            _GenerateMips();
+            m_hasMips = true;
         }
 
-        _CreateTexture();
+        _CreateTexture( IsDepthFormat( m_format ) );
         _CreateSampler( m_anisoLevel, m_filter, m_clampMode );
+
+        if (mips == Mips::Generate)
+            _GenerateMips();
     }
 
     //**********************************************************************
@@ -36,7 +39,7 @@ namespace Graphics { namespace Vulkan {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    void Cubemap::_CreateTexture()
+    void Cubemap::_CreateTexture( bool isDepthBuffer )
     {
         VezImageCreateInfo imageCreateInfo = {};
         imageCreateInfo.imageType   = VK_IMAGE_TYPE_2D;
@@ -46,10 +49,12 @@ namespace Graphics { namespace Vulkan {
         imageCreateInfo.arrayLayers = 6;
         imageCreateInfo.samples     = VK_SAMPLE_COUNT_1_BIT;
         imageCreateInfo.tiling      = VK_IMAGE_TILING_OPTIMAL;
-        imageCreateInfo.usage       = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
         imageCreateInfo.flags       = VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT;
+        imageCreateInfo.usage       = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
         if (m_mipCount > 1)
             imageCreateInfo.usage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+        if (isDepthBuffer)
+            imageCreateInfo.usage |= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
         VALIDATE( vezCreateImage( g_vulkan.device, VEZ_MEMORY_GPU_ONLY, &imageCreateInfo, &m_image.img ) );
 
         // Create the image view for binding the texture as a resource.

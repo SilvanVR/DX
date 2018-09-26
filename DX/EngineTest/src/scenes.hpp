@@ -1148,7 +1148,7 @@ public:
                         dlRange = dl->getShadowRange();
                         if (ImGui::SliderFloat("Shadow Range", &dlRange, 5.0f, 100.0f))
                             dl->setShadowRange(dlRange);
-                        ImGui::Image(dl->getShadowMap(), 0, Math::Vec2{ 200, 200 });
+                        ImGui::Image(dl->getShadowMap(), Math::Vec2{ 200, 200 });
                     }
                     else if (type_current > 2)
                     {

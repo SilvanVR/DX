@@ -1,7 +1,7 @@
 {
 
 "shader" : "/engine/shaders/post processing/fog.shader",
-"fogColor" : "#FFFFFF",
+"fogColor" : "#FF0000",
 "density" : 0.1,
 "gradient" : 2
 
