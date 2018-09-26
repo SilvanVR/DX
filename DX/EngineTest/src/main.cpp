@@ -38,7 +38,6 @@ public:
         go->getComponent<Components::Transform>()->position = Math::Vec3(0, 1, -5);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 0.1f);
         go->addComponent<Components::AudioListener>();
-        go->addComponent<PostProcess>(ASSETS.getMaterial("/materials/post processing/greyscale.material"));
 
         //go->addComponent<Tonemap>();
 

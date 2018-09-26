@@ -2,6 +2,7 @@
 #Fill			Solid
 #Cull 			None
 #ZWrite 		Off
+#ZTest			Off
 
 //----------------------------------------------
 // D3D11
@@ -155,7 +156,7 @@ float2 main( FragmentIn fin ) : SV_Target
 #vulkan
 #shader vertex
 
-#include "/engine/shaders/includes/vulkan/version.glsl"
+#include "/engine/shaders/includes/vulkan/engineFS.glsl"
 
 layout (location = 0) out vec2 outUV;
 

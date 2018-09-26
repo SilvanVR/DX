@@ -282,7 +282,7 @@ namespace Core { namespace Resources {
     void ResourceManager::_DeleteRenderTexture( Graphics::RenderTexture* tex )
     {
 #if PRINT_DELETES
-        LOG( "DELETING TEXTURE", Color::RED );
+        LOG( "DELETING RENDER TEXTURE", Color::RED );
 #endif
         m_renderTextures.erase( std::remove( m_renderTextures.begin(), m_renderTextures.end(), tex ) );
         SAFE_DELETE( tex );

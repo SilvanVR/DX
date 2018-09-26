@@ -211,6 +211,7 @@ namespace Graphics {
                 {
                     auto& cmd = *reinterpret_cast<GPUC_DrawFullscreenQuad*>( command.get() );
                     auto currRT = renderContext.getRenderTarget();
+                    ASSERT( currRT && "No rendertarget was previously set." );
                     ViewportRect vp = { 0, 0, (F32)currRT->getWidth(), (F32)currRT->getHeight() };
                     _DrawFullScreenQuad( cmd.material, vp );
                     break;
