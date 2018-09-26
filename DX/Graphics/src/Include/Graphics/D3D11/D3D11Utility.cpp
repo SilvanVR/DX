@@ -131,26 +131,26 @@ namespace Graphics { namespace D3D11 { namespace Utility {
     }
 
     //----------------------------------------------------------------------
-    DXGI_FORMAT TranslateDepthFormat( DepthFormat depth )
+    DXGI_FORMAT TranslateDepthFormat( TextureFormat depth )
     {
         switch (depth)
         {
-        case DepthFormat::D16:      return DXGI_FORMAT_D16_UNORM; break;
-        case DepthFormat::D24S8:    return DXGI_FORMAT_D24_UNORM_S8_UINT; break;
-        case DepthFormat::D32:      return DXGI_FORMAT_D32_FLOAT; break;
+        case TextureFormat::D16:      return DXGI_FORMAT_D16_UNORM; break;
+        case TextureFormat::D24S8:    return DXGI_FORMAT_D24_UNORM_S8_UINT; break;
+        case TextureFormat::D32:      return DXGI_FORMAT_D32_FLOAT; break;
         }
         ASSERT( false && "Oops! Depth format parameter are invalid." );
         return DXGI_FORMAT_D16_UNORM;
     }
 
     //----------------------------------------------------------------------
-    DXGI_FORMAT TranslateDepthFormatSRV( DepthFormat depth )
+    DXGI_FORMAT TranslateDepthFormatSRV( TextureFormat depth )
     {
         switch (depth)
         {
-        case DepthFormat::D16:      return DXGI_FORMAT_R16_TYPELESS; break;
-        case DepthFormat::D24S8:    return DXGI_FORMAT_R24G8_TYPELESS; break;
-        case DepthFormat::D32:      return DXGI_FORMAT_R32_TYPELESS; break;
+        case TextureFormat::D16:      return DXGI_FORMAT_R16_TYPELESS; break;
+        case TextureFormat::D24S8:    return DXGI_FORMAT_R24G8_TYPELESS; break;
+        case TextureFormat::D32:      return DXGI_FORMAT_R32_TYPELESS; break;
         }
         ASSERT( false && "Oops! Depth format parameter are invalid." );
         return DXGI_FORMAT_D16_UNORM;

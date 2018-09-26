@@ -34,7 +34,7 @@ namespace Graphics { namespace Vulkan { namespace Utility {
     VkSampleCountFlagBits TranslateSampleCount( MSAASamples samples );
 
     //----------------------------------------------------------------------
-    VkFormat TranslateDepthFormat( DepthFormat depth );
+    VkFormat TranslateDepthFormat( TextureFormat depth );
 
     //----------------------------------------------------------------------
     VkShaderStageFlagBits TranslateShaderStage(ShaderType shaderType);

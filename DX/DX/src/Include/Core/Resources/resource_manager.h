@@ -111,9 +111,9 @@ namespace Core { namespace Resources {
         RenderTexturePtr createRenderTexture();
         RenderTexturePtr createRenderTexture(U32 width, U32 height, Graphics::TextureFormat format, bool dynamicScale);
         RenderTexturePtr createRenderTexture(U32 width, U32 height, Graphics::TextureFormat format, Graphics::MSAASamples samples);
-        RenderTexturePtr createRenderTexture(U32 width, U32 height, Graphics::DepthFormat depth, Graphics::TextureFormat format, U32 numBuffers = 1, 
+        RenderTexturePtr createRenderTexture(U32 width, U32 height, Graphics::TextureFormat depth, Graphics::TextureFormat format, U32 numBuffers = 1,
                                              Graphics::MSAASamples sampleCount = Graphics::MSAASamples::One, bool dynamicScale = false);
-        RenderTexturePtr createRenderTexture(U32 width, U32 height, Graphics::DepthFormat depth, Graphics::TextureFormat format,
+        RenderTexturePtr createRenderTexture(U32 width, U32 height, Graphics::TextureFormat depth, Graphics::TextureFormat format,
                                              Graphics::MSAASamples sampleCount, bool dynamicScale);
 
         //----------------------------------------------------------------------

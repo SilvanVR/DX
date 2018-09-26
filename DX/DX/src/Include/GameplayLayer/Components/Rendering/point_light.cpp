@@ -103,25 +103,25 @@ namespace Components {
     void PointLight::_CreateShadowMap( Graphics::ShadowMapQuality quality )
     {
         U32 shadowMapSize = 0;
-        Graphics::DepthFormat tempRTFormat;
+        Graphics::TextureFormat tempRTFormat;
         Graphics::TextureFormat cubeMapFormat;
         switch (quality)
         {
         case Graphics::ShadowMapQuality::Low:
             shadowMapSize = 256;
-            tempRTFormat = Graphics::DepthFormat::D16;
+            tempRTFormat = Graphics::TextureFormat::D16;
             cubeMapFormat = Graphics::TextureFormat::R16; break;
         case Graphics::ShadowMapQuality::Medium:
             shadowMapSize = 512;
-            tempRTFormat = Graphics::DepthFormat::D16;
+            tempRTFormat = Graphics::TextureFormat::D16;
             cubeMapFormat = Graphics::TextureFormat::R16; break;
         case Graphics::ShadowMapQuality::High:
             shadowMapSize = 1024;
-            tempRTFormat = Graphics::DepthFormat::D32;
+            tempRTFormat = Graphics::TextureFormat::D32;
             cubeMapFormat = Graphics::TextureFormat::RFloat; break;
         case Graphics::ShadowMapQuality::Insane:
             shadowMapSize = 2048;
-            tempRTFormat = Graphics::DepthFormat::D32;
+            tempRTFormat = Graphics::TextureFormat::D32;
             cubeMapFormat = Graphics::TextureFormat::RFloat; break;
         }
 

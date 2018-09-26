@@ -18,23 +18,11 @@ namespace Graphics { namespace Vulkan {
     void RenderBuffer::create( U32 width, U32 height, TextureFormat format, MSAASamples samples )
     {
         ITexture::_Init( TextureDimension::Tex2D, width, height, format );
-        m_isDepthBuffer = false;
+
         m_sampleCount = samples;
 
+        _CreateFramebuffer( isDepthBuffer() );
         _CreateSampler( m_anisoLevel, m_filter, m_clampMode );
-        _CreateFramebuffer( m_isDepthBuffer );
-    }
-
-    //----------------------------------------------------------------------
-    void RenderBuffer::create( U32 width, U32 height, DepthFormat format, MSAASamples samples )
-    {
-        ITexture::_Init( TextureDimension::Tex2D, width, height, TextureFormat::Depth );
-        m_isDepthBuffer = true;
-        m_depthFormat = format;
-        m_sampleCount = samples;
-
-        _CreateSampler( m_anisoLevel, m_filter, m_clampMode );
-        _CreateFramebuffer( m_isDepthBuffer );
     }
 
     //----------------------------------------------------------------------
@@ -49,8 +37,8 @@ namespace Graphics { namespace Vulkan {
         m_width = w;
         m_height = h;
         m_sampleCount = samples;
-        _DestroyFramebuffer( m_isDepthBuffer );
-        _CreateFramebuffer( m_isDepthBuffer );
+        _DestroyFramebuffer( isDepthBuffer() );
+        _CreateFramebuffer( isDepthBuffer() );
     }
 
     //----------------------------------------------------------------------
@@ -58,17 +46,8 @@ namespace Graphics { namespace Vulkan {
     {
         ASSERT( isColorBuffer() && "Renderbuffer is not a color buffer!" );
         m_format = format;
-        _DestroyFramebuffer( m_isDepthBuffer );
-        _CreateFramebuffer( m_isDepthBuffer );
-    }
-
-    //----------------------------------------------------------------------
-    void RenderBuffer::recreate( Graphics::DepthFormat format )
-    {
-        ASSERT( isDepthBuffer() && "Renderbuffer is not a depth buffer!");
-        m_depthFormat = format;
-        _DestroyFramebuffer( m_isDepthBuffer );
-        _CreateFramebuffer( m_isDepthBuffer );
+        _DestroyFramebuffer( isDepthBuffer() );
+        _CreateFramebuffer( isDepthBuffer() );
     }
 
     //----------------------------------------------------------------------
@@ -111,7 +90,7 @@ namespace Graphics { namespace Vulkan {
     {
         VezImageCreateInfo imageCreateInfo{};
         imageCreateInfo.imageType   = VK_IMAGE_TYPE_2D;
-        imageCreateInfo.format      = isDepthBuffer ? Utility::TranslateDepthFormat( m_depthFormat ) : Utility::TranslateTextureFormat( m_format );
+        imageCreateInfo.format      = isDepthBuffer ? Utility::TranslateDepthFormat( m_format ) : Utility::TranslateTextureFormat( m_format );
         imageCreateInfo.extent      = { m_width, m_height, 1 };
         imageCreateInfo.mipLevels   = 1;
         imageCreateInfo.arrayLayers = 1;

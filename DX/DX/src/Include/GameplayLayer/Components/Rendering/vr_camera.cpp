@@ -19,7 +19,7 @@ namespace Components {
 
     #define BUFFER_FORMAT_LDR       Graphics::TextureFormat::RGBA32
     #define BUFFER_FORMAT_HDR       Graphics::TextureFormat::RGBAFloat
-    #define DEPTH_STENCIL_FORMAT    Graphics::DepthFormat::D32
+    #define DEPTH_STENCIL_FORMAT    Graphics::TextureFormat::D32
 
     using namespace Graphics::VR;
 

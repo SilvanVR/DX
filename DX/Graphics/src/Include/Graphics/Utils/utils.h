@@ -28,4 +28,9 @@ namespace Graphics {
     //----------------------------------------------------------------------
     String GetShaderTypeName(ShaderType shaderType);
 
+    //----------------------------------------------------------------------
+    // @Return: Whether given format is a depth format
+    //----------------------------------------------------------------------
+    bool IsDepthFormat(TextureFormat format);
+
 }

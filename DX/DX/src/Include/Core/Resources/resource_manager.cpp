@@ -158,7 +158,7 @@ namespace Core { namespace Resources {
     }
 
     //----------------------------------------------------------------------
-    RenderTexturePtr ResourceManager::createRenderTexture( U32 width, U32 height, Graphics::DepthFormat depth, Graphics::TextureFormat format, 
+    RenderTexturePtr ResourceManager::createRenderTexture( U32 width, U32 height, Graphics::TextureFormat depth, Graphics::TextureFormat format,
                                                            U32 numBuffers, Graphics::MSAASamples sampleCount, bool dynamicScale )
     {
         ArrayList<RenderBufferPtr> colorBuffers;
@@ -169,11 +169,15 @@ namespace Core { namespace Resources {
             colorBuffer->create( width, height, format, sampleCount );
             colorBuffers.push_back( colorBuffer );
 
-            if (depth != Graphics::DepthFormat::None)
+            if ( Graphics::IsDepthFormat( depth ) )
             {
                 auto depthBuffer = createRenderBuffer();
                 depthBuffer->create( width, height, depth, sampleCount );
                 depthBuffers.push_back( depthBuffer );
+            }
+            else
+            {
+                LOG_WARN( "ResourceManager::createRenderTexture(): Invalid depth format passed in." );
             }
         }
 
@@ -185,17 +189,21 @@ namespace Core { namespace Resources {
     }
 
     //----------------------------------------------------------------------
-    RenderTexturePtr ResourceManager::createRenderTexture( U32 width, U32 height, Graphics::DepthFormat depth, Graphics::TextureFormat format,
+    RenderTexturePtr ResourceManager::createRenderTexture( U32 width, U32 height, Graphics::TextureFormat depth, Graphics::TextureFormat format,
                                                            Graphics::MSAASamples sampleCount, bool dynamicScale )
     {
         auto colorBuffer = createRenderBuffer();
         colorBuffer->create( width, height, format, sampleCount );
 
         RenderBufferPtr depthBuffer = nullptr;
-        if (depth != Graphics::DepthFormat::None)
+        if ( Graphics::IsDepthFormat( depth ) )
         {
             depthBuffer = createRenderBuffer();
             depthBuffer->create( width, height, depth, sampleCount );
+        }
+        else
+        {
+            LOG_WARN( "ResourceManager::createRenderTexture(): Invalid depth format passed in." );
         }
 
         auto renderTexture = createRenderTexture();

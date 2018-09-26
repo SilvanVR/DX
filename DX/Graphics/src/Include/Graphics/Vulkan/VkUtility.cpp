@@ -177,13 +177,13 @@ namespace Graphics { namespace Vulkan { namespace Utility {
     }
 
     //----------------------------------------------------------------------
-    VkFormat TranslateDepthFormat( DepthFormat depth )
+    VkFormat TranslateDepthFormat( TextureFormat depth )
     {
         switch (depth)
         {
-        case DepthFormat::D16:      return VK_FORMAT_D16_UNORM; break;
-        case DepthFormat::D24S8:    return VK_FORMAT_D24_UNORM_S8_UINT; break;
-        case DepthFormat::D32:      return VK_FORMAT_D32_SFLOAT; break;
+        case TextureFormat::D16:      return VK_FORMAT_D16_UNORM; break;
+        case TextureFormat::D24S8:    return VK_FORMAT_D24_UNORM_S8_UINT; break;
+        case TextureFormat::D32:      return VK_FORMAT_D32_SFLOAT; break;
         }
         ASSERT( false && "Oops! Depth format parameter are invalid." );
         return VK_FORMAT_UNDEFINED;

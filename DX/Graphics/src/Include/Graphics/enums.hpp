@@ -150,13 +150,6 @@ namespace Graphics {
         BC7,                // High quality compressed color texture format.
         RG16,               // Two color(RG) texture format, 8 - bits per channel.
         R8,                 // Scalar(R) render texture format, 8 bit fixed point.
-        Depth               // Texture is a depth-texture. Retrieve exact format with another function.
-    };
-
-    //----------------------------------------------------------------------
-    enum class DepthFormat
-    {
-        None = 0,           // No depth.
         D16,                // 16-Bit depth format.
         D24S8,              // 24-Bit depth, 8 Bit Stencil format.
         D32                 // 32-Bit depth format.

@@ -42,25 +42,25 @@ namespace Components {
     void DirectionalLight::_CreateShadowMap( Graphics::ShadowMapQuality quality )
     {
         U32 shadowMapSize = 0;
-        Graphics::DepthFormat depthFormat;
+        Graphics::TextureFormat depthFormat;
         Graphics::TextureFormat tempRTFormat; // Used for CSM, must be compatible with "depthFormat"
         switch (quality)
         {
             case Graphics::ShadowMapQuality::Low:
                 shadowMapSize = 512;
-                depthFormat   = Graphics::DepthFormat::D16; 
+                depthFormat   = Graphics::TextureFormat::D16;
                 tempRTFormat  = Graphics::TextureFormat::R16; break;
             case Graphics::ShadowMapQuality::Medium:
                 shadowMapSize = 1024; 
-                depthFormat   = Graphics::DepthFormat::D16;
+                depthFormat   = Graphics::TextureFormat::D16;
                 tempRTFormat  = Graphics::TextureFormat::R16; break;
             case Graphics::ShadowMapQuality::High:
                 shadowMapSize = 2048; 
-                depthFormat   = Graphics::DepthFormat::D32;
+                depthFormat   = Graphics::TextureFormat::D32;
                 tempRTFormat  = Graphics::TextureFormat::RFloat; break;
             case Graphics::ShadowMapQuality::Insane:
                 shadowMapSize = 4096; 
-                depthFormat   = Graphics::DepthFormat::D32;
+                depthFormat   = Graphics::TextureFormat::D32;
                 tempRTFormat  = Graphics::TextureFormat::RFloat; break;
         }
 

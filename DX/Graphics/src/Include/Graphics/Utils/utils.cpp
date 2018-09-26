@@ -64,6 +64,12 @@ namespace Graphics {
         return "";
     }
 
+    //----------------------------------------------------------------------
+    bool IsDepthFormat( TextureFormat format )
+    {
+        return format == TextureFormat::D32 || format == TextureFormat::D24S8 || format == TextureFormat::D16;
+    }
+
 }
 
 

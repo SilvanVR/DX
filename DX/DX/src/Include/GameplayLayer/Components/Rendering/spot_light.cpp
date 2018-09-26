@@ -66,13 +66,13 @@ namespace Components {
     void SpotLight::_CreateShadowMap( Graphics::ShadowMapQuality quality )
     {
         U32 shadowMapSize = 0;
-        Graphics::DepthFormat depthFormat;
+        Graphics::TextureFormat depthFormat;
         switch (quality)
         {
-            case Graphics::ShadowMapQuality::Low:     shadowMapSize = 512;  depthFormat = Graphics::DepthFormat::D16; break;
-            case Graphics::ShadowMapQuality::Medium:  shadowMapSize = 1024; depthFormat = Graphics::DepthFormat::D16; break;
-            case Graphics::ShadowMapQuality::High:    shadowMapSize = 2048; depthFormat = Graphics::DepthFormat::D32; break;
-            case Graphics::ShadowMapQuality::Insane:  shadowMapSize = 4096; depthFormat = Graphics::DepthFormat::D32; break;
+            case Graphics::ShadowMapQuality::Low:     shadowMapSize = 512;  depthFormat = Graphics::TextureFormat::D16; break;
+            case Graphics::ShadowMapQuality::Medium:  shadowMapSize = 1024; depthFormat = Graphics::TextureFormat::D16; break;
+            case Graphics::ShadowMapQuality::High:    shadowMapSize = 2048; depthFormat = Graphics::TextureFormat::D32; break;
+            case Graphics::ShadowMapQuality::Insane:  shadowMapSize = 4096; depthFormat = Graphics::TextureFormat::D32; break;
         }
 
         if (shadowMapSize > 0)

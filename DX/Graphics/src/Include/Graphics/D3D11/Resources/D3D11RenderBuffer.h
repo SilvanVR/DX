@@ -28,13 +28,11 @@ namespace Graphics { namespace D3D11 {
         // IRenderBuffer Interface
         //----------------------------------------------------------------------
         void create(U32 width, U32 height, TextureFormat format, MSAASamples samples) override;
-        void create(U32 width, U32 height, DepthFormat format, MSAASamples samples) override;
         void clearColor(Color color) override;
         void clearDepthStencil(F32 depth, U8 stencil) override;
         void recreate(U32 w, U32 h) override;
         void recreate(U32 w, U32 h, MSAASamples samples) override;
         void recreate(Graphics::TextureFormat format) override;
-        void recreate(Graphics::DepthFormat format) override;
         void bindForRendering() override;
         U64* getNativeTexturePtr() const override { return reinterpret_cast<U64*>(m_pTexture); }
 
