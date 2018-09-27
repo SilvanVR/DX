@@ -24,16 +24,16 @@ namespace Components {
 
     //----------------------------------------------------------------------
     Camera::Camera( F32 fovAngleYInDegree, F32 zNear, F32 zFar, Graphics::MSAASamples numSamples, bool hdr )
-        : m_camera( fovAngleYInDegree, zNear, zFar ), m_cullingMask( LAYER_ALL ), m_hdr( hdr )
+        : m_camera( fovAngleYInDegree, zNear, zFar ), m_cullingMask( LAYER_ALL )
     {
-        _CreateRenderTarget( numSamples );
+        _CreateRenderTarget( numSamples, hdr );
     }
 
     //----------------------------------------------------------------------
     Camera::Camera( F32 left, F32 right, F32 bottom, F32 top, F32 zNear, F32 zFar, Graphics::MSAASamples numSamples, bool hdr )
-        : m_camera( left, right, bottom, top, zNear, zFar ), m_cullingMask( LAYER_ALL ), m_hdr( hdr )
+        : m_camera( left, right, bottom, top, zNear, zFar ), m_cullingMask( LAYER_ALL )
     {
-        _CreateRenderTarget( numSamples );
+        _CreateRenderTarget( numSamples, hdr );
     }
 
     //**********************************************************************
@@ -56,11 +56,11 @@ namespace Components {
     //----------------------------------------------------------------------
     void Camera::setHDRRendering( bool enabled )
     {
-        if (m_hdr == enabled)
+        bool hdr = isHDR();
+        if (hdr == enabled)
             return;
 
-        m_hdr = enabled;
-        getRenderTarget()->recreate( m_hdr ? BUFFER_FORMAT_HDR : BUFFER_FORMAT_LDR );
+        getRenderTarget()->recreate( hdr ? BUFFER_FORMAT_HDR : BUFFER_FORMAT_LDR );
     }
 
     //----------------------------------------------------------------------
@@ -71,16 +71,21 @@ namespace Components {
         getRenderTarget()->setDynamicScreenScale( true, screenResMod );
     }
 
+    bool Camera::isHDR() const 
+    { 
+        return m_camera.getRenderTarget()->getFormat() == BUFFER_FORMAT_HDR;
+    }
+
     //**********************************************************************
     // PRIVATE
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    void Camera::_CreateRenderTarget( Graphics::MSAASamples sampleCount )
+    void Camera::_CreateRenderTarget( Graphics::MSAASamples sampleCount, bool hdr )
     {
         auto& window = Locator::getWindow();
         auto rt = RESOURCES.createRenderTexture( window.getWidth(), window.getHeight(), 
-                                                 DEPTH_STENCIL_FORMAT, m_hdr ? BUFFER_FORMAT_HDR : BUFFER_FORMAT_LDR, 
+                                                 DEPTH_STENCIL_FORMAT, hdr ? BUFFER_FORMAT_HDR : BUFFER_FORMAT_LDR,
                                                  sampleCount, true );
         setRenderTarget( rt, Graphics::CameraFlags::BlitToScreen );
     }

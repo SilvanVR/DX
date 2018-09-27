@@ -127,6 +127,8 @@ public:
 
 class Game : public IGame
 {
+    GameObject* vrCamGO = nullptr;
+    Events::EventListener m_sceneSwitchListener;
 public:
     //----------------------------------------------------------------------
     void init() override 
@@ -145,6 +147,11 @@ public:
         }, 1000);
 
         ASSETS.setHotReloading(true);
+
+        // On scene switch the GO gets deleted automatically, so we just make sure its null
+        m_sceneSwitchListener = Events::EventDispatcher::GetEvent(EVENT_SCENE_CHANGED).addListener([this] {
+            vrCamGO = nullptr;
+        });
 
         IGC_REGISTER_COMMAND_WITH_NAME( "menu", BIND_THIS_FUNC_0_ARGS(&Game::_OpenMenu) );
 
@@ -184,40 +191,7 @@ public:
 
             // Toggle between normal & vr camera
             if (KEYBOARD.wasKeyPressed(Key::V) && RENDERER.hasHMD())
-            {
-                auto mainCamera = SCENE.getMainCamera();
-                if (not mainCamera->isBlittingToHMD())
-                {
-                    // Disable main camera and fps moving script
-                    bool isActive = mainCamera->isActive();
-                    mainCamera->setActive(not isActive);
-
-                    auto go = mainCamera->getGameObject();
-                    if (auto fpsMovScript = go->getComponent<Components::FPSCamera>())
-                        fpsMovScript->setActive(not isActive);
-
-                    // Create/Destroy VRCamera 
-                    static GameObject* vrCamGO = nullptr;
-                    if (not vrCamGO)
-                    {
-                        vrCamGO = SCENE.createGameObject("VRCamera");
-                        vrCamGO->getTransform()->position = go->getTransform()->position;
-                        auto vrCam = vrCamGO->addComponent<Components::VRCamera>(Components::ScreenDisplay::LeftEye);
-                        vrCam->setClearColor( mainCamera->getClearColor() );
-                        vrCamGO->addComponent<Components::VRFPSCamera>();
-                        vrCamGO->addComponent<Components::VRBasicTouch>(Core::MeshGenerator::CreateCubeUV(0.1f), ASSETS.getMaterial("/materials/blinn_phong/cube.material"));
-                        //vrCamGO->addComponent<PostProcess>(ASSETS.getMaterial("/materials/post processing/color_grading.material"));
-                    }
-                    else
-                    {
-                        vrCamGO->removeComponent<Components::VRCamera>();
-                        vrCamGO->removeComponent<Components::VRFPSCamera>();
-                        vrCamGO->removeComponent<Components::VRBasicTouch>();
-                        vrCamGO->getScene()->destroyGameObject( vrCamGO );
-                        vrCamGO = nullptr;
-                    }
-                }
-            }
+                _SwitchCameraVR();
         }
 
         if(KEYBOARD.isKeyDown(Key::Escape))
@@ -231,6 +205,42 @@ public:
     }
 
 private:
+    //----------------------------------------------------------------------
+    void _SwitchCameraVR()
+    {
+        auto mainCamera = SCENE.getMainCamera();
+        if (not mainCamera->isBlittingToHMD())
+        {
+            // Disable main camera and fps moving script
+            bool isActive = mainCamera->isActive();
+            mainCamera->setActive(not isActive);
+
+            // Disable movement script if the main camera had one
+            auto go = mainCamera->getGameObject();
+            if (auto fpsMovScript = go->getComponent<Components::FPSCamera>())
+                fpsMovScript->setActive(not isActive);
+
+            // Create/Destroy components for VRCamera 
+            if (not vrCamGO)
+            {
+                vrCamGO = SCENE.createGameObject("VRCamera");
+                vrCamGO->getTransform()->position = go->getTransform()->position;
+                bool isHDR = mainCamera->isHDR();
+                auto vrCam = vrCamGO->addComponent<Components::VRCamera>(Components::ScreenDisplay::LeftEye, Graphics::MSAASamples::Four, isHDR);
+                vrCam->setClearColor(mainCamera->getClearColor());
+                vrCamGO->addComponent<Components::VRFPSCamera>();
+                vrCamGO->addComponent<Components::VRBasicTouch>(Core::MeshGenerator::CreateCubeUV(0.1f), ASSETS.getMaterial("/materials/blinn_phong/cube.material"));
+                if (isHDR)
+                    vrCamGO->addComponent<Tonemap>();
+            }
+            else
+            {
+                SCENE.destroyGameObject(vrCamGO);
+                vrCamGO = nullptr;
+            }
+        }
+    }
+
     //----------------------------------------------------------------------
     void _OpenMenu() const
     {

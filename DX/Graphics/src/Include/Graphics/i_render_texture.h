@@ -27,6 +27,9 @@ namespace Graphics
         //----------------------------------------------------------------------
         U32                 getWidth()                  const { return (U32)(m_baseWidth * m_scaleFactor); }
         U32                 getHeight()                 const { return (U32)(m_baseHeight * m_scaleFactor); }
+        TextureFormat       getFormat()                 const { return getBuffer()->getFormat(); }
+        TextureFilter       getFilter()                 const { return getBuffer()->getFilter(); }
+        U32                 getAnisoLevel()             const { return getBuffer()->getAnisoLevel(); }
         bool                dynamicScales()             const { return m_dynamicScale; }
         F32                 getDynamicScaleFactor()     const { return m_scaleFactor; }
         bool                hasColorBuffer()            const { return getColorBuffer() != nullptr; }

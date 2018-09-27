@@ -32,7 +32,6 @@ namespace Components {
     {
     public:
         VRCamera(ScreenDisplay screenDisplay = ScreenDisplay::LeftEye, Graphics::MSAASamples sampleCount = Graphics::MSAASamples::Four, bool hdr = false);
-        ~VRCamera() = default;
 
         //----------------------------------------------------------------------
         Components::Camera& getCameraForEye(Graphics::VR::Eye eye) { return *m_eyeCameras[eye]; }

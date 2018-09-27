@@ -56,6 +56,7 @@ namespace Components {
         const Graphics::FrameInfo&      getFrameInfo()              const { return m_camera.getFrameInfo(); }
         bool                            isBlittingToHMD()           const { return m_camera.isBlittingToHMD(); }
         Graphics::VR::Eye               getHMDEye()                 const { return m_camera.getHMDEye(); }
+        bool                            isHDR()                     const;
 
         //----------------------------------------------------------------------
         void setCameraMode          (Graphics::CameraMode mode)                                     { m_camera.setCameraMode(mode); }
@@ -108,16 +109,13 @@ namespace Components {
         // Which layer the camera should render
         LayerMask                   m_cullingMask;
 
-        // Whether this camera renders into a floating point buffer for HDR rendering or not
-        bool                        m_hdr = false;
-
         // Additional attached command buffer
         HashMap<CameraEvent, ArrayList<Graphics::CommandBuffer*>> m_additionalCommandBuffers;
 
         friend class Core::RenderSystem;
 
         //----------------------------------------------------------------------
-        void _CreateRenderTarget(Graphics::MSAASamples sampleCount);
+        void _CreateRenderTarget(Graphics::MSAASamples sampleCount, bool hdr);
 
         NULL_COPY_AND_ASSIGN(Camera)
     };
