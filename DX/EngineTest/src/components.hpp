@@ -322,7 +322,7 @@ public:
 
         if (vrCam)
         {
-            auto hmdDesc = RENDERER.getVRDevice().getDescription();
+            auto hmdDesc = RENDERER.getHMD().getDescription();
             for (auto eye : { Graphics::VR::LeftEye, Graphics::VR::RightEye })
             {
                 // Create render target
@@ -355,7 +355,7 @@ private:
 
         if (vrCam)
         {
-            auto hmdDesc = RENDERER.getVRDevice().getDescription();
+            auto hmdDesc = RENDERER.getHMD().getDescription();
             for (auto eye : { Graphics::VR::LeftEye, Graphics::VR::RightEye })
                 vrCam->getCameraForEye(eye).addCommandBuffer(&cmd[eye], Components::CameraEvent::PostProcess);
             m_addedCommandBuffer = true;

@@ -29,7 +29,7 @@ namespace Components {
         ASSERT( RENDERER.hasHMD() && "Component requires an HMD but there is none available!" );
 
         // Create the cameras in the constructor, so other scripts can access the cameras early on (e.g. for postprocessing)
-        auto& hmd = RENDERER.getVRDevice();
+        auto& hmd = RENDERER.getHMD();
         auto hmdDesc = hmd.getDescription();
         for (auto eye : { LeftEye, RightEye })
         {
@@ -127,13 +127,13 @@ namespace Components {
     //----------------------------------------------------------------------
     void VRCamera::setWorldScale( F32 newWorldScale )
     {
-        RENDERER.getVRDevice().setWorldScale( newWorldScale );
+        RENDERER.getHMD().setWorldScale( newWorldScale );
     }
 
     //----------------------------------------------------------------------
     F32 VRCamera::getWorldScale() const
     {
-        return RENDERER.getVRDevice().getWorldScale();
+        return RENDERER.getHMD().getWorldScale();
     }
 
     //----------------------------------------------------------------------
@@ -143,7 +143,7 @@ namespace Components {
     //----------------------------------------------------------------------
     void VRCamera::_OnFrameBegin()
     {
-        auto& hmd = RENDERER.getVRDevice();
+        auto& hmd = RENDERER.getHMD();
         auto eyePoses = hmd.getEyePoses( Locator::getCoreEngine().getFrameCount() );
         for (auto eye : { LeftEye, RightEye })
         {
@@ -163,7 +163,7 @@ namespace Components {
     {
         // Update transform data before every frame
         m_frameBeginListener = Events::EventDispatcher::GetEvent( EVENT_FRAME_BEGIN ).addListener( [this]() {
-            auto& touchPose = RENDERER.getVRDevice().getTouchPose( m_hand, Locator::getCoreEngine().getFrameCount() );
+            auto& touchPose = RENDERER.getHMD().getTouchPose( m_hand, Locator::getCoreEngine().getFrameCount() );
 
             auto transform = getGameObject()->getTransform();
             transform->position = touchPose.position;

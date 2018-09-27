@@ -211,12 +211,12 @@ namespace Components {
         if (CONTROLLER.wasKeyPressed(ControllerKey::X))
         {
             perfHudMode = perfHudMode - 1; if (perfHudMode < 0) perfHudMode = (I32)Graphics::VR::PerfHudMode::Count - 1;
-            RENDERER.getVRDevice().setPerformanceHUD((Graphics::VR::PerfHudMode)perfHudMode);
+            RENDERER.getHMD().setPerformanceHUD((Graphics::VR::PerfHudMode)perfHudMode);
         }
         if (CONTROLLER.wasKeyPressed(ControllerKey::Y))
         {
             perfHudMode = (perfHudMode + 1) % (I32)Graphics::VR::PerfHudMode::Count;
-            RENDERER.getVRDevice().setPerformanceHUD((Graphics::VR::PerfHudMode)perfHudMode);
+            RENDERER.getHMD().setPerformanceHUD((Graphics::VR::PerfHudMode)perfHudMode);
         }
 
         static StringID LEFT_HAND_NAME = SID("LeftHand");

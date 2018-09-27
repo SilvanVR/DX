@@ -166,6 +166,22 @@ public:
 
         // VR
         {
+            if (RENDERER.hasHMD())
+            {
+                // Perfhud
+                static I32 perfHudMode = 0;
+                if (KEYBOARD.wasKeyPressed(Key::Left))
+                {
+                    perfHudMode = perfHudMode - 1; if (perfHudMode < 0) perfHudMode = (I32)Graphics::VR::PerfHudMode::Count - 1;
+                    RENDERER.getHMD().setPerformanceHUD((Graphics::VR::PerfHudMode)perfHudMode);
+                }
+                if (KEYBOARD.wasKeyPressed(Key::Right))
+                {
+                    perfHudMode = (perfHudMode + 1) % (I32)Graphics::VR::PerfHudMode::Count;
+                    RENDERER.getHMD().setPerformanceHUD((Graphics::VR::PerfHudMode)perfHudMode);
+                }
+            }
+
             // Toggle between normal & vr camera
             if (KEYBOARD.wasKeyPressed(Key::V) && RENDERER.hasHMD())
             {
