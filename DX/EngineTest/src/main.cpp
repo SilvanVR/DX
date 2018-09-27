@@ -97,7 +97,8 @@ public:
         gui->addComponent<Components::Camera>(45.0f, 0.1f, 1000.0f, Graphics::MSAASamples::One);
         gui->addComponent<Components::GUI>();
 
-        auto guiSceneMenu = gui->addComponent<GUISceneMenu>();
+        auto guiSceneMenu = gui->addComponent<GUISceneMenu>("Scenes");
+        guiSceneMenu->registerScene<SceneGUISelectTestMenu>("Thesis Test Scenes");
         guiSceneMenu->registerScene<TestScene>("Test Scene");
         guiSceneMenu->registerScene<SceneSplines>("Catmull-Rom Spline");
         guiSceneMenu->registerScene<VRScene>("VR Scene");
@@ -159,7 +160,7 @@ public:
         Locator::getRenderer().setGlobalFloat(SID("_Ambient"), 0.5f);
 
         //Locator::getSceneManager().LoadSceneAsync(new SceneGUISelectSceneMenu());
-        Locator::getSceneManager().LoadScene(new TestScene());
+        Locator::getSceneManager().LoadScene(new SceneGUISelectTestMenu());
     }
 
     //----------------------------------------------------------------------
@@ -235,7 +236,7 @@ private:
             }
             else
             {
-                SCENE.destroyGameObject(vrCamGO);
+                vrCamGO->getScene()->destroyGameObject(vrCamGO);
                 vrCamGO = nullptr;
             }
         }

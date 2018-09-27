@@ -338,3 +338,105 @@ public:
     }
 
 };
+
+// Add a vr camera component if vr is enabled, otherwise a basic camera
+bool AddVRCameraComponent(GameObject* go, Graphics::MSAASamples samples = Graphics::MSAASamples::Four)
+{
+    if (RENDERER.hasHMD())
+    {
+        go->addComponent<Components::VRCamera>(Components::ScreenDisplay::LeftEye, samples);
+        go->addComponent<Components::VRFPSCamera>();
+        return true;
+    }
+    else
+    {
+        go->addComponent<Components::Camera>();
+        go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 0.1f);
+        return false;
+    }
+}
+
+class TPerfScene0Empty : public IScene
+{
+public:
+    TPerfScene0Empty() : IScene("TPerfScene0Empty") {}
+
+    void init() override
+    {
+        auto go = createGameObject("Camera");
+        go->addComponent<Components::AudioListener>();
+        go->getComponent<Components::Transform>()->position = Math::Vec3(0, 1, -1);
+
+        if (not AddVRCameraComponent(go))
+            LOG_WARN("VR is disabled or no VR headset found.");
+    }
+};
+
+
+class TPerfScene1DrawCalls : public IScene
+{
+public:
+    TPerfScene1DrawCalls() : IScene("TPerfScene1DrawCalls") {}
+
+    void init() override
+    {
+        auto go = createGameObject("Camera");
+        go->addComponent<Components::AudioListener>();
+        go->getComponent<Components::Transform>()->position = Math::Vec3(0, 1, -1);
+
+        if (not AddVRCameraComponent(go))
+            LOG_WARN("VR is disabled or no VR headset found.");
+
+        auto cubemapHDR = ASSETS.getCubemap("/cubemaps/canyon.hdr", 2048, true);
+        createGameObject("Skybox")->addComponent<Components::Skybox>(cubemapHDR);
+
+        Assets::MeshMaterialInfo materialImportInfo;
+        auto mesh = ASSETS.getMesh("/models/sponza/sponza.obj", &materialImportInfo);
+
+        auto obj = createGameObject("Sponza");
+        auto mr = obj->addComponent<Components::MeshRenderer>(mesh, nullptr);
+        obj->getTransform()->scale = { 0.05f };
+
+        if (materialImportInfo.isValid())
+        {
+            for (I32 i = 0; i < mesh->getSubMeshCount(); i++)
+            {
+                auto mat = RESOURCES.createMaterial(ASSETS.getShader("/shaders/tex.shader"));
+                mat->setColor("tintColor", materialImportInfo[i].diffuseColor);
+
+                for (auto& texture : materialImportInfo[i].textures)
+                {
+                    switch (texture.type)
+                    {
+                    case Assets::MaterialTextureType::Albedo: mat->setTexture("tex", ASSETS.getTexture2D(texture.filePath)); break;
+                    }
+                }
+                mr->setMaterial(mat, i);
+            }
+        }
+    }
+};
+
+
+//----------------------------------------------------------------------
+class SceneGUISelectTestMenu : public IScene
+{
+public:
+    SceneGUISelectTestMenu() : IScene("SceneGUISelectTestMenu") {}
+
+    void init() override
+    {
+        auto gui = createGameObject("GUI");
+        gui->addComponent<Components::Camera>(45.0f, 0.1f, 1000.0f, Graphics::MSAASamples::One);
+        gui->addComponent<Components::GUI>();
+
+        auto guiSceneMenu = gui->addComponent<GUISceneMenu>("Test Scenes");
+        guiSceneMenu->registerScene<TSceneAlphaProblemDemo>("Alpha Problem Demo");
+        guiSceneMenu->registerScene<TSceneBlinnPhong>("Blinn Phong Lighting");
+        guiSceneMenu->registerScene<TScenePointLightShadow>("Point Light Shadow");
+        guiSceneMenu->registerScene<TSceneSpotLightShadow>("Spot Light Shadow");
+        guiSceneMenu->registerScene<TSceneSunShadow>("Sun Light Shadow");
+        guiSceneMenu->registerScene<TPerfScene0Empty>("VR #0: Empty");
+        guiSceneMenu->registerScene<TPerfScene1DrawCalls>("VR #1: Draw Calls");
+    }
+};

@@ -392,10 +392,13 @@ public:
 //**********************************************************************
 class GUISceneMenu : public Components::ImGUIRenderComponent
 {
+    String m_menuName;
 public:
+    GUISceneMenu(CString menuName) : m_menuName(menuName) {}
+
     void OnImGUI() override
     {
-        ImGui::Begin("Scenes");
+        ImGui::Begin(m_menuName.c_str());
         for (auto& scene : m_scenes)
             if (ImGui::Button(scene.first.c_str()))
                 Locator::getSceneManager().LoadScene(scene.second());

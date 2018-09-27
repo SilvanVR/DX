@@ -1640,17 +1640,17 @@ public:
             go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 0.1f);
         }
 
-        RENDERER.setGlobalFloat(SID("_Ambient"), 0.5f);
+        RENDERER.setGlobalFloat(SID("_Ambient"), 0.15f);
 
-        //auto world = createGameObject("World");
-        //world->addComponent<Components::MeshRenderer>(ASSETS.getMesh("/models/box_n_inside.obj"), ASSETS.getMaterial("/materials/blinn_phong/cellar.material"));
-        //world->getTransform()->position.y = 10.0f;
-        //world->getTransform()->scale = 10.0f;
+        auto world = createGameObject("World");
+        world->addComponent<Components::MeshRenderer>(ASSETS.getMesh("/models/box_n_inside.obj"), ASSETS.getMaterial("/materials/blinn_phong/cellar.material"));
+        world->getTransform()->position.y = 10.0f;
+        world->getTransform()->scale = 10.0f;
 
-        //auto plg = createGameObject("PL");
-        //plg->addComponent<Components::PointLight>(2.0f, Color::ORANGE, 15.0f);
-        //plg->getTransform()->position = { 0, 1.5f, 0 };
-        //plg->addComponent<Components::Billboard>(ASSETS.getTexture2D("/engine/textures/pointLight.png"), 0.5f);
+        auto plg = createGameObject("PL");
+        plg->addComponent<Components::PointLight>(2.0f, Color::ORANGE, 15.0f);
+        plg->getTransform()->position = { 0, 1.5f, 0 };
+        plg->addComponent<Components::Billboard>(ASSETS.getTexture2D("/engine/textures/pointLight.png"), 0.5f);
 
         auto monkey = createGameObject("monkey");
         monkey->addComponent<Components::MeshRenderer>(ASSETS.getMesh("/models/monkey.obj"), ASSETS.getMaterial("/materials/normals.material"));
@@ -1660,8 +1660,8 @@ public:
         monkey->addComponent<ConstantRotation>(0.0f, 15.0f, 0.0f);
         //monkey->addComponent<Components::AudioSource>(ASSETS.getAudioClip("/audio/start_dash.wav"));
 
-        //auto ps = createGameObject("Particles!");
-        //ps->addComponent<Components::ParticleSystem>("/particles/ambient.ps");
+        auto ps = createGameObject("Particles!");
+        ps->addComponent<Components::ParticleSystem>("/particles/ambient.ps");
 
         if (vrCam) // This does not work, because it is not supported by my engine to render into an offscreen FBO and blend that on top of it
         {
