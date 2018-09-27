@@ -118,6 +118,13 @@ namespace Components {
     }
 
     //----------------------------------------------------------------------
+    void VRCamera::setClearColor( Color color )
+    {
+        for (auto eye : { Graphics::VR::LeftEye, Graphics::VR::RightEye })
+            m_eyeCameras[eye]->setClearColor( color );
+    }
+
+    //----------------------------------------------------------------------
     void VRCamera::setWorldScale( F32 newWorldScale )
     {
         RENDERER.getVRDevice().setWorldScale( newWorldScale );

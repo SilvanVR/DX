@@ -89,6 +89,7 @@ namespace Graphics {
         void _ReportLiveObjects();
         void _CreateCubeMesh();
         void _SetLimits();
+        void _CreateAndBindFakeShadowmaps();
 
         void _FlushLightBuffer();
         void _ExecuteCommandBuffer(const CommandBuffer& cmd);

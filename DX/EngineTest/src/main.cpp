@@ -39,12 +39,20 @@ public:
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 0.1f);
         go->addComponent<Components::AudioListener>();
 
-        //go->addComponent<Tonemap>();
-
         createGameObject("Grid")->addComponent<GridGeneration>(20);
 
         auto cube = Core::MeshGenerator::CreateCubeUV(1.0f);
         auto mr = createGameObject("Cube")->addComponent<Components::MeshRenderer>(cube, ASSETS.getMaterial("/materials/texture.material"));
+
+        //auto m_brdfLut = RESOURCES.createRenderTexture(512, 512, Graphics::TextureFormat::RGBA32, Graphics::MSAASamples::One);
+
+        //Graphics::CommandBuffer cmd;
+        //cmd.setRenderTarget(m_brdfLut);
+
+        //auto shader = ASSETS.getShader("/engine/shaders/pbr/pbr_brdfLut.shader");
+        //auto brdfMat = RESOURCES.createMaterial(shader);
+        //cmd.drawFullscreenQuad(brdfMat);
+        //Locator::getRenderer().dispatch(cmd);
     }
 
     void tick(Time::Seconds delta) override
@@ -178,7 +186,8 @@ public:
                     {
                         vrCamGO = SCENE.createGameObject("VRCamera");
                         vrCamGO->getTransform()->position = go->getTransform()->position;
-                        vrCamGO->addComponent<Components::VRCamera>(Components::ScreenDisplay::LeftEye);
+                        auto vrCam = vrCamGO->addComponent<Components::VRCamera>(Components::ScreenDisplay::LeftEye);
+                        vrCam->setClearColor( mainCamera->getClearColor() );
                         vrCamGO->addComponent<Components::VRFPSCamera>();
                         vrCamGO->addComponent<Components::VRBasicTouch>(Core::MeshGenerator::CreateCubeUV(0.1f), ASSETS.getMaterial("/materials/blinn_phong/cube.material"));
                         //vrCamGO->addComponent<PostProcess>(ASSETS.getMaterial("/materials/post processing/color_grading.material"));
@@ -218,7 +227,7 @@ private:
     int main()
     {
         Game game;
-        game.start( gameName, 800, 600, Graphics::API::Vulkan );
+        game.start( gameName, 800, 600, Graphics::API::D3D11 );
 
         system("pause");
         return 0;

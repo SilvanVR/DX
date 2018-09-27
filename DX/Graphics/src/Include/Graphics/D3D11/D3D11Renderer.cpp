@@ -72,33 +72,13 @@ namespace Graphics {
         _InitD3D11();
         _CreateRequiredUniformBuffersFromFile("/engine/shaders/includes/engineVS.hlsl", "/engine/shaders/includes/enginePS.hlsl");
         _CreateCubeMesh();
+        _CreateAndBindFakeShadowmaps();
 
-        //VR::Device hmd = VR::GetFirstSupportedHMDAndInitialize();
-        //switch (hmd)
-        //{
-        //case VR::Device::OculusRift: m_hmd = new VR::OculusRiftDX(); break;
-        //default: LOG_WARN_RENDERING( "VR not supported on your system." );
-        //}
-
-        // Gets rid of the warnings that a texture is not bound to a shadowmap slot
+        VR::Device hmd = VR::GetFirstSupportedHMDAndInitialize();
+        switch (hmd)
         {
-            auto tex = createTexture2D();
-            tex->create(2, 2, Graphics::TextureFormat::R8, false);
-            for (auto& res : SHADOW_MAP_2D_RESOURCE_DECLS)
-                tex->bind( res );
-            delete tex;
-
-            auto cube = createCubemap();
-            cube->create(2, Graphics::TextureFormat::R8);
-            for (auto& res : SHADOW_MAP_3D_RESOURCE_DECLS)
-                cube->bind( res );
-            delete cube;
-
-            auto texArray = createTexture2DArray();
-            texArray->create(2, 2, 1, Graphics::TextureFormat::R8);
-            for (auto& res : SHADOW_MAP_ARRAY_RESOURCE_DECLS)
-                texArray->bind( res );
-            delete texArray;
+        case VR::Device::OculusRift: m_hmd = new VR::OculusRiftDX(); break;
+        default: LOG_WARN_RENDERING( "VR not supported on your system." );
         }
     } 
 
@@ -959,6 +939,29 @@ namespace Graphics {
         if (not m_globalBuffer)
             return false;
         return m_globalBuffer->update(name, data);
+    }
+
+    //----------------------------------------------------------------------
+    void D3D11Renderer::_CreateAndBindFakeShadowmaps()
+    {
+        // Gets rid of the warnings that a texture is not bound to a shadowmap slot
+        auto tex = createTexture2D();
+        tex->create(2, 2, Graphics::TextureFormat::R8, false);
+        for (auto& res : SHADOW_MAP_2D_RESOURCE_DECLS)
+            tex->bind( res );
+        delete tex;
+
+        auto cube = createCubemap();
+        cube->create(2, Graphics::TextureFormat::R8);
+        for (auto& res : SHADOW_MAP_3D_RESOURCE_DECLS)
+            cube->bind( res );
+        delete cube;
+
+        auto texArray = createTexture2DArray();
+        texArray->create(2, 2, 1, Graphics::TextureFormat::R8);
+        for (auto& res : SHADOW_MAP_ARRAY_RESOURCE_DECLS)
+            texArray->bind( res );
+        delete texArray;
     }
 
     //**********************************************************************
