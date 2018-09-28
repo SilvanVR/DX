@@ -162,13 +162,12 @@ public:
         auto cube = Core::MeshGenerator::CreateCube(1.0f);
         cube->setColors(cubeColors);
 
-        U32 sq = (U32)sqrt(m_numObjects);
-
+        F32 sq = sqrtf((F32)m_numObjects);
         for (U32 i = 0; i < m_numObjects; i++)
         {
             auto go = createGameObject("Test");
             go->addComponent<Components::MeshRenderer>(cube, ASSETS.getColorMaterial());
-            go->getComponent<Components::Transform>()->position = Math::Random::Vec3(-1,1).normalized() * sqrtf((F32)m_numObjects);
+            go->getComponent<Components::Transform>()->position = Math::Random::Vec3(-1,1).normalized() * sq;
         }
     }
 };
@@ -251,8 +250,6 @@ public:
         auto cam = go->addComponent<Components::Camera>();
         go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -10);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA);
-        //go->addComponent<AutoOrbiting>(10.0f);
-        //go->addComponent<Components::Skybox>(cubemap);
 
         auto grid = createGameObject("Grid");
         grid->addComponent<GridGeneration>(20);
@@ -289,7 +286,6 @@ public:
         auto cam = go->addComponent<Components::Camera>();
         go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -10);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA);
-        //go->addComponent<Components::Skybox>(cubemap);
 
         createGameObject("Grid")->addComponent<GridGeneration>(20);
 

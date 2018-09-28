@@ -479,16 +479,6 @@ namespace Graphics {
     //----------------------------------------------------------------------
     void D3D11Renderer::_BindMesh( IMesh* mesh, const MaterialPtr& material, const DirectX::XMMATRIX& modelMatrix, I32 subMeshIndex )
     {
-        // Measuring per frame data
-        auto curCamera = renderContext.getCamera();
-        if (curCamera)
-        {
-            auto& camInfo = curCamera->getFrameInfo();
-            camInfo.drawCalls++;
-            camInfo.numTriangles += mesh->getIndexCount( subMeshIndex ) / 3;
-            camInfo.numVertices += mesh->getVertexCount(); // This is actually not correct, cause i need the vertex-count from the submesh
-        }
-
         // Update global buffer if necessary
         if (m_globalBuffer)
             m_globalBuffer->flush();
@@ -499,7 +489,7 @@ namespace Graphics {
 
         // Bind shader, possibly a replacement shader
         auto shader = material->getShader();
-        if (curCamera)
+        if (auto curCamera = renderContext.getCamera())
         {
             if ( auto& camShader = curCamera->getReplacementShader() )
             {
@@ -524,6 +514,16 @@ namespace Graphics {
     //----------------------------------------------------------------------
     void D3D11Renderer::_DrawMesh( IMesh* mesh, const MaterialPtr& material, const DirectX::XMMATRIX& modelMatrix, I32 subMeshIndex )
     {
+        // Measuring per frame data
+        if (auto curCamera = renderContext.getCamera())
+        {
+            auto& camInfo = curCamera->getFrameInfo();
+            auto numIndices = mesh->getIndexCount( subMeshIndex );
+            camInfo.drawCalls++;
+            camInfo.numVertices += numIndices;
+            camInfo.numTriangles += numIndices / 3;
+        }
+
         // Bind everything and submit drawcall
         _BindMesh( mesh, material, modelMatrix, subMeshIndex );
         g_pImmediateContext->DrawIndexed( mesh->getIndexCount( subMeshIndex ), 0, mesh->getBaseVertex( subMeshIndex ) );
@@ -532,6 +532,16 @@ namespace Graphics {
     //----------------------------------------------------------------------
     void D3D11Renderer::_DrawMeshInstanced( IMesh* mesh, const MaterialPtr& material, const DirectX::XMMATRIX& modelMatrix, I32 instanceCount )
     {
+        // Measuring per frame data
+        if (auto curCamera = renderContext.getCamera())
+        {
+            auto& camInfo = curCamera->getFrameInfo();
+            auto numIndices = mesh->getIndexCount( 0 ) * instanceCount;
+            camInfo.drawCalls++;
+            camInfo.numVertices += numIndices;
+            camInfo.numTriangles += numIndices / 3;
+        }
+
         // Bind everything and submit drawcall
         _BindMesh( mesh, material, modelMatrix, 0 );
         g_pImmediateContext->DrawIndexedInstanced( mesh->getIndexCount(0), instanceCount, 0, mesh->getBaseVertex(0), 0 );

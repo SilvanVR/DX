@@ -176,6 +176,9 @@ public:
         if (KEYBOARD.wasKeyPressed(Key::Zero))
             Locator::getSceneManager().LoadScene(new TestScene());
 
+        if (KEYBOARD.wasKeyPressed(Key::P))
+            Locator::getProfiler().logGPU();
+
         // VR
         {
             if (RENDERER.hasHMD())

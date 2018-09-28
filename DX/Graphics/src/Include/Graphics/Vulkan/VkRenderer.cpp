@@ -470,16 +470,6 @@ namespace Graphics {
     //----------------------------------------------------------------------
     void VkRenderer::_BindMesh( IMesh* mesh, const MaterialPtr& material, const DirectX::XMMATRIX& modelMatrix, I32 subMeshIndex )
     {
-        // Measuring per frame data
-        auto curCamera = renderContext.getCamera();
-        if (curCamera)
-        {
-            auto& camInfo = curCamera->getFrameInfo();
-            camInfo.drawCalls++;
-            camInfo.numTriangles += mesh->getIndexCount( subMeshIndex ) / 3;
-            camInfo.numVertices += mesh->getVertexCount(); // This is actually not correct, cause i need the vertex-count from the submesh
-        }
-
         // Update global buffer if necessary
         if ( m_globalBuffer )
             m_globalBuffer->flush();
@@ -490,7 +480,7 @@ namespace Graphics {
 
         // Bind shader, possibly a replacement shader
         auto shader = material->getShader();
-        if (curCamera)
+        if (auto curCamera = renderContext.getCamera())
         {
             if ( auto& camShader = curCamera->getReplacementShader() )
             {
@@ -515,6 +505,16 @@ namespace Graphics {
     //----------------------------------------------------------------------
     void VkRenderer::_DrawMesh( IMesh* mesh, const MaterialPtr& material, const DirectX::XMMATRIX& modelMatrix, I32 subMeshIndex )
     {
+        // Measuring per frame data
+        if (auto curCamera = renderContext.getCamera())
+        {
+            auto& camInfo = curCamera->getFrameInfo();
+            auto numIndices = mesh->getIndexCount( subMeshIndex );
+            camInfo.drawCalls++;
+            camInfo.numVertices += numIndices;
+            camInfo.numTriangles += numIndices / 3;
+        }
+
         _BindMesh( mesh, material, modelMatrix, subMeshIndex );
         g_vulkan.ctx.DrawIndexed( mesh->getIndexCount( subMeshIndex ), 1, 0, mesh->getBaseVertex( subMeshIndex ), 0 );
     }
@@ -522,6 +522,16 @@ namespace Graphics {
     //----------------------------------------------------------------------
     void VkRenderer::_DrawMeshInstanced( IMesh* mesh, const MaterialPtr& material, const DirectX::XMMATRIX& modelMatrix, I32 instanceCount )
     {
+        // Measuring per frame data
+        if (auto curCamera = renderContext.getCamera())
+        {
+            auto& camInfo = curCamera->getFrameInfo();
+            auto numIndices = mesh->getIndexCount( 0 ) * instanceCount;
+            camInfo.drawCalls++;
+            camInfo.numVertices += numIndices;
+            camInfo.numTriangles += numIndices / 3;
+        }
+
         _BindMesh( mesh, material, modelMatrix, 0 );
         g_vulkan.ctx.DrawIndexed( mesh->getIndexCount( 0 ), instanceCount, 0, mesh->getBaseVertex( 0 ), 0 );
     }

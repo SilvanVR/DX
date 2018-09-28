@@ -344,7 +344,7 @@ bool AddVRCameraComponent(GameObject* go, Graphics::MSAASamples samples = Graphi
 {
     if (RENDERER.hasHMD())
     {
-        go->addComponent<Components::VRCamera>(Components::ScreenDisplay::LeftEye, samples);
+        go->addComponent<Components::VRCamera>(Components::ScreenDisplay::BothEyes, samples);
         go->addComponent<Components::VRFPSCamera>();
         return true;
     }
@@ -372,11 +372,51 @@ public:
     }
 };
 
-
 class TPerfScene1DrawCalls : public IScene
 {
+    static const I32 OBJECT_COUNT = 10000;
 public:
     TPerfScene1DrawCalls() : IScene("TPerfScene1DrawCalls") {}
+
+    void init() override
+    {
+        auto go = createGameObject("Camera");
+        go->addComponent<Components::AudioListener>();
+        go->getComponent<Components::Transform>()->position = Math::Vec3(0, 10, -20);
+
+        if (not AddVRCameraComponent(go))
+            LOG_WARN("VR is disabled or no VR headset found.");
+
+        auto cubemap = ASSETS.getCubemap("/cubemaps/tropical_sunny_day/Left.png", "/cubemaps/tropical_sunny_day/Right.png",
+            "/cubemaps/tropical_sunny_day/Up.png", "/cubemaps/tropical_sunny_day/Down.png",
+            "/cubemaps/tropical_sunny_day/Front.png", "/cubemaps/tropical_sunny_day/Back.png");
+        createGameObject("Skybox")->addComponent<Components::Skybox>(cubemap);
+
+        // MESH
+        auto cube = Core::MeshGenerator::CreateCube(1.0f);
+        cube->setColors(cubeColors);
+
+        float spacing = 3.0f;
+        auto amt = (I32)std::pow(OBJECT_COUNT, 1.0 / 3.0) + 1;
+        for (I32 x = 0; x < amt; ++x)
+        {
+            for (I32 y = 0; y < amt; ++y)
+            {
+                for (I32 z = 0; z < amt; ++z)
+                {
+                    auto go = createGameObject("Test");
+                    go->addComponent<Components::MeshRenderer>(cube, ASSETS.getColorMaterial());
+                    go->getComponent<Components::Transform>()->position = { (F32)x * spacing, (F32)y * spacing, (F32)z * spacing };
+                }
+            }
+        }
+    }
+};
+
+class TPerfSceneSponza : public IScene
+{
+public:
+    TPerfSceneSponza() : IScene("TPerfSceneSponza") {}
 
     void init() override
     {
@@ -387,8 +427,10 @@ public:
         if (not AddVRCameraComponent(go))
             LOG_WARN("VR is disabled or no VR headset found.");
 
-        auto cubemapHDR = ASSETS.getCubemap("/cubemaps/canyon.hdr", 2048, true);
-        createGameObject("Skybox")->addComponent<Components::Skybox>(cubemapHDR);
+        auto cubemap = ASSETS.getCubemap("/cubemaps/tropical_sunny_day/Left.png", "/cubemaps/tropical_sunny_day/Right.png",
+            "/cubemaps/tropical_sunny_day/Up.png", "/cubemaps/tropical_sunny_day/Down.png",
+            "/cubemaps/tropical_sunny_day/Front.png", "/cubemaps/tropical_sunny_day/Back.png");
+        createGameObject("Skybox")->addComponent<Components::Skybox>(cubemap);
 
         Assets::MeshMaterialInfo materialImportInfo;
         auto mesh = ASSETS.getMesh("/models/sponza/sponza.obj", &materialImportInfo);
@@ -397,18 +439,23 @@ public:
         auto mr = obj->addComponent<Components::MeshRenderer>(mesh, nullptr);
         obj->getTransform()->scale = { 0.03f };
 
+        // LIGHTS
+        auto sun = createGameObject("Sun");
+        auto dl = sun->addComponent<Components::DirectionalLight>(0.5f, Color::WHITE, Graphics::ShadowType::CSMSoft, ArrayList<F32>{10.0f, 30.0f, 80.0f, 200.0f});
+        sun->getTransform()->rotation = Math::Quat::LookRotation(Math::Vec3{ 0,-1, 0.1f });
+
         if (materialImportInfo.isValid())
         {
             for (I32 i = 0; i < mesh->getSubMeshCount(); i++)
             {
-                auto mat = RESOURCES.createMaterial(ASSETS.getShader("/shaders/tex.shader"));
-                mat->setColor("tintColor", materialImportInfo[i].diffuseColor);
+                auto mat = RESOURCES.createMaterial(ASSETS.getShader("/shaders/phong_shadow.shader"));
+                mat->setFloat("uvScale", 1.0f);
 
                 for (auto& texture : materialImportInfo[i].textures)
                 {
                     switch (texture.type)
                     {
-                    case Assets::MaterialTextureType::Albedo: mat->setTexture("tex", ASSETS.getTexture2D(texture.filePath)); break;
+                    case Assets::MaterialTextureType::Albedo: mat->setTexture("_MainTex", ASSETS.getTexture2D(texture.filePath)); break;
                     }
                 }
                 mr->setMaterial(mat, i);
