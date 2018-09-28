@@ -760,7 +760,7 @@ public:
 ArrayList<MaterialPtr> GeneratePBRMaterials(const ShaderPtr& pbrShader, const MeshPtr& mesh, const Assets::MeshMaterialInfo& materials)
 {
     ASSERT(materials.isValid());
-    static const F32 DEFAULT_ROUGHNESS = 0.4f;
+    const F32 DEFAULT_ROUGHNESS = 0.4f;
 
     ArrayList<MaterialPtr> pbrMaterials;
     for ( I32 i = 0; i < mesh->getSubMeshCount(); i++ )

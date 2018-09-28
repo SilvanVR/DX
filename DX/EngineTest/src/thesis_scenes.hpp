@@ -340,17 +340,17 @@ public:
 };
 
 // Add a vr camera component if vr is enabled, otherwise a basic camera
-bool AddVRCameraComponent(GameObject* go, Graphics::MSAASamples samples = Graphics::MSAASamples::Four)
+bool AddVRCameraComponent(GameObject* go, bool hdr = false, Graphics::MSAASamples samples = Graphics::MSAASamples::Four)
 {
     if (RENDERER.hasHMD())
     {
-        go->addComponent<Components::VRCamera>(Components::ScreenDisplay::BothEyes, samples);
+        go->addComponent<Components::VRCamera>(Components::ScreenDisplay::BothEyes, samples, hdr);
         go->addComponent<Components::VRFPSCamera>();
         return true;
     }
     else
     {
-        go->addComponent<Components::Camera>();
+        go->addComponent<Components::Camera>(45.0f, 0.1f, 1000.0f, samples, hdr);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 0.1f);
         return false;
     }
@@ -410,6 +410,69 @@ public:
                 }
             }
         }
+    }
+};
+
+class TPerfScene2ComplexModels : public IScene
+{
+    static const I32 OBJECT_COUNT = 10000;
+public:
+    TPerfScene2ComplexModels() : IScene("TPerfScene2ComplexModels") {}
+
+    void init() override
+    {
+        auto go = createGameObject("Camera");
+        go->addComponent<Components::AudioListener>();
+        go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -5);
+
+        if (not AddVRCameraComponent(go, true))
+            LOG_WARN("VR is disabled or no VR headset found.");
+
+        go->addComponent<Tonemap>();
+
+        auto cubemapHDR = ASSETS.getCubemap("/cubemaps/malibu.hdr", 2048, true);
+        go->addComponent<Components::Skybox>(cubemapHDR);
+
+        // SHADERS
+        auto pbrShader = ASSETS.getShader("/engine/shaders/pbr/pbr.shader");
+
+        Assets::EnvironmentMap envMap(cubemapHDR, 128, 512);
+        auto diffuse = envMap.getDiffuseIrradianceMap();
+        auto specular = envMap.getSpecularReflectionMap();
+
+        auto brdfLut = Assets::BRDFLut().getTexture();
+        pbrShader->setReloadCallback([=](Graphics::IShader* shader) {
+            shader->setTexture("diffuseIrradianceMap", diffuse);
+            shader->setTexture("specularReflectionMap", specular);
+            shader->setTexture("brdfLUT", brdfLut);
+            shader->setFloat("maxReflectionLOD", F32(specular->getMipCount() - 1));
+        });
+        pbrShader->invokeReloadCallback();
+
+        // MESHES
+        auto mesh0 = ASSETS.getMesh("/models/sphere.obj");
+        auto mesh1 = ASSETS.getMesh("/models/monkey.obj");
+
+        //
+        Assets::MeshMaterialInfo materialImportInfo;
+        auto model0 = ASSETS.getMesh("/models/star-wars-arc-170-pbr.fbx", &materialImportInfo);
+        auto lamboMR = createGameObject("Lambo")->addComponent<Components::MeshRenderer>(model0, nullptr);
+        if (materialImportInfo.isValid())
+        {
+            auto pbrMaterials = GeneratePBRMaterials(pbrShader, model0, materialImportInfo);
+            for (I32 i = 0; i < pbrMaterials.size(); i++)
+                lamboMR->setMaterial(pbrMaterials[i], i);
+        }
+
+        // MATERIALS
+        auto mat0 = ASSETS.getMaterial("/materials/pbr/test.pbrmaterial");
+        auto mat1 = ASSETS.getMaterial("/materials/pbr/test.pbrmaterial");
+
+        // GAME OBJECTS
+        createGameObject("GO0")->addComponent<Components::MeshRenderer>(mesh0, mat0);
+
+        auto go1 = createGameObject("GO1")->addComponent<Components::MeshRenderer>(mesh1, mat1);
+        go1->getGameObject()->getTransform()->position.x = 5.0f;
     }
 };
 
@@ -485,5 +548,6 @@ public:
         guiSceneMenu->registerScene<TSceneSunShadow>("Sun Light Shadow");
         guiSceneMenu->registerScene<TPerfScene0Empty>("VR #0: Empty");
         guiSceneMenu->registerScene<TPerfScene1DrawCalls>("VR #1: Draw Calls");
+        guiSceneMenu->registerScene<TPerfScene2ComplexModels>("VR #2: Complex Models");
     }
 };
