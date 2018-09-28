@@ -774,6 +774,7 @@ ArrayList<MaterialPtr> GeneratePBRMaterials(const ShaderPtr& pbrShader, const Me
         pbrMat->setTexture( "metallicMap", ASSETS.getBlackTexture() );
         pbrMat->setFloat( "metallic", 0.0f );
         pbrMat->setFloat( "roughness", DEFAULT_ROUGHNESS );
+        pbrMat->setTexture( "albedoMap", ASSETS.getWhiteTexture() );
 
         auto material = materials[i];
         pbrMat->setColor("color", material.diffuseColor);

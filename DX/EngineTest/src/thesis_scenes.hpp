@@ -454,7 +454,7 @@ public:
         auto mesh1 = ASSETS.getMesh("/models/monkey.obj");
 
         //
-        Assets::MeshMaterialInfo materialImportInfo;
+        Assets::MeshMaterialInfo materialImportInfo; 
         auto model0 = ASSETS.getMesh("/models/star-wars-arc-170-pbr.fbx", &materialImportInfo);
         auto lamboMR = createGameObject("Lambo")->addComponent<Components::MeshRenderer>(model0, nullptr);
         if (materialImportInfo.isValid())

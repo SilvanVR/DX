@@ -220,9 +220,10 @@ namespace Assets {
                 aiColor3D color( 0.f, 0.f, 0.f );
                 if ( material->Get( AI_MATKEY_COLOR_DIFFUSE, color ) == AI_SUCCESS )
                     materials->materials[i].diffuseColor = Color( (Byte)(color.r * 255), (Byte)(color.g * 255), (Byte)(color.b * 255));
-                else 
-                    materials->materials[i].diffuseColor = Color::WHITE;
 
+                F32 opacity = 1.0f;
+                if (material->Get( AI_MATKEY_OPACITY, opacity ) == AI_SUCCESS)
+                    materials->materials[i].diffuseColor.setAlpha( Byte(opacity * 255) );
             }
         }
 
