@@ -44,6 +44,10 @@ public:
         auto cube = Core::MeshGenerator::CreateCubeUV(1.0f);
         auto mr = createGameObject("Cube")->addComponent<Components::MeshRenderer>(cube, ASSETS.getMaterial("/materials/texture.material"));
 
+
+        auto cubemapHDR = ASSETS.getCubemap("/cubemaps/canyon.hdr", 2048, true);
+        createGameObject("Skybox")->addComponent<Components::Skybox>(cubemapHDR);
+
         //auto m_brdfLut = RESOURCES.createRenderTexture(512, 512, Graphics::TextureFormat::RGBA32, Graphics::MSAASamples::One);
 
         //Graphics::CommandBuffer cmd;

@@ -1614,6 +1614,7 @@ public:
 class VRScene : public IScene
 {
     Components::VRCamera* vrCam = nullptr;
+    GameObject* cam2GO = nullptr;
 
 public:
     VRScene() : IScene("TestScene") {}
@@ -1631,6 +1632,16 @@ public:
             go->addComponent<Components::VRFPSCamera>();
             //go->addComponent<PostProcess>(ASSETS.getMaterial("/materials/post processing/color_grading.material"));
             go->addComponent<Components::VRBasicTouch>(Core::MeshGenerator::CreateCubeUV(0.1f), ASSETS.getMaterial("/materials/blinn_phong/cube.material"));
+
+            vrCam->getCameraForEye(Graphics::VR::LeftEye).getGameObject()->
+            addComponent<Components::MeshRenderer>(Core::MeshGenerator::CreateCubeUV(0.05f), ASSETS.getMaterial("/materials/normals.material"));
+
+            cam2GO = createGameObject("Observer Camera");
+            cam2GO->setActive(false);
+            cam2GO->addComponent<Components::Camera>();
+            cam2GO->getComponent<Components::Transform>()->position = Math::Vec3(5, 4, 0);
+            cam2GO->getComponent<Components::Transform>()->lookAt({0});
+            cam2GO->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 0.1f);
         }
         else
         {
@@ -1639,6 +1650,7 @@ public:
             go->getComponent<Components::Transform>()->position = Math::Vec3(0, 1, -3);
             go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 0.1f);
         }
+
 
         RENDERER.setGlobalFloat(SID("_Ambient"), 0.15f);
 
@@ -1696,7 +1708,8 @@ public:
         String info = "<<<< Info >>>>\n"
                       "1: Display Left Eye on Screen\n"
                       "2: Display Right Eye on Screen\n"
-                      "3: Display Both Eyes on Screen\n";
+                      "3: Display Both Eyes on Screen\n"
+                      "4: Display Separate Camera on Screen\n";
         LOG(info, Color::BLUE);
     }
 
@@ -1705,11 +1718,25 @@ public:
         if (vrCam)
         {
             if (KEYBOARD.wasKeyPressed(Key::One))
+            {
                 vrCam->setScreenDisplay(Components::ScreenDisplay::LeftEye);
+                cam2GO->setActive(false);
+            }
             if (KEYBOARD.wasKeyPressed(Key::Two))
+            {
                 vrCam->setScreenDisplay(Components::ScreenDisplay::RightEye);
+                cam2GO->setActive(false);
+            }
             if (KEYBOARD.wasKeyPressed(Key::Three))
+            {
                 vrCam->setScreenDisplay(Components::ScreenDisplay::BothEyes);
+                cam2GO->setActive(false);
+            }
+            if (KEYBOARD.wasKeyPressed(Key::Four))
+            {
+                vrCam->setScreenDisplay(Components::ScreenDisplay::None);
+                cam2GO->setActive(true);
+            }
         }
     }
 };

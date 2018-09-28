@@ -395,7 +395,7 @@ public:
 
         auto obj = createGameObject("Sponza");
         auto mr = obj->addComponent<Components::MeshRenderer>(mesh, nullptr);
-        obj->getTransform()->scale = { 0.05f };
+        obj->getTransform()->scale = { 0.03f };
 
         if (materialImportInfo.isValid())
         {
