@@ -588,6 +588,123 @@ public:
     }
 };
 
+class TPerfScene6Shadows : public IScene
+{
+public:
+    TPerfScene6Shadows() : IScene("TPerfScene6Shadows") {}
+
+    void init() override
+    {
+        auto go = createGameObject("Camera");
+        go->addComponent<Components::AudioListener>();
+        go->getComponent<Components::Transform>()->position = Math::Vec3(0, 5, -5);
+
+        if (not AddVRCameraComponent(go, true))
+            LOG_WARN("VR is disabled or no VR headset found.");
+
+        auto cubemap = ASSETS.getCubemap("/cubemaps/tropical_sunny_day/Left.png", "/cubemaps/tropical_sunny_day/Right.png",
+            "/cubemaps/tropical_sunny_day/Up.png", "/cubemaps/tropical_sunny_day/Down.png",
+            "/cubemaps/tropical_sunny_day/Front.png", "/cubemaps/tropical_sunny_day/Back.png");
+        createGameObject("Skybox")->addComponent<Components::Skybox>(cubemap);
+
+        auto obj = createGameObject("GO");
+        obj->addComponent<Components::MeshRenderer>(Core::MeshGenerator::CreatePlane(), ASSETS.getMaterial("/materials/blinn_phong/grass.material"));
+        obj->getTransform()->rotation *= Math::Quat(Math::Vec3::RIGHT, 90.0f);
+        obj->getTransform()->scale = { 25,25,25 };
+
+        auto obj2 = createGameObject("GO2");
+        obj2->addComponent<Components::MeshRenderer>(ASSETS.getMesh("/models/monkey.obj"), ASSETS.getMaterial("/materials/blinn_phong/white.material"));
+        obj2->getTransform()->position = { 5, 1, 0 };
+
+        auto cubeGO = createGameObject("GO3");
+        cubeGO->addComponent<Components::MeshRenderer>(Core::MeshGenerator::CreateCubeUV(0.3f), ASSETS.getMaterial("/materials/blinn_phong/cube.material"));
+        cubeGO->getTransform()->position = { -5.0f, 0.3001f, 0.0f };
+        cubeGO->addComponent<ConstantRotation>(0.0f, 10.0f, 0.0f);
+
+        Assets::MeshMaterialInfo matInfo;
+        auto treeMesh = ASSETS.getMesh("/models/tree/tree.obj", &matInfo);
+
+        ArrayList<Math::Vec3> treePositions;
+        I32 treeSpacing = 10;
+        for (I32 x = -20; x <= 20; x += treeSpacing)
+            for (I32 z = -20; z <= 20;  z += treeSpacing)
+                treePositions.emplace_back((F32)x, 0.0f, (F32)z);
+
+        ArrayList<Components::MeshRenderer*> treeMeshRenderer;
+
+        ArrayList<GameObject*> trees;
+        for (I32 i = 0; i < (I32)treePositions.size(); ++i)
+        {
+            auto tree = createGameObject("Tree");
+            tree->getTransform()->position = treePositions[i];
+            tree->getTransform()->scale = Math::Random::Vec3(0.8f, 1.2f);
+            trees.push_back(tree);
+
+            auto mr = tree->addComponent<Components::MeshRenderer>(treeMesh);
+            treeMeshRenderer.push_back(mr);
+        }
+
+        if (matInfo.isValid())
+        {
+            for (I32 i = 0; i < treeMesh->getSubMeshCount(); i++)
+            {
+                auto material = RESOURCES.createMaterial(ASSETS.getShader("/shaders/phong_shadow.shader"));
+                material->setFloat("uvScale", 1.0f);
+
+                for (auto& texture : matInfo[i].textures)
+                {
+                    switch (texture.type)
+                    {
+                    case Assets::MaterialTextureType::Albedo: material->setTexture("_MainTex", ASSETS.getTexture2D(texture.filePath)); break;
+                    case Assets::MaterialTextureType::Normal: material->setTexture("normalMap", ASSETS.getTexture2D(texture.filePath)); break;
+                    case Assets::MaterialTextureType::Shininess: break;
+                    case Assets::MaterialTextureType::Specular: break;
+                    }
+                }
+                material->setReplacementShader(TAG_SHADOW_PASS, ASSETS.getShadowMapShaderAlpha());
+                material->setReplacementShader(TAG_SHADOW_PASS_LINEAR, ASSETS.getShadowMapShaderLinearAlpha());
+                for (auto& mr : treeMeshRenderer)
+                    mr->setMaterial(material, i);
+            }
+        }
+
+        RENDERER.setGlobalFloat(SID("_Ambient"), 0.3f);
+
+        // LIGHTS
+        auto sun = createGameObject("Sun");
+        sun->addComponent<Components::DirectionalLight>(0.3f, Color::WHITE, Graphics::ShadowType::CSMSoft, ArrayList<F32>{10.0f, 30.0f, 80.0f, 200.0f});
+        sun->getTransform()->rotation = Math::Quat::LookRotation(Math::Vec3{ 0,-1, 1 });
+
+        auto sun2 = createGameObject("Sun");
+        sun2->addComponent<Components::DirectionalLight>(0.3f, Color::WHITE, Graphics::ShadowType::Soft);
+        sun2->getTransform()->rotation = Math::Quat::LookRotation(Math::Vec3{ 1,-1, 0 });
+
+        auto plg = createGameObject("PL");
+        plg->addComponent<Components::PointLight>(1.0f, Color::ORANGE, 10.0f, true);
+        plg->getTransform()->position = { 3, 4, 0 };
+        plg->addComponent<Components::Billboard>(ASSETS.getTexture2D("/engine/textures/pointLight.png"), 0.5f);
+
+        auto slg = createGameObject("SL");
+        slg->addComponent<Components::SpotLight>(1.0f, Color::WHITE, 25.0f, 20.0f);
+        slg->getTransform()->position = { -5, 2, -2 };
+        slg->getTransform()->rotation = Math::Quat::LookRotation(Math::Vec3{ 0,-1, 1 });
+        slg->addComponent<Components::Billboard>(ASSETS.getTexture2D("/engine/textures/spotLight.png"), 0.5f);
+
+        auto slg2 = createGameObject("SL");
+        slg2->addComponent<Components::SpotLight>(2.5f, Color::RED, 25.0f, 20.0f);
+        slg2->getTransform()->position = { 0, 10, 0 };
+        slg2->getTransform()->rotation = Math::Quat::LookRotation(Math::Vec3{ 0,-1, 0 }, Math::Vec3::FORWARD);
+        slg2->addComponent<Components::Billboard>(ASSETS.getTexture2D("/engine/textures/spotLight.png"), 0.5f);
+
+        auto slg3 = createGameObject("SL");
+        slg3->addComponent<Components::SpotLight>(2.5f, Color::VIOLET, 25.0f, 20.0f);
+        slg3->getTransform()->position = { 0, 10, 10 };
+        slg3->getTransform()->rotation = Math::Quat::LookRotation(Math::Vec3{ 0,-1, 0 }, Math::Vec3::FORWARD);
+        slg3->addComponent<Components::Billboard>(ASSETS.getTexture2D("/engine/textures/spotLight.png"), 0.5f);
+    }
+};
+
+
 class TPerfSceneSponza : public IScene
 {
 public:
@@ -663,5 +780,6 @@ public:
         guiSceneMenu->registerScene<TPerfScene3ComplexModels>("VR #3: Complex Models");
         guiSceneMenu->registerScene<TPerfScene4PostProcessing>("VR #4: Post Processing");
         guiSceneMenu->registerScene<TPerfScene5Lights>("VR #5: Lighting");
+        guiSceneMenu->registerScene<TPerfScene6Shadows>("VR #6: Shadows");
     }
 };
