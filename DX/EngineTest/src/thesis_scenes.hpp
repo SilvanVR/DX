@@ -741,45 +741,85 @@ public:
     {
         auto go = createGameObject("Camera");
         go->addComponent<Components::AudioListener>();
-        go->getComponent<Components::Transform>()->position = Math::Vec3(0, 1, -1);
+        go->getComponent<Components::Transform>()->position = Math::Vec3(0, 5, -1);
 
-        if (not AddVRCameraComponent(go))
+        if (not AddVRCameraComponent(go, true))
             LOG_WARN("VR is disabled or no VR headset found.");
 
-        auto cubemap = ASSETS.getCubemap("/cubemaps/tropical_sunny_day/Left.png", "/cubemaps/tropical_sunny_day/Right.png",
-            "/cubemaps/tropical_sunny_day/Up.png", "/cubemaps/tropical_sunny_day/Down.png",
-            "/cubemaps/tropical_sunny_day/Front.png", "/cubemaps/tropical_sunny_day/Back.png");
-        createGameObject("Skybox")->addComponent<Components::Skybox>(cubemap);
+        go->addComponent<Tonemap>();
+
+        RENDERER.setGlobalFloat(SID("_Ambient"), 0.2f);
+
+        // SHADERS
+        auto cubemapHDR = ASSETS.getCubemap("/cubemaps/desert_valley.hdr", 2048, true);
+        auto pbrShader = ASSETS.getShader("/engine/shaders/pbr/pbr.shader");
+
+        Assets::EnvironmentMap envMap(cubemapHDR, 128, 512);
+        auto diffuse = envMap.getDiffuseIrradianceMap();
+        auto specular = envMap.getSpecularReflectionMap();
+
+        auto brdfLut = Assets::BRDFLut().getTexture();
+        pbrShader->setReloadCallback([=](Graphics::IShader* shader) {
+            shader->setTexture("diffuseIrradianceMap", diffuse);
+            shader->setTexture("specularReflectionMap", specular);
+            shader->setTexture("brdfLUT", brdfLut);
+            shader->setFloat("maxReflectionLOD", F32(specular->getMipCount() - 1));
+        });
+        pbrShader->invokeReloadCallback();
+
+        // OBJECTS
+        createGameObject("Skybox")->addComponent<Components::Skybox>(cubemapHDR);
 
         Assets::MeshMaterialInfo materialImportInfo;
         auto mesh = ASSETS.getMesh("/models/sponza/sponza.obj", &materialImportInfo);
 
-        auto obj = createGameObject("Sponza");
+        auto obj = createGameObject("Obj");
         auto mr = obj->addComponent<Components::MeshRenderer>(mesh, nullptr);
-        obj->getTransform()->scale = { 0.03f };
-
-        // LIGHTS
-        auto sun = createGameObject("Sun");
-        auto dl = sun->addComponent<Components::DirectionalLight>(0.5f, Color::WHITE, Graphics::ShadowType::CSMSoft, ArrayList<F32>{10.0f, 30.0f, 80.0f, 200.0f});
-        sun->getTransform()->rotation = Math::Quat::LookRotation(Math::Vec3{ 0,-1, 0.1f });
+        obj->getTransform()->scale = { 0.01f };
 
         if (materialImportInfo.isValid())
         {
-            for (I32 i = 0; i < mesh->getSubMeshCount(); i++)
-            {
-                auto mat = RESOURCES.createMaterial(ASSETS.getShader("/shaders/phong_shadow.shader"));
-                mat->setFloat("uvScale", 1.0f);
-
-                for (auto& texture : materialImportInfo[i].textures)
-                {
-                    switch (texture.type)
-                    {
-                    case Assets::MaterialTextureType::Albedo: mat->setTexture("_MainTex", ASSETS.getTexture2D(texture.filePath)); break;
-                    }
-                }
-                mr->setMaterial(mat, i);
-            }
+            auto pbrMaterials = GeneratePBRMaterials(pbrShader, mesh, materialImportInfo);
+            for (I32 i = 0; i < pbrMaterials.size(); i++)
+                mr->setMaterial(pbrMaterials[i], i);
         }
+
+        // LIGHTS
+        auto sun = createGameObject("Sun");
+        auto dl = sun->addComponent<Components::DirectionalLight>(10.0f, Color::WHITE, Graphics::ShadowType::CSMSoft, ArrayList<F32>{10.0f, 30.0f, 80.0f, 200.0f});
+        sun->getTransform()->rotation = Math::Quat::LookRotation(Math::Vec3{ 0,-1, 0.1f });
+
+        F32 pointLightIntensity = 10.0f;
+        F32 pointLightRange = 5.0f;
+        Color pointLightColor = Color::ORANGE;
+
+        auto pl = createGameObject("PointLight");
+        pl->addComponent<Components::PointLight>(pointLightIntensity, pointLightColor, pointLightRange);
+        pl->getTransform()->position = { 4.9f, 1.55f, 1.4f };
+        pl->addComponent<Components::Billboard>(ASSETS.getTexture2D("/engine/textures/pointLight.png"), 0.5f);
+        //pl->addComponent<Components::ParticleSystem>("/particles/smoke.ps");
+
+        auto pl2 = createGameObject("PointLight");
+        pl2->addComponent<Components::PointLight>(pointLightIntensity, pointLightColor, pointLightRange);
+        pl2->getTransform()->position = { 4.9f, 1.55f, -2.2f };
+        pl2->addComponent<Components::Billboard>(ASSETS.getTexture2D("/engine/textures/pointLight.png"), 0.5f);
+        //pl2->addComponent<Components::ParticleSystem>("/particles/smoke.ps");
+
+        auto pl3 = createGameObject("PointLight");
+        pl3->addComponent<Components::PointLight>(pointLightIntensity, pointLightColor, pointLightRange);
+        pl3->getTransform()->position = { -6.2f, 1.55f, 1.4f };
+        pl3->addComponent<Components::Billboard>(ASSETS.getTexture2D("/engine/textures/pointLight.png"), 0.5f);
+        //pl3->addComponent<Components::ParticleSystem>("/particles/smoke.ps");
+
+        auto pl4 = createGameObject("PointLight");
+        pl4->addComponent<Components::PointLight>(pointLightIntensity, pointLightColor, pointLightRange, true);
+        pl4->getTransform()->position = { -6.2f, 1.55f, -2.2f };
+        pl4->addComponent<Components::Billboard>(ASSETS.getTexture2D("/engine/textures/pointLight.png"), 0.5f);
+        //pl4->addComponent<Components::ParticleSystem>("/particles/smoke.ps");
+
+        // PARTICLE SYSTEMS
+        createGameObject("Particles!")->addComponent<Components::ParticleSystem>("/particles/ambient.ps");
+        createGameObject("Particles!")->addComponent<Components::ParticleSystem>("/particles/dust.ps");
     }
 };
 

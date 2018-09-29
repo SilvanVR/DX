@@ -179,6 +179,9 @@ public:
         if (KEYBOARD.wasKeyPressed(Key::P))
             Locator::getProfiler().logGPU();
 
+        if (KEYBOARD.wasKeyPressed(Key::F))
+            LOG( SCENE.getMainCamera()->getGameObject()->getTransform()->position.toString() );
+
         // VR
         {
             if (RENDERER.hasHMD())
