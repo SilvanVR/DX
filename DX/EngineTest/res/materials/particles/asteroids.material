@@ -1,0 +1,6 @@
+{
+
+"shader" : "/engine/shaders/particles/basic.shader",
+"_MainTex" : "/textures/asteroid.jpg"
+
+}

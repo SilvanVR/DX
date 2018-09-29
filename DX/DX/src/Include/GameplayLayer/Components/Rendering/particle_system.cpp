@@ -338,6 +338,13 @@ namespace Components {
            }
 
            try {
+                auto mesh = json["mesh"];
+                if (mesh != nullptr)
+                {
+                    String path = mesh;
+                    m_particleMesh = ASSETS.getMesh( path );
+                }
+
                 auto material = json["material"];
                 if (material != nullptr)
                 {

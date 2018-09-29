@@ -704,11 +704,38 @@ public:
     }
 };
 
-
-class TPerfSceneSponza : public IScene
+class TPerfScene7ParticleSystems : public IScene
 {
 public:
-    TPerfSceneSponza() : IScene("TPerfSceneSponza") {}
+    TPerfScene7ParticleSystems() : IScene("TPerfScene7ParticleSystems") {}
+
+    void init() override
+    {
+        auto go = createGameObject("Camera");
+        go->addComponent<Components::AudioListener>();
+        go->getComponent<Components::Transform>()->position = Math::Vec3(0, 5, -5);
+
+        if (not AddVRCameraComponent(go, true))
+            LOG_WARN("VR is disabled or no VR headset found.");
+
+        auto cubemap = ASSETS.getCubemap("/cubemaps/bkg/blue/right.png", "/cubemaps/bkg/blue/left.png",
+            "/cubemaps/bkg/blue/top.png", "/cubemaps/bkg/blue/bot.png",
+            "/cubemaps/bkg/blue/front.png", "/cubemaps/bkg/blue/back.png");
+        createGameObject("Skybox")->addComponent<Components::Skybox>(cubemap);
+
+        auto celestialNoise = ASSETS.getAudioClip("/audio/Celestial Galaxy.wav");
+        celestialNoise->setIsLooping(true);
+        go->addComponent<Components::AudioSource>(celestialNoise);
+
+        createGameObject("Particles!")->addComponent<Components::ParticleSystem>("/particles/asteroids.ps");
+        createGameObject("Particles!")->addComponent<Components::ParticleSystem>("/particles/stars.ps");
+    }
+};
+
+class TPerfScene8AllInOne : public IScene
+{
+public:
+    TPerfScene8AllInOne() : IScene("TPerfScene8AllInOne") {}
 
     void init() override
     {
@@ -781,5 +808,7 @@ public:
         guiSceneMenu->registerScene<TPerfScene4PostProcessing>("VR #4: Post Processing");
         guiSceneMenu->registerScene<TPerfScene5Lights>("VR #5: Lighting");
         guiSceneMenu->registerScene<TPerfScene6Shadows>("VR #6: Shadows");
+        guiSceneMenu->registerScene<TPerfScene7ParticleSystems>("VR #7: Particle Systems");
+        guiSceneMenu->registerScene<TPerfScene8AllInOne>("VR #8: All-In-One");
     }
 };

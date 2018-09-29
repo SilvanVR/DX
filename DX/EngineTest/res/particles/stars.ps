@@ -1,0 +1,53 @@
+{
+
+"material" : "/materials/particles/stars.material",
+"looping" : true,
+
+"maxParticles" : 1000,
+"emissionRate" : 200,
+"lifetime" : { "min" : 10, "max" : 30 },
+
+"align" : "view",
+"sort" : "byDistance",
+"gravity" : 0,
+
+"volume" : { 
+	"box" : { 
+		"min" : { "x" : -100, "y" : -100, "z" : -100 }, 
+		"max" : { "x" : 100, "y" : 100, "z" : 100 } 
+	}
+},
+
+"size" : {
+	"spawn" : { 
+		"min" : 0.5, "max" : 2 
+	},
+	"lifetime" : {
+		"0" : 0,
+		"0.5" : 1,
+		"1" : 0
+	}
+},
+
+"rotation" : {
+	"spawn" : { 
+		"min" : { "x" : 0, "y" : 0, "z" : 0 }, 
+		"max" : { "x" : 0, "y" : 0, "z" : 0 }
+	}
+},
+
+"color" : { 
+	"spawn" : { 
+		"min" : "#ffffff", "max" : "#ffffff"
+	}
+},
+
+"velocity" : {
+	"spawn" : { 
+		"min" : { "x" : -0.2, "y" : -0.2, "z" : -0.2 },
+		"max" : { "x" : 0.2, "y" : 0.2, "z" : 0.2 }
+	}
+}
+
+
+}
