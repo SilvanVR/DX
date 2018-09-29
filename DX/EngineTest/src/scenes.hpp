@@ -200,7 +200,7 @@ public:
         auto cam2 = cam2GO->addComponent<Components::Camera>();
         cam2->setRenderTarget(renderTex);
         cam2->setClearColor(Color::GREEN);
-        cam2GO->addComponent<PostProcess>(ASSETS.getMaterial("/materials/post processing/color_grading.material"));
+        cam2GO->addComponent<PostProcess<>>(ASSETS.getMaterial("/materials/post processing/color_grading.material"));
 
         auto grid = createGameObject("Grid");
         grid->addComponent<GridGeneration>(20);
@@ -760,7 +760,7 @@ public:
 ArrayList<MaterialPtr> GeneratePBRMaterials(const ShaderPtr& pbrShader, const MeshPtr& mesh, const Assets::MeshMaterialInfo& materials)
 {
     ASSERT(materials.isValid());
-    const F32 DEFAULT_ROUGHNESS = 0.4f;
+    const F32 DEFAULT_ROUGHNESS = 0.8f;
 
     ArrayList<MaterialPtr> pbrMaterials;
     for ( I32 i = 0; i < mesh->getSubMeshCount(); i++ )
@@ -911,7 +911,7 @@ public:
         cam3->getViewport().height = 0.5f;
         cam3->getViewport().topLeftY = 0.5f;
         go3->addComponent<Tonemap>();
-        go3->addComponent<PostProcess>(ASSETS.getMaterial("/materials/post processing/color_grading.material"));
+        go3->addComponent<PostProcess<void>>(ASSETS.getMaterial("/materials/post processing/color_grading.material"));
         go3->getTransform()->setParent(go->getTransform(), false);
 
         // Camera 4

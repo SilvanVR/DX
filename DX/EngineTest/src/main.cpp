@@ -177,7 +177,10 @@ public:
             Locator::getSceneManager().LoadScene(new TestScene());
 
         if (KEYBOARD.wasKeyPressed(Key::P))
+        {
             Locator::getProfiler().logGPU();
+            LOG("Num Shaders: " + TS(RESOURCES.getShaderCount()), Color::GREEN);
+        }
 
         // VR
         {

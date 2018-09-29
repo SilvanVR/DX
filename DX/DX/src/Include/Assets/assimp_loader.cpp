@@ -91,7 +91,7 @@ namespace Assets {
                 const aiFace& Face = aMesh->mFaces[k];
                 if (Face.mNumIndices != 3)
                 {
-                    ASSERT(false && "check this");
+                    LOG_WARN( "Mesh contains other primitives than triangles, which is not supported" );
                     continue;
                 }
 

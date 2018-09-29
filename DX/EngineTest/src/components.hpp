@@ -302,6 +302,8 @@ public:
     }
 };
 
+// Because components can only be added once, using another template this component get be used more than once
+template <typename T = void>
 class PostProcess : public Components::IComponent
 {
     Graphics::CommandBuffer cmd[2];
@@ -311,6 +313,7 @@ class PostProcess : public Components::IComponent
 
 public:
     PostProcess(const MaterialPtr& material, bool hdr = false) : m_material(material), m_hdr(hdr) {}
+    PostProcess(const ShaderPtr& shader, bool hdr = false) : m_material(RESOURCES.createMaterial(shader)), m_hdr(hdr) {}
     ~PostProcess() { _RemoveCommandBuffer(); }
 
     void addedToGameObject(GameObject* go)
@@ -382,7 +385,7 @@ private:
     }
 };
 
-class Tonemap : public PostProcess
+class Tonemap : public PostProcess<>
 {
 public:
     Tonemap() : PostProcess(ASSETS.getMaterial("/materials/post processing/tonemap.material")) {}

@@ -356,10 +356,10 @@ bool AddVRCameraComponent(GameObject* go, bool hdr = false, Graphics::MSAASample
     }
 }
 
-class TPerfScene0Empty : public IScene
+class TPerfScene1Empty : public IScene
 {
 public:
-    TPerfScene0Empty() : IScene("TPerfScene0Empty") {}
+    TPerfScene1Empty() : IScene("TPerfScene1Empty") {}
 
     void init() override
     {
@@ -372,11 +372,11 @@ public:
     }
 };
 
-class TPerfScene1DrawCalls : public IScene
+class TPerfScene2DrawCalls : public IScene
 {
     static const I32 OBJECT_COUNT = 10000;
 public:
-    TPerfScene1DrawCalls() : IScene("TPerfScene1DrawCalls") {}
+    TPerfScene2DrawCalls() : IScene("TPerfScene2DrawCalls") {}
 
     void init() override
     {
@@ -413,17 +413,16 @@ public:
     }
 };
 
-class TPerfScene2ComplexModels : public IScene
+class TPerfScene3ComplexModels : public IScene
 {
-    static const I32 OBJECT_COUNT = 10000;
 public:
-    TPerfScene2ComplexModels() : IScene("TPerfScene2ComplexModels") {}
+    TPerfScene3ComplexModels() : IScene("TPerfScene3ComplexModels") {}
 
     void init() override
     {
         auto go = createGameObject("Camera");
         go->addComponent<Components::AudioListener>();
-        go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -5);
+        go->getComponent<Components::Transform>()->position = Math::Vec3(50, 50, -50);
 
         if (not AddVRCameraComponent(go, true))
             LOG_WARN("VR is disabled or no VR headset found.");
@@ -449,32 +448,97 @@ public:
         });
         pbrShader->invokeReloadCallback();
 
+        // Gameobjects
+        F32 xSpacing = 20.0f;
+        for (auto y = 0; y < 5; ++y)
+        {
+            F32 ySpacing = 10.0f;
+            for (auto i = 0; i < 5; ++i)
+            {
+                auto pistolMesh = ASSETS.getMesh("/models/pistol.fbx");
+                auto pistol = createGameObject("Pistol");
+                pistol->addComponent<Components::MeshRenderer>(pistolMesh, ASSETS.getMaterial("/materials/pbr/pistol.pbrmaterial"));
+                pistol->getTransform()->scale = { 0.1f };
+                pistol->getTransform()->rotation *= Math::Quat(Math::Vec3::RIGHT, -90.0f);
+                pistol->getTransform()->rotation *= Math::Quat(Math::Vec3::UP, -90.0f);
+                pistol->getTransform()->position = { 5 + (i * xSpacing), (y * ySpacing), 0 };
+
+                auto daggerMesh = ASSETS.getMesh("/models/dagger.obj");
+                auto dagger = createGameObject("Dagger");
+                dagger->addComponent<Components::MeshRenderer>(daggerMesh, ASSETS.getMaterial("/materials/pbr/dagger.pbrmaterial"));
+                dagger->getTransform()->scale = { 0.1f };
+                dagger->getTransform()->rotation *= Math::Quat(Math::Vec3::FORWARD, -90.0f);
+                dagger->getTransform()->position = { 0 + (i * xSpacing), 4 + (y * ySpacing), 0 };
+            }
+        }
+
         // MESHES
         auto mesh0 = ASSETS.getMesh("/models/sphere.obj");
         auto mesh1 = ASSETS.getMesh("/models/monkey.obj");
 
-        //
-        Assets::MeshMaterialInfo materialImportInfo; 
-        auto model0 = ASSETS.getMesh("/models/star-wars-arc-170-pbr.fbx", &materialImportInfo);
-        auto lamboMR = createGameObject("Lambo")->addComponent<Components::MeshRenderer>(model0, nullptr);
-        if (materialImportInfo.isValid())
-        {
-            auto pbrMaterials = GeneratePBRMaterials(pbrShader, model0, materialImportInfo);
-            for (I32 i = 0; i < pbrMaterials.size(); i++)
-                lamboMR->setMaterial(pbrMaterials[i], i);
-        }
+        //Assets::MeshMaterialInfo materialImportInfo; 
+        //auto model0 = ASSETS.getMesh("/models/lamborghini-aventador-pbribl.fbx", &materialImportInfo);
+        //auto lamboMR = createGameObject("GO")->addComponent<Components::MeshRenderer>(model0, nullptr);
+        //if (materialImportInfo.isValid())
+        //{
+        //    auto pbrMaterials = GeneratePBRMaterials(pbrShader, model0, materialImportInfo);
+        //    for (I32 i = 0; i < pbrMaterials.size(); i++)
+        //        lamboMR->setMaterial(pbrMaterials[i], i);
+        //}
 
         // MATERIALS
         auto mat0 = ASSETS.getMaterial("/materials/pbr/test.pbrmaterial");
         auto mat1 = ASSETS.getMaterial("/materials/pbr/test.pbrmaterial");
 
         // GAME OBJECTS
-        createGameObject("GO0")->addComponent<Components::MeshRenderer>(mesh0, mat0);
-
-        auto go1 = createGameObject("GO1")->addComponent<Components::MeshRenderer>(mesh1, mat1);
-        go1->getGameObject()->getTransform()->position.x = 5.0f;
+        //auto mr = createGameObject("GO0")->addComponent<Components::MeshRenderer>(mesh0, mat0);
+        //auto go1 = createGameObject("GO1")->addComponent<Components::MeshRenderer>(mesh1, mat1);
+        //go1->getGameObject()->getTransform()->position.x = 5.0f;
     }
 };
+
+class TPerfScene4PostProcessing : public IScene
+{
+public:
+    TPerfScene4PostProcessing() : IScene("TPerfScene4PostProcessing") {}
+
+    void init() override
+    {
+        auto go = createGameObject("Camera");
+        go->addComponent<Components::AudioListener>();
+        go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -10);
+
+        if (not AddVRCameraComponent(go, true))
+            LOG_WARN("VR is disabled or no VR headset found.");
+
+        go->addComponent<Tonemap>();
+        go->addComponent<PostProcess<void>>(ASSETS.getMaterial("/materials/post processing/color_grading.material"));
+        go->addComponent<PostProcess<F32>>(ASSETS.getShader("/shaders/post processing/pp0.shader"));
+        go->addComponent<PostProcess<I64>>(ASSETS.getShader("/shaders/post processing/pp1.shader"));
+        go->addComponent<PostProcess<F64>>(ASSETS.getShader("/shaders/post processing/pp2.shader"));
+        go->addComponent<PostProcess<U16>>(ASSETS.getShader("/shaders/post processing/pp3.shader"));
+        go->addComponent<PostProcess<I16>>(ASSETS.getShader("/shaders/post processing/pp4.shader"));
+        go->addComponent<PostProcess<U32>>(ASSETS.getMaterial("/materials/post processing/gaussian_blur_horizontal.material"));
+        go->addComponent<PostProcess<U64>>(ASSETS.getMaterial("/materials/post processing/gaussian_blur_vertical.material"));
+
+        auto cubemapHDR = ASSETS.getCubemap("/cubemaps/canyon.hdr", 2048, true);
+        go->addComponent<Components::Skybox>(cubemapHDR);
+
+        // SHADERS
+        auto shader = ASSETS.getShader("/shaders/reflection.shader");
+
+        // MESHES
+        auto mesh0 = ASSETS.getMesh("/models/teapot.obj");
+
+        // MATERIALS
+        auto mat = RESOURCES.createMaterial(shader);
+        mat->setTexture("Cubemap", cubemapHDR);
+
+        // GAME OBJECTS
+        auto mr = createGameObject("GO0")->addComponent<Components::MeshRenderer>(mesh0, mat);
+    }
+};
+
 
 class TPerfSceneSponza : public IScene
 {
@@ -546,8 +610,9 @@ public:
         guiSceneMenu->registerScene<TScenePointLightShadow>("Point Light Shadow");
         guiSceneMenu->registerScene<TSceneSpotLightShadow>("Spot Light Shadow");
         guiSceneMenu->registerScene<TSceneSunShadow>("Sun Light Shadow");
-        guiSceneMenu->registerScene<TPerfScene0Empty>("VR #0: Empty");
-        guiSceneMenu->registerScene<TPerfScene1DrawCalls>("VR #1: Draw Calls");
-        guiSceneMenu->registerScene<TPerfScene2ComplexModels>("VR #2: Complex Models");
+        guiSceneMenu->registerScene<TPerfScene1Empty>("VR #1: Empty");
+        guiSceneMenu->registerScene<TPerfScene2DrawCalls>("VR #2: Draw Calls");
+        guiSceneMenu->registerScene<TPerfScene3ComplexModels>("VR #3: Complex Models");
+        guiSceneMenu->registerScene<TPerfScene4PostProcessing>("VR #4: Post Processing");
     }
 };
