@@ -539,6 +539,54 @@ public:
     }
 };
 
+class TPerfScene5Lights : public IScene
+{
+public:
+    TPerfScene5Lights() : IScene("TPerfScene5Lights") {}
+
+    void init() override
+    {
+        auto go = createGameObject("Camera");
+        go->addComponent<Components::AudioListener>();
+        go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -10);
+
+        if (not AddVRCameraComponent(go, true))
+            LOG_WARN("VR is disabled or no VR headset found.");
+
+        RENDERER.setGlobalFloat(SID("_Ambient"), 0.15f);
+
+        // Headlight
+        if (auto vrCam = go->getComponent<Components::VRCamera>())
+        {
+            vrCam->getCameraForEye(Graphics::VR::LeftEye).getGameObject()->
+                addComponent<Components::SpotLight>(2.0f, Color::WHITE, 25.0f, 20.0f, false);
+        }
+
+        // GAME OBJECTS
+        auto world = createGameObject("World");
+        world->addComponent<Components::MeshRenderer>(ASSETS.getMesh("/models/box_n_inside.obj"), ASSETS.getMaterial("/materials/blinn_phong/cellar.material"));
+        world->getTransform()->position.y = 0.0f;
+        world->getTransform()->scale = { 30.0f, 3.0f, 30.0f };
+
+        // LIGHTING
+        F32 spacing = 4.0f;
+        for (auto i = 0; i < 8; ++i)
+        {
+            auto plg = createGameObject("PL");
+            plg->addComponent<Components::PointLight>(2.0f, Math::Random::Color(), 15.0f);
+            plg->getTransform()->position = { (-4 * spacing) + i * spacing, 0, -5.0f };
+            plg->addComponent<Components::Billboard>(ASSETS.getTexture2D("/engine/textures/pointLight.png"), 0.5f);
+        }
+
+        for (auto i = 0; i < 7; ++i)
+        {
+            auto plg = createGameObject("PL");
+            plg->addComponent<Components::SpotLight>(4.0f, Math::Random::Color(), 45.0f, 15.0f);
+            plg->getTransform()->position = { (-4 * spacing) + i * spacing, 0, 0 };
+            plg->addComponent<Components::Billboard>(ASSETS.getTexture2D("/engine/textures/spotlight.png"), 0.5f);
+        }
+    }
+};
 
 class TPerfSceneSponza : public IScene
 {
@@ -614,5 +662,6 @@ public:
         guiSceneMenu->registerScene<TPerfScene2DrawCalls>("VR #2: Draw Calls");
         guiSceneMenu->registerScene<TPerfScene3ComplexModels>("VR #3: Complex Models");
         guiSceneMenu->registerScene<TPerfScene4PostProcessing>("VR #4: Post Processing");
+        guiSceneMenu->registerScene<TPerfScene5Lights>("VR #5: Lighting");
     }
 };

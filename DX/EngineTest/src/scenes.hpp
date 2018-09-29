@@ -1648,7 +1648,6 @@ public:
             go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 0.1f);
         }
 
-
         RENDERER.setGlobalFloat(SID("_Ambient"), 0.15f);
 
         auto world = createGameObject("World");
