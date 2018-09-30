@@ -44,19 +44,12 @@ public:
         auto cube = Core::MeshGenerator::CreateCubeUV(1.0f);
         auto mr = createGameObject("Cube")->addComponent<Components::MeshRenderer>(cube, ASSETS.getMaterial("/materials/texture.material"));
 
+        go->addComponent<PostProcess<U32>>(ASSETS.getMaterial("/materials/post processing/gaussian_blur_horizontal.material"));
+        go->addComponent<PostProcess<U64>>(ASSETS.getMaterial("/materials/post processing/gaussian_blur_vertical.material"));
 
-        auto cubemapHDR = ASSETS.getCubemap("/cubemaps/canyon.hdr", 2048, true);
-        createGameObject("Skybox")->addComponent<Components::Skybox>(cubemapHDR);
-
-        //auto m_brdfLut = RESOURCES.createRenderTexture(512, 512, Graphics::TextureFormat::RGBA32, Graphics::MSAASamples::One);
-
-        //Graphics::CommandBuffer cmd;
-        //cmd.setRenderTarget(m_brdfLut);
-
-        //auto shader = ASSETS.getShader("/engine/shaders/pbr/pbr_brdfLut.shader");
-        //auto brdfMat = RESOURCES.createMaterial(shader);
-        //cmd.drawFullscreenQuad(brdfMat);
-        //Locator::getRenderer().dispatch(cmd);
+        // CHECK MIPMAPPING
+        //auto cubemapHDR = ASSETS.getCubemap("/cubemaps/canyon.hdr", 2048, true);
+        //createGameObject("Skybox")->addComponent<Components::Skybox>(cubemapHDR);
     }
 
     void tick(Time::Seconds delta) override
@@ -164,7 +157,7 @@ public:
         Locator::getRenderer().setGlobalFloat(SID("_Ambient"), 0.5f);
 
         //Locator::getSceneManager().LoadSceneAsync(new SceneGUISelectSceneMenu());
-        Locator::getSceneManager().LoadScene(new SceneGUISelectTestMenu());
+        Locator::getSceneManager().LoadScene(new TestScene());
     }
 
     //----------------------------------------------------------------------
@@ -264,7 +257,7 @@ private:
     int main()
     {
         Game game;
-        game.start( gameName, 800, 600, Graphics::API::D3D11 );
+        game.start( gameName, 800, 600, Graphics::API::Vulkan );
 
         system("pause");
         return 0;

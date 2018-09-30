@@ -296,11 +296,13 @@ namespace Graphics {
                 _LockQueue();
                 for (auto& cmd : m_pendingCmdQueue)
                    _ExecuteCommandBuffer( cmd );
+                g_vulkan.ctx.EndFrame();
+
+                // Become resources might be uniquely stored in the command buffer it must be cleared after EndFrame()
                 m_pendingCmdQueue.clear();
                 _UnlockQueue();
             }
         }
-        g_vulkan.ctx.EndFrame();
 
         // Present rendered image to screen/hmd
         if ( hasHMD() )
@@ -410,7 +412,6 @@ namespace Graphics {
         }
 
         renderContext.SetCamera( camera );
-        renderContext.BindRendertarget( renderTarget, m_frameCount );
 
         // Clear rendertarget
         switch ( camera->getClearMode() )
@@ -424,6 +425,8 @@ namespace Graphics {
             break;
         default: LOG_WARN_RENDERING( "Unknown Clear-Mode in camera!" );
         }
+
+        renderContext.BindRendertarget( renderTarget, m_frameCount );
 
         if ( camera->isBlittingToScreen() )
         {
@@ -539,7 +542,7 @@ namespace Graphics {
     //----------------------------------------------------------------------
     void VkRenderer::_FlushLightBuffer()
     {
-        if ( not renderContext.lightsUpdated )
+        if ( not renderContext.lightsUpdated || not renderContext.getCamera() )
             return;
         renderContext.lightsUpdated = false;
 

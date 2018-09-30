@@ -419,12 +419,19 @@ public:
         go->addComponent<DrawFrustum>();
 
         auto go3 = createGameObject("Camera2");
-        auto cam2 = go3->addComponent<Components::Camera>(-10.0f, 10.0f, -10.0f, 10.0f, -10.0f, 20.0f);
+        auto rt1 = RESOURCES.createRenderTexture(WINDOW.getWidth(), WINDOW.getHeight(),
+                                                 Graphics::TextureFormat::D32, Graphics::TextureFormat::RGBA32,
+                                                 Graphics::MSAASamples::Four, true);
+        rt1->setDynamicScreenScale(true, 0.25f);
+        auto cam2 = go3->addComponent<Components::Camera>(rt1);
         go3->getComponent<Components::Transform>()->position = Math::Vec3(0, 5, -10);
         go3->addComponent<AutoOrbiting>(10.0f);
-        cam2->getViewport().width = 0.25f;
+        cam2->getViewport().width = 0.25f / 1.33f;
         cam2->getViewport().height = 0.25f;
+        cam2->setOrthoParams(-10.0f, 10.0f, -10.0f, 10.0f, -10.0f, 20.0f);
+        cam2->setCullingMask(~(LayerMask)Layer::Two); // Do not draw the frustum from it self (causes an artifact at the edge)
         go3->addComponent<DrawFrustum>();
+        go3->setLayerMask((LayerMask)Layer::Two);
 
         createGameObject("Grid")->addComponent<GridGeneration>(20);
 

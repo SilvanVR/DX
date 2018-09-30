@@ -471,29 +471,6 @@ public:
                 dagger->getTransform()->position = { 0 + (i * xSpacing), 4 + (y * ySpacing), 0 };
             }
         }
-
-        // MESHES
-        auto mesh0 = ASSETS.getMesh("/models/sphere.obj");
-        auto mesh1 = ASSETS.getMesh("/models/monkey.obj");
-
-        //Assets::MeshMaterialInfo materialImportInfo; 
-        //auto model0 = ASSETS.getMesh("/models/lamborghini-aventador-pbribl.fbx", &materialImportInfo);
-        //auto lamboMR = createGameObject("GO")->addComponent<Components::MeshRenderer>(model0, nullptr);
-        //if (materialImportInfo.isValid())
-        //{
-        //    auto pbrMaterials = GeneratePBRMaterials(pbrShader, model0, materialImportInfo);
-        //    for (I32 i = 0; i < pbrMaterials.size(); i++)
-        //        lamboMR->setMaterial(pbrMaterials[i], i);
-        //}
-
-        // MATERIALS
-        auto mat0 = ASSETS.getMaterial("/materials/pbr/test.pbrmaterial");
-        auto mat1 = ASSETS.getMaterial("/materials/pbr/test.pbrmaterial");
-
-        // GAME OBJECTS
-        //auto mr = createGameObject("GO0")->addComponent<Components::MeshRenderer>(mesh0, mat0);
-        //auto go1 = createGameObject("GO1")->addComponent<Components::MeshRenderer>(mesh1, mat1);
-        //go1->getGameObject()->getTransform()->position.x = 5.0f;
     }
 };
 
