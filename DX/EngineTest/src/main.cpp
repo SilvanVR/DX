@@ -44,8 +44,9 @@ public:
         auto cube = Core::MeshGenerator::CreateCubeUV(1.0f);
         auto mr = createGameObject("Cube")->addComponent<Components::MeshRenderer>(cube, ASSETS.getMaterial("/materials/texture.material"));
 
-        go->addComponent<PostProcess<U32>>(ASSETS.getMaterial("/materials/post processing/gaussian_blur_horizontal.material"));
-        go->addComponent<PostProcess<U64>>(ASSETS.getMaterial("/materials/post processing/gaussian_blur_vertical.material"));
+        //go->addComponent<PostProcess<U32>>(ASSETS.getMaterial("/materials/post processing/gaussian_blur_horizontal.material"));
+        //go->addComponent<PostProcess<F32>>(ASSETS.getMaterial("/materials/post processing/greyscale.material"));
+        //go->addComponent<PostProcess<U64>>(ASSETS.getMaterial("/materials/post processing/gaussian_blur_vertical.material"));
 
         // CHECK MIPMAPPING
         //auto cubemapHDR = ASSETS.getCubemap("/cubemaps/canyon.hdr", 2048, true);
