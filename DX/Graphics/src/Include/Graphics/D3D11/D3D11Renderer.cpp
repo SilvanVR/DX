@@ -85,12 +85,11 @@ namespace Graphics {
     //----------------------------------------------------------------------
     void D3D11Renderer::shutdown()
     {
-        _DestroyAllTempRenderTargets();
+        IRenderer::_Shutdown();
         SAFE_DELETE( m_objectBuffer );
         SAFE_DELETE( m_cameraBuffer );
         SAFE_DELETE( m_globalBuffer );
         SAFE_DELETE( m_lightBuffer );
-        SAFE_DELETE( m_hmd );
         SAFE_DELETE( m_cubeMesh );
         renderContext.Reset();
         _DeinitD3D11();
@@ -225,12 +224,19 @@ namespace Graphics {
 
         // Execute command buffers
         _LockQueue();
-        for (auto& cmd : m_pendingCmdQueue)
+        for (auto& cmd : m_immediatePendingCmdQueue)
             _ExecuteCommandBuffer( cmd );
-        m_pendingCmdQueue.clear();
+        m_immediatePendingCmdQueue.clear();
+
+        // Only one deferred command buffer per frame
+        if (not m_deferredPendingCmdQueue.empty())
+        {
+            _ExecuteCommandBuffer( m_deferredPendingCmdQueue.front() );
+            m_deferredPendingCmdQueue.erase( m_deferredPendingCmdQueue.begin() );
+        }
         _UnlockQueue();
 
-        // Present rendered images
+        // Present rendered image(s)
         bool vsync = m_vsync;
         if ( hasHMD() )
         {

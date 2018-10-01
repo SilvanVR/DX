@@ -607,7 +607,6 @@ public:
         auto go = createGameObject("Camera");
         go->getTransform()->position = { 0, 2, -10 };
         auto cam = go->addComponent<Components::Camera>(45.0f, 0.1f, 1000.0f, Graphics::MSAASamples::Four, true);
-        //go->addComponent<Components::VRCamera>(Components::ScreenDisplay::RightEye, Graphics::MSAASamples::Four);
         go->addComponent<Components::FPSCamera>();
         go->addComponent<Tonemap>();
 

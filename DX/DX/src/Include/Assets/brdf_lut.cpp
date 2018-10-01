@@ -26,7 +26,7 @@ namespace Assets {
         auto brdfMat = RESOURCES.createMaterial( shader );
 
         cmd.drawFullscreenQuad( brdfMat );
-        Locator::getRenderer().dispatch( cmd );
+        Locator::getRenderer().dispatch( cmd, Graphics::CmdDispatchMode::Deferred );
     }
 
 } // End namespaces

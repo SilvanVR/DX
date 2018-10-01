@@ -73,7 +73,7 @@ namespace Graphics { namespace Vulkan {
     //**********************************************************************
     class Context
     {
-        static const I32 NUM_FRAME_DATA = 2;
+        static const I32 NUM_FRAME_DATA = 3;
         struct FrameData
         {
             VkFence         fence = VK_NULL_HANDLE; // Signaled when cmd has finished execution

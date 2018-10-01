@@ -10,6 +10,7 @@
 **********************************************************************/
 
 #include "Graphics/i_cubemap.hpp"
+#include "Graphics/i_material.h"
 
 namespace Assets { 
 

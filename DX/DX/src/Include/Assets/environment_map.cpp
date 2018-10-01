@@ -20,10 +20,10 @@ namespace Assets {
     {
         cubemap->setFilter( Graphics::TextureFilter::Trilinear );
         cubemap->setClampMode( Graphics::TextureAddressMode::Clamp );
-        Graphics::CommandBuffer cmd;
 
         // Diffuse irradiance map
         {
+            Graphics::CommandBuffer cmd;
             m_diffuseIrradianceMap = RESOURCES.createCubemap();
             m_diffuseIrradianceMap->create( diffuseIrradianceSize, Graphics::TextureFormat::RGBAFloat );
 
@@ -34,10 +34,12 @@ namespace Assets {
             diffuseIrradianceMat->setTexture( SHADER_NAME_ENV_MAP, cubemap );
 
             cmd.renderCubemap( m_diffuseIrradianceMap, diffuseIrradianceMat );
+            Locator::getRenderer().dispatch( cmd, Graphics::CmdDispatchMode::Deferred );
         }
 
         // Specular reflection map
         {
+            Graphics::CommandBuffer cmd;
             m_specularReflectionMap = RESOURCES.createCubemap();
             m_specularReflectionMap->create( specularReflectionSize, Graphics::TextureFormat::RGBAFloat, Graphics::Mips::Create );
 
@@ -57,9 +59,8 @@ namespace Assets {
 
                 cmd.renderCubemap( m_specularReflectionMap, specularReflectionMaterial, mip );
             }
+            Locator::getRenderer().dispatch( cmd, Graphics::CmdDispatchMode::Deferred );
         }
-
-        Locator::getRenderer().dispatch( cmd );
     }
 
 } // End namespaces

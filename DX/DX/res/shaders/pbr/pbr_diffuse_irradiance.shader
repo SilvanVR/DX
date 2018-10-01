@@ -82,3 +82,70 @@ float4 main(FragmentIn fin) : SV_Target
 
 	return float4( irradiance, 1.0 );
 }
+
+//----------------------------------------------
+// Vulkan
+//----------------------------------------------
+#vulkan
+#shader vertex
+
+#include "/engine/shaders/includes/vulkan/engineVS.glsl"
+
+layout (location = 0) in vec3 VERTEX_POSITION;
+
+layout (location = 0) out vec3 outUVW;
+
+void main()
+{
+	outUVW = VERTEX_POSITION;
+	
+    vec4 clip = TO_CLIP_SPACE( vec4( VERTEX_POSITION, 0.0f ) );
+	
+	// Little trick which places the object very close to the far-plane
+	clip = clip.xyww;
+	clip.z *= 0.99999;
+	gl_Position = clip;
+}
+
+// ----------------------------------------------
+#shader fragment
+
+#include "/engine/shaders/includes/vulkan/engineFS.glsl"
+
+layout (location = 0) in vec3 inUVW;
+
+layout (location = 0) out vec4 outColor;
+
+layout (set = SET_FIRST, binding = 0) uniform samplerCube environmentMap;
+
+void main()
+{
+	vec3 N = normalize( inUVW );
+
+    vec3 irradiance = vec3( 0,0,0 );   
+    
+    vec3 up    = vec3( 0.0, 1.0, 0.0 );
+    vec3 right = cross( up, N );
+    up         = cross( N, right );
+       
+    float sampleDelta = 0.025f;
+    float nrSamples = 0.0f;
+    for (float phi = 0.0; phi < 2.0 * PI; phi += sampleDelta)
+    {
+        for(float theta = 0.0; theta < 0.5 * PI; theta += sampleDelta)
+        {
+            // Spherical to cartesian (in tangent space)
+            vec3 tangentSample = vec3(sin(theta) * cos(phi),  sin(theta) * sin(phi), cos(theta));
+			
+            // Tangent space to world
+            vec3 sampleVec = tangentSample.x * right + tangentSample.y * up + tangentSample.z * N; 
+
+			vec4 textureColor = texture( environmentMap, sampleVec );
+            irradiance += textureColor.rgb * cos(theta) * sin(theta);
+            nrSamples++;
+        }
+    }
+    irradiance = PI * irradiance * (1.0 / float(nrSamples));
+
+	outColor = vec4( irradiance, 1.0 );
+}

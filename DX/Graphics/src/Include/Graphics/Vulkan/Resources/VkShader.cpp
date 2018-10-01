@@ -66,8 +66,6 @@ namespace Graphics { namespace Vulkan {
 
         m_pVertexShader->compileFromFile( vertPath, entryPoint );
         m_pFragmentShader->compileFromFile( fragPath, entryPoint );
-
-        _CreateConstantBuffers();
     }
 
     //----------------------------------------------------------------------
@@ -75,7 +73,6 @@ namespace Graphics { namespace Vulkan {
     {
         compileVertexShaderFromSource( vertSrc, entryPoint );
         compileFragmentShaderFromSource( fragSrc, entryPoint );
-        _CreateConstantBuffers();
     }
 
     //----------------------------------------------------------------------
@@ -86,7 +83,6 @@ namespace Graphics { namespace Vulkan {
         vertShader->compileFromSource( src, entryPoint );
 
         m_pVertexShader.swap( vertShader );
-        _CreateVSConstantBuffer();
     }
 
     //----------------------------------------------------------------------
@@ -96,7 +92,6 @@ namespace Graphics { namespace Vulkan {
         pixelShader->compileFromSource( src, entryPoint );
 
         m_pFragmentShader.swap( pixelShader );
-        _CreatePSConstantBuffer();
     }
 
     //----------------------------------------------------------------------
@@ -106,7 +101,6 @@ namespace Graphics { namespace Vulkan {
         geometryShader->compileFromSource( src, entryPoint );
 
         m_pGeometryShader.swap( geometryShader );
-        _CreateGSConstantBuffer();
     }
 
     //----------------------------------------------------------------------
@@ -173,6 +167,7 @@ namespace Graphics { namespace Vulkan {
     {
         _CreatePipeline();
         _PipelineResourceReflection( m_pipeline );
+        _CreateConstantBuffers();
     }
 
     //**********************************************************************

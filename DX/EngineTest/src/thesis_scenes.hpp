@@ -798,10 +798,10 @@ public:
 
 
 //----------------------------------------------------------------------
-class SceneGUISelectTestMenu : public IScene
+class SceneGUIThesisScenesMenu : public IScene
 {
 public:
-    SceneGUISelectTestMenu() : IScene("SceneGUISelectTestMenu") {}
+    SceneGUIThesisScenesMenu() : IScene("SceneGUIThesisScenesMenu") {}
 
     void init() override
     {

@@ -9,6 +9,7 @@
 #include "Logging/logging.h"
 #include "command_buffer.h"
 #include "Events/event_dispatcher.h"
+#include "VR/vr.h"
 #include <mutex>
 
 namespace Graphics {
@@ -29,10 +30,15 @@ namespace Graphics {
     //----------------------------------------------------------------------
 
     //----------------------------------------------------------------------
-    void IRenderer::dispatch( const CommandBuffer& cmd )
+    void IRenderer::dispatch( const CommandBuffer& cmd, CmdDispatchMode dispatchMode )
     {
         _LockQueue();
-        m_pendingCmdQueue.emplace_back( cmd );
+        switch (dispatchMode)
+        {
+        case CmdDispatchMode::Immediate: m_immediatePendingCmdQueue.emplace_back( cmd ); break;
+        case CmdDispatchMode::Deferred:  m_deferredPendingCmdQueue.emplace_back( cmd ); break;
+        default: LOG_WARN( "IRenderer::dispatch(): Unknown dispatch mode." );
+        }
         _UnlockQueue();
     }
 
@@ -79,16 +85,23 @@ namespace Graphics {
     }
 
     //----------------------------------------------------------------------
+    void IRenderer::_Shutdown()
+    {
+        _DestroyAllTempRenderTargets();
+        SAFE_DELETE( m_hmd );
+    }
+
+    //----------------------------------------------------------------------
+    // PRIVATE
+    //----------------------------------------------------------------------
+
+    //----------------------------------------------------------------------
     void IRenderer::_DestroyAllTempRenderTargets()
     {
         for (auto& rt : m_tempRenderTargets)
             SAFE_DELETE( rt.rt );
         m_tempRenderTargets.clear();
     }
-
-    //----------------------------------------------------------------------
-    // PRIVATE
-    //----------------------------------------------------------------------
 
     //----------------------------------------------------------------------
     void IRenderer::_OnWindowSizeChanged()

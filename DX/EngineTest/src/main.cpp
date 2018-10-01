@@ -33,26 +33,16 @@ public:
     {
         // Camera 1
         go = createGameObject("Camera");
-        //cam = go->addComponent<Components::Camera>( 45.0f, 0.1f, 1000.0f, Graphics::MSAASamples::Four );
-        //cam->setClearColor(Color(175, 181, 191));
+        cam = go->addComponent<Components::Camera>( 45.0f, 0.1f, 1000.0f, Graphics::MSAASamples::Four );
+        cam->setClearColor(Color(175, 181, 191));
         go->getComponent<Components::Transform>()->position = Math::Vec3(0, 1, -5);
-        //go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 0.1f);
+        go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 0.1f);
         go->addComponent<Components::AudioListener>();
 
         createGameObject("Grid")->addComponent<GridGeneration>(20);
 
         auto cube = Core::MeshGenerator::CreateCubeUV(1.0f);
-        auto mr = createGameObject("Cube")->addComponent<Components::MeshRenderer>(cube, ASSETS.getMaterial("/materials/blinn_phong/cube.material"));
-
-        auto vrCam = go->addComponent<Components::VRCamera>(Components::ScreenDisplay::LeftEye, Graphics::MSAASamples::One);
-        go->addComponent<Components::VRFPSCamera>();
-        //go->addComponent<PostProcess<F32>>(ASSETS.getMaterial("/materials/post processing/color_grading.material"));
-        //go->addComponent<Components::VRBasicTouch>(Core::MeshGenerator::CreateCubeUV(0.1f), ASSETS.getMaterial("/materials/blinn_phong/cube.material"));
-
-        //auto cubemap = ASSETS.getCubemap("/cubemaps/bkg/blue/right.png", "/cubemaps/bkg/blue/left.png",
-        //    "/cubemaps/bkg/blue/top.png", "/cubemaps/bkg/blue/bot.png",
-        //    "/cubemaps/bkg/blue/front.png", "/cubemaps/bkg/blue/back.png");
-        //createGameObject("Skybox")->addComponent<Components::Skybox>(cubemap);
+        auto mr = createGameObject("Cube")->addComponent<Components::MeshRenderer>(cube, ASSETS.getMaterial("/materials/texture.material"));
 
         // CHECK MIPMAPPING
         //auto cubemapHDR = ASSETS.getCubemap("/cubemaps/canyon.hdr", 2048, true);
@@ -86,7 +76,7 @@ public:
         }
     }
 
-    void shutdown() override { }
+    void shutdown() override {}
 };
 
 //----------------------------------------------------------------------
@@ -102,7 +92,7 @@ public:
         gui->addComponent<Components::GUI>();
 
         auto guiSceneMenu = gui->addComponent<GUISceneMenu>("Scenes");
-        guiSceneMenu->registerScene<SceneGUISelectTestMenu>("Thesis Test Scenes");
+        guiSceneMenu->registerScene<SceneGUIThesisScenesMenu>("Thesis Test Scenes");
         guiSceneMenu->registerScene<TestScene>("Test Scene");
         guiSceneMenu->registerScene<SceneSplines>("Catmull-Rom Spline");
         guiSceneMenu->registerScene<VRScene>("VR Scene");

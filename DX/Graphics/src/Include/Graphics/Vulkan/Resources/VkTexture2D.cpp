@@ -17,8 +17,6 @@ namespace Graphics { namespace Vulkan {
         ASSERT( width > 0 && height > 0 && m_width == 0 && "Invalid params or texture were already created" );
         ITexture::_Init( TextureDimension::Tex2D, width, height, format );
 
-        generateMips = false;
-
         m_isImmutable = false;
         m_hasMips = generateMips;
         if (m_hasMips)

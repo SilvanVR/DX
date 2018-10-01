@@ -5,9 +5,6 @@
 
     author: S. Hau
     date: December 25, 2017
-
-    @Considerations:
-      - Different deallocation scheme, e.g. delete after 5sec unused.
 **********************************************************************/
 
 #include "Core/locator.h"
@@ -15,6 +12,7 @@
 #include "Events/event_dispatcher.h"
 
 #define PRINT_DELETES 0
+#define RESOURCE_SURVIVE_TICK_COUNT 500
 
 namespace Core { namespace Resources {
 
@@ -24,11 +22,60 @@ namespace Core { namespace Resources {
         // Register to resize window event
         Events::Event& evt = Events::EventDispatcher::GetEvent( EVENT_WINDOW_RESIZE );
         m_windowResizeListener = evt.addListener( BIND_THIS_FUNC_0_ARGS( &ResourceManager::_OnWindowSizeChanged ) );
+
+        Locator::getCoreEngine().subscribe( this );
     }
 
     //----------------------------------------------------------------------
     void ResourceManager::shutdown()
     {
+        // Delete all remaining resources
+        for (auto& [counter, mat] : m_materialsDeleteList)
+            delete mat;
+        for (auto& [counter, tex] : m_renderTexturesDeleteList)
+            delete tex;
+        for (auto& [counter, tex] : m_texturesDeleteList)
+            delete tex;
+    }
+
+    //----------------------------------------------------------------------
+    void ResourceManager::OnTick( Time::Seconds delta )
+    {
+        for (auto it = m_materialsDeleteList.begin(); it != m_materialsDeleteList.end();)
+        {
+            I32& tickSurviveCount = it->first;
+            if (--tickSurviveCount < 0)
+            {
+                SAFE_DELETE( it->second );
+                it = m_materialsDeleteList.erase( it );
+                continue;
+            }
+            ++it;
+        }
+
+        for (auto it = m_texturesDeleteList.begin(); it != m_texturesDeleteList.end();)
+        {
+            I32& tickSurviveCount = it->first;
+            if (--tickSurviveCount < 0)
+            {
+                SAFE_DELETE( it->second );
+                it = m_texturesDeleteList.erase( it );
+                continue;
+            }
+            ++it;
+        }
+
+        for (auto it = m_renderTexturesDeleteList.begin(); it != m_renderTexturesDeleteList.end();)
+        {
+            I32& tickSurviveCount = it->first;
+            if (--tickSurviveCount < 0)
+            {
+                SAFE_DELETE( it->second );
+                it = m_renderTexturesDeleteList.erase(it);
+                continue;
+            }
+            ++it;
+        }
     }
 
     //**********************************************************************
@@ -265,9 +312,9 @@ namespace Core { namespace Resources {
         LOG( "DELETING MATERIAL", Color::RED );
 #endif
         m_materials.erase( std::remove( m_materials.begin(), m_materials.end(), mat ) );
-        SAFE_DELETE( mat );
+        m_materialsDeleteList.emplace_back( RESOURCE_SURVIVE_TICK_COUNT, mat );
     }
-    
+
     //----------------------------------------------------------------------
     void ResourceManager::_DeleteTexture( Graphics::Texture* tex )
     {
@@ -275,7 +322,7 @@ namespace Core { namespace Resources {
         LOG( "DELETING TEXTURE", Color::RED );
 #endif
         m_textures.erase( std::remove( m_textures.begin(), m_textures.end(), tex ) );
-        SAFE_DELETE( tex );
+        m_texturesDeleteList.emplace_back( RESOURCE_SURVIVE_TICK_COUNT, tex );
     }
 
     //----------------------------------------------------------------------
@@ -285,7 +332,7 @@ namespace Core { namespace Resources {
         LOG( "DELETING RENDER TEXTURE", Color::RED );
 #endif
         m_renderTextures.erase( std::remove( m_renderTextures.begin(), m_renderTextures.end(), tex ) );
-        SAFE_DELETE( tex );
+        m_renderTexturesDeleteList.emplace_back( RESOURCE_SURVIVE_TICK_COUNT, tex );
     }
 
     //----------------------------------------------------------------------

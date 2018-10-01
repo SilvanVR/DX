@@ -47,8 +47,11 @@ namespace Graphics {
 
         //----------------------------------------------------------------------
         // Dispatches the given command buffer for execution on the gpu.
+        // @Params:
+        // "cmd": Command buffer to execute
+        // "dispatchMode": Whether the command buffer will be executed immediately or maybe later.
         //----------------------------------------------------------------------
-        void dispatch(const CommandBuffer& cmd);
+        void dispatch(const CommandBuffer& cmd, CmdDispatchMode dispatchMode = CmdDispatchMode::Immediate);
 
         //----------------------------------------------------------------------
         // Presents the latest backbuffer to the screen.
@@ -89,7 +92,8 @@ namespace Graphics {
     protected:
         U64                         m_frameCount = 0;
         OS::Window*                 m_window;
-        ArrayList<CommandBuffer>    m_pendingCmdQueue;
+        ArrayList<CommandBuffer>    m_immediatePendingCmdQueue;
+        ArrayList<CommandBuffer>    m_deferredPendingCmdQueue;
         Limits                      m_limits;
         bool                        m_vsync = false;
         GPUDescription              m_gpuDescription;
@@ -101,7 +105,7 @@ namespace Graphics {
         void _UnlockQueue();
         IRenderBuffer* _CreateTempRenderTarget(I32 maxFramesAlive = 2);
         void _CheckAndDestroyTemporaryRenderTargets();
-        void _DestroyAllTempRenderTargets();
+        void _Shutdown();
 
         //----------------------------------------------------------------------
         virtual void OnWindowSizeChanged(U16 w, U16 h) = 0;
@@ -116,6 +120,7 @@ namespace Graphics {
         ArrayList<TempRenderTarget> m_tempRenderTargets;
 
         void _OnWindowSizeChanged();
+        void _DestroyAllTempRenderTargets();
 
         NULL_COPY_AND_ASSIGN(IRenderer)
     };

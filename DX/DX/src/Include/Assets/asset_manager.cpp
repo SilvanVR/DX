@@ -416,7 +416,7 @@ namespace Assets {
         // Submit command to the renderer
         Graphics::CommandBuffer cmd;
         cmd.renderCubemap( cubemap, mat );
-        Locator::getRenderer().dispatch( cmd );
+        Locator::getRenderer().dispatch( cmd, Graphics::CmdDispatchMode::Deferred );
 
         stbi_image_free( pixels );
 

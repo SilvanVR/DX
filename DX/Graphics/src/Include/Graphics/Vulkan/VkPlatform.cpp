@@ -22,6 +22,10 @@ namespace Graphics { namespace Vulkan {
 
         msg += pCallbackData->pMessage;
 
+        if (msg.find("Cannot call") != String::npos || msg.find("Command Buffer") != String::npos)
+            LOG("T");
+
+
         if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT)  LOG( msg );
         if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT)     LOG( msg );
         if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT)  LOG_WARN( msg );
@@ -336,7 +340,7 @@ namespace Graphics { namespace Vulkan {
         }
 
         // Begin recording
-        VALIDATE( vezBeginCommandBuffer( curFrameData().cmd, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT) );
+        VALIDATE( vezBeginCommandBuffer( curFrameData().cmd, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT ) );
 
         // Execute pre-pass functions
         std::unique_lock<std::mutex> lock( m_prePassFunctionLock );

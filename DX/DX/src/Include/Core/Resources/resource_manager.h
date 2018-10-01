@@ -46,6 +46,7 @@ namespace Core { namespace Resources {
         //----------------------------------------------------------------------
         void init() override;
         void shutdown() override;
+        void OnTick(Time::Seconds delta) override;
 
         //----------------------------------------------------------------------
         // Creates a new mesh
@@ -157,6 +158,10 @@ namespace Core { namespace Resources {
         ArrayList<Audio::AudioClip*>            m_audioClips;
 
         Events::EventListener m_windowResizeListener;
+
+        ArrayList<std::pair<I32, Graphics::Material*>>          m_materialsDeleteList;
+        ArrayList<std::pair<I32, Graphics::Texture*>>           m_texturesDeleteList;
+        ArrayList<std::pair<I32, Graphics::RenderTexture*>>     m_renderTexturesDeleteList;
 
         //----------------------------------------------------------------------
         void _DeleteTexture(Graphics::Texture* tex);

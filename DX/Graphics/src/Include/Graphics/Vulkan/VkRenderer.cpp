@@ -134,13 +134,12 @@ namespace Graphics {
         for (auto i = 0; i < MAX_SHADOWMAPS_2D; ++i) SAFE_DELETE( m_fakeShadowMaps2D[i] );
         for (auto i = 0; i < MAX_SHADOWMAPS_3D; ++i) SAFE_DELETE( m_fakeShadowMaps3D[i] );
         for (auto i = 0; i < MAX_SHADOWMAPS_ARRAY; ++i) SAFE_DELETE( m_fakeShadowMaps2DArray[i] );
-        _DestroyAllTempRenderTargets();
+        IRenderer::_Shutdown();
         SAFE_DELETE( m_globalBuffer );
         SAFE_DELETE( m_cameraBuffer );
         SAFE_DELETE( m_lightBuffer );
         g_vulkan.ctx.Shutdown();
         m_swapchain.shutdown( g_vulkan.instance, g_vulkan.device );
-        SAFE_DELETE( m_hmd );
         SAFE_DELETE( m_cubeMesh );
         renderContext.Reset();
         g_vulkan.Shutdown();
@@ -293,16 +292,20 @@ namespace Graphics {
             m_lightBuffer->newFrame();
             {
                 _LockQueue();
-                I32 i = 0;
-                for (auto& cmd : m_pendingCmdQueue)
-                   _ExecuteCommandBuffer( cmd );
-                g_vulkan.ctx.EndFrame();
+                for (auto& cmd : m_immediatePendingCmdQueue)
+                    _ExecuteCommandBuffer( cmd );
+                m_immediatePendingCmdQueue.clear();
 
-                // Because resources might be uniquely stored in the command buffer it must be cleared after EndFrame()
-                m_pendingCmdQueue.clear();
+                // Only one deferred command buffer per frame
+                if (not m_deferredPendingCmdQueue.empty())
+                {
+                    _ExecuteCommandBuffer( m_deferredPendingCmdQueue.front() );
+                    m_deferredPendingCmdQueue.erase( m_deferredPendingCmdQueue.begin() );
+                }
                 _UnlockQueue();
             }
         }
+        g_vulkan.ctx.EndFrame();
 
         // Present rendered image to screen/hmd
         if ( hasHMD() )
@@ -827,19 +830,21 @@ namespace Graphics {
         U32 height = U32( cubemap->getHeight() * std::pow( 0.5, dstMip ) );
 
         // Create temporary render texture
-        auto colorBuffer = _CreateTempRenderTarget();
+        auto colorBuffer = _CreateTempRenderTarget( 60 );
         colorBuffer->create( width, height, cubemap->getFormat() );
-        colorBuffer->bindForRendering();
         colorBuffer->clearColor( Color::BLACK );
 
         // Setup viewport matching the render texture
         VkViewport vp = { 0, 0, (F32)colorBuffer->getWidth(), (F32)colorBuffer->getHeight(), 0, 1 };
         g_vulkan.ctx.RSSetViewports( vp );
+        g_vulkan.ctx.RSSetScissor({ { (I32)vp.x, (I32)vp.y }, { (U32)vp.width, (U32)vp.height } });
 
         // Render into render texture for each face and copy the result into the cubemaps face
         auto projection = DirectX::XMMatrixPerspectiveFovLH( DirectX::XMConvertToRadians( 90.0f ), 1.0f, 0.1f, 10.0f );
         for (I32 face = 0; face < 6; face++)
         {
+            colorBuffer->bindForRendering();
+
             m_cameraBuffer->beginBuffer();
             auto view = DirectX::XMMatrixLookToLH( { 0, 0, 0, 0 }, directions[face], ups[face] );
             if ( not m_cameraBuffer->update( CAM_VIEW_MATRIX_NAME, &view ) )
@@ -849,6 +854,7 @@ namespace Graphics {
             m_cameraBuffer->bind();
 
             _DrawMesh( m_cubeMesh, material, DirectX::XMMatrixIdentity(), 0 );
+            g_vulkan.ctx.EndRenderPass();
             _CopyTexture( colorBuffer, 0, 0, cubemap, face, dstMip );
         }
     }
@@ -904,6 +910,8 @@ namespace Graphics {
                 // Ignore viewport from camera, always use full resolution from HMD
                 auto desc = m_hmd->getDescription();
                 auto eye = curCamera->getHMDEye();
+                vp.topLeftX = 0.0f;
+                vp.topLeftY = 0.0f;
                 vp.width  = (F32)desc.idealResolution[eye].x;
                 vp.height = (F32)desc.idealResolution[eye].y;
 
