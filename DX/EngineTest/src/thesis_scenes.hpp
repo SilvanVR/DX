@@ -700,10 +700,6 @@ public:
             "/cubemaps/bkg/blue/front.png", "/cubemaps/bkg/blue/back.png");
         createGameObject("Skybox")->addComponent<Components::Skybox>(cubemap);
 
-        auto celestialNoise = ASSETS.getAudioClip("/audio/Celestial Galaxy.wav");
-        celestialNoise->setIsLooping(true);
-        go->addComponent<Components::AudioSource>(celestialNoise);
-
         createGameObject("Particles!")->addComponent<Components::ParticleSystem>("/particles/asteroids.ps");
         createGameObject("Particles!")->addComponent<Components::ParticleSystem>("/particles/stars.ps");
     }

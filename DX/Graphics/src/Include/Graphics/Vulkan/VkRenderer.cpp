@@ -289,16 +289,16 @@ namespace Graphics {
         // Record all commands
         g_vulkan.ctx.BeginFrame();
         {
-            m_globalBuffer->bind();
             m_cameraBuffer->newFrame();
             m_lightBuffer->newFrame();
             {
                 _LockQueue();
+                I32 i = 0;
                 for (auto& cmd : m_pendingCmdQueue)
                    _ExecuteCommandBuffer( cmd );
                 g_vulkan.ctx.EndFrame();
 
-                // Become resources might be uniquely stored in the command buffer it must be cleared after EndFrame()
+                // Because resources might be uniquely stored in the command buffer it must be cleared after EndFrame()
                 m_pendingCmdQueue.clear();
                 _UnlockQueue();
             }
@@ -412,6 +412,9 @@ namespace Graphics {
         }
 
         renderContext.SetCamera( camera );
+
+        // Buffer needs to be binded for every camera
+        m_globalBuffer->bind();
 
         // Clear rendertarget
         switch ( camera->getClearMode() )
