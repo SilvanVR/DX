@@ -224,9 +224,6 @@ namespace Graphics {
 
         // Execute command buffers
         _LockQueue();
-        for (auto& cmd : m_immediatePendingCmdQueue)
-            _ExecuteCommandBuffer( cmd );
-        m_immediatePendingCmdQueue.clear();
 
         // Only one deferred command buffer per frame
         if (not m_deferredPendingCmdQueue.empty())
@@ -234,6 +231,11 @@ namespace Graphics {
             _ExecuteCommandBuffer( m_deferredPendingCmdQueue.front() );
             m_deferredPendingCmdQueue.erase( m_deferredPendingCmdQueue.begin() );
         }
+
+        for (auto& cmd : m_immediatePendingCmdQueue)
+            _ExecuteCommandBuffer( cmd );
+        m_immediatePendingCmdQueue.clear();
+
         _UnlockQueue();
 
         // Present rendered image(s)

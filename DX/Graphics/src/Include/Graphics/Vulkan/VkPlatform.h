@@ -125,7 +125,7 @@ namespace Graphics { namespace Vulkan {
 
         // Stores functions for commands which must be executed outside of an render-pass and be thread-safe
         std::mutex m_prePassFunctionLock;
-        ArrayList<std::function<void()>> m_prePassFunctions;
+        ArrayList<std::pair<VkImage, std::function<void()>>> m_prePassFunctions;
     } ;
 
     //----------------------------------------------------------------------

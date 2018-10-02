@@ -343,7 +343,7 @@ namespace Graphics { namespace Vulkan {
         if (not m_prePassFunctions.empty())
         {
             for (auto& func : m_prePassFunctions)
-                func();
+                func.second();
             m_prePassFunctions.clear();
         }
     }
@@ -484,7 +484,7 @@ namespace Graphics { namespace Vulkan {
     }
 
     //----------------------------------------------------------------------
-    void Context::DrawIndexed (U32 indexCount, U32 instanceCount, U32 firstVertex, U32 vertexOffset, U32 firstInstance )
+    void Context::DrawIndexed( U32 indexCount, U32 instanceCount, U32 firstVertex, U32 vertexOffset, U32 firstInstance )
     {
         vezCmdDrawIndexed( indexCount, instanceCount, firstVertex, vertexOffset, firstInstance );
     }
@@ -525,8 +525,12 @@ namespace Graphics { namespace Vulkan {
     void Context::GenerateMips( VkImage img, U32 width, U32 height, U32 mipLevels, U32 layers, VkFilter filter )
     {
         ASSERT( img != VK_NULL_HANDLE );
+        for (auto& prePassFnc : m_prePassFunctions)
+            if (prePassFnc.first == img) // Already generating mips this frame
+                return;
+
         std::unique_lock<std::mutex> lock( m_prePassFunctionLock );
-        m_prePassFunctions.push_back([img, width, height, mipLevels, layers, filter] {
+        m_prePassFunctions.emplace_back( img, [img, width, height, mipLevels, layers, filter] {
             for (U32 layer = 0; layer < layers; ++layer)
             {
                 for (U32 mip = 0; mip < (mipLevels - 1); ++mip)
