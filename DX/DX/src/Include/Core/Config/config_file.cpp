@@ -28,7 +28,7 @@ namespace Core { namespace Config {
     {
         try
         {
-            m_configFile = new OS::TextFile( vpath, OS::EFileMode::READ_WRITE );
+            m_configFile = new OS::BinaryFile( vpath, OS::EFileMode::READ_WRITE );
             _Read();
         }
         catch (const std::runtime_error&)

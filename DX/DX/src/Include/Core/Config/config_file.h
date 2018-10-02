@@ -24,7 +24,7 @@
 
 #include "Common/variant_type.h"
 
-namespace OS { class TextFile; }
+namespace OS { class BinaryFile; }
 
 
 namespace Core { namespace Config {
@@ -70,7 +70,7 @@ namespace Core { namespace Config {
         void flush();
 
     private:
-        OS::TextFile*                   m_configFile = nullptr;
+        OS::BinaryFile*                 m_configFile = nullptr;
         HashMap<StringID, Category>     m_categories;
         bool                            m_flushOnDeconstruct = false;
 

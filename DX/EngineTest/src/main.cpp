@@ -41,8 +41,8 @@ public:
 
         createGameObject("Grid")->addComponent<GridGeneration>(20);
 
-        auto cube = Core::MeshGenerator::CreateCubeUV(1.0f);
-        auto mr = createGameObject("Cube")->addComponent<Components::MeshRenderer>(cube, ASSETS.getMaterial("/materials/texture.material"));
+        //auto cube = Core::MeshGenerator::CreateCubeUV(1.0f);
+        //auto mr = createGameObject("Cube")->addComponent<Components::MeshRenderer>(cube, ASSETS.getMaterial("/materials/texture.material"));
 
         // CHECK MIPMAPPING
         //auto cubemapHDR = ASSETS.getCubemap("/cubemaps/canyon.hdr", 2048, true);
