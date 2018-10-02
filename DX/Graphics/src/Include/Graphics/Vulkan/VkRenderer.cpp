@@ -309,8 +309,12 @@ namespace Graphics {
         g_vulkan.ctx.EndFrame();
 
         // Present rendered image to screen/hmd
-        if ( hasHMD() )
+        if (hasHMD())
+        {
+            if (m_vsync)
+                setVSync( false );
             m_hmd->distortAndPresent( m_frameCount );
+        }
 
         m_swapchain.present( g_vulkan.graphicsQueue, g_vulkan.ctx.curFrameData().semRenderingFinished );
 
