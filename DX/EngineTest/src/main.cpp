@@ -1,7 +1,5 @@
 #include "scenes.hpp"
 #include "thesis_scenes.hpp"
-#include "OS/FileSystem/file.h"
-#include "OS/FileSystem/file_system.h"
 #define DISPLAY_CONSOLE 1
 
 #ifdef _DEBUG
@@ -10,17 +8,9 @@
     const char* gameName = "[RELEASE] EngineTest";
 #endif
 
-#include "Time/clock.h"
-
-namespace Components
-{
-
-}
-
 //----------------------------------------------------------------------
-// SCENES
+// TEST SCENE
 //----------------------------------------------------------------------
-
 class TestScene : public IScene
 {
     Components::Camera* cam;
@@ -31,7 +21,7 @@ public:
 
     void init() override
     {
-        // Camera 1
+        // Camera
         go = createGameObject("Camera");
         cam = go->addComponent<Components::Camera>( 45.0f, 0.1f, 1000.0f, Graphics::MSAASamples::Four );
         cam->setClearColor(Color(175, 181, 191));
@@ -41,12 +31,14 @@ public:
 
         createGameObject("Grid")->addComponent<GridGeneration>(20);
 
-        //auto cube = Core::MeshGenerator::CreateCubeUV(1.0f);
-        //auto mr = createGameObject("Cube")->addComponent<Components::MeshRenderer>(cube, ASSETS.getMaterial("/materials/texture.material"));
+        auto cubeMesh = Core::MeshGenerator::CreateCubeUV(1.0f);
 
-        // CHECK MIPMAPPING
-        //auto cubemapHDR = ASSETS.getCubemap("/cubemaps/canyon.hdr", 2048, true);
-        //createGameObject("Skybox")->addComponent<Components::Skybox>(cubemapHDR);
+        // Causes infinite loop with vulkan right now
+        auto tex = ASSETS.getTexture2D("/textures/grass.png");
+
+        //auto mat = ASSETS.getMaterial("/materials/texture.material");
+        //auto cube = createGameObject("Cube");
+        //cube->addComponent<Components::MeshRenderer>(cubeMesh, mat);
     }
 
     void tick(Time::Seconds delta) override
