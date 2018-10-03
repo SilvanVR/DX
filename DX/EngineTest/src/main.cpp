@@ -53,7 +53,7 @@ public:
             ImGui::End();
         });
 
-        go->addComponent<Components::Skybox>(cubemapHDR);
+        //go->addComponent<Components::Skybox>(cubemapHDR);
     }
 
     void tick(Time::Seconds delta) override

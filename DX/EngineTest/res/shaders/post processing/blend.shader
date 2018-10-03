@@ -31,6 +31,8 @@ VertexOut main(uint vI : SV_VERTEXID)
 // ----------------------------------------------
 #shader fragment
 
+#include "/engine/shaders/includes/enginePS.hlsl"
+
 struct FragmentIn
 {
     float4 PosH : SV_POSITION;
