@@ -20,8 +20,8 @@ namespace Graphics { namespace Vulkan {
         ~Mesh() { _Clear(); }
 
     private:
-        HashMap<StringID, VertexBuffer>  m_vertexBuffers;
-        ArrayList<IndexBuffer>           m_indexBuffers;
+        HashMap<StringID, std::unique_ptr<RingBuffer>>  m_vertexBuffers;
+        ArrayList<std::unique_ptr<RingBuffer>>          m_indexBuffers;
 
         //----------------------------------------------------------------------
         // IMesh Interface

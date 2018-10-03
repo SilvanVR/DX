@@ -145,10 +145,10 @@ namespace Graphics { namespace Vulkan {
         Platform() = default;
         ~Platform() = default;
 
-        VkInstance      instance                    = VK_NULL_HANDLE;
-        VkDevice        device                      = VK_NULL_HANDLE;
+        VkInstance      instance        = VK_NULL_HANDLE;
+        VkDevice        device          = VK_NULL_HANDLE;
         GPU             gpu;
-        VkQueue         graphicsQueue               = VK_NULL_HANDLE;
+        VkQueue         graphicsQueue   = VK_NULL_HANDLE;
         Context         ctx;
 
     private:

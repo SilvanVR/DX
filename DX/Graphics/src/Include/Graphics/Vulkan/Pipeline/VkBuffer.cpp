@@ -13,7 +13,7 @@ namespace Graphics { namespace Vulkan {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    void Buffer::create( U32 sizeInBytes, BufferUsage updateFreq, VkBufferUsageFlags vkUsageFlags, const void* pInitialData )
+    Buffer::Buffer( U32 sizeInBytes, BufferUsage updateFreq, VkBufferUsageFlags vkUsageFlags )
     {
         ASSERT( buffer == VK_NULL_HANDLE && "Buffer was already created." );
 
@@ -37,9 +37,23 @@ namespace Graphics { namespace Vulkan {
         bufferCreateInfo.usage = vkUsageFlags;
         VALIDATE( vezCreateBuffer( g_vulkan.device, memType, &bufferCreateInfo, &buffer ) );
 
-        // Upload the data to gpu
-        if (pInitialData)
-            update( pInitialData, sizeInBytes );
+        if (usage == BufferUsage::Frequently)
+            VALIDATE( vezMapBuffer( g_vulkan.device, buffer, 0, VK_WHOLE_SIZE, &pData ) );
+    }
+
+    //----------------------------------------------------------------------
+    Buffer::~Buffer()
+    {
+        if (buffer)
+        {
+            vezDeviceWaitIdle( g_vulkan.device );
+            if (usage == BufferUsage::Frequently)
+                vezUnmapBuffer( g_vulkan.device, buffer );
+            vezDestroyBuffer( g_vulkan.device, buffer );
+            buffer = VK_NULL_HANDLE;
+            size = 0;
+            usage = BufferUsage::Unknown;
+        }
     }
 
     //----------------------------------------------------------------------
@@ -56,48 +70,38 @@ namespace Graphics { namespace Vulkan {
             break;
         case BufferUsage::Frequently:
         {
-            void* pData;
-            VALIDATE( vezMapBuffer( g_vulkan.device, buffer, 0, VK_WHOLE_SIZE, &pData ) );
             memcpy( pData, data, sizeInBytes );
-            vezUnmapBuffer( g_vulkan.device, buffer );
             break;
         } 
         }
     }
 
-    //----------------------------------------------------------------------
-    void Buffer::destroy()
-    {
-        if (buffer)
-        {
-            vezDeviceWaitIdle( g_vulkan.device );
-            vezDestroyBuffer( g_vulkan.device, buffer );
-            buffer = VK_NULL_HANDLE;
-            size = 0;
-            usage = BufferUsage::Unknown;
-        }
-    }
-
     //**********************************************************************
-    // VERTEXBUFFER
+    // CACHEDBUFFER
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    void VertexBuffer::create( U32 sizeInBytes, BufferUsage usage, const void* pInitialData )
+    RingBuffer::RingBuffer( U32 sizeInBytes, BufferUsage usage, VkBufferUsageFlags vkUsageFlags, U32 numBuffers )
     {
-        Buffer::create( sizeInBytes, usage, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, pInitialData );
+        if (usage == BufferUsage::Immutable)
+            numBuffers = 1;
+
+        m_buffers.resize( numBuffers );
+        for (U32 i = 0; i < numBuffers; i++)
+            m_buffers[i] = std::make_unique<Buffer>( sizeInBytes, usage, vkUsageFlags );
     }
 
     //----------------------------------------------------------------------
-    void IndexBuffer::create( U32 sizeInBytes, BufferUsage usage, const void* pInitialData )
+    void RingBuffer::update( const void* data, U32 sizeInBytes )
     {
-        Buffer::create( sizeInBytes, usage, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, pInitialData );
+        m_bufferIndex = (m_bufferIndex + 1) % m_buffers.size();
+        m_buffers[m_bufferIndex]->update( data, sizeInBytes );
     }
 
     //----------------------------------------------------------------------
-    void UniformBuffer::create( U32 sizeInBytes, BufferUsage usage, const void* pInitialData )
+    VkBuffer RingBuffer::getBuffer() const
     {
-        Buffer::create( sizeInBytes, usage, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, pInitialData );
+        return m_buffers[m_bufferIndex]->buffer;
     }
 
 } } // End namespaces

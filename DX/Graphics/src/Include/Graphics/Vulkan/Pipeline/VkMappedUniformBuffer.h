@@ -19,7 +19,7 @@ namespace Graphics { namespace Vulkan {
     {
     public:
         MappedUniformBuffer(const ShaderUniformBufferDeclaration& bufferInfo, BufferUsage usage);
-        ~MappedUniformBuffer() { _FreeBuffers(); }
+        ~MappedUniformBuffer() { _aligned_free(m_CPUBuffer); }
 
         //----------------------------------------------------------------------
         bool                                  gpuIsUpToDate() const { return m_gpuUpToDate; }
@@ -51,11 +51,8 @@ namespace Graphics { namespace Vulkan {
     private:
         ShaderUniformBufferDeclaration  m_bufferInfo;
         Byte*                           m_CPUBuffer     = nullptr;
-        UniformBuffer                   m_GPUBuffer;
+        std::unique_ptr<Buffer>         m_GPUBuffer;
         bool                            m_gpuUpToDate   = false;
-
-        //----------------------------------------------------------------------
-        void _FreeBuffers();
 
         NULL_COPY_AND_ASSIGN(MappedUniformBuffer)
     };

@@ -18,7 +18,7 @@ namespace Graphics { namespace Vulkan {
     {
         m_CPUBuffer = (Byte*)_aligned_malloc( m_bufferInfo.getSize(), 16 );
         memset( m_CPUBuffer, 0, m_bufferInfo.getSize() );
-        m_GPUBuffer.create( m_bufferInfo.getSize(), usage );
+        m_GPUBuffer = std::make_unique<Buffer>( m_bufferInfo.getSize(), usage, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT );
     }
 
     //**********************************************************************
@@ -43,7 +43,7 @@ namespace Graphics { namespace Vulkan {
     //----------------------------------------------------------------------
     void MappedUniformBuffer::update( const void* data, U32 sizeInBytes )
     {
-        m_GPUBuffer.update( data, sizeInBytes );
+        m_GPUBuffer->update( data, sizeInBytes );
         m_gpuUpToDate = true;
     }
 
@@ -52,7 +52,7 @@ namespace Graphics { namespace Vulkan {
     {
         if ( not m_gpuUpToDate )
         {
-            m_GPUBuffer.update( m_CPUBuffer, m_bufferInfo.getSize() );
+            m_GPUBuffer->update( m_CPUBuffer, m_bufferInfo.getSize() );
             m_gpuUpToDate = true;
         }
     }
@@ -61,14 +61,7 @@ namespace Graphics { namespace Vulkan {
     void MappedUniformBuffer::bind()
     {
         flush();
-        g_vulkan.ctx.SetBuffer( m_GPUBuffer.buffer, m_bufferInfo.getBindingSet(), m_bufferInfo.getBindingSlot() );
-    }
-
-    //----------------------------------------------------------------------
-    void MappedUniformBuffer::_FreeBuffers()
-    {
-        m_GPUBuffer.destroy();
-        _aligned_free( m_CPUBuffer );
+        g_vulkan.ctx.SetBuffer( m_GPUBuffer->buffer, m_bufferInfo.getBindingSet(), m_bufferInfo.getBindingSlot() );
     }
 
     //**********************************************************************
