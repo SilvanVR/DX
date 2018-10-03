@@ -20,14 +20,16 @@ namespace Events {
         static const ListenerID NULL_ID = 0;
     public:
         EventListener() = default;
-        ~EventListener();
+        ~EventListener() { _RemoveListenerFromEvent(); }
 
-        EventListener(EventListener&& other) { id = other.id; evt = other.evt; other.id = NULL_ID; other.evt = nullptr; }
-        EventListener& operator = (EventListener&& other) { id = other.id; evt = other.evt; other.id = NULL_ID; other.evt = nullptr; return *this; }
+        EventListener(EventListener&& other) { _RemoveListenerFromEvent(); id = other.id; evt = other.evt; other.id = NULL_ID; other.evt = nullptr; }
+        EventListener& operator = (EventListener&& other) { _RemoveListenerFromEvent(); id = other.id; evt = other.evt; other.id = NULL_ID; other.evt = nullptr; return *this; }
 
     private:
         friend class Event;
         EventListener(ListenerID id, Event* evt) : id(id), evt(evt) {}
+
+        void _RemoveListenerFromEvent();
 
         ListenerID  id = NULL_ID;
         Event*      evt = nullptr;

@@ -13,7 +13,7 @@ namespace Events {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    EventListener::~EventListener()
+    void EventListener::_RemoveListenerFromEvent()
     {
         if (evt)
             evt->removeListener( *this );

@@ -316,6 +316,8 @@ public:
     PostProcess(const ShaderPtr& shader, bool hdr = false) : m_material(RESOURCES.createMaterial(shader)), m_hdr(hdr) {}
     ~PostProcess() { _RemoveCommandBuffer(); }
 
+    const MaterialPtr& getMaterial() const { return m_material; }
+
     void addedToGameObject(GameObject* go)
     {
         auto cam = go->getComponent<Components::Camera>();
@@ -389,6 +391,33 @@ class Tonemap : public PostProcess<>
 {
 public:
     Tonemap() : PostProcess(ASSETS.getMaterial("/materials/post processing/tonemap.material")) {}
+};
+
+//**********************************************************************
+// Fades scene from complete black in "duration" time in
+//**********************************************************************
+class FadeIn : public PostProcess<>
+{
+public:
+    FadeIn(Time::Milliseconds duration)
+        : PostProcess(ASSETS.getMaterial("/materials/post processing/blend.material")), m_duration(duration) {}
+
+    void tick(Time::Seconds delta) override
+    {
+        m_time += static_cast<Time::Milliseconds>(delta);
+        F64 blend = Math::Clamp( m_time.value / m_duration.value, 0.0, 1.0);
+        blend = Math::Lerp(blend, 1.0, 0.05);
+
+        auto& mat = getMaterial();
+        mat->setFloat("blend", (F32)blend);
+
+        if (blend == 1.0)
+            this->setActive(false);
+    }
+
+private:
+    Time::Milliseconds m_duration;
+    Time::Milliseconds m_time = 0_ms;
 };
 
 

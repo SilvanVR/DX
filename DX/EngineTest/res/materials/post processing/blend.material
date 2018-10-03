@@ -1,0 +1,7 @@
+{
+
+"shader" : "/shaders/post processing/blend.shader",
+"blendColor" : "#000000",
+"blend" : 0.1
+
+}

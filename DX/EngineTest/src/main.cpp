@@ -28,6 +28,7 @@ public:
         go->getComponent<Components::Transform>()->position = Math::Vec3(0, 1, -5);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 0.1f);
         go->addComponent<Components::AudioListener>();
+        go->addComponent<FadeIn>(1000_ms);
 
         createGameObject("Grid")->addComponent<GridGeneration>(20);
 
@@ -261,7 +262,7 @@ private:
     int main()
     {
         Game game;
-        game.start( gameName, 800, 600, Graphics::API::Vulkan );
+        game.start( gameName, 800, 600, Graphics::API::D3D11 );
 
         system("pause");
         return 0;
