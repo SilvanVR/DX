@@ -50,6 +50,10 @@ namespace Graphics { namespace Vulkan {
     //----------------------------------------------------------------------
     void Mesh::_Clear()
     {
+        for (auto& vertexBuffer : m_vertexBuffers)
+            SAFE_DELETE( vertexBuffer.second );
+        for (auto& indexBuffer : m_indexBuffers)
+            SAFE_DELETE( indexBuffer );
         m_indexBuffers.clear();
         m_vertexBuffers.clear();
     }
@@ -57,15 +61,15 @@ namespace Graphics { namespace Vulkan {
     //----------------------------------------------------------------------
     void Mesh::_CreateBuffer( StringID name, const VertexStreamBase& vs )
     {
-        ASSERT( (m_vertexBuffers.find( name ) == m_vertexBuffers.end()) && "Buffer already exists!" );
-        m_vertexBuffers[name] = std::make_unique<RingBuffer>( vs.bufferSize(), m_bufferUsage, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT );
+        ASSERT( m_vertexBuffers[name] == nullptr && "Buffer already exists!" );
+        m_vertexBuffers[name] = new RingBuffer( vs.bufferSize(), m_bufferUsage, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT );
         m_vertexBuffers[name]->update( vs.data(), vs.bufferSize() );
     }
 
     //----------------------------------------------------------------------
     void Mesh::_DestroyBuffer( StringID name )
     {
-        m_vertexBuffers.erase( name );
+        SAFE_DELETE( m_vertexBuffers[name] );
     }
 
     //----------------------------------------------------------------------
@@ -73,6 +77,7 @@ namespace Graphics { namespace Vulkan {
     {
         if (m_indexBuffers.size() <= index)
             m_indexBuffers.resize( index + 1 );
+        ASSERT( m_indexBuffers[index] == nullptr && "Index buffer was not null!" );
 
         switch (subMesh.indexFormat )
         {
@@ -82,14 +87,14 @@ namespace Graphics { namespace Vulkan {
                 for (U32 i = 0; i < indicesU16.size(); i++)
                     indicesU16[i] = subMesh.indices[i];
                 U32 sizeInBytes = U32( indicesU16.size() * sizeof(U16) );
-                m_indexBuffers[index] = std::make_unique<RingBuffer>( sizeInBytes, m_bufferUsage, VK_BUFFER_USAGE_INDEX_BUFFER_BIT );
+                m_indexBuffers[index] = new RingBuffer( sizeInBytes, m_bufferUsage, VK_BUFFER_USAGE_INDEX_BUFFER_BIT );
                 m_indexBuffers[index]->update( indicesU16.data(), sizeInBytes );
                 break;
             }
             case IndexFormat::U32:
             {
                 U32 sizeInBytes = U32( subMesh.indices.size() * sizeof(U32) );
-                m_indexBuffers[index] = std::make_unique<RingBuffer>( sizeInBytes, m_bufferUsage, VK_BUFFER_USAGE_INDEX_BUFFER_BIT );
+                m_indexBuffers[index] = new RingBuffer( sizeInBytes, m_bufferUsage, VK_BUFFER_USAGE_INDEX_BUFFER_BIT );
                 m_indexBuffers[index]->update( subMesh.indices.data(), sizeInBytes );
                 break;
             }
@@ -99,7 +104,7 @@ namespace Graphics { namespace Vulkan {
     //----------------------------------------------------------------------
     void Mesh::_DestroyIndexBuffer( I32 index ) 
     { 
-        m_indexBuffers.erase( m_indexBuffers.begin() + index );
+        SAFE_DELETE( m_indexBuffers[index] );
     }
 
     //----------------------------------------------------------------------
@@ -133,6 +138,8 @@ namespace Graphics { namespace Vulkan {
         }
 
         // Recreate index buffers
+        for (auto& indexBuffer : m_indexBuffers)
+            SAFE_DELETE( indexBuffer );
         m_indexBuffers.clear();
         for (U32 i = 0; i < m_subMeshes.size(); i++)
             _CreateIndexBuffer( m_subMeshes[i], i );

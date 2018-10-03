@@ -23,7 +23,7 @@ public:
     {
         // Camera
         go = createGameObject("Camera");
-        cam = go->addComponent<Components::Camera>( 45.0f, 0.1f, 1000.0f, Graphics::MSAASamples::Four, true );
+        cam = go->addComponent<Components::Camera>( 45.0f, 0.1f, 1000.0f, Graphics::MSAASamples::Four );
         cam->setClearColor(Color(175, 181, 191));
         go->getComponent<Components::Transform>()->position = Math::Vec3(0, 1, -5);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 0.1f);
@@ -153,7 +153,7 @@ public:
         // On scene switch the GO gets deleted automatically, so we just make sure its null
         m_sceneSwitchListener = Events::EventDispatcher::GetEvent(EVENT_SCENE_CHANGED).addListener([this] {
             vrCamGO = nullptr;
-            //SCENE.getMainCamera()->getGameObject()->addComponent<FadeIn>(1000_ms);
+            SCENE.getMainCamera()->getGameObject()->addComponent<FadeIn>(1000_ms);
         });
 
         IGC_REGISTER_COMMAND_WITH_NAME( "menu", BIND_THIS_FUNC_0_ARGS(&Game::_OpenMenu) );
@@ -176,9 +176,6 @@ public:
 
         if (KEYBOARD.wasKeyPressed(Key::P))
             Locator::getProfiler().logGPU();
-
-        if (KEYBOARD.wasKeyPressed(Key::F))
-            LOG( SCENE.getMainCamera()->getGameObject()->getTransform()->position.toString() );
 
         // VR
         {
