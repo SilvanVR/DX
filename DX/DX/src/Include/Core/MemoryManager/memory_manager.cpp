@@ -85,9 +85,9 @@ namespace Core { namespace MemoryManagement {
         // Problem: STL stuff allocates dynamically. Mainly string stuff e.g. std::to_string() when logging.
         if ((lastAllocInfo.totalBytesAllocated != 0) && (lastAllocInfo.totalBytesAllocated != allocInfo.totalBytesAllocated))
         {
-            WARN_MEMORY( "Continous dynamic memory allocations in game-loop!" );
-            WARN_MEMORY( "Total Bytes Allocated Last Time: " + TS( lastAllocInfo.totalBytesAllocated ) );
-            WARN_MEMORY( "Total Bytes Allocated Now: " + TS( allocInfo.totalBytesAllocated ) );
+            LOG_WARN_MEMORY( "Continous dynamic memory allocations in game-loop!" );
+            LOG_WARN_MEMORY( "Total Bytes Allocated Last Time: " + TS( lastAllocInfo.totalBytesAllocated ) );
+            LOG_WARN_MEMORY( "Total Bytes Allocated Now: " + TS( allocInfo.totalBytesAllocated ) );
         }
 #endif
 

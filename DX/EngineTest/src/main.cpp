@@ -153,7 +153,7 @@ public:
         // On scene switch the GO gets deleted automatically, so we just make sure its null
         m_sceneSwitchListener = Events::EventDispatcher::GetEvent(EVENT_SCENE_CHANGED).addListener([this] {
             vrCamGO = nullptr;
-            SCENE.getMainCamera()->getGameObject()->addComponent<FadeIn>(1000_ms);
+            //SCENE.getMainCamera()->getGameObject()->addComponent<FadeIn>(1000_ms);
         });
 
         IGC_REGISTER_COMMAND_WITH_NAME( "menu", BIND_THIS_FUNC_0_ARGS(&Game::_OpenMenu) );
