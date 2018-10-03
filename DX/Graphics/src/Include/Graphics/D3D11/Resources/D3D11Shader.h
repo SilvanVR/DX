@@ -74,9 +74,6 @@ namespace Graphics { namespace D3D11 {
         //----------------------------------------------------------------------
         void _CreateConstantBuffers();
         void _UpdateConstantBuffer(StringID name, const void* pData);
-        void _CreateVSConstantBuffer();
-        void _CreatePSConstantBuffer();
-        void _CreateGSConstantBuffer();
 
         NULL_COPY_AND_ASSIGN(Shader)
     };

@@ -458,6 +458,11 @@ namespace Graphics {
             g_pImmediateContext->RSSetViewports( 1, &vp );
         }
 
+        // Bind camera buffer
+        m_cameraBuffer->bind( ShaderType::Vertex );
+        m_cameraBuffer->bind( ShaderType::Fragment );
+        m_cameraBuffer->bind( ShaderType::Geometry );
+
         // Update camera buffer
         if ( not m_cameraBuffer->update( CAM_VIEW_PROJ_NAME, &camera->getViewProjectionMatrix() ) )
             LOG_ERROR_RENDERING( "D3D11: Could not update the view-projection matrix in the camera buffer!" );
@@ -700,6 +705,9 @@ namespace Graphics {
             }
         }
 
+        // Bind light buffer
+        m_lightBuffer->bind( ShaderType::Fragment );
+
         if ( not m_lightBuffer->update( LIGHT_BUFFER_NAME, &lights ) )
             LOG_ERROR_RENDERING( "Failed to update light-buffer. Something is horribly broken! Fix this!" );
 
@@ -750,9 +758,6 @@ namespace Graphics {
                         if (not m_cameraBuffer)
                         {
                             m_cameraBuffer = new D3D11::MappedConstantBuffer( ubo, BufferUsage::Frequently );
-                            m_cameraBuffer->bind( ShaderType::Vertex );
-                            m_cameraBuffer->bind( ShaderType::Fragment );
-                            m_cameraBuffer->bind( ShaderType::Geometry );
                         }
                         else LOG_WARN_RENDERING( "D3D11Renderer::_CreateGlobalBuffersFromFile(): Found another camera ubo." );
                     else if(lower.find( GLOBAL_BUFFER_KEYWORD ) != String::npos)
@@ -768,7 +773,6 @@ namespace Graphics {
                         if (not m_lightBuffer)
                         {
                             m_lightBuffer = new D3D11::MappedConstantBuffer( ubo, BufferUsage::Frequently );
-                            m_lightBuffer->bind( ShaderType::Fragment );
                         }
                         else LOG_WARN_RENDERING( "D3D11Renderer::_CreateGlobalBuffersFromFile(): Found another light ubo." );
                 }

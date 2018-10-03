@@ -160,6 +160,7 @@ namespace Core {
 
         auto mesh = RESOURCES.createMesh( vertices, indices, uvs );
         mesh->recalculateNormals();
+        mesh->recalculateTangents();
         return mesh;
     }
 

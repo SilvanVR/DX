@@ -73,8 +73,6 @@ namespace Graphics { namespace D3D11 {
 
         m_pVertexShader->compileFromFile( vertPath, entryPoint );
         m_pPixelShader->compileFromFile( fragPath, entryPoint );
-
-        _CreateConstantBuffers();
     }
 
     //----------------------------------------------------------------------
@@ -82,7 +80,6 @@ namespace Graphics { namespace D3D11 {
     {
         compileVertexShaderFromSource( vertSrc, entryPoint );
         compileFragmentShaderFromSource( fragSrc, entryPoint );
-        _CreateConstantBuffers();
     }
 
     //----------------------------------------------------------------------
@@ -93,7 +90,6 @@ namespace Graphics { namespace D3D11 {
         vertShader->compileFromSource( src, entryPoint );
 
         m_pVertexShader.swap( vertShader );
-        _CreateVSConstantBuffer();
     }
 
     //----------------------------------------------------------------------
@@ -103,7 +99,6 @@ namespace Graphics { namespace D3D11 {
         pixelShader->compileFromSource( src, entryPoint );
 
         m_pPixelShader.swap( pixelShader );
-        _CreatePSConstantBuffer();
     }
 
     //----------------------------------------------------------------------
@@ -113,7 +108,6 @@ namespace Graphics { namespace D3D11 {
         geometryShader->compileFromSource( src, entryPoint );
 
         m_pGeometryShader.swap( geometryShader );
-        _CreateGSConstantBuffer();
     }
 
     //----------------------------------------------------------------------
@@ -242,6 +236,8 @@ namespace Graphics { namespace D3D11 {
             auto resources = m_pGeometryShader->getResourceDeclarations();
             _AddShaderResource( m_shaderResources, resources );
         }
+
+        _CreateConstantBuffers();
     }
 
     //**********************************************************************
@@ -249,37 +245,15 @@ namespace Graphics { namespace D3D11 {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    void Shader::_CreateVSConstantBuffer()
-    {
-        _ClearAllMaps();
-        if ( auto cb = getVSUniformShaderBuffer() )
-            m_shaderDataVS.reset( new MappedConstantBuffer( *cb, BufferUsage::LongLived ) );
-    }
-
-    //----------------------------------------------------------------------
-    void Shader::_CreatePSConstantBuffer()
-    {
-        _ClearAllMaps();
-        if ( auto cb = getFSUniformShaderBuffer() )
-            m_shaderDataPS.reset( new MappedConstantBuffer( *cb, BufferUsage::LongLived ) );
-    }
-
-    //----------------------------------------------------------------------
-    void Shader::_CreateGSConstantBuffer()
-    {
-        _ClearAllMaps();
-        if ( auto cb = getGSUniformShaderBuffer() )
-            m_shaderDataGS.reset( new MappedConstantBuffer( *cb, BufferUsage::LongLived ) );
-    }
-
-    //----------------------------------------------------------------------
     void Shader::_CreateConstantBuffers()
     {
-        _CreateVSConstantBuffer();
-        if (m_pPixelShader)
-            _CreatePSConstantBuffer();
-        if (m_pGeometryShader)
-            _CreateGSConstantBuffer();
+        _ClearAllMaps();
+        if (auto cb = getVSUniformShaderBuffer())
+            m_shaderDataVS.reset( new MappedConstantBuffer( *cb, BufferUsage::LongLived ) );
+        if (auto cb = getFSUniformShaderBuffer())
+            m_shaderDataPS.reset( new MappedConstantBuffer( *cb, BufferUsage::LongLived ) );
+        if (auto cb = getGSUniformShaderBuffer())
+            m_shaderDataGS.reset( new MappedConstantBuffer( *cb, BufferUsage::LongLived ) );
     }
 
     //----------------------------------------------------------------------

@@ -311,7 +311,7 @@ namespace Graphics {
         // Present rendered image to screen/hmd
         if (hasHMD())
         {
-            if (m_vsync)
+            if (m_vsync && m_hmd->isMounted())
                 setVSync( false );
             m_hmd->distortAndPresent( m_frameCount );
         }
