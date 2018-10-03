@@ -213,7 +213,7 @@ float3 getIBL( float3 albedo, float3 V, float3 P, float3 N, float roughness, flo
     float2 brdf = brdfLUT.Sample( samplerbrdfLUT, float2( max( dot( N, V ), 0.0 ), roughness ) ).rg;
     float3 specular = prefilteredColor * (F * brdf.x + brdf.y);
 	
-	float3 ibl = (kD * diffuse) + specular * 0.5; 
+	float3 ibl = (kD * diffuse) + specular; 
 	
 	return ibl;
 }
