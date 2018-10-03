@@ -32,28 +32,28 @@ public:
         createGameObject("Grid")->addComponent<GridGeneration>(20);
 
         auto cubeMesh = Core::MeshGenerator::CreateCubeUV(1.0f);
-        createGameObject("Cube")->addComponent<Components::MeshRenderer>(cubeMesh, ASSETS.getMaterial("/materials/texture.material"));
+        //createGameObject("Cube")->addComponent<Components::MeshRenderer>(cubeMesh, ASSETS.getMaterial("/materials/texture.material"));
 
-        //go->addComponent<Tonemap>();
-        //auto cubemapHDR = ASSETS.getCubemap("/cubemaps/pine.hdr", 2048, true);
+        go->addComponent<Tonemap>();
+        auto cubemapHDR = ASSETS.getCubemap("/cubemaps/pine.hdr", 2048, true);
 
-        //auto mat = ASSETS.getMaterial("/materials/skyboxLod.material");
-        //mat->setTexture("Cubemap", cubemapHDR);
+        auto mat = ASSETS.getMaterial("/materials/skyboxLod.material");
+        mat->setTexture("Cubemap", cubemapHDR);
 
-        //auto sky = createGameObject("Cube");
-        //sky->addComponent<Components::MeshRenderer>(cubeMesh, mat);
-        //sky->getTransform()->scale = { 10000.0f };
+        auto sky = createGameObject("Cube");
+        sky->addComponent<Components::MeshRenderer>(cubeMesh, mat);
+        sky->getTransform()->scale = { 10000.0f };
 
-        //go->addComponent<Components::GUI>();
-        //go->addComponent<Components::GUICustom>([=] {
-        //    ImGui::Begin("LOD change");
-        //    static F32 lod = 0.0f;
-        //    if (ImGui::SliderFloat("Cubemap LOD", &lod, 0.0f, cubemapHDR->getMipCount()))
-        //        mat->setFloat("lod", lod);
-        //    ImGui::End();
-        //});
+        go->addComponent<Components::GUI>();
+        go->addComponent<Components::GUICustom>([=] {
+            ImGui::Begin("LOD change");
+            static F32 lod = 0.0f;
+            if (ImGui::SliderFloat("Cubemap LOD", &lod, 0.0f, cubemapHDR->getMipCount()))
+                mat->setFloat("lod", lod);
+            ImGui::End();
+        });
 
-        //go->addComponent<Components::Skybox>(cubemapHDR);
+        go->addComponent<Components::Skybox>(cubemapHDR);
     }
 
     void tick(Time::Seconds delta) override

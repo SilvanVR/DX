@@ -68,7 +68,7 @@ vec4 DoPointLight( Light light, vec3 V, vec3 P, vec3 N )
 	if (light.shadowType == SHADOW_TYPE_HARD)
 		shadow = CALCULATE_SHADOW_3D( P, light.position, light.range, light.shadowMapIndex );
 	else if (light.shadowType == SHADOW_TYPE_SOFT)
-		shadow = CALCULATE_SHADOW_3D( P, light.position, light.range, light.shadowMapIndex );
+		shadow = CALCULATE_SHADOW_3D_SOFT( P, light.position, light.range, light.shadowMapIndex );
 		
 	shadow *= attenuation;
 		
