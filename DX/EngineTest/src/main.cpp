@@ -34,6 +34,11 @@ public:
         auto cubeMesh = Core::MeshGenerator::CreateCubeUV(1.0f);
         //createGameObject("Cube")->addComponent<Components::MeshRenderer>(cubeMesh, ASSETS.getMaterial("/materials/texture.material"));
 
+        //auto cubemap = ASSETS.getCubemap("/cubemaps/tropical_sunny_day/Left.png", "/cubemaps/tropical_sunny_day/Right.png",
+        //    "/cubemaps/tropical_sunny_day/Up.png", "/cubemaps/tropical_sunny_day/Down.png",
+        //    "/cubemaps/tropical_sunny_day/Front.png", "/cubemaps/tropical_sunny_day/Back.png", true);
+        //go->addComponent<Components::Skybox>(cubemap);
+
         go->addComponent<Tonemap>();
         auto cubemapHDR = ASSETS.getCubemap("/cubemaps/pine.hdr", 2048, true);
 

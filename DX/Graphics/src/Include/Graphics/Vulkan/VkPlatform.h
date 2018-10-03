@@ -124,8 +124,8 @@ namespace Graphics { namespace Vulkan {
         const Framebuffer* m_curFramebuffer = nullptr;
 
         // Stores functions for commands which must be executed outside of an render-pass and be thread-safe
-        std::mutex m_prePassFunctionLock;
-        ArrayList<std::pair<VkImage, std::function<void()>>> m_prePassFunctions;
+        std::mutex m_postPassFunctionLock;
+        ArrayList<std::pair<VkImage, std::function<void()>>> m_postPassFunctions;
     } ;
 
     //----------------------------------------------------------------------

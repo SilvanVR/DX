@@ -337,15 +337,6 @@ namespace Graphics { namespace Vulkan {
 
         // Begin recording
         VALIDATE( vezBeginCommandBuffer( curFrameData().cmd, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT ) );
-
-        // Execute pre-pass functions
-        std::unique_lock<std::mutex> lock( m_prePassFunctionLock );
-        if (not m_prePassFunctions.empty())
-        {
-            for (auto& func : m_prePassFunctions)
-                func.second();
-            m_prePassFunctions.clear();
-        }
     }
 
     //----------------------------------------------------------------------
@@ -353,7 +344,16 @@ namespace Graphics { namespace Vulkan {
     {
         if (m_curFramebuffer)
             EndRenderPass();
-
+        {
+            // Execute post-pass functions
+            std::unique_lock<std::mutex> lock(m_postPassFunctionLock);
+            if (not m_postPassFunctions.empty())
+            {
+                for (auto& func : m_postPassFunctions)
+                    func.second();
+                m_postPassFunctions.clear();
+            }
+        }
         VALIDATE( vezEndCommandBuffer() );
 
         VezSubmitInfo submitInfo = {};
@@ -525,12 +525,12 @@ namespace Graphics { namespace Vulkan {
     void Context::GenerateMips( VkImage img, U32 width, U32 height, U32 mipLevels, U32 layers, VkFilter filter )
     {
         ASSERT( img != VK_NULL_HANDLE );
-        for (auto& prePassFnc : m_prePassFunctions)
+        for (auto& prePassFnc : m_postPassFunctions)
             if (prePassFnc.first == img) // Already generating mips this frame
                 return;
 
-        std::unique_lock<std::mutex> lock( m_prePassFunctionLock );
-        m_prePassFunctions.emplace_back( img, [img, width, height, mipLevels, layers, filter] {
+        std::unique_lock<std::mutex> lock( m_postPassFunctionLock );
+        m_postPassFunctions.emplace_back( img, [img, width, height, mipLevels, layers, filter] {
             for (U32 layer = 0; layer < layers; ++layer)
             {
                 for (U32 mip = 0; mip < (mipLevels - 1); ++mip)
