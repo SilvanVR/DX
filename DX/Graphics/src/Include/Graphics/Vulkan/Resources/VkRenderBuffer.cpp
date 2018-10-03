@@ -19,9 +19,6 @@ namespace Graphics { namespace Vulkan {
     {
         ITexture::_Init( TextureDimension::Tex2D, width, height, format );
 
-        if (m_mipCount > 1)
-            m_hasMips = true;
-
         m_sampleCount = samples;
 
         _CreateFramebuffer( isDepthBuffer() );

@@ -18,15 +18,12 @@ namespace Graphics { namespace Vulkan {
         ITexture::_Init( TextureDimension::Tex2D, width, height, format );
 
         m_isImmutable = false;
-        m_hasMips = generateMips;
-        if (m_hasMips)
+        _SetGenerateMips( generateMips );
+        if (generateMips)
             _UpdateMipCount();
 
         _CreateTexture();
         _CreateSampler( m_anisoLevel, m_filter, m_clampMode );
-
-        if (generateMips)
-            _GenerateMips();
     }
 
     //----------------------------------------------------------------------

@@ -19,9 +19,9 @@ namespace Graphics {
     //----------------------------------------------------------------------
     enum class CameraClearMode
     {
-        None,
-        Color,
-        Depth
+        None,  // Clear nothing (load prev contents)
+        Color, // Clear color + depth
+        Depth  // Clear only color
     };
 
     //----------------------------------------------------------------------

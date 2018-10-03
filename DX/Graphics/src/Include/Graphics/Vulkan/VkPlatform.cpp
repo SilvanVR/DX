@@ -525,8 +525,8 @@ namespace Graphics { namespace Vulkan {
     void Context::GenerateMips( VkImage img, U32 width, U32 height, U32 mipLevels, U32 layers, VkFilter filter )
     {
         ASSERT( img != VK_NULL_HANDLE );
-        for (auto& prePassFnc : m_postPassFunctions)
-            if (prePassFnc.first == img) // Already generating mips this frame
+        for (auto& fnc : m_postPassFunctions)
+            if (fnc.first == img) // Already generating mips this frame
                 return;
 
         std::unique_lock<std::mutex> lock( m_postPassFunctionLock );

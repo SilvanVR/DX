@@ -17,16 +17,13 @@ namespace Graphics { namespace Vulkan {
         ASSERT( width > 0 && height > 0 && m_width == 0 && "Invalid params or texture were already created" );
         ITexture::_Init( TextureDimension::Tex2DArray, width, height, format );
 
-        m_hasMips = generateMips;
-        if (m_hasMips)
+        _SetGenerateMips( generateMips );
+        if (generateMips)
             _UpdateMipCount();
 
         m_depth = depth;
         _CreateTextureArray( IsDepthFormat( m_format ) );
         _CreateSampler( m_anisoLevel, m_filter, m_clampMode );
-
-        if (generateMips)
-            _GenerateMips();
     }
 
     //**********************************************************************
