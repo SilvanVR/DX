@@ -66,34 +66,11 @@ namespace Core { namespace Input {
     }
 
     //----------------------------------------------------------------------
-    void InputManager::setConsoleIsOpen( bool openConsole )
-    { 
-        static EInputChannels lastChannelMaskMouse       = EInputChannels::All;
-        static EInputChannels lastChannelMaskKeyboard    = EInputChannels::All;
-        static bool lastMouseFPSMode = false;
-        static bool isOpen = false;
-
-        if (isOpen == openConsole)
-            return;
-
-        isOpen = openConsole;
-        if ( openConsole )
-        {
-            lastChannelMaskKeyboard = m_keyboard->getChannelMask();
-            lastChannelMaskMouse    = m_mouse->getChannelMask();
-            lastMouseFPSMode        = m_mouse->isInFirstPersonMode();
-
-            m_keyboard->setChannels( EInputChannels::Console );
-            m_mouse->setChannels( EInputChannels::Console );
-            m_mouse->setFirstPersonMode( false );
-        }
-        else
-        {
-            m_keyboard->setChannels( lastChannelMaskKeyboard );
-            m_mouse->setChannels( lastChannelMaskMouse );
-            m_mouse->setFirstPersonMode( lastMouseFPSMode );
-        }
+    void InputManager::restoreLastChannelMask()
+    {
+        m_keyboard->restoreLastChannelMask();
+        m_mouse->restoreLastChannelMask();
+        m_controller->restoreLastChannelMask();
     }
-
 
 } }

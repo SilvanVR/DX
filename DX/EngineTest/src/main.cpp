@@ -169,7 +169,7 @@ public:
         Locator::getRenderer().setGlobalFloat(SID("_Ambient"), 0.5f);
 
         //Locator::getSceneManager().LoadSceneAsync(new SceneGUISelectSceneMenu());
-        Locator::getSceneManager().LoadScene(new ScenePBRSpheres());
+        Locator::getSceneManager().LoadScene(new TestScene());
     }
 
     //----------------------------------------------------------------------

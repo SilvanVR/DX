@@ -53,16 +53,15 @@ namespace Core { namespace Input {
         Controller&     getController()     { return *m_controller; }
 
         //----------------------------------------------------------------------
-        // Basically sets the channels mask for all devices to CONSOLE, so only
-        // the console is able to retrieve input. If the param is false it resets
-        // back to the last state since this function was called.
-        //----------------------------------------------------------------------
-        void            setConsoleIsOpen(bool consoleOpened);
-
-        //----------------------------------------------------------------------
         // Set the channel for all devices.
         //----------------------------------------------------------------------
         void            setChannels(EInputChannels channels);
+
+        //----------------------------------------------------------------------
+        // Restores the last channel mask for all input devices.
+        // This is primarily used by the console to restore the last state.
+        //----------------------------------------------------------------------
+        void            restoreLastChannelMask();
 
     private:
         // <---------- DEVICES ----------->

@@ -18,6 +18,9 @@
 namespace Core { 
 
     //----------------------------------------------------------------------
+    static bool mouseFPSMode;
+
+    //----------------------------------------------------------------------
     #define CONSOLE_INFO_COLOR  Color::GREEN
     #define CONSOLE_COLOR       Color::VIOLET
 
@@ -52,6 +55,7 @@ namespace Core {
     {
         static bool b = false;
         MOUSE.setFirstPersonMode( (b = not b) );
+        mouseFPSMode = MOUSE.isInFirstPersonMode();
     }
 
     //----------------------------------------------------------------------
@@ -217,14 +221,18 @@ namespace Core {
     void InGameConsole::_OpenConsole()
     {
         LOG( " >>> Opening Console...", CONSOLE_INFO_COLOR );
-        Locator::getInputManager().setConsoleIsOpen( true );
+        Locator::getInputManager().setChannels( Input::EInputChannels::Console );
+
+        mouseFPSMode = MOUSE.isInFirstPersonMode();
+        MOUSE.setFirstPersonMode( false );
     }
 
     //----------------------------------------------------------------------
     void InGameConsole::_CloseConsole()
     {
         LOG( " >>> Closing Console...", CONSOLE_INFO_COLOR );
-        Locator::getInputManager().setConsoleIsOpen( false );
+        Locator::getInputManager().restoreLastChannelMask();
+        MOUSE.setFirstPersonMode( mouseFPSMode );
     }
 
     // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
