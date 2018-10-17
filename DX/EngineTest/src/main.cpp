@@ -23,7 +23,7 @@ public:
     {
         // Camera
         go = createGameObject("Camera");
-        cam = go->addComponent<Components::Camera>( 45.0f, 0.1f, 1000.0f, Graphics::MSAASamples::Four );
+        cam = go->addComponent<Components::Camera>( 45.0f, 0.1f, 1000.0f, Graphics::MSAASamples::One );
         cam->setClearColor(Color(175, 181, 191));
         go->getComponent<Components::Transform>()->position = Math::Vec3(0, 1, -5);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 0.1f);

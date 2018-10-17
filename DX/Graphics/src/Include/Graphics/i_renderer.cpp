@@ -35,8 +35,8 @@ namespace Graphics {
         _LockQueue();
         switch (dispatchMode)
         {
-        case CmdDispatchMode::Immediate: m_immediatePendingCmdQueue.emplace_back( cmd ); break;
-        case CmdDispatchMode::Deferred:  m_deferredPendingCmdQueue.emplace_back( cmd ); break;
+        case CmdDispatchMode::Immediate: m_immediatePendingCmdQueue.push_back( cmd ); break;
+        case CmdDispatchMode::Deferred:  m_deferredPendingCmdQueue.push_back( cmd ); break;
         default: LOG_WARN( "IRenderer::dispatch(): Unknown dispatch mode." );
         }
         _UnlockQueue();

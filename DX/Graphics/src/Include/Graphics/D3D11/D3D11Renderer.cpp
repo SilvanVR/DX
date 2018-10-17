@@ -74,12 +74,12 @@ namespace Graphics {
         _CreateCubeMesh();
         _CreateAndBindFakeShadowmaps();
 
-        VR::Device hmd = VR::GetFirstSupportedHMDAndInitialize();
-        switch (hmd)
-        {
-        case VR::Device::OculusRift: m_hmd = new VR::OculusRiftDX(); break;
-        default: LOG_WARN_RENDERING( "VR not supported on your system." );
-        }
+        //VR::Device hmd = VR::GetFirstSupportedHMDAndInitialize();
+        //switch (hmd)
+        //{
+        //case VR::Device::OculusRift: m_hmd = new VR::OculusRiftDX(); break;
+        //default: LOG_WARN_RENDERING( "VR not supported on your system." );
+        //}
     } 
 
     //----------------------------------------------------------------------

@@ -121,7 +121,17 @@ vec3 DoDirectionalLight( Light light, vec3 albedo, vec3 V, vec3 P, vec3 N, float
     float NdotL = max( dot( N, L ), 0.0 );        
     vec3 Lo = (kD * albedo / PI + specular) * radiance * NdotL;
 
-	return Lo;  
+	float shadow = 1.0;
+	if (light.shadowType == SHADOW_TYPE_HARD)
+		shadow = CALCULATE_SHADOW_DIR( P, light.range, light.shadowMapIndex );
+	else if (light.shadowType == SHADOW_TYPE_SOFT)
+		shadow = CALCULATE_SHADOW_DIR_SOFT( P, light.range, light.shadowMapIndex );
+	else if (light.shadowType == SHADOW_TYPE_CSM)
+		shadow = CALCULATE_SHADOW_CSM( P, light.shadowMapIndex );
+	else if (light.shadowType == SHADOW_TYPE_CSM_SOFT)
+		shadow = CALCULATE_SHADOW_CSM_SOFT( P, light.shadowMapIndex );
+	
+	return Lo * shadow;  
 }
 
 //----------------------------------------------------------------------
@@ -130,9 +140,18 @@ vec3 DoDirectionalLight( Light light, vec3 albedo, vec3 V, vec3 P, vec3 N, float
 vec3 DoPointLight( Light light, vec3 albedo, vec3 V, vec3 P, vec3 N, float roughness, float metallic  )
 {  
     float distance  = length( light.position - P );
-    vec3 radiance = light.color.rgb * DoAttenuation( light, distance ) * light.intensity; 
+	float attenuation = DoAttenuation( light, distance );
+    vec3 radiance = light.color.rgb * attenuation * light.intensity; 
  
-    return CalcLight( light, radiance, albedo, V, P, N, roughness, metallic );
+  	float shadow = 1.0;
+	if (light.shadowType == SHADOW_TYPE_HARD)
+		shadow = CALCULATE_SHADOW_3D( P, light.position, light.range, light.shadowMapIndex );
+	else if (light.shadowType == SHADOW_TYPE_SOFT)
+		shadow = CALCULATE_SHADOW_3D_SOFT( P, light.position, light.range, light.shadowMapIndex );
+		
+	shadow *= attenuation;
+ 
+    return CalcLight( light, radiance, albedo, V, P, N, roughness, metallic ) * shadow;
 }
 
 //----------------------------------------------------------------------
@@ -150,9 +169,19 @@ vec3 DoSpotLight( Light light, vec3 albedo, vec3 V, vec3 P, vec3 N, float roughn
 {    
 	vec3 L = (light.position - P);
 	float distance  = length( light.position - P );
-    vec3 radiance = light.color.rgb * DoAttenuation( light, distance ) * light.intensity * DoSpotCone( light, L ); 
+	float attenuation = DoAttenuation( light, distance );
+    vec3 radiance = light.color.rgb * attenuation * light.intensity * DoSpotCone( light, L ); 
  
-    return CalcLight( light, radiance, albedo, V, P, N, roughness, metallic );
+  	// Attenuation must be multiplied with the shadow in order to smoothly fade out the shadow
+	float shadow = 1.0;
+	if (light.shadowType == SHADOW_TYPE_HARD)
+		shadow = CALCULATE_SHADOW_2D( P, light.shadowMapIndex );
+	else if (light.shadowType == SHADOW_TYPE_SOFT)
+		shadow = CALCULATE_SHADOW_2D_SOFT( P, light.shadowMapIndex );
+			
+	shadow *= attenuation;
+ 
+    return CalcLight( light, radiance, albedo, V, P, N, roughness, metallic ) * shadow;
 }
 
 //----------------------------------------------------------------------

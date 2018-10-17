@@ -871,7 +871,7 @@ public:
         // Camera 1
         auto go = createGameObject("Camera");
         auto rt1 = RESOURCES.createRenderTexture( bufferWidth, bufferHeight,
-                                                  Graphics::TextureFormat::D24S8, Graphics::TextureFormat::RGBAFloat,
+                                                  Graphics::TextureFormat::D32, Graphics::TextureFormat::RGBAFloat,
                                                   Graphics::MSAASamples::Four, true );
         cam = go->addComponent<Components::Camera>(rt1);
         go->getComponent<Components::Transform>()->position = Math::Vec3(0, 0, -10);
@@ -883,7 +883,7 @@ public:
         // Camera 2
         auto go2 = createGameObject("Camera2");
         auto rt2 = RESOURCES.createRenderTexture( bufferWidth, bufferHeight,
-                                                  Graphics::TextureFormat::D24S8, Graphics::TextureFormat::RGBAFloat,
+                                                  Graphics::TextureFormat::D32, Graphics::TextureFormat::RGBAFloat,
                                                   Graphics::MSAASamples::One, true );
         auto cam2 = go2->addComponent<Components::Camera>(rt2);
         cam2->getViewport().width = 0.5f;
@@ -896,7 +896,7 @@ public:
         // Camera 3
         auto go3 = createGameObject("Camera3");
         auto rt3 = RESOURCES.createRenderTexture( bufferWidth, bufferHeight,
-                                                  Graphics::TextureFormat::D24S8, Graphics::TextureFormat::RGBAFloat,
+                                                  Graphics::TextureFormat::D32, Graphics::TextureFormat::RGBAFloat,
                                                   Graphics::MSAASamples::One, true );
         auto cam3 = go3->addComponent<Components::Camera>(rt3);
         cam3->getViewport().width = 0.5f;
@@ -909,7 +909,7 @@ public:
         // Camera 4
         auto go4 = createGameObject("Camera4");
         auto rt4 = RESOURCES.createRenderTexture( bufferWidth, bufferHeight,
-                                                  Graphics::TextureFormat::D24S8, Graphics::TextureFormat::RGBAFloat,
+                                                  Graphics::TextureFormat::D32, Graphics::TextureFormat::RGBAFloat,
                                                   Graphics::MSAASamples::One, true );
         auto cam4 = go4->addComponent<Components::Camera>(rt4);
         cam4->getViewport().width = 0.5f;
