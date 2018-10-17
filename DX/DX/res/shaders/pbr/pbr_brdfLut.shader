@@ -145,7 +145,7 @@ float2 IntegrateBRDF( float NdotV, float roughness )
 //----------------------------------------------------------------------------
 float2 main( FragmentIn fin ) : SV_Target
 {
-    float2 integratedBRDF = IntegrateBRDF( fin.uv.x, fin.uv.y );
+    float2 integratedBRDF = IntegrateBRDF( fin.uv.x, 1-fin.uv.y );
     return integratedBRDF;
 }
 
