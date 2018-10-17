@@ -39,26 +39,26 @@ public:
         //    "/cubemaps/tropical_sunny_day/Front.png", "/cubemaps/tropical_sunny_day/Back.png", true);
         //go->addComponent<Components::Skybox>(cubemap);
 
-        //go->addComponent<Tonemap>();
-        //auto cubemapHDR = ASSETS.getCubemap("/cubemaps/pine.hdr", 2048, true);
+        go->addComponent<Tonemap>();
+        auto cubemapHDR = ASSETS.getCubemap("/cubemaps/pine.hdr", 2048, true);
 
-        //auto mat = ASSETS.getMaterial("/materials/skyboxLod.material");
-        //mat->setTexture("Cubemap", cubemapHDR);
+        auto mat = ASSETS.getMaterial("/materials/skyboxLod.material");
+        mat->setTexture("Cubemap", cubemapHDR);
 
-        //auto sky = createGameObject("Cube");
-        //sky->addComponent<Components::MeshRenderer>(cubeMesh, mat);
-        //sky->getTransform()->scale = { 10000.0f };
+        auto sky = createGameObject("Cube");
+        sky->addComponent<Components::MeshRenderer>(cubeMesh, mat);
+        sky->getTransform()->scale = { 10000.0f };
 
-        //go->addComponent<Components::GUI>();
-        //go->addComponent<Components::GUICustom>([=] {
-        //    ImGui::Begin("LOD change");
-        //    static F32 lod = 0.0f;
-        //    if (ImGui::SliderFloat("Cubemap LOD", &lod, 0.0f, cubemapHDR->getMipCount()))
-        //        mat->setFloat("lod", lod);
-        //    ImGui::End();
-        //});
+        go->addComponent<Components::GUI>();
+        go->addComponent<Components::GUICustom>([=] {
+            ImGui::Begin("LOD change");
+            static F32 lod = 0.0f;
+            if (ImGui::SliderFloat("Cubemap LOD", &lod, 0.0f, cubemapHDR->getMipCount()))
+                mat->setFloat("lod", lod);
+            ImGui::End();
+        });
 
-        //go->addComponent<Components::Skybox>(cubemapHDR);
+        go->addComponent<Components::Skybox>(cubemapHDR);
     }
 
     void tick(Time::Seconds delta) override
@@ -102,6 +102,10 @@ public:
         auto gui = createGameObject("GUI");
         gui->addComponent<Components::Camera>(45.0f, 0.1f, 1000.0f, Graphics::MSAASamples::One);
         gui->addComponent<Components::GUI>();
+
+        // Add a draw-call, otherwise v-ez won't clear the screen and rubbish is seen occasionally
+        auto cubeMesh = Core::MeshGenerator::CreateCube();
+        createGameObject("Cube")->addComponent<Components::MeshRenderer>(cubeMesh, ASSETS.getErrorMaterial());
 
         auto guiSceneMenu = gui->addComponent<GUISceneMenu>("Scenes");
         guiSceneMenu->registerScene<SceneGUIThesisScenesMenu>("Thesis Test Scenes");

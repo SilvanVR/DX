@@ -38,6 +38,7 @@ namespace Graphics { namespace VR {
     {
     public:
         OculusSwapchainVk( ovrSession session, VkDevice device, I32 width, I32 height )
+            : m_session( session )
         {
             ovrTextureSwapChainDesc colorDesc = {};
             colorDesc.Type        = ovrTexture_2D;
@@ -56,17 +57,17 @@ namespace Graphics { namespace VR {
             ovr_GetTextureSwapChainLength( session, m_swapChain, &count );
             m_imageViews.resize( count );
             m_fbos.resize( count );
+            m_images.resize( count );
             for (I32 i = 0; i < count; ++i)
             {
-                VkImage image;
-                ovr_GetTextureSwapChainBufferVk( session, m_swapChain, i, &image );
+                ovr_GetTextureSwapChainBufferVk( session, m_swapChain, i, &m_images[i] );
 
                 VkExtent3D extent{ (U32)width, (U32)height, 1 };
-                vezImportVkImage( device, image, VK_FORMAT_B8G8R8A8_UNORM, extent, VK_SAMPLE_COUNT_1_BIT, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL );
+                vezImportVkImage( device, m_images[i], VK_FORMAT_B8G8R8A8_UNORM, extent, VK_SAMPLE_COUNT_1_BIT, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL );
 
                 VezImageViewCreateInfo createInfo{};
                 createInfo.format   = VK_FORMAT_B8G8R8A8_UNORM;
-                createInfo.image    = image;
+                createInfo.image    = m_images[i];
                 createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
                 createInfo.subresourceRange.layerCount = 1;
                 createInfo.subresourceRange.levelCount = 1;
@@ -79,6 +80,8 @@ namespace Graphics { namespace VR {
         //----------------------------------------------------------------------
         ~OculusSwapchainVk()
         {
+            for (auto& img : m_images)
+                vezRemoveImportedVkImage( g_vulkan.device, img );
             for (auto& view : m_imageViews)
                 vkDestroyImageView( g_vulkan.device, view, ALLOCATOR );
             for (auto& fbo : m_fbos)
@@ -104,8 +107,10 @@ namespace Graphics { namespace VR {
         }
 
     private:
+        ArrayList<VkImage>              m_images;
         ArrayList<VkImageView>          m_imageViews;
         ArrayList<Vulkan::Framebuffer>  m_fbos;
+        ovrSession                      m_session;
     };
 
     //**********************************************************************
