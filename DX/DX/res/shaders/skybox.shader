@@ -73,7 +73,13 @@ layout (location = 0) out vec3 outUVW;
 void main()
 {
     outUVW = VERTEX_POSITION;
-	gl_Position = TO_CLIP_SPACE( VERTEX_POSITION );
+	
+	vec4 clipPos = TO_CLIP_SPACE( vec4(VERTEX_POSITION, 0.0f) );
+	
+	// Little trick which places the object very close to the far-plane
+	clipPos = clipPos.xyww;
+	clipPos.z *= 0.999999;
+	gl_Position = clipPos;
 }
  
 // ----------------------------------------------

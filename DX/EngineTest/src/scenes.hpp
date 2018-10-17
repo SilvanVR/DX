@@ -1084,6 +1084,8 @@ public:
         go->addComponent<Components::GUI>();
         go->addComponent<Components::GUIFPS>();
         go->addComponent<Components::GUICustom>([=] {
+            ImGui::Begin("Shadow Demo", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+
             static F32 ambient = 0.4f;
             ImGui::SliderFloat("Ambient", &ambient, 0.0f, 1.0f);
             Locator::getRenderer().setGlobalFloat(SID("_Ambient"), ambient);
@@ -1215,6 +1217,7 @@ public:
                     ImGui::TreePop();
                 }
             }
+            ImGui::End();
         });
     }
 };

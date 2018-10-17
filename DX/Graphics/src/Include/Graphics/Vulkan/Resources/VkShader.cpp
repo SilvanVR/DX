@@ -124,7 +124,7 @@ namespace Graphics { namespace Vulkan {
         case CullMode::None:        m_rzState.cullMode = VK_CULL_MODE_NONE; break;
         }
 
-        m_rzState.depthClampEnable          = rzState.depthClipEnable;
+        m_rzState.depthClampEnable          = not rzState.depthClipEnable;
         m_rzState.rasterizerDiscardEnable   = VK_FALSE;
         m_rzState.frontFace                 = rzState.frontCounterClockwise ? VK_FRONT_FACE_COUNTER_CLOCKWISE : VK_FRONT_FACE_CLOCKWISE;
         m_rzState.depthBiasEnable           = rzState.depthBias == 0.0f ? VK_FALSE : VK_TRUE;
