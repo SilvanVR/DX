@@ -34,12 +34,11 @@ namespace Assets {
             diffuseIrradianceMat->setTexture( SHADER_NAME_ENV_MAP, cubemap );
 
             cmd.renderCubemap( m_diffuseIrradianceMap, diffuseIrradianceMat );
-            Locator::getRenderer().dispatch( cmd, Graphics::CmdDispatchMode::Deferred );
+            Locator::getRenderer().dispatchImmediate( cmd );
         }
 
         // Specular reflection map
         {
-            Graphics::CommandBuffer cmd;
             m_specularReflectionMap = RESOURCES.createCubemap();
             m_specularReflectionMap->create( specularReflectionSize, Graphics::TextureFormat::RGBAFloat, Graphics::Mips::Create );
 
@@ -47,6 +46,7 @@ namespace Assets {
             ASSERT( shader != ASSETS.getErrorShader() && "Please ensure that the given shader file exists." );
 
             // Render into each mipmap
+            Graphics::CommandBuffer cmd;
             U32 mipCount = m_specularReflectionMap->getMipCount();
             for (U32 mip = 0; mip < mipCount; mip++)
             {
@@ -59,7 +59,7 @@ namespace Assets {
 
                 cmd.renderCubemap( m_specularReflectionMap, specularReflectionMaterial, mip );
             }
-            Locator::getRenderer().dispatch( cmd, Graphics::CmdDispatchMode::Deferred );
+            Locator::getRenderer().dispatchImmediate( cmd );
         }
     }
 

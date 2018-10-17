@@ -49,9 +49,15 @@ namespace Graphics {
         // Dispatches the given command buffer for execution on the gpu.
         // @Params:
         // "cmd": Command buffer to execute
-        // "dispatchMode": Whether the command buffer will be executed immediately or maybe later.
         //----------------------------------------------------------------------
-        void dispatch(const CommandBuffer& cmd, CmdDispatchMode dispatchMode = CmdDispatchMode::Immediate);
+        void dispatch(const CommandBuffer& cmd);
+
+        //----------------------------------------------------------------------
+        // Dispatches the given command buffer immediately for execution on the gpu.
+        // @Params:
+        // "cmd": Command buffer to execute
+        //----------------------------------------------------------------------
+        virtual void dispatchImmediate(const CommandBuffer& cmd) = 0;
 
         //----------------------------------------------------------------------
         // Presents the latest backbuffer to the screen.
@@ -92,8 +98,7 @@ namespace Graphics {
     protected:
         U64                         m_frameCount = 0;
         OS::Window*                 m_window;
-        ArrayList<CommandBuffer>    m_immediatePendingCmdQueue;
-        ArrayList<CommandBuffer>    m_deferredPendingCmdQueue;
+        ArrayList<CommandBuffer>    m_pendingCmdQueue;
         Limits                      m_limits;
         bool                        m_vsync = false;
         GPUDescription              m_gpuDescription;

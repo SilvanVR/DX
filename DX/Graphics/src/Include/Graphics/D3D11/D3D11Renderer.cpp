@@ -74,12 +74,12 @@ namespace Graphics {
         _CreateCubeMesh();
         _CreateAndBindFakeShadowmaps();
 
-        //VR::Device hmd = VR::GetFirstSupportedHMDAndInitialize();
-        //switch (hmd)
-        //{
-        //case VR::Device::OculusRift: m_hmd = new VR::OculusRiftDX(); break;
-        //default: LOG_WARN_RENDERING( "VR not supported on your system." );
-        //}
+        VR::Device hmd = VR::GetFirstSupportedHMDAndInitialize();
+        switch (hmd)
+        {
+        case VR::Device::OculusRift: m_hmd = new VR::OculusRiftDX(); break;
+        default: LOG_WARN_RENDERING( "VR not supported on your system." );
+        }
     } 
 
     //----------------------------------------------------------------------
@@ -224,18 +224,9 @@ namespace Graphics {
 
         // Execute command buffers
         _LockQueue();
-
-        // Only one deferred command buffer per frame
-        if (not m_deferredPendingCmdQueue.empty())
-        {
-            _ExecuteCommandBuffer( m_deferredPendingCmdQueue.front() );
-            m_deferredPendingCmdQueue.erase( m_deferredPendingCmdQueue.begin() );
-        }
-
-        for (auto& cmd : m_immediatePendingCmdQueue)
+        for (auto& cmd : m_pendingCmdQueue)
             _ExecuteCommandBuffer( cmd );
-        m_immediatePendingCmdQueue.clear();
-
+        m_pendingCmdQueue.clear();
         _UnlockQueue();
 
         // Present rendered image(s)
@@ -249,6 +240,12 @@ namespace Graphics {
         m_pSwapchain->present( vsync );
 
         m_frameCount++;
+    }
+
+    //----------------------------------------------------------------------
+    void D3D11Renderer::dispatchImmediate( const CommandBuffer& cmd )
+    {
+        _ExecuteCommandBuffer( cmd );
     }
 
     //----------------------------------------------------------------------

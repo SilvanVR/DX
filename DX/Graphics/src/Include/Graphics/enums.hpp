@@ -20,12 +20,6 @@ namespace Graphics {
         Vulkan
     };
 
-    enum class CmdDispatchMode
-    {
-       Immediate,
-       Deferred
-    };
-
     enum class ShaderType
     {
         Unknown      = 0 << 0,

@@ -94,7 +94,7 @@ namespace Graphics { namespace Vulkan {
         void IASetVertexBuffers(U32 firstBinding, U32 bindingCount, const VkBuffer* pBuffers, const VkDeviceSize* offsets);
         void IASetIndexBuffer(VkBuffer buffer, VkDeviceSize offset, VkIndexType indexType);
         void BindPipeline(VezPipeline pipeline);
-        void OMSetRenderTarget(const Framebuffer& fbo, const std::function<void()>& endRenderPassCallback = nullptr);
+        void OMSetRenderTarget(const Framebuffer& fbo);
         void OMSetBlendState(U32 index, const VezColorBlendAttachmentState& blendState);
         void OMSetDepthStencilState(const VezDepthStencilState& dsState);
         void OMSetMultiSampleState(VkBool32 alphaToCoverageEnable, VkBool32 alphaToOneEnable);
@@ -122,10 +122,6 @@ namespace Graphics { namespace Vulkan {
         void _ClearContext();
 
         const Framebuffer* m_curFramebuffer = nullptr;
-
-        // Stores functions for commands which must be executed outside of an render-pass and be thread-safe
-        std::mutex m_postPassFunctionLock;
-        ArrayList<std::pair<VkImage, std::function<void()>>> m_postPassFunctions;
     } ;
 
     //----------------------------------------------------------------------

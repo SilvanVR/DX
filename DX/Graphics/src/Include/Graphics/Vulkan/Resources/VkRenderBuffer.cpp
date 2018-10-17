@@ -53,7 +53,7 @@ namespace Graphics { namespace Vulkan {
     //----------------------------------------------------------------------
     void RenderBuffer::bindForRendering()
     {
-        g_vulkan.ctx.OMSetRenderTarget( isMultisampled() ? m_framebufferMS.fbo : m_framebuffer.fbo, [this] { this->_ResolveImage(); } );
+        g_vulkan.ctx.OMSetRenderTarget( isMultisampled() ? m_framebufferMS.fbo : m_framebuffer.fbo );
     }
 
     //**********************************************************************

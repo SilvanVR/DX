@@ -347,16 +347,7 @@ namespace Graphics { namespace Vulkan {
     {
         if (m_curFramebuffer)
             EndRenderPass();
-        {
-            // Execute post-pass functions
-            std::unique_lock<std::mutex> lock(m_postPassFunctionLock);
-            if (not m_postPassFunctions.empty())
-            {
-                for (auto& func : m_postPassFunctions)
-                    func.second();
-                m_postPassFunctions.clear();
-            }
-        }
+
         VALIDATE( vezEndCommandBuffer() );
 
         VezSubmitInfo submitInfo = {};
@@ -404,7 +395,7 @@ namespace Graphics { namespace Vulkan {
     }
 
     //----------------------------------------------------------------------
-    void Context::OMSetRenderTarget( const Framebuffer& fbo, const std::function<void()>& endRenderPassCallback )
+    void Context::OMSetRenderTarget( const Framebuffer& fbo )
     {
         if (m_curFramebuffer) // End previous renderpass if any
             EndRenderPass();
@@ -527,35 +518,34 @@ namespace Graphics { namespace Vulkan {
     //----------------------------------------------------------------------
     void Context::GenerateMips( VkImage img, U32 width, U32 height, U32 mipLevels, U32 layers, VkFilter filter )
     {
-        ASSERT( img != VK_NULL_HANDLE );
-        for (auto& fnc : m_postPassFunctions)
-            if (fnc.first == img) // Already generating mips this frame
-                return;
-
-        std::unique_lock<std::mutex> lock( m_postPassFunctionLock );
-        m_postPassFunctions.emplace_back( img, [img, width, height, mipLevels, layers, filter] {
-            for (U32 layer = 0; layer < layers; ++layer)
+        // Since mips can not be generated during a renderpass the current renderpass must be ended.
+        // The same renderpass will be restarted again down below.
+        const Framebuffer* curFBO = m_curFramebuffer;
+        if (curFBO)
+            EndRenderPass();
+        for (U32 layer = 0; layer < layers; ++layer)
+        {
+            for (U32 mip = 0; mip < (mipLevels - 1); ++mip)
             {
-                for (U32 mip = 0; mip < (mipLevels - 1); ++mip)
-                {
-                    VezImageBlit blitInfo{};
-                    blitInfo.srcSubresource.mipLevel        = mip;
-                    blitInfo.srcSubresource.baseArrayLayer  = layer;
-                    blitInfo.srcSubresource.layerCount      = 1;
-                    blitInfo.srcOffsets[1].x                = I32(width  >> mip);
-                    blitInfo.srcOffsets[1].y                = I32(height >> mip);
-                    blitInfo.srcOffsets[1].z                = 1;
+                VezImageBlit blitInfo{};
+                blitInfo.srcSubresource.mipLevel        = mip;
+                blitInfo.srcSubresource.baseArrayLayer  = layer;
+                blitInfo.srcSubresource.layerCount      = 1;
+                blitInfo.srcOffsets[1].x                = I32(width  >> mip);
+                blitInfo.srcOffsets[1].y                = I32(height >> mip);
+                blitInfo.srcOffsets[1].z                = 1;
 
-                    blitInfo.dstSubresource.mipLevel        = mip + 1;
-                    blitInfo.dstSubresource.baseArrayLayer  = layer;
-                    blitInfo.dstSubresource.layerCount      = 1;
-                    blitInfo.dstOffsets[1].x                = I32(width  >> (mip + 1));
-                    blitInfo.dstOffsets[1].y                = I32(height >> (mip + 1));
-                    blitInfo.dstOffsets[1].z                = 1;
-                    vezCmdBlitImage( img, img, 1, &blitInfo, filter );
-                }
+                blitInfo.dstSubresource.mipLevel        = mip + 1;
+                blitInfo.dstSubresource.baseArrayLayer  = layer;
+                blitInfo.dstSubresource.layerCount      = 1;
+                blitInfo.dstOffsets[1].x                = I32(width  >> (mip + 1));
+                blitInfo.dstOffsets[1].y                = I32(height >> (mip + 1));
+                blitInfo.dstOffsets[1].z                = 1;
+                vezCmdBlitImage( img, img, 1, &blitInfo, filter );
             }
-        });
+        }
+        if (curFBO)
+            OMSetRenderTarget( *curFBO );
     }
 
     //----------------------------------------------------------------------

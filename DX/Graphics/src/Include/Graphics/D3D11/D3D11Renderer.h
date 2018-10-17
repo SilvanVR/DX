@@ -40,6 +40,7 @@ namespace Graphics {
         void init() override;
         void shutdown() override;
         void present() override;
+        void dispatchImmediate(const CommandBuffer& cmd) override;
 
         API getAPI() const override { return API::D3D11; }
         String getAPIName() const override { return "Direct3D11"; }

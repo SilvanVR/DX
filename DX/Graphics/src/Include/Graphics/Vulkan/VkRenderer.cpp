@@ -88,25 +88,25 @@ namespace Graphics {
     {
         _SetLimits();
 
-        //VR::Device hmd = VR::GetFirstSupportedHMDAndInitialize();
-        //switch (hmd)
-        //{
-        //case VR::Device::OculusRift:
-        //{
-        //    auto vkOculus = new VR::OculusRiftVk();
-        //    g_vulkan.CreateInstance( vkOculus->getRequiredInstanceExtentions() );
-        //    m_swapchain.createSurface( g_vulkan.instance, m_window );
-        //    g_vulkan.SelectPhysicalDevice( vkOculus->getPhysicalDevice( g_vulkan.instance ) );
-        //    g_vulkan.CreateDevice( vkOculus->getRequiredDeviceExtentions(), GetDeviceFeatures() );
-        //    vkOculus->setSynchronizationQueueVk( g_vulkan.graphicsQueue );
-        //    vkOculus->createEyeBuffers( g_vulkan.device );
-        //    m_swapchain.createSwapchain( g_vulkan.device, m_window->getWidth(), m_window->getHeight(), SWAPCHAIN_FORMAT );
-        //    m_hmd = vkOculus;
-        //    break;
-        //}
-        //default:
-        //    LOG_WARN_RENDERING( "VR not supported on your system." );
-        //}
+        VR::Device hmd = VR::GetFirstSupportedHMDAndInitialize();
+        switch (hmd)
+        {
+        case VR::Device::OculusRift:
+        {
+            auto vkOculus = new VR::OculusRiftVk();
+            g_vulkan.CreateInstance( vkOculus->getRequiredInstanceExtentions() );
+            m_swapchain.createSurface( g_vulkan.instance, m_window );
+            g_vulkan.SelectPhysicalDevice( vkOculus->getPhysicalDevice( g_vulkan.instance ) );
+            g_vulkan.CreateDevice( vkOculus->getRequiredDeviceExtentions(), GetDeviceFeatures() );
+            vkOculus->setSynchronizationQueueVk( g_vulkan.graphicsQueue );
+            vkOculus->createEyeBuffers( g_vulkan.device );
+            m_swapchain.createSwapchain( g_vulkan.device, m_window->getWidth(), m_window->getHeight(), SWAPCHAIN_FORMAT );
+            m_hmd = vkOculus;
+            break;
+        }
+        default:
+            LOG_WARN_RENDERING( "VR not supported on your system." );
+        }
 
         if ( not hasHMD() )
         {
@@ -292,17 +292,9 @@ namespace Graphics {
             m_lightBuffer->newFrame();
             {
                 _LockQueue();
-
-                // Only one deferred command buffer per frame
-                if (not m_deferredPendingCmdQueue.empty())
-                {
-                    _ExecuteCommandBuffer( m_deferredPendingCmdQueue.front() );
-                    m_deferredPendingCmdQueue.erase( m_deferredPendingCmdQueue.begin() );
-                }
-
-                for (auto& cmd : m_immediatePendingCmdQueue)
+                for (auto& cmd : m_pendingCmdQueue)
                     _ExecuteCommandBuffer( cmd );
-                m_immediatePendingCmdQueue.clear();
+                m_pendingCmdQueue.clear();
                 _UnlockQueue();
             }
         }
@@ -319,6 +311,32 @@ namespace Graphics {
         m_swapchain.present( g_vulkan.graphicsQueue, g_vulkan.ctx.curFrameData().semRenderingFinished );
 
         m_frameCount++;
+    }
+
+    //----------------------------------------------------------------------
+    void VkRenderer::dispatchImmediate( const CommandBuffer& cmd )
+    {
+        VkCommandBuffer vkCmd;
+        VezCommandBufferAllocateInfo allocateInfo{ NULL, g_vulkan.graphicsQueue, 1 };
+        VALIDATE( vezAllocateCommandBuffers( g_vulkan.device, &allocateInfo, &vkCmd ) );
+        VALIDATE( vezBeginCommandBuffer( vkCmd, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT) );
+        _ExecuteCommandBuffer( cmd );
+        if (renderContext.getRenderTarget())
+            g_vulkan.ctx.EndRenderPass();
+        VALIDATE( vezEndCommandBuffer() );
+
+        VezSubmitInfo submitInfo = {};
+        submitInfo.commandBufferCount   = 1;
+        submitInfo.pCommandBuffers      = &vkCmd;
+
+        VkFence fence = VK_NULL_HANDLE;
+        VALIDATE( vezQueueSubmit( g_vulkan.graphicsQueue, 1, &submitInfo, &fence ) );
+
+        VALIDATE( vezWaitForFences( g_vulkan.device, 1, &fence, VK_TRUE, ~0 ) );
+        vezDestroyFence( g_vulkan.device, fence );
+        vezFreeCommandBuffers( g_vulkan.device, 1, &vkCmd );
+        renderContext.Reset();
+        g_vulkan.ctx._ClearContext();
     }
 
     //----------------------------------------------------------------------
