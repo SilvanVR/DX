@@ -110,7 +110,7 @@ layout (set = SET_FIRST, binding = 0) uniform sampler2D equirectangularMap;
 //----------------------------------------------
 vec2 SampleSphericalMap( vec3 v )
 {
-    vec2 uv = vec2( atan( v.x, v.z ), asin( v.y ) );
+    vec2 uv = vec2( atan( v.z, v.x ), asin( v.y ) );
 	
 	const vec2 invAtan = vec2( 0.1591, 0.3183 );
     uv *= invAtan;

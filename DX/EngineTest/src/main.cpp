@@ -39,26 +39,24 @@ public:
         //    "/cubemaps/tropical_sunny_day/Front.png", "/cubemaps/tropical_sunny_day/Back.png", true);
         //go->addComponent<Components::Skybox>(cubemap);
 
-        go->addComponent<Tonemap>();
-        auto cubemapHDR = ASSETS.getCubemap("/cubemaps/pine.hdr", 2048, true);
+        //go->addComponent<Tonemap>();
+        //auto cubemapHDR = ASSETS.getCubemap("/cubemaps/pine.hdr", 2048, true);
 
-        auto mat = ASSETS.getMaterial("/materials/skyboxLod.material");
-        mat->setTexture("Cubemap", cubemapHDR);
+        //auto mat = ASSETS.getMaterial("/materials/skyboxLod.material");
+        //mat->setTexture("Cubemap", cubemapHDR);
 
-        auto sky = createGameObject("Cube");
-        sky->addComponent<Components::MeshRenderer>(cubeMesh, mat);
-        sky->getTransform()->scale = { 10000.0f };
+        //auto sky = createGameObject("Cube");
+        //sky->addComponent<Components::MeshRenderer>(cubeMesh, mat);
+        //sky->getTransform()->scale = { 10000.0f };
 
-        go->addComponent<Components::GUI>();
-        go->addComponent<Components::GUICustom>([=] {
-            ImGui::Begin("LOD change");
-            static F32 lod = 0.0f;
-            if (ImGui::SliderFloat("Cubemap LOD", &lod, 0.0f, cubemapHDR->getMipCount()))
-                mat->setFloat("lod", lod);
-            ImGui::End();
-        });
-
-        go->addComponent<Components::Skybox>(cubemapHDR);
+        //go->addComponent<Components::GUI>();
+        //go->addComponent<Components::GUICustom>([=] {
+        //    ImGui::Begin("LOD change");
+        //    static F32 lod = 0.0f;
+        //    if (ImGui::SliderFloat("Cubemap LOD", &lod, 0.0f, cubemapHDR->getMipCount()))
+        //        mat->setFloat("lod", lod);
+        //    ImGui::End();
+        //});
     }
 
     void tick(Time::Seconds delta) override
@@ -116,12 +114,12 @@ public:
         guiSceneMenu->registerScene<ShadowScene>("Shadow Scene");
         guiSceneMenu->registerScene<ScenePostProcessMultiCamera>("Multi Camera Post Processing");
         guiSceneMenu->registerScene<SceneGUI>("GUI Example");
-        guiSceneMenu->registerScene<SceneMirror>("Offscreen rendering on material");
+        guiSceneMenu->registerScene<SceneRenderToTexture>("RenderToTexture");
         guiSceneMenu->registerScene<ManyObjectsScene>("Many Drawcalls!");
         guiSceneMenu->registerScene<BlinnPhongLightingScene>("Blinn-Phong Lighting");
-        guiSceneMenu->registerScene<ScenePBRSpheres>("PBR Spheres");
-        guiSceneMenu->registerScene<ScenePBRPistol>("PBR Pistol + Dagger");
-        guiSceneMenu->registerScene<SponzaScene>("Sponza");
+        guiSceneMenu->registerScene<ScenePBRSpheres>("[PBR] Spheres");
+        guiSceneMenu->registerScene<ScenePBRPistol>("[PBR] Pistol + Dagger");
+        guiSceneMenu->registerScene<SponzaScene>("[PBR] Sponza");
         guiSceneMenu->registerScene<TransparencyScene>("Ordered Transparency");
         guiSceneMenu->registerScene<SceneGraphScene>("SceneGraph");
         guiSceneMenu->registerScene<BRDFLUTScene>("BRDFLut");
@@ -171,7 +169,7 @@ public:
         Locator::getRenderer().setGlobalFloat(SID("_Ambient"), 0.5f);
 
         //Locator::getSceneManager().LoadSceneAsync(new SceneGUISelectSceneMenu());
-        Locator::getSceneManager().LoadScene(new TestScene());
+        Locator::getSceneManager().LoadScene(new ScenePBRSpheres());
     }
 
     //----------------------------------------------------------------------

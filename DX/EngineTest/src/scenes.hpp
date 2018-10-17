@@ -172,10 +172,10 @@ public:
     }
 };
 
-class SceneMirror : public IScene
+class SceneRenderToTexture : public IScene
 {
 public:
-    SceneMirror() : IScene("SceneMirror") {}
+    SceneRenderToTexture() : IScene("SceneRenderToTexture") {}
 
     void init() override
     {
@@ -205,10 +205,6 @@ public:
         auto grid = createGameObject("Grid");
         grid->addComponent<GridGeneration>(20);
 
-        // MESH
-        auto cube = Core::MeshGenerator::CreateCubeUV();
-        cube->setColors(cubeColors);
-
         // MATERIAL
         auto customTexMaterial = RESOURCES.createMaterial(ASSETS.getShader("/shaders/tex.shader"));
         customTexMaterial->setTexture("tex", renderTex);
@@ -225,16 +221,6 @@ public:
         player->getTransform()->setParent(go->getTransform(), false);
         player->getTransform()->position = { 0, 0, -0.5f };
         player->getTransform()->rotation *= Math::Quat(Math::Vec3::UP, 180.0f);
-    }
-
-    void tick(Time::Seconds d) override
-    {
-        if (KEYBOARD.wasKeyPressed(Key::NumPad1))
-            RESOURCES.setGlobalAnisotropicFiltering(1);
-        if (KEYBOARD.wasKeyPressed(Key::NumPad2))
-            RESOURCES.setGlobalAnisotropicFiltering(4);
-        if (KEYBOARD.wasKeyPressed(Key::NumPad3))
-            RESOURCES.setGlobalAnisotropicFiltering(8);
     }
 };
 
