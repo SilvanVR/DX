@@ -121,7 +121,7 @@ public:
     {
         // Camera 1
         auto go = createGameObject("Camera");
-        auto cam = go->addComponent<Components::Camera>(45.0f, 0.1f, 1000.0f, Graphics::MSAASamples::One);
+        auto cam = go->addComponent<Components::Camera>(45.0f, 0.1f, 1000.0f, Graphics::MSAASamples::Four);
         go->getComponent<Components::Transform>()->position = Math::Vec3(0, 1, -3);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 0.1f);
         cam->setClearColor(Color(66, 134, 244));
@@ -808,6 +808,10 @@ public:
         auto gui = createGameObject("GUI");
         gui->addComponent<Components::Camera>(45.0f, 0.1f, 1000.0f, Graphics::MSAASamples::One);
         gui->addComponent<Components::GUI>();
+
+        // Add a draw-call, otherwise v-ez won't clear the screen and rubbish is seen occasionally
+        auto cubeMesh = Core::MeshGenerator::CreateCube();
+        createGameObject("Cube")->addComponent<Components::MeshRenderer>(cubeMesh, ASSETS.getErrorMaterial());
 
         auto guiSceneMenu = gui->addComponent<GUISceneMenu>("Test Scenes");
         guiSceneMenu->registerScene<TSceneAlphaProblemDemo>("Alpha Problem Demo");

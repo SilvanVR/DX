@@ -22,6 +22,9 @@ namespace Graphics { namespace Vulkan {
 
         msg += pCallbackData->pMessage;
 
+        if (msg.find("vkCmdBlitImage(): For optimal performance") != String::npos)
+            return VK_FALSE;
+
         if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT)  LOG( msg );
         if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT)     LOG( msg );
         if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT)  LOG_WARN( msg );
