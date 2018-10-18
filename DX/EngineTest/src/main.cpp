@@ -39,38 +39,38 @@ public:
         //    "/cubemaps/tropical_sunny_day/Front.png", "/cubemaps/tropical_sunny_day/Back.png", true);
         //go->addComponent<Components::Skybox>(cubemap);
 
-        go->addComponent<Tonemap>();
-        auto cubemapHDR = ASSETS.getCubemap("/cubemaps/pine.hdr", 2048, true);
+        //go->addComponent<Tonemap>();
+        //auto cubemapHDR = ASSETS.getCubemap("/cubemaps/pine.hdr", 2048, true);
 
-        auto pbrShader = ASSETS.getShader("/engine/shaders/pbr/pbr.shader");
-        Assets::EnvironmentMap envMap(cubemapHDR, 128, 512);
-        auto diffuse = envMap.getDiffuseIrradianceMap();
-        auto specular = envMap.getSpecularReflectionMap();
+        //auto pbrShader = ASSETS.getShader("/engine/shaders/pbr/pbr.shader");
+        //Assets::EnvironmentMap envMap(cubemapHDR, 128, 512);
+        //auto diffuse = envMap.getDiffuseIrradianceMap();
+        //auto specular = envMap.getSpecularReflectionMap();
 
-        auto brdfLut = Assets::BRDFLut().getTexture();
-        pbrShader->setReloadCallback([=](Graphics::IShader* shader) {
-            shader->setTexture("diffuseIrradianceMap", diffuse);
-            shader->setTexture("specularReflectionMap", specular);
-            shader->setTexture("brdfLUT", brdfLut);
-            shader->setFloat("maxReflectionLOD", F32(specular->getMipCount() - 1));
-        });
-        pbrShader->invokeReloadCallback();
+        //auto brdfLut = Assets::BRDFLut().getTexture();
+        //pbrShader->setReloadCallback([=](Graphics::IShader* shader) {
+        //    shader->setTexture("diffuseIrradianceMap", diffuse);
+        //    shader->setTexture("specularReflectionMap", specular);
+        //    shader->setTexture("brdfLUT", brdfLut);
+        //    shader->setFloat("maxReflectionLOD", F32(specular->getMipCount() - 1));
+        //});
+        //pbrShader->invokeReloadCallback();
 
-        auto mat = ASSETS.getMaterial("/materials/skyboxLod.material");
-        mat->setTexture("Cubemap", specular);
+        //auto mat = ASSETS.getMaterial("/materials/skyboxLod.material");
+        //mat->setTexture("Cubemap", specular);
 
-        auto sky = createGameObject("Cube");
-        sky->addComponent<Components::MeshRenderer>(cubeMesh, mat);
-        sky->getTransform()->scale = { 10000.0f };
+        //auto sky = createGameObject("Cube");
+        //sky->addComponent<Components::MeshRenderer>(cubeMesh, mat);
+        //sky->getTransform()->scale = { 10000.0f };
 
-        go->addComponent<Components::GUI>();
-        go->addComponent<Components::GUICustom>([=] {
-            ImGui::Begin("LOD change");
-            static F32 lod = 0.0f;
-            if (ImGui::SliderFloat("Cubemap LOD", &lod, 0.0f, specular->getMipCount()))
-                mat->setFloat("lod", lod);
-            ImGui::End();
-        });
+        //go->addComponent<Components::GUI>();
+        //go->addComponent<Components::GUICustom>([=] {
+        //    ImGui::Begin("LOD change");
+        //    static F32 lod = 0.0f;
+        //    if (ImGui::SliderFloat("Cubemap LOD", &lod, 0.0f, specular->getMipCount()))
+        //        mat->setFloat("lod", lod);
+        //    ImGui::End();
+        //});
     }
 
     void tick(Time::Seconds delta) override
@@ -183,7 +183,7 @@ public:
         Locator::getRenderer().setGlobalFloat(SID("_Ambient"), 0.5f);
 
         //Locator::getSceneManager().LoadSceneAsync(new SceneGUISelectSceneMenu());
-        Locator::getSceneManager().LoadScene(new TestScene());
+        Locator::getSceneManager().LoadScene(new TPerfScene7ParticleSystems());
     }
 
     //----------------------------------------------------------------------
@@ -196,7 +196,15 @@ public:
             Locator::getSceneManager().LoadScene(new TestScene());
 
         if (KEYBOARD.wasKeyPressed(Key::P))
+        {
             Locator::getProfiler().logGPU();
+            PROFILER.beginProfiling(10_s, [](Profiling::ProfileResult res) {
+                String str = "Min: " + TS(res.minFrameTime.value) + "ms ("+ TS((I32)(1000 / res.minFrameTime.value)) +" FPS)\n"
+                             "Max: " + TS(res.maxFrameTime.value) + "ms ("+ TS((I32)(1000 / res.maxFrameTime.value)) +" FPS)\n"
+                             "Avg: " + TS(res.avgFrameTime.value) + "ms ("+ TS((I32)(1000 / res.avgFrameTime.value)) +" FPS)\n";
+                LOG( "<<<< PROFILING RESULT >>>>\n" + str, Color::GREEN );
+            });
+        }
 
         // VR
         {

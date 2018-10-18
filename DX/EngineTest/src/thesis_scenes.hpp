@@ -422,7 +422,7 @@ public:
     {
         auto go = createGameObject("Camera");
         go->addComponent<Components::AudioListener>();
-        go->getComponent<Components::Transform>()->position = Math::Vec3(50, 50, -50);
+        go->getComponent<Components::Transform>()->position = Math::Vec3(50, 0, -100);
 
         if (not AddVRCameraComponent(go, true))
             LOG_WARN("VR is disabled or no VR headset found.");

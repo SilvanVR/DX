@@ -11,6 +11,14 @@
 
 namespace Core { namespace Profiling {
 
+    struct ProfileResult
+    {
+        U64                numFrames;
+        Time::Milliseconds minFrameTime;
+        Time::Milliseconds maxFrameTime;
+        Time::Milliseconds avgFrameTime;
+    };
+
     //**********************************************************************
     class Profiler : public ISubSystem
     {
@@ -62,6 +70,11 @@ namespace Core { namespace Profiling {
         //----------------------------------------------------------------------
         void logGPU();
 
+        //----------------------------------------------------------------------
+        // Starts profiling by measuring performance across given duration.
+        //----------------------------------------------------------------------
+        void beginProfiling(Time::Seconds duration, std::function<void(ProfileResult)> callback);
+
     private:
         U32                 m_fps = 0;
         Time::Milliseconds  m_updateDelta = 0.0f;
@@ -69,6 +82,13 @@ namespace Core { namespace Profiling {
 
         // Maps [Name] <-> [Time]
         HashMap<StringID, U64> m_entries;
+
+        Time::Seconds                      m_profileDuration = 0_s;
+        Time::Seconds                      m_profileTime = 0_s;
+        ArrayList<Time::Milliseconds>      m_profileFrameTimes;
+        std::function<void(ProfileResult)> m_profileCallback;
+
+        void _EndProfile();
 
         NULL_COPY_AND_ASSIGN(Profiler)
     };

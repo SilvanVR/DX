@@ -420,7 +420,7 @@ namespace Graphics {
     void VkRenderer::_SetGPUDescription()
     {
         m_gpuDescription.name = g_vulkan.gpu.properties.deviceName;
-        m_gpuDescription.maxDedicatedMemoryMB = g_vulkan.gpu.memoryProperties.memoryHeaps[0].size;
+        m_gpuDescription.maxDedicatedMemoryMB = g_vulkan.gpu.memoryProperties.memoryHeaps[0].size / (1024 * 1024);
     }
 
     //**********************************************************************

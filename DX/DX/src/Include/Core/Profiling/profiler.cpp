@@ -51,6 +51,14 @@ namespace Core { namespace Profiling {
         }
 
         m_updateDelta = delta;
+
+        if (m_profileCallback)
+        {
+            m_profileFrameTimes.push_back( delta );
+            m_profileTime += delta;
+            if (m_profileTime > m_profileDuration)
+                _EndProfile();
+        }
     }
 
     //----------------------------------------------------------------------
@@ -59,6 +67,10 @@ namespace Core { namespace Profiling {
         if ( m_entries.size() > 0 )
             log();
     }
+
+    //----------------------------------------------------------------------
+    // PUBLIC
+    //----------------------------------------------------------------------
 
     //----------------------------------------------------------------------
     void Profiler::profileCodeSectionBegin( const char* name )
@@ -129,6 +141,47 @@ namespace Core { namespace Profiling {
             str += "Lights: " + TS( frameInfo.numLights ) + "\n";
         }
         LOG( str, LOGCOLOR );
+    }
+
+    //----------------------------------------------------------------------
+    void Profiler::beginProfiling( Time::Seconds duration, std::function<void(ProfileResult)> callback )
+    {
+        if (m_profileCallback)
+        {
+            LOG_WARN( "Profiler::beginProfiling(): Already profiling. Wait until current profiling ends." );
+            return;
+        }
+        m_profileTime = 0_s;
+        m_profileDuration = duration;
+        m_profileCallback = callback;
+        m_profileFrameTimes.clear();
+        LOG( "[Profiler] Begin profiling for " + TS(duration.value) + " seconds..." );
+    }
+
+    //----------------------------------------------------------------------
+    // PRIVATE
+    //----------------------------------------------------------------------
+
+    //----------------------------------------------------------------------
+    void Profiler::_EndProfile()
+    {
+        LOG( "[Profiler] End profiling..." );
+
+        ProfileResult result{};
+        result.minFrameTime = 999999_ms;
+        result.numFrames = static_cast<U64>( m_profileFrameTimes.size() );
+
+        Time::Milliseconds sum;
+        for (const auto t : m_profileFrameTimes)
+        {
+            sum += t;
+            result.minFrameTime = std::min( result.minFrameTime, t );
+            result.maxFrameTime = std::max( result.maxFrameTime, t );
+        }
+        result.avgFrameTime = sum / result.numFrames;
+
+        m_profileCallback( result );
+        m_profileCallback = nullptr;
     }
 
 
