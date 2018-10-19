@@ -183,7 +183,7 @@ public:
         Locator::getRenderer().setGlobalFloat(SID("_Ambient"), 0.5f);
 
         //Locator::getSceneManager().LoadSceneAsync(new SceneGUISelectSceneMenu());
-        Locator::getSceneManager().LoadScene(new TPerfScene7ParticleSystems());
+        Locator::getSceneManager().LoadScene(new TPerfScene6Shadows());
     }
 
     //----------------------------------------------------------------------
@@ -196,15 +196,18 @@ public:
             Locator::getSceneManager().LoadScene(new TestScene());
 
         if (KEYBOARD.wasKeyPressed(Key::P))
-        {
             Locator::getProfiler().logGPU();
-            PROFILER.beginProfiling(10_s, [](Profiling::ProfileResult res) {
-                String str = "Min: " + TS(res.minFrameTime.value) + "ms ("+ TS((I32)(1000 / res.minFrameTime.value)) +" FPS)\n"
-                             "Max: " + TS(res.maxFrameTime.value) + "ms ("+ TS((I32)(1000 / res.maxFrameTime.value)) +" FPS)\n"
-                             "Avg: " + TS(res.avgFrameTime.value) + "ms ("+ TS((I32)(1000 / res.avgFrameTime.value)) +" FPS)\n";
+
+        if (KEYBOARD.wasKeyPressed(Key::O))
+            PROFILER.beginProfiling(5_s, [](Profiling::ProfileResult res){
+                String str = StringUtils::format( "Avg: %fms (%d FPS)\n" 
+                                                  "Min: %fms (%d FPS)\n"
+                                                  "Max: %fms (%d FPS)\n",
+                                                   res.avgFrameTime.value, (I32)(1000 / res.avgFrameTime.value),
+                                                   res.minFrameTime.value, (I32)(1000 / res.minFrameTime.value),
+                                                   res.maxFrameTime.value, (I32)(1000 / res.maxFrameTime.value) );
                 LOG( "<<<< PROFILING RESULT >>>>\n" + str, Color::GREEN );
             });
-        }
 
         // VR
         {
@@ -289,7 +292,6 @@ private:
     {
         Game game;
         game.start( gameName, 800, 600, Graphics::API::Vulkan );
-
         system("pause");
         return 0;
     }

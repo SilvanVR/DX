@@ -300,6 +300,9 @@ namespace Graphics {
         }
         g_vulkan.ctx.EndFrame();
 
+        // Because there are still some synchronization issues, but i have no time left i just put an device wait here
+        vezDeviceWaitIdle( g_vulkan.device );
+
         // Present rendered image to screen/hmd
         if (hasHMD())
         {
@@ -307,9 +310,7 @@ namespace Graphics {
                 setVSync( false );
             m_hmd->distortAndPresent( m_frameCount );
         }
-
         m_swapchain.present( g_vulkan.graphicsQueue, g_vulkan.ctx.curFrameData().semRenderingFinished );
-
         m_frameCount++;
     }
 
