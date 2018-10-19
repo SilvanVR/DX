@@ -300,9 +300,6 @@ namespace Graphics {
         }
         g_vulkan.ctx.EndFrame();
 
-        // Because there are still some synchronization issues, but i have no time left i just put an device wait here
-        vezDeviceWaitIdle( g_vulkan.device );
-
         // Present rendered image to screen/hmd
         if (hasHMD())
         {

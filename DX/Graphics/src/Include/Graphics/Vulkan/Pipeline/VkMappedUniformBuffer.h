@@ -51,7 +51,7 @@ namespace Graphics { namespace Vulkan {
     private:
         ShaderUniformBufferDeclaration  m_bufferInfo;
         Byte*                           m_CPUBuffer     = nullptr;
-        std::unique_ptr<Buffer>         m_GPUBuffer;
+        std::unique_ptr<RingBuffer>     m_GPUBuffer;
         bool                            m_gpuUpToDate   = false;
 
         NULL_COPY_AND_ASSIGN(MappedUniformBuffer)

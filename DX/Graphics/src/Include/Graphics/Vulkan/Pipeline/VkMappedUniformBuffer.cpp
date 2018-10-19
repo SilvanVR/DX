@@ -18,7 +18,7 @@ namespace Graphics { namespace Vulkan {
     {
         m_CPUBuffer = (Byte*)_aligned_malloc( m_bufferInfo.getSize(), 16 );
         memset( m_CPUBuffer, 0, m_bufferInfo.getSize() );
-        m_GPUBuffer = std::make_unique<Buffer>( m_bufferInfo.getSize(), usage, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT );
+        m_GPUBuffer = std::make_unique<RingBuffer>( m_bufferInfo.getSize(), usage, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, 3 );
     }
 
     //**********************************************************************
@@ -61,7 +61,7 @@ namespace Graphics { namespace Vulkan {
     void MappedUniformBuffer::bind()
     {
         flush();
-        g_vulkan.ctx.SetBuffer( m_GPUBuffer->buffer, m_bufferInfo.getBindingSet(), m_bufferInfo.getBindingSlot() );
+        g_vulkan.ctx.SetBuffer( m_GPUBuffer->getBuffer(), m_bufferInfo.getBindingSet(), m_bufferInfo.getBindingSlot() );
     }
 
     //**********************************************************************
