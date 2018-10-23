@@ -15,6 +15,7 @@ class TestScene : public IScene
 {
     Components::Camera* cam;
     GameObject* go;
+    GameObject* cubeGO;
 
 public:
     TestScene() : IScene("TestScene") {}
@@ -32,7 +33,9 @@ public:
         createGameObject("Grid")->addComponent<GridGeneration>(20);
 
         auto cubeMesh = Core::MeshGenerator::CreateCubeUV(1.0f);
-        createGameObject("Cube")->addComponent<Components::MeshRenderer>(cubeMesh, ASSETS.getMaterial("/materials/texture.material"));
+        cubeGO = createGameObject("Cube");
+        cubeGO->addComponent<Components::MeshRenderer>(cubeMesh, ASSETS.getMaterial("/materials/texture.material"));
+        cubeGO->addComponent<ConstantRotation>(0.0f, 15.0f, 0.0f);
 
         go->addComponent<Components::GUI>();
         go->addComponent<Components::GUICustom>([=] {
@@ -42,6 +45,10 @@ public:
                 cam->setFOV(fov);
             ImGui::End();
         });
+
+        //DEBUG.drawSphere({}, 0.5f, Color::GREEN, 55_s, false);
+        //DEBUG.drawCross({0.5f,1.0f,0.0f}, 1.0f, Color::RED, 55_s, false);
+
 
         //auto cubemap = ASSETS.getCubemap("/cubemaps/tropical_sunny_day/Left.png", "/cubemaps/tropical_sunny_day/Right.png",
         //    "/cubemaps/tropical_sunny_day/Up.png", "/cubemaps/tropical_sunny_day/Down.png",
@@ -107,6 +114,11 @@ public:
             cam->setSuperSampling(ss);
             LOG("Screen-Res Mod: " + TS(ss));
         }
+
+        auto transform = cubeGO->getTransform();
+        Math::Vec3 pos = transform->position;
+        Math::Quat rot = transform->rotation;
+        DEBUG.drawAxes(pos, rot, 1.0f, 0_s, false);
     }
 
     void shutdown() override {}
@@ -300,7 +312,7 @@ private:
     int main()
     {
         Game game;
-        game.start( gameName, 800, 600, Graphics::API::Vulkan );
+        game.start( gameName, 800, 600, Graphics::API::D3D11 );
         system("pause");
         return 0;
     }

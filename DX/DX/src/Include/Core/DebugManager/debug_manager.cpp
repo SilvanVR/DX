@@ -174,6 +174,55 @@ namespace Core { namespace Debug {
         drawFrustum( pos, q.getForward(), q.getUp(), left, right, bottom, top, zNear, zFar, color, duration, depthTest );
     }
 
+    //----------------------------------------------------------------------
+    void DebugManager::drawCross( const Math::Vec3& pos, F32 size, Color color, Time::Seconds duration, bool depthTest )
+    {
+        F32 halfSize = size * 0.5f;
+        ArrayList<Math::Vec3> vertices = {
+            pos + Math::Vec3( halfSize, 0, 0 ),
+            pos + Math::Vec3( -halfSize, 0, 0 ),
+            pos + Math::Vec3( 0, halfSize, 0),
+            pos + Math::Vec3( 0, -halfSize, 0),
+            pos + Math::Vec3( 0, 0, halfSize ),
+            pos + Math::Vec3( 0, 0, -halfSize)
+        };
+        ArrayList<U32> indices = {
+            0, 1, 2, 3, 4, 5
+        };
+
+        auto mesh = RESOURCES.createMesh();
+        mesh->setVertices( vertices );
+        mesh->setIndices( indices, 0, Graphics::MeshTopology::Lines );
+        mesh->setColors( ArrayList<Color>( indices.size(), color ) );
+
+        _AddMesh( mesh, duration, depthTest );
+    }
+
+    //----------------------------------------------------------------------
+    void DebugManager::drawAxes( const Math::Vec3& pos, const Math::Quat& rot, F32 size, Time::Seconds duration, bool depthTest )
+    {
+        // Line for each edge
+        ArrayList<Math::Vec3> vertices =
+        {
+            pos, pos + rot.getForward() * size,
+            pos, pos + rot.getRight() * size,
+            pos, pos + rot.getUp() * size,
+        };
+        ArrayList<U32> indices = {
+            0, 1, 2, 3, 4, 5
+        };
+        ArrayList<Color> colors = {
+            Color::BLUE, Color::BLUE, Color::RED, Color::RED, Color::GREEN, Color::GREEN
+        };
+
+        auto mesh = RESOURCES.createMesh();
+        mesh->setVertices( vertices );
+        mesh->setIndices( indices, 0, Graphics::MeshTopology::Lines );
+        mesh->setColors( colors );
+
+        _AddMesh( mesh, duration, depthTest );
+    }
+
     //**********************************************************************
     // PRIVATE
     //**********************************************************************

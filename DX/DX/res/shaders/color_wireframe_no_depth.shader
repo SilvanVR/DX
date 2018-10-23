@@ -2,6 +2,7 @@
 #Fill			Wireframe
 #Cull 			Back
 #ZWrite 		Off
+#ZTest 			Off
 #Queue 			Geometry
 
 //----------------------------------------------

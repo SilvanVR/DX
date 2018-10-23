@@ -55,8 +55,17 @@ namespace Core { namespace Debug {
         // Draws an orthographic frustum in wireframe.
         //----------------------------------------------------------------------
         void drawFrustum(const Math::Vec3& pos, const Math::Vec3& forward, const Math::Vec3& up, F32 left, F32 right, F32 bottom, F32 top, F32 zNear, F32 zFar, Color color, Time::Seconds duration, bool depthTest = true);
-        void drawFrustum(const Math::Vec3& pos, const Math::Quaternion& quat, F32 left, F32 right, F32 bottom, F32 top, F32 zNear, F32 zFar, Color color, Time::Seconds duration, bool depthTest = true);
+        void drawFrustum(const Math::Vec3& pos, const Math::Quat& quat, F32 left, F32 right, F32 bottom, F32 top, F32 zNear, F32 zFar, Color color, Time::Seconds duration, bool depthTest = true);
 
+        //----------------------------------------------------------------------
+        // Draws a cross converging at the given pos
+        //----------------------------------------------------------------------
+        void drawCross(const Math::Vec3& pos, F32 size, Color color, Time::Seconds duration, bool depthTest = true);
+
+        //----------------------------------------------------------------------
+        // Draws a set of coordinate axes
+        //----------------------------------------------------------------------
+        void drawAxes(const Math::Vec3& pos, const Math::Quat& rot, F32 size, Time::Seconds duration, bool depthTest = true);
 
     private:
         // Stores rendering commands for drawing the entire debug stuff
