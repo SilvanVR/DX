@@ -34,6 +34,15 @@ public:
         auto cubeMesh = Core::MeshGenerator::CreateCubeUV(1.0f);
         createGameObject("Cube")->addComponent<Components::MeshRenderer>(cubeMesh, ASSETS.getMaterial("/materials/texture.material"));
 
+        go->addComponent<Components::GUI>();
+        go->addComponent<Components::GUICustom>([=] {
+            ImGui::Begin("FOV change");
+            static F32 fov = 45.0f;
+            if (ImGui::SliderFloat("Cubemap LOD", &fov, 1.0f, 180.0f))
+                cam->setFOV(fov);
+            ImGui::End();
+        });
+
         //auto cubemap = ASSETS.getCubemap("/cubemaps/tropical_sunny_day/Left.png", "/cubemaps/tropical_sunny_day/Right.png",
         //    "/cubemaps/tropical_sunny_day/Up.png", "/cubemaps/tropical_sunny_day/Down.png",
         //    "/cubemaps/tropical_sunny_day/Front.png", "/cubemaps/tropical_sunny_day/Back.png", true);
@@ -182,8 +191,8 @@ public:
         Locator::getRenderer().setVSync(true);
         Locator::getRenderer().setGlobalFloat(SID("_Ambient"), 0.5f);
 
-        Locator::getSceneManager().LoadSceneAsync(new SceneGUISelectSceneMenu());
-        //Locator::getSceneManager().LoadScene(new TestScene());
+        //Locator::getSceneManager().LoadSceneAsync(new SceneGUISelectSceneMenu());
+        Locator::getSceneManager().LoadScene(new TestScene());
     }
 
     //----------------------------------------------------------------------
