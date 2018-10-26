@@ -201,10 +201,22 @@ namespace Graphics { namespace D3D11 {
             D3D11_SHADER_VARIABLE_DESC varDesc;
             HR( var->GetDesc( &varDesc ) );
 
-            ShaderUniformDeclaration uniform( SID( varDesc.Name ), varDesc.StartOffset, varDesc.Size, _GetDataType( var ) );
+            ShaderUniformDeclaration uniform( SID( varDesc.Name ), varDesc.StartOffset, varDesc.Size, _GetDataType( var ), _GetArraySize( var ) );
             buffer._AddUniformDecl( uniform );
         }
         m_constantBuffers.push_back( buffer );
+    }
+
+    //----------------------------------------------------------------------
+    U32 ShaderBase::_GetArraySize( ID3D11ShaderReflectionVariable* var )
+    {
+        auto type = var->GetType();
+        D3D11_SHADER_TYPE_DESC typeDesc;
+        HR( type->GetDesc( &typeDesc ) );
+
+        // Because typeDesc.Elements is 0 when the variable is not an array we return 1 instead through "predication".
+        // It is a little trick and in general faster than an if statement due to cpu pipelining.
+        return typeDesc.Elements | (typeDesc.Elements == 0);
     }
 
     //----------------------------------------------------------------------

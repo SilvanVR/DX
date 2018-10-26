@@ -19,7 +19,7 @@ namespace Graphics {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    DataType IShader::getDataTypeOfMaterialProperty( StringID name )
+    DataType IShader::getDataTypeOfMaterialProperty( StringID name ) const
     {
         for (auto& ubo : m_uniformBuffers)
         {
@@ -34,7 +34,7 @@ namespace Graphics {
     }
 
     //----------------------------------------------------------------------
-    DataType IShader::getDataTypeOfMaterialPropertyOrResource( StringID name )
+    DataType IShader::getDataTypeOfMaterialPropertyOrResource( StringID name ) const
     {
         auto typeMaterial = getDataTypeOfMaterialProperty( name );
 
@@ -55,7 +55,7 @@ namespace Graphics {
     }
 
     //----------------------------------------------------------------------
-    DataType IShader::getDataTypeOfShaderMember( StringID name )
+    DataType IShader::getDataTypeOfShaderMember( StringID name ) const
     {
         for ( auto& ubo : m_uniformBuffers)
             if ( auto member = ubo.getMember( name ) )
@@ -109,158 +109,110 @@ namespace Graphics {
     }
 
     //**********************************************************************
-    // SHADER PARAMETERS - GET
+    // PROTECTED
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    I32 IShader::getInt( StringID name ) const
-    { 
-        if ( m_intMap.find( name ) != m_intMap.end() )
-            return m_intMap.at( name );
-
+    void IShader::_WarnMissingInt( StringID name ) const
+    {
         LOG_WARN_RENDERING( "IShader::getInt(): Name '" + name.toString() + "' does not exist in shader '" + getName() + "'" );
-        return 0;
     }
 
     //----------------------------------------------------------------------
-    F32 IShader::getFloat( StringID name ) const
-    { 
-        if ( m_floatMap.find( name ) != m_floatMap.end() )
-            return m_floatMap.at( name );
-
+    void IShader::_WarnMissingFloat( StringID name ) const
+    {
         LOG_WARN_RENDERING( "IShader::getFloat(): Name '" + name.toString() + "' does not exist in shader '" + getName() + "'" );
-        return 0.0f;
     }
 
     //----------------------------------------------------------------------
-    Math::Vec4 IShader::getVec4( StringID name ) const
+    void IShader::_WarnMissingColor( StringID name ) const
     {
-        if ( m_vec4Map.find( name ) != m_vec4Map.end() )
-            return m_vec4Map.at( name );
-
-        LOG_WARN_RENDERING( "IShader::getVec4(): Name '" + name.toString() + "' does not exist in shader '" + getName() + "'" );
-        return Math::Vec4( 0.0f );
-    }
-
-    //----------------------------------------------------------------------
-    DirectX::XMMATRIX IShader::getMatrix( StringID name ) const
-    {
-        if ( m_matrixMap.find( name ) != m_matrixMap.end() )
-            return m_matrixMap.at( name );
-
-        LOG_WARN_RENDERING( "IShader::getMatrix(): Name '" + name.toString() + "' does not exist in shader '" + getName() + "'" );
-        return DirectX::XMMatrixIdentity();
-    }
-
-    //----------------------------------------------------------------------
-    Color IShader::getColor( StringID name ) const
-    {
-        if ( m_vec4Map.find( name ) != m_vec4Map.end() )
-        {
-            Math::Vec4 colorAsVec = m_vec4Map.at( name );
-            return Color( (Byte) (colorAsVec.x * 255.0f), (Byte) (colorAsVec.y * 255.0f), (Byte) (colorAsVec.z * 255.0f), (Byte) (colorAsVec.w * 255.0f) );
-        }
-
         LOG_WARN_RENDERING( "IShader::getColor(): Name '" + name.toString() + "' does not exist in shader '" + getName() + "'" );
-        return Color::BLACK;
     }
 
     //----------------------------------------------------------------------
-    TexturePtr IShader::getTexture( StringID name ) const
+    void IShader::_WarnMissingVec4( StringID name ) const
     {
-        if ( m_textureMap.find( name ) != m_textureMap.end() )
-            return m_textureMap.at( name );
-
-        LOG_WARN_RENDERING( "IShader::getTexture(): Name '" + name.toString() + "' does not exist in shader '" + getName() + "'" );
-        return nullptr;
+        LOG_WARN_RENDERING( "IShader::getVec4(): Name '" + name.toString() + "' does not exist in shader '" + getName() + "'" );
     }
 
-    //**********************************************************************
-    // SHADER PARAMETERS - SET
-    //**********************************************************************
+    //----------------------------------------------------------------------
+    void IShader::_WarnMissingMatrix( StringID name ) const
+    {
+        LOG_WARN_RENDERING( "IShader::getMatrix(): Name '" + name.toString() + "' does not exist in shader '" + getName() + "'" );
+    }
 
     //----------------------------------------------------------------------
-    void IShader::setInt( StringID name, I32 val )
-    { 
+    void IShader::_WarnMissingTexture( StringID name ) const
+    {
+        LOG_WARN_RENDERING( "IShader::getTexture(): Name '" + name.toString() + "' does not exist in shader '" + getName() + "'" );
+    }
+
+    //----------------------------------------------------------------------
+    bool IShader::_HasShaderInt( StringID name ) const
+    {
         if ( not hasShaderProperty( name ) )
         {
             LOG_WARN_RENDERING( "IShader::setInt(): Name '" + name.toString() + "' does not exist in shader '" + getName() + "'" );
-            return;
+            return false;
         }
-
-        m_intMap[ name ] = val;
-        _SetInt( name, val ); 
+        return true;
     }
 
     //----------------------------------------------------------------------
-    void IShader::setFloat( StringID name, F32 val )
-    { 
+    bool IShader::_HasShaderFloat( StringID name ) const
+    {
         if ( not hasShaderProperty( name ) )
         {
             LOG_WARN_RENDERING( "IShader::setFloat(): Name '" + name.toString() + "' does not exist in shader '" + getName() + "'" );
-            return;
+            return false;
         }
-
-        m_floatMap[ name ] = val;
-        _SetFloat( name, val );
+        return true;
     }
 
     //----------------------------------------------------------------------
-    void IShader::setVec4( StringID name, const Math::Vec4& vec )
-    { 
-        if ( not hasShaderProperty( name ) )
-        {
-            LOG_WARN_RENDERING( "IShader::setVec4(): Name '" + name.toString() + "' does not exist in shader '" + getName() + "'" );
-            return;
-        }
-
-        m_vec4Map[ name ] = vec;
-        _SetVec4( name, vec );
-    }
-
-    //----------------------------------------------------------------------
-    void IShader::setMatrix( StringID name, const DirectX::XMMATRIX& matrix )
-    { 
-        if ( not hasShaderProperty( name ) )
-        {
-            LOG_WARN_RENDERING( "IShader::setMatrix(): Name '" + name.toString() + "' does not exist in shader '" + getName() + "'" );
-            return;
-        }
-
-        m_matrixMap[ name ] = matrix;
-        _SetMatrix( name, matrix ); 
-    }
-
-    //----------------------------------------------------------------------
-    void IShader::setColor( StringID name, Color color )
-    { 
+    bool IShader::_HasShaderColor( StringID name ) const
+    {
         if ( not hasShaderProperty( name ) )
         {
             LOG_WARN_RENDERING( "IShader::setColor(): Name '" + name.toString() + "' does not exist in shader '" + getName() + "'" );
-            return;
+            return false;
         }
-
-        auto normalized = color.normalized();
-        Math::Vec4 colorAsVec( normalized[0], normalized[1], normalized[2], normalized[3] );
-        m_vec4Map[ name ] = colorAsVec;
-        _SetVec4( name, colorAsVec );
+        return true;
     }
 
     //----------------------------------------------------------------------
-    void IShader::setTexture( StringID name, const TexturePtr& tex )
+    bool IShader::_HasShaderVec4( StringID name ) const
+    {
+        if ( not hasShaderProperty( name ) )
+        {
+            LOG_WARN_RENDERING( "IShader::setVec4(): Name '" + name.toString() + "' does not exist in shader '" + getName() + "'" );
+            return false;
+        }
+        return true;
+    }
+
+    //----------------------------------------------------------------------
+    bool IShader::_HasShaderMatrix( StringID name ) const
+    {
+        if ( not hasShaderProperty( name ) )
+        {
+            LOG_WARN_RENDERING( "IShader::setMatrix(): Name '" + name.toString() + "' does not exist in shader '" + getName() + "'" );
+            return false;
+        }
+        return true;
+    }
+
+    //----------------------------------------------------------------------
+    bool IShader::_HasShaderTexture( StringID name ) const
     {
         if ( not getShaderResource( name ) )
         {
             LOG_WARN_RENDERING( "IShader::setTexture(): Name '" + name.toString() + "' does not exist in shader '" + getName() + "'" );
-            return;
+            return false;
         }
-
-        m_textureMap[ name ] = tex;
+        return true;
     }
-
-    //**********************************************************************
-    // PROTECTED
-    //**********************************************************************
 
     //----------------------------------------------------------------------
     void IShader::_BindTextures()
@@ -271,16 +223,6 @@ namespace Graphics {
             if (shaderRes) // shader res can be null when the shaders was reloaded but the res no longer exists in it
                 pair.second->bind( *shaderRes );
         }
-    }
-
-    //----------------------------------------------------------------------
-    void IShader::_ClearAllMaps()
-    {
-        m_intMap.clear();
-        m_floatMap.clear();
-        m_vec4Map.clear();
-        m_matrixMap.clear();
-        m_textureMap.clear();
     }
 
     //**********************************************************************

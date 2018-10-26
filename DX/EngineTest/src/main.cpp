@@ -24,7 +24,7 @@ public:
     {
         // Camera
         go = createGameObject("Camera");
-        cam = go->addComponent<Components::Camera>( 45.0f, 0.1f, 1000.0f, Graphics::MSAASamples::One );
+        cam = go->addComponent<Components::Camera>( 45.0f, 0.1f, 1000.0f, Graphics::MSAASamples::Four );
         cam->setClearColor(Color(175, 181, 191));
         go->getComponent<Components::Transform>()->position = Math::Vec3(0, 1, -5);
         go->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 0.1f);
@@ -41,52 +41,15 @@ public:
         go->addComponent<Components::GUICustom>([=] {
             ImGui::Begin("FOV change");
             static F32 fov = 45.0f;
-            if (ImGui::SliderFloat("Cubemap LOD", &fov, 1.0f, 180.0f))
+            if (ImGui::SliderFloat("FOV", &fov, 1.0f, 180.0f))
                 cam->setFOV(fov);
             ImGui::End();
         });
-
-        //DEBUG.drawSphere({}, 0.5f, Color::GREEN, 55_s, false);
-        //DEBUG.drawCross({0.5f,1.0f,0.0f}, 1.0f, Color::RED, 55_s, false);
-
 
         //auto cubemap = ASSETS.getCubemap("/cubemaps/tropical_sunny_day/Left.png", "/cubemaps/tropical_sunny_day/Right.png",
         //    "/cubemaps/tropical_sunny_day/Up.png", "/cubemaps/tropical_sunny_day/Down.png",
         //    "/cubemaps/tropical_sunny_day/Front.png", "/cubemaps/tropical_sunny_day/Back.png", true);
         //go->addComponent<Components::Skybox>(cubemap);
-
-        //go->addComponent<Tonemap>();
-        //auto cubemapHDR = ASSETS.getCubemap("/cubemaps/pine.hdr", 2048, true);
-
-        //auto pbrShader = ASSETS.getShader("/engine/shaders/pbr/pbr.shader");
-        //Assets::EnvironmentMap envMap(cubemapHDR, 128, 512);
-        //auto diffuse = envMap.getDiffuseIrradianceMap();
-        //auto specular = envMap.getSpecularReflectionMap();
-
-        //auto brdfLut = Assets::BRDFLut().getTexture();
-        //pbrShader->setReloadCallback([=](Graphics::IShader* shader) {
-        //    shader->setTexture("diffuseIrradianceMap", diffuse);
-        //    shader->setTexture("specularReflectionMap", specular);
-        //    shader->setTexture("brdfLUT", brdfLut);
-        //    shader->setFloat("maxReflectionLOD", F32(specular->getMipCount() - 1));
-        //});
-        //pbrShader->invokeReloadCallback();
-
-        //auto mat = ASSETS.getMaterial("/materials/skyboxLod.material");
-        //mat->setTexture("Cubemap", specular);
-
-        //auto sky = createGameObject("Cube");
-        //sky->addComponent<Components::MeshRenderer>(cubeMesh, mat);
-        //sky->getTransform()->scale = { 10000.0f };
-
-        //go->addComponent<Components::GUI>();
-        //go->addComponent<Components::GUICustom>([=] {
-        //    ImGui::Begin("LOD change");
-        //    static F32 lod = 0.0f;
-        //    if (ImGui::SliderFloat("Cubemap LOD", &lod, 0.0f, specular->getMipCount()))
-        //        mat->setFloat("lod", lod);
-        //    ImGui::End();
-        //});
     }
 
     void tick(Time::Seconds delta) override
@@ -124,6 +87,92 @@ public:
     void shutdown() override {}
 };
 
+class AnimationTestScene : public IScene
+{
+    Components::Camera* cam;
+
+public:
+    AnimationTestScene() : IScene("AnimationTestScene") {}
+
+    void init() override
+    {
+        // Camera
+        auto camGO = createGameObject("Camera");
+        cam = camGO->addComponent<Components::Camera>(45.0f, 0.1f, 1000.0f, Graphics::MSAASamples::Four);
+        cam->setClearColor(Color(175, 181, 191));
+        camGO->getComponent<Components::Transform>()->position = Math::Vec3(0, 2, -5);
+        camGO->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 0.1f);
+        camGO->addComponent<Components::AudioListener>();
+
+        createGameObject("Grid")->addComponent<GridGeneration>(20);
+
+        auto skelShader = ASSETS.getShader("/shaders/skel_animation.shader");
+
+        ArrayList<DirectX::XMMATRIX> boneTransforms(255, DirectX::XMMatrixIdentity());
+        skelShader->setData("u_boneTransforms", boneTransforms.data());
+
+        auto mesh = ASSETS.getMesh("/models/humanoid/model.dae");
+        auto& vsBoneIDs = mesh->createVertexStream<Math::Vec4>(Graphics::SID_VERTEX_BONEID, mesh->getVertexCount());
+
+        ArrayList<Math::Vec4> boneWeights(mesh->getVertexCount(), Math::Vec4(0.25f));
+        auto& vsBoneWeights = mesh->createVertexStream<Math::Vec4>(Graphics::SID_VERTEX_BONEWEIGHT, boneWeights);
+
+
+        auto mat = ASSETS.getMaterial("/models/humanoid/mat.material");
+
+        auto meshGO = createGameObject("GO");
+        meshGO->addComponent<Components::MeshRenderer>(mesh, mat);
+
+        //Assets::MeshMaterialInfo matInfo;
+        //auto mesh = ASSETS.getMesh("/models/mario/mario_galaxy.fbx", &matInfo);
+        //auto meshGO = createGameObject("GO");
+        //auto mr = meshGO->addComponent<Components::MeshRenderer>(mesh);
+        //if (matInfo.isValid())
+        //{
+        //    for (I32 i = 0; i < mesh->getSubMeshCount(); i++)
+        //    {
+        //        auto material = RESOURCES.createMaterial(ASSETS.getShader("/shaders/skel_animation.shader"));
+        //        for (auto& texture : matInfo[i].textures)
+        //        {
+        //            switch (texture.type)
+        //            {
+        //            case Assets::MaterialTextureType::Albedo: material->setTexture("tex", ASSETS.getTexture2D(texture.filePath)); break;
+        //            case Assets::MaterialTextureType::Normal: material->setTexture("normalMap", ASSETS.getTexture2D(texture.filePath)); break;
+        //            }
+        //        }
+        //        mr->setMaterial(material, i);
+        //    }
+        //}
+
+        meshGO->getTransform()->rotation *= Math::Quat(Math::Vec3::RIGHT, -90.0f);
+        meshGO->getTransform()->rotation *= Math::Quat(Math::Vec3::UP, 180.0f);
+        meshGO->getTransform()->scale *= 0.5f;
+
+        camGO->addComponent<Components::GUI>();
+        camGO->addComponent<Components::GUICustom>([=] {
+            ImGui::Begin("FOV change");
+            static F32 fov = 45.0f;
+            if (ImGui::SliderFloat("FOV", &fov, 1.0f, 180.0f))
+                cam->setFOV(fov);
+            ImGui::End();
+        });
+
+        //auto sun = createGameObject("Sun");
+        //auto dl = sun->addComponent<Components::DirectionalLight>(0.5f, Color::WHITE, Graphics::ShadowType::CSMSoft, ArrayList<F32>{10.0f, 30.0f, 80.0f, 200.0f});
+        //sun->getTransform()->rotation = Math::Quat::LookRotation(Math::Vec3{ 0,-1, 0 }, Math::Vec3{ 0, 0, 1});
+
+        auto cubemap = ASSETS.getCubemap("/cubemaps/tropical_sunny_day/Left.png", "/cubemaps/tropical_sunny_day/Right.png",
+            "/cubemaps/tropical_sunny_day/Up.png", "/cubemaps/tropical_sunny_day/Down.png",
+            "/cubemaps/tropical_sunny_day/Front.png", "/cubemaps/tropical_sunny_day/Back.png", true);
+        camGO->addComponent<Components::Skybox>(cubemap);
+    }
+
+    void tick(Time::Seconds delta) override
+    {
+
+    }
+};
+
 //----------------------------------------------------------------------
 class SceneGUISelectSceneMenu : public IScene
 {
@@ -141,6 +190,7 @@ public:
         createGameObject("Cube")->addComponent<Components::MeshRenderer>(cubeMesh, ASSETS.getErrorMaterial());
 
         auto guiSceneMenu = gui->addComponent<GUISceneMenu>("Scenes");
+        guiSceneMenu->registerScene<AnimationTestScene>("Animation Test Scene");
         guiSceneMenu->registerScene<SceneGUIThesisScenesMenu>("Thesis Test Scenes");
         guiSceneMenu->registerScene<TestScene>("Test Scene");
         guiSceneMenu->registerScene<SceneSplines>("Catmull-Rom Spline");
@@ -204,7 +254,7 @@ public:
         Locator::getRenderer().setGlobalFloat(SID("_Ambient"), 0.5f);
 
         //Locator::getSceneManager().LoadSceneAsync(new SceneGUISelectSceneMenu());
-        Locator::getSceneManager().LoadScene(new TestScene());
+        Locator::getSceneManager().LoadScene(new AnimationTestScene());
     }
 
     //----------------------------------------------------------------------

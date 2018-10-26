@@ -4,6 +4,8 @@
 // "camera": Per camera constant buffer.
 // "light": Per light constant buffer.
 
+#define MAX_BONES 255
+
 cbuffer cbPerCamera : register(b0)
 {	
 	float4x4 _View;	

@@ -42,6 +42,7 @@ namespace Graphics { namespace D3D11 {
         void _SetFloat(StringID name, F32 val)                          override { _UpdateConstantBuffer(name, &val); }
         void _SetVec4(StringID name, const Math::Vec4& vec)             override { _UpdateConstantBuffer(name, &vec); }
         void _SetMatrix(StringID name, const DirectX::XMMATRIX& matrix) override { _UpdateConstantBuffer(name, &matrix); }
+        void _SetData(StringID name, const void* data)                  override { _UpdateConstantBuffer(name, data); };
 
         void setRasterizationState(const RasterizationState& rzState) override;
         void setDepthStencilState(const DepthStencilState& dsState) override;

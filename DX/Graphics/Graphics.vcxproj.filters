@@ -48,15 +48,6 @@
     <ClCompile Include="src\Include\Graphics\D3D11\Resources\D3D11Shader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Include\Graphics\D3D11\Pipeline\Shaders\D3D11VertexShader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Include\Graphics\D3D11\Pipeline\Shaders\D3D11PixelShader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Include\Graphics\D3D11\Pipeline\Shaders\D3D11ShaderBase.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\Include\Graphics\i_material.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -97,9 +88,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Include\Graphics\i_render_texture.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Include\Graphics\D3D11\Pipeline\Shaders\D3D11GeometryShader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Include\Graphics\Lighting\lights.cpp">
@@ -162,6 +150,21 @@
     <ClCompile Include="src\Include\Graphics\Vulkan\VkUtility.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Include\Graphics\D3D11\Pipeline\Shaders\D3D11GeometryShader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Include\Graphics\D3D11\Pipeline\Shaders\D3D11PixelShader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Include\Graphics\D3D11\Pipeline\Shaders\D3D11ShaderBase.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Include\Graphics\D3D11\Pipeline\Shaders\D3D11VertexShader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Include\Graphics\Utils\i_cached_shader_maps.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\stdafx.h">
@@ -210,15 +213,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Include\Graphics\D3D11\Resources\D3D11Shader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Include\Graphics\D3D11\Pipeline\Shaders\D3D11VertexShader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Include\Graphics\D3D11\Pipeline\Shaders\D3D11PixelShader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Include\Graphics\D3D11\Pipeline\Shaders\D3D11ShaderBase.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Include\Graphics\i_material.h">
@@ -282,9 +276,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Include\Graphics\i_render_texture.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Include\Graphics\D3D11\Pipeline\Shaders\D3D11GeometryShader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Include\Graphics\Lighting\lights.h">
@@ -357,6 +348,21 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Include\Graphics\Vulkan\Vulkan.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Include\Graphics\D3D11\Pipeline\Shaders\D3D11GeometryShader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Include\Graphics\D3D11\Pipeline\Shaders\D3D11PixelShader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Include\Graphics\D3D11\Pipeline\Shaders\D3D11ShaderBase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Include\Graphics\D3D11\Pipeline\Shaders\D3D11VertexShader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Include\Graphics\Utils\i_cached_shader_maps.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

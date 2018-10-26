@@ -15,6 +15,8 @@ namespace Graphics {
     const StringID SID_VERTEX_UV         = SID("TEXCOORD");
     const StringID SID_VERTEX_NORMAL     = SID("NORMAL");
     const StringID SID_VERTEX_TANGENT    = SID("TANGENT");
+    const StringID SID_VERTEX_BONEID     = SID("BONEID");
+    const StringID SID_VERTEX_BONEWEIGHT = SID("BONEWEIGHT");
 
     //----------------------------------------------------------------------
     IMesh::~IMesh()

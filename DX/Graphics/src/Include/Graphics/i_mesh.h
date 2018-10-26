@@ -24,6 +24,8 @@ namespace Graphics {
     extern const StringID SID_VERTEX_UV;
     extern const StringID SID_VERTEX_NORMAL;
     extern const StringID SID_VERTEX_TANGENT;
+    extern const StringID SID_VERTEX_BONEID;
+    extern const StringID SID_VERTEX_BONEWEIGHT;
 
     //**********************************************************************
     // Base class for different vertex streams.

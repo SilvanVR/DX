@@ -202,6 +202,7 @@
     <ClCompile Include="src\Include\Graphics\i_render_texture.cpp" />
     <ClCompile Include="src\Include\Graphics\i_shader.cpp" />
     <ClCompile Include="src\Include\Graphics\Lighting\lights.cpp" />
+    <ClCompile Include="src\Include\Graphics\Utils\i_cached_shader_maps.cpp" />
     <ClCompile Include="src\Include\Graphics\Utils\utils.cpp" />
     <ClCompile Include="src\Include\Graphics\VR\OculusRift\oculus_rift.cpp" />
     <ClCompile Include="src\Include\Graphics\VR\vr.cpp" />
@@ -230,6 +231,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Include\Graphics\Utils\i_cached_shader_maps.h" />
     <ClInclude Include="src\Include\Graphics\camera.h" />
     <ClInclude Include="src\Include\Graphics\command_buffer.h" />
     <ClInclude Include="src\Include\Graphics\D3D11\D3D11.hpp" />

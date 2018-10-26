@@ -1,0 +1,6 @@
+{
+
+"shader" : "/shaders/skel_animation.shader",
+"tex" : "/models/humanoid/diffuse.png"
+
+}

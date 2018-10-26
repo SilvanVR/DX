@@ -68,6 +68,7 @@ namespace Graphics { namespace D3D11 {
         void _ShaderReflection(const ShaderBlob& shaderBlob);
         void _ReflectResources(const D3D11_SHADER_DESC& shaderDesc);
         void _ReflectConstantBuffer(ID3D11ShaderReflectionConstantBuffer* cb, U32 bindSlot);
+        U32 _GetArraySize(ID3D11ShaderReflectionVariable* var);
         DataType _GetDataType(ID3D11ShaderReflectionVariable* var);
         String _GetLatestProfile();
 
