@@ -613,7 +613,6 @@ public:
             shader->setTexture("brdfLUT", brdfLut);
             shader->setFloat("maxReflectionLOD", F32(specular->getMipCount() - 1));
         });
-        pbrShader->invokeReloadCallback();
 
         auto mesh = ASSETS.getMesh("/models/sphere.obj");
         auto mat = ASSETS.getMaterial("/materials/pbr/test.pbrmaterial");
@@ -715,7 +714,6 @@ public:
             shader->setTexture("brdfLUT", brdfLut);
             shader->setFloat("maxReflectionLOD", F32(specular->getMipCount() - 1));
         });
-        pbrShader->invokeReloadCallback();
 
         // Skybox
         createGameObject("Skybox")->addComponent<Components::Skybox>(cubemapHDR);
@@ -824,7 +822,6 @@ public:
             shader->setTexture("brdfLUT", brdfLut);
             shader->setFloat("maxReflectionLOD", F32(specular->getMipCount() - 1));
         });
-        pbrShader->invokeReloadCallback();
 
         createGameObject("Skybox")->addComponent<Components::Skybox>(cubemapHDR);
 
@@ -936,7 +933,6 @@ public:
             shader->setTexture("brdfLUT", brdfLut);
             shader->setFloat("maxReflectionLOD", F32(specular->getMipCount() - 1));
         });
-        pbrShader->invokeReloadCallback();
 
         auto obj = createGameObject("Obj");
         obj->addComponent<Components::MeshRenderer>(ASSETS.getMesh("/models/monkey.obj"), ASSETS.getMaterial("/materials/pbr/gold.pbrmaterial"));

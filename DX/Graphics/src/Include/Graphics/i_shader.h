@@ -204,7 +204,7 @@ namespace Graphics {
         //----------------------------------------------------------------------
         // The given function will be invoked whenever the shader gets reloaded.
         //----------------------------------------------------------------------
-        void setReloadCallback(const ShaderReloadCallback& f) { m_reloadCallback = f; }
+        void setReloadCallback(const ShaderReloadCallback& f) { m_reloadCallback = f; invokeReloadCallback(); }
 
         //----------------------------------------------------------------------
         // Invokes the reload callback if one exists.

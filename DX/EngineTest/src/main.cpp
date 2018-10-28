@@ -108,10 +108,11 @@ public:
 
         auto skelShader = ASSETS.getShader("/shaders/skel_animation.shader");
 
-        ArrayList<DirectX::XMMATRIX> boneTransforms(255, DirectX::XMMatrixIdentity());
-        skelShader->setData("u_boneTransforms", boneTransforms.data());
-
         auto mesh = ASSETS.getMesh("/models/humanoid/model.dae");
+        skelShader->setReloadCallback([=](Graphics::IShader* shader) {
+            ArrayList<DirectX::XMMATRIX> boneTransforms(255, DirectX::XMMatrixIdentity());
+            shader->setData("u_boneTransforms", boneTransforms.data());
+        });
 
         ArrayList<Math::Vec4Int> boneIDs(mesh->getVertexCount(), Math::Vec4Int(0));
         mesh->setBoneIDs(boneIDs);

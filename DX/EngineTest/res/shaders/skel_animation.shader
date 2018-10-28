@@ -49,7 +49,6 @@ VertexOut main(VertexIn vin)
 	
 	float4 pos = mul( boneTransform, float4( vin.PosL, 1 ) );
     OUT.PosH = TO_CLIP_SPACE( pos );
-    //OUT.PosH = TO_CLIP_SPACE( vin.PosL );
 	
     return OUT;
 }
@@ -72,10 +71,8 @@ SamplerState sampler0;
         
 float4 main(FragmentIn fin) : SV_Target
 {            
-	float4 textureColor = tex.Sample(sampler0, fin.Tex);
-		                              
-	return textureColor; 
-	//return float4(1,1,1,1); 
+	float4 textureColor = tex.Sample(sampler0, fin.Tex);		                              
+	return textureColor;
 }
 
 //----------------------------------------------
