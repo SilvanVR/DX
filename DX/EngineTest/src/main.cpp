@@ -114,12 +114,10 @@ public:
             shader->setData("u_boneTransforms", boneTransforms.data());
         });
 
-        ArrayList<Math::Vec4Int> boneIDs(mesh->getVertexCount(), Math::Vec4Int(0));
-        mesh->setBoneIDs(boneIDs);
-
-        ArrayList<Math::Vec4> boneWeights(mesh->getVertexCount(), Math::Vec4(0.25f));
-        mesh->setBoneWeights(boneWeights);
-
+        //ArrayList<Math::Vec4Int> boneIDs(mesh->getVertexCount(), Math::Vec4Int(0));
+        //mesh->setBoneIDs(boneIDs);
+        //ArrayList<Math::Vec4> boneWeights(mesh->getVertexCount(), Math::Vec4(0.25f));
+        //mesh->setBoneWeights(boneWeights);
 
         auto mat = ASSETS.getMaterial("/models/humanoid/mat.material");
 

@@ -16,6 +16,10 @@
 namespace Assets {
 
     //----------------------------------------------------------------------
+    void ExtractBoneInformation(const aiScene* scene, const MeshPtr& mesh, U32 numVertices);
+    void LoadMaterials(const aiScene* scene, const OS::Path& path, MeshMaterialInfo* materials);
+
+    //----------------------------------------------------------------------
     // Check if the given material is the default one or a real material
     // The only way to do this in Assimp currently is to check the name.
     //----------------------------------------------------------------------
@@ -65,7 +69,7 @@ namespace Assets {
                 LOG_WARN( TS( m ) + "th Submesh of mesh '" + path.toString() + "' has no Normals. All normals set to zero." );
 
             if (materials)
-                materials->materialIndices.push_back( aMesh->mMaterialIndex );
+                materials->_AddMaterialIndex( aMesh->mMaterialIndex );
 
             // Save base vertex for this submesh
             U32 baseVertex = (U32)vertices.size();
@@ -108,127 +112,191 @@ namespace Assets {
         mesh->setNormals( normals );
         mesh->setTangents( tangents );
 
+        ExtractBoneInformation( scene, mesh, static_cast<U32>( vertices.size() ) );
+
         // Load material information from the scene if requested.
         // Because Mesh-Files without a material file still have one material, i have to check it manually.
         // This can cause problems if the first material is named "DefaultMaterial".
         bool hasOnlyDefaultMaterial = scene->mNumMaterials == 1 && isDefaultMaterial( scene->mMaterials[0] );
         if ( materials != nullptr && scene->HasMaterials() && not hasOnlyDefaultMaterial )
-        {
-            materials->materials.resize( scene->mNumMaterials );
-            for (U32 i = 0; i < scene->mNumMaterials; i++)
-            {
-                aiString texturePath;
-                const aiMaterial* material = scene->mMaterials[i];
-
-                // Albedo map
-                if ( material->GetTexture( aiTextureType_DIFFUSE, 0, &texturePath ) == AI_SUCCESS )
-                {
-                    if (auto texture = scene->GetEmbeddedTexture(texturePath.C_Str())) {
-                        LOG_WARN( "Embedded texture found, but i have no clue how to load them :-)" );
-                    }
-                    else {
-                        const String fullTexturePath = path.getDirectoryPath() + texturePath.C_Str();
-                        materials->materials[i].textures.push_back({ MaterialTextureType::Albedo, fullTexturePath });
-                    }
-                }
-
-                // Normal map
-                if ( material->GetTexture( aiTextureType_NORMALS, 0, &texturePath ) == AI_SUCCESS )
-                {
-                    if (auto texture = scene->GetEmbeddedTexture(texturePath.C_Str())) {
-                        LOG_WARN( "Embedded texture found, but i have no clue how to load them :-)" );
-                    }
-                    else {
-                        const String fullTexturePath = path.getDirectoryPath() + texturePath.C_Str();
-                        materials->materials[i].textures.push_back({ MaterialTextureType::Normal, fullTexturePath });
-                    }
-                }
-
-                // Shininess map
-                if ( material->GetTexture( aiTextureType_SHININESS, 0, &texturePath ) == AI_SUCCESS )
-                {
-                    if (auto texture = scene->GetEmbeddedTexture(texturePath.C_Str())) {
-                        LOG_WARN( "Embedded texture found, but i have no clue how to load them :-)" );
-                    }
-                    else {
-                        const String fullTexturePath = path.getDirectoryPath() + texturePath.C_Str();
-                        materials->materials[i].textures.push_back({ MaterialTextureType::Shininess, fullTexturePath });
-                    }
-                }
-                
-                // AO map
-                if ( material->GetTexture( aiTextureType_AMBIENT, 0, &texturePath ) == AI_SUCCESS )
-                {
-                    if (auto texture = scene->GetEmbeddedTexture(texturePath.C_Str())) {
-                        LOG_WARN( "Embedded texture found, but i have no clue how to load them :-)" );
-                    }
-                    else {
-                        const String fullTexturePath = path.getDirectoryPath() + texturePath.C_Str();
-                        materials->materials[i].textures.push_back({ MaterialTextureType::Ambient, fullTexturePath });
-                    }
-                }
-
-                // Specular map
-                if ( material->GetTexture(aiTextureType_SPECULAR, 0, &texturePath ) == AI_SUCCESS )
-                {
-                    if (auto texture = scene->GetEmbeddedTexture(texturePath.C_Str())) {
-                        LOG_WARN( "Embedded texture found, but i have no clue how to load them :-)" );
-                    }
-                    else {
-                        const String fullTexturePath = path.getDirectoryPath() + texturePath.C_Str();
-                        materials->materials[i].textures.push_back({ MaterialTextureType::Specular, fullTexturePath });
-                    }
-                }
-
-                // Height map
-                if ( material->GetTexture( aiTextureType_HEIGHT, 0, &texturePath ) == AI_SUCCESS )
-                {
-                    if (auto texture = scene->GetEmbeddedTexture(texturePath.C_Str())) {
-                        LOG_WARN( "Embedded texture found, but i have no clue how to load them :-)" );
-                    }
-                    else {
-                        const String fullTexturePath = path.getDirectoryPath() + texturePath.C_Str();
-                        materials->materials[i].textures.push_back({ MaterialTextureType::Height, fullTexturePath });
-                    }
-                }
-
-                // Displacement map
-                if ( material->GetTexture( aiTextureType_DISPLACEMENT, 0, &texturePath ) == AI_SUCCESS )
-                {
-                    if (auto texture = scene->GetEmbeddedTexture(texturePath.C_Str())) {
-                        LOG_WARN( "Embedded texture found, but i have no clue how to load them :-)" );
-                    }
-                    else {
-                        const String fullTexturePath = path.getDirectoryPath() + texturePath.C_Str();
-                        materials->materials[i].textures.push_back({ MaterialTextureType::Displacement, fullTexturePath });
-                    }
-                }
-
-                // Displacement map
-                if (material->GetTexture( aiTextureType_EMISSIVE, 0, &texturePath ) == AI_SUCCESS )
-                {
-                    if (auto texture = scene->GetEmbeddedTexture(texturePath.C_Str())) {
-                        LOG_WARN( "Embedded texture found, but i have no clue how to load them :-)" );
-                    }
-                    else {
-                        const String fullTexturePath = path.getDirectoryPath() + texturePath.C_Str();
-                        materials->materials[i].textures.push_back({ MaterialTextureType::Emissive, fullTexturePath });
-                    }
-                }
-
-                // Set Material-Properties
-                aiColor3D color( 0.f, 0.f, 0.f );
-                if ( material->Get( AI_MATKEY_COLOR_DIFFUSE, color ) == AI_SUCCESS )
-                    materials->materials[i].diffuseColor = Color( (Byte)(color.r * 255), (Byte)(color.g * 255), (Byte)(color.b * 255));
-
-                F32 opacity = 1.0f;
-                if (material->Get( AI_MATKEY_OPACITY, opacity ) == AI_SUCCESS)
-                    materials->materials[i].diffuseColor.setAlpha( Byte(opacity * 255) );
-            }
-        }
+            LoadMaterials( scene, path, materials );
 
         return mesh;
     }
 
+    //----------------------------------------------------------------------
+    void ExtractBoneInformation( const aiScene* scene, const MeshPtr& mesh,  U32 numVertices )
+    {
+        // Extract Bone information from Assimps weird format to my own
+        struct BoneWeight
+        {
+            I32 id = -1;
+            F32 weight = 0.0f;
+        };
+        ArrayList<ArrayList<BoneWeight>> vertexBoneWeights( numVertices ); // Maps to every vertex a list of bone indices + weights
+        for (U32 m = 0; m < scene->mNumMeshes; m++)
+        {
+            aiMesh* aMesh = scene->mMeshes[m];
+            for (U32 b = 0; b < aMesh->mNumBones; b++)
+            {
+                auto& bone = aMesh->mBones[b];
+                for (U32 w = 0; w < bone->mNumWeights; w++)
+                {
+                    auto& weight = bone->mWeights[w];
+                    vertexBoneWeights[ weight.mVertexId + mesh->getBaseVertex( m ) ].push_back( { (I32)b, weight.mWeight } );
+                }
+                String name( bone->mName.C_Str() );
+                LOG(name, Color::GREEN);
+                //auto mat = bone->mOffsetMatrix;
+            }
+        }
+
+        const Size MAX_BONE_WEIGHTS = 4;
+
+        // Extract data from own format above in two separate arrays suitable for the mesh class
+        ArrayList<Math::Vec4Int> boneIDs( numVertices );
+        ArrayList<Math::Vec4>    boneWeights( numVertices );
+        for (I32 vert = 0; vert < vertexBoneWeights.size(); vert++)
+        {
+            // Sort weights from max to min
+            std::sort( vertexBoneWeights[vert].begin(), vertexBoneWeights[vert].end(), [](const BoneWeight& a, const BoneWeight& b) {
+                return a.weight > b.weight;
+            } );
+
+            // Get first MAX_BONE_WEIGHTS and add data to the array
+            F32 sum = 0;
+            for (I32 i = 0; i < std::min( vertexBoneWeights[vert].size(), MAX_BONE_WEIGHTS ); i++)
+            {
+                boneIDs[vert][i] = vertexBoneWeights[vert][i].id;
+                boneWeights[vert][i] = vertexBoneWeights[vert][i].weight;
+                sum += boneWeights[vert][i];
+            }
+
+            // Normalize weights, so they always sum up to 1
+            for (I32 i = 0; i < MAX_BONE_WEIGHTS; i++)
+                boneWeights[vert][i] /= sum;
+        }
+        if (not boneIDs.empty())
+            mesh->setBoneIDs( boneIDs );
+        if (not boneWeights.empty())
+            mesh->setBoneWeights( boneWeights );
+    }
+
+    //----------------------------------------------------------------------
+    void LoadMaterials( const aiScene* scene, const OS::Path& path, MeshMaterialInfo* materials )
+    {
+        for (U32 i = 0; i < scene->mNumMaterials; i++)
+        {
+            aiString texturePath;
+            const aiMaterial* aiMaterial = scene->mMaterials[i];
+
+            auto& material = materials->_AddMaterial();
+
+            // Albedo map
+            if ( aiMaterial->GetTexture( aiTextureType_DIFFUSE, 0, &texturePath ) == AI_SUCCESS )
+            {
+                if (auto texture = scene->GetEmbeddedTexture( texturePath.C_Str() )) {
+                    LOG_WARN( "Embedded texture found, but i have no clue how to load them :-)" );
+                }
+                else {
+                    const String fullTexturePath = path.getDirectoryPath() + texturePath.C_Str();
+                    material.textures.push_back({ MaterialTextureType::Albedo, fullTexturePath });
+                }
+            }
+
+            // Normal map
+            if ( aiMaterial->GetTexture( aiTextureType_NORMALS, 0, &texturePath ) == AI_SUCCESS )
+            {
+                if (auto texture = scene->GetEmbeddedTexture( texturePath.C_Str() )) {
+                    LOG_WARN( "Embedded texture found, but i have no clue how to load them :-)" );
+                }
+                else {
+                    const String fullTexturePath = path.getDirectoryPath() + texturePath.C_Str();
+                    material.textures.push_back({ MaterialTextureType::Normal, fullTexturePath });
+                }
+            }
+
+            // Shininess map
+            if ( aiMaterial->GetTexture( aiTextureType_SHININESS, 0, &texturePath ) == AI_SUCCESS )
+            {
+                if (auto texture = scene->GetEmbeddedTexture( texturePath.C_Str() )) {
+                    LOG_WARN( "Embedded texture found, but i have no clue how to load them :-)" );
+                }
+                else {
+                    const String fullTexturePath = path.getDirectoryPath() + texturePath.C_Str();
+                    material.textures.push_back({ MaterialTextureType::Shininess, fullTexturePath });
+                }
+            }
+                
+            // AO map
+            if ( aiMaterial->GetTexture( aiTextureType_AMBIENT, 0, &texturePath ) == AI_SUCCESS )
+            {
+                if (auto texture = scene->GetEmbeddedTexture( texturePath.C_Str() )) {
+                    LOG_WARN( "Embedded texture found, but i have no clue how to load them :-)" );
+                }
+                else {
+                    const String fullTexturePath = path.getDirectoryPath() + texturePath.C_Str();
+                    material.textures.push_back({ MaterialTextureType::Ambient, fullTexturePath });
+                }
+            }
+
+            // Specular map
+            if ( aiMaterial->GetTexture(aiTextureType_SPECULAR, 0, &texturePath ) == AI_SUCCESS )
+            {
+                if (auto texture = scene->GetEmbeddedTexture( texturePath.C_Str() )) {
+                    LOG_WARN( "Embedded texture found, but i have no clue how to load them :-)" );
+                }
+                else {
+                    const String fullTexturePath = path.getDirectoryPath() + texturePath.C_Str();
+                    material.textures.push_back({ MaterialTextureType::Specular, fullTexturePath });
+                }
+            }
+
+            // Height map
+            if ( aiMaterial->GetTexture( aiTextureType_HEIGHT, 0, &texturePath ) == AI_SUCCESS )
+            {
+                if (auto texture = scene->GetEmbeddedTexture( texturePath.C_Str() )) {
+                    LOG_WARN( "Embedded texture found, but i have no clue how to load them :-)" );
+                }
+                else {
+                    const String fullTexturePath = path.getDirectoryPath() + texturePath.C_Str();
+                    material.textures.push_back({ MaterialTextureType::Height, fullTexturePath });
+                }
+            }
+
+            // Displacement map
+            if ( aiMaterial->GetTexture( aiTextureType_DISPLACEMENT, 0, &texturePath ) == AI_SUCCESS )
+            {
+                if (auto texture = scene->GetEmbeddedTexture( texturePath.C_Str() )) {
+                    LOG_WARN( "Embedded texture found, but i have no clue how to load them :-)" );
+                }
+                else {
+                    const String fullTexturePath = path.getDirectoryPath() + texturePath.C_Str();
+                    material.textures.push_back({ MaterialTextureType::Displacement, fullTexturePath });
+                }
+            }
+
+            // Displacement map
+            if ( aiMaterial->GetTexture( aiTextureType_EMISSIVE, 0, &texturePath ) == AI_SUCCESS )
+            {
+                if (auto texture = scene->GetEmbeddedTexture( texturePath.C_Str() )) {
+                    LOG_WARN( "Embedded texture found, but i have no clue how to load them :-)" );
+                }
+                else {
+                    const String fullTexturePath = path.getDirectoryPath() + texturePath.C_Str();
+                    material.textures.push_back({ MaterialTextureType::Emissive, fullTexturePath });
+                }
+            }
+
+            // Set Material-Properties
+            aiColor3D color( 0.f, 0.f, 0.f );
+            if ( aiMaterial->Get( AI_MATKEY_COLOR_DIFFUSE, color ) == AI_SUCCESS )
+                material.diffuseColor = Color( (Byte)(color.r * 255), (Byte)(color.g * 255), (Byte)(color.b * 255));
+
+            F32 opacity = 1.0f;
+            if ( aiMaterial->Get( AI_MATKEY_OPACITY, opacity ) == AI_SUCCESS)
+                material.diffuseColor.setAlpha( Byte(opacity * 255) );
+        }
+    }
 
 } // End namespaces

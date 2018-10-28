@@ -53,11 +53,13 @@ namespace Assets {
         //----------------------------------------------------------------------
         bool isValid() const { return not materials.empty(); }
 
+        //----------------------------------------------------------------------
+        MaterialInfo&   _AddMaterial() { return materials.emplace_back(); }
+        void            _AddMaterialIndex(U32 index) { materialIndices.push_back(index); }
+
     private:
         ArrayList<U32> materialIndices; // Index of the array: Submesh, Value: Material (the index into the materials array)
         ArrayList<MaterialInfo> materials;
-
-        friend class AssimpLoader; // Allow the loader to fill this struct with data
     };
 
 } // End namespaces

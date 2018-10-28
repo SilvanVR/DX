@@ -137,6 +137,9 @@ namespace Math {
         bool        operator == (const Vector4F& v) const { return x == v.x && y == v.y && z == v.z && w == v.w; }
         bool        operator != (const Vector4F& v) const { return !(*this == v); }
 
+        F32         operator[] (I32 index) const { return reinterpret_cast<const F32*>(&x)[index]; }
+        F32&        operator[] (I32 index) { return reinterpret_cast<F32*>(&x)[index]; }
+
         String toString() const { return "(" + TS(x) + "," + TS(y) + "," + TS(z) + "," +TS(w) + ")"; }
     };
 
@@ -153,8 +156,11 @@ namespace Math {
         Vector4Int&   operator +=     (const Vector4Int& v) { x += v.x, y += v.y; z += v.z; w += v.w; return *this; }
         Vector4Int&   operator -=     (const Vector4Int& v) { x -= v.x, y -= v.y; z -= v.z; w -= v.w; return *this; }
 
-        bool        operator == (const Vector4Int& v) const { return x == v.x && y == v.y && z == v.z && w == v.w; }
-        bool        operator != (const Vector4Int& v) const { return !(*this == v); }
+        bool          operator == (const Vector4Int& v) const { return x == v.x && y == v.y && z == v.z && w == v.w; }
+        bool          operator != (const Vector4Int& v) const { return !(*this == v); }
+
+        I32           operator[] (I32 index) const { return reinterpret_cast<const I32*>(&x)[index]; }
+        I32&          operator[] (I32 index) { return reinterpret_cast<I32*>(&x)[index]; }
 
         String toString() const { return "(" + TS(x) + "," + TS(y) + "," + TS(z) + "," +TS(w) + ")"; }
     };
