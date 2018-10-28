@@ -112,10 +112,12 @@ public:
         skelShader->setData("u_boneTransforms", boneTransforms.data());
 
         auto mesh = ASSETS.getMesh("/models/humanoid/model.dae");
-        auto& vsBoneIDs = mesh->createVertexStream<Math::Vec4>(Graphics::SID_VERTEX_BONEID, mesh->getVertexCount());
+
+        ArrayList<Math::Vec4Int> boneIDs(mesh->getVertexCount(), Math::Vec4Int(0));
+        mesh->setBoneIDs(boneIDs);
 
         ArrayList<Math::Vec4> boneWeights(mesh->getVertexCount(), Math::Vec4(0.25f));
-        auto& vsBoneWeights = mesh->createVertexStream<Math::Vec4>(Graphics::SID_VERTEX_BONEWEIGHT, boneWeights);
+        mesh->setBoneWeights(boneWeights);
 
 
         auto mat = ASSETS.getMaterial("/models/humanoid/mat.material");
@@ -296,11 +298,11 @@ public:
                     perfHudMode = (perfHudMode + 1) % (I32)Graphics::VR::PerfHudMode::Count;
                     RENDERER.getHMD().setPerformanceHUD((Graphics::VR::PerfHudMode)perfHudMode);
                 }
-            }
 
-            // Toggle between normal & vr camera
-            if (KEYBOARD.wasKeyPressed(Key::V) && RENDERER.hasHMD())
-                _SwitchCameraVR();
+                // Toggle between normal & vr camera
+                if ((KEYBOARD.wasKeyPressed(Key::V) || CONTROLLER.wasKeyPressed(ControllerKey::Enter)) && RENDERER.hasHMD())
+                    _SwitchCameraVR();
+            }
         }
 
         if(KEYBOARD.isKeyDown(Key::Escape))

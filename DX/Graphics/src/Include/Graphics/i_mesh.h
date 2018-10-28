@@ -146,6 +146,16 @@ namespace Graphics {
         VertexStream<Math::Vec4>& setTangents(const ArrayList<Math::Vec4>& tangents);
 
         //----------------------------------------------------------------------
+        // Sets the bone ids for this mesh.
+        //----------------------------------------------------------------------
+        VertexStream<Math::Vec4Int>& setBoneIDs(const ArrayList<Math::Vec4Int>& boneIDs);
+
+        //----------------------------------------------------------------------
+        // Sets the bone weights for this mesh.
+        //----------------------------------------------------------------------
+        VertexStream<Math::Vec4>& setBoneWeights(const ArrayList<Math::Vec4>& boneWeights);
+
+        //----------------------------------------------------------------------
         // @Return: Buffer usage, which determines if it can be updated or not.
         //----------------------------------------------------------------------
         BufferUsage getBufferUsage() const { return m_bufferUsage; }

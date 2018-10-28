@@ -141,6 +141,25 @@ namespace Math {
     };
 
     //**********************************************************************
+    class Vector4Int : public DirectX::XMINT4
+    {
+    public:
+        Vector4Int(I32 value = 0);
+        Vector4Int(I32 x, I32 y, I32 z, I32 w);
+        Vector4Int(const std::array<I32, 4>& arr);
+
+        Vector4Int    operator +      (const Vector4Int& v) const { return Vector4Int( x + v.x, y + v.y, z + v.z, w + v.w ); }
+        Vector4Int    operator -      (const Vector4Int& v) const { return Vector4Int( x - v.x, y - v.y, z - v.z, w - v.w ); }
+        Vector4Int&   operator +=     (const Vector4Int& v) { x += v.x, y += v.y; z += v.z; w += v.w; return *this; }
+        Vector4Int&   operator -=     (const Vector4Int& v) { x -= v.x, y -= v.y; z -= v.z; w -= v.w; return *this; }
+
+        bool        operator == (const Vector4Int& v) const { return x == v.x && y == v.y && z == v.z && w == v.w; }
+        bool        operator != (const Vector4Int& v) const { return !(*this == v); }
+
+        String toString() const { return "(" + TS(x) + "," + TS(y) + "," + TS(z) + "," +TS(w) + ")"; }
+    };
+
+    //**********************************************************************
     class Quaternion : public DirectX::XMFLOAT4
     {
     public:
@@ -183,6 +202,7 @@ namespace Math {
     using Vec2Int   = Vector2Int;
     using Vec3      = Vector3F;
     using Vec4      = Vector4F;
+    using Vec4Int   = Vector4Int;
     using Quat      = Quaternion;
 
 }

@@ -193,7 +193,27 @@ namespace Graphics {
             ASSERT( not isImmutable() && "Mesh is immutable! It can't be updated. "
                     "Either change the buffer usage via setBufferUsage() or call clear() to reset the whole mesh." );
 
-        return createVertexStream<Math::Vec4>( SID_VERTEX_TANGENT, tangents);
+        return createVertexStream<Math::Vec4>( SID_VERTEX_TANGENT, tangents );
+    }
+
+    //----------------------------------------------------------------------
+    VertexStream<Math::Vec4Int>& IMesh::setBoneIDs( const ArrayList<Math::Vec4Int>& boneIDs )
+    {
+        if ( hasVertexStream( SID_VERTEX_BONEID ) )
+            ASSERT( not isImmutable() && "Mesh is immutable! It can't be updated. "
+                    "Either change the buffer usage via setBufferUsage() or call clear() to reset the whole mesh." );
+
+        return createVertexStream<Math::Vec4Int>( SID_VERTEX_BONEID, boneIDs );
+    }
+
+    //----------------------------------------------------------------------
+    VertexStream<Math::Vec4>& IMesh::setBoneWeights( const ArrayList<Math::Vec4>& boneWeights )
+    {
+        if ( hasVertexStream( SID_VERTEX_BONEWEIGHT ) )
+            ASSERT( not isImmutable() && "Mesh is immutable! It can't be updated. "
+                    "Either change the buffer usage via setBufferUsage() or call clear() to reset the whole mesh." );
+
+        return createVertexStream<Math::Vec4>( SID_VERTEX_BONEWEIGHT, boneWeights );
     }
 
     //----------------------------------------------------------------------

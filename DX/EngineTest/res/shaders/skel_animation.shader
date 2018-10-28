@@ -19,7 +19,7 @@ struct VertexIn
     float3 PosL 		: POSITION;
 	float2 tex 			: TEXCOORD0;
 	float3 normal 		: NORMAL;
-	float4 boneIDs 		: BONEID;
+	int4   boneIDs 		: BONEID;
 	float4 boneWeights 	: BONEWEIGHT;
 };
 
@@ -49,6 +49,7 @@ VertexOut main(VertexIn vin)
 	
 	float4 pos = mul( boneTransform, float4( vin.PosL, 1 ) );
     OUT.PosH = TO_CLIP_SPACE( pos );
+    //OUT.PosH = TO_CLIP_SPACE( vin.PosL );
 	
     return OUT;
 }
@@ -74,6 +75,7 @@ float4 main(FragmentIn fin) : SV_Target
 	float4 textureColor = tex.Sample(sampler0, fin.Tex);
 		                              
 	return textureColor; 
+	//return float4(1,1,1,1); 
 }
 
 //----------------------------------------------
