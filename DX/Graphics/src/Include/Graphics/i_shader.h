@@ -137,6 +137,12 @@ namespace Graphics {
 
         //----------------------------------------------------------------------
         // @Return:
+        //  The ubo declaration with name 'name' across all shader stages. Nullptr if not existent.
+        //----------------------------------------------------------------------
+        const ShaderUniformBufferDeclaration* getUniformBufferDecl(StringID name) const;
+
+        //----------------------------------------------------------------------
+        // @Return:
         //  The resource declaration with name 'name' across all shader stages. Nullptr if not existent.
         //----------------------------------------------------------------------
         const ShaderResourceDeclaration* getShaderResource(StringID name) const;

@@ -50,7 +50,7 @@ const mat4 VULKAN_CLIP = { { 1.0,  0.0, 0.0, 0.0 },
 //----------------------------------------------------------------------
 vec4 TO_CLIP_SPACE( vec4 vert )
 {
-	mat4 mvp =  VULKAN_CLIP * _Camera.proj * _Camera.view * _Object.world;
+	mat4 mvp = VULKAN_CLIP * _Camera.proj * _Camera.view * _Object.world;
     return mvp * vert;
 }
 

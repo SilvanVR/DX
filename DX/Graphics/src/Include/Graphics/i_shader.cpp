@@ -100,6 +100,15 @@ namespace Graphics {
     }
 
     //----------------------------------------------------------------------
+    const ShaderUniformBufferDeclaration* IShader::getUniformBufferDecl( StringID name ) const
+    {
+        for (auto& ubo : m_uniformBuffers)
+            if (ubo.getName() == name)
+                return &ubo;
+        return nullptr;
+    }
+
+    //----------------------------------------------------------------------
     const ShaderResourceDeclaration* IShader::getShaderResource( StringID name ) const
     {
         for (auto& res : m_shaderResources)

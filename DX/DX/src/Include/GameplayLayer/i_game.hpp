@@ -28,6 +28,7 @@
 #include "Components/Rendering/gui.h"
 #include "Components/Rendering/particle_system.h"
 #include "Components/Rendering/vr_camera.h"
+#include "Components/Rendering/skinned_mesh_renderer.h"
 
 class IGame : public Core::CoreEngine
 {

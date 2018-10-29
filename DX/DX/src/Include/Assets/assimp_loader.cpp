@@ -7,6 +7,7 @@
 **********************************************************************/
 
 #include "Core/locator.h"
+#include "Animation/skeleton.h"
 
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
@@ -16,7 +17,9 @@
 namespace Assets {
 
     //----------------------------------------------------------------------
-    void ExtractBoneInformation(const aiScene* scene, const MeshPtr& mesh, U32 numVertices);
+    void ExtractVertexBoneWeights(const aiScene* scene, const MeshPtr& mesh, U32 numVertices);
+    void ExtractSkeleton(const aiScene* scene, Animation::Skeleton* skeleton);
+    void ExtractAnimation(const aiScene* scene, ArrayList<Animation::AnimationClip>* animationClips);
     void LoadMaterials(const aiScene* scene, const OS::Path& path, MeshMaterialInfo* materials);
 
     //----------------------------------------------------------------------
@@ -31,7 +34,8 @@ namespace Assets {
     }
 
     //----------------------------------------------------------------------
-    MeshPtr AssimpLoader::LoadMesh( const OS::Path& path, MeshMaterialInfo* materials )
+    MeshPtr AssimpLoader::LoadMesh( const OS::Path& path, MeshMaterialInfo* materials, 
+                                    Animation::Skeleton* skeleton, ArrayList<Animation::AnimationClip>* animations )
     {
         static const I32 IMPORTER_FLAGS = aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace
                                           | aiProcess_FlipUVs | aiProcess_GenUVCoords | aiProcess_FindInvalidData;
@@ -112,7 +116,11 @@ namespace Assets {
         mesh->setNormals( normals );
         mesh->setTangents( tangents );
 
-        ExtractBoneInformation( scene, mesh, static_cast<U32>( vertices.size() ) );
+        ExtractVertexBoneWeights( scene, mesh, static_cast<U32>( vertices.size() ) );
+        if (skeleton)
+            ExtractSkeleton( scene, skeleton );
+        if (animations)
+            ExtractAnimation( scene, animations );
 
         // Load material information from the scene if requested.
         // Because Mesh-Files without a material file still have one material, i have to check it manually.
@@ -125,7 +133,7 @@ namespace Assets {
     }
 
     //----------------------------------------------------------------------
-    void ExtractBoneInformation( const aiScene* scene, const MeshPtr& mesh,  U32 numVertices )
+    void ExtractVertexBoneWeights( const aiScene* scene, const MeshPtr& mesh,  U32 numVertices )
     {
         // Extract Bone information from Assimps weird format to my own
         struct BoneWeight
@@ -145,13 +153,8 @@ namespace Assets {
                     auto& weight = bone->mWeights[w];
                     vertexBoneWeights[ weight.mVertexId + mesh->getBaseVertex( m ) ].push_back( { (I32)b, weight.mWeight } );
                 }
-                String name( bone->mName.C_Str() );
-                LOG(name, Color::GREEN);
-                //auto mat = bone->mOffsetMatrix;
             }
         }
-
-        const Size MAX_BONE_WEIGHTS = 4;
 
         // Extract data from own format above in two separate arrays suitable for the mesh class
         ArrayList<Math::Vec4Int> boneIDs( numVertices );
@@ -165,7 +168,7 @@ namespace Assets {
 
             // Get first MAX_BONE_WEIGHTS and add data to the array
             F32 sum = 0;
-            for (I32 i = 0; i < std::min( vertexBoneWeights[vert].size(), MAX_BONE_WEIGHTS ); i++)
+            for (I32 i = 0; i < std::min( (I32)vertexBoneWeights[vert].size(), Animation::MAX_BONE_WEIGHTS ); i++)
             {
                 boneIDs[vert][i] = vertexBoneWeights[vert][i].id;
                 boneWeights[vert][i] = vertexBoneWeights[vert][i].weight;
@@ -173,13 +176,102 @@ namespace Assets {
             }
 
             // Normalize weights, so they always sum up to 1
-            for (I32 i = 0; i < MAX_BONE_WEIGHTS; i++)
+            for (I32 i = 0; i < Animation::MAX_BONE_WEIGHTS; i++)
                 boneWeights[vert][i] /= sum;
         }
         if (not boneIDs.empty())
             mesh->setBoneIDs( boneIDs );
         if (not boneWeights.empty())
             mesh->setBoneWeights( boneWeights );
+    }
+
+    //----------------------------------------------------------------------
+    void ExtractSkeleton( const aiScene* scene, Animation::Skeleton* skeleton )
+    {
+        // Loop through all meshes and add unique joints to the skeleton
+        HashMap<StringID, I32> jointIndexMap;
+        for (U32 m = 0; m < scene->mNumMeshes; m++)
+        {
+            aiMesh* aMesh = scene->mMeshes[m];
+            for (U32 b = 0; b < aMesh->mNumBones; b++)
+            {
+                auto& bone = aMesh->mBones[b];
+                auto boneName = SID( bone->mName.C_Str() );
+                if ( jointIndexMap.find( boneName ) == jointIndexMap.end() )
+                {
+                    Animation::SkeletonJoint joint;
+                    joint.name = boneName;
+                    joint.invBindPose = DirectX::XMMatrixTranspose( DirectX::XMMATRIX( &bone->mOffsetMatrix.a1 ) );
+                    joint.parentIndex = -1;
+
+                    jointIndexMap[boneName] = static_cast<I32>( jointIndexMap.size() );
+
+                    skeleton->joints.push_back( joint );
+                }
+            }
+        }
+
+        // Now fix parent index for every joint
+        for (auto& joint : skeleton->joints)
+        {
+            auto node = scene->mRootNode->FindNode( joint.name.c_str() );
+            auto parentName = SID( node->mParent->mName.C_Str() );
+            if (jointIndexMap.find( parentName ) != jointIndexMap.end())
+                joint.parentIndex = jointIndexMap[parentName];
+        }
+    }
+
+    //----------------------------------------------------------------------
+    void ExtractAnimation( const aiScene* scene, ArrayList<Animation::AnimationClip>* animationClips )
+    {
+        for (U32 i = 0; i < scene->mNumAnimations; i++)
+        {
+            auto& anim = scene->mAnimations[i];
+
+            Animation::AnimationClip clip;
+            clip.name = SID( anim->mName.C_Str() );
+            clip.duration = anim->mDuration * anim->mTicksPerSecond;
+
+            for (U32 ch = 0; ch < anim->mNumChannels; ch++)
+            {
+                auto& channel = anim->mChannels[ch];
+
+                Animation::JointSamples jointSamples;
+                jointSamples.name = SID( channel->mNodeName.C_Str() );
+                for (U32 pos = 0; pos < channel->mNumPositionKeys; pos++)
+                {
+                    auto& positionKey = channel->mPositionKeys[pos];
+
+                    Animation::TranslationKey key;
+                    key.time = positionKey.mTime;
+                    key.translation = Math::Vec3{ positionKey.mValue.x, positionKey.mValue.y, positionKey.mValue.z };
+                    jointSamples.translationKeys.push_back( key );
+                }
+
+                for (U32 rot = 0; rot < channel->mNumRotationKeys; rot++)
+                {
+                    auto rotationKey = channel->mRotationKeys[rot];
+
+                    Animation::RotationKey key;
+                    key.time = rotationKey.mTime;
+                    key.rotation = Math::Quat{ rotationKey.mValue.x, rotationKey.mValue.y, rotationKey.mValue.z, rotationKey.mValue.w };
+                    jointSamples.rotationKeys.push_back( key );
+                }
+
+                for (U32 sc = 0; sc < channel->mNumScalingKeys; sc++)
+                {
+                    auto scaleKey = channel->mScalingKeys[sc];
+
+                    Animation::ScalingKey key;
+                    key.time = scaleKey.mTime;
+                    key.scale = Math::Vec3{ scaleKey.mValue.x, scaleKey.mValue.y, scaleKey.mValue.z };
+                    jointSamples.scalingKeys.push_back( key );
+                }
+                clip.jointSamples.push_back( jointSamples );
+            }
+
+            animationClips->push_back( clip );
+        }
     }
 
     //----------------------------------------------------------------------

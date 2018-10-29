@@ -58,6 +58,7 @@ namespace Graphics {
         inline U32          getOffset()     const { return m_offset; }
         inline StringID     getName()       const { return m_name; }
         inline DataType     getDataType()   const { return m_type; }
+        inline U32          getArraySize()   const { return m_arraySize; }
 
         bool operator==(const ShaderUniformDeclaration& c) const { return m_name == c.m_name && m_offset == c.m_offset && m_sizeInBytes == c.m_sizeInBytes && m_type == c.m_type && m_arraySize == c.m_arraySize; }
         bool operator!=(const ShaderUniformDeclaration& c) const { return !(*this == c); }

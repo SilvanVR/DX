@@ -20,6 +20,8 @@
 #include "Graphics/i_material.h"
 #include "Graphics/i_mesh.h"
 #include "mesh_material_info.hpp"
+#include "Animation/skeleton.h"
+#include "Animation/animation_clip.h"
 
 namespace Assets {
 
@@ -102,8 +104,11 @@ namespace Assets {
         //  "path": Path to the mesh file.
         //  "materials": If not null and the mesh-file has materials, information about it will be stored in the given struct.
         //               Note that this always loads the mesh from the given file regardless whether the mesh already exists or not.
+        //  "skeleton": If not null and the mesh file has skeleton information it will be stored in the given struct.
+        //  "animations": If the mesh file contains animations, they will be stored in the given array.
         //----------------------------------------------------------------------
-        MeshPtr getMesh(const OS::Path& path, MeshMaterialInfo* materials = nullptr);
+        MeshPtr getMesh(const OS::Path& path, MeshMaterialInfo* materials = nullptr, Animation::Skeleton* skeleton = nullptr, ArrayList<Animation::AnimationClip>* animations = nullptr);
+        MeshPtr getMesh(const OS::Path& path, Animation::Skeleton* skeleton, ArrayList<Animation::AnimationClip>* animations);
 
         //----------------------------------------------------------------------
         // Enable/Disable hot reloading. The asset manager will periodically check

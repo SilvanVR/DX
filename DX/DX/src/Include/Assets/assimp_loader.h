@@ -9,6 +9,8 @@
 #include "Graphics/i_mesh.h"
 #include "OS/FileSystem/path.h"
 #include "mesh_material_info.hpp"
+#include "Animation/skeleton.h"
+#include "Animation/animation_clip.h"
 
 namespace Assets { 
 
@@ -22,10 +24,9 @@ namespace Assets {
         // @Params:
         //  "path": The file-path to the mesh file.
         //----------------------------------------------------------------------
-        static MeshPtr LoadMesh(const OS::Path& path, MeshMaterialInfo* materials);
+        static MeshPtr LoadMesh(const OS::Path& path, MeshMaterialInfo* materials,
+                                Animation::Skeleton* skeleton, ArrayList<Animation::AnimationClip>* animations);
 
-    private:
-        //----------------------------------------------------------------------
         AssimpLoader() = delete;
         NULL_COPY_AND_ASSIGN(AssimpLoader)
     };

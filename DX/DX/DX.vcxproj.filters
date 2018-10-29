@@ -174,6 +174,12 @@
     <ClCompile Include="src\Include\GameplayLayer\Components\Rendering\vr_camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Include\GameplayLayer\Components\Rendering\skinned_mesh_renderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Include\Animation\skeleton.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\stdafx.h">
@@ -381,6 +387,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Include\Core\Input\devices\controller.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Include\GameplayLayer\Components\Rendering\skinned_mesh_renderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Include\Animation\skeleton.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Include\Animation\animation_clip.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

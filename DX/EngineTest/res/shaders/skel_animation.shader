@@ -39,8 +39,7 @@ VertexOut main(VertexIn vin)
 {
     VertexOut OUT;
 
-	OUT.Tex 		= vin.tex;
-	OUT.Normal 		= TRANSFORM_NORMAL( vin.normal );
+	OUT.Tex = vin.tex;	
 
 	float4x4 boneTransform = u_boneTransforms[vin.boneIDs[0]] * vin.boneWeights[0];
 	boneTransform += u_boneTransforms[vin.boneIDs[1]] * vin.boneWeights[1];
@@ -49,6 +48,9 @@ VertexOut main(VertexIn vin)
 	
 	float4 pos = mul( boneTransform, float4( vin.PosL, 1 ) );
     OUT.PosH = TO_CLIP_SPACE( pos );
+	
+	float3 normal = mul( boneTransform, float4( vin.normal, 0 ) ).xyz;
+	OUT.Normal = TRANSFORM_NORMAL( normal );
 	
     return OUT;
 }

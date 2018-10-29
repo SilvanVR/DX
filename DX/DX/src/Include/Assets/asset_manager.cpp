@@ -260,11 +260,12 @@ namespace Assets {
     }
 
     //----------------------------------------------------------------------
-    MeshPtr AssetManager::getMesh( const OS::Path& filePath, MeshMaterialInfo* materials )
+    MeshPtr AssetManager::getMesh( const OS::Path& filePath, MeshMaterialInfo* materials,
+                                   Animation::Skeleton* skeleton, ArrayList<Animation::AnimationClip>* animations )
     {
-        // Check if mesh was already loaded (only if "materials" is null)
+        // Check if mesh was already loaded (only if "materials" and "skeleton" is null)
         StringID pathAsID = SID( StringUtils::toLower( filePath.toString() ).c_str() );
-        if ( m_meshCache.find( pathAsID ) != m_meshCache.end() && (materials == nullptr) )
+        if ( m_meshCache.find( pathAsID ) != m_meshCache.end() && (materials == nullptr) && (skeleton == nullptr))
         {
             auto weakPtr = m_meshCache[pathAsID].mesh;
             if ( not weakPtr.expired() )
@@ -275,7 +276,7 @@ namespace Assets {
         LOG( "AssetManager: Loading Mesh '" + filePath.toString() + "'", LOG_COLOR );
         try 
         {
-            MeshPtr mesh = AssimpLoader::LoadMesh( filePath, materials );
+            MeshPtr mesh = AssimpLoader::LoadMesh( filePath, materials, skeleton, animations );
 
             MeshAssetInfo materialInfo;
             materialInfo.mesh        = mesh;
@@ -292,6 +293,12 @@ namespace Assets {
                       + e.what() +  " Returning the default mesh instead." );
             return getDefaultMesh();
         }
+    }
+
+    //----------------------------------------------------------------------
+    MeshPtr AssetManager::getMesh( const OS::Path& filePath, Animation::Skeleton* skeleton, ArrayList<Animation::AnimationClip>* animations )
+    {
+        return getMesh( filePath, nullptr, skeleton, animations );
     }
 
     //----------------------------------------------------------------------
