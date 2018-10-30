@@ -6,7 +6,7 @@
     date: October 29, 2018
 **********************************************************************/
 
-#include "Time/clock.h"
+#include "Time/durations.h"
 
 namespace Animation { 
 

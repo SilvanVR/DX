@@ -45,11 +45,6 @@ public:
                 cam->setFOV(fov);
             ImGui::End();
         });
-
-        //auto cubemap = ASSETS.getCubemap("/cubemaps/tropical_sunny_day/Left.png", "/cubemaps/tropical_sunny_day/Right.png",
-        //    "/cubemaps/tropical_sunny_day/Up.png", "/cubemaps/tropical_sunny_day/Down.png",
-        //    "/cubemaps/tropical_sunny_day/Front.png", "/cubemaps/tropical_sunny_day/Back.png", true);
-        //go->addComponent<Components::Skybox>(cubemap);
     }
 
     void tick(Time::Seconds delta) override
@@ -77,11 +72,6 @@ public:
             cam->setSuperSampling(ss);
             LOG("Screen-Res Mod: " + TS(ss));
         }
-
-        auto transform = cubeGO->getTransform();
-        Math::Vec3 pos = transform->position;
-        Math::Quat rot = transform->rotation;
-        DEBUG.drawAxes(pos, rot, 1.0f, 0_s, false);
     }
 
     void shutdown() override {}
@@ -167,8 +157,8 @@ public:
         Locator::getRenderer().setVSync(true);
         Locator::getRenderer().setGlobalFloat(SID("_Ambient"), 0.5f);
 
-        //Locator::getSceneManager().LoadSceneAsync(new SceneGUISelectSceneMenu());
-        Locator::getSceneManager().LoadScene(new AnimationTestScene());
+        Locator::getSceneManager().LoadSceneAsync(new SceneGUISelectSceneMenu());
+        //Locator::getSceneManager().LoadScene(new AnimationTestScene());
     }
 
     //----------------------------------------------------------------------
@@ -276,7 +266,7 @@ private:
     int main()
     {
         Game game;
-        game.start( gameName, 800, 600, Graphics::API::Vulkan );
+        game.start( gameName, 1280, 720, Graphics::API::D3D11 );
         system("pause");
         return 0;
     }

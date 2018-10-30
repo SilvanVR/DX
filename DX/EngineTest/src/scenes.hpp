@@ -1869,11 +1869,11 @@ public:
         //createGameObject("Grid")->addComponent<GridGeneration>(20);
 
         auto skelShader = ASSETS.getShader("/shaders/skel_animation.shader");
+        auto mat = ASSETS.getMaterial("/models/humanoid/mat.material");
 
         ArrayList<Animation::AnimationClip> anims;
         Animation::Skeleton skeleton;
         auto mesh = ASSETS.getMesh("/models/humanoid/model.dae", &skeleton, &anims);
-        auto mat = ASSETS.getMaterial("/models/humanoid/mat.material");
         mat->setReplacementShader(TAG_SHADOW_PASS, skelShader);
 
         auto meshGO = createGameObject("GO");

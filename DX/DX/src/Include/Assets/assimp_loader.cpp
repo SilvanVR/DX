@@ -216,6 +216,7 @@ namespace Assets {
         {
             auto node = scene->mRootNode->FindNode( joint.name.c_str() );
             auto parentName = SID( node->mParent->mName.C_Str() );
+
             if (jointIndexMap.find( parentName ) != jointIndexMap.end())
                 joint.parentIndex = jointIndexMap[parentName];
         }

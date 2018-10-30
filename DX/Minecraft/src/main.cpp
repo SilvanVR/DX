@@ -12,7 +12,7 @@
     of an chunk has been finished. This causes the player to fall for a moment).
 **********************************************************************/
 
-#define USE_VR                  1
+#define USE_VR                  0
 #define DISPLAY_CONSOLE         1
 #define DEBUG_HUD               1
 #define CHUNKS_VIEW_DISTANCE    16
