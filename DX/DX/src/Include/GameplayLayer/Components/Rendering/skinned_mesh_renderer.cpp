@@ -23,10 +23,14 @@ namespace Components {
         : MeshRenderer( mesh, material ), m_skeleton( skeleton )
     {
         const auto& ubo = material->getShader()->getVSUniformShaderBuffer();
-        if (auto member = ubo->getMember(SID_BONE_TRANSFORMS))
+        if (not ubo)
+            return;
+
+        if (auto member = ubo->getMember( SID_BONE_TRANSFORMS ))
         {
             m_matrixPalette.resize( member->getArraySize(), DirectX::XMMatrixIdentity() );
             m_jointWorldMatrices.resize( member->getArraySize(), DirectX::XMMatrixIdentity() );
+            material->getShader()->setData( SID_BONE_TRANSFORMS, m_matrixPalette.data() );
         }
         else
             LOG_WARN( "SkinnedMeshRenderer(): Shader from given material has no uniform buffer for skinning matrices." );
@@ -41,7 +45,7 @@ namespace Components {
     //----------------------------------------------------------------------
     void SkinnedMeshRenderer::tick( Time::Seconds delta )
     {
-        if (m_matrixPalette.empty())
+        if (m_matrixPalette.empty() || (m_animation.jointSamples.size() != m_skeleton.joints.size()))
             return;
 
         bool isRunning = m_clock.tick( delta );
@@ -137,6 +141,7 @@ namespace Components {
         }
         F32 lerp = (F32)( (clockTime - rotKeys[begin.value()].time).value / 
                           (rotKeys[ end.value() ].time - rotKeys[ begin.value() ].time).value);
+        ASSERT( lerp >= 0.0f && lerp <= 1.0f );
         auto rBegin = DirectX::XMLoadFloat4( &rotKeys[begin.value()].rotation );
         auto rEnd = DirectX::XMLoadFloat4( &rotKeys[end.value()].rotation );
 
@@ -160,6 +165,7 @@ namespace Components {
         }
         F32 lerp = (F32)( (clockTime - scaleKeys[begin.value()].time).value /
                           (scaleKeys[ end.value() ].time - scaleKeys[ begin.value() ].time).value);
+        ASSERT( lerp >= 0.0f && lerp <= 1.0f );
         auto sBegin = DirectX::XMLoadFloat3( &scaleKeys[begin.value()].scale );
         auto sEnd = DirectX::XMLoadFloat3( &scaleKeys[end.value()].scale );
 

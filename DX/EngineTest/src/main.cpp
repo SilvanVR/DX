@@ -39,7 +39,7 @@ public:
 
         go->addComponent<Components::GUI>();
         go->addComponent<Components::GUICustom>([=] {
-            ImGui::Begin("FOV change");
+            ImGui::Begin("FOV change", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
             static F32 fov = 45.0f;
             if (ImGui::SliderFloat("FOV", &fov, 1.0f, 180.0f))
                 cam->setFOV(fov);
@@ -111,24 +111,17 @@ public:
         ArrayList<Animation::AnimationClip> anims;
         Animation::Skeleton skeleton;
         auto mesh = ASSETS.getMesh("/models/humanoid/model.dae", &skeleton, &anims);
-        //skelShader->setReloadCallback([=](Graphics::IShader* shader) {
-        //    ArrayList<DirectX::XMMATRIX> boneTransforms(255, DirectX::XMMatrixIdentity());
-        //    shader->setData("u_boneTransforms", boneTransforms.data());
-        //});
-        //ArrayList<Math::Vec4Int> boneIDs(mesh->getVertexCount(), Math::Vec4Int(0));
-        //mesh->setBoneIDs(boneIDs);
-        //ArrayList<Math::Vec4> boneWeights(mesh->getVertexCount(), Math::Vec4(0.25f));
-        //mesh->setBoneWeights(boneWeights);
-
         auto mat = ASSETS.getMaterial("/models/humanoid/mat.material");
 
         auto meshGO = createGameObject("GO");
         auto smr = meshGO->addComponent<Components::SkinnedMeshRenderer>(mesh, skeleton, anims.front(), mat);
 
+        //ArrayList<Animation::AnimationClip> anims;
+        //Animation::Skeleton skeleton;
         //Assets::MeshMaterialInfo matInfo;
-        //auto mesh = ASSETS.getMesh("/models/mario/mario_galaxy.fbx", &matInfo);
+        //auto mesh = ASSETS.getMesh("/models/mario/mario_galaxy.fbx", &matInfo, &skeleton, &anims);
         //auto meshGO = createGameObject("GO");
-        //auto mr = meshGO->addComponent<Components::MeshRenderer>(mesh);
+        //auto smr = meshGO->addComponent<Components::SkinnedMeshRenderer>(mesh, skeleton, anims.front(), mat);
         //if (matInfo.isValid())
         //{
         //    for (I32 i = 0; i < mesh->getSubMeshCount(); i++)
@@ -142,7 +135,7 @@ public:
         //            case Assets::MaterialTextureType::Normal: material->setTexture("normalMap", ASSETS.getTexture2D(texture.filePath)); break;
         //            }
         //        }
-        //        mr->setMaterial(material, i);
+        //        smr->setMaterial(material, i);
         //    }
         //}
 
@@ -153,91 +146,87 @@ public:
         camGO->addComponent<Components::GUI>();
         camGO->addComponent<Components::GUICustom>([=] {
             ImGui::Begin("HUD", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
-            static F32 fov = 45.0f;
-            if (ImGui::SliderFloat("FOV", &fov, 1.0f, 180.0f))
-                cam->setFOV(fov);
-
-            if (ImGui::CollapsingHeader("Bone Hierarchy", ImGuiTreeNodeFlags_DefaultOpen))
             {
-                for (auto& joint : skeleton.joints)
+                if (ImGui::CollapsingHeader("Bone Hierarchy", ImGuiTreeNodeFlags_DefaultOpen))
                 {
-                    auto level = Animation::JointLevel( skeleton, joint );
-                    String str = "";
-                    for (I32 i = 0; i < level; i++)
-                        str += " ";
-                    if (level != 0)
-                        str += "|-";
-                    str += joint.name.c_str();
-                    ImGui::Text( str.c_str() );
+                    for (auto& joint : skeleton.joints)
+                    {
+                        auto level = Animation::JointLevel(skeleton, joint);
+                        String str = "";
+                        for (I32 i = 0; i < level; i++)
+                            str += " ";
+                        if (level != 0)
+                            str += "|-";
+                        str += joint.name.c_str();
+                        ImGui::Text(str.c_str());
+                    }
                 }
-            }
 
-            static bool jointsVisible;
-            ImGui::Checkbox("Toggle Joints", &jointsVisible);
-            if (jointsVisible)
-            {
-                auto worldMatrix = meshGO->getTransform()->getWorldMatrix();
-                auto& jointWorldMatrices = smr->getJointWorldMatrices();
-                for (U32 i = 0; i < skeleton.joints.size(); i++)
+                static bool jointsVisible;
+                ImGui::Checkbox("Toggle Joints", &jointsVisible);
+                if (jointsVisible)
                 {
-                    auto skinningMatrix = jointWorldMatrices[i] * worldMatrix;
-                    DirectX::XMVECTOR s, r, p;
-                    DirectX::XMMatrixDecompose(&s, &r, &p,  skinningMatrix);
+                    auto worldMatrix = meshGO->getTransform()->getWorldMatrix();
+                    auto& jointWorldMatrices = smr->getJointWorldMatrices();
+                    for (U32 i = 0; i < skeleton.joints.size(); i++)
+                    {
+                        auto skinningMatrix = jointWorldMatrices[i] * worldMatrix;
+                        DirectX::XMVECTOR s, r, p;
+                        DirectX::XMMatrixDecompose(&s, &r, &p, skinningMatrix);
 
-                    Math::Vec3 pos;
-                    Math::Quat rot;
-                    DirectX::XMStoreFloat3(&pos, p);
-                    DirectX::XMStoreFloat4(&rot, r);
-                    DEBUG.drawAxes(pos, rot, 0.2f, 0_s, false);
+                        Math::Vec3 pos;
+                        Math::Quat rot;
+                        DirectX::XMStoreFloat3(&pos, p);
+                        DirectX::XMStoreFloat4(&rot, r);
+                        DEBUG.drawAxes(pos, rot, 0.2f, 0_s, false);
+                    }
                 }
-            }
 
-            static bool skeletonVisible;
-            ImGui::Checkbox("Toggle Skeleton", &skeletonVisible);
-            if (skeletonVisible)
-            {
-                auto worldMatrix = meshGO->getTransform()->getWorldMatrix();
-                auto& jointWorldMatrices = smr->getJointWorldMatrices();
-                for (U32 i = 0; i < skeleton.joints.size(); i++)
+                static bool skeletonVisible;
+                ImGui::Checkbox("Toggle Skeleton", &skeletonVisible);
+                if (skeletonVisible)
                 {
-                    if (skeleton.joints[i].parentIndex < 0)
-                        continue;
+                    auto worldMatrix = meshGO->getTransform()->getWorldMatrix();
+                    auto& jointWorldMatrices = smr->getJointWorldMatrices();
+                    for (U32 i = 0; i < skeleton.joints.size(); i++)
+                    {
+                        if (skeleton.joints[i].parentIndex < 0)
+                            continue;
 
-                    Math::Vec3 start, end;
-                    DirectX::XMVECTOR s, r, p;
+                        Math::Vec3 start, end;
+                        DirectX::XMVECTOR s, r, p;
 
-                    auto skinningMatrix = jointWorldMatrices[i] * worldMatrix;
-                    DirectX::XMMatrixDecompose(&s, &r, &p, skinningMatrix);
-                    DirectX::XMStoreFloat3(&start, p);
+                        auto skinningMatrix = jointWorldMatrices[i] * worldMatrix;
+                        DirectX::XMMatrixDecompose(&s, &r, &p, skinningMatrix);
+                        DirectX::XMStoreFloat3(&start, p);
 
-                    auto skinningMatrixParent = jointWorldMatrices[skeleton.joints[i].parentIndex] * worldMatrix;
-                    DirectX::XMMatrixDecompose(&s, &r, &p, skinningMatrixParent);
-                    DirectX::XMStoreFloat3(&end, p);
+                        auto skinningMatrixParent = jointWorldMatrices[skeleton.joints[i].parentIndex] * worldMatrix;
+                        DirectX::XMMatrixDecompose(&s, &r, &p, skinningMatrixParent);
+                        DirectX::XMStoreFloat3(&end, p);
 
-                    DEBUG.drawLine(start, end, Color::GREEN, 0_s, false);
+                        DEBUG.drawLine(start, end, Color::GREEN, 0_s, false);
+                    }
                 }
-            }
 
-            if (ImGui::CollapsingHeader("Animation"))
-            {
-                if (ImGui::TreeNode("Clock"))
+                if (ImGui::CollapsingHeader("Animation", ImGuiTreeNodeFlags_DefaultOpen))
                 {
-                    ImGui::Text("Clock time: %.2fs", (F32)smr->getClock().getTime());
-                    ImGui::SameLine();
                     static bool looping;
                     looping = smr->getClock().isLooping();
                     if (ImGui::Checkbox("Looping", &looping))
                         smr->getClock().setIsLooping(looping);
 
+                    static F32 time = 1.0f;
+                    time = (F32)smr->getClock().getTime();
+                    F32 duration = (F32)smr->getClock().getDuration();
+                    if (ImGui::SliderFloat("Time", &time, 0.0f, duration, "%.2f"))
+                        smr->getClock().setTime(Time::Seconds(time));
+
                     static F32 tickMod = 1.0f;
                     tickMod = smr->getClock().getTickModifier();
-                    if (ImGui::SliderFloat("Tick Mod", &tickMod, -2.0f, 2.0f, "%.2f"))
+                    if (ImGui::SliderFloat("Speed", &tickMod, -2.0f, 2.0f, "%.2f"))
                         smr->getClock().setTickModifier(tickMod);
-
-                    ImGui::TreePop();
                 }
             }
-
             ImGui::End();
         });
 

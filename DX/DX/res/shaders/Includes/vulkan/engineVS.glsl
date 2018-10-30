@@ -3,15 +3,18 @@
 #extension GL_ARB_shading_language_420pack : enable
 
 // Predefined vertex streams
-#define VERTEX_POSITION POSITION
-#define VERTEX_COLOR	COLOR
-#define VERTEX_UV		TEXCOORD
-#define VERTEX_NORMAL	NORMAL
-#define VERTEX_TANGENT	TANGENT
+#define VERTEX_POSITION 	POSITION
+#define VERTEX_COLOR		COLOR
+#define VERTEX_UV			TEXCOORD
+#define VERTEX_NORMAL		NORMAL
+#define VERTEX_TANGENT		TANGENT
+#define VERTEX_BONEID		BONEID
+#define VERTEX_BONEWEIGHT	BONEWEIGHT
 
 #define CAMERA_POS 		_Camera.pos
 #define CAMERA_VIEW 	_Camera.view
 #define CAMERA_PROJ 	VULKAN_CLIP * _Camera.proj
+#define MAX_BONES 		255
 
 // PER OBJECT PUSH CONSTANT
 layout (std140, push_constant) uniform PushConstant 

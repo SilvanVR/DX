@@ -85,20 +85,34 @@ float4 main(FragmentIn fin) : SV_Target
 
 #include "/engine/shaders/includes/vulkan/engineVS.glsl"
 
-layout (location = 0) in vec3 VERTEX_POSITION;
-layout (location = 1) in vec2 VERTEX_UV;
-layout (location = 2) in vec3 VERTEX_NORMAL;
+layout (location = 0) in vec3  VERTEX_POSITION;
+layout (location = 1) in vec2  VERTEX_UV;
+layout (location = 2) in vec3  VERTEX_NORMAL;
+layout (location = 3) in ivec4 VERTEX_BONEID;
+layout (location = 4) in vec4  VERTEX_BONEWEIGHT;
 
 layout (location = 0) out vec2 outUV;
 layout (location = 1) out vec3 outNormal;
-layout (location = 2) out vec3 outWorldPos;
+
+layout (set = 0, binding = 0) uniform ShaderSet
+{
+	mat4 u_boneTransforms[MAX_BONES];
+};
 
 void main()
 {
-	outUV 		= VERTEX_UV;
-	outNormal 	= TRANSFORM_NORMAL( VERTEX_NORMAL );
-	outWorldPos = TO_WORLD_SPACE( VERTEX_POSITION );
-	gl_Position = TO_CLIP_SPACE( VERTEX_POSITION );
+	outUV = VERTEX_UV;
+
+	mat4 boneTransform = u_boneTransforms[VERTEX_BONEID[0]] * VERTEX_BONEWEIGHT[0];
+	boneTransform += u_boneTransforms[VERTEX_BONEID[1]] * VERTEX_BONEWEIGHT[1];
+	boneTransform += u_boneTransforms[VERTEX_BONEID[2]] * VERTEX_BONEWEIGHT[2];
+	boneTransform += u_boneTransforms[VERTEX_BONEID[3]] * VERTEX_BONEWEIGHT[3]; 
+	
+	vec3 normal = ( boneTransform * vec4( VERTEX_NORMAL, 0 ) ).xyz;
+	outNormal = TRANSFORM_NORMAL( normal );
+	
+	vec4 pos = boneTransform * vec4( VERTEX_POSITION, 1 );	
+	gl_Position = TO_CLIP_SPACE( pos );
 }
  
 // ----------------------------------------------
@@ -108,7 +122,6 @@ void main()
 
 layout (location = 0) in vec2 inUV;
 layout (location = 1) in vec3 inNormal;
-layout (location = 2) in vec3 inWorldPos;
 
 layout (location = 0) out vec4 outColor;
 
@@ -116,7 +129,5 @@ layout (set = SET_FIRST, binding = 0) uniform sampler2D tex;
  
 void main()
 {
-	vec4 textureColor = texture( tex, inUV );
- 
-	outColor = textureColor;
+	outColor = texture( tex, inUV );
 }
