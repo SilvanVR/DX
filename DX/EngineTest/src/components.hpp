@@ -99,7 +99,8 @@ public:
     void addedToGameObject(GameObject* go) override
     {
         auto mesh = Core::MeshGenerator::CreateGrid(m_size);
-        go->addComponent<Components::MeshRenderer>(mesh, ASSETS.getColorMaterial());
+        auto mr = go->addComponent<Components::MeshRenderer>(mesh, ASSETS.getColorMaterial());
+        mr->setCastShadows(false);
     }
 
 private:

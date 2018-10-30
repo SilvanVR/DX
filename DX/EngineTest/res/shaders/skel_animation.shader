@@ -28,6 +28,7 @@ struct VertexOut
     float4 PosH : SV_POSITION;
     float2 Tex : TEXCOORD0;
 	float3 Normal : NORMAL;
+	float3 WorldPos : POSITION;
 };
 
 cbuffer cbShader
@@ -52,6 +53,8 @@ VertexOut main(VertexIn vin)
 	float3 normal = mul( boneTransform, float4( vin.normal, 0 ) ).xyz;
 	OUT.Normal = TRANSFORM_NORMAL( normal );
 	
+	OUT.WorldPos = TO_WORLD_SPACE( pos.xyz );
+	
     return OUT;
 }
 
@@ -66,6 +69,7 @@ struct FragmentIn
     float4 PosH : SV_POSITION;
 	float2 Tex : TEXCOORD0;
 	float3 Normal : NORMAL;
+	float3 WorldPos : POSITION;
 };
  
 Texture2D tex;
@@ -74,7 +78,7 @@ SamplerState sampler0;
 float4 main(FragmentIn fin) : SV_Target
 {            
 	float4 textureColor = tex.Sample(sampler0, fin.Tex);		                              
-	return textureColor;
+	return APPLY_LIGHTING( textureColor, fin.WorldPos, fin.Normal ); 
 }
 
 //----------------------------------------------
@@ -93,8 +97,9 @@ layout (location = 4) in vec4  VERTEX_BONEWEIGHT;
 
 layout (location = 0) out vec2 outUV;
 layout (location = 1) out vec3 outNormal;
+layout (location = 2) out vec3 outWorldPos;
 
-layout (set = 0, binding = 0) uniform ShaderSet
+layout (set = SET_FIRST, binding = 0) uniform ShaderSet
 {
 	mat4 u_boneTransforms[MAX_BONES];
 };
@@ -112,6 +117,8 @@ void main()
 	outNormal = TRANSFORM_NORMAL( normal );
 	
 	vec4 pos = boneTransform * vec4( VERTEX_POSITION, 1 );	
+	outWorldPos = TO_WORLD_SPACE( pos.xyz );
+	
 	gl_Position = TO_CLIP_SPACE( pos );
 }
  
@@ -119,15 +126,18 @@ void main()
 #shader fragment
 
 #include "/engine/shaders/includes/vulkan/engineFS.glsl"
+#include "/engine/shaders/includes/vulkan/blinn_phong.glsl"
 
 layout (location = 0) in vec2 inUV;
 layout (location = 1) in vec3 inNormal;
+layout (location = 2) in vec3 inWorldPos;
 
 layout (location = 0) out vec4 outColor;
 
-layout (set = SET_FIRST, binding = 0) uniform sampler2D tex;
+layout (set = SET_FIRST + 1, binding = 0) uniform sampler2D tex;
  
 void main()
 {
-	outColor = texture( tex, inUV );
+	vec4 textureColor = texture( tex, inUV );
+	outColor = APPLY_LIGHTING( textureColor, inWorldPos, inNormal );
 }

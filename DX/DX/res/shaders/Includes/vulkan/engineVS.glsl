@@ -15,6 +15,7 @@
 #define CAMERA_VIEW 	_Camera.view
 #define CAMERA_PROJ 	VULKAN_CLIP * _Camera.proj
 #define MAX_BONES 		255
+#define SET_FIRST		1
 
 // PER OBJECT PUSH CONSTANT
 layout (std140, push_constant) uniform PushConstant 
