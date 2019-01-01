@@ -89,7 +89,7 @@ namespace Graphics {
     {
         _SetLimits();
 
-#ifdef VR
+#ifdef VIRTUAL_REALITY
         VR::Device hmd = VR::GetFirstSupportedHMDAndInitialize();
         switch (hmd)
         {

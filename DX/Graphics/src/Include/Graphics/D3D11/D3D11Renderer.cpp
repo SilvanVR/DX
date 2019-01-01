@@ -75,7 +75,7 @@ namespace Graphics {
         _CreateCubeMesh();
         _CreateAndBindFakeShadowmaps();
 
-#ifdef VR
+#ifdef VIRTUAL_REALITY
         VR::Device hmd = VR::GetFirstSupportedHMDAndInitialize();
         switch (hmd)
         {
