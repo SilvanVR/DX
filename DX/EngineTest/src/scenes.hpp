@@ -2003,10 +2003,10 @@ public:
         obj->getTransform()->rotation *= Math::Quat(Math::Vec3::RIGHT, 90.0f);
         obj->getTransform()->scale = { 20,20,20 };
 
-        //auto sun = createGameObject("Sun");
-        //auto dl = sun->addComponent<Components::DirectionalLight>(0.5f, Color::WHITE, Graphics::ShadowType::CSMSoft, ArrayList<F32>{20.0f, 40.0f, 80.0f, 200.0f});
-        //sun->getTransform()->rotation = Math::Quat::LookRotation(Math::Vec3{ 0,-1, 1 }, Math::Vec3{ 0, 0, 1 });
-        //dl->setShadowMapQuality(Graphics::ShadowMapQuality::Insane);
+        auto sun = createGameObject("Sun");
+        auto dl = sun->addComponent<Components::DirectionalLight>(0.5f, Color::WHITE, Graphics::ShadowType::CSMSoft, ArrayList<F32>{20.0f, 40.0f, 80.0f, 200.0f});
+        sun->getTransform()->rotation = Math::Quat::LookRotation(Math::Vec3{ 0,-1, 1 }, Math::Vec3{ 0, 0, 1 });
+        dl->setShadowMapQuality(Graphics::ShadowMapQuality::Insane);
 
         auto cubemap = ASSETS.getCubemap("/cubemaps/tropical_sunny_day/Left.png", "/cubemaps/tropical_sunny_day/Right.png",
             "/cubemaps/tropical_sunny_day/Up.png", "/cubemaps/tropical_sunny_day/Down.png",

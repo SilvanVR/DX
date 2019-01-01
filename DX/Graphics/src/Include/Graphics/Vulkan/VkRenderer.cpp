@@ -590,7 +590,7 @@ namespace Graphics {
             camInfo.numTriangles += numIndices / 3;
         }
 
-        LOG_ERROR_RENDERING("DrawMeshSkinned crashes in Vulkan, idk why.");
+        LOG_ERROR_RENDERING( "DrawMeshSkinned crashes in Vulkan, idk why. VEZ is weird sometimes." );
         m_animationBuffer->beginBuffer();
         m_animationBuffer->update( matrixPalette.data(), static_cast<U32>( matrixPalette.size() * sizeof( DirectX::XMMATRIX ) ) );
         m_animationBuffer->bind();

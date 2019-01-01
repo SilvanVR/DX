@@ -267,7 +267,7 @@ private:
     int main()
     {
         Game game;
-        game.start( gameName, 1280, 720, Graphics::API::Vulkan );
+        game.start( gameName, 1280, 720, Graphics::API::D3D11 );
         system("pause");
         return 0;
     }

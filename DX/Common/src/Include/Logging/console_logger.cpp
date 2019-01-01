@@ -99,7 +99,7 @@ namespace Logging {
 
 #ifdef _DEBUG
         #ifdef _WIN32
-            system( "pause" );
+            MessageBox( 0, msg, "Error", MB_OK );
             __debugbreak();
         #elif
             ASSERT( false );
