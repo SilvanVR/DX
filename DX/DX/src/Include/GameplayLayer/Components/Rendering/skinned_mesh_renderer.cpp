@@ -89,13 +89,13 @@ namespace Components {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    void SkinnedMeshRenderer::recordGraphicsCommands( Graphics::CommandBuffer& cmd, F32 lerp )
+    void SkinnedMeshRenderer::recordGraphicsCommands( Graphics::CommandBuffer& cmd )
     {
         auto transform = getGameObject()->getTransform();
         ASSERT( transform != nullptr );
 
         // Draw submesh with appropriate material
-        auto modelMatrix = transform->getWorldMatrix( lerp );
+        auto modelMatrix = transform->getWorldMatrix();
         for (I32 i = 0; i < getMesh()->getSubMeshCount(); i++)
             cmd.drawMeshSkinned( getMesh(), getMaterial( i ), modelMatrix, i, m_matrixPalette );
     }

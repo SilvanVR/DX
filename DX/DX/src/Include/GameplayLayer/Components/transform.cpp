@@ -78,25 +78,6 @@ namespace Components {
     }
 
     //----------------------------------------------------------------------
-    DirectX::XMMATRIX Transform::getWorldMatrix( F32 lerp )
-    {
-        auto modelMatrix = getWorldMatrix();
-#if LERP_TRANSFORM
-        DirectX::XMVECTOR sCur, rCur, pCur, sPrev, rPrev, pPrev;
-        DirectX::XMMatrixDecompose( &sCur, &rCur, &pCur, modelMatrix );
-        DirectX::XMMatrixDecompose( &sPrev, &rPrev, &pPrev, m_lastWorldMatrix );
-
-        auto s = DirectX::XMVectorLerp( sPrev, sCur, lerp );
-        auto p = DirectX::XMVectorLerp( pPrev, pCur, lerp );
-        auto r = DirectX::XMQuaternionSlerp( rPrev, rCur, lerp );
-
-        modelMatrix = DirectX::XMMatrixAffineTransformation( s, DirectX::XMQuaternionIdentity(), r, p );
-        m_lastWorldMatrix = modelMatrix;
-#endif
-        return modelMatrix;
-    }
-
-    //----------------------------------------------------------------------
     void Transform::setParent( Transform* parent, bool keepWorldTransform )
     {
         if (keepWorldTransform)

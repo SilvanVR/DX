@@ -23,6 +23,13 @@ namespace Core {
     //----------------------------------------------------------------------
     class ISubSystem;
 
+    //----------------------------------------------------------------------
+    enum class EGameLoopTechnique
+    {
+        Fixed,     // Updates GAME_TICK_RATE per second, render as fast as possible
+        Variable   // Updates and renders as fast as possible
+    };
+
     //**********************************************************************
     class CoreEngine
     {
@@ -60,6 +67,9 @@ namespace Core {
         void setAPI(Graphics::API api) { m_api = api; restart(); }
 
         //----------------------------------------------------------------------
+        void setGameLoopTechnique(EGameLoopTechnique technique) { m_gameLoopTechnique = technique; }
+
+        //----------------------------------------------------------------------
         virtual void init() = 0;
         virtual void tick(Time::Seconds delta) = 0;
         virtual void shutdown() = 0;
@@ -83,6 +93,7 @@ namespace Core {
         Graphics::API               m_api;
         bool                        m_isRunning = true;
         bool                        m_restart = true;
+        EGameLoopTechnique          m_gameLoopTechnique = EGameLoopTechnique::Fixed;
 
         //----------------------------------------------------------------------
         void _Init(const char* title, U32 width, U32 height, Graphics::API api);
@@ -92,7 +103,7 @@ namespace Core {
         void _NotifyOnTick(Time::Seconds delta);
         void _NotifyOnUpdate(Time::Seconds delta);
 
-        void _Render(F32 lerp);
+        void _Render();
 
         NULL_COPY_AND_ASSIGN(CoreEngine)
     };

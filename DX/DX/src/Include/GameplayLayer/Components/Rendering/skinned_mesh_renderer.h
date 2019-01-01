@@ -57,7 +57,7 @@ namespace Components {
         //----------------------------------------------------------------------
         // IRendererComponent Interface
         //----------------------------------------------------------------------
-        void recordGraphicsCommands(Graphics::CommandBuffer& cmd, F32 lerp) override;
+        void recordGraphicsCommands(Graphics::CommandBuffer& cmd) override;
 
         NULL_COPY_AND_ASSIGN(SkinnedMeshRenderer)
     };
