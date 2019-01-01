@@ -94,6 +94,7 @@ public:
         createGameObject("Cube")->addComponent<Components::MeshRenderer>(cubeMesh, ASSETS.getErrorMaterial());
 
         auto guiSceneMenu = gui->addComponent<GUISceneMenu>("Scenes");
+        guiSceneMenu->registerScene<AnimationTestScene2>("Animation Test Scene 2");
         guiSceneMenu->registerScene<AnimationTestScene>("Animation Test Scene");
         guiSceneMenu->registerScene<SceneGUIThesisScenesMenu>("Thesis Test Scenes");
         guiSceneMenu->registerScene<TestScene>("Test Scene");
@@ -157,8 +158,8 @@ public:
         Locator::getRenderer().setVSync(true);
         Locator::getRenderer().setGlobalFloat(SID("_Ambient"), 0.5f);
 
-        Locator::getSceneManager().LoadSceneAsync(new SceneGUISelectSceneMenu());
-        //Locator::getSceneManager().LoadScene(new AnimationTestScene());
+        //Locator::getSceneManager().LoadSceneAsync(new SceneGUISelectSceneMenu());
+        Locator::getSceneManager().LoadScene(new AnimationTestScene());
     }
 
     //----------------------------------------------------------------------
@@ -266,7 +267,7 @@ private:
     int main()
     {
         Game game;
-        game.start( gameName, 1280, 720, Graphics::API::D3D11 );
+        game.start( gameName, 1280, 720, Graphics::API::Vulkan );
         system("pause");
         return 0;
     }

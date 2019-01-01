@@ -31,6 +31,7 @@ namespace Graphics {
     static String OBJECT_BUFFER_KEYWORD( "object" );
     static String CAMERA_BUFFER_KEYWORD( "camera" );
     static String LIGHT_BUFFER_KEYWORD ( "light"  );
+    static String ANIMATION_BUFFER_KEYWORD ( "animation"  );
 
     #define SHADOW_MAP_2D_SLOT_BEGIN    9
     #define SHADOW_MAP_3D_SLOT_BEGIN    13
@@ -74,12 +75,14 @@ namespace Graphics {
         _CreateCubeMesh();
         _CreateAndBindFakeShadowmaps();
 
+#ifdef VR
         VR::Device hmd = VR::GetFirstSupportedHMDAndInitialize();
         switch (hmd)
         {
         case VR::Device::OculusRift: m_hmd = new VR::OculusRiftDX(); break;
         default: LOG_WARN_RENDERING( "VR not supported on your system." );
         }
+#endif
     } 
 
     //----------------------------------------------------------------------
@@ -91,6 +94,7 @@ namespace Graphics {
         SAFE_DELETE( m_globalBuffer );
         SAFE_DELETE( m_lightBuffer );
         SAFE_DELETE( m_cubeMesh );
+        SAFE_DELETE( m_animationBuffer );
         renderContext.Reset();
         _DeinitD3D11();
     }
@@ -126,6 +130,12 @@ namespace Graphics {
                 {
                     auto& cmd = *reinterpret_cast<GPUC_DrawMeshInstanced*>( command.get() );
                     _DrawMeshInstanced( cmd.mesh.get(), cmd.material, cmd.modelMatrix, cmd.instanceCount );
+                    break;
+                }
+                case GPUCommand::DRAW_MESH_SKINNED:
+                {
+                    auto& cmd = *reinterpret_cast<GPUC_DrawMeshSkinned*>( command.get() );
+                    _DrawMeshSkinned( cmd.mesh.get(), cmd.material, cmd.modelMatrix, cmd.subMeshIndex, cmd.matrixPalette );
                     break;
                 }
                 case GPUCommand::COPY_TEXTURE:
@@ -482,7 +492,7 @@ namespace Graphics {
     }
 
     //----------------------------------------------------------------------
-    void D3D11Renderer::_BindMesh( IMesh* mesh, const MaterialPtr& material, const DirectX::XMMATRIX& modelMatrix, I32 subMeshIndex )
+    void D3D11Renderer::_Bind( IMesh* mesh, const MaterialPtr& material, const DirectX::XMMATRIX& modelMatrix, I32 subMeshIndex )
     {
         // Update global buffer if necessary
         if (m_globalBuffer)
@@ -530,7 +540,7 @@ namespace Graphics {
         }
 
         // Bind everything and submit drawcall
-        _BindMesh( mesh, material, modelMatrix, subMeshIndex );
+        _Bind( mesh, material, modelMatrix, subMeshIndex );
         g_pImmediateContext->DrawIndexed( mesh->getIndexCount( subMeshIndex ), 0, mesh->getBaseVertex( subMeshIndex ) );
     }
 
@@ -548,8 +558,29 @@ namespace Graphics {
         }
 
         // Bind everything and submit drawcall
-        _BindMesh( mesh, material, modelMatrix, 0 );
+        _Bind( mesh, material, modelMatrix, 0 );
         g_pImmediateContext->DrawIndexedInstanced( mesh->getIndexCount(0), instanceCount, 0, mesh->getBaseVertex(0), 0 );
+    }
+
+    //----------------------------------------------------------------------
+    void D3D11Renderer::_DrawMeshSkinned(IMesh* mesh, const MaterialPtr& material, const DirectX::XMMATRIX& modelMatrix, I32 subMeshIndex, const ArrayList<DirectX::XMMATRIX>& matrixPalette)
+    {
+        // Measuring per frame data
+        if (auto curCamera = renderContext.getCamera())
+        {
+            auto& camInfo = curCamera->getFrameInfo();
+            auto numIndices = mesh->getIndexCount( subMeshIndex );
+            camInfo.drawCalls++;
+            camInfo.numVertices += numIndices;
+            camInfo.numTriangles += numIndices / 3;
+        }
+
+        m_animationBuffer->update( matrixPalette.data(), matrixPalette.size() * sizeof( DirectX::XMMATRIX ) );
+        m_animationBuffer->flush();
+
+        // Bind everything and submit drawcall
+        _Bind( mesh, material, modelMatrix, subMeshIndex );
+        g_pImmediateContext->DrawIndexed( mesh->getIndexCount( subMeshIndex ), 0, mesh->getBaseVertex( subMeshIndex ) );
     }
 
     //----------------------------------------------------------------------
@@ -716,7 +747,7 @@ namespace Graphics {
             vertSrc += "\
             float4 main( float3 PosL : POSITION ) : SV_POSITION \
             {                                                   \
-                return TO_CLIP_SPACE( PosL );                   \
+                return mul( _BoneTransforms[0], TO_CLIP_SPACE( PosL ) );\
             }";
 
             OS::BinaryFile fragFile( engineFS, OS::EFileMode::READ );
@@ -768,11 +799,19 @@ namespace Graphics {
                             m_lightBuffer->bind( ShaderType::Fragment );
                         }
                         else LOG_WARN_RENDERING( "D3D11Renderer::_CreateGlobalBuffersFromFile(): Found another light ubo." );
+                    else if (lower.find(ANIMATION_BUFFER_KEYWORD) != String::npos)
+                        if (not m_animationBuffer)
+                        {
+                            m_animationBuffer = new D3D11::MappedConstantBuffer( ubo, BufferUsage::Frequently );
+                            m_animationBuffer->bind( ShaderType::Vertex );
+                        }
+                        else LOG_WARN_RENDERING("D3D11Renderer::_CreateGlobalBuffersFromFile(): Found another animation ubo.");
                 }
-                if (not m_objectBuffer) LOG_ERROR_RENDERING( "D3D11Renderer::_CreateGlobalBuffersFromFile(): Could not find object buffer." );
-                if (not m_cameraBuffer) LOG_ERROR_RENDERING( "D3D11Renderer::_CreateGlobalBuffersFromFile(): Could not find camera buffer." );
-                if (not m_globalBuffer) LOG_ERROR_RENDERING( "D3D11Renderer::_CreateGlobalBuffersFromFile(): Could not find global buffer." );
-                if (not m_lightBuffer)  LOG_ERROR_RENDERING( "D3D11Renderer::_CreateGlobalBuffersFromFile(): Could not find light buffer." );
+                if (not m_objectBuffer)    LOG_ERROR_RENDERING( "D3D11Renderer::_CreateGlobalBuffersFromFile(): Could not find object buffer." );
+                if (not m_cameraBuffer)    LOG_ERROR_RENDERING( "D3D11Renderer::_CreateGlobalBuffersFromFile(): Could not find camera buffer." );
+                if (not m_globalBuffer)    LOG_ERROR_RENDERING( "D3D11Renderer::_CreateGlobalBuffersFromFile(): Could not find global buffer." );
+                if (not m_lightBuffer)     LOG_ERROR_RENDERING( "D3D11Renderer::_CreateGlobalBuffersFromFile(): Could not find light buffer." );
+                if (not m_animationBuffer) LOG_ERROR_RENDERING( "D3D11Renderer::_CreateGlobalBuffersFromFile(): Could not find animation buffer." );
             }
             catch (const std::runtime_error& e) {
                 LOG_ERROR_RENDERING( "Could not precompile '" + engineFS + "' for buffer creation. This is mandatory. Reason: " + e.what() );

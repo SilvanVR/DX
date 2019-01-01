@@ -15,25 +15,17 @@
 
 namespace Components {
 
-    static constexpr StringID SID_BONE_TRANSFORMS("u_boneTransforms");
+    static constexpr StringID SID_BONE_TRANSFORMS("_BoneTransforms");
 
     //----------------------------------------------------------------------
     SkinnedMeshRenderer::SkinnedMeshRenderer( const MeshPtr& mesh, const Animation::Skeleton& skeleton, 
                                              const Animation::AnimationClip& animation, const MaterialPtr& material )
         : MeshRenderer( mesh, material ), m_skeleton( skeleton )
     {
-        const auto& ubo = material->getShader()->getVSUniformShaderBuffer();
-        if (not ubo)
-            return;
+        ASSERT( not skeleton.joints.empty() );
 
-        if (auto member = ubo->getMember( SID_BONE_TRANSFORMS ))
-        {
-            m_matrixPalette.resize( member->getArraySize(), DirectX::XMMatrixIdentity() );
-            m_jointWorldMatrices.resize( member->getArraySize(), DirectX::XMMatrixIdentity() );
-            material->getShader()->setData( SID_BONE_TRANSFORMS, m_matrixPalette.data() );
-        }
-        else
-            LOG_WARN( "SkinnedMeshRenderer(): Shader from given material has no uniform buffer for skinning matrices." );
+        m_matrixPalette.resize( skeleton.joints.size(), DirectX::XMMatrixIdentity() );
+        m_jointWorldMatrices.resize( skeleton.joints.size(), DirectX::XMMatrixIdentity() );
 
         playAnimation( animation );
     }
@@ -70,16 +62,12 @@ namespace Components {
                     m_jointWorldMatrices[i] = m_jointWorldMatrices[i] * m_jointWorldMatrices[joint.parentIndex];
             }
 
-            // Calculate matrix palette and update shader ubo
-            // (This is just proof of concept and works only for one animation)
+            // Calculate matrix palette
             for (U32 i = 0; i < m_skeleton.joints.size(); i++)
             {
                 auto& joint = m_skeleton.joints[i];
                 m_matrixPalette[i] = joint.invBindPose * m_jointWorldMatrices[i];
             }
-
-            auto& shader = getMaterial()->getShader();
-            shader->setData( SID_BONE_TRANSFORMS, m_matrixPalette.data() );
         }
     }
 
@@ -99,6 +87,18 @@ namespace Components {
     //**********************************************************************
     // PRIVATE
     //**********************************************************************
+
+    //----------------------------------------------------------------------
+    void SkinnedMeshRenderer::recordGraphicsCommands( Graphics::CommandBuffer& cmd, F32 lerp )
+    {
+        auto transform = getGameObject()->getTransform();
+        ASSERT( transform != nullptr );
+
+        // Draw submesh with appropriate material
+        auto modelMatrix = transform->getWorldMatrix( lerp );
+        for (I32 i = 0; i < getMesh()->getSubMeshCount(); i++)
+            cmd.drawMeshSkinned( getMesh(), getMaterial( i ), modelMatrix, i, m_matrixPalette );
+    }
 
     //----------------------------------------------------------------------
     DirectX::XMVECTOR SkinnedMeshRenderer::_GetInterpolatedTranslation( U32 joint, Time::Seconds clockTime )

@@ -30,6 +30,7 @@ namespace Graphics {
         DRAW_LIGHT,
         DRAW_MESH,
         DRAW_MESH_INSTANCED,
+        DRAW_MESH_SKINNED,
         END_CAMERA,
         COPY_TEXTURE,
         RENDER_CUBEMAP,
@@ -75,6 +76,20 @@ namespace Graphics {
         MeshPtr             mesh;
         MaterialPtr         material;
         I32                 instanceCount;
+    };
+
+    //**********************************************************************
+    struct GPUC_DrawMeshSkinned : public GPUCommandBase
+    {
+        GPUC_DrawMeshSkinned( const MeshPtr& mesh, const MaterialPtr& material, const DirectX::XMMATRIX& modelMatrix, I32 subMeshIndex, const ArrayList<DirectX::XMMATRIX>& matrixPalette )
+            : GPUCommandBase( GPUCommand::DRAW_MESH_SKINNED ),
+            material( material ), mesh( mesh ), modelMatrix( modelMatrix ), subMeshIndex( subMeshIndex ), matrixPalette( matrixPalette ) {}
+
+        DirectX::XMMATRIX                   modelMatrix;
+        MeshPtr                             mesh;
+        MaterialPtr                         material;
+        I32                                 subMeshIndex;
+        const ArrayList<DirectX::XMMATRIX>& matrixPalette;
     };
 
     //**********************************************************************

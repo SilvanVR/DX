@@ -51,6 +51,7 @@ namespace Graphics {
         const ArrayList<std::shared_ptr<GPUCommandBase>>& getGPUCommands() const { return m_gpuCommands; }
         void drawMesh(const MeshPtr& mesh, const MaterialPtr& material, const DirectX::XMMATRIX& modelMatrix, I32 subMeshIndex);
         void drawMeshInstanced(const MeshPtr& mesh, const MaterialPtr& material, const DirectX::XMMATRIX& modelMatrix, I32 instanceCount);
+        void drawMeshSkinned(const MeshPtr& mesh, const MaterialPtr& material, const DirectX::XMMATRIX& modelMatrix, I32 subMeshIndex, const ArrayList<DirectX::XMMATRIX>& matrixPalette);
         void setCamera(const Camera& camera);
         void endCamera();
         void copyTexture(const TexturePtr& srcTex, const TexturePtr& dstTex);
@@ -62,6 +63,7 @@ namespace Graphics {
         void blit(const RenderTexturePtr& src, const RenderTexturePtr& dst, const MaterialPtr& material = nullptr);
         void setScissor(const Math::Rect& rect);
         void setCameraMatrix(CameraMember member, const DirectX::XMMATRIX& matrix);
+
 
     private:
         ArrayList<std::shared_ptr<GPUCommandBase>> m_gpuCommands;

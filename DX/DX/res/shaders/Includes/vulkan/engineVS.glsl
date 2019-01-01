@@ -45,6 +45,12 @@ layout (set = 0, binding = 1) uniform CAMERA
 	float zFar;
 } _Camera;
 
+// Per animation ubo
+layout (set = 0, binding = 10) uniform ANIMATION
+{
+	mat4 boneTransforms[MAX_BONES];
+} _Animation;
+
 // Vulkan clip space has inverted Y. This fixes it.
 const mat4 VULKAN_CLIP = { { 1.0,  0.0, 0.0, 0.0 },
                            { 0.0, -1.0, 0.0, 0.0 },

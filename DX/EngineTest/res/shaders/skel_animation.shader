@@ -31,21 +31,16 @@ struct VertexOut
 	float3 WorldPos : POSITION;
 };
 
-cbuffer cbShader
-{
-	float4x4 u_boneTransforms[MAX_BONES];
-};
-
 VertexOut main(VertexIn vin)
 {
     VertexOut OUT;
 
 	OUT.Tex = vin.tex;	
 
-	float4x4 boneTransform = u_boneTransforms[vin.boneIDs[0]] * vin.boneWeights[0];
-	boneTransform += u_boneTransforms[vin.boneIDs[1]] * vin.boneWeights[1];
-	boneTransform += u_boneTransforms[vin.boneIDs[2]] * vin.boneWeights[2];
-	boneTransform += u_boneTransforms[vin.boneIDs[3]] * vin.boneWeights[3]; 
+	float4x4 boneTransform = _BoneTransforms[vin.boneIDs[0]] * vin.boneWeights[0];
+	boneTransform += _BoneTransforms[vin.boneIDs[1]] * vin.boneWeights[1];
+	boneTransform += _BoneTransforms[vin.boneIDs[2]] * vin.boneWeights[2];
+	boneTransform += _BoneTransforms[vin.boneIDs[3]] * vin.boneWeights[3]; 
 	
 	float4 pos = mul( boneTransform, float4( vin.PosL, 1 ) );
     OUT.PosH = TO_CLIP_SPACE( pos );
@@ -99,19 +94,14 @@ layout (location = 0) out vec2 outUV;
 layout (location = 1) out vec3 outNormal;
 layout (location = 2) out vec3 outWorldPos;
 
-layout (set = SET_FIRST, binding = 0) uniform ShaderSet
-{
-	mat4 u_boneTransforms[MAX_BONES];
-};
-
 void main()
 {
 	outUV = VERTEX_UV;
 
-	mat4 boneTransform = u_boneTransforms[VERTEX_BONEID[0]] * VERTEX_BONEWEIGHT[0];
-	boneTransform += u_boneTransforms[VERTEX_BONEID[1]] * VERTEX_BONEWEIGHT[1];
-	boneTransform += u_boneTransforms[VERTEX_BONEID[2]] * VERTEX_BONEWEIGHT[2];
-	boneTransform += u_boneTransforms[VERTEX_BONEID[3]] * VERTEX_BONEWEIGHT[3]; 
+	mat4 boneTransform = _Animation.boneTransforms[VERTEX_BONEID[0]] * VERTEX_BONEWEIGHT[0];
+	boneTransform += _Animation.boneTransforms[VERTEX_BONEID[1]] * VERTEX_BONEWEIGHT[1];
+	boneTransform += _Animation.boneTransforms[VERTEX_BONEID[2]] * VERTEX_BONEWEIGHT[2];
+	boneTransform += _Animation.boneTransforms[VERTEX_BONEID[3]] * VERTEX_BONEWEIGHT[3]; 
 	
 	vec3 normal = ( boneTransform * vec4( VERTEX_NORMAL, 0 ) ).xyz;
 	outNormal = TRANSFORM_NORMAL( normal );

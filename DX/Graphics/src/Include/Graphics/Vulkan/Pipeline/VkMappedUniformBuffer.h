@@ -87,6 +87,11 @@ namespace Graphics { namespace Vulkan {
         bool update(StringID name, const void* data);
 
         //----------------------------------------------------------------------
+        // Update the whole uniform buffer with the given data. !! ONLY ON THE CPU !!
+        //----------------------------------------------------------------------
+        void update(const void* data, U32 sizeInBytes);
+
+        //----------------------------------------------------------------------
         // Bind the uniform buffer to the device context. Might flush it before
         // if the data on the gpu is not up to date.
         //----------------------------------------------------------------------

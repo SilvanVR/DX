@@ -31,6 +31,7 @@ namespace Graphics {
     static String CAMERA_UBO_KEYWORD     ( "camera" );
     static String GLOBAL_UBO_KEYWORD     ( "global" );
     static String LIGHTS_UBO_KEYWORD     ( "lights" );
+    static String ANIMATION_UBO_KEYWORD  ( "animation" );
 
     static StringID POST_PROCESS_INPUT_NAME   = SID( "_MainTex" );
     static StringID CAM_POS_NAME              = SID( "pos" );
@@ -88,6 +89,7 @@ namespace Graphics {
     {
         _SetLimits();
 
+#ifdef VR
         VR::Device hmd = VR::GetFirstSupportedHMDAndInitialize();
         switch (hmd)
         {
@@ -107,6 +109,7 @@ namespace Graphics {
         default:
             LOG_WARN_RENDERING( "VR not supported on your system." );
         }
+#endif
 
         if ( not hasHMD() )
         {
@@ -138,6 +141,7 @@ namespace Graphics {
         SAFE_DELETE( m_globalBuffer );
         SAFE_DELETE( m_cameraBuffer );
         SAFE_DELETE( m_lightBuffer );
+        SAFE_DELETE( m_animationBuffer );
         g_vulkan.ctx.Shutdown();
         m_swapchain.shutdown( g_vulkan.instance, g_vulkan.device );
         SAFE_DELETE( m_cubeMesh );
@@ -177,6 +181,12 @@ namespace Graphics {
                 {
                     auto& cmd = *reinterpret_cast<GPUC_DrawMeshInstanced*>( command.get() );
                     _DrawMeshInstanced( cmd.mesh.get(), cmd.material, cmd.modelMatrix, cmd.instanceCount );
+                    break;
+                }
+                case GPUCommand::DRAW_MESH_SKINNED:
+                {
+                    auto& cmd = *reinterpret_cast<GPUC_DrawMeshSkinned*>( command.get() );
+                    _DrawMeshSkinned( cmd.mesh.get(), cmd.material, cmd.modelMatrix, cmd.subMeshIndex, cmd.matrixPalette );
                     break;
                 }
                 case GPUCommand::COPY_TEXTURE:
@@ -290,6 +300,7 @@ namespace Graphics {
         {
             m_cameraBuffer->newFrame();
             m_lightBuffer->newFrame();
+            m_animationBuffer->newFrame();
             {
                 _LockQueue();
                 for (auto& cmd : m_pendingCmdQueue)
@@ -498,7 +509,7 @@ namespace Graphics {
     }
 
     //----------------------------------------------------------------------
-    void VkRenderer::_BindMesh( IMesh* mesh, const MaterialPtr& material, const DirectX::XMMATRIX& modelMatrix, I32 subMeshIndex )
+    void VkRenderer::_Bind( IMesh* mesh, const MaterialPtr& material, const DirectX::XMMATRIX& modelMatrix, I32 subMeshIndex )
     {
         // Update global buffer if necessary
         if ( m_globalBuffer )
@@ -545,7 +556,7 @@ namespace Graphics {
             camInfo.numTriangles += numIndices / 3;
         }
 
-        _BindMesh( mesh, material, modelMatrix, subMeshIndex );
+        _Bind( mesh, material, modelMatrix, subMeshIndex );
         g_vulkan.ctx.DrawIndexed( mesh->getIndexCount( subMeshIndex ), 1, 0, mesh->getBaseVertex( subMeshIndex ), 0 );
     }
 
@@ -562,8 +573,30 @@ namespace Graphics {
             camInfo.numTriangles += numIndices / 3;
         }
 
-        _BindMesh( mesh, material, modelMatrix, 0 );
+        _Bind( mesh, material, modelMatrix, 0 );
         g_vulkan.ctx.DrawIndexed( mesh->getIndexCount( 0 ), instanceCount, 0, mesh->getBaseVertex( 0 ), 0 );
+    }
+
+    //----------------------------------------------------------------------
+    void VkRenderer::_DrawMeshSkinned( IMesh* mesh, const MaterialPtr& material, const DirectX::XMMATRIX& modelMatrix, I32 subMeshIndex, const ArrayList<DirectX::XMMATRIX>& matrixPalette)
+    {
+        // Measuring per frame data
+        if (auto curCamera = renderContext.getCamera())
+        {
+            auto& camInfo = curCamera->getFrameInfo();
+            auto numIndices = mesh->getIndexCount( subMeshIndex );
+            camInfo.drawCalls++;
+            camInfo.numVertices += numIndices;
+            camInfo.numTriangles += numIndices / 3;
+        }
+
+        LOG_ERROR_RENDERING("DrawMeshSkinned crashes in Vulkan, idk why.");
+        m_animationBuffer->beginBuffer();
+        m_animationBuffer->update( matrixPalette.data(), static_cast<U32>( matrixPalette.size() * sizeof( DirectX::XMMATRIX ) ) );
+        m_animationBuffer->bind();
+
+        _Bind( mesh, material, modelMatrix, subMeshIndex );
+        g_vulkan.ctx.DrawIndexed( mesh->getIndexCount( subMeshIndex ), 1, 0, mesh->getBaseVertex( subMeshIndex ), 0 );
     }
 
     //----------------------------------------------------------------------
@@ -774,10 +807,15 @@ namespace Graphics {
                         if (not m_lightBuffer)
                             m_lightBuffer = new Vulkan::CachedMappedUniformBuffer( ubo, BufferUsage::Frequently );
                         else LOG_WARN_RENDERING( "VkRenderer::_CreateGlobalBuffersFromFile(): Found another light ubo." );
+                    else if (lower.find(ANIMATION_UBO_KEYWORD) != String::npos)
+                        if (not m_animationBuffer)
+                            m_animationBuffer = new Vulkan::CachedMappedUniformBuffer( ubo, BufferUsage::Frequently );
+                        else LOG_WARN_RENDERING("VkRenderer::_CreateGlobalBuffersFromFile(): Found another animation ubo.");
                 }
-                if (not m_cameraBuffer) LOG_ERROR_RENDERING( "VkRenderer::_CreateGlobalBuffersFromFile(): Could not find camera buffer." );
-                if (not m_globalBuffer) LOG_ERROR_RENDERING( "VkRenderer::_CreateGlobalBuffersFromFile(): Could not find global buffer." );
-                if (not m_lightBuffer)  LOG_ERROR_RENDERING( "VkRenderer::_CreateGlobalBuffersFromFile(): Could not find light buffer." );
+                if (not m_cameraBuffer)    LOG_ERROR_RENDERING( "VkRenderer::_CreateGlobalBuffersFromFile(): Could not find camera buffer." );
+                if (not m_globalBuffer)    LOG_ERROR_RENDERING( "VkRenderer::_CreateGlobalBuffersFromFile(): Could not find global buffer." );
+                if (not m_lightBuffer)     LOG_ERROR_RENDERING( "VkRenderer::_CreateGlobalBuffersFromFile(): Could not find light buffer." );
+                if (not m_animationBuffer) LOG_ERROR_RENDERING( "VkRenderer::_CreateGlobalBuffersFromFile(): Could not find animation buffer." );
             }
             catch (const std::runtime_error& e) {
                 LOG_ERROR_RENDERING( "Could not precompile '" + engineFS + "' for buffer creation. This is mandatory. Reason: " + e.what() );

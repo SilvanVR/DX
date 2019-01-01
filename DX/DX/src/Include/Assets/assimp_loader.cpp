@@ -369,7 +369,7 @@ namespace Assets {
                 }
             }
 
-            // Displacement map
+            // Emmissive map
             if ( aiMaterial->GetTexture( aiTextureType_EMISSIVE, 0, &texturePath ) == AI_SUCCESS )
             {
                 if (auto texture = scene->GetEmbeddedTexture( texturePath.C_Str() )) {
