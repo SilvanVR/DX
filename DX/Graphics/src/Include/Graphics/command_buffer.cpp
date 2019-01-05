@@ -27,6 +27,11 @@ namespace Graphics {
             auto drawCmd = std::reinterpret_pointer_cast<GPUC_DrawMeshInstanced>(cmd);
             return drawCmd->material->getShader()->getRenderQueue();
         }
+        case GPUCommand::DRAW_MESH_SKINNED:
+        {
+            auto drawCmd = std::reinterpret_pointer_cast<GPUC_DrawMeshSkinned>(cmd);
+            return drawCmd->material->getShader()->getRenderQueue();
+        }
         case GPUCommand::DRAW_LIGHT:
             return -8196; // return low enough so it is always before every draw command
         }
@@ -55,12 +60,14 @@ namespace Graphics {
         auto itBeginDraw = m_gpuCommands.begin();
         while ( itBeginDraw != m_gpuCommands.end() && ((*itBeginDraw)->getType() != GPUCommand::DRAW_MESH && 
                                                        (*itBeginDraw)->getType() != GPUCommand::DRAW_MESH_INSTANCED &&
+                                                       (*itBeginDraw)->getType() != GPUCommand::DRAW_MESH_SKINNED &&
                                                        (*itBeginDraw)->getType() != GPUCommand::DRAW_LIGHT) )
             itBeginDraw++;
 
         auto itEndDraw = itBeginDraw;
         while ( itEndDraw != m_gpuCommands.end() && ((*itEndDraw)->getType() == GPUCommand::DRAW_MESH ||
                                                      (*itEndDraw)->getType() == GPUCommand::DRAW_MESH_INSTANCED || 
+                                                     (*itEndDraw)->getType() == GPUCommand::DRAW_MESH_SKINNED || 
                                                      (*itEndDraw)->getType() == GPUCommand::DRAW_LIGHT) )
             itEndDraw++;
 
@@ -73,6 +80,7 @@ namespace Graphics {
         while (itBeginDrawTransparent != m_gpuCommands.end() && 
               ((*itBeginDrawTransparent)->getType() == GPUCommand::DRAW_MESH ||
                (*itBeginDrawTransparent)->getType() == GPUCommand::DRAW_MESH_INSTANCED ||
+               (*itBeginDrawTransparent)->getType() == GPUCommand::DRAW_MESH_SKINNED ||
                (*itBeginDrawTransparent)->getType() == GPUCommand::DRAW_LIGHT) )
         {
             if ( getRenderQueue(*itBeginDrawTransparent) >= (I32)Graphics::RenderQueue::BackToFrontBoundary)
@@ -123,6 +131,14 @@ namespace Graphics {
         ASSERT( material && "Material is null, which is not allowed!" );
         ASSERT( instanceCount > 0 && "Material is null, which is not allowed!" );
         m_gpuCommands.push_back( std::make_unique<GPUC_DrawMeshInstanced>( mesh, material, modelMatrix, instanceCount ) );
+    }
+
+    //----------------------------------------------------------------------
+    void CommandBuffer::drawMeshSkinned( const MeshPtr& mesh, const MaterialPtr& material, const DirectX::XMMATRIX& modelMatrix, I32 subMeshIndex, const ArrayList<DirectX::XMMATRIX>& matrixPalette )
+    {
+        ASSERT( mesh && "Mesh is null, which is not allowed!" );
+        ASSERT( material && "Material is null, which is not allowed!" );
+        m_gpuCommands.push_back( std::make_unique<GPUC_DrawMeshSkinned>( mesh, material, modelMatrix, subMeshIndex, matrixPalette ) );
     }
 
     //----------------------------------------------------------------------

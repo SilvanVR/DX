@@ -1848,7 +1848,6 @@ public:
     }
 };
 
-
 class AnimationTestScene : public IScene
 {
     Components::Camera* cam;
@@ -2017,3 +2016,62 @@ public:
 
 };
 
+class AnimationTestScene2 : public IScene
+{
+    Components::Camera* cam;
+
+public:
+    AnimationTestScene2() : IScene("AnimationTestScene2") {}
+
+    void init() override
+    {
+        // Camera
+        auto camGO = createGameObject("Camera");
+        cam = camGO->addComponent<Components::Camera>(45.0f, 0.1f, 1000.0f, Graphics::MSAASamples::Four);
+        cam->setClearColor(Color(175, 181, 191));
+        camGO->getComponent<Components::Transform>()->position = Math::Vec3(0, 2, -5);
+        camGO->addComponent<Components::FPSCamera>(Components::FPSCamera::MAYA, 0.1f);
+        camGO->addComponent<Components::AudioListener>();
+
+        auto skelShader = ASSETS.getShader("/shaders/skel_animation.shader");
+        auto mat = ASSETS.getMaterial("/models/humanoid/mat.material");
+
+        ArrayList<Animation::AnimationClip> anims;
+        Animation::Skeleton skeleton;
+        auto mesh = ASSETS.getMesh("/models/humanoid/model.dae", &skeleton, &anims);
+        mat->setReplacementShader(TAG_SHADOW_PASS, skelShader);
+
+        for (I32 x = -5; x < 5; x++)
+        {
+            for (I32 z = -5; z < 5; z++)
+            {
+                auto meshGO2 = createGameObject("GO2");
+                meshGO2->addComponent<Components::SkinnedMeshRenderer>(mesh, skeleton, anims.front(), mat);
+
+                meshGO2->getTransform()->position = { x * 3.0f, 0.0f, z * 3.0f };
+                meshGO2->getTransform()->rotation *= Math::Quat(Math::Vec3::RIGHT, -90.0f);
+                meshGO2->getTransform()->rotation *= Math::Quat(Math::Vec3::UP, 180.0f);
+                meshGO2->getTransform()->scale *= 0.5f;
+            }
+        }
+
+        camGO->addComponent<Components::GUI>();
+        camGO->addComponent<Components::GUIFPS>();
+
+        auto obj = createGameObject("GO");
+        obj->addComponent<Components::MeshRenderer>(Core::MeshGenerator::CreatePlane(), ASSETS.getMaterial("/materials/blinn_phong/grass.material"));
+        obj->getTransform()->rotation *= Math::Quat(Math::Vec3::RIGHT, 90.0f);
+        obj->getTransform()->scale = { 20,20,20 };
+
+        auto sun = createGameObject("Sun");
+        auto dl = sun->addComponent<Components::DirectionalLight>(0.5f, Color::WHITE, Graphics::ShadowType::CSMSoft, ArrayList<F32>{20.0f, 40.0f, 80.0f, 200.0f});
+        sun->getTransform()->rotation = Math::Quat::LookRotation(Math::Vec3{ 0,-1, 1 }, Math::Vec3{ 0, 0, 1 });
+        dl->setShadowMapQuality(Graphics::ShadowMapQuality::Insane);
+
+        auto cubemap = ASSETS.getCubemap("/cubemaps/tropical_sunny_day/Left.png", "/cubemaps/tropical_sunny_day/Right.png",
+            "/cubemaps/tropical_sunny_day/Up.png", "/cubemaps/tropical_sunny_day/Down.png",
+            "/cubemaps/tropical_sunny_day/Front.png", "/cubemaps/tropical_sunny_day/Back.png", true);
+        camGO->addComponent<Components::Skybox>(cubemap);
+    }
+
+};

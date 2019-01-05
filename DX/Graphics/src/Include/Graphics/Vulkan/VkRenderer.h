@@ -62,9 +62,10 @@ namespace Graphics {
         Vulkan::Swapchain   m_swapchain;
         IMesh*              m_cubeMesh      = nullptr;
 
-        Vulkan::MappedUniformBuffer*        m_globalBuffer = nullptr;
-        Vulkan::CachedMappedUniformBuffer*  m_cameraBuffer = nullptr;
-        Vulkan::CachedMappedUniformBuffer*  m_lightBuffer  = nullptr;
+        Vulkan::MappedUniformBuffer*        m_globalBuffer     = nullptr;
+        Vulkan::CachedMappedUniformBuffer*  m_cameraBuffer     = nullptr;
+        Vulkan::CachedMappedUniformBuffer*  m_lightBuffer      = nullptr;
+        Vulkan::CachedMappedUniformBuffer*  m_animationBuffer  = nullptr;
 
         ITexture2D*         m_fakeShadowMaps2D[MAX_SHADOWMAPS_2D];
         ICubemap*           m_fakeShadowMaps3D[MAX_SHADOWMAPS_3D];
@@ -72,9 +73,10 @@ namespace Graphics {
 
         //----------------------------------------------------------------------
         inline void _SetCamera(Camera* camera);
-        inline void _BindMesh(IMesh* mesh, const MaterialPtr& material, const DirectX::XMMATRIX& modelMatrix, I32 subMeshIndex);
+        inline void _Bind(IMesh* mesh, const MaterialPtr& material, const DirectX::XMMATRIX& modelMatrix, I32 subMeshIndex);
         inline void _DrawMesh(IMesh* mesh, const MaterialPtr& material, const DirectX::XMMATRIX& model, I32 subMeshIndex);
         inline void _DrawMeshInstanced(IMesh* mesh, const MaterialPtr& material, const DirectX::XMMATRIX& model, I32 instanceCount);
+        inline void _DrawMeshSkinned(IMesh* mesh, const MaterialPtr& material, const DirectX::XMMATRIX& model, I32 subMeshIndex, const ArrayList<DirectX::XMMATRIX>& matrixPalette);
         inline void _CopyTexture(ITexture* srcTex, I32 srcElement, I32 srcMip, ITexture* dstTex, I32 dstElement, I32 dstMip);
         inline void _RenderCubemap(ICubemap* cubemap, const MaterialPtr& material, U32 dstMip);
         inline void _Blit(const RenderTexturePtr& src, const RenderTexturePtr& dst, const MaterialPtr& material);

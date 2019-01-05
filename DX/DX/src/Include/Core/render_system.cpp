@@ -21,7 +21,7 @@ namespace Core {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    void RenderSystem::execute( F32 lerp )
+    void RenderSystem::execute()
     {
         auto& renderer = Locator::getRenderer();
 
@@ -38,7 +38,7 @@ namespace Core {
 
             // Update camera 
             auto transform = cam->getGameObject()->getTransform();
-            auto modelMatrix = transform->getWorldMatrix( lerp );
+            auto modelMatrix = transform->getWorldMatrix();
             Math::Vec3 camWorldPos;
             DirectX::XMStoreFloat3( &camWorldPos, modelMatrix.r[3] );
             cam->m_camera.setModelMatrix( modelMatrix );
@@ -79,7 +79,7 @@ namespace Core {
                 for (auto& light : visibleLights)
                 {
                     // Draw light
-                    light->recordGraphicsCommands( cmd, lerp );
+                    light->recordGraphicsCommands( cmd );
 
                     // Draw shadowmap if enabled and we are still under the limit
                     if ( light->shadowsEnabled() && (shadowMapsRendered.size() < renderer.getLimits().maxShadowmaps) )
@@ -87,7 +87,7 @@ namespace Core {
                         // This prevents rendering of a shadowmap multiple times per frame (because the light is rendered by >1 cameras)
                         if ( shadowMapsRendered.find( light ) == shadowMapsRendered.end() )
                         {
-                            light->renderShadowMap( scene, lerp );
+                            light->renderShadowMap( scene );
                             shadowMapsRendered.insert( light );
                         }
                     }
@@ -113,7 +113,7 @@ namespace Core {
                     // Check if component is visible
                     bool isVisible = renderer->cull( cam->m_camera );
                     if (isVisible)
-                        renderer->recordGraphicsCommands( cmd, lerp );
+                        renderer->recordGraphicsCommands( cmd );
                 }
             }
 

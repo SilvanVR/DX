@@ -25,7 +25,7 @@ namespace Components {
     }
 
     //----------------------------------------------------------------------
-    void PointLight::recordGraphicsCommands( Graphics::CommandBuffer& cmd, F32 lerp )
+    void PointLight::recordGraphicsCommands( Graphics::CommandBuffer& cmd )
     {
         auto transform = getGameObject()->getTransform();
         ASSERT( transform != nullptr );
@@ -42,7 +42,7 @@ namespace Components {
     }
 
     //----------------------------------------------------------------------
-    void PointLight::renderShadowMap( const IScene& scene, F32 lerp )
+    void PointLight::renderShadowMap( const IScene& scene )
     {
         Graphics::CommandBuffer cmd;
 
@@ -79,7 +79,7 @@ namespace Components {
                 // Check if component is visible
                 bool isVisible = renderer->cull( *m_camera );
                 if (isVisible)
-                    renderer->recordGraphicsCommands( cmd, lerp );
+                    renderer->recordGraphicsCommands( cmd );
             }
 
             cmd.endCamera();

@@ -127,13 +127,13 @@ namespace Components {
     }
 
     //----------------------------------------------------------------------
-    void DirectionalLight::recordGraphicsCommands( Graphics::CommandBuffer& cmd, F32 lerp )
+    void DirectionalLight::recordGraphicsCommands( Graphics::CommandBuffer& cmd )
     {
         cmd.drawLight( m_dirLight );
     }
 
     //----------------------------------------------------------------------
-    void DirectionalLight::renderShadowMap( const IScene& scene, F32 lerp )
+    void DirectionalLight::renderShadowMap( const IScene& scene )
     {
         auto mainCamera = SCENE.getMainCamera();
 
@@ -143,7 +143,7 @@ namespace Components {
         case Graphics::ShadowType::Soft:
             // Adapt view frustum so it follows the main camera around
             _AdaptOrthographicViewFrustum( mainCamera, mainCamera->getZNear(), m_dirLight->getShadowRange() );
-            ILightComponent::renderShadowMap( scene, lerp );
+            ILightComponent::renderShadowMap( scene );
             break;
         case Graphics::ShadowType::CSM:
         case Graphics::ShadowType::CSMSoft:
@@ -163,7 +163,7 @@ namespace Components {
 
                 // Record commands
                 auto transform = getGameObject()->getTransform();
-                auto modelMatrix = transform->getWorldMatrix( lerp );
+                auto modelMatrix = transform->getWorldMatrix();
                 m_camera->setModelMatrix( modelMatrix );
 
                 // Set light-view projection for this cascade
@@ -179,7 +179,7 @@ namespace Components {
                     // Check if component is visible
                     bool isVisible = renderer->cull( *m_camera );
                     if (isVisible)
-                        renderer->recordGraphicsCommands( cmd, lerp );
+                        renderer->recordGraphicsCommands( cmd );
                 }
                 cmd.endCamera();
 

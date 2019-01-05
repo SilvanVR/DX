@@ -34,7 +34,7 @@ namespace Components {
         //----------------------------------------------------------------------
         friend class Core::RenderSystem;
         friend class ILightComponent; friend class DirectionalLight; friend class SpotLight; friend class PointLight;
-        virtual void recordGraphicsCommands(Graphics::CommandBuffer& cmd, F32 lerp) {}
+        virtual void recordGraphicsCommands(Graphics::CommandBuffer& cmd) {}
         virtual bool cull(const Graphics::Camera& camera) { return true; }
 
         NULL_COPY_AND_ASSIGN(IRenderComponent)

@@ -64,16 +64,18 @@ namespace Graphics {
         D3D11::Swapchain*   m_pSwapchain    = nullptr;
         IMesh*              m_cubeMesh      = nullptr;
 
-        D3D11::MappedConstantBuffer* m_objectBuffer = nullptr;
-        D3D11::MappedConstantBuffer* m_globalBuffer = nullptr;
-        D3D11::MappedConstantBuffer* m_cameraBuffer = nullptr;
-        D3D11::MappedConstantBuffer* m_lightBuffer  = nullptr;
+        D3D11::MappedConstantBuffer* m_objectBuffer    = nullptr;
+        D3D11::MappedConstantBuffer* m_globalBuffer    = nullptr;
+        D3D11::MappedConstantBuffer* m_cameraBuffer    = nullptr;
+        D3D11::MappedConstantBuffer* m_lightBuffer     = nullptr;
+        D3D11::MappedConstantBuffer* m_animationBuffer = nullptr;
 
         //----------------------------------------------------------------------
         inline void _SetCamera(Camera* camera);
-        inline void _BindMesh(IMesh* mesh, const MaterialPtr& material, const DirectX::XMMATRIX& modelMatrix, I32 subMeshIndex);
+        inline void _Bind(IMesh* mesh, const MaterialPtr& material, const DirectX::XMMATRIX& modelMatrix, I32 subMeshIndex);
         inline void _DrawMesh(IMesh* mesh, const MaterialPtr& material, const DirectX::XMMATRIX& model, I32 subMeshIndex);
         inline void _DrawMeshInstanced(IMesh* mesh, const MaterialPtr& material, const DirectX::XMMATRIX& model, I32 instanceCount);
+        inline void _DrawMeshSkinned(IMesh* mesh, const MaterialPtr& material, const DirectX::XMMATRIX& model, I32 subMeshIndex, const ArrayList<DirectX::XMMATRIX>& matrixPalette);
         inline void _CopyTexture(ITexture* srcTex, I32 srcElement, I32 srcMip, ITexture* dstTex, I32 dstElement, I32 dstMip);
         inline void _RenderCubemap(ICubemap* cubemap, const MaterialPtr& material, U32 dstMip);
         inline void _Blit(const RenderTexturePtr& src, const RenderTexturePtr& dst, const MaterialPtr& material);

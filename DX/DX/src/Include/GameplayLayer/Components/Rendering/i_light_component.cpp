@@ -68,13 +68,13 @@ namespace Components {
     //**********************************************************************
 
     //----------------------------------------------------------------------
-    void ILightComponent::renderShadowMap( const IScene& scene, F32 lerp )
+    void ILightComponent::renderShadowMap( const IScene& scene )
     {
         Graphics::CommandBuffer cmd;
 
         // Update camera 
         auto transform = getGameObject()->getTransform();
-        auto modelMatrix = transform->getWorldMatrix( lerp );
+        auto modelMatrix = transform->getWorldMatrix();
         m_camera->setModelMatrix( modelMatrix );
 
         m_light->setShadowViewProjection( m_camera->getViewProjectionMatrix() );
@@ -91,7 +91,7 @@ namespace Components {
             // Check if component is visible
             bool isVisible = renderer->cull( *m_camera );
             if (isVisible)
-                renderer->recordGraphicsCommands( cmd, lerp );
+                renderer->recordGraphicsCommands( cmd );
         }
 
         cmd.endCamera();

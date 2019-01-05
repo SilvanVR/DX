@@ -27,6 +27,11 @@ cbuffer cbBufferGlobal : register(b2)
 	float _Ambient;
 };
 
+cbuffer cbBufferAnimation : register(b10)
+{	
+	float4x4 _BoneTransforms[MAX_BONES];
+};
+
 //----------------------------------------------------------------------
 float4 TO_CLIP_SPACE( float4 vert )
 {

@@ -99,6 +99,9 @@ namespace Core {
             Time::Seconds delta = m_engineClock._Update();
             if (delta > 0.5f) delta = 0.5f;
 
+            switch (m_gameLoopTechnique)
+            {
+            case EGameLoopTechnique::Fixed:
             {
                 _NotifyOnUpdate( delta );
 
@@ -112,12 +115,15 @@ namespace Core {
                     tick( TICK_RATE_IN_SECONDS );
                     gameTickAccumulator -= TICK_RATE_IN_SECONDS;
                 }
+                _Render();
             }
-
-            {
-                // Render as fast as possible with interpolated state
-                F64 lerp = (F64)(gameTickAccumulator / TICK_RATE_IN_SECONDS);
-                _Render( (F32)lerp );
+            break;
+            case EGameLoopTechnique::Variable:
+                _NotifyOnUpdate( delta );
+                _NotifyOnTick( delta );
+                tick( delta );
+                _Render();
+                break;
             }
 
             m_window.processOSMessages();
@@ -125,7 +131,7 @@ namespace Core {
     }
 
     //----------------------------------------------------------------------
-    void CoreEngine::_Render( F32 lerp )
+    void CoreEngine::_Render()
     {
         auto& graphicsEngine = Locator::getRenderer();
 
@@ -135,7 +141,7 @@ namespace Core {
 
         Events::EventDispatcher::GetEvent( EVENT_FRAME_BEGIN ).invoke();
 
-        RenderSystem::Instance().execute( lerp );
+        RenderSystem::Instance().execute();
 
         Events::EventDispatcher::GetEvent( EVENT_FRAME_END ).invoke();
 

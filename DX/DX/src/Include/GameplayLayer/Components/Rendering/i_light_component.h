@@ -48,13 +48,13 @@ namespace Components {
         std::unique_ptr<Graphics::Camera>   m_camera            = nullptr;
         Graphics::ShadowMapQuality          m_shadowMapQuality  = Graphics::ShadowMapQuality::High;
 
-        virtual void renderShadowMap(const IScene& scene, F32 lerp);
+        virtual void renderShadowMap(const IScene& scene);
         virtual void _CreateShadowMap(Graphics::ShadowMapQuality) = 0;
 
     private:
         //----------------------------------------------------------------------
         friend class Core::RenderSystem;
-        virtual void recordGraphicsCommands(Graphics::CommandBuffer& cmd, F32 lerp) {}
+        virtual void recordGraphicsCommands(Graphics::CommandBuffer& cmd) {}
         virtual bool cull(const Graphics::Camera& camera) { return true; }
 
         NULL_COPY_AND_ASSIGN(ILightComponent)

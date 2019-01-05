@@ -472,6 +472,37 @@ namespace Components {
     }
 
     //----------------------------------------------------------------------
+    void GUIEngine::OnImGUI()
+    {
+        ImGui::Begin("ENGINE", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+        {
+            const char* techniques[] = { "Fixed", "Variable" };
+            static I32 technique_current = 0;
+            if (ImGui::Combo("GameLoop", &technique_current, techniques, 2))
+                Locator::getCoreEngine().setGameLoopTechnique((Core::EGameLoopTechnique)technique_current);
+
+            const char* apis[] = { "D3D11", "Vulkan" };
+            static I32 api_current = 0;
+            const Graphics::API GRAPHICS_APIS[] = { Graphics::API::D3D11, Graphics::API::Vulkan };
+            if (ImGui::Combo("API", &api_current, apis, 2))
+                Locator::getCoreEngine().setAPI(GRAPHICS_APIS[api_current]);
+            if (ImGui::IsItemHovered())
+            {
+                ImGui::BeginTooltip();
+                ImGui::Text("Changing the API restarts the whole engine.");
+                ImGui::EndTooltip();
+            }
+
+            if (ImGui::Button("Restart"))
+                Locator::getCoreEngine().restart();
+            ImGui::SameLine();
+            if (ImGui::Button("Terminate"))
+                Locator::getCoreEngine().terminate();
+        }
+        ImGui::End();
+    }
+
+    //----------------------------------------------------------------------
     GUIImage::GUIImage( const TexturePtr& tex, F32 scale )
         : m_scale( scale )
     {

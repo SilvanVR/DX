@@ -55,17 +55,9 @@ namespace Components {
         //----------------------------------------------------------------------
         DirectX::XMMATRIX getWorldMatrix() const;
 
-        //----------------------------------------------------------------------
-        // Returns the final composited world trasnformation matrix lerped between this
-        // and the last call. Therefore this function should be called once per render.
-        // !! THIS IS ONLY A TEST TO TRY TO FIX THE STUTTERING ISSUE !!
-        //----------------------------------------------------------------------
-        DirectX::XMMATRIX getWorldMatrix(F32 lerp);
-
     private:
         Transform*            m_pParent = nullptr;
         ArrayList<Transform*> m_pChildren;
-        DirectX::XMMATRIX     m_lastWorldMatrix = DirectX::XMMatrixScaling(0, 0, 0);
 
         inline void _RemoveFromParent();
         inline DirectX::XMMATRIX _GetLocalTransformationMatrix() const;

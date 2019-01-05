@@ -68,13 +68,13 @@ namespace Components {
     }
 
     //----------------------------------------------------------------------
-    void ParticleSystem::recordGraphicsCommands( Graphics::CommandBuffer& cmd, F32 lerp )
+    void ParticleSystem::recordGraphicsCommands( Graphics::CommandBuffer& cmd )
     {
         auto transform = getGameObject()->getTransform();
         ASSERT( transform != nullptr );
 
         // Draw instanced mesh with appropriate material
-        auto modelMatrix = transform->getWorldMatrix( lerp );
+        auto modelMatrix = transform->getWorldMatrix();
         cmd.drawMeshInstanced( m_particleMesh, m_material, modelMatrix, m_currentParticleCount );
     }
 

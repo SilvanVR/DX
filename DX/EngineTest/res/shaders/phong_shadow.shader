@@ -70,8 +70,8 @@ float4 main(FragmentIn fin) : SV_Target
 	if (textureColor.a < ALPHA_THRESHOLD) 
 		discard;        
 		
-	//return VISUALIZE_CASCADES(fin.WorldPos);                                 
 	return APPLY_LIGHTING( textureColor, fin.WorldPos, fin.Normal ); 
+	//return VISUALIZE_CASCADES(fin.WorldPos);                                 
 }
 
 //----------------------------------------------

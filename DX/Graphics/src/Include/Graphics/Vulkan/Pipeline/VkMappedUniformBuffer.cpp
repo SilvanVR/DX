@@ -97,6 +97,13 @@ namespace Graphics { namespace Vulkan {
     }
 
     //----------------------------------------------------------------------
+    void CachedMappedUniformBuffer::update( const void* data, U32 sizeInBytes )
+    {
+        I32 index = m_bufferIndex - 1;
+        m_mappedUBOs[index]->update( data, sizeInBytes );
+    }
+
+    //----------------------------------------------------------------------
     void CachedMappedUniformBuffer::bind()
     {
         I32 index = m_bufferIndex - 1;

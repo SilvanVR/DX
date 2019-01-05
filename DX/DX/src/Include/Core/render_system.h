@@ -18,7 +18,7 @@ namespace Core {
             return rs;
         }
 
-        void execute(F32 lerp);
+        void execute();
 
     private:
         RenderSystem() = default;

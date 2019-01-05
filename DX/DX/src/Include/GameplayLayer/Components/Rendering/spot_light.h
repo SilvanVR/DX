@@ -35,7 +35,7 @@ namespace Components {
         //----------------------------------------------------------------------
         // IRendererComponent Interface
         //----------------------------------------------------------------------
-        void recordGraphicsCommands(Graphics::CommandBuffer& cmd, F32 lerp) override;
+        void recordGraphicsCommands(Graphics::CommandBuffer& cmd) override;
         bool cull(const Graphics::Camera& camera) override;
         void _CreateShadowMap(Graphics::ShadowMapQuality) override;
 

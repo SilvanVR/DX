@@ -136,6 +136,13 @@ namespace Components {
     };
 
     //**********************************************************************
+    class GUIEngine : public Components::ImGUIRenderComponent
+    {
+    public:
+        void OnImGUI() override;
+    };
+
+    //**********************************************************************
     // This is a little helper class in order to store material creates by
     // custom immediate function e.g. ImGUI::Image(tex). The function
     // creates a material and stores it in this class.

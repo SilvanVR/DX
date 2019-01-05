@@ -54,6 +54,11 @@ namespace Components {
         DirectX::XMVECTOR _GetInterpolatedRotation(U32 joint, Time::Seconds clockTime);
         DirectX::XMVECTOR _GetInterpolatedScale(U32 joint, Time::Seconds clockTime);
 
+        //----------------------------------------------------------------------
+        // IRendererComponent Interface
+        //----------------------------------------------------------------------
+        void recordGraphicsCommands(Graphics::CommandBuffer& cmd) override;
+
         NULL_COPY_AND_ASSIGN(SkinnedMeshRenderer)
     };
 

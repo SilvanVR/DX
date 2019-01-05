@@ -23,7 +23,7 @@ namespace Components {
     }
 
     //----------------------------------------------------------------------
-    void SpotLight::recordGraphicsCommands( Graphics::CommandBuffer& cmd, F32 lerp )
+    void SpotLight::recordGraphicsCommands( Graphics::CommandBuffer& cmd )
     {
         auto transform = getGameObject()->getTransform();
         ASSERT( transform != nullptr );
