@@ -105,6 +105,7 @@ namespace Components {
 
     private:
         Graphics::Camera            m_camera;
+        Graphics::CommandBuffer     m_cmd;
 
         // Which layer the camera should render
         LayerMask                   m_cullingMask;

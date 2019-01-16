@@ -31,7 +31,7 @@ namespace Core {
 
         // Render each camera
         auto& scene = Locator::getSceneManager().getCurrentScene();
-        for (auto& cam : scene.getComponentManager().getCameras())
+        for (Components::Camera* cam : scene.getComponentManager().getCameras())
         {
             if ( not cam->isActive() )
                 continue;
@@ -44,7 +44,8 @@ namespace Core {
             cam->m_camera.setModelMatrix( modelMatrix );
 
             // Set camera
-            Graphics::CommandBuffer cmd;
+            Graphics::CommandBuffer& cmd = cam->m_cmd;
+            cmd.reset();
             cmd.setCamera( cam->m_camera );
 
             // Lights

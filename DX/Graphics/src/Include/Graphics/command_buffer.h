@@ -11,17 +11,25 @@
 **********************************************************************/
 
 #include "gpu_commands.hpp"
+#include "Memory/Allocators/stack_allocator.h"
 
 namespace Graphics {
-
-    #define COMMAND_BUFFER_INITIAL_CAPACITY 128
 
     //**********************************************************************
     class CommandBuffer
     {
+        static const U32 COMMAND_BUFFER_INITIAL_CAPACITY = 64;
+        static const U32 INITIAL_STORAGE_SIZE = 1024 * 1024;
+
     public:
         CommandBuffer();
-        ~CommandBuffer() = default;
+        ~CommandBuffer();
+        CommandBuffer(const CommandBuffer& other);
+        CommandBuffer(CommandBuffer&& other);
+
+        //----------------------------------------------------------------------
+        bool isEmpty()     const { return sizeInBytes() == 0; }
+        Size sizeInBytes() const { return m_storage.size(); }
 
         //----------------------------------------------------------------------
         // Sorts all commands by their respective order in the type enum.
@@ -48,7 +56,7 @@ namespace Graphics {
         void reset();
 
         // <------------------------ GPU COMMANDS ----------------------------->
-        const ArrayList<std::shared_ptr<GPUCommandBase>>& getGPUCommands() const { return m_gpuCommands; }
+        const ArrayList<GPUCommandBase*>& getGPUCommands() const { return m_gpuCommands; }
         void drawMesh(const MeshPtr& mesh, const MaterialPtr& material, const DirectX::XMMATRIX& modelMatrix, I32 subMeshIndex);
         void drawMeshInstanced(const MeshPtr& mesh, const MaterialPtr& material, const DirectX::XMMATRIX& modelMatrix, I32 instanceCount);
         void drawMeshSkinned(const MeshPtr& mesh, const MaterialPtr& material, const DirectX::XMMATRIX& modelMatrix, I32 subMeshIndex, const ArrayList<DirectX::XMMATRIX>& matrixPalette);
@@ -63,10 +71,16 @@ namespace Graphics {
         void blit(const RenderTexturePtr& src, const RenderTexturePtr& dst, const MaterialPtr& material = nullptr);
         void setScissor(const Math::Rect& rect);
         void setCameraMatrix(CameraMember member, const DirectX::XMMATRIX& matrix);
-
+        void beginTimeQuery(StringID name);
+        void endTimeQuery(StringID name);
 
     private:
-        ArrayList<std::shared_ptr<GPUCommandBase>> m_gpuCommands;
+        ArrayList<Byte> m_storage;
+        ArrayList<GPUCommandBase*> m_gpuCommands;
+
+        template <typename T>
+        inline void* _GetStorageDestination() { return _GetStorageDestination(sizeof(T), alignof(T)); }
+        inline void* _GetStorageDestination(Size size, Size alignment);
     };
 
 } // End namespaces

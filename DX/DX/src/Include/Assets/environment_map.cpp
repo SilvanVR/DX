@@ -23,7 +23,6 @@ namespace Assets {
 
         // Diffuse irradiance map
         {
-            Graphics::CommandBuffer cmd;
             m_diffuseIrradianceMap = RESOURCES.createCubemap();
             m_diffuseIrradianceMap->create( diffuseIrradianceSize, Graphics::TextureFormat::RGBAFloat );
 
@@ -33,6 +32,7 @@ namespace Assets {
             auto diffuseIrradianceMat = RESOURCES.createMaterial( shader );
             diffuseIrradianceMat->setTexture( SHADER_NAME_ENV_MAP, cubemap );
 
+            Graphics::CommandBuffer cmd;
             cmd.renderCubemap( m_diffuseIrradianceMap, diffuseIrradianceMat );
             Locator::getRenderer().dispatchImmediate( cmd );
         }

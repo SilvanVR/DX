@@ -631,6 +631,7 @@ class MyScene : public IScene
     PlayerController*        playerController;
     PlayerInventory*         playerInventory;
     Components::SpotLight*   lamp;
+    Components::GUI*         gui;
 
 public:
     MyScene() : IScene("MyScene"){}
@@ -663,10 +664,14 @@ public:
         lamp = player->addComponent<Components::SpotLight>(2.0f, Color::WHITE, 25.0f, 20.0f, false);
         lamp->setActive(false);
 
+        F32 startAmbient = 0.4f;
+        Locator::getRenderer().setGlobalFloat(SID("_Ambient"), startAmbient);
+
 #if DEBUG_HUD
-        player->addComponent<Components::GUI>();
+        gui = player->addComponent<Components::GUI>();
+        gui->setActive(false);
         player->addComponent<Components::GUICustom>([=] {
-            static F32 ambient = 0.4f;
+            static F32 ambient = startAmbient;
             ImGui::SliderFloat("Ambient", &ambient, 0.0f, 1.0f);
             Locator::getRenderer().setGlobalFloat(SID("_Ambient"), ambient);
 
@@ -767,6 +772,9 @@ public:
             b = !b;
         }
 #endif
+        if (KEYBOARD.wasKeyPressed(Key::G))
+            gui->setActive(!gui->isActive());
+
         if(KEYBOARD.wasKeyPressed(Key::F))
             lamp->setActive(!lamp->isActive());
     }

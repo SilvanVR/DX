@@ -36,6 +36,9 @@ namespace Graphics {
         RENDER_CUBEMAP,
         DRAW_FULLSCREEN_QUAD,
         BLIT,
+        BEGIN_TIME_QUERY,
+        END_TIME_QUERY,
+        NUM_COMMANDS
     };
 
     //**********************************************************************
@@ -89,7 +92,7 @@ namespace Graphics {
         MeshPtr                             mesh;
         MaterialPtr                         material;
         I32                                 subMeshIndex;
-        const ArrayList<DirectX::XMMATRIX>& matrixPalette;
+        const ArrayList<DirectX::XMMATRIX>  matrixPalette;
     };
 
     //**********************************************************************
@@ -194,6 +197,26 @@ namespace Graphics {
 
         CameraMember member;
         DirectX::XMMATRIX matrix;
+    };
+
+    //**********************************************************************
+    struct GPUC_BeginTimeQuery : public GPUCommandBase
+    {
+        GPUC_BeginTimeQuery(StringID name)
+            : GPUCommandBase(GPUCommand::BEGIN_TIME_QUERY),
+            name(name) {}
+
+        StringID name;
+    };
+
+    //**********************************************************************
+    struct GPUC_EndTimeQuery : public GPUCommandBase
+    {
+        GPUC_EndTimeQuery(StringID name)
+            : GPUCommandBase(GPUCommand::END_TIME_QUERY),
+            name(name) {}
+
+        StringID name;
     };
 
 } // End namespaces

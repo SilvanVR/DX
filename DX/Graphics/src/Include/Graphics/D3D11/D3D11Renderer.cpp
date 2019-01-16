@@ -83,12 +83,33 @@ namespace Graphics {
         default: LOG_WARN_RENDERING( "VR not supported on your system." );
         }
 #endif
+
+        D3D11_QUERY_DESC desc{};
+        desc.Query = D3D11_QUERY_TIMESTAMP_DISJOINT;
+        g_pDevice->CreateQuery(&desc, &m_pQueryDisjoint[0]);
+        g_pDevice->CreateQuery(&desc, &m_pQueryDisjoint[1]);
+
+        desc.Query = D3D11_QUERY_TIMESTAMP;
+        m_timeQueries.resize(m_timeQueries.size() + 1);
+        g_pDevice->CreateQuery(&desc, &m_timeQueries.back().pQueryStart[0]);
+        g_pDevice->CreateQuery(&desc, &m_timeQueries.back().pQueryStart[1]);
+        g_pDevice->CreateQuery(&desc, &m_timeQueries.back().pQueryEnd[0]);
+        g_pDevice->CreateQuery(&desc, &m_timeQueries.back().pQueryEnd[1]);
     } 
 
     //----------------------------------------------------------------------
     void D3D11Renderer::shutdown()
     {
         IRenderer::_Shutdown();
+        SAFE_RELEASE( m_pQueryDisjoint[0] );
+        SAFE_RELEASE( m_pQueryDisjoint[1] );
+        for (GPUTimeQuery& timerQuery : m_timeQueries)
+        {
+            SAFE_RELEASE( timerQuery.pQueryStart[0] );
+            SAFE_RELEASE( timerQuery.pQueryStart[1] );
+            SAFE_RELEASE( timerQuery.pQueryEnd[0] );
+            SAFE_RELEASE( timerQuery.pQueryEnd[1] );
+        }
         SAFE_DELETE( m_objectBuffer );
         SAFE_DELETE( m_cameraBuffer );
         SAFE_DELETE( m_globalBuffer );
@@ -102,51 +123,70 @@ namespace Graphics {
     //----------------------------------------------------------------------
     void D3D11Renderer::_ExecuteCommandBuffer( const CommandBuffer& cmd )
     {
-        auto& commands = cmd.getGPUCommands();
+        //D3D11_QUERY_DATA_TIMESTAMP_DISJOINT freq;
+        //bool isReady1 = g_pImmediateContext->GetData(m_pQueryDisjoint[m_frameCount&1], &freq, sizeof(D3D11_QUERY_DATA_TIMESTAMP_DISJOINT), 0) == S_OK;
 
+        //U64 start;
+        //bool isReady2 = g_pImmediateContext->GetData(m_timeQueries.front().pQueryStart[m_frameCount&1], &start, sizeof(U64), 0) == S_OK;
+
+        //U64 end;
+        //bool isReady3 = g_pImmediateContext->GetData(m_timeQueries.front().pQueryEnd[m_frameCount & 1], &end, sizeof(U64), 0) == S_OK;
+
+        //bool isReady = isReady1 && isReady2 && isReady3;
+        //if (isReady1 && isReady2 && isReady3)
+        //{
+        //    F64 elapsed = static_cast<F64>(end - start);
+        //    F64 ms = elapsed / static_cast<F64>(freq.Frequency) * 1000;
+        //    LOG("Draw-Time: " + TS(ms) + "ms");
+        //}
+
+        //g_pImmediateContext->Begin(m_pQueryDisjoint[m_frameCount%2]);
+        //g_pImmediateContext->End(m_timeQueries.front().pQueryStart[m_frameCount % 2]);
+
+        auto& commands = cmd.getGPUCommands();
         for ( auto& command : commands )
         {
             switch ( command->getType() )
             {
                 case GPUCommand::SET_CAMERA:
                 {
-                    auto& cmd = *reinterpret_cast<GPUC_SetCamera*>( command.get() );
+                    auto& cmd = *reinterpret_cast<GPUC_SetCamera*>( command );
                     _SetCamera( &cmd.camera );
                     break;
                 }
                 case GPUCommand::END_CAMERA:
                 {
-                    auto& cmd = *reinterpret_cast<GPUC_EndCamera*>( command.get() );
+                    auto& cmd = *reinterpret_cast<GPUC_EndCamera*>( command );
                     renderContext.Reset();
                     break;
                 }
                 case GPUCommand::DRAW_MESH:
                 {
-                    auto& cmd = *reinterpret_cast<GPUC_DrawMesh*>( command.get() );
+                    auto& cmd = *reinterpret_cast<GPUC_DrawMesh*>( command );
                     _DrawMesh( cmd.mesh.get(), cmd.material, cmd.modelMatrix, cmd.subMeshIndex );
                     break;
                 }
                 case GPUCommand::DRAW_MESH_INSTANCED:
                 {
-                    auto& cmd = *reinterpret_cast<GPUC_DrawMeshInstanced*>( command.get() );
+                    auto& cmd = *reinterpret_cast<GPUC_DrawMeshInstanced*>( command );
                     _DrawMeshInstanced( cmd.mesh.get(), cmd.material, cmd.modelMatrix, cmd.instanceCount );
                     break;
                 }
                 case GPUCommand::DRAW_MESH_SKINNED:
                 {
-                    auto& cmd = *reinterpret_cast<GPUC_DrawMeshSkinned*>( command.get() );
+                    auto& cmd = *reinterpret_cast<GPUC_DrawMeshSkinned*>( command );
                     _DrawMeshSkinned( cmd.mesh.get(), cmd.material, cmd.modelMatrix, cmd.subMeshIndex, cmd.matrixPalette );
                     break;
                 }
                 case GPUCommand::COPY_TEXTURE:
                 {
-                    auto& cmd = *dynamic_cast<GPUC_CopyTexture*>( command.get() );
+                    auto& cmd = *dynamic_cast<GPUC_CopyTexture*>( command );
                     _CopyTexture( cmd.srcTex.get(), cmd.srcElement, cmd.srcMip, cmd.dstTex.get(), cmd.dstElement, cmd.dstMip );
                     break;
                 }
                 case GPUCommand::DRAW_LIGHT:
                 {
-                    auto& cmd = *reinterpret_cast<GPUC_DrawLight*>( command.get() );
+                    auto& cmd = *reinterpret_cast<GPUC_DrawLight*>( command );
                     if ( renderContext.lightCount < MAX_LIGHTS )
                     {
                         // Add light to list and update light count
@@ -161,13 +201,13 @@ namespace Graphics {
                 }
                 case GPUCommand::SET_RENDER_TARGET:
                 {
-                    auto& cmd = *reinterpret_cast<GPUC_SetRenderTarget*>( command.get() );
+                    auto& cmd = *reinterpret_cast<GPUC_SetRenderTarget*>( command );
                     renderContext.BindRendertarget( cmd.target, m_frameCount );
                     break;
                 }
                 case GPUCommand::DRAW_FULLSCREEN_QUAD:
                 {
-                    auto& cmd = *reinterpret_cast<GPUC_DrawFullscreenQuad*>( command.get() );
+                    auto& cmd = *reinterpret_cast<GPUC_DrawFullscreenQuad*>( command );
                     auto currRT = renderContext.getRenderTarget();
                     D3D11_VIEWPORT vp = { 0, 0, (F32)currRT->getWidth(), (F32)currRT->getHeight(), 0, 1 };
                     _DrawFullScreenQuad( cmd.material, vp );
@@ -175,26 +215,26 @@ namespace Graphics {
                 }
                 case GPUCommand::RENDER_CUBEMAP:
                 {
-                    auto& cmd = *reinterpret_cast<GPUC_RenderCubemap*>( command.get() );
+                    auto& cmd = *reinterpret_cast<GPUC_RenderCubemap*>( command );
                     _RenderCubemap( cmd.cubemap.get(), cmd.material, cmd.dstMip );
                     break;
                 }
                 case GPUCommand::BLIT:
                 {
-                    auto& cmd = *reinterpret_cast<GPUC_Blit*>( command.get() );
+                    auto& cmd = *reinterpret_cast<GPUC_Blit*>( command );
                     _Blit( cmd.src, cmd.dst, cmd.material );
                     break;
                 }
                 case GPUCommand::SET_SCISSOR:
                 {
-                    auto& cmd = *reinterpret_cast<GPUC_SetScissor*>( command.get() );
+                    auto& cmd = *reinterpret_cast<GPUC_SetScissor*>( command );
                     const D3D11_RECT r = { cmd.rect.left, cmd.rect.top, cmd.rect.right, cmd.rect.bottom };
                     g_pImmediateContext->RSSetScissorRects( 1, &r );
                     break;
                 }
                 case GPUCommand::SET_CAMERA_MATRIX:
                 {
-                    auto& cmd = *reinterpret_cast<GPUC_SetCameraMatrix*>( command.get() );
+                    auto& cmd = *reinterpret_cast<GPUC_SetCameraMatrix*>( command );
                     StringID name;
                     switch (cmd.member)
                     {
@@ -207,10 +247,29 @@ namespace Graphics {
                     m_cameraBuffer->flush();
                     break;
                 }
+                case GPUCommand::BEGIN_TIME_QUERY:
+                {
+                    auto& cmd = *reinterpret_cast<GPUC_BeginTimeQuery*>(command);
+
+                    // If query not yet exist, create it
+
+
+                    // Start query
+                    break;
+                }
+                case GPUCommand::END_TIME_QUERY:
+                {
+                    auto& cmd = *reinterpret_cast<GPUC_EndTimeQuery*>(command);
+
+                    break;
+                }
                 default:
                     LOG_WARN_RENDERING( "Unknown GPU Command in a given command buffer!" );
             }
         }
+
+        //g_pImmediateContext->End(m_timeQueries.front().pQueryEnd[m_frameCount % 2]);
+        //g_pImmediateContext->End(m_pQueryDisjoint[m_frameCount % 2]);
     }
 
     //----------------------------------------------------------------------

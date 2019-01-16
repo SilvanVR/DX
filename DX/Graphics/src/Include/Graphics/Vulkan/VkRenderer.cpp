@@ -160,44 +160,44 @@ namespace Graphics {
             {
                 case GPUCommand::SET_CAMERA:
                 {
-                    auto& cmd = *reinterpret_cast<GPUC_SetCamera*>( command.get() );
+                    auto& cmd = *reinterpret_cast<GPUC_SetCamera*>( command );
                     _SetCamera( &cmd.camera );
                     break;
                 }
                 case GPUCommand::END_CAMERA:
                 {
-                    auto& cmd = *reinterpret_cast<GPUC_EndCamera*>( command.get() );
+                    auto& cmd = *reinterpret_cast<GPUC_EndCamera*>( command );
                     g_vulkan.ctx.EndRenderPass();
                     renderContext.Reset();
                     break;
                 }
                 case GPUCommand::DRAW_MESH:
                 {
-                    auto& cmd = *reinterpret_cast<GPUC_DrawMesh*>( command.get() );
+                    auto& cmd = *reinterpret_cast<GPUC_DrawMesh*>( command );
                     _DrawMesh( cmd.mesh.get(), cmd.material, cmd.modelMatrix, cmd.subMeshIndex );
                     break;
                 }
                 case GPUCommand::DRAW_MESH_INSTANCED:
                 {
-                    auto& cmd = *reinterpret_cast<GPUC_DrawMeshInstanced*>( command.get() );
+                    auto& cmd = *reinterpret_cast<GPUC_DrawMeshInstanced*>( command );
                     _DrawMeshInstanced( cmd.mesh.get(), cmd.material, cmd.modelMatrix, cmd.instanceCount );
                     break;
                 }
                 case GPUCommand::DRAW_MESH_SKINNED:
                 {
-                    auto& cmd = *reinterpret_cast<GPUC_DrawMeshSkinned*>( command.get() );
+                    auto& cmd = *reinterpret_cast<GPUC_DrawMeshSkinned*>( command );
                     _DrawMeshSkinned( cmd.mesh.get(), cmd.material, cmd.modelMatrix, cmd.subMeshIndex, cmd.matrixPalette );
                     break;
                 }
                 case GPUCommand::COPY_TEXTURE:
                 {
-                    auto& cmd = *dynamic_cast<GPUC_CopyTexture*>( command.get() );
+                    auto& cmd = *dynamic_cast<GPUC_CopyTexture*>( command );
                     _CopyTexture( cmd.srcTex.get(), cmd.srcElement, cmd.srcMip, cmd.dstTex.get(), cmd.dstElement, cmd.dstMip );
                     break;
                 }
                 case GPUCommand::DRAW_LIGHT:
                 {
-                    auto& cmd = *reinterpret_cast<GPUC_DrawLight*>( command.get() );
+                    auto& cmd = *reinterpret_cast<GPUC_DrawLight*>( command );
                     if ( renderContext.lightCount < MAX_LIGHTS )
                     {
                         // Add light to list and update light count
@@ -212,13 +212,13 @@ namespace Graphics {
                 }
                 case GPUCommand::SET_RENDER_TARGET:
                 {
-                    auto& cmd = *reinterpret_cast<GPUC_SetRenderTarget*>( command.get() );
+                    auto& cmd = *reinterpret_cast<GPUC_SetRenderTarget*>( command );
                     renderContext.BindRendertarget( cmd.target, m_frameCount );
                     break;
                 }
                 case GPUCommand::DRAW_FULLSCREEN_QUAD:
                 {
-                    auto& cmd = *reinterpret_cast<GPUC_DrawFullscreenQuad*>( command.get() );
+                    auto& cmd = *reinterpret_cast<GPUC_DrawFullscreenQuad*>( command );
                     auto currRT = renderContext.getRenderTarget();
                     ASSERT( currRT && "No rendertarget was previously set." );
                     ViewportRect vp = { 0, 0, (F32)currRT->getWidth(), (F32)currRT->getHeight() };
@@ -227,19 +227,19 @@ namespace Graphics {
                 }
                 case GPUCommand::RENDER_CUBEMAP:
                 {
-                    auto& cmd = *reinterpret_cast<GPUC_RenderCubemap*>( command.get() );
+                    auto& cmd = *reinterpret_cast<GPUC_RenderCubemap*>( command );
                     _RenderCubemap( cmd.cubemap.get(), cmd.material, cmd.dstMip );
                     break;
                 }
                 case GPUCommand::BLIT:
                 {
-                    auto& cmd = *reinterpret_cast<GPUC_Blit*>( command.get() );
+                    auto& cmd = *reinterpret_cast<GPUC_Blit*>( command );
                     _Blit( cmd.src, cmd.dst, cmd.material );
                     break;
                 }
                 case GPUCommand::SET_SCISSOR:
                 {
-                    auto& cmd = *reinterpret_cast<GPUC_SetScissor*>( command.get() );
+                    auto& cmd = *reinterpret_cast<GPUC_SetScissor*>( command );
                     VkRect2D scissor{};
                     scissor.offset = { cmd.rect.left, cmd.rect.top };
                     scissor.extent = { (U32)(cmd.rect.right - cmd.rect.left), (U32)(cmd.rect.bottom - cmd.rect.top) };
@@ -248,7 +248,7 @@ namespace Graphics {
                 }
                 case GPUCommand::SET_CAMERA_MATRIX:
                 {
-                    auto& cmd = *reinterpret_cast<GPUC_SetCameraMatrix*>( command.get() );
+                    auto& cmd = *reinterpret_cast<GPUC_SetCameraMatrix*>( command );
                     StringID name;
                     switch (cmd.member)
                     {

@@ -51,6 +51,7 @@ namespace Graphics {
         // "cmd": Command buffer to execute
         //----------------------------------------------------------------------
         void dispatch(const CommandBuffer& cmd);
+        void dispatch(CommandBuffer&& cmd);
 
         //----------------------------------------------------------------------
         // Dispatches the given command buffer immediately for execution on the gpu.

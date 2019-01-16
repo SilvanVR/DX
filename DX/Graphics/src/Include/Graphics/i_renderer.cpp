@@ -38,6 +38,14 @@ namespace Graphics {
     }
 
     //----------------------------------------------------------------------
+    void IRenderer::dispatch( CommandBuffer&& cmd )
+    {
+        _LockQueue();
+        m_pendingCmdQueue.emplace_back( std::move( cmd ) );
+        _UnlockQueue();
+    }
+
+    //----------------------------------------------------------------------
     // PROTECTED
     //----------------------------------------------------------------------
     static std::mutex s_renderQueueMutex;

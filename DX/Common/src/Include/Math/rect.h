@@ -13,10 +13,10 @@ namespace Math
     template <typename T>
     struct RectT
     {
-        T left    = 0.0f;
-        T top     = 0.0f;
-        T right   = 0.0f;
-        T bottom  = 0.0f;
+        T left    = 0;
+        T top     = 0;
+        T right   = 0;
+        T bottom  = 0;
 
         String toString() { return "Left: " + TS(left) + " Right: " + TS(right) + " Bottom: " + TS(bottom) + " Top: " + TS(top); }
     };

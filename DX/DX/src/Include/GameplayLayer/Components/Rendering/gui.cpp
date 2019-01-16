@@ -141,6 +141,22 @@ namespace Components {
     void GUI::lateTick( Time::Seconds d )
     {
         auto guard = ImGuiSetContextAndGetGuard( m_imguiContext );
+
+        ImGuiIO& io = ImGui::GetIO();
+        io.DeltaTime = (F32)d;
+
+        auto& rt = m_camera->getRenderTarget();
+        io.DisplaySize.x = (F32)rt->getWidth();
+        io.DisplaySize.y = (F32)rt->getHeight();
+
+        // Update mouse-pos @TODO: Transform camera ray to render-target if camera dont render to screen
+        auto& vp = m_camera->getViewport();
+        F32 mouseX = (F32)MOUSE.getMousePos().x - m_camera->getRenderTarget()->getWidth() * vp.topLeftX;
+        F32 mouseY = (F32)MOUSE.getMousePos().y - m_camera->getRenderTarget()->getHeight() * vp.topLeftY;
+
+        io.MousePos.x = mouseX * (1.0f / vp.width);
+        io.MousePos.y = mouseY * (1.0f / vp.height);
+
         ImGui::NewFrame();
         for (auto renderComponent : getGameObject()->getComponents<ImGUIRenderComponent>())
             renderComponent->OnImGUI();
@@ -332,19 +348,6 @@ namespace Components {
     {
         auto guard = ImGuiSetContextAndGetGuard( m_imguiContext );
         ImGuiIO& io = ImGui::GetIO();
-        io.DeltaTime = delta;
-
-        auto& rt = m_camera->getRenderTarget();
-        io.DisplaySize.x = (F32)rt->getWidth();
-        io.DisplaySize.y = (F32)rt->getHeight();
-
-        // Update mouse-pos @TODO: Transform camera ray to render-target if camera dont render to screen
-        auto& vp = m_camera->getViewport();
-        F32 mouseX = (F32)MOUSE.getMousePos().x - m_camera->getRenderTarget()->getWidth() * vp.topLeftX;
-        F32 mouseY = (F32)MOUSE.getMousePos().y - m_camera->getRenderTarget()->getHeight() * vp.topLeftY;
-
-        io.MousePos.x = mouseX * (1.0f / vp.width);
-        io.MousePos.y = mouseY * (1.0f / vp.height);
 
         using namespace Core::Input;
         bool consoleIsOpen = (KEYBOARD.getChannelMask() & EInputChannels::Console) != EInputChannels::None;

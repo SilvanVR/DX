@@ -70,6 +70,16 @@ namespace Graphics {
         D3D11::MappedConstantBuffer* m_lightBuffer     = nullptr;
         D3D11::MappedConstantBuffer* m_animationBuffer = nullptr;
 
+        ID3D11Query* m_pQueryDisjoint[2];
+
+        struct GPUTimeQuery {
+            StringID           name;
+            Time::Milliseconds elapsed;
+            ID3D11Query*       pQueryStart[2];
+            ID3D11Query*       pQueryEnd[2];
+        };
+        ArrayList<GPUTimeQuery> m_timeQueries;
+
         //----------------------------------------------------------------------
         inline void _SetCamera(Camera* camera);
         inline void _Bind(IMesh* mesh, const MaterialPtr& material, const DirectX::XMMATRIX& modelMatrix, I32 subMeshIndex);

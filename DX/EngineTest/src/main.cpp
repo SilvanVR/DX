@@ -16,6 +16,7 @@ class TestScene : public IScene
     Components::Camera* cam;
     GameObject* go;
     GameObject* cubeGO;
+    Components::GUI* gui;
 
 public:
     TestScene() : IScene("TestScene") {}
@@ -37,7 +38,8 @@ public:
         cubeGO->addComponent<Components::MeshRenderer>(cubeMesh, ASSETS.getMaterial("/materials/texture.material"));
         cubeGO->addComponent<ConstantRotation>(0.0f, 15.0f, 0.0f);
 
-        go->addComponent<Components::GUI>();
+        gui = go->addComponent<Components::GUI>();
+        gui->setActive(false);
         go->addComponent<Components::GUICustom>([=] {
             ImGui::Begin("FOV change", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
             static F32 fov = 45.0f;
@@ -45,6 +47,12 @@ public:
                 cam->setFOV(fov);
             ImGui::End();
         });
+
+
+        auto sun = createGameObject("Sun");
+        auto dl = sun->addComponent<Components::DirectionalLight>(0.5f, Color::WHITE, Graphics::ShadowType::None, ArrayList<F32>{20.0f, 40.0f, 80.0f, 200.0f});
+        sun->getTransform()->rotation = Math::Quat::LookRotation(Math::Vec3{ 0,-1, 1 }, Math::Vec3{ 0, 0, 1 });
+        dl->setShadowMapQuality(Graphics::ShadowMapQuality::Insane);
     }
 
     void tick(Time::Seconds delta) override
@@ -58,6 +66,9 @@ public:
             cam->setMultiSamples((Graphics::MSAASamples) newmscount);
             LOG("New Multisample-Count: " + TS(newmscount), Color::GREEN);
         }
+
+        if (KEYBOARD.wasKeyPressed(Key::G))
+            gui->setActive(!gui->isActive());
 
         static F32 ss = 1.0f;
         if (KEYBOARD.wasKeyPressed(Key::Up))
@@ -155,11 +166,11 @@ public:
 
         IGC_REGISTER_COMMAND_WITH_NAME( "menu", BIND_THIS_FUNC_0_ARGS(&Game::_OpenMenu) );
 
-        Locator::getRenderer().setVSync(true);
+        Locator::getRenderer().setVSync(false);
         Locator::getRenderer().setGlobalFloat(SID("_Ambient"), 0.5f);
 
         //Locator::getSceneManager().LoadSceneAsync(new SceneGUISelectSceneMenu());
-        Locator::getSceneManager().LoadScene(new AnimationTestScene());
+        Locator::getSceneManager().LoadScene(new TestScene());
     }
 
     //----------------------------------------------------------------------

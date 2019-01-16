@@ -59,8 +59,15 @@ void GameObject::_Tick( Time::Seconds delta )
     for (auto& pair : m_components)
     {
         auto& comp = pair.second;
-        if ( comp->isActive() )
+        if (comp->isActive())
+        {
+            if (!comp->m_bInitialized)
+            {
+                comp->init();
+                comp->m_bInitialized = true;
+            }
             comp->tick( delta );
+        }
     }
 }
 
@@ -71,7 +78,14 @@ void GameObject::_LateTick( Time::Seconds delta )
     for (auto& pair : m_components)
     {
         auto& comp = pair.second;
-        if ( comp->isActive() )
+        if (comp->isActive())
+        {
+            if (!comp->m_bInitialized)
+            {
+                comp->init();
+                comp->m_bInitialized = true;
+            }
             comp->lateTick( delta );
+        }
     }
 }
