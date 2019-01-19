@@ -27,7 +27,11 @@ namespace Core {
 
         // List of lights which rendered a shadowmap this frame. This is needed in order to prevent
         // a shadowmap rendered from a light multiple times (because more than one camera renders the same light)
-        std::unordered_set<Components::ILightComponent*> shadowMapsRendered;
+        static std::unordered_set<Components::ILightComponent*> shadowMapsRendered;
+        static ArrayList<Components::ILightComponent*> visibleLights;
+
+        shadowMapsRendered.clear();
+        visibleLights.clear();
 
         // Render each camera
         auto& scene = Locator::getSceneManager().getCurrentScene();
@@ -51,7 +55,6 @@ namespace Core {
             // Lights
             {
                 // Record commands for every light component
-                ArrayList<Components::ILightComponent*> visibleLights;
                 for ( auto& light : scene.getComponentManager().getLights() )
                 {
                     if ( not light->isActive() )

@@ -41,7 +41,7 @@ namespace Graphics {
         void dispatchImmediate(const CommandBuffer& cmd) override;
 
         API getAPI() const override { return API::Vulkan; }
-        String getAPIName() const override { return "Vulkan"; }
+        CString getAPIName() const override { return "Vulkan"; }
 
         IMesh*              createMesh() override;
         IMaterial*          createMaterial() override;

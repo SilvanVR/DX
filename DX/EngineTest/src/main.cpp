@@ -73,15 +73,15 @@ public:
         static F32 ss = 1.0f;
         if (KEYBOARD.wasKeyPressed(Key::Up))
         {
-            ss += 0.2f;
+            ss += 0.1f;
             cam->setSuperSampling(ss);
-            LOG("Screen-Res Mod: " + TS(ss));
+            LOG("Screen-Res Mod: %f", ss);
         }
         else if (KEYBOARD.wasKeyPressed(Key::Down))
         {
-            ss -= 0.2f;
+            ss = std::max(ss - 0.1f, 0.1f);
             cam->setSuperSampling(ss);
-            LOG("Screen-Res Mod: " + TS(ss));
+            LOG("Screen-Res Mod: %f", ss);
         }
     }
 
@@ -151,13 +151,12 @@ public:
         Locator::getEngineClock().setInterval([=] {
             U32 fps = PROFILER.getFPS();
             F64 delta = (1000.0 / fps);
-            String api = Locator::getRenderer().getAPIName();
-            String title = StringUtils::format("%s | API: %s | Time: %.0fs | Delta: %fms (%d FPS)", gameName, api.c_str(), TIME.getTime().value, delta, fps);
+            String title = StringUtils::format("%s | API: %s | Time: %.0fs | Delta: %fms (%d FPS)", gameName, Locator::getRenderer().getAPIName(), TIME.getTime().value, delta, fps);
             Locator::getWindow().setTitle(title.c_str());
         }, 1000);
 
         ASSETS.setHotReloading(true);
-
+        
         // On scene switch the GO gets deleted automatically, so we just make sure its null
         m_sceneSwitchListener = Events::EventDispatcher::GetEvent(EVENT_SCENE_CHANGED).addListener([this] {
             vrCamGO = nullptr;

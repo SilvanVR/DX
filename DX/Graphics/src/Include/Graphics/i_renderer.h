@@ -73,7 +73,7 @@ namespace Graphics {
         //----------------------------------------------------------------------
         // @Return: Used API as an readable string
         //----------------------------------------------------------------------
-        virtual String getAPIName() const = 0;
+        virtual CString getAPIName() const = 0;
 
         //----------------------------------------------------------------------
         virtual IMesh*              createMesh() = 0;

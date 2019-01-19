@@ -14,6 +14,7 @@
      - Set color for a channel.
 **********************************************************************/
 
+#include <cstdarg>
 #include "Common/color.h"
 #include "Common/bit_mask.hpp"
 
@@ -143,6 +144,18 @@ namespace Logging {
         void log(ELogChannel channel, T num, Color color)
         { 
             _Log( channel, TS( num ).c_str(), ELogLevel::VERY_IMPORTANT, LOG_CHANNEL_DEFAULT, color );
+        };
+
+        //----------------------------------------------------------------------
+        void log(ELogChannel channel, CString str, ...)
+        {
+            char buffer[512]{};
+            va_list args;
+            va_start(args, str);
+            vsnprintf(buffer, 512, str, args);
+            va_end(args);
+
+            _Log(channel, buffer, m_defaultColor);
         };
 
         //----------------------------------------------------------------------

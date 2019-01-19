@@ -43,7 +43,7 @@ namespace Graphics {
         void dispatchImmediate(const CommandBuffer& cmd) override;
 
         API getAPI() const override { return API::D3D11; }
-        String getAPIName() const override { return "Direct3D11"; }
+        CString getAPIName() const override { return "Direct3D11"; }
 
         IMesh*              createMesh() override;
         IMaterial*          createMaterial() override;
