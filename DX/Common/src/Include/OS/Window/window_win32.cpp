@@ -252,17 +252,23 @@ namespace OS {
     }
 
     //----------------------------------------------------------------------
-    void Window::setTitle( const char* newTitle ) const
+    void Window::setTitle( const char* newTitle, ... ) const
     {
-        SetWindowText( m_hwnd, newTitle );
+        char buffer[256]{};
+        va_list args;
+        va_start(args, newTitle);
+        vsnprintf(buffer, 256, newTitle, args);
+        va_end(args);
+
+        SetWindowText( m_hwnd, buffer );
     }
 
     //----------------------------------------------------------------------
-    String Window::getTitle() const
+    const char* Window::getTitle() const
     {
         char buff[256];
         GetWindowText( m_hwnd, buff, 256 );
-        return String( buff );
+        return buff;
     }
 
     //----------------------------------------------------------------------

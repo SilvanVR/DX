@@ -19,6 +19,7 @@
 #include "../FileSystem/path.h"
 #include "keycodes.h"
 #include <functional>
+#include <cstdarg>
 
 #ifdef _WIN32
     #define NOMINMAX
@@ -69,8 +70,8 @@ namespace OS {
         NativeWindowInstance    getInstance()       const { return m_instance; }
 
         //----------------------------------------------------------------------
-        String getTitle() const;
-        void setTitle(const char* newTitle) const;
+        const char* getTitle() const;
+        void setTitle(const char* newTitle, ...) const;
         void center() const;
 
         //----------------------------------------------------------------------
