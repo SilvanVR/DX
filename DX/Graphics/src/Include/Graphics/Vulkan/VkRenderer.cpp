@@ -413,6 +413,20 @@ namespace Graphics {
         return true;
     }
 
+    //----------------------------------------------------------------------
+    bool VkRenderer::hasGPUTimeQuery( StringID name ) const
+    { 
+        LOG_WARN_RENDERING( "VkRenderer::hasGPUTimeQuery(): Not yet implemented." );
+        return false; 
+    }
+
+    //----------------------------------------------------------------------
+    Time::Milliseconds VkRenderer::getGPUTimeQuery( StringID name ) const 
+    {
+        LOG_WARN_RENDERING( "VkRenderer::getGPUTimeQuery(): Not yet implemented." );
+        return 0_ms;
+    }
+
     //**********************************************************************
     // PRIVATE
     //**********************************************************************

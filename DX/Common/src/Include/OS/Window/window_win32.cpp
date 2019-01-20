@@ -266,7 +266,7 @@ namespace OS {
     //----------------------------------------------------------------------
     const char* Window::getTitle() const
     {
-        char buff[256];
+        static char buff[256];
         GetWindowText( m_hwnd, buff, 256 );
         return buff;
     }

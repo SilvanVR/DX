@@ -88,13 +88,6 @@ namespace Graphics {
         desc.Query = D3D11_QUERY_TIMESTAMP_DISJOINT;
         g_pDevice->CreateQuery(&desc, &m_pQueryDisjoint[0]);
         g_pDevice->CreateQuery(&desc, &m_pQueryDisjoint[1]);
-
-        desc.Query = D3D11_QUERY_TIMESTAMP;
-        m_timeQueries.resize(m_timeQueries.size() + 1);
-        g_pDevice->CreateQuery(&desc, &m_timeQueries.back().pQueryStart[0]);
-        g_pDevice->CreateQuery(&desc, &m_timeQueries.back().pQueryStart[1]);
-        g_pDevice->CreateQuery(&desc, &m_timeQueries.back().pQueryEnd[0]);
-        g_pDevice->CreateQuery(&desc, &m_timeQueries.back().pQueryEnd[1]);
     } 
 
     //----------------------------------------------------------------------
@@ -103,12 +96,13 @@ namespace Graphics {
         IRenderer::_Shutdown();
         SAFE_RELEASE( m_pQueryDisjoint[0] );
         SAFE_RELEASE( m_pQueryDisjoint[1] );
-        for (GPUTimeQuery& timerQuery : m_timeQueries)
+
+        for (auto&[name, query] : m_timeQueries)
         {
-            SAFE_RELEASE( timerQuery.pQueryStart[0] );
-            SAFE_RELEASE( timerQuery.pQueryStart[1] );
-            SAFE_RELEASE( timerQuery.pQueryEnd[0] );
-            SAFE_RELEASE( timerQuery.pQueryEnd[1] );
+            SAFE_RELEASE( query.pQueryStart[0] );
+            SAFE_RELEASE( query.pQueryStart[1] );
+            SAFE_RELEASE( query.pQueryEnd[0] );
+            SAFE_RELEASE( query.pQueryEnd[1] );
         }
         SAFE_DELETE( m_objectBuffer );
         SAFE_DELETE( m_cameraBuffer );
@@ -123,26 +117,6 @@ namespace Graphics {
     //----------------------------------------------------------------------
     void D3D11Renderer::_ExecuteCommandBuffer( const CommandBuffer& cmd )
     {
-        //D3D11_QUERY_DATA_TIMESTAMP_DISJOINT freq;
-        //bool isReady1 = g_pImmediateContext->GetData(m_pQueryDisjoint[m_frameCount&1], &freq, sizeof(D3D11_QUERY_DATA_TIMESTAMP_DISJOINT), 0) == S_OK;
-
-        //U64 start;
-        //bool isReady2 = g_pImmediateContext->GetData(m_timeQueries.front().pQueryStart[m_frameCount&1], &start, sizeof(U64), 0) == S_OK;
-
-        //U64 end;
-        //bool isReady3 = g_pImmediateContext->GetData(m_timeQueries.front().pQueryEnd[m_frameCount & 1], &end, sizeof(U64), 0) == S_OK;
-
-        //bool isReady = isReady1 && isReady2 && isReady3;
-        //if (isReady1 && isReady2 && isReady3)
-        //{
-        //    F64 elapsed = static_cast<F64>(end - start);
-        //    F64 ms = elapsed / static_cast<F64>(freq.Frequency) * 1000;
-        //    LOG("Draw-Time: " + TS(ms) + "ms");
-        //}
-
-        //g_pImmediateContext->Begin(m_pQueryDisjoint[m_frameCount%2]);
-        //g_pImmediateContext->End(m_timeQueries.front().pQueryStart[m_frameCount % 2]);
-
         auto& commands = cmd.getGPUCommands();
         for ( auto& command : commands )
         {
@@ -250,26 +224,19 @@ namespace Graphics {
                 case GPUCommand::BEGIN_TIME_QUERY:
                 {
                     auto& cmd = *reinterpret_cast<GPUC_BeginTimeQuery*>(command);
-
-                    // If query not yet exist, create it
-
-
-                    // Start query
+                    _BeginTimeQuery( cmd.name );
                     break;
                 }
                 case GPUCommand::END_TIME_QUERY:
                 {
                     auto& cmd = *reinterpret_cast<GPUC_EndTimeQuery*>(command);
-
+                    _EndTimeQuery( cmd.name );
                     break;
                 }
                 default:
                     LOG_WARN_RENDERING( "Unknown GPU Command in a given command buffer!" );
             }
         }
-
-        //g_pImmediateContext->End(m_timeQueries.front().pQueryEnd[m_frameCount % 2]);
-        //g_pImmediateContext->End(m_pQueryDisjoint[m_frameCount % 2]);
     }
 
     //----------------------------------------------------------------------
@@ -291,12 +258,18 @@ namespace Graphics {
     {
         _CheckAndDestroyTemporaryRenderTargets();
 
-        // Execute command buffers
-        _LockQueue();
-        for (auto& cmd : m_pendingCmdQueue)
-            _ExecuteCommandBuffer( cmd );
-        m_pendingCmdQueue.clear();
-        _UnlockQueue();
+        g_pImmediateContext->Begin( m_pQueryDisjoint[m_frameCount % 2] );
+        {
+            // Execute command buffers
+            _LockQueue();
+            for (auto& cmd : m_pendingCmdQueue)
+                _ExecuteCommandBuffer( cmd );
+            m_pendingCmdQueue.clear();
+            _UnlockQueue();
+        }
+        g_pImmediateContext->End( m_pQueryDisjoint[m_frameCount % 2] );
+
+        _CollectQueries();
 
         // Present rendered image(s)
         bool vsync = m_vsync;
@@ -332,7 +305,7 @@ namespace Graphics {
     {
         if (not _UpdateGlobalBuffer( name, &value ))
         {
-            LOG_WARN_RENDERING( "Global-Float '" + name.toString() + "' does not exist. Did you spell it correctly?" );
+            LOG_WARN_RENDERING( "Global-Float '%s' does not exist. Did you spell it correctly?", name.c_str() );
             return false;
         }
         return true;
@@ -343,7 +316,7 @@ namespace Graphics {
     {
         if (not _UpdateGlobalBuffer( name, &value ))
         {
-            LOG_WARN_RENDERING( "Global-Int '" + name.toString() + "' does not exist. Did you spell it correctly?" );
+            LOG_WARN_RENDERING( "Global-Int '%s' does not exist. Did you spell it correctly?", name.c_str() );
             return false;
         }
         return true;
@@ -354,7 +327,7 @@ namespace Graphics {
     {
         if (not _UpdateGlobalBuffer( name, &vec4 ))
         {
-            LOG_WARN_RENDERING( "Global-Vec4 '" + name.toString() + "' does not exist. Did you spell it correctly?" );
+            LOG_WARN_RENDERING( "Global-Vec4 '%s' does not exist. Did you spell it correctly?", name.c_str() );
             return false;
         }
         return true;
@@ -365,7 +338,7 @@ namespace Graphics {
     {
         if (not _UpdateGlobalBuffer( name, color.normalized().data() ))
         {
-            LOG_WARN_RENDERING( "Global-color '" + name.toString() + "' does not exist. Did you spell it correctly?" );
+            LOG_WARN_RENDERING( "Global-Color '%s' does not exist. Did you spell it correctly?", name.c_str() );
             return false;
         }
         return true;
@@ -376,10 +349,27 @@ namespace Graphics {
     {
         if (not _UpdateGlobalBuffer( name, &matrix ))
         {
-            LOG_WARN_RENDERING( "Global-Matrix '" + name.toString() + "' does not exist. Did you spell it correctly?" );
+            LOG_WARN_RENDERING( "Global-Matrix '%s' does not exist. Did you spell it correctly?", name.c_str() );
             return false;
         }
         return true;
+    }
+
+    //----------------------------------------------------------------------
+    bool D3D11Renderer::hasGPUTimeQuery( StringID name ) const
+    {
+        return m_timeQueries.find(name) != m_timeQueries.end();
+    }
+
+    //----------------------------------------------------------------------
+    Time::Milliseconds D3D11Renderer::getGPUTimeQuery(StringID name) const
+    {
+        if ( not hasGPUTimeQuery( name ) )
+        {
+            LOG_WARN_RENDERING( "D3D11Renderer::getGPUTimeQuery(): Name '%s' not found.", name.c_str() );
+            return 0_ms;
+        }
+        return m_timeQueries.at( name ).elapsed;
     }
 
     //**********************************************************************
@@ -1047,6 +1037,37 @@ namespace Graphics {
     }
 
     //----------------------------------------------------------------------
+    void D3D11Renderer::_BeginTimeQuery( StringID name )
+    {
+        // Create new query if yet not present
+        if ( not hasGPUTimeQuery( name ) )
+        {
+            D3D11_QUERY_DESC desc{};
+            desc.Query = D3D11_QUERY_TIMESTAMP;
+            g_pDevice->CreateQuery( &desc, &m_timeQueries[name].pQueryStart[0] );
+            g_pDevice->CreateQuery( &desc, &m_timeQueries[name].pQueryStart[1] );
+            g_pDevice->CreateQuery( &desc, &m_timeQueries[name].pQueryEnd[0] );
+            g_pDevice->CreateQuery( &desc, &m_timeQueries[name].pQueryEnd[1] );
+
+            // Needed so _CollectQueries() doesn't hang forever because prev. query is not yet in flight
+            g_pImmediateContext->End( m_timeQueries[name].pQueryStart[(m_frameCount + 1) % 2] );
+            g_pImmediateContext->End( m_timeQueries[name].pQueryEnd[(m_frameCount + 1) % 2] );
+        }
+        g_pImmediateContext->End( m_timeQueries[name].pQueryStart[m_frameCount % 2] );
+    }
+
+    //----------------------------------------------------------------------
+    void D3D11Renderer::_EndTimeQuery( StringID name )
+    {
+        if ( not hasGPUTimeQuery( name ) )
+        {
+            LOG_WARN_RENDERING( "D3D11Renderer::_EndTimeQuery(): _BeginTimeQuery for '%s' must be called first.", name.c_str()  );
+            return;
+        }
+        g_pImmediateContext->End( m_timeQueries[name].pQueryEnd[m_frameCount % 2] );
+    }
+
+    //----------------------------------------------------------------------
     bool D3D11Renderer::_UpdateGlobalBuffer( StringID name, const void* data )
     {
         if (not m_globalBuffer)
@@ -1075,6 +1096,40 @@ namespace Graphics {
         for (auto& res : SHADOW_MAP_ARRAY_RESOURCE_DECLS)
             texArray->bind( res );
         delete texArray;
+    }
+
+    //----------------------------------------------------------------------
+    void D3D11Renderer::_CollectQueries()
+    {
+        if (m_frameCount == 0) // Skip first frame as we don't have any results from prev frame
+            return;
+
+        HRESULT result;
+        D3D11_QUERY_DATA_TIMESTAMP_DISJOINT queryTimestampFreq;
+        do
+        {
+            result = g_pImmediateContext->GetData( m_pQueryDisjoint[(m_frameCount + 1) % 2], &queryTimestampFreq, sizeof(D3D11_QUERY_DATA_TIMESTAMP_DISJOINT), 0 );
+        } while (result != S_OK);
+
+        if (queryTimestampFreq.Disjoint)
+            return;
+
+        for (auto& [name, query] : m_timeQueries)
+        {
+            U64 start, end;
+            do
+            {
+                result = g_pImmediateContext->GetData( query.pQueryStart[(m_frameCount + 1) % 2], &start, sizeof(U64), 0 );
+            } while (result != S_OK);
+
+            do
+            {
+                result = g_pImmediateContext->GetData( query.pQueryEnd[(m_frameCount + 1) % 2], &end, sizeof(U64), 0 );
+            } while (result != S_OK);
+
+            F64 elapsed = static_cast<F64>(end - start);
+            query.elapsed = elapsed / static_cast<F64>(queryTimestampFreq.Frequency) * 1000;
+        }
     }
 
     //**********************************************************************

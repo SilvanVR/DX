@@ -44,6 +44,8 @@ namespace Graphics {
 
         API getAPI() const override { return API::D3D11; }
         CString getAPIName() const override { return "Direct3D11"; }
+        Time::Milliseconds getGPUTimeQuery(StringID name) const override;
+        bool hasGPUTimeQuery(StringID name) const override;
 
         IMesh*              createMesh() override;
         IMaterial*          createMaterial() override;
@@ -70,15 +72,13 @@ namespace Graphics {
         D3D11::MappedConstantBuffer* m_lightBuffer     = nullptr;
         D3D11::MappedConstantBuffer* m_animationBuffer = nullptr;
 
-        ID3D11Query* m_pQueryDisjoint[2];
-
+        ID3D11Query* m_pQueryDisjoint[2]{ nullptr, nullptr };
         struct GPUTimeQuery {
-            StringID           name;
-            Time::Milliseconds elapsed;
-            ID3D11Query*       pQueryStart[2];
-            ID3D11Query*       pQueryEnd[2];
+            Time::Milliseconds elapsed = 0_ms;
+            ID3D11Query*       pQueryStart[2]{ nullptr, nullptr };
+            ID3D11Query*       pQueryEnd[2]{ nullptr, nullptr };
         };
-        ArrayList<GPUTimeQuery> m_timeQueries;
+        HashMap<StringID, GPUTimeQuery> m_timeQueries;
 
         //----------------------------------------------------------------------
         inline void _SetCamera(Camera* camera);
@@ -90,6 +90,8 @@ namespace Graphics {
         inline void _RenderCubemap(ICubemap* cubemap, const MaterialPtr& material, U32 dstMip);
         inline void _Blit(const RenderTexturePtr& src, const RenderTexturePtr& dst, const MaterialPtr& material);
         inline void _DrawFullScreenQuad(const MaterialPtr& material, const D3D11_VIEWPORT& viewport);
+        inline void _BeginTimeQuery(StringID name);
+        inline void _EndTimeQuery(StringID name);
 
         //----------------------------------------------------------------------
         void _InitD3D11();
@@ -103,6 +105,7 @@ namespace Graphics {
         void _CreateCubeMesh();
         void _SetLimits();
         void _CreateAndBindFakeShadowmaps();
+        void _CollectQueries();
 
         void _FlushLightBuffer();
         void _ExecuteCommandBuffer(const CommandBuffer& cmd);

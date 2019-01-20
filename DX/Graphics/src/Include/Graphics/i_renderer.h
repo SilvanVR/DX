@@ -76,6 +76,16 @@ namespace Graphics {
         virtual CString getAPIName() const = 0;
 
         //----------------------------------------------------------------------
+        // @Return: Whether a time query for the given name exists.
+        //----------------------------------------------------------------------
+        virtual bool hasGPUTimeQuery(StringID name) const = 0;
+
+        //----------------------------------------------------------------------
+        // @Return: Time for the given query name.
+        //----------------------------------------------------------------------
+        virtual Time::Milliseconds getGPUTimeQuery(StringID name) const = 0;
+
+        //----------------------------------------------------------------------
         virtual IMesh*              createMesh() = 0;
         virtual IMaterial*          createMaterial() = 0;
         virtual IShader*            createShader() = 0;

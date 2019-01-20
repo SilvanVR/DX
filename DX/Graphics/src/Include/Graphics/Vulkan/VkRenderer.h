@@ -42,6 +42,8 @@ namespace Graphics {
 
         API getAPI() const override { return API::Vulkan; }
         CString getAPIName() const override { return "Vulkan"; }
+        Time::Milliseconds getGPUTimeQuery(StringID name) const override;
+        bool hasGPUTimeQuery(StringID name) const override;
 
         IMesh*              createMesh() override;
         IMaterial*          createMaterial() override;

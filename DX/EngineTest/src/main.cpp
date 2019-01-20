@@ -83,6 +83,9 @@ public:
             cam->setSuperSampling(ss);
             LOG("Screen-Res Mod: %f", ss);
         }
+
+        Time::Milliseconds t = RENDERER.getGPUTimeQuery(SID("Camera#0"));
+        LOG("Draw-Time: %fms", t.value);
     }
 
     void shutdown() override {}
@@ -105,8 +108,8 @@ public:
         createGameObject("Cube")->addComponent<Components::MeshRenderer>(cubeMesh, ASSETS.getErrorMaterial());
 
         auto guiSceneMenu = gui->addComponent<GUISceneMenu>("Scenes");
-        guiSceneMenu->registerScene<AnimationTestScene2>("Animation Test Scene 2");
-        guiSceneMenu->registerScene<AnimationTestScene>("Animation Test Scene");
+        guiSceneMenu->registerScene<AnimationTestScene2>("Animation Test Scene 2 (D3D11 only)");
+        guiSceneMenu->registerScene<AnimationTestScene>("Animation Test Scene (D3D11 only)");
         guiSceneMenu->registerScene<SceneGUIThesisScenesMenu>("Thesis Test Scenes");
         guiSceneMenu->registerScene<TestScene>("Test Scene");
         guiSceneMenu->registerScene<SceneSplines>("Catmull-Rom Spline");

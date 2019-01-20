@@ -16,6 +16,7 @@
 
 namespace Core {
 
+
     //**********************************************************************
     // PUBLIC
     //**********************************************************************
@@ -23,20 +24,32 @@ namespace Core {
     //----------------------------------------------------------------------
     void RenderSystem::execute()
     {
-        auto& renderer = Locator::getRenderer();
+        static const StringID CAMERA_NAMES[] = {
+          SID("Camera#0"), SID("Camera#1"), SID("Camera#2"), SID("Camera#3"), SID("Camera#4"),
+          SID("Camera#5"), SID("Camera#6"), SID("Camera#7"), SID("Camera#8"),
+        };
 
         // List of lights which rendered a shadowmap this frame. This is needed in order to prevent
         // a shadowmap rendered from a light multiple times (because more than one camera renders the same light)
         static std::unordered_set<Components::ILightComponent*> shadowMapsRendered;
         static ArrayList<Components::ILightComponent*> visibleLights;
 
+        // Clear data structures (memory is still allocated for them)
         shadowMapsRendered.clear();
         visibleLights.clear();
 
-        // Render each camera
-        auto& scene = Locator::getSceneManager().getCurrentScene();
-        for (Components::Camera* cam : scene.getComponentManager().getCameras())
+        Graphics::Limits limits = Locator::getRenderer().getLimits();
+
+        // Render scene for each camera
+        IScene& scene = Locator::getSceneManager().getCurrentScene();
+        const ArrayList<Components::Camera*>           cameras            = scene.getComponentManager().getCameras();
+        const ArrayList<Components::ILightComponent*>  lights             = scene.getComponentManager().getLights();
+        const ArrayList<Components::IRenderComponent*> rendererComponents = scene.getComponentManager().getRenderer();
+        for (U32 i = 0; i < cameras.size(); i++)
         {
+            if ( i >= countof(CAMERA_NAMES) ) LOG_ERROR( "Too many cameras in the scene." );
+
+            Components::Camera* cam = cameras[i];
             if ( not cam->isActive() )
                 continue;
 
@@ -48,14 +61,15 @@ namespace Core {
             cam->m_camera.setModelMatrix( modelMatrix );
 
             // Set camera
-            Graphics::CommandBuffer& cmd = cam->m_cmd;
-            cmd.reset();
+            Graphics::CommandBuffer cmd;
+
+            cmd.beginTimeQuery( CAMERA_NAMES[i] );
             cmd.setCamera( cam->m_camera );
 
             // Lights
             {
                 // Record commands for every light component
-                for ( auto& light : scene.getComponentManager().getLights() )
+                for ( Components::ILightComponent* light : lights )
                 {
                     if ( not light->isActive() )
                         continue;
@@ -86,7 +100,7 @@ namespace Core {
                     light->recordGraphicsCommands( cmd );
 
                     // Draw shadowmap if enabled and we are still under the limit
-                    if ( light->shadowsEnabled() && (shadowMapsRendered.size() < renderer.getLimits().maxShadowmaps) )
+                    if ( light->shadowsEnabled() && (shadowMapsRendered.size() < limits.maxShadowmaps) )
                     {
                         // This prevents rendering of a shadowmap multiple times per frame (because the light is rendered by >1 cameras)
                         if ( shadowMapsRendered.find( light ) == shadowMapsRendered.end() )
@@ -97,27 +111,27 @@ namespace Core {
                     }
 
                     lightsDrawn++;
-                    if (lightsDrawn == renderer.getLimits().maxLights)
+                    if (lightsDrawn == limits.maxLights)
                         break;
                 }
             }
 
             // Rendering components (e.g. mesh-renderer)
             {
-                for ( auto& renderer : scene.getComponentManager().getRenderer() )
+                for ( Components::IRenderComponent* rc : rendererComponents )
                 {
-                    if ( not renderer->isActive() )
+                    if ( not rc->isActive() )
                         continue;
 
                     // Check if layer matches
-                    bool layerMatch = cam->m_cullingMask & renderer->getGameObject()->getLayerMask();
+                    bool layerMatch = cam->m_cullingMask & rc->getGameObject()->getLayerMask();
                     if ( not layerMatch )
                         continue;
 
                     // Check if component is visible
-                    bool isVisible = renderer->cull( cam->m_camera );
+                    bool isVisible = rc->cull( cam->m_camera );
                     if (isVisible)
-                        renderer->recordGraphicsCommands( cmd );
+                        rc->recordGraphicsCommands( cmd );
                 }
             }
 
@@ -146,8 +160,10 @@ namespace Core {
             // Add an end camera command
             cmd.endCamera();
 
+            cmd.endTimeQuery( CAMERA_NAMES[i] );
+
             // Submit command buffer to render engine
-            renderer.dispatch( cmd );
+            Locator::getRenderer().dispatch( std::move(cmd) );
         }
     }
 

@@ -151,11 +151,11 @@ namespace Logging {
         {
             char buffer[512]{};
             va_list args;
-            va_start(args, str);
-            vsnprintf(buffer, 512, str, args);
-            va_end(args);
+            va_start( args, str );
+            vsnprintf( buffer, 512, str, args );
+            va_end( args );
 
-            _Log(channel, buffer, m_defaultColor);
+            _Log( channel, buffer, m_defaultColor );
         };
 
         //----------------------------------------------------------------------
@@ -166,11 +166,35 @@ namespace Logging {
         }
 
         //----------------------------------------------------------------------
+        void warn(ELogChannel channel, CString str, ...)
+        {
+            char buffer[512]{};
+            va_list args;
+            va_start( args, str );
+            vsnprintf( buffer, 512, str, args );
+            va_end( args );
+
+            _Warn( channel, buffer, ELogLevel::VERY_IMPORTANT );
+        };
+
+        //----------------------------------------------------------------------
         template <typename T>
         void error(ELogChannel channel, T num, ELogLevel logLevel = ELogLevel::VERY_IMPORTANT)
         {
             _Error( channel, TS( num ).c_str(), logLevel );
         }
+
+        //----------------------------------------------------------------------
+        void error(ELogChannel channel, CString str, ...)
+        {
+            char buffer[512]{};
+            va_list args;
+            va_start( args, str );
+            vsnprintf( buffer, 512, str, args );
+            va_end( args );
+
+            _Error( channel, buffer, ELogLevel::VERY_IMPORTANT );
+        };
 
         //----------------------------------------------------------------------
         // TEMPLATE SPECIALIZATIONS
