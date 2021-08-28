@@ -12,5 +12,5 @@ Features:
  
  Demo Link: https://www.youtube.com/watch?v=mPuofGVFb9E
  
- ![Alt text](/DX Engine.png?raw=true "")
- ![Alt text](/DX Engine MC.png?raw=true "")
+ ![Alt text](/screen0.png?raw=true "")
+ ![Alt text](/screen1.png?raw=true "")
